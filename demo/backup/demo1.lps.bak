@@ -19,7 +19,8 @@
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmdemo1"/>
         <ResourceBaseClass Value="Form"/>
-        <IsVisibleTab Value="True"/>
+        <TopLine Value="50"/>
+        <CursorPos X="123" Y="56"/>
         <UsageCount Value="20"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -27,16 +28,143 @@
       <Unit>
         <Filename Value="..\chatgpt.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="-1"/>
-        <WindowIndex Value="-1"/>
-        <TopLine Value="-1"/>
-        <CursorPos X="-1" Y="-1"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="38"/>
+        <CursorPos Y="50"/>
         <UsageCount Value="20"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="C:\fpcupdeluxe\config_lazarus\onlinepackagemanager\packages\Indy10\Protocols\IdHTTP.pas"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="2423"/>
+        <CursorPos Y="2453"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
     </Units>
-    <JumpHistory>
+    <JumpHistory HistoryIndex="29">
       <Position>
-        <Filename Value="main.pas"/>
+        <Filename Value="..\chatgpt.pas"/>
+        <Caret Line="49" TopLine="37"/>
+      </Position>
+      <Position>
+        <Filename Value="..\chatgpt.pas"/>
+        <Caret Line="50" TopLine="37"/>
+      </Position>
+      <Position>
+        <Filename Value="..\chatgpt.pas"/>
+        <Caret Line="52" TopLine="37"/>
+      </Position>
+      <Position>
+        <Filename Value="..\chatgpt.pas"/>
+        <Caret Line="51" Column="34" TopLine="39"/>
+      </Position>
+      <Position>
+        <Filename Value="..\chatgpt.pas"/>
+        <Caret Line="120" TopLine="108"/>
+      </Position>
+      <Position>
+        <Filename Value="..\chatgpt.pas"/>
+        <Caret Line="121" TopLine="108"/>
+      </Position>
+      <Position>
+        <Filename Value="..\chatgpt.pas"/>
+        <Caret Line="49" TopLine="37"/>
+      </Position>
+      <Position>
+        <Filename Value="..\chatgpt.pas"/>
+        <Caret Line="71" TopLine="53"/>
+      </Position>
+      <Position>
+        <Filename Value="..\chatgpt.pas"/>
+        <Caret Line="129" TopLine="116"/>
+      </Position>
+      <Position>
+        <Filename Value="..\chatgpt.pas"/>
+        <Caret Line="50" TopLine="38"/>
+      </Position>
+      <Position>
+        <Filename Value="..\chatgpt.pas"/>
+        <Caret Line="53" TopLine="38"/>
+      </Position>
+      <Position>
+        <Filename Value="..\chatgpt.pas"/>
+        <Caret Line="52" Column="3" TopLine="38"/>
+      </Position>
+      <Position>
+        <Filename Value="..\chatgpt.pas"/>
+        <Caret Line="129" TopLine="117"/>
+      </Position>
+      <Position>
+        <Filename Value="..\chatgpt.pas"/>
+        <Caret Line="130" TopLine="117"/>
+      </Position>
+      <Position>
+        <Filename Value="..\chatgpt.pas"/>
+        <Caret Line="131" TopLine="117"/>
+      </Position>
+      <Position>
+        <Filename Value="..\chatgpt.pas"/>
+        <Caret Line="120" TopLine="117"/>
+      </Position>
+      <Position>
+        <Filename Value="..\chatgpt.pas"/>
+        <Caret Line="132" TopLine="116"/>
+      </Position>
+      <Position>
+        <Filename Value="..\chatgpt.pas"/>
+        <Caret Line="133" TopLine="116"/>
+      </Position>
+      <Position>
+        <Filename Value="..\chatgpt.pas"/>
+        <Caret Line="134" TopLine="116"/>
+      </Position>
+      <Position>
+        <Filename Value="..\chatgpt.pas"/>
+        <Caret Line="50" TopLine="38"/>
+      </Position>
+      <Position>
+        <Filename Value="..\chatgpt.pas"/>
+        <Caret Line="52" TopLine="41"/>
+      </Position>
+      <Position>
+        <Filename Value="..\chatgpt.pas"/>
+        <Caret Line="54" TopLine="41"/>
+      </Position>
+      <Position>
+        <Filename Value="..\chatgpt.pas"/>
+        <Caret Line="55" TopLine="41"/>
+      </Position>
+      <Position>
+        <Filename Value="..\chatgpt.pas"/>
+        <Caret Line="56" TopLine="41"/>
+      </Position>
+      <Position>
+        <Filename Value="..\chatgpt.pas"/>
+        <Caret Line="59" TopLine="41"/>
+      </Position>
+      <Position>
+        <Filename Value="..\chatgpt.pas"/>
+        <Caret Line="63" TopLine="44"/>
+      </Position>
+      <Position>
+        <Filename Value="..\chatgpt.pas"/>
+        <Caret Line="66" TopLine="47"/>
+      </Position>
+      <Position>
+        <Filename Value="..\chatgpt.pas"/>
+        <Caret Line="61" Column="45" TopLine="45"/>
+      </Position>
+      <Position>
+        <Filename Value="..\chatgpt.pas"/>
+        <Caret Line="58" Column="12" TopLine="47"/>
+      </Position>
+      <Position>
+        <Filename Value="..\chatgpt.pas"/>
+        <Caret Line="121" TopLine="110"/>
       </Position>
     </JumpHistory>
     <RunParams>
@@ -44,4 +172,15 @@
       <Modes ActiveMode=""/>
     </RunParams>
   </ProjectSession>
+  <Debugging>
+    <BreakPoints>
+      <Item>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="..\chatgpt.pas"/>
+        <Line Value="50"/>
+      </Item>
+    </BreakPoints>
+  </Debugging>
 </CONFIG>

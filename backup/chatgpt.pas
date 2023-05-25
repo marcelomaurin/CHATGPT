@@ -55,7 +55,7 @@ begin
   IdHTTP1.IOHandler := IdSSLIOHandler;
   try
     // Configurar outras opções do TIdHTTP, se necessário
-    IdHTTP1.HandleRedirects := True;
+    dHTTP1.HandleRedirects := True;
     // Defina o cabeçalho Content-Type como application/json
     IdHTTP1.Request.ContentType := 'application/json';
     IdHTTP1.Request.UserAgent := 'MAURINSOFT/1.0';
