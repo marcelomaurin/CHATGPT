@@ -20,6 +20,7 @@ uses
     FQuestion : String;
     FResponse : String;
     FTipoChat : TVersionChat;
+    FIdHTTP1 : TIdHTTP;
     function RequestJson(URL : String; token : string ; JSON : string) : String;
     function EncodeURLElement(const AValue: string): string;
   public
@@ -27,6 +28,7 @@ uses
     property Question : String read FQuestion;
     property Response : String read FResponse write FResponse;
     property TipoChat : TVersionChat read FTipoChat;
+    property IdHTTP : TIdHTTP read FIdHTTP1 write FIdHTTP1;
     function SendQuestion( ASK : String) : boolean;
 
     constructor create(Tipo : TVersionChat);
@@ -42,37 +44,49 @@ function TCHATGPT.RequestJson(URL: String; token : string ;JSON: String): String
 var
   RequestBody: TStringStream;
   Resp: string;
-  IdHTTP1 : TIdHTTP;
+  //FIdHTTP1 : TIdHTTP;
   IdSSLIOHandler: TIdSSLIOHandlerSocketOpenSSL;
 begin
   Resp := '';
    // Crie um TStringStream contendo o JSON
   RequestBody := TStringStream.Create(JSON, TEncoding.UTF8);
 
-  IdHTTP1 := TIdHTTP.Create(nil);
+  //IdHTTP1 := TIdHTTP.Create(nil);
   // Crie e configure o TIdSSLIOHandlerSocketOpenSSL
-  IdSSLIOHandler := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
-  IdHTTP1.IOHandler := IdSSLIOHandler;
+
+  //IdSSLIOHandler := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
+  //IdSSLIOHandler.SSLOptions.SSLVersions := [sslvTLSv1, sslvTLSv1_1, sslvTLSv1_2]; // Versões SSL/TLS suportadas
+  //IdSSLIOHandler.SSLOptions.Mode := sslmClient; // Modo de conexão SSL
+  //IdSSLIOHandler.SSLOptions.VerifyMode := []; // Modo de verificação do certificado (opcional)
+  //IdSSLIOHandler.SSLOptions.VerifyDepth := 0; // Nível de profundidade de verificação do certificado (opcional)
+
+  // Defina o caminho da DLL SSL
+  //IdSSLIOHandler.SSLOptions.RootCertFile := ExtractFilePath(ApplicationName)+'libssl.dll'; // Substitua pelo caminho correto
+  // Defina o caminho da biblioteca libcrypto.dll
+  //IdSSLIOHandler.SSLOptions. LibraryName := ExtractFilePath(ApplicationName)+'libcript.dll'; // Substitua pelo caminho correto
+
+
+  //IdHTTP1.IOHandler := IdSSLIOHandler;
   try
     // Configurar outras opções do TIdHTTP, se necessário
-    dHTTP1.HandleRedirects := True;
+    FIdHTTP1.HandleRedirects := True;
     // Defina o cabeçalho Content-Type como application/json
-    IdHTTP1.Request.ContentType := 'application/json';
-    IdHTTP1.Request.UserAgent := 'MAURINSOFT/1.0';
+    FIdHTTP1.Request.ContentType := 'application/json';
+    FIdHTTP1.Request.UserAgent := 'MAURINSOFT/1.0';
 
     // Adicione o header personalizado
     //Authorization: Bearer %s", TOCKENChat
-    IdHTTP1.Request.CustomHeaders.Add('Authorization: Bearer '+token);
+    FIdHTTP1.Request.CustomHeaders.Add('Authorization: Bearer '+token);
 
     // Envie o POST com o JSON no corpo da solicitação
-    Resp := IdHTTP1.Post(URL, RequestBody);
+    Resp := FIdHTTP1.Post(URL, RequestBody);
 
     // Faça algo com a resposta
     //ShowMessage(Response);
   finally
     RequestBody.Free;
     // Libere a memória dos objetos criados
-    IdHTTP1.Free;
+    //FIdHTTP1.Free;
     IdSSLIOHandler.Free;
   end;
   result := Resp;
