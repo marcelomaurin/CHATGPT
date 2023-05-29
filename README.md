@@ -3,10 +3,10 @@ Lazarus component for CHATGPT
 
 Simple Script for Lazarus
 
-uses ...,chatgpt;
+uses ...,chatgpt;<br/>
 
-Var
-  FChatgpt : TCHATGPT;
+Var<br/>
+  FChatgpt : TCHATGPT;<br/>
   
   
 Begin
