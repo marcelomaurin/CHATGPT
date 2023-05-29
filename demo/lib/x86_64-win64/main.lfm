@@ -9,7 +9,7 @@ object frmdemo1: Tfrmdemo1
   DesignTimePPI = 120
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  LCLVersion = '2.2.6.0'
+  LCLVersion = '2.3.0.0'
   object Panel1: TPanel
     Left = 0
     Height = 88
@@ -33,7 +33,6 @@ object frmdemo1: Tfrmdemo1
       Top = 44
       Width = 413
       TabOrder = 0
-      Text = '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'
     end
     object btRegistry: TButton
       Left = 456
@@ -93,35 +92,5 @@ object frmdemo1: Tfrmdemo1
       Text = 'Count 1 to 10 '
       TextHint = 'Ask for ChatGPT'
     end
-  end
-  object IdHTTP1: TIdHTTP
-    IOHandler = IdSSLIOHandlerSocketOpenSSL1
-    ProxyParams.BasicAuthentication = False
-    ProxyParams.ProxyPort = 0
-    Request.ContentLength = -1
-    Request.ContentRangeEnd = -1
-    Request.ContentRangeStart = -1
-    Request.ContentRangeInstanceLength = -1
-    Request.Accept = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-    Request.BasicAuthentication = False
-    Request.UserAgent = 'Mozilla/3.0 (compatible; Indy Library)'
-    Request.Ranges.Units = 'bytes'
-    Request.Ranges = <>
-    HTTPOptions = [hoForceEncodeParams]
-    Left = 613
-    Top = 49
-  end
-  object IdSSLIOHandlerSocketOpenSSL1: TIdSSLIOHandlerSocketOpenSSL
-    MaxLineAction = maException
-    Port = 0
-    DefaultPort = 0
-    SSLOptions.Method = sslvSSLv23
-    SSLOptions.SSLVersions = [sslvSSLv2, sslvSSLv3, sslvTLSv1, sslvTLSv1_1, sslvTLSv1_2]
-    SSLOptions.Mode = sslmClient
-    SSLOptions.VerifyMode = []
-    SSLOptions.VerifyDepth = 0
-    SSLOptions.VerifyDirs = 'C:\Users\marcelo.maurin\Documents\maurinsoft\CHATGPT\'
-    Left = 696
-    Top = 49
   end
 end

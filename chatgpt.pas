@@ -5,33 +5,32 @@ unit chatgpt;
 interface
 
 uses
-  Classes, SysUtils, LazUTF8, IdHTTP, IdSSLOpenSSL;
-
-
+  Classes, SysUtils, LazUTF8, fpjson, jsonparser,
+  fphttpclient, opensslsockets;
 
 { TCHATGPT }
 
  type TVersionChat = (VCT_GPT35TURBO, VCT_GPT40 );
 
  //Class to do connect with chatgpt
- type  TCHATGPT = class(TObject)
+ type  TCHATGPT = class(TComponent)
   private
     FToken : String; //private variable to use chatgp
     FQuestion : String;
     FResponse : String;
     FTipoChat : TVersionChat;
-    FIdHTTP1 : TIdHTTP;
-    function RequestJson(URL : String; token : string ; JSON : string) : String;
-    function EncodeURLElement(const AValue: string): string;
+    FParams: TStrings;
+    function RequestJson(LURL : String; token : string ; ASK : string) : String;
+    function PegaMensagem(const JSON: string): string;
+    //function RequestJson2(LURL: string; token: string; JSON: string): string;
   public
     property TOKEN : String read FToken write FToken; //property to access chatgpt
     property Question : String read FQuestion;
     property Response : String read FResponse write FResponse;
     property TipoChat : TVersionChat read FTipoChat;
-    property IdHTTP : TIdHTTP read FIdHTTP1 write FIdHTTP1;
     function SendQuestion( ASK : String) : boolean;
 
-    constructor create(Tipo : TVersionChat);
+    constructor create(AOwner: TComponent); override;
     destructor Destroy;
 
 end;
@@ -39,127 +38,151 @@ end;
 implementation
 
 { TCHATGPT }
+(*
+function TCHATGPT.RequestJson2(LURL: string; token: string; JSON: string): string;
 
-function TCHATGPT.RequestJson(URL: String; token : string ;JSON: String): String;
 var
-  RequestBody: TStringStream;
-  Resp: string;
-  //FIdHTTP1 : TIdHTTP;
-  IdSSLIOHandler: TIdSSLIOHandlerSocketOpenSSL;
+  ClienteHTTP: THTTPClient;
+  Dados: TStringStream;
+  Resposta: string;
 begin
-  Resp := '';
-   // Crie um TStringStream contendo o JSON
-  RequestBody := TStringStream.Create(JSON, TEncoding.UTF8);
-
-  //IdHTTP1 := TIdHTTP.Create(nil);
-  // Crie e configure o TIdSSLIOHandlerSocketOpenSSL
-
-  //IdSSLIOHandler := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
-  //IdSSLIOHandler.SSLOptions.SSLVersions := [sslvTLSv1, sslvTLSv1_1, sslvTLSv1_2]; // Versões SSL/TLS suportadas
-  //IdSSLIOHandler.SSLOptions.Mode := sslmClient; // Modo de conexão SSL
-  //IdSSLIOHandler.SSLOptions.VerifyMode := []; // Modo de verificação do certificado (opcional)
-  //IdSSLIOHandler.SSLOptions.VerifyDepth := 0; // Nível de profundidade de verificação do certificado (opcional)
-
-  // Defina o caminho da DLL SSL
-  //IdSSLIOHandler.SSLOptions.RootCertFile := ExtractFilePath(ApplicationName)+'libssl.dll'; // Substitua pelo caminho correto
-  // Defina o caminho da biblioteca libcrypto.dll
-  //IdSSLIOHandler.SSLOptions. LibraryName := ExtractFilePath(ApplicationName)+'libcript.dll'; // Substitua pelo caminho correto
-
-
-  //IdHTTP1.IOHandler := IdSSLIOHandler;
+  Resposta := '';
+  ClienteHTTP := THTTPClient.Create;
   try
-    // Configurar outras opções do TIdHTTP, se necessário
-    FIdHTTP1.HandleRedirects := True;
-    // Defina o cabeçalho Content-Type como application/json
-    FIdHTTP1.Request.ContentType := 'application/json';
-    FIdHTTP1.Request.UserAgent := 'MAURINSOFT/1.0';
+    Dados := TStringStream.Create(JSON);
+    try
+      ClienteHTTP.RequestHeaders['Content-Type'] := 'application/json';
+      ClienteHTTP.RequestHeaders['Authorization'] := 'Bearer ' + token;
 
-    // Adicione o header personalizado
-    //Authorization: Bearer %s", TOCKENChat
-    FIdHTTP1.Request.CustomHeaders.Add('Authorization: Bearer '+token);
+      ClienteHTTP.Post(LURL, Dados);
 
-    // Envie o POST com o JSON no corpo da solicitação
-    Resp := FIdHTTP1.Post(URL, RequestBody);
-
-    // Faça algo com a resposta
-    //ShowMessage(Response);
+      Resposta := ClienteHTTP.ResponseText;
+    finally
+      Dados.Free;
+    end;
   finally
-    RequestBody.Free;
-    // Libere a memória dos objetos criados
-    //FIdHTTP1.Free;
-    //IdSSLIOHandler.Free;
+    ClienteHTTP.Free;
   end;
-  result := Resp;
 
+  Result := Resposta;
 end;
+    *)
 
-function TCHATGPT.EncodeURLElement(const AValue: string): string;
-const
-  HexChars = '0123456789ABCDEF';
+
+function TCHATGPT.PegaMensagem(const JSON: string): string;
 var
-  Source: PAnsiChar;
-  Dest: PAnsiChar;
-  CharCode: Byte;
+  Data: TJSONData;
+  JsonObject: TJSONObject;
 begin
-  SetLength(Result, Length(AValue) * 3);
-  Source := PAnsiChar(AValue);
-  Dest := PAnsiChar(Result);
-  while Source^ <> #0 do
-  begin
-    if Source^ in ['A'..'Z', 'a'..'z', '0'..'9', '-', '_', '.', '~'] then
+  // Cria um objeto TJSONData a partir da string JSON
+  Data := GetJSON(JSON);
+
+  try
+    // Verifica se o objeto é um TJSONObject
+    if Data is TJSONObject then
     begin
-      Dest^ := AnsiChar(Source^);
-      Inc(Dest);
-    end
-    else if Source^ = ' ' then
-    begin
-      Dest^ := '%';
-      Inc(Dest);
-      Dest^ := '2';
-      Inc(Dest);
-      Dest^ := '0';
-      Inc(Dest);
+      // Converte o objeto para um TJSONObject
+      JsonObject := TJSONObject(Data);
+
+      // Obtém o valor do campo "message"
+      Result := JsonObject.GetPath('choices[0].message.content').AsString;
     end
     else
     begin
-      CharCode := Ord(Source^);
-      Dest^ := '%';
-      Inc(Dest);
-      Dest^ := HexChars[(CharCode shr 4) + 1];
-      Inc(Dest);
-      Dest^ := HexChars[(CharCode and $F) + 1];
-      Inc(Dest);
+      // Objeto JSON inválido, retorna uma string vazia ou lança uma exceção, conforme necessário
+      Result := '';
     end;
-    Inc(Source);
+  finally
+    Data.Free; // Libera a memória do objeto TJSONData
   end;
-  SetLength(Result, Dest - PAnsiChar(Result));
 end;
 
+function TCHATGPT.RequestJson(LURL: string; token: string; ASK: string): string;
+
+var
+  ClienteHTTP: TFPHttpClient;
+  Resposta : AnsiString;
+  LResponse: TStringStream;
+  formulario : string;
+  Params: string;
+begin
+  //Resposta := '';
+  Formulario := '' ;
+  params :=  '{ "model": "gpt-3.5-turbo", "messages": [{"role": "user", "content": "'+ASK +'"}]  }';
+  ClienteHTTP := TFPHttpClient.Create(nil);
+  try
+    LResponse := TStringStream.Create('');
+    ClienteHTTP.AddHeader('Content-Type', 'application/json;');
+    ClienteHTTP.AddHeader('Authorization',' Bearer ' + EncodeURLElement(token));
+    ClienteHTTP.RequestBody := TRawByteStringStream.Create(Params);
+    try
+            //resposta:= ClienteHTTP.SimpleFormPost(LURL, formulario);
+            resposta:=  ClienteHTTP.Post(LURL);
+     except on E: Exception do
+            //Writeln('Something bad happened: ' + E.Message);
+            //Resposta.read;
+     end;
+  finally
+
+      (*
+      {"id":"chatcmpl-7Lcq4Pi5m9sGZBLbH0VoXR0GOjgkh",
+      "object":"chat.completion","created":1685388540,
+      "model":"gpt-3.5-turbo-0301","usage":{"prompt_tokens":15,"completion_tokens":29,"total_tokens":44},"choices":[{"message":{"role":"assistant","content":"1, 2, 3, 4, 5, 6, 7, 8, 9, 10."},"finish_reason":"stop","index":0}]}
+      *)
+
+      Result := PegaMensagem(resposta);
+      ClienteHTTP.RequestBody.Free;
+      ClienteHTTP.Free;
+
+
+      //Resposta.Free;
+
+  end;
+
+
+      //Resposta := ClienteHTTP.ResponseText;
+      //Resposta:= ClienteHTTP.Get(LURL);
+    //finally
+    //  Dados.Free;
+   // end;
+  //finally
+  //  ClienteHTTP.Free;
+
+
+
+end;
 
 function TCHATGPT.SendQuestion(ASK: String): boolean;
 var
-  URL : String;
+  LURL : String;
   JSON : String;
-  ASKENCODE : String;
+
   resposta : boolean;
 begin
      resposta := false;
-     ASKENCODE := EncodeURLElement(ConsoleToUTF8(ASK));
-     URL := 'https://api.openai.com/v1/chat/completions';
-     JSON := '{"model": "gpt-3.5-turbo", "messages": [{"role": "user", "content": "'+ASKENCODE+'"}]}';
-     Response := RequestJson(URL, FToken, JSON);
+
+     LURL := 'https://api.openai.com/v1/chat/completions';
+     //JSON := EncodeURLElement('{"model": "gpt-3.5-turbo", "messages": [{"role": "user", "content": "'+ASK+'"}]}');
+     FResponse := RequestJson(LURL, FToken, ASK);
+     //FResponse := RequestJson2(LURL, FToken, JSON);
      result := resposta;
 end;
 
 //Class Constructor
-constructor TCHATGPT.create(Tipo : TVersionChat);
+constructor TCHATGPT.create(AOwner: TComponent);
+
 begin
-     FTipoChat:= Tipo;
+  inherited Create(AOwner);
+  FTipoChat:= VCT_GPT35TURBO;
+  //HTTPSend.Sock.SSL.SSLType := LT_TLSv1;
+  //Self.IsUTF8 := False;
+  FParams := TStringList.Create;
 end;
 
 destructor TCHATGPT.Destroy;
 begin
-  //not yet
+    FParams.Free;
+  inherited; 
 end;
 
 end.

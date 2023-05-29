@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  chatgpt, IdHTTP, IdSSLOpenSSL;
+  chatgpt;
 
 type
 
@@ -17,8 +17,6 @@ type
     btRegistry: TButton;
     edASK: TEdit;
     edToken: TEdit;
-    IdHTTP1: TIdHTTP;
-    IdSSLIOHandlerSocketOpenSSL1: TIdSSLIOHandlerSocketOpenSSL;
     Label1: TLabel;
     meConversation: TMemo;
     Panel1: TPanel;
@@ -48,8 +46,8 @@ implementation
 
 procedure Tfrmdemo1.FormCreate(Sender: TObject);
 begin
-  FChatgpt := TChatgpt.create(VCT_GPT35TURBO);
-  FChatgpt.IdHTTP := IdHTTP1;
+  FChatgpt := TChatgpt.create(self);
+  //FChatgpt.IdHTTP := IdHTTP1;
 end;
 
 procedure Tfrmdemo1.btRegistryClick(Sender: TObject);
@@ -77,7 +75,9 @@ end;
 
 procedure Tfrmdemo1.CallASK;
 begin
+  FChatgpt.TOKEN:= edToken.text;
   FChatgpt.SendQuestion(edASK.text);
+  meConversation.Lines.Append( FChatgpt.Response);
 end;
 
 end.
