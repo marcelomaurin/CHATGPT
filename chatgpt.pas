@@ -130,7 +130,7 @@ begin
       "model":"gpt-3.5-turbo-0301","usage":{"prompt_tokens":15,"completion_tokens":29,"total_tokens":44},"choices":[{"message":{"role":"assistant","content":"1, 2, 3, 4, 5, 6, 7, 8, 9, 10."},"finish_reason":"stop","index":0}]}
       *)
 
-      Result := PegaMensagem(resposta);
+      Result := resposta;
       ClienteHTTP.RequestBody.Free;
       ClienteHTTP.Free;
 
@@ -156,14 +156,21 @@ function TCHATGPT.SendQuestion(ASK: String): boolean;
 var
   LURL : String;
   JSON : String;
-
+  AUX : String;
   resposta : boolean;
 begin
      resposta := false;
 
      LURL := 'https://api.openai.com/v1/chat/completions';
      //JSON := EncodeURLElement('{"model": "gpt-3.5-turbo", "messages": [{"role": "user", "content": "'+ASK+'"}]}');
-     FResponse := RequestJson(LURL, FToken, ASK);
+
+     AUX := RequestJson(LURL, FToken, EncodeURLElement(ASK));
+     try
+       FResponse := PegaMensagem(AUX);
+     except
+       FResponse := AUX
+     end;
+
      //FResponse := RequestJson2(LURL, FToken, JSON);
      result := resposta;
 end;
@@ -182,7 +189,7 @@ end;
 destructor TCHATGPT.Destroy;
 begin
     FParams.Free;
-  inherited; 
+  inherited;
 end;
 
 end.

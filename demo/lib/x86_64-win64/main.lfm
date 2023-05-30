@@ -30,7 +30,7 @@ object frmdemo1: Tfrmdemo1
     object edToken: TEdit
       Left = 25
       Height = 28
-      Top = 44
+      Top = 43
       Width = 413
       TabOrder = 0
     end

@@ -20,10 +20,8 @@
         <ComponentName Value="frmdemo1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="7"/>
-        <TopLine Value="61"/>
-        <CursorPos Y="81"/>
+        <CursorPos X="21" Y="63"/>
         <UsageCount Value="40"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -31,8 +29,10 @@
       <Unit>
         <Filename Value="..\chatgpt.pas"/>
         <IsPartOfProject Value="True"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="3"/>
-        <CursorPos X="24" Y="9"/>
+        <TopLine Value="173"/>
+        <CursorPos Y="196"/>
         <UsageCount Value="40"/>
         <Loaded Value="True"/>
       </Unit>
@@ -78,7 +78,7 @@
         <Filename Value="C:\fpcupdeluxe\fpcsrc\packages\fcl-web\src\base\fphttpclient.pp"/>
         <TopLine Value="226"/>
         <CursorPos X="15" Y="224"/>
-        <UsageCount Value="12"/>
+        <UsageCount Value="13"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
@@ -106,18 +106,6 @@
       </Unit>
     </Units>
     <JumpHistory HistoryIndex="29">
-      <Position>
-        <Filename Value="..\chatgpt.pas"/>
-        <Caret Line="88" TopLine="76"/>
-      </Position>
-      <Position>
-        <Filename Value="main.pas"/>
-        <Caret Line="81" TopLine="61"/>
-      </Position>
-      <Position>
-        <Filename Value="..\chatgpt.pas"/>
-        <Caret Line="70" Column="30" TopLine="69"/>
-      </Position>
       <Position>
         <Filename Value="..\chatgpt.pas"/>
       </Position>
@@ -224,6 +212,18 @@
       <Position>
         <Filename Value="..\chatgpt.pas"/>
         <Caret Line="8" Column="57"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="63" Column="21"/>
+      </Position>
+      <Position>
+        <Filename Value="..\chatgpt.pas"/>
+        <Caret Line="4" Column="35"/>
+      </Position>
+      <Position>
+        <Filename Value="..\chatgpt.pas"/>
+        <Caret Line="171" Column="25" TopLine="166"/>
       </Position>
     </JumpHistory>
     <RunParams>

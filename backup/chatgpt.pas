@@ -5,7 +5,7 @@ unit chatgpt;
 interface
 
 uses
-  Classes, SysUtils, LazUTF8, fpjson, jsonparser, fpjson,
+  Classes, SysUtils, LazUTF8, fpjson, jsonparser,
   fphttpclient, opensslsockets;
 
 { TCHATGPT }

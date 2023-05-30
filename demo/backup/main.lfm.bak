@@ -30,10 +30,10 @@ object frmdemo1: Tfrmdemo1
     object edToken: TEdit
       Left = 25
       Height = 28
-      Top = 44
+      Top = 43
       Width = 413
       TabOrder = 0
-      Text = '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'
+      Text = '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'
     end
     object btRegistry: TButton
       Left = 456
