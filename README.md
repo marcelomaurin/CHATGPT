@@ -1,5 +1,5 @@
 # CHATGPT
-Lazarus component for CHATGPT
+Lazarus class for CHATGPT
 
 Simple Script for Lazarus
 
