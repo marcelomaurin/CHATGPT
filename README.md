@@ -22,7 +22,7 @@ begin
     FChatgpt.Free; // Free memory after use
   end;
 end.
-
+```
 
 # How it works
 FChatgpt: This is an instance of the TCHATGPT class, which is responsible for communicating with the ChatGPT API.
