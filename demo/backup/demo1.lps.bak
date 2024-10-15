@@ -20,7 +20,7 @@
         <ComponentName Value="frmdemo1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <EditorIndex Value="7"/>
+        <EditorIndex Value="4"/>
         <CursorPos X="21" Y="63"/>
         <UsageCount Value="40"/>
         <Loaded Value="True"/>
@@ -29,10 +29,8 @@
       <Unit>
         <Filename Value="..\chatgpt.pas"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="3"/>
-        <TopLine Value="173"/>
-        <CursorPos Y="196"/>
+        <TopLine Value="25"/>
+        <CursorPos X="16" Y="25"/>
         <UsageCount Value="40"/>
         <Loaded Value="True"/>
       </Unit>
@@ -62,13 +60,13 @@
       </Unit>
       <Unit>
         <Filename Value="..\..\..\ACBr\Fontes\Terceiros\synalist\synautil.pas"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="3"/>
         <UsageCount Value="15"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\..\ACBr\Fontes\Terceiros\synalist\httpsend.pas"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="2"/>
         <TopLine Value="268"/>
         <CursorPos X="70" Y="271"/>
         <UsageCount Value="15"/>
@@ -76,39 +74,42 @@
       </Unit>
       <Unit>
         <Filename Value="C:\fpcupdeluxe\fpcsrc\packages\fcl-web\src\base\fphttpclient.pp"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="226"/>
         <CursorPos X="15" Y="224"/>
         <UsageCount Value="13"/>
-        <Loaded Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="C:\fpcupdeluxe\fpcsrc\rtl\inc\systemh.inc"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="565"/>
         <CursorPos X="40" Y="576"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="C:\fpcupdeluxe\fpcsrc\packages\fcl-json\src\jsonparser.pp"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="7"/>
         <CursorPos X="28" Y="22"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="C:\fpcupdeluxe\fpcsrc\rtl\win64\system.pp"/>
         <UnitName Value="System"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="-1"/>
         <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\funcoes.pas"/>
+        <IsPartOfProject Value="True"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
+        <CursorPos X="53" Y="11"/>
+        <UsageCount Value="20"/>
         <Loaded Value="True"/>
       </Unit>
     </Units>
     <JumpHistory HistoryIndex="29">
-      <Position>
-        <Filename Value="..\chatgpt.pas"/>
-      </Position>
       <Position>
         <Filename Value="..\chatgpt.pas"/>
         <Caret Line="23" Column="61" TopLine="3"/>
@@ -206,10 +207,6 @@
         <Caret Line="8" Column="51"/>
       </Position>
       <Position>
-        <Filename Value="C:\fpcupdeluxe\fpcsrc\packages\fcl-json\src\jsonparser.pp"/>
-        <Caret Line="22" Column="28" TopLine="7"/>
-      </Position>
-      <Position>
         <Filename Value="..\chatgpt.pas"/>
         <Caret Line="8" Column="57"/>
       </Position>
@@ -224,6 +221,14 @@
       <Position>
         <Filename Value="..\chatgpt.pas"/>
         <Caret Line="171" Column="25" TopLine="166"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="63" Column="21"/>
+      </Position>
+      <Position>
+        <Filename Value="..\funcoes.pas"/>
+        <Caret Line="9" Column="45" TopLine="79"/>
       </Position>
     </JumpHistory>
     <RunParams>

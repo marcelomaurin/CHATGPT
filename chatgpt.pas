@@ -39,91 +39,6 @@ implementation
 
 { TCHATGPT }
 
-(*
-
-function TCHATGPT.PegaMensagem(const JSON: string): string;
-var
-  Data: TJSONData;
-  JsonObject, MessageObject: TJSONObject;
-  ChoicesArray: TJSONArray;
-  Parser: TJSONParser;
-begin
-  // Cria um objeto TJSONParser a partir da string JSON
-  Parser := TJSONParser.Create(JSON);
-
-  try
-    // Faz o parsing do JSON
-    Data := Parser.Parse;
-
-    // Verifica se o objeto é um TJSONObject
-    if Data is TJSONObject then
-    begin
-      // Converte o objeto para um TJSONObject
-      JsonObject := TJSONObject(Data);
-
-      // Verifica se o campo "choices" existe
-      if JsonObject.IndexOfName('choices') >= 0 then
-      begin
-        // Obtém o array de escolhas (choices)
-        ChoicesArray := JsonObject.Arrays['choices'];
-
-        // Verifica se o array de escolhas existe e se possui elementos
-        if (ChoicesArray <> nil) and (ChoicesArray.Count > 0) then
-        begin
-          // Obtém o primeiro objeto de mensagem (message)
-          MessageObject := ChoicesArray.Objects[0].Objects['message'] as TJSONObject;
-
-          // Verifica se o objeto de mensagem existe
-          if MessageObject <> nil then
-          begin
-            // Verifica se o campo "content" existe no objeto de mensagem
-            //Response:{ "role" : "assistant", "content" : "Olá! Como posso ajudar?" }
-            if MessageObject.IndexOfName('content') >= 0 then
-            begin
-              // Obtém o valor do campo "content"
-              Result := MessageObject.Find('content').AsString;
-              //MessageObject.Get('content').AsString;
-            end
-            else
-            begin
-              // O campo "content" não existe, pega o conteúdo completo do objeto de mensagem
-              Result := MessageObject.AsJSON;
-            end;
-          end
-          else
-          begin
-            // O objeto de mensagem não existe, retorna uma string vazia ou lança uma exceção, conforme necessário
-            Result := '';
-          end;
-        end
-        else
-        begin
-          // O array de escolhas está vazio, retorna uma string vazia ou lança uma exceção, conforme necessário
-          Result := '';
-        end;
-      end
-      else if JsonObject.IndexOfName('content') >= 0 then
-      begin
-        // O campo "choices" não existe, mas o campo "content" existe no nível superior
-        Result := JsonObject.Get('content').AsString;
-      end
-      else
-      begin
-        // Resposta inválida, retorna uma string vazia ou lança uma exceção, conforme necessário
-        Result := '';
-      end;
-    end
-    else
-    begin
-      // Objeto JSON inválido, retorna uma string vazia ou lança uma exceção, conforme necessário
-      Result := '';
-    end;
-  finally
-    Parser.Free; // Libera a memória do objeto TJSONParser
-  end;
-end;
-  *)
-
 function TCHATGPT.PegaMensagem(const JSON: string): string;
 var
   CleanJSON: string;
@@ -208,41 +123,25 @@ begin
 
 
     ClienteHTTP.AddHeader('Content-Type', 'application/json;');
-    //ClienteHTTP.AddHeader('Authorization',' Bearer ' + EncodeURLElement(token));
     ClienteHTTP.AddHeader('Authorization',' Bearer ' + token);
 
     try
-            //resposta:= ClienteHTTP.SimpleFormPost(LURL, formulario);
+
             resposta:=  ClienteHTTP.Post(LURL);
      except on E: Exception do
-            //Writeln('Something bad happened: ' + E.Message);
-            //Resposta.read;
      end;
   finally
 
-      (*
-      {"id":"chatcmpl-7Lcq4Pi5m9sGZBLbH0VoXR0GOjgkh",
-      "object":"chat.completion","created":1685388540,
-      "model":"gpt-3.5-turbo-0301","usage":{"prompt_tokens":15,"completion_tokens":29,"total_tokens":44},"choices":[{"message":{"role":"assistant","content":"1, 2, 3, 4, 5, 6, 7, 8, 9, 10."},"finish_reason":"stop","index":0}]}
-      *)
+
 
       Result := resposta;
       ClienteHTTP.RequestBody.Free;
       ClienteHTTP.Free;
 
 
-      //Resposta.Free;
+
 
   end;
-
-
-      //Resposta := ClienteHTTP.ResponseText;
-      //Resposta:= ClienteHTTP.Get(LURL);
-    //finally
-    //  Dados.Free;
-   // end;
-  //finally
-  //  ClienteHTTP.Free;
 
 
 

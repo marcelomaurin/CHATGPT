@@ -26,6 +26,9 @@
     </RunParams>
     <RequiredPackages>
       <Item>
+        <PackageName Value="SynEdit"/>
+      </Item>
+      <Item>
         <PackageName Value="LCL"/>
       </Item>
     </RequiredPackages>
@@ -43,6 +46,10 @@
       </Unit>
       <Unit>
         <Filename Value="..\chatgpt.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\funcoes.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
     </Units>

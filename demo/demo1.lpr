@@ -10,7 +10,7 @@ uses
   athreads,
   {$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, main, chatgpt;
+  Forms, main, chatgpt, funcoes;
 
 {$R *.res}
 
