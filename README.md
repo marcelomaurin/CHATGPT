@@ -41,3 +41,6 @@ This step is necessary to ensure that all required dependencies for the TCHATGPT
 A complete demo program is available in the ./demo folder. You can run this demo to see how the TCHATGPT class works in a real application.
 
 It also contains the required libraries for the project, which need to be copied to C:/Windows/System32 as described in the Library Requirements section.
+
+# Important Notice
+In order for this program to work, you need to have an active subscription to the paid API of ChatGPT. Ensure that you have sufficient credits in your OpenAI account, as this service is not available for free. You can set up billing and manage your API usage at the OpenAI platform.
