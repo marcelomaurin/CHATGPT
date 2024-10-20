@@ -6,9 +6,11 @@ interface
 
 uses
   Classes, SysUtils, LazUTF8, fpjson, jsonparser, Controls, Graphics,
-  fphttpclient, opensslsockets, funcoes;
+  fphttpclient, opensslsockets, funcoes, LResources;
 
 { TCHATGPT }
+
+
 
  type TVersionChat = (VCT_GPT35TURBO, VCT_GPT40,VCT_GPT40_TURBO );
 
@@ -210,10 +212,12 @@ end;
 procedure Register;
 begin
   // Registrar o componente na aba "Samples"
-  RegisterComponents('OPENAI', [TCHATGPT]);
+  RegisterComponents('OpenAI', [TCHATGPT]);
 
 end;
 
+initialization
+  {$I chatgpt_icon.lrs}
 
 end.
 

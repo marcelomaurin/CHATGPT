@@ -10,7 +10,7 @@
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="30" Y="11"/>
-        <UsageCount Value="52"/>
+        <UsageCount Value="54"/>
       </Unit>
       <Unit>
         <Filename Value="main.pas"/>
@@ -21,7 +21,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="31"/>
         <CursorPos X="21" Y="44"/>
-        <UsageCount Value="52"/>
+        <UsageCount Value="54"/>
       </Unit>
       <Unit>
         <Filename Value="..\chatgpt.pas"/>
@@ -29,14 +29,14 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="125"/>
         <CursorPos X="58" Y="132"/>
-        <UsageCount Value="52"/>
+        <UsageCount Value="54"/>
       </Unit>
       <Unit>
         <Filename Value="..\pacote\compchatgpt.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="37" Y="10"/>
-        <UsageCount Value="20"/>
+        <UsageCount Value="22"/>
       </Unit>
       <Unit>
         <Filename Value="C:\fpcupdeluxe\config_lazarus\onlinepackagemanager\packages\Indy10\Protocols\IdHTTP.pas"/>
@@ -127,12 +127,17 @@
         <Filename Value="..\pacote\chatgpt.pas"/>
         <IsVisibleTab Value="True"/>
         <TopLine Value="13"/>
-        <CursorPos Y="32"/>
-        <UsageCount Value="10"/>
+        <CursorPos X="20" Y="206"/>
+        <UsageCount Value="11"/>
         <Loaded Value="True"/>
       </Unit>
+      <Unit>
+        <Filename Value="..\pacote\openai_icon.lrs"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="10"/>
+      </Unit>
     </Units>
-    <JumpHistory HistoryIndex="2">
+    <JumpHistory HistoryIndex="13">
       <Position>
         <Filename Value="..\pacote\chatgpt.pas"/>
         <Caret Line="10" Column="14" TopLine="4"/>
@@ -144,6 +149,50 @@
       <Position>
         <Filename Value="..\pacote\chatgpt.pas"/>
         <Caret Line="208" Column="29" TopLine="182"/>
+      </Position>
+      <Position>
+        <Filename Value="..\pacote\chatgpt.pas"/>
+        <Caret Line="13" Column="28"/>
+      </Position>
+      <Position>
+        <Filename Value="..\pacote\chatgpt.pas"/>
+        <Caret Line="52" Column="22" TopLine="25"/>
+      </Position>
+      <Position>
+        <Filename Value="..\pacote\chatgpt.pas"/>
+        <Caret Line="51" Column="20" TopLine="25"/>
+      </Position>
+      <Position>
+        <Filename Value="..\pacote\chatgpt.pas"/>
+        <Caret Line="215" Column="29" TopLine="190"/>
+      </Position>
+      <Position>
+        <Filename Value="..\pacote\chatgpt.pas"/>
+        <Caret Line="220" Column="14" TopLine="190"/>
+      </Position>
+      <Position>
+        <Filename Value="..\pacote\chatgpt.pas"/>
+        <Caret Line="195" Column="12" TopLine="191"/>
+      </Position>
+      <Position>
+        <Filename Value="..\pacote\chatgpt.pas"/>
+        <Caret Line="12" Column="33"/>
+      </Position>
+      <Position>
+        <Filename Value="..\pacote\chatgpt.pas"/>
+        <Caret Line="48" Column="19" TopLine="22"/>
+      </Position>
+      <Position>
+        <Filename Value="..\pacote\chatgpt.pas"/>
+        <Caret Line="212" Column="19" TopLine="186"/>
+      </Position>
+      <Position>
+        <Filename Value="..\pacote\chatgpt.pas"/>
+        <Caret Line="215" Column="11" TopLine="189"/>
+      </Position>
+      <Position>
+        <Filename Value="..\pacote\chatgpt.pas"/>
+        <Caret Line="52" Column="42" TopLine="32"/>
       </Position>
     </JumpHistory>
     <RunParams>

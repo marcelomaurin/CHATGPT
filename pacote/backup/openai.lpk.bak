@@ -4,6 +4,7 @@
     <PathDelim Value="\"/>
     <Name Value="openai"/>
     <Type Value="RunAndDesignTime"/>
+    <Author Value="Marcelo Maurin Martins"/>
     <CompilerOptions>
       <Version Value="11"/>
       <PathDelim Value="\"/>
@@ -12,14 +13,15 @@
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
+    <Description Value="Integration OpenAI, CHATGPT, this is not licensed for OpenAI. This is third-party."/>
     <Files>
-      <Item>
-        <Filename Value="..\funcoes.pas"/>
-        <UnitName Value="funcoes"/>
-      </Item>
       <Item>
         <Filename Value="chatgpt.pas"/>
         <UnitName Value="chatgpt"/>
+      </Item>
+      <Item>
+        <Filename Value="funcoes.pas"/>
+        <UnitName Value="funcoes"/>
       </Item>
     </Files>
     <RequiredPkgs>
