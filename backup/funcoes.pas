@@ -8,7 +8,7 @@ interface
 uses
 Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs,
 Grids ,  LazUTF8,
-StdCtrls, ExtCtrls, UTF8Process, Process, TypInfo , SynEdit, fpjson , DB,
+StdCtrls, ExtCtrls, UTF8Process, Process, TypInfo , fpjson , DB,
 jsonparser, RegExpr, DateUtils
 {$IFDEF MSWINDOWS}
 ,windows, jwaWinBase, shellAPI , Registry , JwaTlHelp32
@@ -60,7 +60,7 @@ procedure StringToFont(const AFontStr: string; var AFont: TFont);
 function FontToString(AFont: TFont): string;
 function IsRun(const Executavel: string): boolean;
 function KillAppByName(const ProcessName: string): boolean;
-procedure RemoveCtrlMFromSynEdit(SynEdit: TSynEdit);
+
 function ValidateDirectory(const DirectoryPath: string): Boolean;
 function ValidateJson(SynEdit: TSynEdit): Boolean;
 function GetProcessList: TProcessList;
@@ -117,9 +117,9 @@ function VerifyAdminLogin:boolean;
 implementation
 
 
-uses main
+uses
 {$IFDEF WINDOWS}
-   , ShlObj
+    ShlObj
 {$ENDIF}
 {$ifdef Darwin}
 ,MacOSAll
@@ -1079,23 +1079,6 @@ begin
       end;
 end;
 
-procedure RemoveCtrlMFromSynEdit(SynEdit: TSynEdit);
-var
-  i: Integer;
-  Line: string;
-begin
-  for i := 0 to SynEdit.Lines.Count - 1 do
-  begin
-    Line := SynEdit.Lines[i];
-
-    // Remove o CTRL-M (ASCII 13) do final da linha
-    if (Length(Line) > 0) and (Ord(Line[Length(Line)]) = 13) then
-    begin
-      Line := Copy(Line, 1, Length(Line) - 1);
-      SynEdit.Lines[i] := Line;
-    end;
-  end;
-end;
 
 
 function ShowConfirm(Mensagem : string) : boolean;
