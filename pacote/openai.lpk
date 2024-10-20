@@ -17,12 +17,13 @@
     <License Value="OPEN SOURCE GPL3"/>
     <Files>
       <Item>
-        <Filename Value="chatgpt.pas"/>
-        <UnitName Value="chatgpt"/>
-      </Item>
-      <Item>
         <Filename Value="funcoes.pas"/>
         <UnitName Value="funcoes"/>
+      </Item>
+      <Item>
+        <Filename Value="chatgpt.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="chatgpt"/>
       </Item>
     </Files>
     <RequiredPkgs>

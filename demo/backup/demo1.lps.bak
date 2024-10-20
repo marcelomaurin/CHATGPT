@@ -126,7 +126,8 @@
       <Unit>
         <Filename Value="..\pacote\chatgpt.pas"/>
         <IsVisibleTab Value="True"/>
-        <CursorPos X="20" Y="206"/>
+        <TopLine Value="91"/>
+        <CursorPos X="84" Y="28"/>
         <UsageCount Value="11"/>
         <Loaded Value="True"/>
       </Unit>
