@@ -44,3 +44,21 @@ It also contains the required libraries for the project, which need to be copied
 
 # Important Notice
 In order for this program to work, you need to have an active subscription to the paid API of ChatGPT. Ensure that you have sufficient credits in your OpenAI account, as this service is not available for free. You can set up billing and manage your API usage at the OpenAI platform.
+
+# Installing the TCHATGPT Package in Lazarus
+To install the TCHATGPT component from the provided package in the pacote subfolder, follow these steps:
+
+## Open the Package:
+
+In the Lazarus IDE, go to Package > Open Package File (.lpk).
+Navigate to the pacote folder and select the chatgpt.lpk package file.
+Compile the package:
+
+Once the package is open, click on Compile to compile the package and ensure there are no errors.
+Install the package:
+
+After compiling successfully, click Use > Install. Lazarus will ask to rebuild the IDE and restart.
+After restarting, the TCHATGPT component will be available under the OpenAI tab in the component palette.
+Using the Component:
+
+Once installed, you can drag and drop the TCHATGPT component onto your form in Lazarus and set the properties such as TOKEN, Question, and Response through the Object Inspector or programmatically in your code.
