@@ -1,0 +1,44 @@
+object frmmain: Tfrmmain
+  Left = 684
+  Height = 284
+  Top = 260
+  Width = 419
+  Caption = 'frmmain'
+  ClientHeight = 284
+  ClientWidth = 419
+  OnCreate = FormCreate
+  LCLVersion = '3.4.0.0'
+  object CHATGPT1: TCHATGPT
+    Left = 8
+    Height = 37
+    Top = 16
+    Width = 43
+  end
+  object Button1: TButton
+    Left = 296
+    Height = 25
+    Top = 176
+    Width = 75
+    Caption = 'Perguntar'
+    TabOrder = 1
+    OnClick = Button1Click
+  end
+  object meresposta: TMemo
+    Left = 104
+    Height = 114
+    Top = 8
+    Width = 283
+    Lines.Strings = (
+      'meresposta'
+    )
+    TabOrder = 2
+  end
+  object edpergunta: TEdit
+    Left = 108
+    Height = 23
+    Top = 131
+    Width = 279
+    TabOrder = 3
+    Text = 'edpergunta'
+  end
+end
