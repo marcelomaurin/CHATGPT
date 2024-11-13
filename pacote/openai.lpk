@@ -25,6 +25,11 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="chatgpt"/>
       </Item>
+      <Item>
+        <Filename Value="neuralnetwork.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="neuralnetwork"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>
