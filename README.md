@@ -62,3 +62,7 @@ After restarting, the TCHATGPT component will be available under the OpenAI tab 
 Using the Component:
 
 Once installed, you can drag and drop the TCHATGPT component onto your form in Lazarus and set the properties such as TOKEN, Question, and Response through the Object Inspector or programmatically in your code.
+
+Information used:
+https://github.com/j0aoarthur/Palavras-PT-BR
+
