@@ -10,8 +10,6 @@ uses
 
 { TCHATGPT }
 
-
-
  type TVersionChat = (VCT_GPT35TURBO, VCT_GPT40,VCT_GPT40_TURBO );
 
  //Class to do connect with chatgpt
@@ -49,6 +47,7 @@ procedure Register;
 
 implementation
 
+{$I openai_icon.lrs}
 
 { TCHATGPT }
 
@@ -213,6 +212,7 @@ procedure Register;
 begin
   // Registrar o componente na aba "Samples"
   RegisterComponents('OpenAI', [TCHATGPT]);
+  RegisterClassResource('TCHATGPT', 'openai_icon.lrs');
 
 end;
 
