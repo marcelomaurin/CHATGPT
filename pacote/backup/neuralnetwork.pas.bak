@@ -5,7 +5,7 @@ unit NeuralNetwork;
 interface
 
 uses
-  Classes, SysUtils, Math;
+  Classes, SysUtils, Math, LResources, Controls, Graphics;
 
 type
   TArray = array of Double;

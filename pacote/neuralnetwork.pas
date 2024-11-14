@@ -263,7 +263,7 @@ end;
 procedure Register;
 begin
   // Registrar o componente na aba "Samples"
-  RegisterComponents('OpenAI', [TNeuralNetwork]);
+  RegisterComponents('IA', [TNeuralNetwork]);
 
 end;
 

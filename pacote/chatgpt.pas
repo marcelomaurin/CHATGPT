@@ -47,7 +47,7 @@ procedure Register;
 
 implementation
 
-{$I openai_icon.lrs}
+
 
 { TCHATGPT }
 
@@ -211,13 +211,14 @@ end;
 procedure Register;
 begin
   // Registrar o componente na aba "Samples"
-  RegisterComponents('OpenAI', [TCHATGPT]);
-  RegisterClassResource('TCHATGPT', 'openai_icon.lrs');
+  RegisterComponents('IA', [TCHATGPT]);
+  //RegisterClassResource('TCHATGPT', 'openai_icon.lrs');
 
 end;
 
 initialization
-  {$I chatgpt_icon.lrs}
+
+
 
 end.
 

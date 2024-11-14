@@ -3,5 +3,4 @@
   <Lazarus Version="3.6"/>
   <Compiler Value="C:\lazarus\fpc\3.2.2\bin\i386-win32\fpc.exe" Date="1497192888"/>
   <Params Value=" -MObjFPC -Scghi -O1 -g -gl -l -vewnhibq -FuC:\Users\mmaurin\Desktop\projetos\maurinsoft\CHATGPT -FuC:\lazarus\packager\units\i386-win32 -FuC:\lazarus\components\lazutils\lib\i386-win32 -FuC:\lazarus\components\buildintf\units\i386-win32 -FuC:\lazarus\components\freetype\lib\i386-win32 -FuC:\lazarus\lcl\units\i386-win32 -FuC:\lazarus\lcl\units\i386-win32\win32 -FuC:\lazarus\components\lazcontrols\lib\i386-win32\win32 -FuC:\lazarus\components\synedit\units\i386-win32\win32 -FuC:\lazarus\components\ideintf\units\i386-win32\win32 -FuD:\lazarus32\onlinepackagemanager\packages\Indy10\lib\i386-win32 -FuC:\Users\mmaurin\Desktop\projetos\maurinsoft\CHATGPT\pacote\ -FUC:\Users\mmaurin\Desktop\projetos\maurinsoft\CHATGPT\pacote\lib\i386-win32\ -dLCL -dLCLwin32 openai.pas"/>
-  <Complete Value="False"/>
 </CONFIG>

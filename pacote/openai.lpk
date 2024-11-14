@@ -30,6 +30,11 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="neuralnetwork"/>
       </Item>
+      <Item>
+        <Filename Value="tokenizer.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="tokenizer"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>

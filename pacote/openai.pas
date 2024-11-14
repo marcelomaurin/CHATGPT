@@ -8,7 +8,7 @@ unit openai;
 interface
 
 uses
-  funcoes, chatgpt, NeuralNetwork, LazarusPackageIntf;
+  funcoes, chatgpt, NeuralNetwork, tokenizer, LazarusPackageIntf;
 
 implementation
 
@@ -16,6 +16,7 @@ procedure Register;
 begin
   RegisterUnit('chatgpt', @chatgpt.Register);
   RegisterUnit('NeuralNetwork', @NeuralNetwork.Register);
+  RegisterUnit('tokenizer', @tokenizer.Register);
 end;
 
 initialization
