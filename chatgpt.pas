@@ -10,7 +10,7 @@ uses
 
 { TCHATGPT }
 
- type TVersionChat = (VCT_GPT35TURBO, VCT_GPT40,VCT_GPT40_TURBO );
+ type TVersionChat = (VCT_GPT35TURBO, VCT_GPT40,VCT_GPT40_TURBO, VCT_GPT4o, VCT_GPTo3_mini, VCT_GPT41,VCT_GPT41_MINI, VCT_GPT5 );
 
  //Class to do connect with chatgpt
  type  TCHATGPT = class(TComponent)
@@ -32,12 +32,27 @@ uses
 
     constructor create(AOwner: TComponent); override;
     destructor Destroy;
+    function TipoModelo: string;
 
 end;
 
 implementation
 
 { TCHATGPT }
+
+function JsonEscape(const S: string): string;
+var
+  R: string;
+begin
+  R := StringReplace(S, '\', '\\', [rfReplaceAll]);
+  R := StringReplace(R,   '"', '\"', [rfReplaceAll]);
+  R := StringReplace(R, #13#10, '\n', [rfReplaceAll]);
+  R := StringReplace(R, #10,    '\n', [rfReplaceAll]);
+  R := StringReplace(R, #13,    '\n', [rfReplaceAll]);
+  Result := R;
+end;
+
+
 
 function TCHATGPT.PegaMensagem(const JSON: string): string;
 var
@@ -92,61 +107,60 @@ begin
 end;
 
 
-function TCHATGPT.RequestJson(LURL: string; token: string; ASK: string): string;
-
+function TCHATGPT.RequestJson(LURL: String; token: string; ASK: string): String;
 var
-  ClienteHTTP: TFPHttpClient;
-  Resposta : AnsiString;
-  LResponse: TStringStream;
-  formulario : string;
-  Params: string;
-  tipo: string;
+  ClienteHTTP : TFPHttpClient;
+  BodyStream  : TStringStream;
+  params      : string;
+  tipo        : string;
 begin
-  //Resposta := '';
-  Formulario := '' ;
+  // Seleção do modelo conforme teu enum
   case FTipoChat of
-       VCT_GPT35TURBO:
-          tipo := '"gpt-3.5-turbo"';
-       VCT_GPT40:
-          tipo := '"gpt-4o-mini"';
-       VCT_GPT40_TURBO:
-          tipo := '"gpt-4-turbo-preview"';
+    VCT_GPT35TURBO : tipo := 'gpt-3.5-turbo';         // (legado)
+    VCT_GPT40      : tipo := 'gpt-4';                 // (legado)
+    VCT_GPT40_TURBO: tipo := 'gpt-4-turbo-preview';   // (legado)
+    VCT_GPT4o      : tipo := 'gpt-4o';
+    VCT_GPTo3_mini : tipo := 'gpt-o3-mini';
+    VCT_GPT41      : tipo := 'gpt-4.1';
+    VCT_GPT41_MINI : tipo := 'gpt-4.1-mini';
+    VCT_GPT5       : tipo := 'gpt-5';
+  else
+    tipo := 'gpt-4.1-mini'; // padrão seguro
   end;
-  params :=  '{ "model": '+tipo +
-             ', "messages": [{"role": "user", "content": "'+
-             ASK +'"}]'+
-             ' }';
+
+  // JSON igual ao curl (developer + user)
+  params :=
+    '{' +
+    '  "model": "' + tipo + '",' +
+    '  "messages": [' +
+    '    {"role": "developer", "content": "You are a helpful assistant."},' +
+    '    {"role": "user", "content": "' + JsonEscape(ASK) + '"}' +
+    '  ]' +
+    '}';
+
   ClienteHTTP := TFPHttpClient.Create(nil);
+  BodyStream  := TStringStream.Create(params, TEncoding.UTF8);
   try
-    LResponse := TStringStream.Create('');
-    ClienteHTTP.RequestBody := TRawByteStringStream.Create(Params);
-
-
-    ClienteHTTP.AddHeader('Content-Type', 'application/json;');
-    ClienteHTTP.AddHeader('Authorization',' Bearer ' + token);
+    // Headers corretos (sem ; no content-type e sem EncodeURLElement no token)
+    ClienteHTTP.AddHeader('Content-Type', 'application/json');
+    ClienteHTTP.AddHeader('Authorization', 'Bearer ' + token);
+    ClienteHTTP.AllowRedirect   := True;
+    ClienteHTTP.KeepConnection  := True;
+    ClienteHTTP.RequestBody     := BodyStream;
 
     try
-
-            resposta:=  ClienteHTTP.Post(LURL);
-     except on E: Exception do
-     end;
+      Result := ClienteHTTP.Post(LURL);
+    except
+      on E: Exception do
+        Result := '{"error":"' + StringReplace(E.Message, '"', '\"', [rfReplaceAll]) + '"}';
+    end;
   finally
-
-
-
-      Result := resposta;
-      ClienteHTTP.RequestBody.Free;
-      ClienteHTTP.Free;
-
-
-
-
+    BodyStream.Free;
+    ClienteHTTP.Free;
   end;
-
-
-
 end;
 
+(*
 function TCHATGPT.SendQuestion(ASK: String): boolean;
 var
   LURL : String;
@@ -169,6 +183,37 @@ begin
      //FResponse := RequestJson2(LURL, FToken, JSON);
      result := resposta;
 end;
+*)
+
+function TCHATGPT.SendQuestion(ASK: String): boolean;
+
+var
+  LURL     : String;
+  JSONBody : String;
+  AUX      : String;
+  Modelo   : String;
+begin
+  Result := False;
+
+  LURL := 'https://api.openai.com/v1/chat/completions';
+ // Modelo := Trim(TipoModelo);
+ // if Modelo = '' then
+ //   Modelo := 'gpt-4.1-mini';
+
+
+
+  // Agora só com 3 parâmetros: URL, Token e JSONBody
+  AUX := RequestJson(LURL, FToken, JsonEscape(ASK));
+
+  try
+    FResponse := PegaMensagem(AUX);
+    Result := True;
+  except
+    FResponse := AUX; // devolve cru se o parser falhar
+  end;
+end;
+
+
 
 //Class Constructor
 constructor TCHATGPT.create(AOwner: TComponent);
@@ -176,7 +221,7 @@ constructor TCHATGPT.create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   //FTipoChat:= VCT_GPT35TURBO;
-  FTipoChat:= VCT_GPT40;
+  FTipoChat:= VCT_GPT41_MINI;
   //HTTPSend.Sock.SSL.SSLType := LT_TLSv1;
   //Self.IsUTF8 := False;
   FParams := TStringList.Create;
@@ -188,5 +233,27 @@ begin
   inherited;
 end;
 
-end.
+function TCHATGPT.TipoModelo: string;
+var
+  tipo : string;
+begin
+   case FTipoChat of
+       VCT_GPT35TURBO:
+          tipo := '"gpt-3.5-turbo"';
+       VCT_GPT40:
+          tipo := '"gpt-4"';
+       VCT_GPT40_TURBO:
+          tipo := '"gpt-4-turbo-preview"';
+       VCT_GPT4o:
+          tipo := '"gpt-4o"';
+       VCT_GPTo3_mini:
+          tipo := '"gpt-o3-mini"';
+       VCT_GPT41:
+          tipo := '"gpt-4.1"';
+       VCT_GPT5:
+          tipo := '"gpt-5"';
+  end;
+  result := tipo;
+end;
 
+end.
