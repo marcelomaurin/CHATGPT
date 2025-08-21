@@ -18,8 +18,10 @@ uses
     FToken : String; //private variable to use chatgp
     FQuestion : String;
     FResponse : String;
+    FDev : String;
     FTipoChat : TVersionChat;
     FParams: TStrings;
+
     function RequestJson(LURL : String; token : string ; ASK : string) : String;
     function PegaMensagem(const JSON: string): string;
 
@@ -28,6 +30,7 @@ uses
     property Question : String read FQuestion;
     property Response : String read FResponse write FResponse;
     property TipoChat : TVersionChat read FTipoChat;
+    property Dev : String read FDev write FDev;
     function SendQuestion( ASK : String) : boolean;
 
     constructor create(AOwner: TComponent); override;
@@ -133,7 +136,7 @@ begin
     '{' +
     '  "model": "' + tipo + '",' +
     '  "messages": [' +
-    '    {"role": "developer", "content": "You are a helpful assistant."},' +
+    '    {"role": "developer", "content": "' + JsonEscape(Fdev) + '"},' +
     '    {"role": "user", "content": "' + JsonEscape(ASK) + '"}' +
     '  ]' +
     '}';
@@ -222,6 +225,7 @@ begin
   inherited Create(AOwner);
   //FTipoChat:= VCT_GPT35TURBO;
   FTipoChat:= VCT_GPT41_MINI;
+  FDEV := 'Voce é um assistente.';
   //HTTPSend.Sock.SSL.SSLType := LT_TLSv1;
   //Self.IsUTF8 := False;
   FParams := TStringList.Create;
