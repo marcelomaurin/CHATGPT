@@ -1,0 +1,290 @@
+object frmPerceptronDemo: TfrmPerceptronDemo
+  Left = 320
+  Height = 650
+  Top = 150
+  Width = 820
+  Caption = 'TPerceptron Showcase - Rosenblatt Single Layer Perceptron Network'
+  ClientHeight = 650
+  ClientWidth = 820
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '3.0.0.3'
+  object pnlConfig: TPanel
+    Left = 10
+    Height = 90
+    Top = 10
+    Width = 800
+    Align = alTop
+    BorderSpacing.Around = 10
+    ClientHeight = 90
+    ClientWidth = 800
+    TabOrder = 0
+    object lblLearningRate: TLabel
+      Left = 15
+      Height = 15
+      Top = 15
+      Width = 100
+      Caption = 'Taxa Aprendizado:'
+      ParentColor = False
+    end
+    object edLearningRate: TEdit
+      Left = 15
+      Height = 23
+      Top = 35
+      Width = 100
+      TabOrder = 0
+      Text = '0.1'
+    end
+    object lblEpochs: TLabel
+      Left = 135
+      Height = 15
+      Top = 15
+      Width = 42
+      Caption = 'Épocas:'
+      ParentColor = False
+    end
+    object edEpochs: TEdit
+      Left = 135
+      Height = 23
+      Top = 35
+      Width = 80
+      TabOrder = 1
+      Text = '100'
+    end
+    object lblGate: TLabel
+      Left = 235
+      Height = 15
+      Top = 15
+      Width = 74
+      Caption = 'Função Lógica:'
+      ParentColor = False
+    end
+    object cbGate: TComboBox
+      Left = 235
+      Height = 23
+      Top = 35
+      Width = 180
+      ItemHeight = 15
+      Style = csDropDownList
+      TabOrder = 2
+    end
+    object btnTrain: TButton
+      Left = 435
+      Height = 45
+      Top = 17
+      Width = 340
+      Caption = 'Iniciar Treinamento do Perceptron'
+      Font.Style = [fsBold]
+      OnClick = btnTrainClick
+      TabOrder = 3
+    end
+  end
+  object pnlInfer: TPanel
+    Left = 10
+    Height = 210
+    Top = 110
+    Width = 260
+    Align = alLeft
+    BorderSpacing.Left = 10
+    BorderSpacing.Right = 5
+    BorderSpacing.Bottom = 10
+    ClientHeight = 210
+    ClientWidth = 260
+    TabOrder = 1
+    object lblInferTitle: TLabel
+      Left = 15
+      Height = 15
+      Top = 10
+      Width = 143
+      Caption = 'Predição (Inferência):'
+      Font.Style = [fsBold]
+      ParentColor = False
+    end
+    object lblInput1: TLabel
+      Left = 15
+      Height = 15
+      Top = 40
+      Width = 53
+      Caption = 'Entrada 1:'
+      ParentColor = False
+    end
+    object edInput1: TEdit
+      Left = 15
+      Height = 23
+      Top = 60
+      Width = 80
+      TabOrder = 0
+      Text = '1'
+    end
+    object lblInput2: TLabel
+      Left = 120
+      Height = 15
+      Top = 40
+      Width = 53
+      Caption = 'Entrada 2:'
+      ParentColor = False
+    end
+    object edInput2: TEdit
+      Left = 120
+      Height = 23
+      Top = 60
+      Width = 80
+      TabOrder = 1
+      Text = '0'
+    end
+    object btnPredict: TButton
+      Left = 15
+      Height = 30
+      Top = 100
+      Width = 230
+      Caption = 'Realizar Predição (Predict)'
+      OnClick = btnPredictClick
+      TabOrder = 2
+    end
+    object lblPrediction: TLabel
+      Left = 15
+      Height = 15
+      Top = 145
+      Width = 86
+      Caption = 'Resultado Saída:'
+      ParentColor = False
+    end
+    object edPrediction: TEdit
+      Left = 120
+      Height = 23
+      Top = 142
+      Width = 125
+      ReadOnly = True
+      TabOrder = 3
+    end
+  end
+  object pnlWeights: TPanel
+    Left = 275
+    Height = 210
+    Top = 110
+    Width = 260
+    Align = alLeft
+    BorderSpacing.Left = 5
+    BorderSpacing.Right = 5
+    BorderSpacing.Bottom = 10
+    ClientHeight = 210
+    ClientWidth = 260
+    TabOrder = 2
+    object lblWeightsTitle: TLabel
+      Left = 15
+      Height = 15
+      Top = 10
+      Width = 156
+      Caption = 'Pesos e Bias (Tempo Real):'
+      Font.Style = [fsBold]
+      ParentColor = False
+    end
+    object lblW1: TLabel
+      Left = 15
+      Height = 15
+      Top = 40
+      Width = 75
+      Caption = 'Peso 1 (W1):'
+      ParentColor = False
+    end
+    object edW1: TEdit
+      Left = 110
+      Height = 23
+      Top = 37
+      Width = 135
+      ReadOnly = True
+      TabOrder = 0
+    end
+    object lblW2: TLabel
+      Left = 15
+      Height = 15
+      Top = 75
+      Width = 75
+      Caption = 'Peso 2 (W2):'
+      ParentColor = False
+    end
+    object edW2: TEdit
+      Left = 110
+      Height = 23
+      Top = 72
+      Width = 135
+      ReadOnly = True
+      TabOrder = 1
+    end
+    object lblBias: TLabel
+      Left = 15
+      Height = 15
+      Top = 110
+      Width = 55
+      Caption = 'Bias (Limiar):'
+      ParentColor = False
+    end
+    object edBias: TEdit
+      Left = 110
+      Height = 23
+      Top = 107
+      Width = 135
+      ReadOnly = True
+      TabOrder = 2
+    end
+  end
+  object pnlSave: TPanel
+    Left = 545
+    Height = 210
+    Top = 110
+    Width = 265
+    Align = alClient
+    BorderSpacing.Left = 5
+    BorderSpacing.Right = 10
+    BorderSpacing.Bottom = 10
+    ClientHeight = 210
+    ClientWidth = 265
+    TabOrder = 3
+    object lblSaveTitle: TLabel
+      Left = 15
+      Height = 15
+      Top = 10
+      Width = 135
+      Caption = 'Persistência (Salvar/Carregar):'
+      Font.Style = [fsBold]
+      ParentColor = False
+    end
+    object btnSaveModel: TButton
+      Left = 15
+      Height = 40
+      Top = 40
+      Width = 235
+      Caption = 'Salvar Modelo (*.perc)'
+      OnClick = btnSaveModelClick
+      TabOrder = 0
+    end
+    object btnLoadModel: TButton
+      Left = 15
+      Height = 40
+      Top = 100
+      Width = 235
+      Caption = 'Carregar Modelo (*.perc)'
+      OnClick = btnLoadModelClick
+      TabOrder = 1
+    end
+  end
+  object meLogs: TMemo
+    Left = 10
+    Height = 260
+    Top = 380
+    Width = 800
+    Align = alBottom
+    BorderSpacing.Around = 10
+    ReadOnly = True
+    ScrollBars = ssAutoBoth
+    TabOrder = 4
+  end
+  object lblLogs: TLabel
+    Left = 10
+    Height = 15
+    Top = 355
+    Width = 120
+    Caption = 'Histórico do Treino:'
+    ParentColor = False
+  end
+end

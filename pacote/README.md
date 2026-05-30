@@ -85,6 +85,23 @@ Um conector dinâmico e multiplataforma para integrar scripts e código Python n
 
 ---
 
+### 7. `TPerceptron` (perceptron.pas)
+Rede Neural de camada única (Perceptron clássico de Rosenblatt) escrita em **Pascal puro**, ideal para classificar padrões binários linearmente separáveis (como portas lógicas AND, OR, NAND, NOR).
+- **Propriedades Principais**:
+  - `LearningRate: Double`: Taxa de aprendizado que dita o ajuste dos pesos a cada erro (padrão: 0.1).
+  - `Weights: TDoubleArray` (Apenas leitura): Array com os pesos sinápticos atuais de cada entrada.
+  - `Bias: Double`: O limiar de ativação/bias ajustável do neurônio.
+  - `InputSize: Integer` (Apenas leitura): Número de entradas configuradas.
+- **Métodos Principais**:
+  - `procedure Initialize(AInputSize: Integer; ALearningRate: Double = 0.1)`: Configura o tamanho de entrada, a taxa de aprendizado e inicializa pesos e bias aleatoriamente de forma estável.
+  - `function Predict(const AInputs: TDoubleArray): Integer`: Realiza a soma ponderada com bias e aplica a função degrau rápido (*hard-step*), retornando `0` ou `1`.
+  - `function Train(const AInputs: TDoubleArray; ATarget: Integer): Double`: Executa um ajuste de pesos com base na regra delta (regra de aprendizado do perceptron) para uma única amostra.
+  - `procedure TrainEpochs(const ADatasetInputs: TDoubleMatrix; const ADatasetTargets: TIntegerArray; AEpochs: Integer; out AFinalError: Double)`: Treina o perceptron por várias épocas no conjunto de dados completo. Para mais cedo se o erro convergir para zero.
+  - `procedure SaveToFile(const AFileName: string)`: Salva o estado dos pesos e bias em arquivo estruturado.
+  - `procedure LoadFromFile(const AFileName: string)`: Restaura o estado de pesos e bias de um arquivo salvo.
+
+---
+
 ## 📂 Diretório de Exemplos (Samples)
 
 A pasta **[samples/](samples/)** contém demonstrações completas para cada recurso da suíte:
@@ -93,6 +110,7 @@ A pasta **[samples/](samples/)** contém demonstrações completas para cada rec
 *   **[visual_demo/](samples/visual_demo/)**: Showcase unificado com abas para TCHATGPT, TNeuralNetwork, TAICodeAssistant e TAIDatasetGenerator.
 *   **[python_demo/](samples/python_demo/)**: Playground dinâmico completo para TPythonConnector (permite escrever scripts, manipular variáveis e rodar Eval interativo). *Já inclui as DLLs `python3.dll` e `python312.dll` copiadas para testes imediatos!*
 *   **[neural_network_demo/](samples/neural_network_demo/)**: Demonstração dedicada para treinamento interativo XOR, predições, ajuste de LR/épocas e persistência de pesos.
+*   **[perceptron_demo/](samples/perceptron_demo/)**: Showcase interativo para treinamento do Perceptron em portas lógicas (AND, OR, NAND, NOR) com exibição dos pesos sinápticos e bias em tempo real.
 *   **[tokenizer_demo/](samples/tokenizer_demo/)**: Playground completo para inserção e busca de tokens, processamento de frases inteiras e importação de JSON estruturado.
 
 ### 💻 Demonstrações em Console

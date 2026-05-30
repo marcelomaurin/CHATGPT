@@ -60,6 +60,11 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="yolodetect"/>
       </Item>
+      <Item>
+        <Filename Value="perceptron.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="perceptron"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>
