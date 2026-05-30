@@ -8,7 +8,7 @@ unit openai;
 interface
 
 uses
-  funcoes, chatgpt, NeuralNetwork, tokenizer, aicodeassistant, aidatasetgenerator, pythonconnector, LazarusPackageIntf;
+  funcoes, chatgpt, NeuralNetwork, tokenizer, aicodeassistant, aidatasetgenerator, pythonconnector, facedetection, yolodetect, LazarusPackageIntf;
 
 implementation
 
@@ -20,6 +20,8 @@ begin
   RegisterUnit('aicodeassistant', @aicodeassistant.Register);
   RegisterUnit('aidatasetgenerator', @aidatasetgenerator.Register);
   RegisterUnit('pythonconnector', @pythonconnector.Register);
+  RegisterUnit('facedetection', @facedetection.Register);
+  RegisterUnit('yolodetect', @yolodetect.Register);
 end;
 
 initialization

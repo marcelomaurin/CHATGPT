@@ -50,6 +50,16 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="pythonconnector"/>
       </Item>
+      <Item>
+        <Filename Value="facedetection.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="facedetection"/>
+      </Item>
+      <Item>
+        <Filename Value="yolodetect.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="yolodetect"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>

@@ -1,0 +1,144 @@
+object frmYoloDemo: TfrmYoloDemo
+  Left = 320
+  Height = 650
+  Top = 150
+  Width = 900
+  Caption = 'TYOLO Showcase - Detecção de Objetos YOLOv8'
+  ClientHeight = 650
+  ClientWidth = 900
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '3.0.0.3'
+  object pnlConfig: TPanel
+    Left = 10
+    Height = 80
+    Top = 10
+    Width = 880
+    Align = alTop
+    BorderSpacing.Around = 10
+    ClientHeight = 80
+    ClientWidth = 880
+    TabOrder = 0
+    object lblDLLPath: TLabel
+      Left = 15
+      Height = 15
+      Top = 15
+      Width = 120
+      Caption = 'Nome/Caminho DLL:'
+      ParentColor = False
+    end
+    object edDLLPath: TEdit
+      Left = 15
+      Height = 23
+      Top = 35
+      Width = 150
+      TabOrder = 0
+      Text = 'python3.dll'
+    end
+    object btnToggleActive: TButton
+      Left = 180
+      Height = 35
+      Top = 27
+      Width = 140
+      Caption = 'Ativar Python'
+      OnClick = btnToggleActiveClick
+      TabOrder = 1
+    end
+    object btnInstallDeps: TButton
+      Left = 330
+      Height = 35
+      Top = 27
+      Width = 180
+      Caption = 'Instalar YOLOv8 (Pip)'
+      OnClick = btnInstallDepsClick
+      TabOrder = 2
+    end
+    object lblStatus: TLabel
+      Left = 530
+      Height = 15
+      Top = 35
+      Width = 127
+      Caption = 'Status: Python INATIVO'
+      Font.Color = clRed
+      Font.Style = [fsBold]
+      ParentColor = False
+    end
+  end
+  object pnlImage: TPanel
+    Left = 10
+    Height = 90
+    Top = 100
+    Width = 880
+    Align = alTop
+    BorderSpacing.Around = 10
+    ClientHeight = 90
+    ClientWidth = 880
+    TabOrder = 1
+    object lblImage: TLabel
+      Left = 15
+      Height = 15
+      Top = 15
+      Width = 115
+      Caption = 'Arquivo de Imagem:'
+      ParentColor = False
+    end
+    object edImagePath: TEdit
+      Left = 15
+      Height = 23
+      Top = 35
+      Width = 530
+      TabOrder = 0
+    end
+    object btnSelectImg: TButton
+      Left = 560
+      Height = 25
+      Top = 33
+      Width = 140
+      Caption = 'Procurar Imagem...'
+      OnClick = btnSelectImgClick
+      TabOrder = 1
+    end
+    object btnDetect: TButton
+      Left = 715
+      Height = 45
+      Top = 20
+      Width = 145
+      Caption = 'Detectar Objetos'
+      Font.Style = [fsBold]
+      OnClick = btnDetectClick
+      TabOrder = 2
+    end
+  end
+  object imgView: TImage
+    Left = 10
+    Height = 440
+    Top = 200
+    Width = 550
+    Align = alLeft
+    BorderSpacing.Left = 10
+    BorderSpacing.Bottom = 10
+    Center = True
+    Proportional = True
+    Stretch = True
+  end
+  object meLogs: TMemo
+    Left = 575
+    Height = 440
+    Top = 200
+    Width = 315
+    Align = alClient
+    BorderSpacing.Right = 10
+    BorderSpacing.Bottom = 10
+    ReadOnly = True
+    ScrollBars = ssAutoBoth
+    TabOrder = 2
+  end
+  object lblLogs: TLabel
+    Left = 575
+    Height = 15
+    Top = 182
+    Width = 109
+    Caption = 'Logs de Operações:'
+    ParentColor = False
+  end
+end
