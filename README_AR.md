@@ -116,14 +116,14 @@ end;
 
 ## المزودون المدعومون (LLMs)
 
-| المزود | Enum | Endpoint | الرمز المطلوب (Token) |
-|---|---|---|---|
-| OpenAI | `AIP_OPENAI` | `api.openai.com` | نعم |
-| OpenRouter | `AIP_OPENROUTER` | `openrouter.ai` | نعم |
-| Cerebras | `AIP_CEREBRAS` | `api.cerebras.ai` | نعم |
-| Google Gemini | `AIP_GEMINI` | `generativelanguage.googleapis.com` | نعم |
-| Anthropic Claude | `AIP_CLAUDE` | `api.anthropic.com` | نعم |
-| المحلي (Ollama) | `AIP_LOCAL` | `localhost:11434` | لا |
+| المزود | Enum | Endpoint | الرمز المطلوب (Token) | تفاصيل النسخ المجانية |
+|---|---|---|---|---|
+| OpenAI | `AIP_OPENAI` | `api.openai.com` | نعم | يدعم نموذج `gpt-4o-mini` (تكلفة منخفضة للغاية/فئة واجهة برمجية مجانية) |
+| OpenRouter | `AIP_OPENROUTER` | `openrouter.ai` | نعم | نماذج مجانية متعددة مع وصول غير محدود (مثل Llama 3 و Gemma 2 و DeepSeek R1) |
+| Cerebras | `AIP_CEREBRAS` | `api.cerebras.ai` | نعم | وصول مجاني بالكامل خلال الفترة التجريبية (Beta) |
+| Google Gemini | `AIP_GEMINI` | `generativelanguage.googleapis.com` | نعم | حصة استخدام مجانية سخية جداً (مثل `gemini-2.5-flash`) |
+| Anthropic Claude | `AIP_CLAUDE` | `api.anthropic.com` | نعم | رمز مدفوع (للتطوير والاختبار) |
+| المحلي (Ollama) | `AIP_LOCAL` | `localhost:11434` | لا | **مجاني بنسبة 100%** بالكامل ويعمل دون اتصال (DeepSeek R1, Llama 3.2, إلخ) |
 
 ---
 

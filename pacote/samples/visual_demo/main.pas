@@ -150,6 +150,7 @@ begin
     0: // OpenAI
     begin
       cbModel.Items.Add('gpt-4o');
+      cbModel.Items.Add('gpt-4o-mini (Gratuito/Baixo custo)');
       cbModel.Items.Add('o3-mini');
       cbModel.Items.Add('gpt-4-turbo-preview');
       cbModel.Items.Add('gpt-3.5-turbo');
@@ -158,6 +159,9 @@ begin
     1: // OpenRouter
     begin
       cbModel.Items.Add('google/gemma-2-9b-it:free');
+      cbModel.Items.Add('meta-llama/llama-3-8b-instruct:free');
+      cbModel.Items.Add('deepseek/deepseek-r1:free');
+      cbModel.Items.Add('meta-llama/llama-3.2-3b-instruct:free');
       cbModel.ItemIndex := 0;
     end;
     2: // Cerebras
@@ -206,9 +210,17 @@ begin
   if FChatgpt.Provider = AIP_OPENAI then
   begin
     if SelModelText = 'gpt-4o' then FChatgpt.TipoChat := VCT_GPT4o
+    else if (SelModelText = 'gpt-4o-mini') or (SelModelText = 'gpt-4o-mini (Gratuito/Baixo custo)') then FChatgpt.TipoChat := VCT_GPT4O_MINI
     else if SelModelText = 'o3-mini' then FChatgpt.TipoChat := VCT_GPTo3_mini
     else if SelModelText = 'gpt-4-turbo-preview' then FChatgpt.TipoChat := VCT_GPT40_TURBO
     else FChatgpt.TipoChat := VCT_GPT35TURBO;
+  end
+  else if FChatgpt.Provider = AIP_OPENROUTER then
+  begin
+    if SelModelText = 'meta-llama/llama-3-8b-instruct:free' then FChatgpt.TipoChat := VCT_OPENROUTER_LLAMA3_8B_FREE
+    else if SelModelText = 'google/gemma-2-9b-it:free' then FChatgpt.TipoChat := VCT_OPENROUTER_GEMMA2_9B_FREE
+    else if SelModelText = 'deepseek/deepseek-r1:free' then FChatgpt.TipoChat := VCT_OPENROUTER_DEEPSEEK_R1_FREE
+    else if SelModelText = 'meta-llama/llama-3.2-3b-instruct:free' then FChatgpt.TipoChat := VCT_OPENROUTER_LLAMA32_3B_FREE;
   end
   else if FChatgpt.Provider = AIP_LOCAL then
   begin

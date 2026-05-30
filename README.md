@@ -116,14 +116,14 @@ end;
 
 ## Provedores Suportados (LLMs)
 
-| Provedor | Enum | Endpoint | Token Necessário |
-|---|---|---|---|
-| OpenAI | `AIP_OPENAI` | `api.openai.com` | Sim |
-| OpenRouter | `AIP_OPENROUTER` | `openrouter.ai` | Sim |
-| Cerebras | `AIP_CEREBRAS` | `api.cerebras.ai` | Sim |
-| Google Gemini | `AIP_GEMINI` | `generativelanguage.googleapis.com` | Sim |
-| Anthropic Claude | `AIP_CLAUDE` | `api.anthropic.com` | Sim |
-| Local (Ollama) | `AIP_LOCAL` | `localhost:11434` | Não |
+| Provedor | Enum | Endpoint | Token Necessário | Detalhes de Versões Gratuitas |
+|---|---|---|---|---|
+| OpenAI | `AIP_OPENAI` | `api.openai.com` | Sim | Suporta `gpt-4o-mini` (baixo custo/free tier de API) |
+| OpenRouter | `AIP_OPENROUTER` | `openrouter.ai` | Sim | Vários modelos gratuitos de uso ilimitado (ex: Llama 3, Gemma 2, DeepSeek R1) |
+| Cerebras | `AIP_CEREBRAS` | `api.cerebras.ai` | Sim | Acesso gratuito durante período beta |
+| Google Gemini | `AIP_GEMINI` | `generativelanguage.googleapis.com` | Sim | Possui cotas gratuitas generosas (ex: `gemini-2.5-flash`) |
+| Anthropic Claude | `AIP_CLAUDE` | `api.anthropic.com` | Sim | Chave paga (teste/desenvolvimento) |
+| Local (Ollama) | `AIP_LOCAL` | `localhost:11434` | Não | **Totalmente Gratuito** e offline (DeepSeek R1, Llama 3.2, etc.) |
 
 ---
 

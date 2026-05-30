@@ -17,12 +17,13 @@ type
     VCT_GPT40,
     VCT_GPT40_TURBO,
     VCT_GPT4o,
+    VCT_GPT4O_MINI,
     VCT_GPTo3_mini,
     VCT_GPT41,
     VCT_GPT41_MINI,
     VCT_GPT5,
 
-    // Modelos locais / Ollama
+    // Modelos locais / Ollama (Totalmente Gratuitos)
     VCT_LLAMA32_3B,
     VCT_QWEN25_15B,
     VCT_DEEPSEEK_R1_15B,
@@ -30,7 +31,7 @@ type
     VCT_DEEPSEEK_R1_14B,
     VCT_DEEPSEEK_R1_70B,
 
-    // Gemini (Google)
+    // Gemini (Google) - Possuem cotas de uso gratuitas
     VCT_GEMINI_15_FLASH,
     VCT_GEMINI_15_PRO,
     VCT_GEMINI_20_FLASH,
@@ -41,6 +42,12 @@ type
     VCT_CLAUDE_35_SONNET,
     VCT_CLAUDE_35_HAIKU,
     VCT_CLAUDE_3_OPUS,
+
+    // Modelos Gratuitos via OpenRouter
+    VCT_OPENROUTER_LLAMA3_8B_FREE,
+    VCT_OPENROUTER_GEMMA2_9B_FREE,
+    VCT_OPENROUTER_DEEPSEEK_R1_FREE,
+    VCT_OPENROUTER_LLAMA32_3B_FREE,
 
     VCT_CUSTOM
   );
@@ -276,7 +283,15 @@ begin
   // OpenRouter
   if FProvider = AIP_OPENROUTER then
   begin
-    Exit('google/gemma-2-9b-it:free');
+    case FTipoChat of
+      VCT_OPENROUTER_LLAMA3_8B_FREE:   Result := 'meta-llama/llama-3-8b-instruct:free';
+      VCT_OPENROUTER_GEMMA2_9B_FREE:   Result := 'google/gemma-2-9b-it:free';
+      VCT_OPENROUTER_DEEPSEEK_R1_FREE:  Result := 'deepseek/deepseek-r1:free';
+      VCT_OPENROUTER_LLAMA32_3B_FREE:  Result := 'meta-llama/llama-3.2-3b-instruct:free';
+    else
+      Result := 'google/gemma-2-9b-it:free';
+    end;
+    Exit;
   end;
 
   // Gemini
@@ -313,6 +328,7 @@ begin
     VCT_GPT40:         Result := 'gpt-4';
     VCT_GPT40_TURBO:   Result := 'gpt-4-turbo-preview';
     VCT_GPT4o:         Result := 'gpt-4o';
+    VCT_GPT4O_MINI:    Result := 'gpt-4o-mini';
     VCT_GPTo3_mini:    Result := 'o3-mini';
     VCT_GPT41:         Result := 'gpt-4.1';
     VCT_GPT41_MINI:    Result := 'gpt-4.1-mini';

@@ -116,14 +116,14 @@ end;
 
 ## Fournisseurs Pris en Charge (LLMs)
 
-| Fournisseur | Enum | Point de terminaison (Endpoint) | Clé requise |
-|---|---|---|---|
-| OpenAI | `AIP_OPENAI` | `api.openai.com` | Oui |
-| OpenRouter | `AIP_OPENROUTER` | `openrouter.ai` | Oui |
-| Cerebras | `AIP_CEREBRAS` | `api.cerebras.ai` | Oui |
-| Google Gemini | `AIP_GEMINI` | `generativelanguage.googleapis.com` | Oui |
-| Anthropic Claude | `AIP_CLAUDE` | `api.anthropic.com` | Oui |
-| Local (Ollama) | `AIP_LOCAL` | `localhost:11434` | Non |
+| Fournisseur | Enum | Point de terminaison (Endpoint) | Clé requise | Détails des versions gratuites |
+|---|---|---|---|---|
+| OpenAI | `AIP_OPENAI` | `api.openai.com` | Oui | Prend en charge `gpt-4o-mini` (bas coût / niveau gratuit de l'API) |
+| OpenRouter | `AIP_OPENROUTER` | `openrouter.ai` | Oui | Plusieurs modèles gratuits avec accès illimité (ex: Llama 3, Gemma 2, DeepSeek R1) |
+| Cerebras | `AIP_CEREBRAS` | `api.cerebras.ai` | Oui | Accès gratuit pendant la phase bêta |
+| Google Gemini | `AIP_GEMINI` | `generativelanguage.googleapis.com` | Oui | Niveau d'utilisation gratuit généreux (ex: `gemini-2.5-flash`) |
+| Anthropic Claude | `AIP_CLAUDE` | `api.anthropic.com` | Oui | Jeton payant (développement/tests) |
+| Local (Ollama) | `AIP_LOCAL` | `localhost:11434` | Non | **100% Gratuit** et hors ligne (DeepSeek R1, Llama 3.2, etc.) |
 
 ---
 
