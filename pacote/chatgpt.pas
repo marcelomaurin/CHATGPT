@@ -541,7 +541,7 @@ begin
     ClienteHTTP.RequestBody := BodyStream;
 
     try
-      Result := ClienteHTTP.Post(LURL);
+      Result := ClienteHTTP.Post(UTF8Encode(LURL));
     except
       on E: Exception do
         Result := Format('{"error":{"message":"%s"}}',
