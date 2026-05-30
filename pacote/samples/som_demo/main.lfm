@@ -1,0 +1,172 @@
+object frmSOMDemo: TfrmSOMDemo
+  Left = 320
+  Height = 620
+  Top = 150
+  Width = 820
+  Caption = 'TSOMMap Showcase - Auto-Organização de Kohonen (SOM) em Cores'
+  ClientHeight = 620
+  ClientWidth = 820
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '3.0.0.3'
+  object pnlConfig: TPanel
+    Left = 10
+    Height = 90
+    Top = 10
+    Width = 800
+    Align = alTop
+    BorderSpacing.Around = 10
+    ClientHeight = 90
+    ClientWidth = 800
+    TabOrder = 0
+    object lblLearningRate: TLabel
+      Left = 15
+      Height = 15
+      Top = 15
+      Width = 100
+      Caption = 'Taxa Aprendizado:'
+      ParentColor = False
+    end
+    object edLearningRate: TEdit
+      Left = 15
+      Height = 23
+      Top = 35
+      Width = 100
+      TabOrder = 0
+      Text = '0.1'
+    end
+    object lblEpochs: TLabel
+      Left = 135
+      Height = 15
+      Top = 15
+      Width = 42
+      Caption = 'Épocas:'
+      ParentColor = False
+    end
+    object edEpochs: TEdit
+      Left = 135
+      Height = 23
+      Top = 35
+      Width = 80
+      TabOrder = 1
+      Text = '500'
+    end
+    object btnInitialize: TButton
+      Left = 235
+      Height = 45
+      Top = 17
+      Width = 170
+      Caption = 'Inicializar Grade (Rand)'
+      Font.Style = [fsBold]
+      OnClick = btnInitializeClick
+      TabOrder = 2
+    end
+    object btnTrain: TButton
+      Left = 415
+      Height = 45
+      Top = 17
+      Width = 240
+      Caption = 'Iniciar Auto-Organização (SOM)'
+      Font.Style = [fsBold]
+      OnClick = btnTrainClick
+      TabOrder = 3
+    end
+    object btnStop: TButton
+      Left = 665
+      Height = 45
+      Top = 17
+      Width = 115
+      Caption = 'Parar Treino'
+      Enabled = False
+      OnClick = btnStopClick
+      TabOrder = 4
+    end
+  end
+  object pnlGridArea: TPanel
+    Left = 10
+    Height = 340
+    Top = 110
+    Width = 340
+    Align = alLeft
+    BorderSpacing.Left = 10
+    BorderSpacing.Right = 5
+    BorderSpacing.Bottom = 10
+    ClientHeight = 340
+    ClientWidth = 340
+    TabOrder = 1
+    object lblGridTitle: TLabel
+      Left = 15
+      Height = 15
+      Top = 10
+      Width = 231
+      Caption = 'Visualização Grade de Neurônios (20x20):'
+      Font.Style = [fsBold]
+      ParentColor = False
+    end
+    object imgGrid: TImage
+      Left = 15
+      Height = 300
+      Top = 30
+      Width = 300
+    end
+  end
+  object pnlSave: TPanel
+    Left = 365
+    Height = 340
+    Top = 110
+    Width = 445
+    Align = alClient
+    BorderSpacing.Left = 5
+    BorderSpacing.Right = 10
+    BorderSpacing.Bottom = 10
+    ClientHeight = 340
+    ClientWidth = 445
+    TabOrder = 2
+    object lblSaveTitle: TLabel
+      Left = 15
+      Height = 15
+      Top = 10
+      Width = 135
+      Caption = 'Persistência (Salvar/Carregar):'
+      Font.Style = [fsBold]
+      ParentColor = False
+    end
+    object btnSaveModel: TButton
+      Left = 15
+      Height = 45
+      Top = 40
+      Width = 410
+      Caption = 'Salvar Grade SOM em Arquivo (*.som)'
+      OnClick = btnSaveModelClick
+      TabOrder = 0
+    end
+    object btnLoadModel: TButton
+      Left = 15
+      Height = 45
+      Top = 100
+      Width = 410
+      Caption = 'Carregar Grade Existente de Arquivo (*.som)'
+      OnClick = btnLoadModelClick
+      TabOrder = 1
+    end
+  end
+  object meLogs: TMemo
+    Left = 10
+    Height = 130
+    Top = 480
+    Width = 800
+    Align = alBottom
+    BorderSpacing.Around = 10
+    ReadOnly = True
+    ScrollBars = ssAutoBoth
+    TabOrder = 3
+  end
+  object lblLogs: TLabel
+    Left = 10
+    Height = 15
+    Top = 455
+    Width = 110
+    Caption = 'Histórico do Mapa:'
+    ParentColor = False
+  end
+end

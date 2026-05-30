@@ -1,0 +1,226 @@
+object frmLSTMDemo: TfrmLSTMDemo
+  Left = 320
+  Height = 620
+  Top = 150
+  Width = 820
+  Caption = 'TLSTMPredictor Showcase - Previsão de Tendências com Rede LSTM'
+  ClientHeight = 620
+  ClientWidth = 820
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '3.0.0.3'
+  object pnlConfig: TPanel
+    Left = 10
+    Height = 90
+    Top = 10
+    Width = 800
+    Align = alTop
+    BorderSpacing.Around = 10
+    ClientHeight = 90
+    ClientWidth = 800
+    TabOrder = 0
+    object lblDLLPath: TLabel
+      Left = 15
+      Height = 15
+      Top = 15
+      Width = 104
+      Caption = 'Caminho DLL Python:'
+      ParentColor = False
+    end
+    object edDLLPath: TEdit
+      Left = 15
+      Height = 23
+      Top = 35
+      Width = 180
+      TabOrder = 0
+      Text = 'python3.dll'
+    end
+    object btnInitPython: TButton
+      Left = 210
+      Height = 45
+      Top = 17
+      Width = 240
+      Caption = 'Ativar Interpretador Python'
+      Font.Style = [fsBold]
+      OnClick = btnInitPythonClick
+      TabOrder = 1
+    end
+    object btnInstallDeps: TButton
+      Left = 465
+      Height = 45
+      Top = 17
+      Width = 320
+      Caption = 'Instalar Dependências (NumPy/TensorFlow)'
+      OnClick = btnInstallDepsClick
+      TabOrder = 2
+    end
+  end
+  object pnlTrain: TPanel
+    Left = 10
+    Height = 340
+    Top = 110
+    Width = 220
+    Align = alLeft
+    BorderSpacing.Left = 10
+    BorderSpacing.Right = 5
+    BorderSpacing.Bottom = 10
+    ClientHeight = 340
+    ClientWidth = 220
+    TabOrder = 1
+    object lblWindowSize: TLabel
+      Left = 15
+      Height = 15
+      Top = 10
+      Width = 100
+      Caption = 'Janela Temporal:'
+      ParentColor = False
+    end
+    object edWindowSize: TEdit
+      Left = 15
+      Height = 23
+      Top = 30
+      Width = 190
+      TabOrder = 0
+      Text = '5'
+    end
+    object lblEpochs: TLabel
+      Left = 15
+      Height = 15
+      Top = 65
+      Width = 42
+      Caption = 'Épocas:'
+      ParentColor = False
+    end
+    object edEpochs: TEdit
+      Left = 15
+      Height = 23
+      Top = 85
+      Width = 190
+      TabOrder = 1
+      Text = '100'
+    end
+    object btnGenerateData: TButton
+      Left = 15
+      Height = 35
+      Top = 130
+      Width = 190
+      Caption = 'Gerar Série Temporal'
+      OnClick = btnGenerateDataClick
+      TabOrder = 2
+    end
+    object btnTrainLSTM: TButton
+      Left = 15
+      Height = 35
+      Top = 180
+      Width = 190
+      Caption = 'Treinar Rede LSTM'
+      Font.Style = [fsBold]
+      OnClick = btnTrainLSTMClick
+      TabOrder = 3
+    end
+    object btnPredict: TButton
+      Left = 15
+      Height = 35
+      Top = 230
+      Width = 190
+      Caption = 'Prever Próximos Passos'
+      Font.Style = [fsBold]
+      OnClick = btnPredictClick
+      TabOrder = 4
+    end
+  end
+  object pnlLists: TPanel
+    Left = 570
+    Height = 340
+    Top = 110
+    Width = 240
+    Align = alRight
+    BorderSpacing.Left = 5
+    BorderSpacing.Right = 10
+    BorderSpacing.Bottom = 10
+    ClientHeight = 340
+    ClientWidth = 240
+    TabOrder = 2
+    object lblActualList: TLabel
+      Left = 15
+      Height = 15
+      Top = 10
+      Width = 59
+      Caption = 'Série Real:'
+      Font.Style = [fsBold]
+      ParentColor = False
+    end
+    object lstActual: TListBox
+      Left = 15
+      Height = 280
+      Top = 30
+      Width = 100
+      ItemHeight = 0
+      TabOrder = 0
+    end
+    object lblPredictedList: TLabel
+      Left = 125
+      Height = 15
+      Top = 10
+      Width = 79
+      Caption = 'Previsão (10t):'
+      Font.Style = [fsBold]
+      ParentColor = False
+    end
+    object lstPredicted: TListBox
+      Left = 125
+      Height = 280
+      Top = 30
+      Width = 100
+      ItemHeight = 0
+      TabOrder = 1
+    end
+  end
+  object pnlVisual: TPanel
+    Left = 235
+    Height = 340
+    Top = 110
+    Width = 330
+    Align = alClient
+    BorderSpacing.Left = 5
+    BorderSpacing.Right = 5
+    BorderSpacing.Bottom = 10
+    ClientHeight = 340
+    ClientWidth = 330
+    TabOrder = 3
+    object lblVisualTitle: TLabel
+      Left = 15
+      Height = 15
+      Top = 10
+      Width = 277
+      Caption = 'Gráfico Comparativo (Verde = Real, Vermelho = Previsão):'
+      Font.Style = [fsBold]
+      ParentColor = False
+    end
+    object imgChart: TImage
+      Left = 15
+      Height = 280
+      Top = 30
+      Width = 300
+    end
+  end
+  object meLogs: TMemo
+    Left = 10
+    Height = 130
+    Top = 480
+    Width = 800
+    Align = alBottom
+    BorderSpacing.Around = 10
+    ReadOnly = True
+    ScrollBars = ssAutoBoth
+    TabOrder = 4
+  end
+  object lblLogs: TLabel
+    Left = 10
+    Height = 15
+    Top = 455
+    Width = 105
+    Caption = 'Logs do Processo:'
+    ParentColor = False
+  end
+end

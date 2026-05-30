@@ -1,0 +1,172 @@
+object frmCNNDemo: TfrmCNNDemo
+  Left = 320
+  Height = 620
+  Top = 150
+  Width = 820
+  Caption = 'TCNNClassifier Showcase - Classificação de Imagens com MobileNetV2 (CNN)'
+  ClientHeight = 620
+  ClientWidth = 820
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '3.0.0.3'
+  object pnlConfig: TPanel
+    Left = 10
+    Height = 90
+    Top = 10
+    Width = 800
+    Align = alTop
+    BorderSpacing.Around = 10
+    ClientHeight = 90
+    ClientWidth = 800
+    TabOrder = 0
+    object lblDLLPath: TLabel
+      Left = 15
+      Height = 15
+      Top = 15
+      Width = 104
+      Caption = 'Caminho DLL Python:'
+      ParentColor = False
+    end
+    object edDLLPath: TEdit
+      Left = 15
+      Height = 23
+      Top = 35
+      Width = 180
+      TabOrder = 0
+      Text = 'python3.dll'
+    end
+    object btnInitPython: TButton
+      Left = 210
+      Height = 45
+      Top = 17
+      Width = 240
+      Caption = 'Ativar Interpretador Python'
+      Font.Style = [fsBold]
+      OnClick = btnInitPythonClick
+      TabOrder = 1
+    end
+    object btnInstallDeps: TButton
+      Left = 465
+      Height = 45
+      Top = 17
+      Width = 320
+      Caption = 'Instalar Dependências (TensorFlow/Pillow)'
+      OnClick = btnInstallDepsClick
+      TabOrder = 2
+    end
+  end
+  object pnlImageArea: TPanel
+    Left = 10
+    Height = 340
+    Top = 110
+    Width = 340
+    Align = alLeft
+    BorderSpacing.Left = 10
+    BorderSpacing.Right = 5
+    BorderSpacing.Bottom = 10
+    ClientHeight = 340
+    ClientWidth = 340
+    TabOrder = 1
+    object imgPicture: TImage
+      Left = 15
+      Height = 250
+      Top = 15
+      Width = 310
+      Proportional = True
+      Stretch = True
+    end
+    object btnSelectImage: TButton
+      Left = 15
+      Height = 35
+      Top = 285
+      Width = 310
+      Caption = 'Selecionar Imagem...'
+      Font.Style = [fsBold]
+      OnClick = btnSelectImageClick
+      TabOrder = 0
+    end
+  end
+  object pnlResult: TPanel
+    Left = 365
+    Height = 340
+    Top = 110
+    Width = 445
+    Align = alClient
+    BorderSpacing.Left = 5
+    BorderSpacing.Right = 10
+    BorderSpacing.Bottom = 10
+    ClientHeight = 340
+    ClientWidth = 445
+    TabOrder = 2
+    object lblResultTitle: TLabel
+      Left = 15
+      Height = 15
+      Top = 10
+      Width = 212
+      Caption = 'Resultados da Predição Convolucional:'
+      Font.Style = [fsBold]
+      ParentColor = False
+    end
+    object btnClassify: TButton
+      Left = 15
+      Height = 45
+      Top = 40
+      Width = 410
+      Caption = 'Classificar Imagem (Executar CNN)'
+      Font.Style = [fsBold]
+      OnClick = btnClassifyClick
+      TabOrder = 0
+    end
+    object lblLabel: TLabel
+      Left = 15
+      Height = 15
+      Top = 115
+      Width = 96
+      Caption = 'Classe Identificada:'
+      ParentColor = False
+    end
+    object edLabel: TEdit
+      Left = 15
+      Height = 23
+      Top = 135
+      Width = 410
+      ReadOnly = True
+      TabOrder = 1
+    end
+    object lblConfidence: TLabel
+      Left = 15
+      Height = 15
+      Top = 180
+      Width = 109
+      Caption = 'Confiança (Precisão):'
+      ParentColor = False
+    end
+    object edConfidence: TEdit
+      Left = 15
+      Height = 23
+      Top = 200
+      Width = 410
+      ReadOnly = True
+      TabOrder = 2
+    end
+  end
+  object meLogs: TMemo
+    Left = 10
+    Height = 130
+    Top = 480
+    Width = 800
+    Align = alBottom
+    BorderSpacing.Around = 10
+    ReadOnly = True
+    ScrollBars = ssAutoBoth
+    TabOrder = 3
+  end
+  object lblLogs: TLabel
+    Left = 10
+    Height = 15
+    Top = 455
+    Width = 113
+    Caption = 'Logs do Classificador:'
+    ParentColor = False
+  end
+end

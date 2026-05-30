@@ -65,6 +65,21 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="perceptron"/>
       </Item>
+      <Item>
+        <Filename Value="sommap.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="sommap"/>
+      </Item>
+      <Item>
+        <Filename Value="cnnclassifier.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="cnnclassifier"/>
+      </Item>
+      <Item>
+        <Filename Value="lstmpredictor.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="lstmpredictor"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>
