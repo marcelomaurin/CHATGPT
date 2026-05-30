@@ -13,11 +13,11 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Lazarus](https://img.shields.io/badge/Lazarus-3.x-orange.svg)](https://www.lazarus-ide.org/)
 
-Composant visuel pour Free Pascal / Lazarus permettant d'envoyer des questions et de recevoir des réponses de plusieurs fournisseurs d'IA, notamment **OpenAI (ChatGPT)**, **OpenRouter**, **Cerebras** et des **modèles locaux via Ollama**.
+Composant visuel pour Free Pascal / Lazarus permettant d'envoyer des questions et de recevoir des réponses de plusieurs fournisseurs d'IA, notamment **OpenAI (ChatGPT)**, **Google Gemini**, **Anthropic Claude**, **OpenRouter**, **Cerebras** et des **modèles locaux via Ollama**.
 
 ## Fonctionnalités
 
-- ✅ Prise en charge de plusieurs fournisseurs (OpenAI, OpenRouter, Cerebras, Ollama/Local)
+- ✅ Prise en charge de plusieurs fournisseurs (OpenAI, OpenRouter, Cerebras, Ollama/Local, Gemini, Claude)
 - ✅ Sélection du modèle par enum ou nom personnalisé
 - ✅ Communication via HTTPS avec `TFPHttpClient` (sans dépendance à Indy)
 - ✅ Installation en tant que composant dans la palette de Lazarus (onglet **IA**)
@@ -37,8 +37,8 @@ begin
   FChatgpt := TCHATGPT.Create(nil);
   try
     FChatgpt.TOKEN := 'sk-VOTRE_CLE_ICI';
-    FChatgpt.Provider := AIP_OPENAI;       // OpenAI, OpenRouter, Cerebras ou Local
-    FChatgpt.TipoChat := VCT_GPT4o;        // Modèle souhaité
+    FChatgpt.Provider := AIP_GEMINI;       // OpenAI, OpenRouter, Cerebras, Local, Gemini ou Claude
+    FChatgpt.TipoChat := VCT_GEMINI_25_FLASH; // Modèle souhaité
     FChatgpt.MaxTokens := 4096;            // Limite de jetons dans la réponse
 
     if FChatgpt.SendQuestion('Quelle est la capitale de la France ?') then
@@ -60,6 +60,8 @@ end;
 | OpenAI | `AIP_OPENAI` | `api.openai.com` | Oui |
 | OpenRouter | `AIP_OPENROUTER` | `openrouter.ai` | Oui |
 | Cerebras | `AIP_CEREBRAS` | `api.cerebras.ai` | Oui |
+| Google Gemini | `AIP_GEMINI` | `generativelanguage.googleapis.com` | Oui |
+| Anthropic Claude | `AIP_CLAUDE` | `api.anthropic.com` | Oui |
 | Local (Ollama) | `AIP_LOCAL` | `localhost:11434` | Non |
 
 ---
@@ -77,6 +79,22 @@ end;
 | `VCT_GPT41` | `gpt-4.1` |
 | `VCT_GPT41_MINI` | `gpt-4.1-mini` |
 | `VCT_GPT5` | `gpt-5` |
+
+### Google Gemini (Gratuit & Payant)
+| Enum | Modèle API |
+|---|---|
+| `VCT_GEMINI_25_FLASH` | `gemini-2.5-flash` |
+| `VCT_GEMINI_25_PRO` | `gemini-2.5-pro` |
+| `VCT_GEMINI_20_FLASH` | `gemini-2.0-flash` |
+| `VCT_GEMINI_15_FLASH` | `gemini-1.5-flash` |
+| `VCT_GEMINI_15_PRO` | `gemini-1.5-pro` |
+
+### Anthropic Claude (Gratuit & Payant)
+| Enum | Modèle API |
+|---|---|
+| `VCT_CLAUDE_35_SONNET` | `claude-3-5-sonnet-20241022` |
+| `VCT_CLAUDE_35_HAIKU` | `claude-3-5-haiku-20241022` |
+| `VCT_CLAUDE_3_OPUS` | `claude-3-opus-20240229` |
 
 ### Ollama / Local
 | Enum | Modèle |
@@ -97,7 +115,7 @@ end;
 | Propriété | Type | Description |
 |---|---|---|
 | `TOKEN` | `WideString` | Clé API du fournisseur |
-| `Provider` | `TAIProvider` | Fournisseur d'IA (OpenAI, OpenRouter, Cerebras, Local) |
+| `Provider` | `TAIProvider` | Fournisseur d'IA (OpenAI, OpenRouter, Cerebras, Local, Gemini, Claude) |
 | `TipoChat` | `TVersionChat` | Modèle d'IA sélectionné |
 | `CustomModel` | `WideString` | Nom du modèle personnalisé (remplace TipoChat) |
 | `LocalIP` | `WideString` | URL du serveur Ollama local (par défaut : `http://localhost:11434`) |
@@ -186,20 +204,24 @@ Une application de démonstration complète est disponible dans le dossier `demo
 
 1. Ouvrez `demo/demo1.lpi` dans Lazarus
 2. Compilez et exécutez
-3. Entrez votre clé API dans le champ correspondant
-4. Saisissez votre question et cliquez sur **Submit** ou appuyez sur **Entrée**
+3. Sélectionnez le fournisseur d'IA souhaité dans le menu déroulant
+4. Sélectionnez le modèle ou définissez un modèle personnalisé
+5. Entrez votre clé API dans le champ correspondant
+6. Saisissez votre question et cliquez sur **Submit** ou appuyez sur **Entrée**
 
 ---
 
 ## Avis Important
 
-L'utilisation de fournisseurs cloud comme OpenAI, OpenRouter ou Cerebras nécessite un **abonnement actif** et des crédits disponibles. L'utilisation d'**Ollama local** ne nécessite aucune clé API.
+L'utilisation de fournisseurs cloud comme OpenAI, OpenRouter, Cerebras, Gemini ou Claude nécessite un **abonnement actif** et des crédits disponibles. L'utilisation d'**Ollama local** ne nécessite aucune clé API.
 
 ---
 
 ## Références
 
 - [Documentation de l'API OpenAI](https://platform.openai.com/docs/)
+- [Documentation de l'API Google Gemini](https://ai.google.dev/docs)
+- [Documentation de l'API Anthropic Claude](https://docs.anthropic.com/)
 - [OpenRouter](https://openrouter.ai/)
 - [Ollama](https://ollama.ai/)
 - [Cerebras](https://www.cerebras.ai/)

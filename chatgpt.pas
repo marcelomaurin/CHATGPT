@@ -30,14 +30,28 @@ type
     VCT_DEEPSEEK_R1_14B,
     VCT_DEEPSEEK_R1_70B,
 
+    // Gemini (Google)
+    VCT_GEMINI_15_FLASH,
+    VCT_GEMINI_15_PRO,
+    VCT_GEMINI_20_FLASH,
+    VCT_GEMINI_25_FLASH,
+    VCT_GEMINI_25_PRO,
+
+    // Anthropic Claude
+    VCT_CLAUDE_35_SONNET,
+    VCT_CLAUDE_35_HAIKU,
+    VCT_CLAUDE_3_OPUS,
+
     VCT_CUSTOM
   );
 
   TAIProvider = (
     AIP_OPENAI,      // 0
-    AIP_OPENROUTER, // 1
-    AIP_CEREBRAS,   // 2
-    AIP_LOCAL       // 3 - llama.cpp / Ollama local
+    AIP_OPENROUTER,  // 1
+    AIP_CEREBRAS,    // 2
+    AIP_LOCAL,       // 3 - llama.cpp / Ollama local
+    AIP_GEMINI,      // 4 - Google Gemini
+    AIP_CLAUDE       // 5 - Anthropic Claude
   );
 
   { TCHATGPT }
@@ -133,6 +147,41 @@ begin
   CleanJSON := StringReplace(JSON, '#$0A', '', [rfReplaceAll]);
   Result := '';
 
+  if FProvider = AIP_CLAUDE then
+  begin
+    Parser := TJSONParser.Create(CleanJSON);
+    try
+      try
+        Data := Parser.Parse;
+        try
+          if Data.JSONType = jtObject then
+          begin
+            JsonObject := TJSONObject(Data);
+            if JsonObject.Find('content', ChoicesArray) then
+            begin
+              if (ChoicesArray <> nil) and (ChoicesArray.Count > 0) then
+              begin
+                if ChoicesArray.Items[0].JSONType = jtObject then
+                begin
+                  ContentData := ChoicesArray.Objects[0].Find('text');
+                  if (ContentData <> nil) and (ContentData.JSONType = jtString) then
+                    Result := ContentData.AsString;
+                end;
+              end;
+            end;
+          end;
+        finally
+          Data.Free;
+        end;
+      except
+        Result := '';
+      end;
+    finally
+      Parser.Free;
+    end;
+    Exit;
+  end;
+
   Parser := TJSONParser.Create(CleanJSON);
   try
     try
@@ -183,6 +232,12 @@ begin
     AIP_CEREBRAS:
       Result := 'https://api.cerebras.ai/v1/chat/completions';
 
+    AIP_GEMINI:
+      Result := 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions';
+
+    AIP_CLAUDE:
+      Result := 'https://api.anthropic.com/v1/messages';
+
     AIP_LOCAL:
       Result := MontaURLChatLocal(FLocalIP);
   else
@@ -224,6 +279,34 @@ begin
     Exit('google/gemma-2-9b-it:free');
   end;
 
+  // Gemini
+  if FProvider = AIP_GEMINI then
+  begin
+    case FTipoChat of
+      VCT_GEMINI_15_FLASH: Result := 'gemini-1.5-flash';
+      VCT_GEMINI_15_PRO:   Result := 'gemini-1.5-pro';
+      VCT_GEMINI_20_FLASH: Result := 'gemini-2.0-flash';
+      VCT_GEMINI_25_FLASH: Result := 'gemini-2.5-flash';
+      VCT_GEMINI_25_PRO:   Result := 'gemini-2.5-pro';
+    else
+      Result := 'gemini-2.5-flash';
+    end;
+    Exit;
+  end;
+
+  // Anthropic Claude
+  if FProvider = AIP_CLAUDE then
+  begin
+    case FTipoChat of
+      VCT_CLAUDE_35_SONNET: Result := 'claude-3-5-sonnet-20241022';
+      VCT_CLAUDE_35_HAIKU:  Result := 'claude-3-5-haiku-20241022';
+      VCT_CLAUDE_3_OPUS:    Result := 'claude-3-opus-20240229';
+    else
+      Result := 'claude-3-5-sonnet-20241022';
+    end;
+    Exit;
+  end;
+
   // OpenAI
   case FTipoChat of
     VCT_GPT35TURBO:    Result := 'gpt-3.5-turbo';
@@ -252,6 +335,13 @@ begin
   if FProvider = AIP_LOCAL then
     Exit;
 
+  if FProvider = AIP_CLAUDE then
+  begin
+    AHTTP.AddHeader('x-api-key', FToken);
+    AHTTP.AddHeader('anthropic-version', '2023-06-01');
+    Exit;
+  end;
+
   if Trim(FToken) <> '' then
     AHTTP.AddHeader('Authorization', 'Bearer ' + FToken);
 
@@ -273,33 +363,62 @@ var
   msgs: TJSONArray;
   payload: UTF8String;
 begin
-  root := TJSONObject.Create;
-  try
-    root.Add('model', GetModelName);
+  if FProvider = AIP_CLAUDE then
+  begin
+    root := TJSONObject.Create;
+    try
+      root.Add('model', GetModelName);
+      if Trim(FDev) <> '' then
+        root.Add('system', FDev);
 
-    msgs := TJSONArray.Create;
-    root.Add('messages', msgs);
+      msgs := TJSONArray.Create;
+      root.Add('messages', msgs);
 
-    if Trim(FDev) <> '' then
-    begin
-      mSys := TJSONObject.Create;
-      mSys.Add('role', 'system');
-      mSys.Add('content', FDev);
-      msgs.Add(mSys);
+      mUser := TJSONObject.Create;
+      mUser.Add('role', 'user');
+      mUser.Add('content', ASK);
+      msgs.Add(mUser);
+
+      if FMaxTokens > 0 then
+        root.Add('max_tokens', FMaxTokens)
+      else
+        root.Add('max_tokens', 4096);
+
+      payload := UTF8Encode(root.AsJSON);
+    finally
+      root.Free;
     end;
+  end
+  else
+  begin
+    root := TJSONObject.Create;
+    try
+      root.Add('model', GetModelName);
 
-    mUser := TJSONObject.Create;
-    mUser.Add('role', 'user');
-    mUser.Add('content', ASK);
-    msgs.Add(mUser);
+      msgs := TJSONArray.Create;
+      root.Add('messages', msgs);
 
-    root.Add('temperature', 0.7);
-    if FMaxTokens > 0 then
-      root.Add('max_tokens', FMaxTokens);
+      if Trim(FDev) <> '' then
+      begin
+        mSys := TJSONObject.Create;
+        mSys.Add('role', 'system');
+        mSys.Add('content', FDev);
+        msgs.Add(mSys);
+      end;
 
-    payload := UTF8Encode(root.AsJSON);
-  finally
-    root.Free;
+      mUser := TJSONObject.Create;
+      mUser.Add('role', 'user');
+      mUser.Add('content', ASK);
+      msgs.Add(mUser);
+
+      root.Add('temperature', 0.7);
+      if FMaxTokens > 0 then
+        root.Add('max_tokens', FMaxTokens);
+
+      payload := UTF8Encode(root.AsJSON);
+    finally
+      root.Free;
+    end;
   end;
 
   ClienteHTTP := TFPHttpClient.Create(nil);
@@ -438,6 +557,8 @@ begin
     AIP_OPENROUTER: Result := 'OpenRouter';
     AIP_CEREBRAS:   Result := 'Cerebras';
     AIP_LOCAL:      Result := 'Local';
+    AIP_GEMINI:     Result := 'Gemini';
+    AIP_CLAUDE:     Result := 'Claude';
   else
     Result := 'OpenAI';
   end;

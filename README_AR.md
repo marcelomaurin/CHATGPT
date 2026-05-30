@@ -13,11 +13,11 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Lazarus](https://img.shields.io/badge/Lazarus-3.x-orange.svg)](https://www.lazarus-ide.org/)
 
-مكون مرئي لـ Free Pascal / Lazarus يسمح بإرسال الأسئلة وتلقي الإجابات من مزودي ذكاء اصطناعي متعددين، بما في ذلك **OpenAI (ChatGPT)** و **OpenRouter** و **Cerebras** و **النماذج المحلية عبر Ollama**.
+مكون مرئي لـ Free Pascal / Lazarus يسمح بإرسال الأسئلة وتلقي الإجابات من مزودي ذكاء اصطناعي متعددين، بما في ذلك **OpenAI (ChatGPT)** و **Google Gemini** و **Anthropic Claude** و **OpenRouter** و **Cerebras** و **النماذج المحلية عبر Ollama**.
 
 ## الميزات
 
-- ✅ دعم مزودين متعددين (OpenAI و OpenRouter و Cerebras و Ollama/المحلي)
+- ✅ دعم مزودين متعددين (OpenAI و OpenRouter و Cerebras و Ollama/المحلي و Gemini و Claude)
 - ✅ اختيار النموذج عبر enum أو اسم مخصص
 - ✅ الاتصال عبر HTTPS باستخدام `TFPHttpClient` (بدون الاعتماد على Indy)
 - ✅ التثبيت كمكون في لوحة مكونات لازاروس (علامة التبويب **IA**)
@@ -37,8 +37,8 @@ begin
   FChatgpt := TCHATGPT.Create(nil);
   try
     FChatgpt.TOKEN := 'sk-YOUR_KEY_HERE';
-    FChatgpt.Provider := AIP_OPENAI;       // OpenAI, OpenRouter, Cerebras, or Local
-    FChatgpt.TipoChat := VCT_GPT4o;        // النموذج المطلوب
+    FChatgpt.Provider := AIP_GEMINI;       // OpenAI, OpenRouter, Cerebras, Local, Gemini, or Claude
+    FChatgpt.TipoChat := VCT_GEMINI_25_FLASH; // النموذج المطلوب
     FChatgpt.MaxTokens := 4096;            // الحد الأقصى للرموز (Tokens) في الإجابة
 
     if FChatgpt.SendQuestion('ما هي عاصمة مصر؟') then
@@ -60,6 +60,8 @@ end;
 | OpenAI | `AIP_OPENAI` | `api.openai.com` | نعم |
 | OpenRouter | `AIP_OPENROUTER` | `openrouter.ai` | نعم |
 | Cerebras | `AIP_CEREBRAS` | `api.cerebras.ai` | نعم |
+| Google Gemini | `AIP_GEMINI` | `generativelanguage.googleapis.com` | نعم |
+| Anthropic Claude | `AIP_CLAUDE` | `api.anthropic.com` | نعم |
 | المحلي (Ollama) | `AIP_LOCAL` | `localhost:11434` | لا |
 
 ---
@@ -77,6 +79,22 @@ end;
 | `VCT_GPT41` | `gpt-4.1` |
 | `VCT_GPT41_MINI` | `gpt-4.1-mini` |
 | `VCT_GPT5` | `gpt-5` |
+
+### Google Gemini (المجانية والمدفوعة)
+| Enum | نموذج API |
+|---|---|
+| `VCT_GEMINI_25_FLASH` | `gemini-2.5-flash` |
+| `VCT_GEMINI_25_PRO` | `gemini-2.5-pro` |
+| `VCT_GEMINI_20_FLASH` | `gemini-2.0-flash` |
+| `VCT_GEMINI_15_FLASH` | `gemini-1.5-flash` |
+| `VCT_GEMINI_15_PRO` | `gemini-1.5-pro` |
+
+### Anthropic Claude (المجانية والمدفوعة)
+| Enum | نموذج API |
+|---|---|
+| `VCT_CLAUDE_35_SONNET` | `claude-3-5-sonnet-20241022` |
+| `VCT_CLAUDE_35_HAIKU` | `claude-3-5-haiku-20241022` |
+| `VCT_CLAUDE_3_OPUS` | `claude-3-opus-20240229` |
 
 ### Ollama / المحلي
 | Enum | النموذج |
@@ -97,7 +115,7 @@ end;
 | الخاصية | النوع | الوصف |
 |---|---|---|
 | `TOKEN` | `WideString` | مفتاح واجهة برمجة التطبيقات (API Key) الخاص بالمزود |
-| `Provider` | `TAIProvider` | مزود الذكاء الاصطناعي (OpenAI, OpenRouter, Cerebras, Local) |
+| `Provider` | `TAIProvider` | مزود الذكاء الاصطناعي (OpenAI, OpenRouter, Cerebras, Local, Gemini, Claude) |
 | `TipoChat` | `TVersionChat` | نموذج الذكاء الاصطناعي المحدد |
 | `CustomModel` | `WideString` | اسم نموذج مخصص (يتجاوز TipoChat) |
 | `LocalIP` | `WideString` | عنوان URL لخادم Ollama المحلي (الافتراضي: `http://localhost:11434`) |
@@ -186,20 +204,24 @@ CHATGPT/
 
 1. افتح الملف `demo/demo1.lpi` في لازاروس
 2. قم بترجمة وتشغيل المشروع
-3. أدخل مفتاح واجهة برمجة التطبيقات (API Key) في الحقل المقابل
-4. اكتب سؤالك وانقر فوق **Submit** أو اضغط على **Enter**
+3. اختر مزود الذكاء الاصطناعي المطلوب من القائمة المنسدلة
+4. اختر النموذج أو حدد نموذجًا مخصصًا
+5. أدخل مفتاح واجهة برمجة التطبيقات (API Key) في الحقل المقابل
+6. اكتب سؤالك وانقر فوق **Submit** أو اضغط على **Enter**
 
 ---
 
 ## ملاحظة هامة
 
-يتطلب استخدام مزودي الخدمات السحابية مثل OpenAI أو OpenRouter أو Cerebras وجود **اشتراك نشط** ورصيد متاح في حسابك. استخدام **Ollama المحلي** مجاني تماماً ولا يتطلب أي مفاتيح API.
+يتطلب استخدام مزودي الخدمات السحابية مثل OpenAI أو OpenRouter أو Cerebras أو Gemini أو Claude وجود **اشتراك نشط** ورصيد متاح في حسابك. استخدام **Ollama المحلي** مجاني تماماً ولا يتطلب أي مفاتيح API.
 
 ---
 
 ## المراجع
 
 - [توثيق واجهة برمجة تطبيقات OpenAI](https://platform.openai.com/docs/)
+- [توثيق واجهة برمجة تطبيقات Google Gemini](https://ai.google.dev/docs)
+- [توثيق واجهة برمجة تطبيقات Anthropic Claude](https://docs.anthropic.com/)
 - [OpenRouter](https://openrouter.ai/)
 - [Ollama](https://ollama.ai/)
 - [Cerebras](https://www.cerebras.ai/)

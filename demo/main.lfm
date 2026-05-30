@@ -1,10 +1,10 @@
 object frmdemo1: Tfrmdemo1
   Left = 316
-  Height = 623
+  Height = 650
   Top = 154
   Width = 994
   Caption = 'Demo1'
-  ClientHeight = 623
+  ClientHeight = 650
   ClientWidth = 994
   DesignTimePPI = 120
   OnCreate = FormCreate
@@ -12,60 +12,144 @@ object frmdemo1: Tfrmdemo1
   LCLVersion = '2.3.0.0'
   object Panel1: TPanel
     Left = 0
-    Height = 88
+    Height = 150
     Top = 0
     Width = 994
     Align = alTop
-    ClientHeight = 88
+    ClientHeight = 150
     ClientWidth = 994
     TabOrder = 0
     object Label1: TLabel
-      Left = 25
+      Left = 15
       Height = 20
-      Top = 18
+      Top = 10
       Width = 49
       Caption = 'TOKEN:'
       ParentColor = False
     end
     object edToken: TEdit
-      Left = 25
+      Left = 15
       Height = 28
-      Top = 43
-      Width = 413
+      Top = 30
+      Width = 300
       TabOrder = 0
     end
+    object LabelProvider: TLabel
+      Left = 330
+      Height = 20
+      Top = 10
+      Width = 57
+      Caption = 'Provider:'
+      ParentColor = False
+    end
+    object cbProvider: TComboBox
+      Left = 330
+      Height = 28
+      Top = 30
+      Width = 150
+      ItemHeight = 20
+      OnChange = cbProviderChange
+      Style = csDropDownList
+      TabOrder = 1
+    end
+    object LabelModel: TLabel
+      Left = 495
+      Height = 20
+      Top = 10
+      Width = 46
+      Caption = 'Model:'
+      ParentColor = False
+    end
+    object cbModel: TComboBox
+      Left = 495
+      Height = 28
+      Top = 30
+      Width = 240
+      ItemHeight = 20
+      Style = csDropDownList
+      TabOrder = 2
+    end
+    object LabelMaxTokens: TLabel
+      Left = 750
+      Height = 20
+      Top = 10
+      Width = 79
+      Caption = 'Max Tokens:'
+      ParentColor = False
+    end
+    object edMaxTokens: TEdit
+      Left = 750
+      Height = 28
+      Top = 30
+      Width = 80
+      TabOrder = 3
+      Text = '4096'
+    end
+    object LabelLocalIP: TLabel
+      Left = 15
+      Height = 20
+      Top = 75
+      Width = 117
+      Caption = 'Local IP / Ollama:'
+      ParentColor = False
+    end
+    object edLocalIP: TEdit
+      Left = 15
+      Height = 28
+      Top = 95
+      Width = 300
+      TabOrder = 4
+      Text = 'http://localhost:11434'
+    end
+    object LabelCustomModel: TLabel
+      Left = 330
+      Height = 20
+      Top = 75
+      Width = 98
+      Caption = 'Custom Model:'
+      ParentColor = False
+    end
+    object edCustomModel: TEdit
+      Left = 330
+      Height = 28
+      Top = 95
+      Width = 315
+      TabOrder = 5
+    end
     object btRegistry: TButton
-      Left = 456
+      Left = 660
       Height = 31
-      Top = 40
-      Width = 94
+      Top = 93
+      Width = 75
       Caption = 'Registry'
       OnClick = btRegistryClick
-      TabOrder = 1
+      TabOrder = 6
+      Visible = False
     end
   end
   object Panel2: TPanel
     Left = 0
-    Height = 472
-    Top = 88
+    Height = 437
+    Top = 150
     Width = 994
     Align = alClient
-    ClientHeight = 472
+    ClientHeight = 437
     ClientWidth = 994
     TabOrder = 1
     object meConversation: TMemo
       Left = 1
-      Height = 470
+      Height = 435
       Top = 1
       Width = 992
       Align = alClient
+      ScrollBars = ssAutoVertical
       TabOrder = 0
     end
   end
   object Panel3: TPanel
     Left = 0
     Height = 63
-    Top = 560
+    Top = 587
     Width = 994
     Align = alBottom
     ClientHeight = 63
@@ -90,7 +174,7 @@ object frmdemo1: Tfrmdemo1
       ShowHint = True
       TabOrder = 1
       Text = 'Count 1 to 10 '
-      TextHint = 'Ask for ChatGPT'
+      TextHint = 'Ask for IA'
     end
   end
 end
