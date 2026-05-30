@@ -102,6 +102,39 @@ Rede Neural de camada única (Perceptron clássico de Rosenblatt) escrita em **P
 
 ---
 
+### 8. `TSOMMap` (sommap.pas)
+Rede de Auto-Organização de Kohonen (Self-Organizing Map) escrita em **Pascal puro**, desenvolvida para agrupamento (clustering) de dados e mapeamento topológico em grades bidimensionais com decaimento dinâmico.
+- **Propriedades Principais**:
+  - `GridWidth`, `GridHeight: Integer` (Apenas leitura): Dimensões configuradas para a grade de neurônios.
+  - `InputDim: Integer` (Apenas leitura): Tamanho dos vetores de entrada (ex: 3 para RGB).
+  - `Weights: TSOMGrid` (Apenas leitura): Estrutura 3D contendo os pesos sinápticos associados a cada posição da grade.
+- **Métodos Principais**:
+  - `procedure Initialize(AWidth, AHeight, AInputDim: Integer)`: Inicializa a grade com pesos aleatórios normalizados.
+  - `function FindBMU(const AInput: TDoubleArray; out ABMUX, ABMUY: Integer): Double`: Encontra as coordenadas na grade do neurônio vencedor (Best Matching Unit) e retorna a distância euclidiana.
+  - `procedure TrainStep(const AInput: TDoubleArray; ALearningRate, ARadius: Double)`: Atualiza os pesos do neurônio BMU e de sua vizinhança topológica com decaimento Gaussiano.
+  - `procedure Train(const ADataset: array of TDoubleArray; AEpochs: Integer; AInitialLearningRate: Double = 0.1)`: Executa treinamento estocástico em lote com decaimento exponencial do raio de vizinhança e taxa de aprendizado.
+  - `procedure SaveToFile(const AFileName: string)`: Grava as configurações e pesos da grade em arquivo de texto.
+  - `procedure LoadFromFile(const AFileName: string)`: Carrega e reconstrói o mapa de Kohonen de um arquivo.
+
+---
+
+### 9. `TCNNClassifier` (cnnclassifier.pas)
+Classificador de imagens convolucional profundo que utiliza o modelo de alto desempenho **MobileNetV2** (pré-treinado no ImageNet) localmente por meio do interpretador do Python.
+- **Métodos Principais**:
+  - `function InstallDependencies: Boolean`: Baixa e instala silenciosamente o TensorFlow e Pillow no interpretador local do interpretador Python.
+  - `function ClassifyImage(const AImageFile: string; out AClassLabel: string; out AConfidence: Double): Boolean`: Processa a imagem e retorna a classe identificada traduzida com a probabilidade/confiança (de 0.0 a 1.0).
+
+---
+
+### 10. `TLSTMPredictor` (lstmpredictor.pas)
+Rede Neural Recorrente do tipo **LSTM (Long Short-Term Memory)** configurada dinamicamente para modelagem e previsão local de séries temporais e dados sequenciais.
+- **Métodos Principais**:
+  - `function InstallDependencies: Boolean`: Instala de forma silenciosa NumPy e TensorFlow no interpretador Python associado.
+  - `function TrainLSTM(const ATimeSeries: TDoubleArray; AWindowSize, AEpochs: Integer): Boolean`: Constrói e treina silenciosamente a rede LSTM usando uma janela deslizante.
+  - `function PredictNext(const ALastWindow: TDoubleArray; out APredictedValue: Double): Boolean`: Realiza a inferência com base no último bloco de valores históricos (Rolling Forecast).
+
+---
+
 ## 📂 Diretório de Exemplos (Samples)
 
 A pasta **[samples/](samples/)** contém demonstrações completas para cada recurso da suíte:
@@ -111,6 +144,9 @@ A pasta **[samples/](samples/)** contém demonstrações completas para cada rec
 *   **[python_demo/](samples/python_demo/)**: Playground dinâmico completo para TPythonConnector (permite escrever scripts, manipular variáveis e rodar Eval interativo). *Já inclui as DLLs `python3.dll` e `python312.dll` copiadas para testes imediatos!*
 *   **[neural_network_demo/](samples/neural_network_demo/)**: Demonstração dedicada para treinamento interativo XOR, predições, ajuste de LR/épocas e persistência de pesos.
 *   **[perceptron_demo/](samples/perceptron_demo/)**: Showcase interativo para treinamento do Perceptron em portas lógicas (AND, OR, NAND, NOR) com exibição dos pesos sinápticos e bias em tempo real.
+*   **[som_demo/](samples/som_demo/)**: Demonstração gráfica da auto-organização topológica de Kohonen em uma grade 20x20 de cores RGB em tempo real!
+*   **[cnn_demo/](samples/cnn_demo/)**: Classificação convolucional interativa de fotos locais utilizando a MobileNetV2 (já com DLLs do interpretador Python inclusas).
+*   **[lstm_demo/](samples/lstm_demo/)**: Previsão de tendência sequencial (*Rolling Forecast*) em curvas senoidais com ruído utilizando rede recorrente LSTM e plotagem gráfica dos resultados na tela.
 *   **[tokenizer_demo/](samples/tokenizer_demo/)**: Playground completo para inserção e busca de tokens, processamento de frases inteiras e importação de JSON estruturado.
 
 ### 💻 Demonstrações em Console
