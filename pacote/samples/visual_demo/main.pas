@@ -246,17 +246,42 @@ begin
 end;
 
 procedure TfrmVisualDemo.btnChatSendClick(Sender: TObject);
+var
+  AuditedURL: string;
+  KeyPos: Integer;
 begin
   if Trim(edChatAsk.Text) = '' then
     Exit;
 
   SyncChatGPTConfig;
   meChatConversation.Lines.Append('>>> Você: ' + edChatAsk.Text);
+
+  if (FChatgpt.Provider in [AIP_OPENAI, AIP_GEMINI, AIP_CLAUDE, AIP_OPENROUTER, AIP_CEREBRAS]) and (Trim(FChatgpt.TOKEN) = '') then
+  begin
+    meChatConversation.Lines.Append('>>> ERRO: A chave de API (TOKEN) está vazia! Por favor, digite ou cole sua chave no campo TOKEN no topo.');
+    meChatConversation.Lines.Append('');
+    Exit;
+  end;
   
   if FChatgpt.SendQuestion(edChatAsk.Text) then
     meChatConversation.Lines.Append('>>> IA: ' + FChatgpt.Response)
   else
+  begin
     meChatConversation.Lines.Append('>>> ERRO: ' + FChatgpt.Response);
+    
+    // Auditoria de URL de forma segura (ocultando chave)
+    AuditedURL := string(FChatgpt.LastURL);
+    KeyPos := Pos('?key=', AuditedURL);
+    if KeyPos > 0 then
+      AuditedURL := Copy(AuditedURL, 1, KeyPos + 4) + '***'
+    else
+    begin
+      KeyPos := Pos('&key=', AuditedURL);
+      if KeyPos > 0 then
+        AuditedURL := Copy(AuditedURL, 1, KeyPos + 4) + '***';
+    end;
+    meChatConversation.Lines.Append('>>> URL da Chamada (Auditoria): ' + AuditedURL);
+  end;
   
   meChatConversation.Lines.Append('');
   edChatAsk.Text := '';

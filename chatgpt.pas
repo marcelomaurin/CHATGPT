@@ -78,6 +78,7 @@ type
     FLastJSON        : WideString;
     FMaxTokens       : Integer;
     FLocalIP         : WideString;
+    FLastURL         : WideString;
 
     function RequestJson(const LURL, token, ASK: WideString): WideString;
     function PegaMensagem(const JSON: WideString): WideString;
@@ -102,6 +103,7 @@ type
     property OpenRouterSite: WideString read FOpenRouterSite write FOpenRouterSite;
 
     property LastJSON: WideString read FLastJSON;
+    property LastURL: WideString read FLastURL;
 
     function SendQuestion(ASK: WideString): Boolean;
     constructor Create(AOwner: TComponent); override;
@@ -566,6 +568,7 @@ begin
 
   try
     LURL := GetEndpoint;
+    FLastURL := LURL;
   except
     on E: Exception do
     begin
@@ -635,6 +638,7 @@ begin
   FLastJSON := '';
   FLocalIP := 'http://localhost:11434';
   FMaxTokens := 4096;
+  FLastURL := '';
 end;
 
 destructor TCHATGPT.Destroy;
