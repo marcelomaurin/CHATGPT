@@ -348,8 +348,8 @@ begin
   if FProvider = AIP_GEMINI then
   begin
     case FTipoChat of
-      VCT_GEMINI_15_FLASH: Result := 'gemini-1.5-flash';
-      VCT_GEMINI_15_PRO:   Result := 'gemini-1.5-pro';
+      VCT_GEMINI_15_FLASH: Result := 'gemini-2.5-flash'; // Fallback para modelo legado descontinuado pela Google
+      VCT_GEMINI_15_PRO:   Result := 'gemini-2.5-pro';   // Fallback para modelo legado descontinuado pela Google
       VCT_GEMINI_20_FLASH: Result := 'gemini-2.0-flash';
       VCT_GEMINI_25_FLASH: Result := 'gemini-2.5-flash';
       VCT_GEMINI_25_PRO:   Result := 'gemini-2.5-pro';
