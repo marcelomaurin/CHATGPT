@@ -18,6 +18,7 @@ O componente central de conectividade com LLMs (Modelos de Linguagem). Ele abstr
   - `Dev: WideString`: Instruções do prompt do sistema (System/Developer prompt).
   - `Response: WideString` (Apenas leitura): Contém a resposta da última pergunta.
   - `LastJSON: WideString` (Apenas leitura): Retorna o JSON completo bruto da resposta HTTP.
+  - `LastURL: WideString` (Apenas leitura): Retorna a URL exata estruturada da última chamada HTTP efetuada (altamente recomendável para depuração e auditoria de chaves de API/endpoints).
 - **Métodos Principais**:
   - `function SendQuestion(ASK: WideString): Boolean`: Envia a pergunta e retorna `True` em caso de sucesso.
   - `function ProviderName: WideString`: Retorna o nome amigável do provedor selecionado.
