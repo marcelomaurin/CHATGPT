@@ -1,0 +1,10 @@
+object FormMain: TFormMain
+  Left = 240
+  Height = 650
+  Top = 150
+  Width = 950
+  Caption = 'IA Image Processing Showcase Playground'
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '2.2.0'
+end

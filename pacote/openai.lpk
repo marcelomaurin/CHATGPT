@@ -85,6 +85,11 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="soundfilters"/>
       </Item>
+      <Item>
+        <Filename Value="imagefilters.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="imagefilters"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>
