@@ -1,0 +1,211 @@
+object frmTokenizerDemo: TfrmTokenizerDemo
+  Left = 320
+  Height = 620
+  Top = 150
+  Width = 820
+  Caption = 'TTokenList Showcase - Tokenizador de Strings'
+  ClientHeight = 620
+  ClientWidth = 820
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '3.0.0.3'
+  object pnlAdd: TPanel
+    Left = 10
+    Height = 85
+    Top = 10
+    Width = 390
+    Align = alNone
+    BorderSpacing.Around = 10
+    ClientHeight = 85
+    ClientWidth = 390
+    TabOrder = 0
+    object lblAddTitle: TLabel
+      Left = 15
+      Height = 15
+      Top = 5
+      Width = 169
+      Caption = 'Adicionar Token Interativo:'
+      Font.Style = [fsBold]
+      ParentColor = False
+    end
+    object lblKey: TLabel
+      Left = 15
+      Height = 15
+      Top = 25
+      Width = 36
+      Caption = 'Chave:'
+      ParentColor = False
+    end
+    object edKey: TEdit
+      Left = 15
+      Height = 23
+      Top = 45
+      Width = 100
+      TabOrder = 0
+      Text = 'Lazarus'
+    end
+    object lblTokenVal: TLabel
+      Left = 130
+      Height = 15
+      Top = 25
+      Width = 71
+      Caption = 'Valor Token:'
+      ParentColor = False
+    end
+    object edTokenVal: TEdit
+      Left = 130
+      Height = 23
+      Top = 45
+      Width = 120
+      TabOrder = 1
+      Text = 'COMPILADOR'
+    end
+    object btnAdd: TButton
+      Left = 265
+      Height = 25
+      Top = 43
+      Width = 55
+      Caption = 'Add'
+      OnClick = btnAddClick
+      TabOrder = 2
+    end
+    object btnFind: TButton
+      Left = 325
+      Height = 25
+      Top = 43
+      Width = 55
+      Caption = 'Find'
+      OnClick = btnFindClick
+      TabOrder = 3
+    end
+  end
+  object pnlJSON: TPanel
+    Left = 10
+    Height = 180
+    Top = 105
+    Width = 390
+    Align = alNone
+    ClientHeight = 180
+    ClientWidth = 390
+    TabOrder = 1
+    object lblJSONTitle: TLabel
+      Left = 15
+      Height = 15
+      Top = 10
+      Width = 143
+      Caption = 'Carregar Tokens via JSON:'
+      Font.Style = [fsBold]
+      ParentColor = False
+    end
+    object meJSON: TMemo
+      Left = 15
+      Height = 110
+      Top = 30
+      Width = 360
+      ScrollBars = ssAutoBoth
+      TabOrder = 0
+    end
+    object btnLoadJSON: TButton
+      Left = 15
+      Height = 25
+      Top = 148
+      Width = 360
+      Caption = 'Load From JSON estruturado'
+      OnClick = btnLoadJSONClick
+      TabOrder = 1
+    end
+  end
+  object pnlEncode: TPanel
+    Left = 415
+    Height = 275
+    Top = 10
+    Width = 395
+    Align = alRight
+    BorderSpacing.Right = 10
+    BorderSpacing.Top = 10
+    BorderSpacing.Bottom = 10
+    ClientHeight = 275
+    ClientWidth = 395
+    TabOrder = 2
+    object lblEncodeTitle: TLabel
+      Left = 15
+      Height = 15
+      Top = 10
+      Width = 232
+      Caption = 'Codificar e Tokenizar Frase Inteira (Encode):'
+      Font.Style = [fsBold]
+      ParentColor = False
+    end
+    object meInputText: TMemo
+      Left = 15
+      Height = 190
+      Top = 35
+      Width = 365
+      ScrollBars = ssAutoBoth
+      TabOrder = 0
+    end
+    object btnEncodeText: TButton
+      Left = 15
+      Height = 30
+      Top = 235
+      Width = 365
+      Caption = 'Segmentar e Executar Encode'
+      OnClick = btnEncodeTextClick
+      TabOrder = 1
+    end
+  end
+  object pnlList: TPanel
+    Left = 10
+    Height = 220
+    Top = 295
+    Width = 390
+    Align = alNone
+    ClientHeight = 220
+    ClientWidth = 390
+    TabOrder = 3
+    object lblListTitle: TLabel
+      Left = 15
+      Height = 15
+      Top = 10
+      Width = 145
+      Caption = 'Tokens Ativos em Memória:'
+      Font.Style = [fsBold]
+      ParentColor = False
+    end
+    object lstTokens: TListBox
+      Left = 15
+      Height = 145
+      Top = 30
+      Width = 360
+      ItemHeight = 0
+      TabOrder = 0
+    end
+    object lblCount: TLabel
+      Left = 15
+      Height = 15
+      Top = 185
+      Width = 163
+      Caption = 'Total de Tokens em memória: 0'
+      ParentColor = False
+    end
+  end
+  object meLogs: TMemo
+    Left = 415
+    Height = 220
+    Top = 295
+    Width = 395
+    Align = alRight
+    BorderSpacing.Right = 10
+    ReadOnly = True
+    ScrollBars = ssAutoBoth
+    TabOrder = 4
+  end
+  object lblLogs: TLabel
+    Left = 415
+    Height = 15
+    Top = 275
+    Width = 108
+    Caption = 'Histórico de Logs:'
+    ParentColor = False
+  end
+end

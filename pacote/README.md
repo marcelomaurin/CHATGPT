@@ -70,10 +70,33 @@ Um utilitário de conveniência para contagem, análise e segmentação (tokeniz
 
 ---
 
+### 6. `TPythonConnector` (pythonconnector.pas)
+Um conector dinâmico e multiplataforma para integrar scripts e código Python nativamente em aplicações Lazarus/Delphi:
+- **Propriedades Principais**:
+  - `DLLPath: string`: Caminho para a biblioteca dinâmica do Python (ex: `python3.dll`, `python312.dll`, `libpython3.so`).
+  - `Active: Boolean`: Ativa ou desativa o interpretador de forma dinâmica carregando os ponteiros da biblioteca em memória.
+  - `Version: string` (Apenas leitura): Retorna a versão oficial do interpretador carregado via API C.
+  - `LastError: string` (Apenas leitura): Detalha mensagens de erro no carregamento da DLL ou falhas de execução de scripts.
+- **Métodos Principais**:
+  - `function ExecString(const AScript: string): Boolean`: Executa instruções ou scripts arbitrários no Python.
+  - `function GetVar(const AVarName: string): string`: Lê qualquer variável do namespace global e retorna sua representação em string.
+  - `procedure SetVar(const AVarName, AValue: string)`: Cria ou atualiza uma variável do tipo string no contexto global do Python.
+  - `function Eval(const AExpression: string): string`: Avalia expressões matemáticas/lógicas no interpretador e retorna o resultado.
+
+---
+
 ## 📂 Diretório de Exemplos (Samples)
 
-Para ver o funcionamento prático de cada componente em cenários reais, acesse a pasta **[samples/](samples/)**:
-*   `samples/chatgpt_sample.lpr`: Demonstração de chamadas para OpenAI, Gemini e Claude.
-*   `samples/neuralnetwork_sample.lpr`: Fluxo clássico de treinamento e inferência de Rede Neural local.
-*   `samples/aicodeassistant_sample.lpr`: Fluxo de otimização e auditoria de código Pascal.
-*   `samples/aidatasetgenerator_sample.lpr`: Geração de conjuntos de dados e conversão CSV para Rede Neural.
+A pasta **[samples/](samples/)** contém demonstrações completas para cada recurso da suíte:
+
+### 🖥️ Demonstrações Visuais (GUI Completa)
+*   **[visual_demo/](samples/visual_demo/)**: Showcase unificado com abas para TCHATGPT, TNeuralNetwork, TAICodeAssistant e TAIDatasetGenerator.
+*   **[python_demo/](samples/python_demo/)**: Playground dinâmico completo para TPythonConnector (permite escrever scripts, manipular variáveis e rodar Eval interativo). *Já inclui as DLLs `python3.dll` e `python312.dll` copiadas para testes imediatos!*
+*   **[neural_network_demo/](samples/neural_network_demo/)**: Demonstração dedicada para treinamento interativo XOR, predições, ajuste de LR/épocas e persistência de pesos.
+*   **[tokenizer_demo/](samples/tokenizer_demo/)**: Playground completo para inserção e busca de tokens, processamento de frases inteiras e importação de JSON estruturado.
+
+### 💻 Demonstrações em Console
+*   `samples/chatgpt_sample.lpr`: Integração direta com OpenAI, Gemini e Claude.
+*   `samples/neuralnetwork_sample.lpr`: Loop clássico de aprendizado XOR local.
+*   `samples/aicodeassistant_sample.lpr`: Auditoria, otimização e geração de testes unitários.
+*   `samples/aidatasetgenerator_sample.lpr`: Criação de conjuntos de treinamento local e Fine-Tuning.

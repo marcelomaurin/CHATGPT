@@ -1,0 +1,236 @@
+object frmNeuralDemo: TfrmNeuralDemo
+  Left = 320
+  Height = 620
+  Top = 150
+  Width = 820
+  Caption = 'TNeuralNetwork Showcase - Rede Neural Local'
+  ClientHeight = 620
+  ClientWidth = 820
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '3.0.0.3'
+  object pnlConfig: TPanel
+    Left = 10
+    Height = 90
+    Top = 10
+    Width = 800
+    Align = alTop
+    BorderSpacing.Around = 10
+    ClientHeight = 90
+    ClientWidth = 800
+    TabOrder = 0
+    object lblLearningRate: TLabel
+      Left = 15
+      Height = 15
+      Top = 15
+      Width = 100
+      Caption = 'Taxa Aprendizado:'
+      ParentColor = False
+    end
+    object edLearningRate: TEdit
+      Left = 15
+      Height = 23
+      Top = 35
+      Width = 100
+      TabOrder = 0
+      Text = '0.1'
+    end
+    object lblHidden: TLabel
+      Left = 135
+      Height = 15
+      Top = 15
+      Width = 84
+      Caption = 'Nodos Ocultos:'
+      ParentColor = False
+    end
+    object edHidden: TEdit
+      Left = 135
+      Height = 23
+      Top = 35
+      Width = 80
+      TabOrder = 1
+      Text = '4'
+    end
+    object lblEpochs: TLabel
+      Left = 235
+      Height = 15
+      Top = 15
+      Width = 42
+      Caption = 'Épocas:'
+      ParentColor = False
+    end
+    object edEpochs: TEdit
+      Left = 235
+      Height = 23
+      Top = 35
+      Width = 90
+      TabOrder = 2
+      Text = '5000'
+    end
+    object lblActivation: TLabel
+      Left = 345
+      Height = 15
+      Top = 15
+      Width = 95
+      Caption = 'Função Ativação:'
+      ParentColor = False
+    end
+    object cbActivation: TComboBox
+      Left = 345
+      Height = 23
+      Top = 35
+      Width = 150
+      ItemHeight = 15
+      Style = csDropDownList
+      TabOrder = 3
+    end
+    object btnTrain: TButton
+      Left = 515
+      Height = 45
+      Top = 17
+      Width = 260
+      Caption = 'Iniciar Treinamento XOR local'
+      Font.Style = [fsBold]
+      OnClick = btnTrainClick
+      TabOrder = 4
+    end
+  end
+  object pnlInfer: TPanel
+    Left = 10
+    Height = 180
+    Top = 110
+    Width = 390
+    Align = alLeft
+    BorderSpacing.Left = 10
+    BorderSpacing.Right = 5
+    BorderSpacing.Bottom = 10
+    ClientHeight = 180
+    ClientWidth = 390
+    TabOrder = 1
+    object lblInferTitle: TLabel
+      Left = 15
+      Height = 15
+      Top = 10
+      Width = 143
+      Caption = 'Predição XOR (Inferência):'
+      Font.Style = [fsBold]
+      ParentColor = False
+    end
+    object lblInput1: TLabel
+      Left = 15
+      Height = 15
+      Top = 40
+      Width = 53
+      Caption = 'Entrada 1:'
+      ParentColor = False
+    end
+    object edInput1: TEdit
+      Left = 15
+      Height = 23
+      Top = 60
+      Width = 80
+      TabOrder = 0
+      Text = '1'
+    end
+    object lblInput2: TLabel
+      Left = 120
+      Height = 15
+      Top = 40
+      Width = 53
+      Caption = 'Entrada 2:'
+      ParentColor = False
+    end
+    object edInput2: TEdit
+      Left = 120
+      Height = 23
+      Top = 60
+      Width = 80
+      TabOrder = 1
+      Text = '0'
+    end
+    object btnPredict: TButton
+      Left = 15
+      Height = 30
+      Top = 100
+      Width = 350
+      Caption = 'Realizar Inferência (Predict)'
+      OnClick = btnPredictClick
+      TabOrder = 2
+    end
+    object lblPrediction: TLabel
+      Left = 15
+      Height = 15
+      Top = 145
+      Width = 86
+      Caption = 'Valor Predito Y:'
+      ParentColor = False
+    end
+    object edPrediction: TEdit
+      Left = 120
+      Height = 23
+      Top = 142
+      Width = 245
+      ReadOnly = True
+      TabOrder = 3
+    end
+  end
+  object pnlSave: TPanel
+    Left = 415
+    Height = 180
+    Top = 110
+    Width = 395
+    Align = alClient
+    BorderSpacing.Left = 5
+    BorderSpacing.Right = 10
+    BorderSpacing.Bottom = 10
+    ClientHeight = 180
+    ClientWidth = 395
+    TabOrder = 2
+    object lblSaveTitle: TLabel
+      Left = 15
+      Height = 15
+      Top = 10
+      Width = 145
+      Caption = 'Persistência de Pesos (I/O):'
+      Font.Style = [fsBold]
+      ParentColor = False
+    end
+    object btnSaveModel: TButton
+      Left = 15
+      Height = 40
+      Top = 40
+      Width = 360
+      Caption = 'Salvar Pesos da Rede em Arquivo (*.net)'
+      OnClick = btnSaveModelClick
+      TabOrder = 0
+    end
+    object btnLoadModel: TButton
+      Left = 15
+      Height = 40
+      Top = 100
+      Width = 360
+      Caption = 'Carregar Pesos Existentes de Rede (*.net)'
+      OnClick = btnLoadModelClick
+      TabOrder = 1
+    end
+  end
+  object meLogs: TMemo
+    Left = 10
+    Height = 280
+    Top = 330
+    Width = 800
+    Align = alBottom
+    BorderSpacing.Around = 10
+    ReadOnly = True
+    ScrollBars = ssAutoBoth
+    TabOrder = 3
+  end
+  object lblLogs: TLabel
+    Left = 10
+    Height = 15
+    Top = 305
+    Width = 142
+    Caption = 'Histórico e MSE Loss:'
+    ParentColor = False
+  end
+end

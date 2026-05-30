@@ -45,6 +45,11 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="aidatasetgenerator"/>
       </Item>
+      <Item>
+        <Filename Value="pythonconnector.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="pythonconnector"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>

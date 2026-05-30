@@ -1,0 +1,270 @@
+object frmPythonDemo: TfrmPythonDemo
+  Left = 320
+  Height = 650
+  Top = 150
+  Width = 850
+  Caption = 'TPythonConnector Showcase - Integração com Python'
+  ClientHeight = 650
+  ClientWidth = 850
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '3.0.0.3'
+  object pnlConfig: TPanel
+    Left = 10
+    Height = 80
+    Top = 10
+    Width = 830
+    Align = alTop
+    BorderSpacing.Around = 10
+    ClientHeight = 80
+    ClientWidth = 830
+    TabOrder = 0
+    object lblDLLPath: TLabel
+      Left = 15
+      Height = 15
+      Top = 15
+      Width = 120
+      Caption = 'Nome/Caminho DLL:'
+      ParentColor = False
+    end
+    object edDLLPath: TEdit
+      Left = 15
+      Height = 23
+      Top = 35
+      Width = 180
+      TabOrder = 0
+      Text = 'python3.dll'
+    end
+    object btnToggleActive: TButton
+      Left = 210
+      Height = 35
+      Top = 27
+      Width = 180
+      Caption = 'Ativar interpretador Python'
+      OnClick = btnToggleActiveClick
+      TabOrder = 1
+    end
+    object lblStatusText: TLabel
+      Left = 410
+      Height = 15
+      Top = 20
+      Width = 87
+      Caption = 'Status: INATIVO'
+      Font.CharSet = ANSI_CHARSET
+      Font.Color = clRed
+      Font.Height = -12
+      Font.Name = 'Segoe UI'
+      Font.Pitch = fpVariable
+      Font.Quality = fqDraft
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object lblVersion: TLabel
+      Left = 410
+      Height = 15
+      Top = 45
+      Width = 101
+      Caption = 'Versão: Desativado'
+      ParentColor = False
+    end
+  end
+  object pnlScript: TPanel
+    Left = 10
+    Height = 220
+    Top = 100
+    Width = 400
+    Align = alLeft
+    BorderSpacing.Left = 10
+    BorderSpacing.Right = 5
+    BorderSpacing.Bottom = 10
+    ClientHeight = 220
+    ClientWidth = 400
+    TabOrder = 1
+    object lblScript: TLabel
+      Left = 15
+      Height = 15
+      Top = 10
+      Width = 129
+      Caption = 'Script Python a Executar:'
+      ParentColor = False
+    end
+    object meScript: TMemo
+      Left = 15
+      Height = 130
+      Top = 30
+      Width = 370
+      Lines.Strings = (
+        'import math'
+        'x = 100'
+        'y = math.sqrt(x) * 5'
+        '# Imprime no log pascal'
+        'print("Olá do Python!")'
+      )
+      ScrollBars = ssAutoBoth
+      TabOrder = 0
+    end
+    object btnExecute: TButton
+      Left = 15
+      Height = 30
+      Top = 175
+      Width = 370
+      Caption = 'Executar Script no Python'
+      OnClick = btnExecuteClick
+      TabOrder = 1
+    end
+  end
+  object pnlVars: TPanel
+    Left = 425
+    Height = 120
+    Top = 100
+    Width = 415
+    Align = alClient
+    BorderSpacing.Left = 5
+    BorderSpacing.Right = 10
+    BorderSpacing.Bottom = 5
+    ClientHeight = 120
+    ClientWidth = 415
+    TabOrder = 2
+    object lblVarsTitle: TLabel
+      Left = 15
+      Height = 15
+      Top = 10
+      Width = 191
+      Caption = 'Gerenciador de Variáveis (Push/Pull):'
+      Font.Style = [fsBold]
+      ParentColor = False
+    end
+    object lblVarName: TLabel
+      Left = 15
+      Height = 15
+      Top = 35
+      Width = 84
+      Caption = 'Nome Variável:'
+      ParentColor = False
+    end
+    object edVarName: TEdit
+      Left = 15
+      Height = 23
+      Top = 55
+      Width = 110
+      TabOrder = 0
+      Text = 'y'
+    end
+    object lblVarValue: TLabel
+      Left = 140
+      Height = 15
+      Top = 35
+      Width = 80
+      Caption = 'Valor (String):'
+      ParentColor = False
+    end
+    object edVarValue: TEdit
+      Left = 140
+      Height = 23
+      Top = 55
+      Width = 260
+      TabOrder = 1
+    end
+    object btnSetVar: TButton
+      Left = 15
+      Height = 25
+      Top = 85
+      Width = 180
+      Caption = 'SetVar (Pascal -> Python)'
+      OnClick = btnSetVarClick
+      TabOrder = 2
+    end
+    object btnGetVar: TButton
+      Left = 220
+      Height = 25
+      Top = 85
+      Width = 180
+      Caption = 'GetVar (Python -> Pascal)'
+      OnClick = btnGetVarClick
+      TabOrder = 3
+    end
+  end
+  object pnlEval: TPanel
+    Left = 425
+    Height = 95
+    Top = 225
+    Width = 415
+    Align = alBottom
+    BorderSpacing.Left = 5
+    BorderSpacing.Right = 10
+    BorderSpacing.Bottom = 10
+    ClientHeight = 95
+    ClientWidth = 415
+    TabOrder = 3
+    object lblEvalTitle: TLabel
+      Left = 15
+      Height = 15
+      Top = 5
+      Width = 179
+      Caption = 'Avaliador de Expressões (Eval):'
+      Font.Style = [fsBold]
+      ParentColor = False
+    end
+    object lblExpression: TLabel
+      Left = 15
+      Height = 15
+      Top = 25
+      Width = 104
+      Caption = 'Expressão Python:'
+      ParentColor = False
+    end
+    object edExpression: TEdit
+      Left = 15
+      Height = 23
+      Top = 45
+      Width = 230
+      TabOrder = 0
+      Text = 'y + 50'
+    end
+    object btnEvaluate: TButton
+      Left = 255
+      Height = 25
+      Top = 43
+      Width = 145
+      Caption = 'Avaliar (Eval)'
+      OnClick = btnEvaluateClick
+      TabOrder = 1
+    end
+    object lblResult: TLabel
+      Left = 15
+      Height = 15
+      Top = 73
+      Width = 55
+      Caption = 'Resultado:'
+      ParentColor = False
+    end
+    object edResult: TEdit
+      Left = 80
+      Height = 23
+      Top = 70
+      Width = 320
+      ReadOnly = True
+      TabOrder = 2
+    end
+  end
+  object meLogs: TMemo
+    Left = 10
+    Height = 280
+    Top = 360
+    Width = 830
+    Align = alBottom
+    BorderSpacing.Around = 10
+    ReadOnly = True
+    ScrollBars = ssAutoBoth
+    TabOrder = 4
+  end
+  object lblLogs: TLabel
+    Left = 10
+    Height = 15
+    Top = 335
+    Width = 109
+    Caption = 'Logs de Operações:'
+    ParentColor = False
+  end
+end
