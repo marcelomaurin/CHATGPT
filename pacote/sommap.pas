@@ -5,7 +5,7 @@ unit sommap;
 interface
 
 uses
-  Classes, SysUtils, Math;
+  Classes, SysUtils, Math, LResources;
 
 type
   TDoubleArray = array of Double;
@@ -273,5 +273,8 @@ begin
     CloseFile(F);
   end;
 end;
+
+initialization
+  {$I sommap_icon.lrs}
 
 end.

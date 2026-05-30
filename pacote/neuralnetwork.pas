@@ -403,4 +403,7 @@ begin
   end;
 end;
 
+initialization
+  {$I neuralnetwork_icon.lrs}
+
 end.

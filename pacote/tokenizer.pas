@@ -5,7 +5,7 @@ unit tokenizer;
 interface
 
 uses
-  Classes, SysUtils, Controls, Graphics, fpjson, jsonparser;
+  Classes, SysUtils, Controls, Graphics, fpjson, jsonparser, LResources;
 
 type
   TTokenItem = class
@@ -165,6 +165,9 @@ procedure Register;
 begin
   RegisterComponents('IA', [TTokenList]);
 end;
+
+initialization
+  {$I tokenizer_icon.lrs}
 
 end.
 

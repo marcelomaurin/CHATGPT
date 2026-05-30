@@ -5,7 +5,7 @@ unit pythonconnector;
 interface
 
 uses
-  Classes, SysUtils, DynLibs;
+  Classes, SysUtils, DynLibs, LResources;
 
 type
   { Functions signature in Python C API }
@@ -299,5 +299,8 @@ begin
     ExecString('del _connector_eval_tmp');
   end;
 end;
+
+initialization
+  {$I pythonconnector_icon.lrs}
 
 end.

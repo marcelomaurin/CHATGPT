@@ -5,7 +5,7 @@ unit yolodetect;
 interface
 
 uses
-  Classes, SysUtils, pythonconnector;
+  Classes, SysUtils, pythonconnector, LResources;
 
 type
   TYoloObject = record
@@ -205,5 +205,8 @@ begin
     Parts.Free;
   end;
 end;
+
+initialization
+  {$I yolodetect_icon.lrs}
 
 end.

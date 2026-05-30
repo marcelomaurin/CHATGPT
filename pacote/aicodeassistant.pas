@@ -5,7 +5,7 @@ unit aicodeassistant;
 interface
 
 uses
-  Classes, SysUtils, chatgpt;
+  Classes, SysUtils, chatgpt, LResources;
 
 type
   { TAICodeAssistant }
@@ -158,5 +158,8 @@ begin
   else
     Result := 'Erro ao explicar código: ' + FChatGPT.Response;
 end;
+
+initialization
+  {$I aicodeassistant_icon.lrs}
 
 end.

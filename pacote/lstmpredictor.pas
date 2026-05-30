@@ -5,7 +5,7 @@ unit lstmpredictor;
 interface
 
 uses
-  Classes, SysUtils, pythonconnector;
+  Classes, SysUtils, pythonconnector, LResources;
 
 type
   TDoubleArray = array of Double;
@@ -259,5 +259,8 @@ begin
   APredictedValue := StrToFloatDef(FPythonConnector.GetVar('predicted_val'), 0.0);
   Result := True;
 end;
+
+initialization
+  {$I lstmpredictor_icon.lrs}
 
 end.

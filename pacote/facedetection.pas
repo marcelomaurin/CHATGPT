@@ -5,7 +5,7 @@ unit facedetection;
 interface
 
 uses
-  Classes, SysUtils, pythonconnector;
+  Classes, SysUtils, pythonconnector, LResources;
 
 type
   TFaceRect = record
@@ -198,5 +198,8 @@ begin
     Parts.Free;
   end;
 end;
+
+initialization
+  {$I facedetection_icon.lrs}
 
 end.

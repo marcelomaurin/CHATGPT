@@ -5,7 +5,7 @@ unit aidatasetgenerator;
 interface
 
 uses
-  Classes, SysUtils, fpjson, jsonparser, NeuralNetwork;
+  Classes, SysUtils, fpjson, jsonparser, NeuralNetwork, LResources;
 
 type
   TDatasetItem = class
@@ -218,5 +218,8 @@ begin
     Parts.Free;
   end;
 end;
+
+initialization
+  {$I aidatasetgenerator_icon.lrs}
 
 end.

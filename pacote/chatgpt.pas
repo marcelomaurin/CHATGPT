@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, LazUTF8, fpjson, jsonparser,
-  fphttpclient, opensslsockets;
+  fphttpclient, opensslsockets, LResources;
 
 const
   CHATGPT_LIB_VERSION = '1.6';
@@ -589,5 +589,8 @@ procedure Register;
 begin
   RegisterComponents('IA', [TCHATGPT]);
 end;
+
+initialization
+  {$I chatgpt_icon.lrs}
 
 end.

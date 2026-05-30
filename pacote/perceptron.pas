@@ -5,7 +5,7 @@ unit perceptron;
 interface
 
 uses
-  Classes, SysUtils, Math;
+  Classes, SysUtils, Math, LResources;
 
 type
   TDoubleArray = array of Double;
@@ -234,5 +234,8 @@ begin
     CloseFile(F);
   end;
 end;
+
+initialization
+  {$I perceptron_icon.lrs}
 
 end.

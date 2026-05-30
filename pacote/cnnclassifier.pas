@@ -5,7 +5,7 @@ unit cnnclassifier;
 interface
 
 uses
-  Classes, SysUtils, pythonconnector;
+  Classes, SysUtils, pythonconnector, LResources;
 
 type
   { TCNNClassifier }
@@ -176,5 +176,8 @@ begin
   AConfidence := StrToFloatDef(FPythonConnector.GetVar('cnn_confidence'), 0.0);
   Result := True;
 end;
+
+initialization
+  {$I cnnclassifier_icon.lrs}
 
 end.
