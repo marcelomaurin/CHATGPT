@@ -137,7 +137,7 @@ end;
 | OpenAI | `AIP_OPENAI` | `api.openai.com` | Sim | Suporta `gpt-4o-mini` (baixo custo/free tier de API) |
 | OpenRouter | `AIP_OPENROUTER` | `openrouter.ai` | Sim | Vários modelos gratuitos de uso ilimitado (ex: Llama 3, Gemma 2, DeepSeek R1) |
 | Cerebras | `AIP_CEREBRAS` | `api.cerebras.ai` | Sim | Acesso gratuito durante período beta |
-| Google Gemini | `AIP_GEMINI` | `generativelanguage.googleapis.com` | Sim | Possui cotas gratuitas generosas (ex: `gemini-2.5-flash`) |
+| Google Gemini | `AIP_GEMINI` | `generativelanguage.googleapis.com` | Sim | **API REST Nativa v1beta** (`generateContent`). Possui cotas gratuitas generosas (ex: `gemini-1.5-flash`, `gemini-2.5-pro`) com autenticação via Query String (?key=) e suporte nativo a `systemInstruction`. |
 | Anthropic Claude | `AIP_CLAUDE` | `api.anthropic.com` | Sim | Chave paga (teste/desenvolvimento) |
 | Local (Ollama) | `AIP_LOCAL` | `localhost:11434` | Não | **Totalmente Gratuito** e offline (DeepSeek R1, Llama 3.2, etc.) |
 
