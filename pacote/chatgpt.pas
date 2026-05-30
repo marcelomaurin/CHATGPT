@@ -290,7 +290,7 @@ begin
       Result := 'https://api.cerebras.ai/v1/chat/completions';
 
     AIP_GEMINI:
-      Result := 'https://generativelanguage.googleapis.com/v1/models/' + GetModelName + ':generateContent?key=' + FToken;
+      Result := 'https://generativelanguage.googleapis.com/v1beta/models/' + GetModelName + ':generateContent?key=' + FToken;
 
     AIP_CLAUDE:
       Result := 'https://api.anthropic.com/v1/messages';
