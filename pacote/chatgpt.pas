@@ -5,220 +5,452 @@ unit chatgpt;
 interface
 
 uses
-  Classes, SysUtils, LazUTF8, fpjson, jsonparser, Controls, Graphics,
-  fphttpclient, opensslsockets, funcoes, LResources;
+  Classes, SysUtils, LazUTF8, fpjson, jsonparser,
+  fphttpclient, opensslsockets;
 
-{ TCHATGPT }
+const
+  CHATGPT_LIB_VERSION = '1.6';
 
- type TVersionChat = (VCT_GPT35TURBO, VCT_GPT40,VCT_GPT40_TURBO );
+type
+  TVersionChat = (
+    VCT_GPT35TURBO,
+    VCT_GPT40,
+    VCT_GPT40_TURBO,
+    VCT_GPT4o,
+    VCT_GPTo3_mini,
+    VCT_GPT41,
+    VCT_GPT41_MINI,
+    VCT_GPT5,
 
- //Class to do connect with chatgpt
- type  TCHATGPT = class(TCustomControl)
+    // Modelos locais / Ollama
+    VCT_LLAMA32_3B,
+    VCT_QWEN25_15B,
+    VCT_DEEPSEEK_R1_15B,
+    VCT_DEEPSEEK_R1_8B,
+    VCT_DEEPSEEK_R1_14B,
+    VCT_DEEPSEEK_R1_70B,
+
+    VCT_CUSTOM
+  );
+
+  TAIProvider = (
+    AIP_OPENAI,      // 0
+    AIP_OPENROUTER, // 1
+    AIP_CEREBRAS,   // 2
+    AIP_LOCAL       // 3 - llama.cpp / Ollama local
+  );
+
+  { TCHATGPT }
+
+  TCHATGPT = class(TComponent)
   private
-    FToken : String; //private variable to use chatgp
-    FQuestion : String;
-    FResponse : String;
-    FTipoChat : TVersionChat;
-    FParams: TStrings;
-    function RequestJson(LURL : String; token : string ; ASK : string) : String;
-    function PegaMensagem(const JSON: string): string;
-  protected
-    // Sobrescreva o método Paint para definir como o componente será desenhado
-    procedure Paint; override;
+    FToken           : WideString;
+    FQuestion        : WideString;
+    FResponse        : WideString;
+    FDev             : WideString;
+    FTipoChat        : TVersionChat;
+    FProvider        : TAIProvider;
+    FParams          : TStrings;
+    FCustomModel     : WideString;
+    FOpenRouterTitle : WideString;
+    FOpenRouterSite  : WideString;
+    FLastJSON        : WideString;
+    FMaxTokens       : Integer;
+    FLocalIP         : WideString;
 
+    function RequestJson(const LURL, token, ASK: WideString): WideString;
+    function PegaMensagem(const JSON: WideString): WideString;
+    function GetEndpoint: WideString;
+    function GetModelName: WideString;
+    function MontaURLChatLocal(const AServidor: WideString): WideString;
+    procedure AddProviderHeaders(AHTTP: TFPHttpClient);
   public
-    constructor create(AOwner: TComponent); override;
-    destructor Destroy;
 
-  published
-    property TOKEN : String read FToken write FToken; //property to access chatgpt
-    property Question : String read FQuestion;
-    property Response : String read FResponse write FResponse;
-    property TipoChat : TVersionChat read FTipoChat;
-    function SendQuestion( ASK : String) : boolean;
-    // Propriedades visíveis no Inspector de Objetos
-    property Width;
-    property Height;
+    property TOKEN: WideString read FToken write FToken;
+    property Question: WideString read FQuestion;
+    property Response: WideString read FResponse write FResponse;
+    property Dev: WideString read FDev write FDev;
+    property TipoChat: TVersionChat read FTipoChat write FTipoChat;
+    property Provider: TAIProvider read FProvider write FProvider;
+    property CustomModel: WideString read FCustomModel write FCustomModel;
+    property LocalIP: WideString read FLocalIP write FLocalIP;
+    property MaxTokens: Integer read FMaxTokens write FMaxTokens;
 
+    // Opcionais para OpenRouter
+    property OpenRouterTitle: WideString read FOpenRouterTitle write FOpenRouterTitle;
+    property OpenRouterSite: WideString read FOpenRouterSite write FOpenRouterSite;
 
-end;
+    property LastJSON: WideString read FLastJSON;
+
+    function SendQuestion(ASK: WideString): Boolean;
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    function TipoModelo: WideString;
+    function ProviderName: WideString;
+    function VersaoBiblioteca: WideString;
+  end;
 
 procedure Register;
 
 implementation
 
-
-
-{ TCHATGPT }
-
-function TCHATGPT.PegaMensagem(const JSON: string): string;
+function JsonEscape(const S: WideString): WideString;
 var
-  CleanJSON: string;
+  R: WideString;
+begin
+  R := StringReplace(S, '\', '\\', [rfReplaceAll]);
+  R := StringReplace(R, '"', '\"', [rfReplaceAll]);
+  R := StringReplace(R, #13#10, '\n', [rfReplaceAll]);
+  R := StringReplace(R, #10, '\n', [rfReplaceAll]);
+  R := StringReplace(R, #13, '\n', [rfReplaceAll]);
+  Result := R;
+end;
+
+function TCHATGPT.MontaURLChatLocal(const AServidor: WideString): WideString;
+var
+  S: WideString;
+begin
+  S := Trim(AServidor);
+
+  if S = '' then
+    S := 'http://localhost:11434';
+
+  if Copy(S, Length(S), 1) = '/' then
+    Delete(S, Length(S), 1);
+
+  Result := S + '/v1/chat/completions';
+end;
+
+function TCHATGPT.PegaMensagem(const JSON: WideString): WideString;
+var
+  CleanJSON: WideString;
   Data: TJSONData;
   JsonObject, MessageObject: TJSONObject;
   ChoicesArray: TJSONArray;
   ContentData: TJSONData;
   Parser: TJSONParser;
 begin
-  // Remove caracteres de controle do JSON
   CleanJSON := StringReplace(JSON, '#$0A', '', [rfReplaceAll]);
-
-  // Inicializa o resultado
   Result := '';
 
-  // Cria um objeto TJSONParser a partir da string JSON limpa
   Parser := TJSONParser.Create(CleanJSON);
-
   try
-    // Faz o parsing do JSON
-    Data := Parser.Parse;
-
-    if Data.JSONType = jtObject then
-    begin
-      JsonObject := TJSONObject(Data);
-
-      if JsonObject.Find('choices', ChoicesArray) then
-      begin
-        if (ChoicesArray <> nil) and (ChoicesArray.Count > 0) then
+    try
+      Data := Parser.Parse;
+      try
+        if Data.JSONType = jtObject then
         begin
-          if ChoicesArray.Items[0].JSONType = jtObject then
-          begin
-            MessageObject := ChoicesArray.Objects[0].FindPath('message') as TJSONObject;
+          JsonObject := TJSONObject(Data);
 
-            if MessageObject <> nil then
+          if JsonObject.Find('choices', ChoicesArray) then
+          begin
+            if (ChoicesArray <> nil) and (ChoicesArray.Count > 0) then
             begin
-              // Verifica se 'content' existe e é do tipo correto
-              ContentData := MessageObject.Find('content');
-              if (ContentData <> nil) and (ContentData.JSONType = jtString) then
+              if ChoicesArray.Items[0].JSONType = jtObject then
               begin
-                Result := ContentData.AsString;
+                MessageObject := ChoicesArray.Objects[0].FindPath('message') as TJSONObject;
+                if MessageObject <> nil then
+                begin
+                  ContentData := MessageObject.Find('content');
+                  if (ContentData <> nil) and (ContentData.JSONType = jtString) then
+                    Result := ContentData.AsString;
+                end;
               end;
             end;
           end;
         end;
+      finally
+        Data.Free;
       end;
+    except
+      // Falha silenciosa no parser retorna a mensagem bruta
+      Result := '';
     end;
   finally
     Parser.Free;
   end;
 end;
 
-procedure TCHATGPT.Paint;
+function TCHATGPT.GetEndpoint: WideString;
 begin
-  inherited Paint;
-  // Exemplo de pintura simples: um quadrado vermelho
-  Canvas.Brush.Color := clRed;
-  Canvas.FillRect(ClientRect);
+  case FProvider of
+    AIP_OPENAI:
+      Result := 'https://api.openai.com/v1/chat/completions';
+
+    AIP_OPENROUTER:
+      Result := 'https://openrouter.ai/api/v1/chat/completions';
+
+    AIP_CEREBRAS:
+      Result := 'https://api.cerebras.ai/v1/chat/completions';
+
+    AIP_LOCAL:
+      Result := MontaURLChatLocal(FLocalIP);
+  else
+    Result := 'https://api.openai.com/v1/chat/completions';
+  end;
 end;
 
+function TCHATGPT.GetModelName: WideString;
+begin
+  // Se informou modelo customizado, respeita sempre.
+  if Trim(FCustomModel) <> '' then
+    Exit(Trim(FCustomModel));
 
-function TCHATGPT.RequestJson(LURL: String; token: string; ASK: string): String;
+  // Local / Ollama — mapeia enums específicos
+  if FProvider = AIP_LOCAL then
+  begin
+    case FTipoChat of
+      VCT_LLAMA32_3B:       Result := 'llama3.2:3b';
+      VCT_QWEN25_15B:       Result := 'qwen2.5:1.5b';
+      VCT_DEEPSEEK_R1_15B:  Result := 'deepseek-r1:1.5b';
+      VCT_DEEPSEEK_R1_8B:   Result := 'deepseek-r1:8b';
+      VCT_DEEPSEEK_R1_14B:  Result := 'deepseek-r1:14b';
+      VCT_DEEPSEEK_R1_70B:  Result := 'deepseek-r1:70b';
+    else
+      Result := 'llama3.2:3b';
+    end;
+    Exit;
+  end;
 
+  // Cerebras
+  if FProvider = AIP_CEREBRAS then
+  begin
+    Exit('qwen-3-235b-a22b-instruct-2507');
+  end;
+
+  // OpenRouter
+  if FProvider = AIP_OPENROUTER then
+  begin
+    Exit('google/gemma-2-9b-it:free');
+  end;
+
+  // OpenAI
+  case FTipoChat of
+    VCT_GPT35TURBO:    Result := 'gpt-3.5-turbo';
+    VCT_GPT40:         Result := 'gpt-4';
+    VCT_GPT40_TURBO:   Result := 'gpt-4-turbo-preview';
+    VCT_GPT4o:         Result := 'gpt-4o';
+    VCT_GPTo3_mini:    Result := 'o3-mini';
+    VCT_GPT41:         Result := 'gpt-4.1';
+    VCT_GPT41_MINI:    Result := 'gpt-4.1-mini';
+    VCT_GPT5:          Result := 'gpt-5';
+    VCT_CUSTOM:        Result := Trim(FCustomModel);
+  else
+    Result := 'gpt-4o';
+  end;
+end;
+
+procedure TCHATGPT.AddProviderHeaders(AHTTP: TFPHttpClient);
+begin
+  if AHTTP = nil then
+    Exit;
+
+  AHTTP.AddHeader('Content-Type', 'application/json');
+  AHTTP.AddHeader('Accept', 'application/json');
+
+  // Local / llama.cpp não necessita de Bearer Token por padrão
+  if FProvider = AIP_LOCAL then
+    Exit;
+
+  if Trim(FToken) <> '' then
+    AHTTP.AddHeader('Authorization', 'Bearer ' + FToken);
+
+  if FProvider = AIP_OPENROUTER then
+  begin
+    if Trim(FOpenRouterSite) <> '' then
+      AHTTP.AddHeader('HTTP-Referer', FOpenRouterSite);
+
+    if Trim(FOpenRouterTitle) <> '' then
+      AHTTP.AddHeader('X-OpenRouter-Title', FOpenRouterTitle);
+  end;
+end;
+
+function TCHATGPT.RequestJson(const LURL, token, ASK: WideString): WideString;
 var
   ClienteHTTP: TFPHttpClient;
-  Resposta : AnsiString;
-  LResponse: TStringStream;
-  formulario : string;
-  Params: string;
-  tipo: string;
+  BodyStream: TStringStream;
+  root, mSys, mUser: TJSONObject;
+  msgs: TJSONArray;
+  payload: UTF8String;
 begin
-  //Resposta := '';
-  Formulario := '' ;
-  case FTipoChat of
-       VCT_GPT35TURBO:
-          tipo := '"gpt-3.5-turbo"';
-       VCT_GPT40:
-          tipo := '"gpt-4o-mini"';
-       VCT_GPT40_TURBO:
-          tipo := '"gpt-4-turbo-preview"';
-  end;
-  params :=  '{ "model": '+tipo +
-             ', "messages": [{"role": "user", "content": "'+
-             ASK +'"}]'+
-             ' }';
-  ClienteHTTP := TFPHttpClient.Create(nil);
+  root := TJSONObject.Create;
   try
-    LResponse := TStringStream.Create('');
-    ClienteHTTP.RequestBody := TRawByteStringStream.Create(Params);
+    root.Add('model', GetModelName);
 
+    msgs := TJSONArray.Create;
+    root.Add('messages', msgs);
 
-    ClienteHTTP.AddHeader('Content-Type', 'application/json;');
-    ClienteHTTP.AddHeader('Authorization',' Bearer ' + token);
+    if Trim(FDev) <> '' then
+    begin
+      mSys := TJSONObject.Create;
+      mSys.Add('role', 'system');
+      mSys.Add('content', FDev);
+      msgs.Add(mSys);
+    end;
+
+    mUser := TJSONObject.Create;
+    mUser.Add('role', 'user');
+    mUser.Add('content', ASK);
+    msgs.Add(mUser);
+
+    root.Add('temperature', 0.7);
+    if FMaxTokens > 0 then
+      root.Add('max_tokens', FMaxTokens);
+
+    payload := UTF8Encode(root.AsJSON);
+  finally
+    root.Free;
+  end;
+
+  ClienteHTTP := TFPHttpClient.Create(nil);
+  BodyStream := TStringStream.Create(payload);
+  try
+    AddProviderHeaders(ClienteHTTP);
+
+    ClienteHTTP.AllowRedirect := True;
+    ClienteHTTP.KeepConnection := True;
+
+    if FProvider = AIP_LOCAL then
+    begin
+      ClienteHTTP.IOTimeout := 1500000;
+      ClienteHTTP.ConnectTimeout := 1500000;
+    end
+    else
+    begin
+      ClienteHTTP.IOTimeout := 60000;
+      ClienteHTTP.ConnectTimeout := 60000;
+    end;
+
+    ClienteHTTP.RequestBody := BodyStream;
 
     try
-
-            resposta:=  ClienteHTTP.Post(LURL);
-     except on E: Exception do
-     end;
+      Result := ClienteHTTP.Post(LURL);
+    except
+      on E: Exception do
+        Result := Format('{"error":{"message":"%s"}}',
+          [StringReplace(E.Message, '"', '\"', [rfReplaceAll])]);
+    end;
   finally
+    BodyStream.Free;
+    ClienteHTTP.Free;
+  end;
+end;
 
+function TCHATGPT.SendQuestion(ASK: WideString): Boolean;
+var
+  LURL, AUX: WideString;
+  ErrorParser: TJSONParser;
+  ErrorData: TJSONData;
+  ErrorObj: TJSONObject;
+  HasError: Boolean;
+begin
+  Result := False;
+  FQuestion := ASK;
 
-
-      Result := resposta;
-      ClienteHTTP.RequestBody.Free;
-      ClienteHTTP.Free;
-
-
-
-
+  try
+    LURL := GetEndpoint;
+  except
+    on E: Exception do
+    begin
+      FResponse := Format('{"error":{"message":"%s"}}',
+        [StringReplace(E.Message, '"', '\"', [rfReplaceAll])]);
+      FLastJSON := FResponse;
+      Exit(False);
+    end;
   end;
 
+  AUX := RequestJson(LURL, FToken, ASK);
+  FLastJSON := AUX;
 
+  // Verifica erro no JSON retornado por parse estruturado
+  HasError := False;
+  ErrorParser := TJSONParser.Create(AUX);
+  try
+    try
+      ErrorData := ErrorParser.Parse;
+      try
+        if (ErrorData.JSONType = jtObject) then
+        begin
+          ErrorObj := TJSONObject(ErrorData);
+          if ErrorObj.IndexOfName('error') >= 0 then
+            HasError := True;
+        end;
+      finally
+        ErrorData.Free;
+      end;
+    except
+      // Se não conseguir parsear, não é erro de API
+      HasError := False;
+    end;
+  finally
+    ErrorParser.Free;
+  end;
 
+  if HasError then
+  begin
+    FResponse := AUX;
+    Exit(False);
+  end;
+
+  try
+    FResponse := PegaMensagem(AUX);
+    Result := (Trim(FResponse) <> '');
+
+    if not Result then
+      FResponse := AUX;
+  except
+    FResponse := AUX;
+    Result := False;
+  end;
 end;
 
-function TCHATGPT.SendQuestion(ASK: String): boolean;
-var
-  LURL : String;
-  JSON : String;
-  AUX : String;
-  resposta : boolean;
-begin
-     resposta := false;
-
-     LURL := 'https://api.openai.com/v1/chat/completions';
-     //JSON := EncodeURLElement('{"model": "gpt-3.5-turbo", "messages": [{"role": "user", "content": "'+ASK+'"}]}');
-
-     AUX := RequestJson(LURL, FToken, EncodeURLElement(retiraCRLF(ASK)));
-     try
-       FResponse := PegaMensagem(AUX);
-     except
-       FResponse := AUX
-     end;
-
-     //FResponse := RequestJson2(LURL, FToken, JSON);
-     result := resposta;
-end;
-
-//Class Constructor
-constructor TCHATGPT.create(AOwner: TComponent);
-
+constructor TCHATGPT.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  //FTipoChat:= VCT_GPT35TURBO;
-  FTipoChat:= VCT_GPT40;
-  //HTTPSend.Sock.SSL.SSLType := LT_TLSv1;
-  //Self.IsUTF8 := False;
+  FProvider := AIP_OPENAI;
+  FTipoChat := VCT_GPT4o;
+
+  FDev := 'Você é um assistente.';
   FParams := TStringList.Create;
+  FCustomModel := '';
+  FOpenRouterTitle := '';
+  FOpenRouterSite := '';
+  FLastJSON := '';
+  FLocalIP := 'http://localhost:11434';
+  FMaxTokens := 4096;
 end;
 
 destructor TCHATGPT.Destroy;
 begin
-    FParams.Free;
+  FParams.Free;
   inherited;
+end;
+
+function TCHATGPT.TipoModelo: WideString;
+begin
+  Result := '"' + GetModelName + '"';
+end;
+
+function TCHATGPT.ProviderName: WideString;
+begin
+  case FProvider of
+    AIP_OPENAI:     Result := 'OpenAI';
+    AIP_OPENROUTER: Result := 'OpenRouter';
+    AIP_CEREBRAS:   Result := 'Cerebras';
+    AIP_LOCAL:      Result := 'Local';
+  else
+    Result := 'OpenAI';
+  end;
+end;
+
+function TCHATGPT.VersaoBiblioteca: WideString;
+begin
+  Result := CHATGPT_LIB_VERSION;
 end;
 
 procedure Register;
 begin
-  // Registrar o componente na aba "Samples"
   RegisterComponents('IA', [TCHATGPT]);
-  //RegisterClassResource('TCHATGPT', 'openai_icon.lrs');
-
 end;
 
-initialization
-
-
-
 end.
-

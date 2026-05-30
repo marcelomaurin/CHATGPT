@@ -268,6 +268,7 @@ var
       jsonObject: TJSONObject;
 begin
       Result := '';
+      jsonData := nil;
       try
         jsonData := GetJSON(jsonStr);
         if jsonData.JSONType = jtObject then
@@ -280,6 +281,7 @@ begin
         on E: Exception do
           Writeln('Erro ao ler JSON: ', E.Message);
       end;
+      jsonData.Free;
 end;
 
 function UTF8ToANSI(const UTF8String: string): string;

@@ -1,68 +1,212 @@
-# Lazarus Integration with ChatGPT
+# TCHATGPT — Componente Lazarus para Integração com APIs de IA
 
-This project demonstrates how to integrate the ChatGPT API into a Lazarus application. Below, you'll find a script example showing how to use the `TCHATGPT` class to send questions and receive responses from ChatGPT.
+🌍 **Idiomas / Languages:**
+*   [Português (PT)](README.md)
+*   [English (EN)](README_EN.md)
+*   [Español (ES)](README_ES.md)
+*   [Français (FR)](README_FR.md)
+*   [Italiano (IT)](README_IT.md)
+*   [العربية (AR)](README_AR.md)
 
-## How to use the class
+---
+
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Lazarus](https://img.shields.io/badge/Lazarus-3.x-orange.svg)](https://www.lazarus-ide.org/)
+
+Componente visual para Free Pascal / Lazarus que permite enviar perguntas e receber respostas de múltiplos provedores de IA, incluindo **OpenAI (ChatGPT)**, **OpenRouter**, **Cerebras** e **modelos locais via Ollama**.
+
+## Recursos
+
+- ✅ Suporte a múltiplos provedores (OpenAI, OpenRouter, Cerebras, Ollama/Local)
+- ✅ Seleção de modelo por enum ou nome customizado
+- ✅ Comunicação via HTTPS com `TFPHttpClient` (sem dependência de Indy)
+- ✅ Instalação como componente na paleta do Lazarus (aba **IA**)
+- ✅ Componentes auxiliares: `TNeuralNetwork` e `TTokenList`
+- ✅ Licença GPL v3
+
+---
+
+## Uso Rápido
 
 ```pascal
-uses ..., chatgpt;
+uses chatgpt;
 
 var
   FChatgpt: TCHATGPT;
-  Response: string;
-
 begin
-  FChatgpt := TChatgpt.Create(Self);
+  FChatgpt := TCHATGPT.Create(nil);
   try
-    FChatgpt.TOKEN := 'YOUR_TOKEN'; // Add your OpenAI API token
-    FChatgpt.SendQuestion('Your Question');
-    Response := FChatgpt.Response;  // Retrieves the response from ChatGPT
-    ShowMessage('ChatGPT Response: ' + Response); // Display the response in a message dialog
+    FChatgpt.TOKEN := 'sk-SUA_CHAVE_AQUI';
+    FChatgpt.Provider := AIP_OPENAI;       // OpenAI, OpenRouter, Cerebras ou Local
+    FChatgpt.TipoChat := VCT_GPT4o;        // Modelo desejado
+    FChatgpt.MaxTokens := 4096;             // Limite de tokens na resposta
+
+    if FChatgpt.SendQuestion('Qual a capital do Brasil?') then
+      ShowMessage(FChatgpt.Response)
+    else
+      ShowMessage('Erro: ' + FChatgpt.Response);
   finally
-    FChatgpt.Free; // Free memory after use
+    FChatgpt.Free;
   end;
-end.
+end;
 ```
 
-# How it works
-FChatgpt: This is an instance of the TCHATGPT class, which is responsible for communicating with the ChatGPT API.
-TOKEN: Set your OpenAI API token here to authenticate the requests.
-SendQuestion: This method sends your question to the API and processes the response.
-Response: The result returned by the API, which can be displayed or used further in your program.
-Library Requirements
-To ensure proper functionality, you need to copy the libraries provided in the demo folder to the following system directory:
+---
 
+## Provedores Suportados
 
+| Provedor | Enum | Endpoint | Token Necessário |
+|---|---|---|---|
+| OpenAI | `AIP_OPENAI` | `api.openai.com` | Sim |
+| OpenRouter | `AIP_OPENROUTER` | `openrouter.ai` | Sim |
+| Cerebras | `AIP_CEREBRAS` | `api.cerebras.ai` | Sim |
+| Local (Ollama) | `AIP_LOCAL` | `localhost:11434` | Não |
 
-C:/Windows/System32
-This step is necessary to ensure that all required dependencies for the TCHATGPT class and API communication are properly available.
+---
 
-# Demo Program
-A complete demo program is available in the ./demo folder. You can run this demo to see how the TCHATGPT class works in a real application.
+## Modelos Disponíveis
 
-It also contains the required libraries for the project, which need to be copied to C:/Windows/System32 as described in the Library Requirements section.
+### OpenAI
+| Enum | Modelo API |
+|---|---|
+| `VCT_GPT35TURBO` | `gpt-3.5-turbo` |
+| `VCT_GPT40` | `gpt-4` |
+| `VCT_GPT40_TURBO` | `gpt-4-turbo-preview` |
+| `VCT_GPT4o` | `gpt-4o` |
+| `VCT_GPTo3_mini` | `o3-mini` |
+| `VCT_GPT41` | `gpt-4.1` |
+| `VCT_GPT41_MINI` | `gpt-4.1-mini` |
+| `VCT_GPT5` | `gpt-5` |
 
-# Important Notice
-In order for this program to work, you need to have an active subscription to the paid API of ChatGPT. Ensure that you have sufficient credits in your OpenAI account, as this service is not available for free. You can set up billing and manage your API usage at the OpenAI platform.
+### Ollama / Local
+| Enum | Modelo |
+|---|---|
+| `VCT_LLAMA32_3B` | `llama3.2:3b` |
+| `VCT_QWEN25_15B` | `qwen2.5:1.5b` |
+| `VCT_DEEPSEEK_R1_15B` | `deepseek-r1:1.5b` |
+| `VCT_DEEPSEEK_R1_8B` | `deepseek-r1:8b` |
+| `VCT_DEEPSEEK_R1_14B` | `deepseek-r1:14b` |
+| `VCT_DEEPSEEK_R1_70B` | `deepseek-r1:70b` |
 
-# Installing the TCHATGPT Package in Lazarus
-To install the TCHATGPT component from the provided package in the pacote subfolder, follow these steps:
+> Para usar qualquer outro modelo, defina `FChatgpt.CustomModel := 'nome-do-modelo';`
 
-## Open the Package:
+---
 
-In the Lazarus IDE, go to Package > Open Package File (.lpk).
-Navigate to the pacote folder and select the chatgpt.lpk package file.
-Compile the package:
+## Propriedades
 
-Once the package is open, click on Compile to compile the package and ensure there are no errors.
-Install the package:
+| Propriedade | Tipo | Descrição |
+|---|---|---|
+| `TOKEN` | `WideString` | Chave de API do provedor |
+| `Provider` | `TAIProvider` | Provedor de IA (OpenAI, OpenRouter, Cerebras, Local) |
+| `TipoChat` | `TVersionChat` | Modelo de IA selecionado |
+| `CustomModel` | `WideString` | Nome de modelo customizado (sobrescreve TipoChat) |
+| `LocalIP` | `WideString` | URL do servidor Ollama local (padrão: `http://localhost:11434`) |
+| `MaxTokens` | `Integer` | Limite de tokens na resposta (padrão: 4096) |
+| `Dev` | `WideString` | System prompt (padrão: "Você é um assistente.") |
+| `Response` | `WideString` | Resposta da última pergunta |
+| `Question` | `WideString` | Última pergunta enviada (somente leitura) |
+| `LastJSON` | `WideString` | JSON bruto da última resposta (somente leitura) |
+| `OpenRouterTitle` | `WideString` | Título da aplicação (header para OpenRouter) |
+| `OpenRouterSite` | `WideString` | URL do site (header HTTP-Referer para OpenRouter) |
 
-After compiling successfully, click Use > Install. Lazarus will ask to rebuild the IDE and restart.
-After restarting, the TCHATGPT component will be available under the OpenAI tab in the component palette.
-Using the Component:
+---
 
-Once installed, you can drag and drop the TCHATGPT component onto your form in Lazarus and set the properties such as TOKEN, Question, and Response through the Object Inspector or programmatically in your code.
+## Exemplo com Ollama Local
 
-Information used:
-https://github.com/j0aoarthur/Palavras-PT-BR
+```pascal
+FChatgpt := TCHATGPT.Create(nil);
+try
+  FChatgpt.Provider := AIP_LOCAL;
+  FChatgpt.TipoChat := VCT_DEEPSEEK_R1_8B;
+  FChatgpt.LocalIP := 'http://192.168.1.100:11434';  // IP do servidor
 
+  if FChatgpt.SendQuestion('Explique o conceito de recursão.') then
+    Memo1.Text := FChatgpt.Response;
+finally
+  FChatgpt.Free;
+end;
+```
+
+---
+
+## Instalação do Pacote no Lazarus
+
+1. No Lazarus IDE, vá em **Package > Open Package File (.lpk)**
+2. Navegue até a pasta `pacote/` e selecione **`openai.lpk`**
+3. Clique em **Compile** para compilar o pacote
+4. Clique em **Use > Install** — o Lazarus pedirá para reconstruir a IDE
+5. Após reiniciar, os componentes estarão disponíveis na aba **IA** da paleta de componentes:
+   - `TCHATGPT`
+   - `TNeuralNetwork`
+   - `TTokenList`
+
+---
+
+## Requisitos de Bibliotecas (Windows)
+
+Para que a comunicação HTTPS funcione no Windows, as seguintes DLLs OpenSSL precisam estar acessíveis pela aplicação:
+
+- `libcrypto-1_1.dll`
+- `libssl-1_1.dll`
+- `libssl-1_1-x64.dll` (64-bit)
+
+**Recomendação:** Copie as DLLs para a **mesma pasta do executável** da sua aplicação (não para `System32`).
+
+As DLLs estão incluídas na raiz deste repositório para conveniência.
+
+---
+
+## Estrutura do Projeto
+
+```
+CHATGPT/
+├── chatgpt.pas           # Componente principal TCHATGPT
+├── funcoes.pas           # Funções utilitárias
+├── pacote/
+│   ├── openai.lpk        # Pacote Lazarus para instalação
+│   ├── chatgpt.pas       # Cópia sincronizada do componente
+│   ├── neuralnetwork.pas  # Componente TNeuralNetwork (rede neural simples)
+│   ├── tokenizer.pas     # Componente TTokenList (tokenizador)
+│   └── funcoes.pas       # Cópia sincronizada das funções utilitárias
+├── demo/
+│   ├── demo1.lpr         # Aplicação demo
+│   └── main.pas          # Form principal do demo
+├── tools/
+│   └── script/           # Scripts de apoio (tokenizador Python)
+├── dicionario/           # Dicionário PT-BR
+├── LICENSE               # GPL v3
+└── README.md             # Esta documentação
+```
+
+---
+
+## Aplicação Demo
+
+Uma aplicação demo completa está disponível na pasta `demo/`. Para executar:
+
+1. Abra `demo/demo1.lpi` no Lazarus
+2. Compile e execute
+3. Insira seu token da API no campo correspondente
+4. Digite sua pergunta e clique em **Submit** ou pressione **Enter**
+
+---
+
+## Aviso Importante
+
+Para utilizar provedores como OpenAI, OpenRouter ou Cerebras, é necessário possuir uma **assinatura ativa** e créditos disponíveis. O uso com **Ollama local** não requer chave de API.
+
+---
+
+## Referências
+
+- [OpenAI API](https://platform.openai.com/docs/)
+- [OpenRouter](https://openrouter.ai/)
+- [Ollama](https://ollama.ai/)
+- [Cerebras](https://www.cerebras.ai/)
+- [Palavras PT-BR](https://github.com/j0aoarthur/Palavras-PT-BR)
+
+---
+
+## Licença
+
+Este projeto está licenciado sob a [GNU General Public License v3.0](LICENSE).

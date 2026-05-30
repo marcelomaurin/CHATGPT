@@ -6,10 +6,10 @@ interface
 
 uses
   Classes, SysUtils, LazUTF8, fpjson, jsonparser,
-  fphttpclient, opensslsockets, funcoes;
+  fphttpclient, opensslsockets;
 
 const
-  CHATGPT_LIB_VERSION = '1.3';
+  CHATGPT_LIB_VERSION = '1.6';
 
 type
   TVersionChat = (
@@ -21,13 +21,23 @@ type
     VCT_GPT41,
     VCT_GPT41_MINI,
     VCT_GPT5,
+
+    // Modelos locais / Ollama
+    VCT_LLAMA32_3B,
+    VCT_QWEN25_15B,
+    VCT_DEEPSEEK_R1_15B,
+    VCT_DEEPSEEK_R1_8B,
+    VCT_DEEPSEEK_R1_14B,
+    VCT_DEEPSEEK_R1_70B,
+
     VCT_CUSTOM
   );
 
   TAIProvider = (
-    AIP_OPENAI,
-    AIP_OPENROUTER,
-    AIP_CEREBRAS
+    AIP_OPENAI,      // 0
+    AIP_OPENROUTER, // 1
+    AIP_CEREBRAS,   // 2
+    AIP_LOCAL       // 3 - llama.cpp / Ollama local
   );
 
   { TCHATGPT }
@@ -45,13 +55,17 @@ type
     FOpenRouterTitle : WideString;
     FOpenRouterSite  : WideString;
     FLastJSON        : WideString;
+    FMaxTokens       : Integer;
+    FLocalIP         : WideString;
 
     function RequestJson(const LURL, token, ASK: WideString): WideString;
     function PegaMensagem(const JSON: WideString): WideString;
     function GetEndpoint: WideString;
     function GetModelName: WideString;
+    function MontaURLChatLocal(const AServidor: WideString): WideString;
     procedure AddProviderHeaders(AHTTP: TFPHttpClient);
   public
+
     property TOKEN: WideString read FToken write FToken;
     property Question: WideString read FQuestion;
     property Response: WideString read FResponse write FResponse;
@@ -59,6 +73,8 @@ type
     property TipoChat: TVersionChat read FTipoChat write FTipoChat;
     property Provider: TAIProvider read FProvider write FProvider;
     property CustomModel: WideString read FCustomModel write FCustomModel;
+    property LocalIP: WideString read FLocalIP write FLocalIP;
+    property MaxTokens: Integer read FMaxTokens write FMaxTokens;
 
     // Opcionais para OpenRouter
     property OpenRouterTitle: WideString read FOpenRouterTitle write FOpenRouterTitle;
@@ -74,6 +90,8 @@ type
     function VersaoBiblioteca: WideString;
   end;
 
+procedure Register;
+
 implementation
 
 function JsonEscape(const S: WideString): WideString;
@@ -86,6 +104,21 @@ begin
   R := StringReplace(R, #10, '\n', [rfReplaceAll]);
   R := StringReplace(R, #13, '\n', [rfReplaceAll]);
   Result := R;
+end;
+
+function TCHATGPT.MontaURLChatLocal(const AServidor: WideString): WideString;
+var
+  S: WideString;
+begin
+  S := Trim(AServidor);
+
+  if S = '' then
+    S := 'http://localhost:11434';
+
+  if Copy(S, Length(S), 1) = '/' then
+    Delete(S, Length(S), 1);
+
+  Result := S + '/v1/chat/completions';
 end;
 
 function TCHATGPT.PegaMensagem(const JSON: WideString): WideString;
@@ -102,31 +135,36 @@ begin
 
   Parser := TJSONParser.Create(CleanJSON);
   try
-    Data := Parser.Parse;
     try
-      if Data.JSONType = jtObject then
-      begin
-        JsonObject := TJSONObject(Data);
-
-        if JsonObject.Find('choices', ChoicesArray) then
+      Data := Parser.Parse;
+      try
+        if Data.JSONType = jtObject then
         begin
-          if (ChoicesArray <> nil) and (ChoicesArray.Count > 0) then
+          JsonObject := TJSONObject(Data);
+
+          if JsonObject.Find('choices', ChoicesArray) then
           begin
-            if ChoicesArray.Items[0].JSONType = jtObject then
+            if (ChoicesArray <> nil) and (ChoicesArray.Count > 0) then
             begin
-              MessageObject := ChoicesArray.Objects[0].FindPath('message') as TJSONObject;
-              if MessageObject <> nil then
+              if ChoicesArray.Items[0].JSONType = jtObject then
               begin
-                ContentData := MessageObject.Find('content');
-                if (ContentData <> nil) and (ContentData.JSONType = jtString) then
-                  Result := ContentData.AsString;
+                MessageObject := ChoicesArray.Objects[0].FindPath('message') as TJSONObject;
+                if MessageObject <> nil then
+                begin
+                  ContentData := MessageObject.Find('content');
+                  if (ContentData <> nil) and (ContentData.JSONType = jtString) then
+                    Result := ContentData.AsString;
+                end;
               end;
             end;
           end;
         end;
+      finally
+        Data.Free;
       end;
-    finally
-      Data.Free;
+    except
+      // Falha silenciosa no parser retorna a mensagem bruta
+      Result := '';
     end;
   finally
     Parser.Free;
@@ -144,6 +182,9 @@ begin
 
     AIP_CEREBRAS:
       Result := 'https://api.cerebras.ai/v1/chat/completions';
+
+    AIP_LOCAL:
+      Result := MontaURLChatLocal(FLocalIP);
   else
     Result := 'https://api.openai.com/v1/chat/completions';
   end;
@@ -151,34 +192,51 @@ end;
 
 function TCHATGPT.GetModelName: WideString;
 begin
-  // Cerebras usa modelo proprio da API dela
-  // Se CustomModel for informado, usa ele
-  // Senao, usa o default do exemplo informado: llama3.1-8b
-  if FProvider = AIP_CEREBRAS then
-  begin
-    if Trim(FCustomModel) <> '' then
-      Exit(Trim(FCustomModel))
-    else
-      //Exit('llama3.1-8b');
-      Exit('qwen-3-235b-a22b-instruct-2507');
-  end;
-
-  // Para outros providers, se for custom, usa custom
-  if (FTipoChat = VCT_CUSTOM) and (Trim(FCustomModel) <> '') then
+  // Se informou modelo customizado, respeita sempre.
+  if Trim(FCustomModel) <> '' then
     Exit(Trim(FCustomModel));
 
+  // Local / Ollama — mapeia enums específicos
+  if FProvider = AIP_LOCAL then
+  begin
+    case FTipoChat of
+      VCT_LLAMA32_3B:       Result := 'llama3.2:3b';
+      VCT_QWEN25_15B:       Result := 'qwen2.5:1.5b';
+      VCT_DEEPSEEK_R1_15B:  Result := 'deepseek-r1:1.5b';
+      VCT_DEEPSEEK_R1_8B:   Result := 'deepseek-r1:8b';
+      VCT_DEEPSEEK_R1_14B:  Result := 'deepseek-r1:14b';
+      VCT_DEEPSEEK_R1_70B:  Result := 'deepseek-r1:70b';
+    else
+      Result := 'llama3.2:3b';
+    end;
+    Exit;
+  end;
+
+  // Cerebras
+  if FProvider = AIP_CEREBRAS then
+  begin
+    Exit('qwen-3-235b-a22b-instruct-2507');
+  end;
+
+  // OpenRouter
+  if FProvider = AIP_OPENROUTER then
+  begin
+    Exit('google/gemma-2-9b-it:free');
+  end;
+
+  // OpenAI
   case FTipoChat of
     VCT_GPT35TURBO:    Result := 'gpt-3.5-turbo';
     VCT_GPT40:         Result := 'gpt-4';
     VCT_GPT40_TURBO:   Result := 'gpt-4-turbo-preview';
     VCT_GPT4o:         Result := 'gpt-4o';
-    VCT_GPTo3_mini:    Result := 'gpt-o3-mini';
+    VCT_GPTo3_mini:    Result := 'o3-mini';
     VCT_GPT41:         Result := 'gpt-4.1';
     VCT_GPT41_MINI:    Result := 'gpt-4.1-mini';
     VCT_GPT5:          Result := 'gpt-5';
     VCT_CUSTOM:        Result := Trim(FCustomModel);
   else
-    Result := 'gpt-4.1-mini';
+    Result := 'gpt-4o';
   end;
 end;
 
@@ -189,7 +247,13 @@ begin
 
   AHTTP.AddHeader('Content-Type', 'application/json');
   AHTTP.AddHeader('Accept', 'application/json');
-  AHTTP.AddHeader('Authorization', 'Bearer ' + FToken);
+
+  // Local / llama.cpp não necessita de Bearer Token por padrão
+  if FProvider = AIP_LOCAL then
+    Exit;
+
+  if Trim(FToken) <> '' then
+    AHTTP.AddHeader('Authorization', 'Bearer ' + FToken);
 
   if FProvider = AIP_OPENROUTER then
   begin
@@ -216,15 +280,22 @@ begin
     msgs := TJSONArray.Create;
     root.Add('messages', msgs);
 
-    mSys := TJSONObject.Create;
-    mSys.Add('role', 'system');
-    mSys.Add('content', FDev);
-    msgs.Add(mSys);
+    if Trim(FDev) <> '' then
+    begin
+      mSys := TJSONObject.Create;
+      mSys.Add('role', 'system');
+      mSys.Add('content', FDev);
+      msgs.Add(mSys);
+    end;
 
     mUser := TJSONObject.Create;
     mUser.Add('role', 'user');
     mUser.Add('content', ASK);
     msgs.Add(mUser);
+
+    root.Add('temperature', 0.7);
+    if FMaxTokens > 0 then
+      root.Add('max_tokens', FMaxTokens);
 
     payload := UTF8Encode(root.AsJSON);
   finally
@@ -238,8 +309,18 @@ begin
 
     ClienteHTTP.AllowRedirect := True;
     ClienteHTTP.KeepConnection := True;
-    ClienteHTTP.IOTimeout := 60000;
-    ClienteHTTP.ConnectTimeout := 60000;
+
+    if FProvider = AIP_LOCAL then
+    begin
+      ClienteHTTP.IOTimeout := 1500000;
+      ClienteHTTP.ConnectTimeout := 1500000;
+    end
+    else
+    begin
+      ClienteHTTP.IOTimeout := 60000;
+      ClienteHTTP.ConnectTimeout := 60000;
+    end;
+
     ClienteHTTP.RequestBody := BodyStream;
 
     try
@@ -258,14 +339,54 @@ end;
 function TCHATGPT.SendQuestion(ASK: WideString): Boolean;
 var
   LURL, AUX: WideString;
+  ErrorParser: TJSONParser;
+  ErrorData: TJSONData;
+  ErrorObj: TJSONObject;
+  HasError: Boolean;
 begin
   Result := False;
   FQuestion := ASK;
-  LURL := GetEndpoint;
+
+  try
+    LURL := GetEndpoint;
+  except
+    on E: Exception do
+    begin
+      FResponse := Format('{"error":{"message":"%s"}}',
+        [StringReplace(E.Message, '"', '\"', [rfReplaceAll])]);
+      FLastJSON := FResponse;
+      Exit(False);
+    end;
+  end;
+
   AUX := RequestJson(LURL, FToken, ASK);
   FLastJSON := AUX;
 
-  if Pos('"error"', LowerCase(AUX)) > 0 then
+  // Verifica erro no JSON retornado por parse estruturado
+  HasError := False;
+  ErrorParser := TJSONParser.Create(AUX);
+  try
+    try
+      ErrorData := ErrorParser.Parse;
+      try
+        if (ErrorData.JSONType = jtObject) then
+        begin
+          ErrorObj := TJSONObject(ErrorData);
+          if ErrorObj.IndexOfName('error') >= 0 then
+            HasError := True;
+        end;
+      finally
+        ErrorData.Free;
+      end;
+    except
+      // Se não conseguir parsear, não é erro de API
+      HasError := False;
+    end;
+  finally
+    ErrorParser.Free;
+  end;
+
+  if HasError then
   begin
     FResponse := AUX;
     Exit(False);
@@ -274,6 +395,7 @@ begin
   try
     FResponse := PegaMensagem(AUX);
     Result := (Trim(FResponse) <> '');
+
     if not Result then
       FResponse := AUX;
   except
@@ -285,14 +407,17 @@ end;
 constructor TCHATGPT.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  FTipoChat := VCT_GPT41_MINI;
   FProvider := AIP_OPENAI;
+  FTipoChat := VCT_GPT4o;
+
   FDev := 'Você é um assistente.';
   FParams := TStringList.Create;
   FCustomModel := '';
   FOpenRouterTitle := '';
   FOpenRouterSite := '';
   FLastJSON := '';
+  FLocalIP := 'http://localhost:11434';
+  FMaxTokens := 4096;
 end;
 
 destructor TCHATGPT.Destroy;
@@ -312,6 +437,7 @@ begin
     AIP_OPENAI:     Result := 'OpenAI';
     AIP_OPENROUTER: Result := 'OpenRouter';
     AIP_CEREBRAS:   Result := 'Cerebras';
+    AIP_LOCAL:      Result := 'Local';
   else
     Result := 'OpenAI';
   end;
@@ -320,6 +446,11 @@ end;
 function TCHATGPT.VersaoBiblioteca: WideString;
 begin
   Result := CHATGPT_LIB_VERSION;
+end;
+
+procedure Register;
+begin
+  RegisterComponents('IA', [TCHATGPT]);
 end;
 
 end.

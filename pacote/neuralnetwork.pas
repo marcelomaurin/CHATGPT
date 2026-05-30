@@ -37,7 +37,8 @@ type
     procedure DoActivation(var X: Double);
     procedure DoDerivativeActivation(var Y: Double);
   public
-    constructor Create(LInputs, LHiddens, LOutputs: Integer; LLearningRate: Double);
+    constructor Create(AOwner: TComponent); override;
+    procedure Initialize(LInputs, LHiddens, LOutputs: Integer; LLearningRate: Double);
 
     function Predict(LInputs: TArray): TArray;
     procedure Train(LInputs, LTargets: TArray);
@@ -58,7 +59,16 @@ procedure Register;
 
 implementation
 
-constructor TNeuralNetwork.Create(LInputs, LHiddens, LOutputs: Integer; LLearningRate: Double);
+constructor TNeuralNetwork.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FInputNodes := 0;
+  FHiddenNodes := 0;
+  FOutputNodes := 0;
+  FLearningRate := 0.1;
+end;
+
+procedure TNeuralNetwork.Initialize(LInputs, LHiddens, LOutputs: Integer; LLearningRate: Double);
 var
   I, J: Integer;
 begin

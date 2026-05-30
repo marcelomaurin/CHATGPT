@@ -46,7 +46,7 @@ implementation
 
 procedure Tfrmdemo1.FormCreate(Sender: TObject);
 begin
-  FChatgpt := TChatgpt.create(self);
+  FChatgpt := TChatgpt.create(nil);
   //FChatgpt.IdHTTP := IdHTTP1;
 end;
 
@@ -64,7 +64,7 @@ procedure Tfrmdemo1.edASKKeyPress(Sender: TObject; var Key: char);
 begin
   if (key = #13) then
   begin
-    FChatgpt.SendQuestion(edASK.text);
+    CallASK();
   end;
 end;
 
