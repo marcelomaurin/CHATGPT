@@ -80,6 +80,11 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="lstmpredictor"/>
       </Item>
+      <Item>
+        <Filename Value="soundfilters.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="soundfilters"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>

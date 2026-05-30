@@ -1,0 +1,182 @@
+object FormMain: TFormMain
+  Left = 320
+  Height = 600
+  Top = 180
+  Width = 850
+  Caption = 'IA Filtros Sonoros e Multiplexação - Simulador de DSP'
+  ClientHeight = 600
+  ClientWidth = 850
+  OnCreate = FormCreate
+  LCLVersion = '3.0.0.3'
+  object PanelTop: TPanel
+    Left = 0
+    Height = 150
+    Top = 0
+    Width = 850
+    Align = alTop
+    ClientHeight = 150
+    ClientWidth = 850
+    TabOrder = 0
+    object GroupBoxControls: TGroupBox
+      Left = 8
+      Height = 134
+      Top = 8
+      Width = 450
+      Caption = ' Ajuste dos Filtros Digitais (Passa-Baixa, Passa-Alta e Média) '
+      ClientHeight = 114
+      ClientWidth = 446
+      TabOrder = 0
+      object LabelCutoffLP: TLabel
+        Left = 10
+        Height = 15
+        Top = 5
+        Width = 120
+        Caption = 'Cutoff LP: 1000 Hz'
+        ParentColor = False
+      end
+      object TrackBarLP: TTrackBar
+        Left = 150
+        Height = 25
+        Top = 2
+        Width = 280
+        Max = 4000
+        Min = 50
+        OnChange = TrackBarLPChange
+        Position = 1000
+        TabOrder = 0
+      end
+      object LabelCutoffHP: TLabel
+        Left = 10
+        Height = 15
+        Top = 40
+        Width = 120
+        Caption = 'Cutoff HP: 100 Hz'
+        ParentColor = False
+      end
+      object TrackBarHP: TTrackBar
+        Left = 150
+        Height = 25
+        Top = 37
+        Width = 280
+        Max = 1000
+        Min = 5
+        OnChange = TrackBarHPChange
+        Position = 100
+        TabOrder = 1
+      end
+      object LabelWindowAvg: TLabel
+        Left = 10
+        Height = 15
+        Top = 75
+        Width = 120
+        Caption = 'Janela Média: 10'
+        ParentColor = False
+      end
+      object TrackBarAvg: TTrackBar
+        Left = 150
+        Height = 25
+        Top = 72
+        Width = 280
+        Max = 50
+        Min = 2
+        OnChange = TrackBarAvgChange
+        Position = 10
+        TabOrder = 2
+      end
+    end
+    object RadioGroupMux: TRadioGroup
+      Left = 470
+      Height = 134
+      Top = 8
+      Width = 250
+      AutoFill = True
+      Caption = ' Multiplexação / Modulação no Cabo '
+      ChildSizing.LeftRightSpacing = 6
+      ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+      ChildSizing.EnlargeVertical = crsHomogenousChildResize
+      ChildSizing.ShrinkHorizontal = crsScaleChilds
+      ChildSizing.ShrinkVertical = crsScaleChilds
+      ChildSizing.Layout = cclLeftToRightThenTopToBottom
+      ChildSizing.ControlsPerLine = 1
+      ClientHeight = 114
+      ClientWidth = 246
+      Items.Strings = (
+        'FDM - Divisão por Freqüência (Portadoras separadas)'
+        'TDM - Divisão por Tempo (Slots alternados)'
+        'CDM/CDMA - Divisão por Código (Walsh-Hadamard)'
+        'OFDM - Portadoras Ortogonais (FFT / IFFT)'
+      )
+      OnClick = ButtonRunSimClick
+      TabOrder = 1
+    end
+    object ButtonRunSim: TButton
+      Left = 730
+      Height = 134
+      Top = 8
+      Width = 110
+      Caption = 'Regerar Sinais'
+      OnClick = ButtonRunSimClick
+      TabOrder = 2
+    end
+  end
+  object PageControlGraphs: TPageControl
+    Left = 0
+    Height = 450
+    Top = 150
+    Width = 850
+    ActivePage = TabSheetFilter
+    Align = alClient
+    TabIndex = 0
+    TabOrder = 1
+    object TabSheetFilter: TTabSheet
+      Caption = ' Playground de Filtros Sonoros '
+      ClientHeight = 422
+      ClientWidth = 842
+      object LabelFilterTitle: TLabel
+        Left = 10
+        Height = 17
+        Top = 5
+        Width = 500
+        Caption = 'Espectro Temporal: Original (Cinza), Passa-Baixa (Verde), Passa-Alta (Azul), Média (Laranja)'
+        Font.Color = clNavy
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+      end
+      object PaintBoxFilter: TPaintBox
+        Left = 0
+        Height = 392
+        Top = 30
+        Width = 842
+        Align = alBottom
+        Anchors = [akTop, akLeft, akRight, akBottom]
+        OnPaint = PaintBoxFilterPaint
+      end
+    end
+    object TabSheetMux: TTabSheet
+      Caption = ' Multiplexação FDM / TDM / CDM / OFDM '
+      ClientHeight = 422
+      ClientWidth = 842
+      object LabelMuxTitle: TLabel
+        Left = 10
+        Height = 17
+        Top = 5
+        Width = 400
+        Caption = 'Simulação de Separação de Canais por Freqüência, Tempo ou Código'
+        Font.Color = clDarkOrchid
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+      end
+      object PaintBoxMux: TPaintBox
+        Left = 0
+        Height = 392
+        Top = 30
+        Width = 842
+        Align = alBottom
+        Anchors = [akTop, akLeft, akRight, akBottom]
+        OnPaint = PaintBoxMuxPaint
+      end
+    end
+  end
+end
