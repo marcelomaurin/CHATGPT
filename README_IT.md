@@ -1,4 +1,4 @@
-# TCHATGPT — Componente Lazarus per l'Integrazione con API di IA
+# TCHATGPT — Suite di Componenti di IA per Lazarus
 
 🌍 **Lingue / Idiomas:**
 *   [Português (PT)](README.md)
@@ -13,39 +13,67 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Lazarus](https://img.shields.io/badge/Lazarus-3.x-orange.svg)](https://www.lazarus-ide.org/)
 
-Componente visivo per Free Pascal / Lazarus che consente di inviare domande e ricevere risposte da molteplici fornitori di intelligenza artificiale (IA), tra cui **OpenAI (ChatGPT)**, **Google Gemini**, **Anthropic Claude**, **OpenRouter**, **Cerebras** e **modelli locali tramite Ollama**.
-
-## Funzionalità
-
-- ✅ Supporto per molteplici fornitori (OpenAI, OpenRouter, Cerebras, Ollama/Local, Gemini, Claude)
-- ✅ Selezione del modello tramite enum o nome personalizzato
-- ✅ Comunicazione via HTTPS con `TFPHttpClient` (senza dipendenza da Indy)
-- ✅ Installazione come componente nella tavolozza di Lazarus (scheda **IA**)
-- ✅ Componenti ausiliari inclusi: `TNeuralNetwork` e `TTokenList`
-- ✅ Rilasciato sotto licenza GPL v3
+Una suite completa di componenti visivi e non visivi per Free Pascal / Lazarus progettata per integrare l'**IA generativa e l'apprendimento automatico (Machine Learning)** nativamente nelle vostre applicazioni. Supporta **OpenAI (ChatGPT)**, **Google Gemini**, **Anthropic Claude**, **OpenRouter**, **Cerebras**, **modelli locali tramite Ollama** e reti neurali locali.
 
 ---
 
-## Guida Rapida
+## 📦 Componenti Inclusi nel Pacchetto
+
+La suite installa nella tavolozza dei componenti di Lazarus (scheda **IA**) i seguenti strumenti:
+
+### 1. `TCHATGPT` (Connettore per API di IA)
+Il motore principale per l'integrazione dei LLM. Invia domande e ricevi risposte testuali strutturate da fornitori globali o locali.
+- **Fornitori Supportati**: OpenAI, Gemini, Claude, OpenRouter, Cerebras e Ollama/Local.
+- **Funzionalità**: Controllo di Max Tokens, System/Developer Prompts, temperatura e modelli personalizzati.
+
+### 2. `TNeuralNetwork` (Rete Neurale Multistrato)
+Un Perceptron Multistrato (MLP) scritto in **Pascal puro**, che consente di progettare e addestrare modelli di rete neurale localmente senza dipendenze esterne.
+- **Funzioni di Attivazione Integrate**: Sigmoide (`atSigmoid`), ReLU (`atReLU`), Tanh (`atTanh`) e Personalizzata (`atCustom` tramite eventi).
+- **Addestramento per Epoche**: Il metodo `TrainEpochs` addestra i modelli a partire da una matrice di dataset e calcola la perdita di errore quadratico medio (MSE Loss).
+- **Persistenza**: Salva e carica rapidamente pesi e bias (`SaveNetwork` / `LoadNetwork`).
+
+### 3. `TAICodeAssistant` (Assistente di Codice)
+Un assistente virtuale orientato allo sviluppatore. Si collega ad un componente `TCHATGPT` configurato per automatizzare le attività di programmazione più comuni:
+- **`OptimizeCode(ACode)`**: Ottimizza le prestazioni e la leggibilità delle routine.
+- **`FindBugs(ACode)`**: Cerca bug logici, perdite di memoria e raccomanda correzioni.
+- **`DocumentCode(ACode)`**: Aggiunge automaticamente commenti esplicativi strutturati in formato XML/Javadoc.
+- **`GenerateUnitTests(ACode)`**: Scrive unit test completi utilizzando framework come `FPCUnit`.
+- **`TranslateCode(ACode, Da, A)`**: Traduce il codice tra linguaggi (es. da C# a Pascal).
+- **`ExplainCode(ACode)`**: Spiega passo dopo passo il funzionamento interno di un algoritmo.
+
+### 4. `TAIDatasetGenerator` (Generatore di Datasets di Addestramento)
+Uno strumento per facilitare la preparazione dei dati. Aiuta a generare file per il Fine-Tuning di LLM o file di dati per le reti neurali locali:
+- **Fine-Tuning**: Esporta le conversazioni nel formato standard **JSONL** (JSON Lines) accettato da OpenAI e Ollama.
+- **Integrazione della Rete Neurale**: Esporta i dati in formato **CSV** e carica i file CSV delimitati direttamente nelle matrici di input e output (`TMatrix`) compatibili con `TNeuralNetwork.TrainEpochs`.
+
+### 5. `TTokenList` (Tokenizzatore ausiliario)
+Utilità di analisi delle stringhe per creare elenchi segmentati a partire da collezioni di testo.
+
+---
+
+## Guida Rapida (Assistente di Codice)
 
 ```pascal
-uses chatgpt;
+uses chatgpt, aicodeassistant;
 
 var
   FChatgpt: TCHATGPT;
+  FAssistant: TAICodeAssistant;
+  CodeOttimizzato: string;
 begin
   FChatgpt := TCHATGPT.Create(nil);
+  FAssistant := TAICodeAssistant.Create(nil);
   try
     FChatgpt.TOKEN := 'sk-IL_TUO_TOKEN_QUI';
-    FChatgpt.Provider := AIP_GEMINI;       // OpenAI, OpenRouter, Cerebras, Local, Gemini o Claude
-    FChatgpt.TipoChat := VCT_GEMINI_25_FLASH; // Modello desiderato
-    FChatgpt.MaxTokens := 4096;            // Limite di token nella risposta
-
-    if FChatgpt.SendQuestion('Qual è la capitale dell''Italia?') then
-      ShowMessage(FChatgpt.Response)
-    else
-      ShowMessage('Errore: ' + FChatgpt.Response);
+    FChatgpt.Provider := AIP_CLAUDE;          // Configura Anthropic Claude
+    FChatgpt.TipoChat := VCT_CLAUDE_35_SONNET;
+    
+    FAssistant.ChatGPT := FChatgpt; // Collega il connettore di IA
+    
+    CodeOttimizzato := FAssistant.OptimizeCode('procedure TForm1.Click; begin i := i + 1; end;');
+    ShowMessage(CodeOttimizzato);
   finally
+    FAssistant.Free;
     FChatgpt.Free;
   end;
 end;
@@ -53,7 +81,40 @@ end;
 
 ---
 
-## Fornitori Supportati
+## Addestramento Locale (`TNeuralNetwork` & `TAIDatasetGenerator`)
+
+```pascal
+var
+  FNet: TNeuralNetwork;
+  FGen: TAIDatasetGenerator;
+  Inputs, Targets: TMatrix;
+  Loss: Double;
+begin
+  FNet := TNeuralNetwork.Create(nil);
+  FGen := TAIDatasetGenerator.Create(nil);
+  try
+    // Carica i dati di addestramento direttamente da un file CSV
+    FGen.LoadFromCSV('data.csv', Inputs, Targets, 2, 1); // 2 Ingressi, 1 Uscita
+
+    // Inizializza la rete neurale: 2 Ingressi, 4 Nodi Nascosti, 1 Uscita, Learning Rate = 0.05
+    FNet.Initialize(2, 4, 1, 0.05);
+    FNet.ActivationType := atSigmoid;
+
+    // Esegue il ciclo di addestramento sul dataset per 1000 epoche
+    FNet.TrainEpochs(Inputs, Targets, 1000, Loss);
+    ShowMessage(Format('Addestramento completato! Perdita MSE Finale: %0.6f', [Loss]));
+
+    FNet.SaveNetwork('model.net');
+  finally
+    FGen.Free;
+    FNet.Free;
+  end;
+end;
+```
+
+---
+
+## Fornitori Supportati (LLMs)
 
 | Fornitore | Enum | Endpoint | Token Richiesto |
 |---|---|---|---|
@@ -66,166 +127,26 @@ end;
 
 ---
 
-## Modelli Disponibili
-
-### OpenAI
-| Enum | Modello API |
-|---|---|
-| `VCT_GPT35TURBO` | `gpt-3.5-turbo` |
-| `VCT_GPT40` | `gpt-4` |
-| `VCT_GPT40_TURBO` | `gpt-4-turbo-preview` |
-| `VCT_GPT4o` | `gpt-4o` |
-| `VCT_GPTo3_mini` | `o3-mini` |
-| `VCT_GPT41` | `gpt-4.1` |
-| `VCT_GPT41_MINI` | `gpt-4.1-mini` |
-| `VCT_GPT5` | `gpt-5` |
-
-### Google Gemini (Gratuito & A Pagamento)
-| Enum | Modello API |
-|---|---|
-| `VCT_GEMINI_25_FLASH` | `gemini-2.5-flash` |
-| `VCT_GEMINI_25_PRO` | `gemini-2.5-pro` |
-| `VCT_GEMINI_20_FLASH` | `gemini-2.0-flash` |
-| `VCT_GEMINI_15_FLASH` | `gemini-1.5-flash` |
-| `VCT_GEMINI_15_PRO` | `gemini-1.5-pro` |
-
-### Anthropic Claude (Gratuito & A Pagamento)
-| Enum | Modello API |
-|---|---|
-| `VCT_CLAUDE_35_SONNET` | `claude-3-5-sonnet-20241022` |
-| `VCT_CLAUDE_35_HAIKU` | `claude-3-5-haiku-20241022` |
-| `VCT_CLAUDE_3_OPUS` | `claude-3-opus-20240229` |
-
-### Ollama / Local
-| Enum | Modello |
-|---|---|
-| `VCT_LLAMA32_3B` | `llama3.2:3b` |
-| `VCT_QWEN25_15B` | `qwen2.5:1.5b` |
-| `VCT_DEEPSEEK_R1_15B` | `deepseek-r1:1.5b` |
-| `VCT_DEEPSEEK_R1_8B` | `deepseek-r1:8b` |
-| `VCT_DEEPSEEK_R1_14B` | `deepseek-r1:14b` |
-| `VCT_DEEPSEEK_R1_70B` | `deepseek-r1:70b` |
-
-> Per utilizzare qualsiasi altro modello, definire `FChatgpt.CustomModel := 'nome-del-modello';`
-
----
-
-## Proprietà
-
-| Proprietà | Tipo | Descrizione |
-|---|---|---|
-| `TOKEN` | `WideString` | Chiave API del fornitore |
-| `Provider` | `TAIProvider` | Fornitore di IA (OpenAI, OpenRouter, Cerebras, Local, Gemini, Claude) |
-| `TipoChat` | `TVersionChat` | Modello di IA selezionato |
-| `CustomModel` | `WideString` | Nome del modello personalizzato (sovrascrive TipoChat) |
-| `LocalIP` | `WideString` | URL del server locale Ollama (predefinito: `http://localhost:11434`) |
-| `MaxTokens` | `Integer` | Limite di token nella risposta (predefinito: 4096) |
-| `Dev` | `WideString` | Prompt di sistema (predefinito: "Sei un assistente.") |
-| `Response` | `WideString` | Risposta all'ultima domanda |
-| `Question` | `WideString` | Ultima domanda inviata (sola lettura) |
-| `LastJSON` | `WideString` | JSON non elaborato dell'ultima risposta (sola lettura) |
-| `OpenRouterTitle` | `WideString` | Titolo dell'applicazione (intestazione per OpenRouter) |
-| `OpenRouterSite` | `WideString` | URL del sito (intestazione HTTP-Referer per OpenRouter) |
-
----
-
-## Esempio con Ollama Locale
-
-```pascal
-FChatgpt := TCHATGPT.Create(nil);
-try
-  FChatgpt.Provider := AIP_LOCAL;
-  FChatgpt.TipoChat := VCT_DEEPSEEK_R1_8B;
-  FChatgpt.LocalIP := 'http://192.168.1.100:11434';  // IP del server
-
-  if FChatgpt.SendQuestion('Spiega il concetto di ricorsione.') then
-    Memo1.Text := FChatgpt.Response;
-finally
-  FChatgpt.Free;
-end;
-```
-
----
-
 ## Installazione del Pacchetto in Lazarus
 
 1. Nell'IDE di Lazarus, andare su **Package > Open Package File (.lpk)**
 2. Navigare alla cartella `pacote/` e selezionare **`openai.lpk`**
 3. Fare clic su **Compile** per compilare il pacchetto
 4. Fare clic su **Use > Install** — Lazarus chiederà di ricompilare l'IDE
-5. Dopo il riavvio, i componenti saranno disponibili nella scheda **IA** della tavolozza dei componenti:
-   - `TCHATGPT`
-   - `TNeuralNetwork`
-   - `TTokenList`
+5. Dopo il riavvio, i 5 componenti saranno disponibili nella scheda **IA** della tavolozza dei componenti.
 
 ---
 
-## Requisitos delle Librerie (Windows)
+## Requisiti delle Librerie (Windows)
 
-Affinché la comunicazione HTTPS funzioni correttamente su Windows, le seguenti DLL di OpenSSL devono essere accessibili dall'applicazione:
+Affinché la comunicazione HTTPS funzioni correttamente su Windows, le DLL di OpenSSL adeguate per l'architettura della vostra applicazione compilata (32-bit o 64-bit) devono essere accessibili. La suite include già le DLL nella cartella `pacote/lib/`:
 
-- `libcrypto-1_1.dll`
-- `libssl-1_1.dll`
-- `libssl-1_1-x64.dll` (64-bit)
+*   **Applicazioni a 32-bit (i386-win32)**: `pacote/lib/i386-win32/`
+    - `libcrypto-1_1.dll`, `libssl-1_1.dll`
+*   **Applicazioni a 64-bit (x86_64-win64)**: `pacote/lib/x86_64-win64/`
+    - `libcrypto.dll`, `libssl-1_1-x64.dll`
 
-**Raccomandazione:** Copiare queste DLL nella **stessa cartella dell'eseguibile dell'applicazione** (non in `System32`).
-
-Le DLL sono incluse nella radice di questo repository per vostra comodità.
-
----
-
-## Struttura del Progetto
-
-```
-CHATGPT/
-├── chatgpt.pas           # Componente principale TCHATGPT
-├── funcoes.pas           # Funzioni ausiliarie
-├── pacote/
-│   ├── openai.lpk        # Pacchetto Lazarus per l'installazione
-│   ├── chatgpt.pas       # Copia sincronizzata del componente
-│   ├── neuralnetwork.pas  # Componente TNeuralNetwork (semplice rete neurale)
-│   ├── tokenizer.pas     # Componente TTokenList (supporto per tokenizzazione)
-│   └── funcoes.pas       # Copia sincronizzata di funzioni ausiliarie
-├── demo/
-│   ├── demo1.lpr         # Applicazione di dimostrazione
-│   └── main.pas          # Form principale della demo
-├── tools/
-│   └── script/           # Script di supporto (tokenizer Python)
-├── dicionario/           # Dizionario PT-BR
-├── LICENSE               # Licenza GPL v3
-└── README.md             # Documentazione in portoghese
-```
-
----
-
-## Applicazione Demo
-
-Un'applicazione demo completa è disponibile nella cartella `demo/`. Per eseguirla:
-
-1. Aprire `demo/demo1.lpi` in Lazarus
-2. Compilare ed eseguire
-3. Selezionare il fornitore di IA desiderato nel menu a discesa
-4. Selezionare il modello o definire un modello personalizzato
-5. Inserire il proprio token dell'API nel campo corrispondente
-6. Digitare la domanda e fare clic su **Submit** o premere **Invio**
-
----
-
-## Avviso Importante
-
-L'uso di fornitori cloud come OpenAI, OpenRouter, Cerebras, Gemini o Claude richiede un **abbonamento attivo** e crediti disponibili. L'uso con **Ollama locale** non richiede alcuna chiave API.
-
----
-
-## Riferimenti
-
-- [Documentazione dell'API OpenAI](https://platform.openai.com/docs/)
-- [Documentazione dell'API di Google Gemini](https://ai.google.dev/docs)
-- [Documentazione dell'API di Anthropic Claude](https://docs.anthropic.com/)
-- [OpenRouter](https://openrouter.ai/)
-- [Ollama](https://ollama.ai/)
-- [Cerebras](https://www.cerebras.ai/)
-- [Dataset di parole PT-BR](https://github.com/j0aoarthur/Palavras-PT-BR)
+**Raccomandazione:** Copiare le DLL della cartella `lib/` corrispondente nella **stessa cartella del vostro eseguibile compilato**.
 
 ---
 

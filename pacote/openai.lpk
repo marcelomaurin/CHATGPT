@@ -35,8 +35,21 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="tokenizer"/>
       </Item>
+      <Item>
+        <Filename Value="aicodeassistant.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aicodeassistant"/>
+      </Item>
+      <Item>
+        <Filename Value="aidatasetgenerator.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aidatasetgenerator"/>
+      </Item>
     </Files>
     <RequiredPkgs>
+      <Item>
+        <PackageName Value="LCL"/>
+      </Item>
       <Item>
         <PackageName Value="FCL"/>
       </Item>

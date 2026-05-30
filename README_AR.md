@@ -1,4 +1,4 @@
-# TCHATGPT — مكون لازاروس للدمج مع واجهات برمجة تطبيقات الذكاء الاصطناعي (AI APIs)
+# TCHATGPT — حزمة مكونات الذكاء الاصطناعي لبيئة لازاروس (Lazarus)
 
 🌍 **اللغات / Idiomas / Languages:**
 *   [Português (PT)](README.md)
@@ -13,39 +13,67 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Lazarus](https://img.shields.io/badge/Lazarus-3.x-orange.svg)](https://www.lazarus-ide.org/)
 
-مكون مرئي لـ Free Pascal / Lazarus يسمح بإرسال الأسئلة وتلقي الإجابات من مزودي ذكاء اصطناعي متعددين، بما في ذلك **OpenAI (ChatGPT)** و **Google Gemini** و **Anthropic Claude** و **OpenRouter** و **Cerebras** و **النماذج المحلية عبر Ollama**.
-
-## الميزات
-
-- ✅ دعم مزودين متعددين (OpenAI و OpenRouter و Cerebras و Ollama/المحلي و Gemini و Claude)
-- ✅ اختيار النموذج عبر enum أو اسم مخصص
-- ✅ الاتصال عبر HTTPS باستخدام `TFPHttpClient` (بدون الاعتماد على Indy)
-- ✅ التثبيت كمكون في لوحة مكونات لازاروس (علامة التبويب **IA**)
-- ✅ المكونات الإضافية المضمنة: `TNeuralNetwork` و `TTokenList`
-- ✅ مرخص بموجب رخصة GPL v3
+مجموعة كاملة من المكونات المرئية وغير المرئية لبيئة Free Pascal / Lazarus المصممة لدمج **الذكاء الاصطناعي التوليدي والتعلم الآلي (Machine Learning)** برمجياً في تطبيقاتك. تدعم الحزمة **OpenAI (ChatGPT)** و **Google Gemini** و **Anthropic Claude** و **OpenRouter** و **Cerebras** و **النماذج المحلية عبر Ollama** بالإضافة إلى الشبكات العصبية المحلية المكتوبة بالباسكال بالكامل.
 
 ---
 
-## البدء السريع
+## 📦 المكونات المضمنة في الحزمة
+
+تثبت الحزمة المكونات التالية في علامة التبويب **IA** في لوحة مكونات لازاروس:
+
+### 1. `TCHATGPT` (موصل واجهات برمجة تطبيقات الذكاء الاصطناعي)
+المحرك الأساسي لدمج نماذج اللغات الكبيرة (LLMs). يسمح بإرسال الأسئلة وتلقي الإجابات النصية المهيكلة من موفري الخدمات السحابية أو النماذج المحلية.
+- **المزودون المدعومون**: OpenAI و Gemini و Claude و OpenRouter و Cerebras و Ollama/المحلي.
+- **الميزات**: التحكم في الحد الأقصى للرموز (Max Tokens)، والتوجيهات المخصصة للمطور/النظام، والحرارة (Temperature)، والنماذج المخصصة.
+
+### 2. `TNeuralNetwork` (شبكة عصبية متعددة الطبقات)
+شبكة عصبية من نوع Perceptron متعددة الطبقات (MLP) مكتوبة **بلغة بايثون/باسكال نقية**، مما يتيح لك بناء وتدريب نماذج شبكات عصبية محلياً ودون الحاجة لمكتبات خارجية ضخمة.
+- **دوال التنشيط المدمجة**: Sigmoid (`atSigmoid`) و ReLU (`atReLU`) و Tanh (`atTanh`) والتنشيط المخصص (`atCustom` عبر الأحداث).
+- **التدريب على فترات (Epochs)**: توفر الدالة `TrainEpochs` لتدريب الشبكة على مصفوفات كاملة وحساب نسبة الخسارة الإجمالية عبر الخطأ التربيعي المتوسط (MSE Loss).
+- **الحفظ والاسترجاع**: حفظ وتحميل الأوزان والانحيازات بسهولة (`SaveNetwork` / `LoadNetwork`).
+
+### 3. `TAICodeAssistant` (مساعد البرمجة الذكي)
+مساعد برمجيات افتراضي موجه للمطورين. يرتبط بمكون `TCHATGPT` المختار لأتمتة المهام البرمجية الشائعة:
+- **`OptimizeCode(ACode)`**: تحسين أداء وسهولة قراءة الأكواد البرمجية.
+- **`FindBugs(ACode)`**: فحص الأخطاء المنطقية، تسريب الذاكرة، وتقديم حلول مصححة.
+- **`DocumentCode(ACode)`**: إضافة تعليقات توثيقية مهيكلة بصيغة XML/Javadoc تلقائياً.
+- **`GenerateUnitTests(ACode)`**: كتابة اختبارات وحدات شاملة باستخدام بيئات مثل `FPCUnit`.
+- **`TranslateCode(ACode, From, To)`**: ترجمة الأكواد البرمجية بين اللغات المختلفة (مثل C# إلى Pascal).
+- **`ExplainCode(ACode)`**: شرح منطق عمل الخوارزميات خطوة بخطوة بالتفصيل.
+
+### 4. `TAIDatasetGenerator` (منشئ مجموعات البيانات التدريبية)
+أداة لتسهيل إعداد البيانات وتجهيزها. تساعد على إنشاء الملفات اللازمة للضبط الدقيق (Fine-Tuning) لنماذج اللغات أو مجموعات البيانات للشبكة العصبية المحلية:
+- **Fine-Tuning**: تصدير المحادثات بالصيغة القياسية **JSONL** (JSON Lines) المقبولة من OpenAI و Ollama.
+- **تكامل الشبكات العصبية**: تصدير البيانات بصيغة **CSV**، وتحميل ملفات CSV المفصولة بترميز معين مباشرة إلى مصفوفات التدريب (`TMatrix`) المتوافقة مع مكون الشبكة العصبية `TNeuralNetwork.TrainEpochs`.
+
+### 5. `TTokenList` (مقسم الكلمات المساعد)
+أداة مساعدة لتحليل النصوص وتقسيم الجمل إلى قائمة مهيكلة من الرموز (Tokens).
+
+---
+
+## البدء السريع (مساعد البرمجة الذكي)
 
 ```pascal
-uses chatgpt;
+uses chatgpt, aicodeassistant;
 
 var
   FChatgpt: TCHATGPT;
+  FAssistant: TAICodeAssistant;
+  OptimizedCode: string;
 begin
   FChatgpt := TCHATGPT.Create(nil);
+  FAssistant := TAICodeAssistant.Create(nil);
   try
     FChatgpt.TOKEN := 'sk-YOUR_KEY_HERE';
-    FChatgpt.Provider := AIP_GEMINI;       // OpenAI, OpenRouter, Cerebras, Local, Gemini, or Claude
-    FChatgpt.TipoChat := VCT_GEMINI_25_FLASH; // النموذج المطلوب
-    FChatgpt.MaxTokens := 4096;            // الحد الأقصى للرموز (Tokens) في الإجابة
-
-    if FChatgpt.SendQuestion('ما هي عاصمة مصر؟') then
-      ShowMessage(FChatgpt.Response)
-    else
-      ShowMessage('خطأ: ' + FChatgpt.Response);
+    FChatgpt.Provider := AIP_CLAUDE;          // ضبط موصل الأنثروبيك كلاود
+    FChatgpt.TipoChat := VCT_CLAUDE_35_SONNET;
+    
+    FAssistant.ChatGPT := FChatgpt; // ربط مساعد البرمجة بمكون الاتصال
+    
+    OptimizedCode := FAssistant.OptimizeCode('procedure TForm1.Click; begin i := i + 1; end;');
+    ShowMessage(OptimizedCode);
   finally
+    FAssistant.Free;
     FChatgpt.Free;
   end;
 end;
@@ -53,7 +81,40 @@ end;
 
 ---
 
-## المزودون المدعومون
+## التدريب المحلي للشبكات العصبية (`TNeuralNetwork` & `TAIDatasetGenerator`)
+
+```pascal
+var
+  FNet: TNeuralNetwork;
+  FGen: TAIDatasetGenerator;
+  Inputs, Targets: TMatrix;
+  Loss: Double;
+begin
+  FNet := TNeuralNetwork.Create(nil);
+  FGen := TAIDatasetGenerator.Create(nil);
+  try
+    // تحميل بيانات التدريب مباشرة من ملف CSV
+    FGen.LoadFromCSV('data.csv', Inputs, Targets, 2, 1); // مدخلان، مخرج واحد
+
+    // تهيئة الشبكة العصبية: مدخلان، 4 خلايا مخفية، مخرج واحد، معدل التعلم = 0.05
+    FNet.Initialize(2, 4, 1, 0.05);
+    FNet.ActivationType := atSigmoid;
+
+    // تشغيل حلقة التدريب على مجموعة البيانات لمدة 1000 دورة
+    FNet.TrainEpochs(Inputs, Targets, 1000, Loss);
+    ShowMessage(Format('اكتمل التدريب! نسبة الخسارة النهائية MSE: %0.6f', [Loss]));
+
+    FNet.SaveNetwork('model.net');
+  finally
+    FGen.Free;
+    FNet.Free;
+  end;
+end;
+```
+
+---
+
+## المزودون المدعومون (LLMs)
 
 | المزود | Enum | Endpoint | الرمز المطلوب (Token) |
 |---|---|---|---|
@@ -66,166 +127,26 @@ end;
 
 ---
 
-## النماذج المتاحة
-
-### OpenAI
-| Enum | نموذج API |
-|---|---|
-| `VCT_GPT35TURBO` | `gpt-3.5-turbo` |
-| `VCT_GPT40` | `gpt-4` |
-| `VCT_GPT40_TURBO` | `gpt-4-turbo-preview` |
-| `VCT_GPT4o` | `gpt-4o` |
-| `VCT_GPTo3_mini` | `o3-mini` |
-| `VCT_GPT41` | `gpt-4.1` |
-| `VCT_GPT41_MINI` | `gpt-4.1-mini` |
-| `VCT_GPT5` | `gpt-5` |
-
-### Google Gemini (المجانية والمدفوعة)
-| Enum | نموذج API |
-|---|---|
-| `VCT_GEMINI_25_FLASH` | `gemini-2.5-flash` |
-| `VCT_GEMINI_25_PRO` | `gemini-2.5-pro` |
-| `VCT_GEMINI_20_FLASH` | `gemini-2.0-flash` |
-| `VCT_GEMINI_15_FLASH` | `gemini-1.5-flash` |
-| `VCT_GEMINI_15_PRO` | `gemini-1.5-pro` |
-
-### Anthropic Claude (المجانية والمدفوعة)
-| Enum | نموذج API |
-|---|---|
-| `VCT_CLAUDE_35_SONNET` | `claude-3-5-sonnet-20241022` |
-| `VCT_CLAUDE_35_HAIKU` | `claude-3-5-haiku-20241022` |
-| `VCT_CLAUDE_3_OPUS` | `claude-3-opus-20240229` |
-
-### Ollama / المحلي
-| Enum | النموذج |
-|---|---|
-| `VCT_LLAMA32_3B` | `llama3.2:3b` |
-| `VCT_QWEN25_15B` | `qwen2.5:1.5b` |
-| `VCT_DEEPSEEK_R1_15B` | `deepseek-r1:1.5b` |
-| `VCT_DEEPSEEK_R1_8B` | `deepseek-r1:8b` |
-| `VCT_DEEPSEEK_R1_14B` | `deepseek-r1:14b` |
-| `VCT_DEEPSEEK_R1_70B` | `deepseek-r1:70b` |
-
-> لاستخدام أي نموذج آخر، قم بتعريف: `FChatgpt.CustomModel := 'اسم-النموذج';`
-
----
-
-## الخصائص
-
-| الخاصية | النوع | الوصف |
-|---|---|---|
-| `TOKEN` | `WideString` | مفتاح واجهة برمجة التطبيقات (API Key) الخاص بالمزود |
-| `Provider` | `TAIProvider` | مزود الذكاء الاصطناعي (OpenAI, OpenRouter, Cerebras, Local, Gemini, Claude) |
-| `TipoChat` | `TVersionChat` | نموذج الذكاء الاصطناعي المحدد |
-| `CustomModel` | `WideString` | اسم نموذج مخصص (يتجاوز TipoChat) |
-| `LocalIP` | `WideString` | عنوان URL لخادم Ollama المحلي (الافتراضي: `http://localhost:11434`) |
-| `MaxTokens` | `Integer` | الحد الأقصى للرموز في الإجابة (الافتراضي: 4096) |
-| `Dev` | `WideString` | التوجيه الخاص بالنظام (الافتراضي: "أنت مساعد ذكي.") |
-| `Response` | `WideString` | الإجابة على آخر سؤال تم إرساله |
-| `Question` | `WideString` | آخر سؤال تم إرساله (للقراءة فقط) |
-| `LastJSON` | `WideString` | نص JSON الخام لآخر استجابة (للقراءة فقط) |
-| `OpenRouterTitle` | `WideString` | عنوان التطبيق (رأس لـ OpenRouter) |
-| `OpenRouterSite` | `WideString` | عنوان URL للموقع (رأس HTTP-Referer لـ OpenRouter) |
-
----
-
-## مثال مع خادم Ollama محلي
-
-```pascal
-FChatgpt := TCHATGPT.Create(nil);
-try
-  FChatgpt.Provider := AIP_LOCAL;
-  FChatgpt.TipoChat := VCT_DEEPSEEK_R1_8B;
-  FChatgpt.LocalIP := 'http://192.168.1.100:11434';  // عنوان IP للخادم
-
-  if FChatgpt.SendQuestion('اشرح مفهوم التكرار الحلقي أو التداخلي (Recursion).') then
-    Memo1.Text := FChatgpt.Response;
-finally
-  FChatgpt.Free;
-end;
-```
-
----
-
 ## تثبيت الحزمة في لازاروس
 
 1. في بيئة لازاروس، اذهب إلى **Package > Open Package File (.lpk)**
 2. توجه إلى المجلد `pacote/` واختر **`openai.lpk`**
 3. انقر على **Compile** لترجمة الحزمة
 4. انقر على **Use > Install** — سيطلب منك لازاروس إعادة بناء بيئة التطوير
-5. بعد إعادة التشغيل، ستكون المكونات متاحة في علامة التبويب **IA** في لوحة المكونات:
-   - `TCHATGPT`
-   - `TNeuralNetwork`
-   - `TTokenList`
+5. بعد إعادة التشغيل، ستكون المكونات الخمسة (5) متوفرة في علامة التبويب **IA** في لوحة المكونات.
 
 ---
 
 ## متطلبات المكتبات (نظام ويندوز)
 
-لكي يعمل اتصال HTTPS بشكل صحيح على ويندوز، يجب توفير ملفات مكتبة OpenSSL التالية لتكون قابلة للوصول من قبل التطبيق:
+لكي يعمل اتصال HTTPS بشكل صحيح على ويندوز، يجب توفير ملفات مكتبة OpenSSL المناسبة لبنية تطبيقك المصدر (32-بت أو 64-بت). تحتوي الحزمة بالفعل على ملفات DLL في المجلد `pacote/lib/`:
 
-- `libcrypto-1_1.dll`
-- `libssl-1_1.dll`
-- `libssl-1_1-x64.dll` (لأنظمة 64-بت)
+*   **تطبيقات 32-بت (i386-win32)**: `pacote/lib/i386-win32/`
+    - `libcrypto-1_1.dll`, `libssl-1_1.dll`
+*   **تطبيقات 64-بت (x86_64-win64)**: `pacote/lib/x86_64-win64/`
+    - `libcrypto.dll`, `libssl-1_1-x64.dll`
 
-**توصية:** قم بنسخ هذه الملفات إلى **نفس المجلد الذي يحتوي على الملف التنفيذي لتطبيقك** (وليس في `System32`).
-
-ملفات DLL مضمنة في المجلد الرئيسي لهذا المستودع لتسهيل الأمر عليك.
-
----
-
-## هيكل المشروع
-
-```
-CHATGPT/
-├── chatgpt.pas           # المكون الرئيسي TCHATGPT
-├── funcoes.pas           # الدوال المساعدة والأدوات
-├── pacote/
-│   ├── openai.lpk        # حزمة لازاروس للتثبيت
-│   ├── chatgpt.pas       # نسخة متزامنة من المكون
-│   ├── neuralnetwork.pas  # مكون شبكة عصبية بسيطة TNeuralNetwork
-│   ├── tokenizer.pas     # مكون مساعد لتقسيم الكلمات إلى رموز TTokenList
-│   └── funcoes.pas       # نسخة متزامنة من الدوال المساعدة
-├── demo/
-│   ├── demo1.lpr         # التطبيق التجريبي
-│   └── main.pas          # النموذج الرئيسي للتطبيق التجريبي
-├── tools/
-│   └── script/           # نصوص برمجية مساعدة (مقسم كلمات بلغة بايثون)
-├── dicionario/           # قاموس البرتغالية (PT-BR)
-├── LICENSE               # رخصة GPL v3
-└── README.md             # التوثيق باللغة البرتغالية
-```
-
----
-
-## التطبيق التجريبي (Demo)
-
-يتوفر تطبيق تجريبي كامل في المجلد `demo/`. لتشغيله:
-
-1. افتح الملف `demo/demo1.lpi` في لازاروس
-2. قم بترجمة وتشغيل المشروع
-3. اختر مزود الذكاء الاصطناعي المطلوب من القائمة المنسدلة
-4. اختر النموذج أو حدد نموذجًا مخصصًا
-5. أدخل مفتاح واجهة برمجة التطبيقات (API Key) في الحقل المقابل
-6. اكتب سؤالك وانقر فوق **Submit** أو اضغط على **Enter**
-
----
-
-## ملاحظة هامة
-
-يتطلب استخدام مزودي الخدمات السحابية مثل OpenAI أو OpenRouter أو Cerebras أو Gemini أو Claude وجود **اشتراك نشط** ورصيد متاح في حسابك. استخدام **Ollama المحلي** مجاني تماماً ولا يتطلب أي مفاتيح API.
-
----
-
-## المراجع
-
-- [توثيق واجهة برمجة تطبيقات OpenAI](https://platform.openai.com/docs/)
-- [توثيق واجهة برمجة تطبيقات Google Gemini](https://ai.google.dev/docs)
-- [توثيق واجهة برمجة تطبيقات Anthropic Claude](https://docs.anthropic.com/)
-- [OpenRouter](https://openrouter.ai/)
-- [Ollama](https://ollama.ai/)
-- [Cerebras](https://www.cerebras.ai/)
-- [مجموعة بيانات الكلمات البرتغالية PT-BR](https://github.com/j0aoarthur/Palavras-PT-BR)
+**توصية:** قم بنسخ ملفات DLL من مجلد `lib/` المقابل لبنية تطبيقك إلى **نفس المجلد الذي يحتوي على الملف التنفيذي لتطبيقك**.
 
 ---
 
