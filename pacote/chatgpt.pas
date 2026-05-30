@@ -189,6 +189,54 @@ begin
     Exit;
   end;
 
+  if FProvider = AIP_GEMINI then
+  begin
+    Parser := TJSONParser.Create(CleanJSON);
+    try
+      try
+        Data := Parser.Parse;
+        try
+          if Data.JSONType = jtObject then
+          begin
+            JsonObject := TJSONObject(Data);
+            if JsonObject.Find('candidates', ChoicesArray) then
+            begin
+              if (ChoicesArray <> nil) and (ChoicesArray.Count > 0) then
+              begin
+                if ChoicesArray.Items[0].JSONType = jtObject then
+                begin
+                  MessageObject := ChoicesArray.Objects[0].Find('content') as TJSONObject;
+                  if MessageObject <> nil then
+                  begin
+                    if MessageObject.Find('parts', ChoicesArray) then
+                    begin
+                      if (ChoicesArray <> nil) and (ChoicesArray.Count > 0) then
+                      begin
+                        if ChoicesArray.Items[0].JSONType = jtObject then
+                        begin
+                          ContentData := ChoicesArray.Objects[0].Find('text');
+                          if (ContentData <> nil) and (ContentData.JSONType = jtString) then
+                            Result := ContentData.AsString;
+                        end;
+                      end;
+                    end;
+                  end;
+                end;
+              end;
+            end;
+          end;
+        finally
+          Data.Free;
+        end;
+      except
+        Result := '';
+      end;
+    finally
+      Parser.Free;
+    end;
+    Exit;
+  end;
+
   Parser := TJSONParser.Create(CleanJSON);
   try
     try
@@ -240,7 +288,7 @@ begin
       Result := 'https://api.cerebras.ai/v1/chat/completions';
 
     AIP_GEMINI:
-      Result := 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions';
+      Result := 'https://generativelanguage.googleapis.com/v1beta/models/' + GetModelName + ':generateContent?key=' + FToken;
 
     AIP_CLAUDE:
       Result := 'https://api.anthropic.com/v1/messages';
@@ -347,8 +395,8 @@ begin
   AHTTP.AddHeader('Content-Type', 'application/json');
   AHTTP.AddHeader('Accept', 'application/json');
 
-  // Local / llama.cpp não necessita de Bearer Token por padrão
-  if FProvider = AIP_LOCAL then
+  // Local / llama.cpp / Gemini não necessitam de Bearer Token por padrão
+  if (FProvider = AIP_LOCAL) or (FProvider = AIP_GEMINI) then
     Exit;
 
   if FProvider = AIP_CLAUDE then
@@ -378,6 +426,8 @@ var
   root, mSys, mUser: TJSONObject;
   msgs: TJSONArray;
   payload: UTF8String;
+  GeminiContentArr, GeminiPartsArr: TJSONArray;
+  GeminiContentObj, GeminiPartObj: TJSONObject;
 begin
   if FProvider = AIP_CLAUDE then
   begin
@@ -399,6 +449,38 @@ begin
         root.Add('max_tokens', FMaxTokens)
       else
         root.Add('max_tokens', 4096);
+
+      payload := UTF8Encode(root.AsJSON);
+    finally
+      root.Free;
+    end;
+  end
+  else if FProvider = AIP_GEMINI then
+  begin
+    root := TJSONObject.Create;
+    try
+      if Trim(FDev) <> '' then
+      begin
+        mSys := TJSONObject.Create;
+        msgs := TJSONArray.Create;
+        mUser := TJSONObject.Create;
+        mUser.Add('text', FDev);
+        msgs.Add(mUser);
+        mSys.Add('parts', msgs);
+        root.Add('systemInstruction', mSys);
+      end;
+
+      GeminiContentArr := TJSONArray.Create;
+      GeminiContentObj := TJSONObject.Create;
+      GeminiPartsArr := TJSONArray.Create;
+      GeminiPartObj := TJSONObject.Create;
+      
+      GeminiPartObj.Add('text', ASK);
+      GeminiPartsArr.Add(GeminiPartObj);
+      GeminiContentObj.Add('parts', GeminiPartsArr);
+      GeminiContentArr.Add(GeminiContentObj);
+      
+      root.Add('contents', GeminiContentArr);
 
       payload := UTF8Encode(root.AsJSON);
     finally

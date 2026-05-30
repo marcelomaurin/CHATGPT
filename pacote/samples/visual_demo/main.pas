@@ -179,6 +179,9 @@ begin
     begin
       cbModel.Items.Add('gemini-2.5-flash');
       cbModel.Items.Add('gemini-2.5-pro');
+      cbModel.Items.Add('gemini-2.0-flash');
+      cbModel.Items.Add('gemini-1.5-flash');
+      cbModel.Items.Add('gemini-1.5-pro');
       cbModel.ItemIndex := 0;
     end;
     5: // Claude
@@ -229,8 +232,11 @@ begin
   end
   else if FChatgpt.Provider = AIP_GEMINI then
   begin
-    if SelModelText = 'gemini-2.5-pro' then FChatgpt.TipoChat := VCT_GEMINI_25_PRO
-    else FChatgpt.TipoChat := VCT_GEMINI_25_FLASH;
+    if SelModelText = 'gemini-2.5-flash' then FChatgpt.TipoChat := VCT_GEMINI_25_FLASH
+    else if SelModelText = 'gemini-2.5-pro' then FChatgpt.TipoChat := VCT_GEMINI_25_PRO
+    else if SelModelText = 'gemini-2.0-flash' then FChatgpt.TipoChat := VCT_GEMINI_20_FLASH
+    else if SelModelText = 'gemini-1.5-flash' then FChatgpt.TipoChat := VCT_GEMINI_15_FLASH
+    else if SelModelText = 'gemini-1.5-pro' then FChatgpt.TipoChat := VCT_GEMINI_15_PRO;
   end
   else if FChatgpt.Provider = AIP_CLAUDE then
   begin
