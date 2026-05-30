@@ -249,6 +249,8 @@ procedure TfrmVisualDemo.btnChatSendClick(Sender: TObject);
 var
   AuditedURL: string;
   KeyPos: Integer;
+  UrlAjuda: string;
+  NomeProvedor: string;
 begin
   if Trim(edChatAsk.Text) = '' then
     Exit;
@@ -258,7 +260,21 @@ begin
 
   if (FChatgpt.Provider in [AIP_OPENAI, AIP_GEMINI, AIP_CLAUDE, AIP_OPENROUTER, AIP_CEREBRAS]) and (Trim(FChatgpt.TOKEN) = '') then
   begin
-    meChatConversation.Lines.Append('>>> ERRO: A chave de API (TOKEN) está vazia! Por favor, digite ou cole sua chave no campo TOKEN no topo.');
+    UrlAjuda := '';
+    NomeProvedor := FChatgpt.ProviderName;
+    
+    case FChatgpt.Provider of
+      AIP_OPENAI:     UrlAjuda := 'https://platform.openai.com/api-keys';
+      AIP_GEMINI:     UrlAjuda := 'https://aistudio.google.com/';
+      AIP_CLAUDE:     UrlAjuda := 'https://console.anthropic.com/settings/keys';
+      AIP_OPENROUTER: UrlAjuda := 'https://openrouter.ai/settings/keys';
+      AIP_CEREBRAS:   UrlAjuda := 'https://cloud.cerebras.ai/';
+    end;
+
+    meChatConversation.Lines.Append('>>> ERRO: A chave de API (TOKEN) está vazia para o provedor ' + NomeProvedor + '!');
+    meChatConversation.Lines.Append('>>> É necessário criar um token/chave de API no respectivo serviço para poder utilizá-lo.');
+    if UrlAjuda <> '' then
+      meChatConversation.Lines.Append('>>> Crie ou obtenha sua chave em: ' + UrlAjuda);
     meChatConversation.Lines.Append('');
     Exit;
   end;

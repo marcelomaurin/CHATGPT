@@ -230,6 +230,21 @@ begin
     end;
   end;
 
+  if (FChatgpt.Provider in [AIP_OPENAI, AIP_GEMINI, AIP_CLAUDE, AIP_OPENROUTER, AIP_CEREBRAS]) and (Trim(FChatgpt.TOKEN) = '') then
+  begin
+    meConversation.Lines.Append('>>> ERRO: A chave de API (TOKEN) está vazia para o provedor ' + FChatgpt.ProviderName + '!');
+    meConversation.Lines.Append('>>> É necessário criar um token/chave de API no respectivo serviço para poder utilizá-lo.');
+    case FChatgpt.Provider of
+      AIP_OPENAI:     meConversation.Lines.Append('>>> Crie sua chave em: https://platform.openai.com/api-keys');
+      AIP_GEMINI:     meConversation.Lines.Append('>>> Crie sua chave gratuitamente em: https://aistudio.google.com/');
+      AIP_CLAUDE:     meConversation.Lines.Append('>>> Crie sua chave em: https://console.anthropic.com/settings/keys');
+      AIP_OPENROUTER: meConversation.Lines.Append('>>> Crie sua chave em: https://openrouter.ai/settings/keys');
+      AIP_CEREBRAS:   meConversation.Lines.Append('>>> Crie sua chave em: https://cloud.cerebras.ai/');
+    end;
+    meConversation.Lines.Append('');
+    Exit;
+  end;
+
   meConversation.Lines.Append('>>> (' + FChatgpt.ProviderName + ' - ' + FChatgpt.TipoModelo + ') ' + edASK.Text);
   if FChatgpt.SendQuestion(edASK.Text) then
     meConversation.Lines.Append(FChatgpt.Response)
