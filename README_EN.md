@@ -17,37 +17,53 @@ A complete suite of visual and non-visual components for Free Pascal / Lazarus d
 
 ---
 
-## 📦 Components Included in the Package
+## 📦 Component Palette Tabs Included in the Package
 
-The suite installs the following tools under the **IA** tab of the Lazarus component palette:
+The suite installs four feature-rich tabs under the Lazarus component palette:
 
-### 1. `TCHATGPT` (AI API Connector)
-The core engine for LLM integration. Send questions and receive structured text responses from global or local providers.
-- **Supported Providers**: OpenAI, Gemini, Claude, OpenRouter, Cerebras, and Ollama/Local.
-- **Features**: Control over Max Tokens, System/Developer Prompts, temperature, and custom models.
+---
 
-### 2. `TNeuralNetwork` (Multilayer Neural Network)
-A Multilayer Perceptron (MLP) written in **pure Pascal**, allowing you to build and train local neural network models without external dependencies.
-- **Built-in Activation Functions**: Sigmoid (`atSigmoid`), ReLU (`atReLU`), Tanh (`atTanh`), and Custom (`atCustom` via events).
-- **Epoch Training**: The `TrainEpochs` method trains models from a dataset matrix and calculates the Mean Squared Error (MSE Loss).
-- **Persistence**: Save and quickly load weights and biases (`SaveNetwork` / `LoadNetwork`).
+### Tab: `IA` (Generative AI and Machine Learning)
 
-### 3. `TAICodeAssistant` (Code Assistant)
-A developer-focused virtual assistant. It binds to a configured `TCHATGPT` component to automate common programming tasks:
-- **`OptimizeCode(ACode)`**: Optimizes routine performance and readability.
-- **`FindBugs(ACode)`**: Scans for logic bugs, memory leaks, and recommends fixes.
-- **`DocumentCode(ACode)`**: Automatically adds structured XML/Javadoc documentation comments.
-- **`GenerateUnitTests(ACode)`**: Writes comprehensive unit tests using frameworks like `FPCUnit`.
-- **`TranslateCode(ACode, From, To)`**: Translates code between languages (e.g., C# to Pascal).
-- **`ExplainCode(ACode)`**: Explains the inner workings of an algorithm step-by-step.
+*   **`TCHATGPT` (AI API Connector)**: The core engine for LLM integration. Send questions and receive structured text responses from global providers (OpenAI, Gemini, Claude, OpenRouter, Cerebras) or local ones (Ollama).
+*   **`TNeuralNetwork` (Multilayer Neural Network)**: A Multilayer Perceptron (MLP) written in **pure Pascal**, allowing you to build, train (`TrainEpochs` calculating MSE Loss), and persist local neural networks.
+*   **`TAICodeAssistant` (Code Assistant)**: Binds to a configured connector to optimize code, scan for bugs, document, write unit tests, and translate programming languages.
+*   **`TAIDatasetGenerator` (Dataset Builder)**: Easily formats JSONL conversations for LLM Fine-Tuning or dataset CSV files for local TNeuralNetwork training.
+*   **`TTokenList` (Tokenizer)**: Utility string tokenizer for text analyzing.
 
-### 4. `TAIDatasetGenerator` (Dataset Builder Helper)
-An easy data preparer. Helps generate files for LLM Fine-Tuning or dataset files for local neural networks:
-- **Fine-Tuning**: Exports conversations in the standard **JSONL** (JSON Lines) format accepted by OpenAI and Ollama.
-- **Neural Network Integration**: Exports data to **CSV** and loads delimited CSV files directly into compatible input and target matrices (`TMatrix`) for use in `TNeuralNetwork.TrainEpochs`.
+---
 
-### 5. `TTokenList` (Utility Tokenizer)
-An auxiliary string analyzer to build tokenized lists from text collections.
+### Tab: `IA Filtros Sonoros` (Digital Signal Processing - DSP)
+
+*   **`TLowPassFilter`**: IIR RC first-order low-pass filter to smooth sudden transitions.
+*   **`THighPassFilter`**: IIR RC first-order high-pass filter to reject low frequencies (rumble/DC bias).
+*   **`TAverageFilter`**: Sliding window moving average filter to attenuate fast fluctuations.
+*   **`TFDMMultiplexer`**: Frequency Division Multiplexing (FDM) modulator/demodulator using AM-DSB-SC with shifted carrier frequencies.
+*   **`TTDMMultiplexer`**: Time Division Multiplexing (TDM) modulator slicing frames into interleaved time slots.
+*   **`TCDMMultiplexer`**: CDM (CDMA) multiplexer using Walsh-Hadamard orthogonal codes.
+*   **`TOFDMMultiplexer`**: Orthogonal Frequency Division Multiplexing (OFDM) modulator/demodulator using FFT and IFFT Radix-2 Cooley-Tukey with cyclic prefixes.
+
+---
+
+### Tab: `IA Image` (Computer Vision and Image Processing)
+
+*   **`TGrayscaleFilter`**: Converts images to grayscale using photometric luminance weights.
+*   **`TNegativeFilter`**: Fully inverts all color channels ($R_{new} = 65535 - R$).
+*   **`TBrightnessContrastFilter`**: Adjusts brightness and contrast linearly with high fidelity.
+*   **`TBinarizationFilter`**: Threshold binarizer to output absolute black-and-white images.
+*   **`TBlurFilter`**: Defocuses images using a $3\times3$ box blur convolution with edge clamping.
+*   **`TSharpenFilter`**: Sharpens images using a high-pass Laplacian $3\times3$ kernel.
+*   **`TSobelFilter`**: Sobel edge detector returning horizontal/vertical gradient magnitude maps.
+*   **`TErosionDilationFilter`**: Morphological mathematical operators (Erosion / Dilation) with custom radii.
+
+---
+
+### Tab: `IA Schedulle` (JSON Persistence and Dependency Scheduler)
+
+*   **`TJSONGroupStorage`**: Named grouped key-value storage component automatically persisted in JSON files. Seamlessly accommodates very large strings and texts.
+*   **`TIASchedule`**: Work schedule manager supporting hierarchical parent-child tasks and live dependency solving (`IsReady`).
+
+---
 
 ---
 

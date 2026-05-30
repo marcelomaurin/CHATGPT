@@ -1,0 +1,10 @@
+object FormMain: TFormMain
+  Left = 240
+  Height = 680
+  Top = 150
+  Width = 1050
+  Caption = 'IA Schedulle & JSON Config Storage Showcase Playground'
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '2.2.0'
+end

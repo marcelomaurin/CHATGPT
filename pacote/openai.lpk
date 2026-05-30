@@ -90,6 +90,11 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="imagefilters"/>
       </Item>
+      <Item>
+        <Filename Value="iaschedule.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="iaschedule"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>
