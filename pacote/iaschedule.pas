@@ -23,10 +23,14 @@ type
   public
     constructor Create(ACollection: TCollection); override;
     destructor Destroy; override;
-    procedure DependsOn(const ATaskName: string);
+    procedure DependsOn(const ATaskName: string); overload;
+    procedure DependsOn(ATask: TScheduleTask); overload;
     procedure MarkAsDone;
     procedure MarkAsPending;
+    procedure Done;
+    procedure Pending;
     function GetDependencies: TStringList;
+    function ListDependencies: TStringList;
     function IsReady: Boolean;
   published
     property Name: string read FName write FName;
@@ -123,6 +127,12 @@ begin
     FDependencies.Add(ATaskName);
 end;
 
+procedure TScheduleTask.DependsOn(ATask: TScheduleTask);
+begin
+  if ATask <> nil then
+    DependsOn(ATask.Name);
+end;
+
 procedure TScheduleTask.MarkAsDone;
 begin
   FStatus := tsDone;
@@ -133,7 +143,22 @@ begin
   FStatus := tsPending;
 end;
 
+procedure TScheduleTask.Done;
+begin
+  MarkAsDone;
+end;
+
+procedure TScheduleTask.Pending;
+begin
+  MarkAsPending;
+end;
+
 function TScheduleTask.GetDependencies: TStringList;
+begin
+  Result := FDependencies;
+end;
+
+function TScheduleTask.ListDependencies: TStringList;
 begin
   Result := FDependencies;
 end;
