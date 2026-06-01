@@ -67,10 +67,15 @@ type
     FLastError: string;
     FLastRationale: string;
     FOnActionTriggered: TAgentActionEvent;
+    FMemory: TStrings;
+    FMaxMemoryLimit: Integer;
+    FMaxRetries: Integer;
+    procedure SetMemory(AValue: TStrings);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function Execute(const AInputData: string): Boolean;
+    procedure ClearMemory;
   published
     property ChatGPT: TCHATGPT read FChatGPT write FChatGPT;
     property Options: TAIAgentOptions read FOptions write FOptions;
@@ -78,6 +83,9 @@ type
     property SystemPrompt: string read FSystemPrompt write FSystemPrompt;
     property LastError: string read FLastError;
     property LastRationale: string read FLastRationale;
+    property Memory: TStrings read FMemory write SetMemory;
+    property MaxMemoryLimit: Integer read FMaxMemoryLimit write FMaxMemoryLimit;
+    property MaxRetries: Integer read FMaxRetries write FMaxRetries;
     property OnActionTriggered: TAgentActionEvent read FOnActionTriggered write FOnActionTriggered;
   end;
 
@@ -302,12 +310,26 @@ begin
   FSystemPrompt := '';
   FLastError := '';
   FLastRationale := '';
+  FMemory := TStringList.Create;
+  FMaxMemoryLimit := 20;
+  FMaxRetries := 3;
   FOnActionTriggered := nil;
 end;
 
 destructor TAIAgent.Destroy;
 begin
+  FMemory.Free;
   inherited Destroy;
+end;
+
+procedure TAIAgent.SetMemory(AValue: TStrings);
+begin
+  FMemory.Assign(AValue);
+end;
+
+procedure TAIAgent.ClearMemory;
+begin
+  FMemory.Clear;
 end;
 
 function TAIAgent.Execute(const AInputData: string): Boolean;
@@ -316,6 +338,7 @@ var
   QuestionsText: string;
   ActionsText: string;
   ParamsText: string;
+  MemoryText: string;
   I: Integer;
   JSONData: TJSONData;
   JSONObject: TJSONObject;
@@ -323,6 +346,9 @@ var
   ActionName: string;
   ParamName: string;
   ParamValue: string;
+  RetryCount: Integer;
+  ParsedSuccessfully: Boolean;
+  CurrentPrompt: string;
 begin
   Result := False;
   FLastError := '';
@@ -359,6 +385,15 @@ begin
     end;
   end;
 
+  // Build memory text
+  MemoryText := '';
+  if FMemory.Count > 0 then
+  begin
+    MemoryText := sLineBreak + '=== HISTÓRICO DE MENSAGENS ANTERIORES (MEMÓRIA CONVERSACIONAL) ===' + sLineBreak;
+    for I := 0 to FMemory.Count - 1 do
+      MemoryText := MemoryText + FMemory[I] + sLineBreak;
+  end;
+
   // 1. Build detailed Agent System instructions
   Prompt := 'Você é um Agente Inteligente Autônomo.' + sLineBreak;
   if FSystemPrompt <> '' then
@@ -366,6 +401,9 @@ begin
 
   Prompt := Prompt + sLineBreak + '=== DADOS DE ENTRADA A ANALISAR ===' + sLineBreak;
   Prompt := Prompt + AInputData + sLineBreak;
+
+  if MemoryText <> '' then
+    Prompt := Prompt + MemoryText;
 
   if QuestionsText <> '' then
   begin
@@ -404,66 +442,110 @@ begin
   Prompt := Prompt + '  "rationale": "sua justificativa e raciocínio analítico aqui"' + sLineBreak;
   Prompt := Prompt + '}' + sLineBreak;
 
-  // Send to ChatGPT conector
-  if not FChatGPT.SendQuestion(Prompt) then
+  RetryCount := 0;
+  ParsedSuccessfully := False;
+  CurrentPrompt := Prompt;
+
+  // 2. Execute Loop with Self-Correction / Critic
+  while (RetryCount < FMaxRetries) and not ParsedSuccessfully do
   begin
-    FLastError := 'Falha na requisição ao ChatGPT: ' + FChatGPT.Response;
-    Exit;
-  end;
+    if not FChatGPT.SendQuestion(CurrentPrompt) then
+    begin
+      FLastError := 'Falha na requisição ao ChatGPT: ' + FChatGPT.Response;
+      Inc(RetryCount);
+      Continue;
+    end;
 
-  // Parse JSON
-  try
-    JSONData := GetJSON(FChatGPT.Response);
+    // Parse JSON Response
     try
-      if JSONData.JSONType = jtObject then
-      begin
-        JSONObject := TJSONObject(JSONData);
-        
-        ActionName := '';
-        if JSONObject.IndexOfName('action') >= 0 then
-          ActionName := JSONObject.Strings['action'];
-        
-        if JSONObject.IndexOfName('rationale') >= 0 then
-          FLastRationale := JSONObject.Strings['rationale'];
-
-        if Assigned(FAction) then
+      JSONData := GetJSON(FChatGPT.Response);
+      try
+        if JSONData.JSONType = jtObject then
         begin
-          FAction.SelectedAction := ActionName;
-          FAction.SelectedParameters.Clear;
-
-          if JSONObject.IndexOfName('parameters') >= 0 then
+          JSONObject := TJSONObject(JSONData);
+          
+          ActionName := '';
+          if JSONObject.IndexOfName('action') >= 0 then
+            ActionName := JSONObject.Strings['action'];
+          
+          // Validate Action Name against Allowed Actions
+          if Assigned(FAction) and (FAction.AllowedActions.Count > 0) and (ActionName <> '') then
           begin
-            JSONParams := JSONObject.Objects['parameters'];
-            if Assigned(JSONParams) then
+            if FAction.AllowedActions.IndexOf(ActionName) < 0 then
             begin
-              for I := 0 to JSONParams.Count - 1 do
-              begin
-                ParamName := JSONParams.Names[I];
-                ParamValue := JSONParams.Items[I].AsString;
-                FAction.SelectedParameters.Add(ParamName + '=' + ParamValue);
-              end;
+              // Action is not in allowed list! Trigger retry loop with correction warning
+              CurrentPrompt := Prompt + sLineBreak + sLineBreak +
+                               'WARNING: Você retornou a ação "' + ActionName + '" na tentativa anterior, o que NÃO é permitido.' + sLineBreak +
+                               'As ÚNICAS ações permitidas são:' + sLineBreak + ActionsText + sLineBreak +
+                               'Por favor, refaça sua análise e selecione estritamente uma ação válida listada acima em formato JSON.';
+              Inc(RetryCount);
+              Continue;
             end;
           end;
 
-          // Trigger callbacks
-          FAction.TriggerAction(ActionName, FAction.SelectedParameters);
-          if Assigned(FOnActionTriggered) then
-            FOnActionTriggered(Self, ActionName, FAction.SelectedParameters);
+          if JSONObject.IndexOfName('rationale') >= 0 then
+            FLastRationale := JSONObject.Strings['rationale'];
+
+          if Assigned(FAction) then
+          begin
+            FAction.SelectedAction := ActionName;
+            FAction.SelectedParameters.Clear;
+
+            if JSONObject.IndexOfName('parameters') >= 0 then
+            begin
+              JSONParams := JSONObject.Objects['parameters'];
+              if Assigned(JSONParams) then
+              begin
+                for I := 0 to JSONParams.Count - 1 do
+                begin
+                  ParamName := JSONParams.Names[I];
+                  ParamValue := JSONParams.Items[I].AsString;
+                  FAction.SelectedParameters.Add(ParamName + '=' + ParamValue);
+                end;
+              end;
+            end;
+
+            // Trigger callbacks
+            FAction.TriggerAction(ActionName, FAction.SelectedParameters);
+            if Assigned(FOnActionTriggered) then
+              FOnActionTriggered(Self, ActionName, FAction.SelectedParameters);
+          end;
+          
+          // Add to short-term Memory
+          FMemory.Add('User: ' + AInputData);
+          FMemory.Add('Jarvis: Action=' + ActionName + ' | Rationale=' + FLastRationale);
+          
+          // Check memory limit
+          while FMemory.Count > FMaxMemoryLimit do
+            FMemory.Delete(0);
+
+          ParsedSuccessfully := True;
+          Result := True;
+        end
+        else
+        begin
+          CurrentPrompt := Prompt + sLineBreak + sLineBreak +
+                           'WARNING: A resposta anterior não foi um objeto JSON válido.' + sLineBreak +
+                           'Por favor, retorne a resposta estritamente formatada no JSON correto.';
+          Inc(RetryCount);
         end;
-        
-        Result := True;
-      end
-      else
-      begin
-        FLastError := 'Resposta retornada não é um objeto JSON válido. Resposta: ' + FChatGPT.Response;
+      finally
+        JSONData.Free;
       end;
-    finally
-      JSONData.Free;
+    except
+      on E: Exception do
+      begin
+        FLastError := 'Erro no parser: ' + E.Message + ' | Tentativa: ' + IntToStr(RetryCount + 1);
+        CurrentPrompt := Prompt + sLineBreak + sLineBreak +
+                         'WARNING: Ocorreu um erro no parsing do JSON retornado: ' + E.Message + sLineBreak +
+                         'Por favor, certifique-se de retornar EXCLUSIVAMENTE o JSON estruturado correto, sem blocos de código markdown ou crases.';
+        Inc(RetryCount);
+      end;
     end;
-  except
-    on E: Exception do
-      FLastError := 'Erro ao fazer parsing do retorno JSON do Agente: ' + E.Message + ' | Resposta: ' + FChatGPT.Response;
   end;
+
+  if not ParsedSuccessfully and (FLastError = '') then
+    FLastError := 'Excedeu o número máximo de tentativas de auto-correção do Agente.';
 end;
 
 { TAIAgentResourceItem }
