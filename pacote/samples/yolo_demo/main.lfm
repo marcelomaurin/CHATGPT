@@ -11,52 +11,52 @@ object frmYoloDemo: TfrmYoloDemo
   LCLVersion = '3.0.0.3'
   object pnlConfig: TPanel
     Left = 10
-    Height = 80
+    Height = 115
     Top = 10
     Width = 880
     Align = alTop
     BorderSpacing.Around = 10
-    ClientHeight = 80
+    ClientHeight = 115
     ClientWidth = 880
     TabOrder = 0
     object lblDLLPath: TLabel
       Left = 15
       Height = 15
-      Top = 15
-      Width = 120
-      Caption = 'Nome/Caminho DLL:'
+      Top = 10
+      Width = 280
+      Caption = 'Escolha a DLL do Python:'
       ParentColor = False
     end
-    object edDLLPath: TEdit
+    object lbDLLs: TListBox
       Left = 15
-      Height = 23
-      Top = 35
-      Width = 150
+      Height = 70
+      Top = 30
+      Width = 280
+      ItemHeight = 0
       TabOrder = 0
-      Text = 'python3.dll'
     end
     object btnToggleActive: TButton
-      Left = 180
+      Left = 310
       Height = 35
-      Top = 27
+      Top = 35
       Width = 140
       Caption = 'Ativar Python'
       OnClick = btnToggleActiveClick
       TabOrder = 1
     end
     object btnInstallDeps: TButton
-      Left = 330
+      Left = 460
       Height = 35
-      Top = 27
+      Top = 35
       Width = 180
       Caption = 'Instalar YOLOv8 (Pip)'
       OnClick = btnInstallDepsClick
       TabOrder = 2
     end
     object lblStatus: TLabel
-      Left = 530
+      Left = 660
       Height = 15
-      Top = 35
+      Top = 45
       Width = 127
       Caption = 'Status: Python INATIVO'
       Font.Color = clRed
@@ -66,18 +66,18 @@ object frmYoloDemo: TfrmYoloDemo
   end
   object pnlImage: TPanel
     Left = 10
-    Height = 90
-    Top = 100
+    Height = 125
+    Top = 135
     Width = 880
     Align = alTop
     BorderSpacing.Around = 10
-    ClientHeight = 90
+    ClientHeight = 125
     ClientWidth = 880
     TabOrder = 1
     object lblImage: TLabel
       Left = 15
       Height = 15
-      Top = 15
+      Top = 10
       Width = 115
       Caption = 'Arquivo de Imagem:'
       ParentColor = False
@@ -85,14 +85,14 @@ object frmYoloDemo: TfrmYoloDemo
     object edImagePath: TEdit
       Left = 15
       Height = 23
-      Top = 35
+      Top = 30
       Width = 530
       TabOrder = 0
     end
     object btnSelectImg: TButton
       Left = 560
       Height = 25
-      Top = 33
+      Top = 28
       Width = 140
       Caption = 'Procurar Imagem...'
       OnClick = btnSelectImgClick
@@ -101,12 +101,30 @@ object frmYoloDemo: TfrmYoloDemo
     object btnDetect: TButton
       Left = 715
       Height = 45
-      Top = 20
+      Top = 35
       Width = 145
       Caption = 'Detectar Objetos'
       Font.Style = [fsBold]
       OnClick = btnDetectClick
       TabOrder = 2
+    end
+    object lblDemoImages: TLabel
+      Left = 15
+      Height = 15
+      Top = 65
+      Width = 140
+      Caption = 'Imagens de Demonstração (YOLO):'
+      ParentColor = False
+    end
+    object cbDemoImages: TComboBox
+      Left = 15
+      Height = 23
+      Top = 85
+      Width = 530
+      ItemHeight = 15
+      OnChange = cbDemoImagesChange
+      Style = csDropDownList
+      TabOrder = 3
     end
   end
   object imgView: TImage

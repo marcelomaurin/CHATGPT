@@ -15,7 +15,7 @@ type
   TfrmYoloDemo = class(TForm)
     pnlConfig: TPanel;
     lblDLLPath: TLabel;
-    edDLLPath: TEdit;
+    lbDLLs: TListBox;
     btnToggleActive: TButton;
     btnInstallDeps: TButton;
     lblStatus: TLabel;
@@ -25,6 +25,8 @@ type
     edImagePath: TEdit;
     btnSelectImg: TButton;
     btnDetect: TButton;
+    lblDemoImages: TLabel;
+    cbDemoImages: TComboBox;
     
     imgView: TImage;
     meLogs: TMemo;
@@ -36,11 +38,13 @@ type
     procedure btnInstallDepsClick(Sender: TObject);
     procedure btnSelectImgClick(Sender: TObject);
     procedure btnDetectClick(Sender: TObject);
+    procedure cbDemoImagesChange(Sender: TObject);
   private
     FConnector: TPythonConnector;
     FYolo: TYOLO;
     procedure LogMsg(const AMsg: string);
     procedure UpdateStatusUI;
+    procedure LoadDemoImages;
   public
 
   end;
@@ -55,20 +59,112 @@ implementation
 { TfrmYoloDemo }
 
 procedure TfrmYoloDemo.FormCreate(Sender: TObject);
+var
+  SR: TSearchRec;
+  AppDir, Ext: string;
+  ArchStr: string;
+  I: Integer;
 begin
   FConnector := TPythonConnector.Create(Self);
   FYolo := TYOLO.Create(Self);
   FYolo.PythonConnector := FConnector;
+
+  // Detect platform bitness
+  {$IFDEF CPU64}
+  ArchStr := '64-bit';
+  Ext := '.dll';
+  {$ELSE}
+  ArchStr := '32-bit';
+  Ext := '.dll';
+  {$ENDIF}
+
+  lblDLLPath.Caption := 'Escolha a DLL do Python (' + ArchStr + '):';
+
+  // Search and populate ListBox
+  lbDLLs.Items.Clear;
+  AppDir := ExtractFilePath(ParamStr(0));
   
-  edDLLPath.Text := 'python3.dll';
+  if FindFirst(AppDir + 'python*' + Ext, faAnyFile, SR) = 0 then
+  begin
+    repeat
+      if (SR.Attr and faDirectory) = 0 then
+        lbDLLs.Items.Add(AppDir + SR.Name);
+    until FindNext(SR) <> 0;
+    FindClose(SR);
+  end;
+
+  // Add default candidate paths
+  {$IFDEF MSWINDOWS}
+  lbDLLs.Items.Add('python3.dll');
+  {$IFDEF CPU64}
+  lbDLLs.Items.Add('python3_64.dll');
+  {$ELSE}
+  lbDLLs.Items.Add('python3_32.dll');
+  {$ENDIF}
+  lbDLLs.Items.Add('python312.dll');
+  lbDLLs.Items.Add('python311.dll');
+  lbDLLs.Items.Add('python310.dll');
+  {$ELSE}
+  lbDLLs.Items.Add('libpython3.so');
+  lbDLLs.Items.Add('libpython3_64.so');
+  lbDLLs.Items.Add('libpython3.12.so');
+  lbDLLs.Items.Add('libpython3.11.so');
+  {$ENDIF}
+
+  // Deduplicate
+  for I := lbDLLs.Items.Count - 1 downto 0 do
+  begin
+    if lbDLLs.Items.IndexOf(lbDLLs.Items[I]) < I then
+      lbDLLs.Items.Delete(I);
+  end;
+
+  if lbDLLs.Items.Count > 0 then
+    lbDLLs.ItemIndex := 0;
+
+  // Load preloaded demo images
+  LoadDemoImages;
+
   UpdateStatusUI;
-  LogMsg('YOLOv8 Object Detection Demo iniciado.');
+  LogMsg('YOLOv8 Object Detection Demo iniciado. Plataforma: ' + ArchStr);
   LogMsg('Para começar, ative o Python e instale a dependência "ultralytics" se necessário.');
 end;
 
 procedure TfrmYoloDemo.FormDestroy(Sender: TObject);
 begin
   // FConnector e FYolo são liberados pelo Owner (Self)
+end;
+
+procedure TfrmYoloDemo.LoadDemoImages;
+var
+  SR: TSearchRec;
+  ImagesDir: string;
+begin
+  cbDemoImages.Items.Clear;
+  ImagesDir := ExtractFilePath(ParamStr(0)) + 'images' + PathDelim;
+  if FindFirst(ImagesDir + '*.png', faAnyFile, SR) = 0 then
+  begin
+    repeat
+      if (SR.Attr and faDirectory) = 0 then
+        cbDemoImages.Items.Add(SR.Name);
+    until FindNext(SR) <> 0;
+    FindClose(SR);
+  end;
+end;
+
+procedure TfrmYoloDemo.cbDemoImagesChange(Sender: TObject);
+var
+  ImgPath: string;
+begin
+  if cbDemoImages.ItemIndex >= 0 then
+  begin
+    ImgPath := ExtractFilePath(ParamStr(0)) + 'images' + PathDelim + cbDemoImages.Text;
+    if FileExists(ImgPath) then
+    begin
+      edImagePath.Text := ImgPath;
+      imgView.Picture.LoadFromFile(ImgPath);
+      LogMsg('Carregada imagem de demonstração: ' + cbDemoImages.Text);
+    end;
+  end;
 end;
 
 procedure TfrmYoloDemo.LogMsg(const AMsg: string);
@@ -97,6 +193,8 @@ begin
 end;
 
 procedure TfrmYoloDemo.btnToggleActiveClick(Sender: TObject);
+var
+  SelectedDLL: string;
 begin
   if FConnector.Active then
   begin
@@ -105,8 +203,12 @@ begin
   end
   else
   begin
-    FConnector.DLLPath := Trim(edDLLPath.Text);
-    LogMsg('Carregando interpretador Python...');
+    SelectedDLL := 'python3.dll';
+    if lbDLLs.ItemIndex >= 0 then
+      SelectedDLL := lbDLLs.Items[lbDLLs.ItemIndex];
+      
+    FConnector.DLLPath := Trim(SelectedDLL);
+    LogMsg('Carregando interpretador Python: ' + SelectedDLL + '...');
     FConnector.Active := True;
     if FConnector.IsInitialized then
       LogMsg('Python inicializado com sucesso. Versão: ' + FConnector.Version)
