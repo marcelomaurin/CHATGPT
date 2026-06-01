@@ -49,6 +49,11 @@ type
     FLastError    : string;
     FEngine       : TSpeechEngine;
 
+    {$IFDEF MSWINDOWS}
+    FSpVoice      : OleVariant;
+    FSpVoiceCreated: Boolean;
+    {$ENDIF}
+
     // eSpeak dynamically loaded fields (both Windows and Linux)
     FLibHandle    : TLibHandle;
     FInitialized  : Boolean;
@@ -103,6 +108,10 @@ begin
   FEngine := seSystemDefault;
   FLastError := '';
 
+  {$IFDEF MSWINDOWS}
+  FSpVoiceCreated := False;
+  {$ENDIF}
+
   FLibHandle := NilHandle;
   FInitialized := False;
   espeak_Initialize := nil;
@@ -117,6 +126,16 @@ end;
 destructor TAIVoiceSynthesizer.Destroy;
 begin
   UnloadEspeak;
+  {$IFDEF MSWINDOWS}
+  if FSpVoiceCreated then
+  begin
+    try
+      FSpVoice := Unassigned;
+      ActiveX.CoUninitialize();
+    except
+    end;
+  end;
+  {$ENDIF}
   inherited Destroy;
 end;
 
@@ -224,7 +243,6 @@ procedure TAIVoiceSynthesizer.Say(const AText: string);
 var
   SpeakText: string;
   {$IFDEF MSWINDOWS}
-  SpVoice: OleVariant;
   Flags: Integer;
   {$ENDIF}
 begin
@@ -242,24 +260,28 @@ begin
   begin
     {$IFDEF MSWINDOWS}
     try
-      ActiveX.CoInitialize(nil);
-      SpVoice := CreateOleObject('SAPI.SpVoice');
+      if not FSpVoiceCreated then
+      begin
+        ActiveX.CoInitialize(nil);
+        FSpVoice := CreateOleObject('SAPI.SpVoice');
+        FSpVoiceCreated := True;
+      end;
       
       // Set Volume (0 to 100)
       if FVolume < 0 then FVolume := 0;
       if FVolume > 100 then FVolume := 100;
-      SpVoice.Volume := FVolume;
+      FSpVoice.Volume := FVolume;
 
       // Set Rate (-10 to 10)
       if FRate < -10 then FRate := -10;
       if FRate > 10 then FRate := 10;
-      SpVoice.Rate := FRate;
+      FSpVoice.Rate := FRate;
 
       // Set Voice by Name if specified
       if FVoiceName <> '' then
       begin
         try
-          SpVoice.Voice := SpVoice.GetVoices('Name=' + FVoiceName).Item(0);
+          FSpVoice.Voice := FSpVoice.GetVoices('Name=' + FVoiceName).Item(0);
         except
           // Fallback to default
         end;
@@ -271,7 +293,7 @@ begin
       else
         Flags := 0;
 
-      SpVoice.Speak(SpeakText, Flags);
+      FSpVoice.Speak(SpeakText, Flags);
     except
       on E: Exception do
         FLastError := 'Exceção ao sintetizar voz via SAPI: ' + E.Message;
@@ -321,7 +343,6 @@ end;
 procedure TAIVoiceSynthesizer.GetAvailableVoices(AList: TStrings);
 var
   {$IFDEF MSWINDOWS}
-  SpVoice: OleVariant;
   Voices: OleVariant;
   I: Integer;
   {$ENDIF}
@@ -337,9 +358,13 @@ begin
   begin
     {$IFDEF MSWINDOWS}
     try
-      ActiveX.CoInitialize(nil);
-      SpVoice := CreateOleObject('SAPI.SpVoice');
-      Voices := SpVoice.GetVoices;
+      if not FSpVoiceCreated then
+      begin
+        ActiveX.CoInitialize(nil);
+        FSpVoice := CreateOleObject('SAPI.SpVoice');
+        FSpVoiceCreated := True;
+      end;
+      Voices := FSpVoice.GetVoices;
       for I := 0 to Voices.Count - 1 do
       begin
         try
