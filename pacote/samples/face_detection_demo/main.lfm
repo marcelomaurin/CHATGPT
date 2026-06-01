@@ -11,52 +11,52 @@ object frmFaceDemo: TfrmFaceDemo
   OnDestroy = FormDestroy
   object pnlConfig: TPanel
     Left = 10
-    Height = 80
+    Height = 115
     Top = 10
     Width = 880
     Align = alTop
     BorderSpacing.Around = 10
-    ClientHeight = 80
+    ClientHeight = 115
     ClientWidth = 880
     TabOrder = 0
     object lblDLLPath: TLabel
       Left = 15
       Height = 15
-      Top = 15
-      Width = 113
-      Caption = 'Nome/Caminho DLL:'
+      Top = 10
+      Width = 280
+      Caption = 'Escolha a DLL do Python:'
       ParentColor = False
     end
-    object edDLLPath: TEdit
+    object lbDLLs: TListBox
       Left = 15
-      Height = 23
-      Top = 35
-      Width = 150
+      Height = 70
+      Top = 30
+      Width = 280
+      ItemHeight = 0
       TabOrder = 0
-      Text = 'python3.dll'
     end
     object btnToggleActive: TButton
-      Left = 180
+      Left = 310
       Height = 35
-      Top = 27
+      Top = 35
       Width = 140
       Caption = 'Ativar Python'
       TabOrder = 1
       OnClick = btnToggleActiveClick
     end
     object btnInstallDeps: TButton
-      Left = 330
+      Left = 460
       Height = 35
-      Top = 27
+      Top = 35
       Width = 180
       Caption = 'Instalar OpenCV (Pip)'
       TabOrder = 2
       OnClick = btnInstallDepsClick
     end
     object lblStatus: TLabel
-      Left = 530
+      Left = 660
       Height = 15
-      Top = 35
+      Top = 45
       Width = 131
       Caption = 'Status: Python INATIVO'
       Font.Color = clRed

@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  Math, pythonconnector, lstmpredictor;
+  Math, pythonconnector, lstmpredictor, lazpng;
 
 type
 
@@ -15,7 +15,7 @@ type
   TfrmLSTMDemo = class(TForm)
     pnlConfig: TPanel;
     lblDLLPath: TLabel;
-    edDLLPath: TEdit;
+    lbDLLs: TListBox;
     btnInitPython: TButton;
     btnInstallDeps: TButton;
     
@@ -69,18 +69,73 @@ implementation
 { TfrmLSTMDemo }
 
 procedure TfrmLSTMDemo.FormCreate(Sender: TObject);
+var
+  SR: TSearchRec;
+  AppDir, Ext: string;
+  ArchStr: string;
+  I: Integer;
 begin
   FPython := TPythonConnector.Create(Self);
   FModel := TLSTMPredictor.Create(Self);
   
   FModel.PythonConnector := FPython;
-  
-  edDLLPath.Text := 'python3.dll';
   FWindowSize := 5;
 
-  LogMsg('Previsor de Séries Temporais LSTM (Rede Recorrente) iniciado.');
-  LogMsg('1. Defina o caminho do interpretador Python.');
-  LogMsg('2. Clique em "Ativar Interpretador".');
+  // Detect platform bitness
+  {$IFDEF CPU64}
+  ArchStr := '64-bit';
+  Ext := '.dll';
+  {$ELSE}
+  ArchStr := '32-bit';
+  Ext := '.dll';
+  {$ENDIF}
+
+  lblDLLPath.Caption := 'Escolha a DLL do Python (' + ArchStr + '):';
+
+  // Search and populate ListBox
+  lbDLLs.Items.Clear;
+  AppDir := ExtractFilePath(ParamStr(0));
+  
+  if FindFirst(AppDir + 'python*' + Ext, faAnyFile, SR) = 0 then
+  begin
+    repeat
+      if (SR.Attr and faDirectory) = 0 then
+        lbDLLs.Items.Add(AppDir + SR.Name);
+    until FindNext(SR) <> 0;
+    FindClose(SR);
+  end;
+
+  // Add default candidate paths
+  {$IFDEF MSWINDOWS}
+  lbDLLs.Items.Add('python3.dll');
+  {$IFDEF CPU64}
+  lbDLLs.Items.Add('python3_64.dll');
+  {$ELSE}
+  lbDLLs.Items.Add('python3_32.dll');
+  {$ENDIF}
+  lbDLLs.Items.Add('python312.dll');
+  lbDLLs.Items.Add('python311.dll');
+  lbDLLs.Items.Add('python310.dll');
+  {$ELSE}
+  lbDLLs.Items.Add('libpython3.so');
+  lbDLLs.Items.Add('libpython3_64.so');
+  lbDLLs.Items.Add('libpython3.12.so');
+  lbDLLs.Items.Add('libpython3.11.so');
+  {$ENDIF}
+
+  // Deduplicate
+  for I := lbDLLs.Items.Count - 1 downto 0 do
+  begin
+    if lbDLLs.Items.IndexOf(lbDLLs.Items[I]) < I then
+      lbDLLs.Items.Delete(I);
+  end;
+
+  if lbDLLs.Items.Count > 0 then
+    lbDLLs.ItemIndex := 0;
+
+  LogMsg('Previsor de Séries Temporais LSTM (Rede Recorrente) iniciado. Plataforma: ' + ArchStr);
+  LogMsg('1. Verifique se a DLL do Python na lista está correta.');
+  LogMsg('2. Clique em "Ativar Python" para carregar o interpretador.');
   LogMsg('3. Se for a primeira execução, instale as dependências (numpy e tensorflow).');
   LogMsg('4. Clique em "Gerar Série Temporal" para obter a série senoidal com ruído.');
   LogMsg('5. Clique em "Treinar Rede LSTM" e "Prever Próximos Passos".');
@@ -99,22 +154,28 @@ begin
 end;
 
 procedure TfrmLSTMDemo.btnInitPythonClick(Sender: TObject);
+var
+  SelectedDLL: string;
 begin
   if FPython.Active then
   begin
     FPython.Active := False;
-    btnInitPython.Caption := 'Ativar Interpretador';
+    btnInitPython.Caption := 'Ativar Python';
     LogMsg('Interpretador Python desativado.');
   end
   else
   begin
-    FPython.DLLPath := edDLLPath.Text;
+    SelectedDLL := 'python3.dll';
+    if lbDLLs.ItemIndex >= 0 then
+      SelectedDLL := lbDLLs.Items[lbDLLs.ItemIndex];
+
+    FPython.DLLPath := Trim(SelectedDLL);
     LogMsg('Carregando interpretador do Python: ' + FPython.DLLPath + '...');
     FPython.Active := True;
     
     if FPython.IsInitialized then
     begin
-      btnInitPython.Caption := 'Desativar Interpretador';
+      btnInitPython.Caption := 'Desativar Python';
       LogMsg('Interpretador Python carregado e inicializado com sucesso!');
       LogMsg('Versão: ' + FPython.Version);
     end

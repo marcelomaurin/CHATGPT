@@ -11,43 +11,43 @@ object frmPythonDemo: TfrmPythonDemo
   LCLVersion = '3.0.0.3'
   object pnlConfig: TPanel
     Left = 10
-    Height = 80
+    Height = 115
     Top = 10
     Width = 830
     Align = alTop
     BorderSpacing.Around = 10
-    ClientHeight = 80
+    ClientHeight = 115
     ClientWidth = 830
     TabOrder = 0
     object lblDLLPath: TLabel
       Left = 15
       Height = 15
-      Top = 15
-      Width = 120
-      Caption = 'Nome/Caminho DLL:'
+      Top = 10
+      Width = 280
+      Caption = 'Escolha a DLL do Python:'
       ParentColor = False
     end
-    object edDLLPath: TEdit
+    object lbDLLs: TListBox
       Left = 15
-      Height = 23
-      Top = 35
-      Width = 180
+      Height = 70
+      Top = 30
+      Width = 280
+      ItemHeight = 0
       TabOrder = 0
-      Text = 'python3.dll'
     end
     object btnToggleActive: TButton
-      Left = 210
+      Left = 310
       Height = 35
-      Top = 27
+      Top = 35
       Width = 180
       Caption = 'Ativar interpretador Python'
       OnClick = btnToggleActiveClick
       TabOrder = 1
     end
     object lblStatusText: TLabel
-      Left = 410
+      Left = 510
       Height = 15
-      Top = 20
+      Top = 28
       Width = 87
       Caption = 'Status: INATIVO'
       Font.CharSet = ANSI_CHARSET
@@ -61,9 +61,9 @@ object frmPythonDemo: TfrmPythonDemo
       ParentFont = False
     end
     object lblVersion: TLabel
-      Left = 410
+      Left = 510
       Height = 15
-      Top = 45
+      Top = 53
       Width = 101
       Caption = 'Versão: Desativado'
       ParentColor = False

@@ -1,0 +1,174 @@
+object frmVoiceDemo: TfrmVoiceDemo
+  Left = 320
+  Height = 550
+  Top = 150
+  Width = 800
+  Caption = 'TAIVoiceSynthesizer Showcase - Sintetizador de Voz Nativo'
+  ClientHeight = 550
+  ClientWidth = 800
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '3.0.0.3'
+  object pnlConfig: TPanel
+    Left = 10
+    Height = 140
+    Top = 10
+    Width = 780
+    Align = alTop
+    BorderSpacing.Around = 10
+    ClientHeight = 140
+    ClientWidth = 780
+    TabOrder = 0
+    object lblVolume: TLabel
+      Left = 15
+      Height = 15
+      Top = 15
+      Width = 43
+      Caption = 'Volume:'
+      ParentColor = False
+    end
+    object tbVolume: TTrackBar
+      Left = 15
+      Height = 30
+      Top = 35
+      Width = 150
+      Max = 100
+      OnChange = tbVolumeChange
+      Position = 100
+      TabOrder = 0
+    end
+    object lblVolumeVal: TLabel
+      Left = 175
+      Height = 15
+      Top = 40
+      Width = 30
+      Caption = '100%'
+      ParentColor = False
+    end
+    object lblRate: TLabel
+      Left = 220
+      Height = 15
+      Top = 15
+      Width = 61
+      Caption = 'Velocidade:'
+      ParentColor = False
+    end
+    object tbRate: TTrackBar
+      Left = 220
+      Height = 30
+      Top = 35
+      Width = 150
+      Max = 10
+      Min = -10
+      OnChange = tbRateChange
+      Position = 0
+      TabOrder = 1
+    end
+    object lblRateVal: TLabel
+      Left = 380
+      Height = 15
+      Top = 40
+      Width = 6
+      Caption = '0'
+      ParentColor = False
+    end
+    object lblVoiceName: TLabel
+      Left = 420
+      Height = 15
+      Top = 15
+      Width = 73
+      Caption = 'Nome da Voz:'
+      ParentColor = False
+    end
+    object edVoiceName: TEdit
+      Left = 420
+      Height = 23
+      Top = 35
+      Width = 150
+      TabOrder = 2
+    end
+    object cbAsynchronous: TCheckBox
+      Left = 600
+      Height = 19
+      Top = 38
+      Width = 110
+      Caption = 'Falar Assíncrono'
+      Checked = True
+      State = cbChecked
+      TabOrder = 3
+    end
+    object lblStatus: TLabel
+      Left = 15
+      Height = 15
+      Top = 85
+      Width = 750
+      Caption = 'Iniciando...'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+  end
+  object pnlSpeak: TPanel
+    Left = 10
+    Height = 380
+    Top = 160
+    Width = 450
+    Align = alLeft
+    BorderSpacing.Left = 10
+    BorderSpacing.Right = 5
+    BorderSpacing.Bottom = 10
+    ClientHeight = 380
+    ClientWidth = 450
+    TabOrder = 1
+    object lblSpeakTitle: TLabel
+      Left = 15
+      Height = 15
+      Top = 15
+      Width = 154
+      Caption = 'Digite o texto para sintetizar:'
+      ParentColor = False
+    end
+    object meText: TMemo
+      Left = 15
+      Height = 240
+      Top = 40
+      Width = 420
+      Lines.Strings = (
+        'Olá! Este é um teste da sintetização de voz do componente TAIVoiceSynthesizer.'
+        'Ele reconhece nativamente a API SAPI no Windows e a biblioteca eSpeak no Linux, funcionando perfeitamente de forma síncrona ou assíncrona.'
+      )
+      ScrollBars = ssAutoBoth
+      TabOrder = 0
+    end
+    object btnSpeak: TButton
+      Left = 15
+      Height = 45
+      Top = 295
+      Width = 420
+      Caption = 'Falar Texto (Say)'
+      Font.Style = [fsBold]
+      OnClick = btnSpeakClick
+      TabOrder = 1
+    end
+  end
+  object meLogs: TMemo
+    Left = 475
+    Height = 355
+    Top = 185
+    Width = 315
+    Align = alClient
+    BorderSpacing.Right = 10
+    BorderSpacing.Bottom = 10
+    ReadOnly = True
+    ScrollBars = ssAutoBoth
+    TabOrder = 2
+  end
+  object lblLogs: TLabel
+    Left = 475
+    Height = 15
+    Top = 165
+    Width = 91
+    Caption = 'Logs do Sistema:'
+    ParentColor = False
+  end
+end

@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  pythonconnector, facedetection;
+  pythonconnector, facedetection, lazpng;
 
 type
 
@@ -15,7 +15,7 @@ type
   TfrmFaceDemo = class(TForm)
     pnlConfig: TPanel;
     lblDLLPath: TLabel;
-    edDLLPath: TEdit;
+    lbDLLs: TListBox;
     btnToggleActive: TButton;
     btnInstallDeps: TButton;
     lblStatus: TLabel;
@@ -55,15 +55,71 @@ implementation
 { TfrmFaceDemo }
 
 procedure TfrmFaceDemo.FormCreate(Sender: TObject);
+var
+  SR: TSearchRec;
+  AppDir, Ext: string;
+  ArchStr: string;
+  I: Integer;
 begin
   FConnector := TPythonConnector.Create(Self);
   FDetector := TFaceDetection.Create(Self);
   FDetector.PythonConnector := FConnector;
   
-  edDLLPath.Text := 'python3.dll';
+  // Detect platform bitness
+  {$IFDEF CPU64}
+  ArchStr := '64-bit';
+  Ext := '.dll';
+  {$ELSE}
+  ArchStr := '32-bit';
+  Ext := '.dll';
+  {$ENDIF}
+
+  lblDLLPath.Caption := 'Escolha a DLL do Python (' + ArchStr + '):';
+
+  // Search and populate ListBox
+  lbDLLs.Items.Clear;
+  AppDir := ExtractFilePath(ParamStr(0));
+  
+  if FindFirst(AppDir + 'python*' + Ext, faAnyFile, SR) = 0 then
+  begin
+    repeat
+      if (SR.Attr and faDirectory) = 0 then
+        lbDLLs.Items.Add(AppDir + SR.Name);
+    until FindNext(SR) <> 0;
+    FindClose(SR);
+  end;
+
+  // Add default candidate paths
+  {$IFDEF MSWINDOWS}
+  lbDLLs.Items.Add('python3.dll');
+  {$IFDEF CPU64}
+  lbDLLs.Items.Add('python3_64.dll');
+  {$ELSE}
+  lbDLLs.Items.Add('python3_32.dll');
+  {$ENDIF}
+  lbDLLs.Items.Add('python312.dll');
+  lbDLLs.Items.Add('python311.dll');
+  lbDLLs.Items.Add('python310.dll');
+  {$ELSE}
+  lbDLLs.Items.Add('libpython3.so');
+  lbDLLs.Items.Add('libpython3_64.so');
+  lbDLLs.Items.Add('libpython3.12.so');
+  lbDLLs.Items.Add('libpython3.11.so');
+  {$ENDIF}
+
+  // Deduplicate
+  for I := lbDLLs.Items.Count - 1 downto 0 do
+  begin
+    if lbDLLs.Items.IndexOf(lbDLLs.Items[I]) < I then
+      lbDLLs.Items.Delete(I);
+  end;
+
+  if lbDLLs.Items.Count > 0 then
+    lbDLLs.ItemIndex := 0;
+
   UpdateStatusUI;
-  LogMsg('FaceDetection Demo iniciado.');
-  LogMsg('Para começar, ative o Python e instale a dependência "opencv-python" se necessário.');
+  LogMsg('FaceDetection Demo iniciado. Plataforma: ' + ArchStr);
+  LogMsg('Para começar, selecione a DLL na lista, ative o Python e instale "opencv-python" se necessário.');
 end;
 
 procedure TfrmFaceDemo.FormDestroy(Sender: TObject);
@@ -97,6 +153,8 @@ begin
 end;
 
 procedure TfrmFaceDemo.btnToggleActiveClick(Sender: TObject);
+var
+  SelectedDLL: string;
 begin
   if FConnector.Active then
   begin
@@ -105,8 +163,12 @@ begin
   end
   else
   begin
-    FConnector.DLLPath := Trim(edDLLPath.Text);
-    LogMsg('Carregando interpretador Python...');
+    SelectedDLL := 'python3.dll';
+    if lbDLLs.ItemIndex >= 0 then
+      SelectedDLL := lbDLLs.Items[lbDLLs.ItemIndex];
+
+    FConnector.DLLPath := Trim(SelectedDLL);
+    LogMsg('Carregando interpretador Python: ' + FConnector.DLLPath + '...');
     FConnector.Active := True;
     if FConnector.IsInitialized then
       LogMsg('Python inicializado com sucesso. Versão: ' + FConnector.Version)

@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  pythonconnector, cnnclassifier;
+  pythonconnector, cnnclassifier, lazpng;
 
 type
 
@@ -15,7 +15,7 @@ type
   TfrmCNNDemo = class(TForm)
     pnlConfig: TPanel;
     lblDLLPath: TLabel;
-    edDLLPath: TEdit;
+    lbDLLs: TListBox;
     btnInitPython: TButton;
     btnInstallDeps: TButton;
     
@@ -59,6 +59,11 @@ implementation
 { TfrmCNNDemo }
 
 procedure TfrmCNNDemo.FormCreate(Sender: TObject);
+var
+  SR: TSearchRec;
+  AppDir, Ext: string;
+  ArchStr: string;
+  I: Integer;
 begin
   FPython := TPythonConnector.Create(Self);
   FClassifier := TCNNClassifier.Create(Self);
@@ -67,13 +72,62 @@ begin
   FClassifier.PythonConnector := FPython;
   FSelectedImage := '';
 
-  // Configura DLL padrão do Python na pasta do executável ou no sistema
-  edDLLPath.Text := 'python3.dll';
+  // Detect platform bitness
+  {$IFDEF CPU64}
+  ArchStr := '64-bit';
+  Ext := '.dll';
+  {$ELSE}
+  ArchStr := '32-bit';
+  Ext := '.dll';
+  {$ENDIF}
+
+  lblDLLPath.Caption := 'Escolha a DLL do Python (' + ArchStr + '):';
+
+  // Search and populate ListBox
+  lbDLLs.Items.Clear;
+  AppDir := ExtractFilePath(ParamStr(0));
   
-  LogMsg('Demonstração de Classificação CNN (MobileNetV2) iniciada.');
-  LogMsg('1. Verifique se o caminho do interpretador Python (DLL) está correto.');
-  LogMsg('2. Clique em "Ativar Interpretador" para carregar a DLL.');
-  LogMsg('3. Se for a primeira execução, clique em "Instalar Dependências (TensorFlow/Pillow)".');
+  if FindFirst(AppDir + 'python*' + Ext, faAnyFile, SR) = 0 then
+  begin
+    repeat
+      if (SR.Attr and faDirectory) = 0 then
+        lbDLLs.Items.Add(AppDir + SR.Name);
+    until FindNext(SR) <> 0;
+    FindClose(SR);
+  end;
+
+  // Add default candidate paths
+  {$IFDEF MSWINDOWS}
+  lbDLLs.Items.Add('python3.dll');
+  {$IFDEF CPU64}
+  lbDLLs.Items.Add('python3_64.dll');
+  {$ELSE}
+  lbDLLs.Items.Add('python3_32.dll');
+  {$ENDIF}
+  lbDLLs.Items.Add('python312.dll');
+  lbDLLs.Items.Add('python311.dll');
+  lbDLLs.Items.Add('python310.dll');
+  {$ELSE}
+  lbDLLs.Items.Add('libpython3.so');
+  lbDLLs.Items.Add('libpython3_64.so');
+  lbDLLs.Items.Add('libpython3.12.so');
+  lbDLLs.Items.Add('libpython3.11.so');
+  {$ENDIF}
+
+  // Deduplicate
+  for I := lbDLLs.Items.Count - 1 downto 0 do
+  begin
+    if lbDLLs.Items.IndexOf(lbDLLs.Items[I]) < I then
+      lbDLLs.Items.Delete(I);
+  end;
+
+  if lbDLLs.Items.Count > 0 then
+    lbDLLs.ItemIndex := 0;
+  
+  LogMsg('Demonstração de Classificação CNN (MobileNetV2) iniciada. Plataforma: ' + ArchStr);
+  LogMsg('1. Verifique se a DLL do Python selecionada na lista está correta.');
+  LogMsg('2. Clique em "Ativar Python" para carregar o interpretador.');
+  LogMsg('3. Se for a primeira execução, instale as dependências (TensorFlow e Pillow).');
   LogMsg('4. Carregue uma imagem e execute a inferência da rede convolucional!');
 end;
 
@@ -88,22 +142,28 @@ begin
 end;
 
 procedure TfrmCNNDemo.btnInitPythonClick(Sender: TObject);
+var
+  SelectedDLL: string;
 begin
   if FPython.Active then
   begin
     FPython.Active := False;
-    btnInitPython.Caption := 'Ativar Interpretador';
+    btnInitPython.Caption := 'Ativar Python';
     LogMsg('Interpretador Python desativado.');
   end
   else
   begin
-    FPython.DLLPath := edDLLPath.Text;
+    SelectedDLL := 'python3.dll';
+    if lbDLLs.ItemIndex >= 0 then
+      SelectedDLL := lbDLLs.Items[lbDLLs.ItemIndex];
+
+    FPython.DLLPath := Trim(SelectedDLL);
     LogMsg('Carregando biblioteca do Python: ' + FPython.DLLPath + '...');
     FPython.Active := True;
     
     if FPython.IsInitialized then
     begin
-      btnInitPython.Caption := 'Desativar Interpretador';
+      btnInitPython.Caption := 'Desativar Python';
       LogMsg('Interpretador Python ativado com sucesso!');
       LogMsg('Versão: ' + FPython.Version);
     end

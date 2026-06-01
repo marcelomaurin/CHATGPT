@@ -11,46 +11,45 @@ object frmLSTMDemo: TfrmLSTMDemo
   LCLVersion = '3.0.0.3'
   object pnlConfig: TPanel
     Left = 10
-    Height = 90
+    Height = 115
     Top = 10
     Width = 800
     Align = alTop
     BorderSpacing.Around = 10
-    ClientHeight = 90
+    ClientHeight = 115
     ClientWidth = 800
     TabOrder = 0
     object lblDLLPath: TLabel
       Left = 15
       Height = 15
-      Top = 15
-      Width = 104
-      Caption = 'Caminho DLL Python:'
+      Top = 10
+      Width = 280
+      Caption = 'Escolha a DLL do Python:'
       ParentColor = False
     end
-    object edDLLPath: TEdit
+    object lbDLLs: TListBox
       Left = 15
-      Height = 23
-      Top = 35
-      Width = 180
+      Height = 70
+      Top = 30
+      Width = 280
+      ItemHeight = 0
       TabOrder = 0
-      Text = 'python3.dll'
     end
     object btnInitPython: TButton
-      Left = 210
-      Height = 45
-      Top = 17
-      Width = 240
-      Caption = 'Ativar Interpretador Python'
-      Font.Style = [fsBold]
+      Left = 310
+      Height = 35
+      Top = 35
+      Width = 200
+      Caption = 'Ativar Python'
       OnClick = btnInitPythonClick
       TabOrder = 1
     end
     object btnInstallDeps: TButton
-      Left = 465
-      Height = 45
-      Top = 17
-      Width = 320
-      Caption = 'Instalar Dependências (NumPy/TensorFlow)'
+      Left = 520
+      Height = 35
+      Top = 35
+      Width = 260
+      Caption = 'Instalar Dependências (Pip)'
       OnClick = btnInstallDepsClick
       TabOrder = 2
     end

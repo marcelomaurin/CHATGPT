@@ -5,7 +5,7 @@
     <PathDelim Value="\"/>
     <General>
       <SessionStorage Value="InProjectDir"/>
-      <Title Value="face_detection_demo"/>
+      <Title Value="voicesynthesizer_demo"/>
       <Scaled Value="True"/>
       <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>
@@ -28,21 +28,18 @@
         <PackageName Value="openai"/>
       </Item>
       <Item>
-        <PackageName Value="ImagesForLazarus"/>
-      </Item>
-      <Item>
         <PackageName Value="LCL"/>
       </Item>
     </RequiredPackages>
     <Units>
       <Unit>
-        <Filename Value="face_detection_demo.lpr"/>
+        <Filename Value="voicesynthesizer_demo.lpr"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="main.pas"/>
         <IsPartOfProject Value="True"/>
-        <ComponentName Value="frmFaceDemo"/>
+        <ComponentName Value="frmVoiceDemo"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit>
@@ -52,7 +49,7 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="face_detection_demo"/>
+      <Filename Value="voicesynthesizer_demo"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
