@@ -100,6 +100,11 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="aivoicesynthesizer"/>
       </Item>
+      <Item>
+        <Filename Value="aiagent.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiagent"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>

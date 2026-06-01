@@ -78,6 +78,11 @@ Os exemplos a seguir são projetos visuais prontos para compilação e execuçã
 * **Componentes**: `TIASchedule`, `TJSONGroupStorage`.
 * **Como funciona**: Resolução de árvore de dependências para calcular se tarefas estão prontas para rodar, com salvamento e carregamento automático persistido em arquivos JSON.
 
+### 15. [agent_demo/](agent_demo/) (Autonomous Agent & Structured Decisions)
+* **O que faz**: Painel de tomada de decisões autônomas estruturadas e simulação de despacho inteligente.
+* **Componentes**: `TAIAgent`, `TAIAgentOptions`, `TAIAgentAction`, `TCHATGPT`.
+* **Como funciona**: Demonstra agentes inteligentes que analisam dados do mundo real sob diretrizes de negócio, geram tomadas de decisão estruturadas com parâmetros específicos decodificados via JSON nativo e disparam callbacks operacionais.
+
 ---
 
 ## 💻 Demonstrações em Linha de Comando (Console)

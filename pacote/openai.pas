@@ -1,6 +1,6 @@
 { This file was automatically created by Lazarus. Do not edit!
   This source is only used to compile and install the package.
- }
+}
 
 unit openai;
 
@@ -8,7 +8,7 @@ unit openai;
 interface
 
 uses
-  funcoes, chatgpt, NeuralNetwork, tokenizer, aicodeassistant, aidatasetgenerator, pythonconnector, facedetection, yolodetect, perceptron, sommap, cnnclassifier, lstmpredictor, soundfilters, imagefilters, iaschedule, aivoicesynthesizer, LazarusPackageIntf;
+  funcoes, chatgpt, NeuralNetwork, tokenizer, aicodeassistant, aidatasetgenerator, pythonconnector, facedetection, yolodetect, perceptron, sommap, cnnclassifier, lstmpredictor, soundfilters, imagefilters, iaschedule, aivoicesynthesizer, aiagent, LazarusPackageIntf;
 
 implementation
 
@@ -30,6 +30,7 @@ begin
   RegisterUnit('imagefilters', @imagefilters.Register);
   RegisterUnit('iaschedule', @iaschedule.Register);
   RegisterUnit('aivoicesynthesizer', @aivoicesynthesizer.Register);
+  RegisterUnit('aiagent', @aiagent.Register);
 end;
 
 initialization

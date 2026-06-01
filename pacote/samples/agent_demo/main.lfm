@@ -1,0 +1,10 @@
+object frmAgentDemo: TfrmAgentDemo
+  Left = 200
+  Height = 720
+  Top = 100
+  Width = 1150
+  Caption = 'IA Autonomous Agent Playground'
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '2.2.0'
+end
