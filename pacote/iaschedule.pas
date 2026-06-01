@@ -20,9 +20,11 @@ type
     FStatus: TTaskStatus;
     FParentName: string;
     FDependencies: TStringList;
+    procedure SetDependencies(AValue: TStringList);
   public
     constructor Create(ACollection: TCollection); override;
     destructor Destroy; override;
+    procedure Assign(Source: TPersistent); override;
     procedure DependsOn(const ATaskName: string); overload;
     procedure DependsOn(ATask: TScheduleTask); overload;
     procedure MarkAsDone;
@@ -37,6 +39,7 @@ type
     property Description: string read FDescription write FDescription;
     property Status: TTaskStatus read FStatus write FStatus default tsPending;
     property ParentName: string read FParentName write FParentName;
+    property Dependencies: TStringList read FDependencies write SetDependencies;
   end;
 
   { TScheduleTasks }
@@ -121,6 +124,28 @@ begin
   inherited Destroy;
 end;
 
+procedure TScheduleTask.Assign(Source: TPersistent);
+var
+  SourceTask: TScheduleTask;
+begin
+  if Source is TScheduleTask then
+  begin
+    SourceTask := TScheduleTask(Source);
+    FName := SourceTask.Name;
+    FDescription := SourceTask.Description;
+    FStatus := SourceTask.Status;
+    FParentName := SourceTask.ParentName;
+    FDependencies.Assign(SourceTask.Dependencies);
+  end
+  else
+    inherited Assign(Source);
+end;
+
+procedure TScheduleTask.SetDependencies(AValue: TStringList);
+begin
+  FDependencies.Assign(AValue);
+end;
+
 procedure TScheduleTask.DependsOn(const ATaskName: string);
 begin
   if Trim(ATaskName) <> '' then
@@ -168,12 +193,24 @@ var
   I: Integer;
   DepName: string;
   DepTask: TScheduleTask;
+  ParentTask: TScheduleTask;
 begin
   Result := True;
-  if FDependencies.Count = 0 then Exit;
 
   if (Collection <> nil) and (Collection.Owner <> nil) and (Collection.Owner is TIASchedule) then
   begin
+    // 1. Chained Task Check: If parent task exists, it must be Completed (tsDone)
+    if FParentName <> '' then
+    begin
+      ParentTask := TIASchedule(Collection.Owner).FindTask(FParentName);
+      if (ParentTask <> nil) and (ParentTask.Status <> tsDone) then
+      begin
+        Result := False;
+        Exit;
+      end;
+    end;
+
+    // 2. Inter-dependencies Check
     for I := 0 to FDependencies.Count - 1 do
     begin
       DepName := FDependencies[I];

@@ -8,7 +8,7 @@ unit openai;
 interface
 
 uses
-  funcoes, chatgpt, NeuralNetwork, tokenizer, aicodeassistant, aidatasetgenerator, pythonconnector, facedetection, yolodetect, perceptron, sommap, cnnclassifier, lstmpredictor, soundfilters, imagefilters, iaschedule, LazarusPackageIntf;
+  funcoes, chatgpt, NeuralNetwork, tokenizer, aicodeassistant, aidatasetgenerator, pythonconnector, facedetection, yolodetect, perceptron, sommap, cnnclassifier, lstmpredictor, soundfilters, imagefilters, iaschedule, aivoicesynthesizer, LazarusPackageIntf;
 
 implementation
 
@@ -29,6 +29,7 @@ begin
   RegisterUnit('soundfilters', @soundfilters.Register);
   RegisterUnit('imagefilters', @imagefilters.Register);
   RegisterUnit('iaschedule', @iaschedule.Register);
+  RegisterUnit('aivoicesynthesizer', @aivoicesynthesizer.Register);
 end;
 
 initialization

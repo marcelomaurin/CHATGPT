@@ -101,10 +101,10 @@ object FormMain: TFormMain
       ClientHeight = 114
       ClientWidth = 246
       Items.Strings = (
-        'FDM - Divisão por Freqüência (Portadoras separadas)'
-        'TDM - Divisão por Tempo (Slots alternados)'
-        'CDM/CDMA - Divisão por Código (Walsh-Hadamard)'
-        'OFDM - Portadoras Ortogonais (FFT / IFFT)'
+        'FDM - Divisão por Frequência'
+        'TDM - Divisão por Tempo'
+        'CDM/CDMA - Divisão por Código'
+        'OFDM - Portadoras Ortogonais'
       )
       OnClick = ButtonRunSimClick
       TabOrder = 1
@@ -137,7 +137,7 @@ object FormMain: TFormMain
         Height = 17
         Top = 5
         Width = 500
-        Caption = 'Espectro Temporal: Original (Cinza), Passa-Baixa (Verde), Passa-Alta (Azul), Média (Laranja)'
+        Caption = 'Espectro Temporal: Original, Passa-Baixa, Passa-Alta e Média'
         Font.Color = clNavy
         Font.Style = [fsBold]
         ParentColor = False
@@ -149,7 +149,6 @@ object FormMain: TFormMain
         Top = 30
         Width = 842
         Align = alBottom
-        Anchors = [akTop, akLeft, akRight, akBottom]
         OnPaint = PaintBoxFilterPaint
       end
     end
@@ -162,8 +161,8 @@ object FormMain: TFormMain
         Height = 17
         Top = 5
         Width = 400
-        Caption = 'Simulação de Separação de Canais por Freqüência, Tempo ou Código'
-        Font.Color = clDarkOrchid
+        Caption = 'Simulação de Separação de Canais por Frequência, Tempo ou Código'
+        Font.Color = clPurple
         Font.Style = [fsBold]
         ParentColor = False
         ParentFont = False
@@ -174,7 +173,6 @@ object FormMain: TFormMain
         Top = 30
         Width = 842
         Align = alBottom
-        Anchors = [akTop, akLeft, akRight, akBottom]
         OnPaint = PaintBoxMuxPaint
       end
     end

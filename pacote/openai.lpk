@@ -95,6 +95,11 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="iaschedule"/>
       </Item>
+      <Item>
+        <Filename Value="aivoicesynthesizer.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aivoicesynthesizer"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>

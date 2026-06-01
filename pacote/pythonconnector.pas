@@ -96,6 +96,12 @@ begin
 end;
 
 function TPythonConnector.LoadPythonDLL: Boolean;
+var
+  AppDir, BaseName, Extension, ConfiguredPath: string;
+  ArchSuffix, ArchDir: string;
+  DefExtension: string;
+  Candidates: array[0..8] of string;
+  I: Integer;
 begin
   Result := False;
   FLastError := '';
@@ -103,16 +109,95 @@ begin
   if FLibHandle <> NilHandle then
     Exit(True);
 
-  if FDLLPath = '' then
+  // Platform-specific defaults
+  {$IFDEF MSWINDOWS}
+  DefExtension := '.dll';
+  {$ELSE}
+  DefExtension := '.so';
+  {$ENDIF}
+
+  ConfiguredPath := Trim(FDLLPath);
+  if ConfiguredPath = '' then
   begin
-    FLastError := 'Caminho para Python DLL não configurado.';
-    Exit;
+    {$IFDEF MSWINDOWS}
+    ConfiguredPath := 'python3.dll';
+    {$ELSE}
+    ConfiguredPath := 'libpython3.so';
+    {$ENDIF}
   end;
 
-  FLibHandle := SafeLoadLibrary(FDLLPath);
+  AppDir := ExtractFilePath(ParamStr(0));
+  
+  // Extract file parts
+  BaseName := ChangeFileExt(ExtractFileName(ConfiguredPath), '');
+  Extension := ExtractFileExt(ConfiguredPath);
+  if Extension = '' then
+    Extension := DefExtension;
+
+  // Add standard 'lib' prefix for non-Windows platforms if missing
+  {$IFNDEF MSWINDOWS}
+  if not SameText(Copy(BaseName, 1, 3), 'lib') then
+    BaseName := 'lib' + BaseName;
+  {$ENDIF}
+
+  // Determine architecture suffix and standard subfolder target
+  {$IFDEF CPU64}
+    ArchSuffix := '_64';
+    {$IFDEF MSWINDOWS}
+    ArchDir := 'x86_64-win64';
+    {$ELSE}
+    ArchDir := 'x86_64-linux';
+    {$ENDIF}
+  {$ELSE}
+    ArchSuffix := '_32';
+    {$IFDEF MSWINDOWS}
+    ArchDir := 'i386-win32';
+    {$ELSE}
+    ArchDir := 'i386-linux';
+    {$ENDIF}
+  {$ENDIF}
+
+  // Populate candidate search paths
+  Candidates[0] := AppDir + BaseName + ArchSuffix + Extension;
+  Candidates[1] := AppDir + 'lib' + PathDelim + ArchDir + PathDelim + BaseName + Extension;
+  Candidates[2] := AppDir + 'lib' + PathDelim + ArchDir + PathDelim + BaseName + ArchSuffix + Extension;
+  Candidates[3] := BaseName + ArchSuffix + Extension;
+  Candidates[4] := AppDir + ConfiguredPath;
+  Candidates[5] := ConfiguredPath;
+  Candidates[6] := AppDir + BaseName + Extension;
+  Candidates[7] := BaseName + Extension;
+  {$IFNDEF MSWINDOWS}
+  Candidates[8] := '/usr/lib/' + BaseName + Extension;
+  {$ELSE}
+  Candidates[8] := '';
+  {$ENDIF}
+
+  // Try to load candidates in prioritized sequence
+  for I := 0 to 8 do
+  begin
+    if Candidates[I] = '' then Continue;
+    FLibHandle := SafeLoadLibrary(Candidates[I]);
+    if FLibHandle <> NilHandle then
+    begin
+      FDLLPath := Candidates[I]; // Save the successfully resolved path
+      Break;
+    end;
+  end;
+
   if FLibHandle = NilHandle then
   begin
-    FLastError := 'Falha ao carregar biblioteca dinâmica: ' + FDLLPath + '. Certifique-se de que o caminho está correto e de que possui a mesma arquitetura do executável.';
+    FLastError := 'Falha ao carregar biblioteca do Python. Arquitetura detectada: ' +
+                  {$IFDEF CPU64}'64-bit'{$ELSE}'32-bit'{$ENDIF} + '.' + sLineBreak +
+                  'Candidatos tentados:' + sLineBreak +
+                  '1. ' + Candidates[0] + sLineBreak +
+                  '2. ' + Candidates[1] + sLineBreak +
+                  '3. ' + Candidates[2] + sLineBreak +
+                  '4. ' + Candidates[3] + sLineBreak +
+                  '5. ' + Candidates[4] + sLineBreak +
+                  '6. ' + Candidates[5] + sLineBreak +
+                  '7. ' + Candidates[6] + sLineBreak +
+                  '8. ' + Candidates[7] + sLineBreak +
+                  '9. ' + Candidates[8];
     Exit;
   end;
 
@@ -133,7 +218,7 @@ begin
   if not Assigned(Py_Initialize) or not Assigned(Py_Finalize) or
      not Assigned(PyRun_SimpleString) or not Assigned(Py_GetVersion) then
   begin
-    FLastError := 'Algumas funções essenciais da API C do Python não foram encontradas na biblioteca.';
+    FLastError := 'Algumas funções essenciais da API C do Python não foram encontradas na biblioteca: ' + FDLLPath;
     UnloadPythonDLL;
     Exit;
   end;
