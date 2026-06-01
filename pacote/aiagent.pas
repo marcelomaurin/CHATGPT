@@ -500,10 +500,39 @@ var
   RequestBodyStream: TStringStream;
   ResponseText: string;
   I: Integer;
+  VRecipient: string;
+  VSender: string;
+  VSubject: string;
+  VFilePath: string;
+  VHost: string;
+  VPort: Integer;
+  VAPIUrl: string;
 begin
   Result := False;
   ALog := '';
   
+  // Extract dynamic parameters resolved by AI
+  VRecipient := FRecipient;
+  if AParams.Values['recipient'] <> '' then VRecipient := AParams.Values['recipient'];
+  
+  VSender := FSender;
+  if AParams.Values['sender'] <> '' then VSender := AParams.Values['sender'];
+  
+  VSubject := FSubject;
+  if AParams.Values['subject'] <> '' then VSubject := AParams.Values['subject'];
+  
+  VFilePath := FFilePath;
+  if AParams.Values['file_path'] <> '' then VFilePath := AParams.Values['file_path'];
+
+  VHost := FHost;
+  if AParams.Values['host'] <> '' then VHost := AParams.Values['host'];
+
+  VPort := FPort;
+  if AParams.Values['port'] <> '' then VPort := StrToIntDef(AParams.Values['port'], FPort);
+
+  VAPIUrl := FAPIUrl;
+  if AParams.Values['api_url'] <> '' then VAPIUrl := AParams.Values['api_url'];
+
   case FResourceType of
     artEmail:
       begin
@@ -513,13 +542,13 @@ begin
                        'Assunto: %s' + sLineBreak +
                        'Conteúdo: %s' + sLineBreak +
                        'Parâmetros: %s',
-                       [FRecipient, FSender, FSubject, AData, AParams.Text]);
+                       [VRecipient, VSender, VSubject, AData, AParams.Text]);
         Result := True;
       end;
       
     artFile:
       begin
-        if FFilePath = '' then
+        if VFilePath = '' then
         begin
           ALog := 'Erro: FilePath não especificado para escrita de arquivo.';
           Exit;
@@ -532,8 +561,8 @@ begin
             Add('Data/Rationale: ' + AData);
             Add('Parameters:');
             Add(AParams.Text);
-            SaveToFile(FFilePath);
-            ALog := 'Gravado no arquivo "' + FFilePath + '" com sucesso.';
+            SaveToFile(VFilePath);
+            ALog := 'Gravado no arquivo "' + VFilePath + '" com sucesso.';
             Result := True;
           finally
             Free;
@@ -541,7 +570,7 @@ begin
         except
           on E: Exception do
           begin
-            ALog := 'Falha ao salvar arquivo em ' + FFilePath + ': ' + E.Message;
+            ALog := 'Falha ao salvar arquivo em ' + VFilePath + ': ' + E.Message;
             Result := False;
           end;
         end;
@@ -553,7 +582,7 @@ begin
                        'Para: %s' + sLineBreak +
                        'Mensagem: %s' + sLineBreak +
                        'Parâmetros: %s',
-                       [FRecipient, AData, AParams.Text]);
+                       [VRecipient, AData, AParams.Text]);
         Result := True;
       end;
       
@@ -562,7 +591,7 @@ begin
         ALog := Format('[SMS ENVIADO]' + sLineBreak +
                        'Para: %s' + sLineBreak +
                        'Mensagem: %s',
-                       [FRecipient, AData]);
+                       [VRecipient, AData]);
         Result := True;
       end;
       
@@ -571,7 +600,7 @@ begin
         ALog := Format('[PACOTE TCP ENVIADO]' + sLineBreak +
                        'Host: %s:%d' + sLineBreak +
                        'Payload: %s',
-                       [FHost, FPort, AData]);
+                       [VHost, VPort, AData]);
         Result := True;
       end;
       
@@ -580,13 +609,13 @@ begin
         ALog := Format('[PACOTE UDP ENVIADO]' + sLineBreak +
                        'Host: %s:%d' + sLineBreak +
                        'Payload: %s',
-                       [FHost, FPort, AData]);
+                       [VHost, VPort, AData]);
         Result := True;
       end;
       
     artWebAPI:
       begin
-        if FAPIUrl = '' then
+        if VAPIUrl = '' then
         begin
           ALog := 'Erro: APIUrl não especificada para execução Web API.';
           Exit;
@@ -604,7 +633,7 @@ begin
             for I := 0 to FHeaders.Count - 1 do
               HTTPClient.AddHeader(FHeaders.Names[I], FHeaders.ValueFromIndex[I]);
             
-            ResponseText := HTTPClient.Post(FAPIUrl);
+            ResponseText := HTTPClient.Post(VAPIUrl);
             ALog := 'Web API executada com sucesso. Resposta: ' + ResponseText;
             Result := True;
           finally
@@ -614,7 +643,7 @@ begin
         except
           on E: Exception do
           begin
-            ALog := 'Falha ao executar Web API em ' + FAPIUrl + ': ' + E.Message;
+            ALog := 'Falha ao executar Web API em ' + VAPIUrl + ': ' + E.Message;
             Result := False;
           end;
         end;

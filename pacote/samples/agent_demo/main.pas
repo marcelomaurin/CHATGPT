@@ -39,7 +39,7 @@ type
     splitterRight: TSplitter;
     pnlCenter: TPanel;
 
-    { Left Sub-components (Agent Directives) }
+    { Left Sub-components (Jarvis Config Parameters) }
     gbSystemPrompt: TGroupBox;
     memSystemPrompt: TMemo;
     gbQuestions: TGroupBox;
@@ -51,17 +51,18 @@ type
     gbParameterDefs: TGroupBox;
     memParameterDefs: TMemo;
 
-    { Center Sub-components (Execution Panel) }
-    gbInput: TGroupBox;
-    memInputData: TMemo;
-    pnlExecute: TPanel;
-    btnExecute: TButton;
-    btnLoadITScenario: TButton;
-    btnLoadSupportScenario: TButton;
-    gbLogs: TGroupBox;
-    memLogs: TMemo;
+    { Center Sub-components (Jarvis Chat Terminal) }
+    gbChatConsole: TGroupBox;
+    memChatConsole: TMemo;
+    pnlCommandInput: TPanel;
+    edtCommandInput: TEdit;
+    btnSendCommand: TButton;
+    
+    pnlScenarioButtons: TPanel;
+    btnLoadReactorScenario: TButton;
+    btnLoadSecurityScenario: TButton;
 
-    { Right Sub-components (Output & Decisons) }
+    { Right Sub-components (Outcome Analysis Dashboard) }
     gbResultAction: TGroupBox;
     pnlSelectedAction: TPanel;
     gbSelectedParams: TGroupBox;
@@ -80,14 +81,16 @@ type
     FAIAgentOutput: TAIAgentOutput;
 
     procedure CreateLayout;
-    procedure LoadITAlertScenario;
-    procedure LoadSupportScenario;
+    procedure LoadReactorScenario;
+    procedure LoadSecurityScenario;
+    procedure AddConsoleLine(const AText: string);
     
     { Action handlers }
     procedure cbProviderChange(Sender: TObject);
-    procedure btnExecuteClick(Sender: TObject);
-    procedure btnLoadITScenarioClick(Sender: TObject);
-    procedure btnLoadSupportScenarioClick(Sender: TObject);
+    procedure btnSendCommandClick(Sender: TObject);
+    procedure edtCommandInputKeyPress(Sender: TObject; var Key: char);
+    procedure btnLoadReactorScenarioClick(Sender: TObject);
+    procedure btnLoadSecurityScenarioClick(Sender: TObject);
     
     { Callback events }
     procedure OnAgentActionTriggered(Sender: TObject; const AActionName: string; AParams: TStrings);
@@ -108,11 +111,11 @@ implementation
 
 procedure TfrmAgentDemo.FormCreate(Sender: TObject);
 begin
-  Caption := 'IA Autonomous Agent & Decision Playground';
-  Width := 1180;
-  Height := 720;
+  Caption := '🖥️ J.A.R.V.I.S. - Sistema de Controle de Recursos e Agente Autônomo';
+  Width := 1200;
+  Height := 750;
   Position := poScreenCenter;
-  Color := $F3F4F6; // Modern soft gray background
+  Color := $0F172A; // Deep dark slate background (Jarvis theme)
 
   { Instantiate IA Components }
   FChatGPT := TCHATGPT.Create(Self);
@@ -145,63 +148,89 @@ begin
   // 1. Email Resource
   with FAIAgentResource.Resources.Add do
   begin
-    Name := 'Maintenance_Email';
+    Name := 'Stark_Email_System';
     ResourceType := artEmail;
-    Sender := 'agent@empresa.com';
-    Recipient := 'infra@empresa.com';
-    Subject := 'Notificação de Manutenção Urgente';
+    Sender := 'jarvis@starkindustries.com';
+    Recipient := 'senhor.tony@stark.com';
+    Subject := 'J.A.R.V.I.S. Diagnostic Alert';
   end;
 
-  // 2. File Resource (writes a real file thermal_log.txt on disk!)
+  // 2. File Resource (writes a real log in local disk)
   with FAIAgentResource.Resources.Add do
   begin
-    Name := 'Cooling_Alert_Log';
+    Name := 'Stark_File_Writer';
     ResourceType := artFile;
-    FilePath := 'thermal_log.txt';
+    FilePath := 'jarvis_system.log';
   end;
 
   // 3. WhatsApp Resource
   with FAIAgentResource.Resources.Add do
   begin
-    Name := 'WhatsApp_Financeiro';
+    Name := 'Stark_WhatsApp_Alert';
     ResourceType := artWhatsApp;
     Recipient := '+5516999999999';
   end;
 
+  // 4. Web API Resource
+  with FAIAgentResource.Resources.Add do
+  begin
+    Name := 'Stark_Mainframe_API';
+    ResourceType := artWebAPI;
+    APIUrl := 'http://localhost:8080/stark/mainframe';
+  end;
+
   { Configure Action Mappings }
   
-  // TRIGGER_CRITICAL_COOLING_ALERT -> cooling log file
+  // SEND_EMAIL -> Email system
   with FAIAgentOutput.Mappings.Add do
   begin
-    ActionName := 'TRIGGER_CRITICAL_COOLING_ALERT';
-    ResourceName := 'Cooling_Alert_Log';
+    ActionName := 'SEND_EMAIL';
+    ResourceName := 'Stark_Email_System';
   end;
 
-  // NOTIFY_MAINTENANCE -> email to infra department
+  // WRITE_LOG_FILE -> File system
   with FAIAgentOutput.Mappings.Add do
   begin
-    ActionName := 'NOTIFY_MAINTENANCE';
-    ResourceName := 'Maintenance_Email';
+    ActionName := 'WRITE_LOG_FILE';
+    ResourceName := 'Stark_File_Writer';
   end;
 
-  // DISPATCH_SUPPORT_TICKET -> send whatsapp message
+  // SEND_WHATSAPP_MSG -> WhatsApp alerts
   with FAIAgentOutput.Mappings.Add do
   begin
-    ActionName := 'DISPATCH_SUPPORT_TICKET';
-    ResourceName := 'WhatsApp_Financeiro';
+    ActionName := 'SEND_WHATSAPP_MSG';
+    ResourceName := 'Stark_WhatsApp_Alert';
+  end;
+
+  // EXECUTE_WEB_API -> Mainframe API calls
+  with FAIAgentOutput.Mappings.Add do
+  begin
+    ActionName := 'EXECUTE_WEB_API';
+    ResourceName := 'Stark_Mainframe_API';
   end;
 
   { Setup ComboBox selections }
   cbProvider.ItemIndex := 0; // OpenAI
   cbProviderChange(nil);
 
-  { Load default Scenario }
-  LoadITAlertScenario;
+  { Load default Jarvis Scenario }
+  LoadReactorScenario;
+
+  { Pre-fill console welcome message }
+  memChatConsole.Clear;
+  AddConsoleLine('================================================================================');
+  AddConsoleLine('               🔴 J.A.R.V.I.S. INTELIGÊNCIA ARTIFICIAL ATIVA 🔴');
+  AddConsoleLine('================================================================================');
+  AddConsoleLine('Jarvis: Todos os sistemas estão online, Senhor.');
+  AddConsoleLine('Jarvis: Reatores em 100%, conexões seguras restabelecidas.');
+  AddConsoleLine('Jarvis: Digite suas ordens no terminal e eu cuidarei dos parâmetros físicos.');
+  AddConsoleLine('================================================================================');
+  AddConsoleLine('');
 end;
 
 procedure TfrmAgentDemo.FormDestroy(Sender: TObject);
 begin
-  { Self automatically frees owned sub-components FChatGPT, FAIAgent, etc. }
+  { Self automatically frees owned sub-components }
 end;
 
 procedure TfrmAgentDemo.CreateLayout;
@@ -213,7 +242,7 @@ begin
   pnlHeader.Parent := Self;
   pnlHeader.Align := alTop;
   pnlHeader.Height := 55;
-  pnlHeader.Color := $1E3A8A; // Sleek Dark Navy Blue
+  pnlHeader.Color := $1E293B; // Slate-800
   pnlHeader.BevelOuter := bvNone;
   pnlHeader.BorderWidth := 10;
 
@@ -223,8 +252,8 @@ begin
     Align := alClient;
     Alignment := taCenter;
     Layout := tlCenter;
-    Caption := '🤖 IA Autonomous Agent & Structured Decision Control Panel';
-    Font.Color := clWhite;
+    Caption := '🖥️ J.A.R.V.I.S. - Sistema de Agente Autônomo e Controle de Recursos';
+    Font.Color := $38BDF8; // Neon Light Blue
     Font.Size := 13;
     Font.Style := [fsBold];
   end;
@@ -234,7 +263,7 @@ begin
   pnlConfig.Parent := Self;
   pnlConfig.Align := alTop;
   pnlConfig.Height := 75;
-  pnlConfig.Color := clWhite;
+  pnlConfig.Color := $1E293B; // Slate-800
   pnlConfig.BevelOuter := bvNone;
   pnlConfig.BorderWidth := 8;
 
@@ -244,6 +273,7 @@ begin
   lblProvider.Left := 15;
   lblProvider.Top := 10;
   lblProvider.Caption := 'Provedor IA:';
+  lblProvider.Font.Color := $00FFFF; // Neon Cyan
   lblProvider.Font.Style := [fsBold];
 
   cbProvider := TComboBox.Create(Self);
@@ -252,6 +282,8 @@ begin
   cbProvider.Top := 28;
   cbProvider.Width := 140;
   cbProvider.Style := csDropDownList;
+  cbProvider.Color := $334155; // Slate-700
+  cbProvider.Font.Color := clWhite;
   cbProvider.Items.Add('OpenAI');
   cbProvider.Items.Add('OpenRouter');
   cbProvider.Items.Add('Cerebras');
@@ -266,6 +298,7 @@ begin
   lblModel.Left := 170;
   lblModel.Top := 10;
   lblModel.Caption := 'Modelo Sugerido:';
+  lblModel.Font.Color := $00FFFF;
   lblModel.Font.Style := [fsBold];
 
   cbModel := TComboBox.Create(Self);
@@ -274,6 +307,8 @@ begin
   cbModel.Top := 28;
   cbModel.Width := 170;
   cbModel.Style := csDropDownList;
+  cbModel.Color := $334155;
+  cbModel.Font.Color := clWhite;
 
   // Custom Model Edit
   lblCustomModel := TLabel.Create(Self);
@@ -281,6 +316,7 @@ begin
   lblCustomModel.Left := 355;
   lblCustomModel.Top := 10;
   lblCustomModel.Caption := 'Modelo Customizado:';
+  lblCustomModel.Font.Color := $00FFFF;
   lblCustomModel.Font.Style := [fsBold];
 
   edtCustomModel := TEdit.Create(Self);
@@ -288,7 +324,8 @@ begin
   edtCustomModel.Left := 355;
   edtCustomModel.Top := 28;
   edtCustomModel.Width := 150;
-  edtCustomModel.Text := '';
+  edtCustomModel.Color := $334155;
+  edtCustomModel.Font.Color := clWhite;
 
   // Local URL IP
   lblLocalIP := TLabel.Create(Self);
@@ -296,6 +333,7 @@ begin
   lblLocalIP.Left := 520;
   lblLocalIP.Top := 10;
   lblLocalIP.Caption := 'URL Local / IP:';
+  lblLocalIP.Font.Color := $00FFFF;
   lblLocalIP.Font.Style := [fsBold];
 
   edtLocalIP := TEdit.Create(Self);
@@ -303,6 +341,8 @@ begin
   edtLocalIP.Left := 520;
   edtLocalIP.Top := 28;
   edtLocalIP.Width := 180;
+  edtLocalIP.Color := $334155;
+  edtLocalIP.Font.Color := clWhite;
   edtLocalIP.Text := 'http://localhost:11434';
 
   // API Token Key
@@ -311,6 +351,7 @@ begin
   lblToken.Left := 715;
   lblToken.Top := 10;
   lblToken.Caption := 'Chave API / Token:';
+  lblToken.Font.Color := $00FFFF;
   lblToken.Font.Style := [fsBold];
 
   edtToken := TEdit.Create(Self);
@@ -318,6 +359,8 @@ begin
   edtToken.Left := 715;
   edtToken.Top := 28;
   edtToken.Width := 250;
+  edtToken.Color := $334155;
+  edtToken.Font.Color := clWhite;
   edtToken.PasswordChar := '*';
 
   { 3. Main Workspace Area (Client Panel) }
@@ -326,70 +369,79 @@ begin
   pnlClient.Align := alClient;
   pnlClient.BevelOuter := bvNone;
 
-  { Left Panel: Agent Directives (System Prompts, Questions, Allowed Actions, Params) }
+  { Left Panel: Settings Hidden or Folded for sleek look }
   pnlLeft := TPanel.Create(Self);
   pnlLeft.Parent := pnlClient;
   pnlLeft.Align := alLeft;
-  pnlLeft.Width := 380;
+  pnlLeft.Width := 340;
   pnlLeft.BevelOuter := bvNone;
-  pnlLeft.Color := $F9FAFB;
-  pnlLeft.BorderWidth := 10;
+  pnlLeft.Color := $111827; // Deep Dark Grey-Blue
+  pnlLeft.BorderWidth := 8;
 
   // System Prompt Group
   gbSystemPrompt := TGroupBox.Create(Self);
   gbSystemPrompt.Parent := pnlLeft;
   gbSystemPrompt.Align := alTop;
   gbSystemPrompt.Height := 105;
-  gbSystemPrompt.Caption := ' Prompt do Sistema (SystemPrompt) ';
+  gbSystemPrompt.Caption := ' Diretriz J.A.R.V.I.S. (SystemPrompt) ';
+  gbSystemPrompt.Font.Color := $38BDF8;
   gbSystemPrompt.Font.Style := [fsBold];
   
   memSystemPrompt := TMemo.Create(Self);
   memSystemPrompt.Parent := gbSystemPrompt;
   memSystemPrompt.Align := alClient;
+  memSystemPrompt.Color := $030712;
+  memSystemPrompt.Font.Color := clWhite;
   memSystemPrompt.ScrollBars := ssAutoVertical;
 
   pnlSep := TPanel.Create(Self);
   pnlSep.Parent := pnlLeft;
   pnlSep.Align := alTop;
-  pnlSep.Height := 8;
+  pnlSep.Height := 6;
   pnlSep.BevelOuter := bvNone;
 
   // Questions Group
   gbQuestions := TGroupBox.Create(Self);
   gbQuestions.Parent := pnlLeft;
   gbQuestions.Align := alTop;
-  gbQuestions.Height := 125;
-  gbQuestions.Caption := ' Perguntas/Diretrizes (Options.Questions) ';
+  gbQuestions.Height := 115;
+  gbQuestions.Caption := ' Análise Cronológica (Options.Questions) ';
+  gbQuestions.Font.Color := $38BDF8;
   gbQuestions.Font.Style := [fsBold];
 
   memQuestions := TMemo.Create(Self);
   memQuestions.Parent := gbQuestions;
   memQuestions.Align := alClient;
+  memQuestions.Color := $030712;
+  memQuestions.Font.Color := clWhite;
   memQuestions.ScrollBars := ssAutoVertical;
 
   pnlSep := TPanel.Create(Self);
   pnlSep.Parent := pnlLeft;
   pnlSep.Align := alTop;
-  pnlSep.Height := 8;
+  pnlSep.Height := 6;
   pnlSep.BevelOuter := bvNone;
 
   // Context Group
   gbContext := TGroupBox.Create(Self);
   gbContext.Parent := pnlLeft;
   gbContext.Align := alTop;
-  gbContext.Height := 85;
-  gbContext.Caption := ' Contexto Operacional (Options.Context) ';
+  gbContext.Height := 80;
+  gbContext.Caption := ' Contexto de Stark (Options.Context) ';
+  gbContext.Font.Color := $38BDF8;
   gbContext.Font.Style := [fsBold];
 
   memContext := TMemo.Create(Self);
   memContext.Parent := gbContext;
   memContext.Align := alClient;
+  memContext.Color := $030712;
+  memContext.Font.Color := clWhite;
   memContext.ScrollBars := ssAutoVertical;
 
   pnlSep := TPanel.Create(Self);
   pnlSep.Parent := pnlLeft;
   pnlSep.Align := alTop;
-  pnlSep.Height := 8;
+  pnlSep.Height := 6;
   pnlSep.BevelOuter := bvNone;
 
   // Allowed Actions Group
@@ -397,53 +449,60 @@ begin
   gbAllowedActions.Parent := pnlLeft;
   gbAllowedActions.Align := alTop;
   gbAllowedActions.Height := 110;
-  gbAllowedActions.Caption := ' Ações Permitidas (Action.AllowedActions) ';
+  gbAllowedActions.Caption := ' Ações do Mainframe (AllowedActions) ';
+  gbAllowedActions.Font.Color := $38BDF8;
   gbAllowedActions.Font.Style := [fsBold];
 
   memAllowedActions := TMemo.Create(Self);
   memAllowedActions.Parent := gbAllowedActions;
   memAllowedActions.Align := alClient;
+  memAllowedActions.Color := $030712;
+  memAllowedActions.Font.Color := clWhite;
   memAllowedActions.ScrollBars := ssAutoVertical;
 
   pnlSep := TPanel.Create(Self);
   pnlSep.Parent := pnlLeft;
   pnlSep.Align := alTop;
-  pnlSep.Height := 8;
+  pnlSep.Height := 6;
   pnlSep.BevelOuter := bvNone;
 
   // Parameter Definitions Group
   gbParameterDefs := TGroupBox.Create(Self);
   gbParameterDefs.Parent := pnlLeft;
   gbParameterDefs.Align := alClient;
-  gbParameterDefs.Caption := ' Parâmetros Exigidos (Action.ParameterDefinitions) ';
+  gbParameterDefs.Caption := ' Dicionário de Parâmetros ';
+  gbParameterDefs.Font.Color := $38BDF8;
   gbParameterDefs.Font.Style := [fsBold];
 
   memParameterDefs := TMemo.Create(Self);
   memParameterDefs.Parent := gbParameterDefs;
   memParameterDefs.Align := alClient;
+  memParameterDefs.Color := $030712;
+  memParameterDefs.Font.Color := clWhite;
   memParameterDefs.ScrollBars := ssAutoVertical;
 
   // Splitter Left
   splitterLeft := TSplitter.Create(Self);
   splitterLeft.Parent := pnlClient;
   splitterLeft.Align := alLeft;
-  splitterLeft.Color := $E5E7EB;
+  splitterLeft.Color := $1F2937;
 
-  { Right Panel: Decision Results & Rationale }
+  { Right Panel: Decision Results & Real Logs }
   pnlRight := TPanel.Create(Self);
   pnlRight.Parent := pnlClient;
   pnlRight.Align := alRight;
   pnlRight.Width := 380;
   pnlRight.BevelOuter := bvNone;
-  pnlRight.Color := $F9FAFB;
-  pnlRight.BorderWidth := 10;
+  pnlRight.Color := $111827;
+  pnlRight.BorderWidth := 8;
 
   // Result Action Group
   gbResultAction := TGroupBox.Create(Self);
   gbResultAction.Parent := pnlRight;
   gbResultAction.Align := alTop;
   gbResultAction.Height := 200;
-  gbResultAction.Caption := ' ⚡ Decisão Escolhida pelo Agente ';
+  gbResultAction.Caption := ' ⚡ Decisão Estruturada do Jarvis ';
+  gbResultAction.Font.Color := $38BDF8;
   gbResultAction.Font.Style := [fsBold];
   gbResultAction.BorderWidth := 5;
 
@@ -451,29 +510,32 @@ begin
   pnlSelectedAction.Parent := gbResultAction;
   pnlSelectedAction.Align := alTop;
   pnlSelectedAction.Height := 45;
-  pnlSelectedAction.Color := $FEF3C7; // Light premium yellow
-  pnlSelectedAction.Font.Color := $92400E; // Dark amber
+  pnlSelectedAction.Color := $1E293B;
+  pnlSelectedAction.Font.Color := $00FFFF; // Neon Cyan
   pnlSelectedAction.Font.Size := 11;
   pnlSelectedAction.Font.Style := [fsBold];
   pnlSelectedAction.Alignment := taCenter;
-  pnlSelectedAction.Caption := 'AGUARDANDO PROCESSAMENTO...';
+  pnlSelectedAction.Caption := 'SISTEMA EM ESPERA';
   pnlSelectedAction.BevelOuter := bvNone;
 
   gbSelectedParams := TGroupBox.Create(Self);
   gbSelectedParams.Parent := gbResultAction;
   gbSelectedParams.Align := alClient;
-  gbSelectedParams.Caption := ' Parâmetros da Decisão ';
+  gbSelectedParams.Caption := ' Parâmetros Mapeados pela IA ';
+  gbSelectedParams.Font.Color := clWhite;
   gbSelectedParams.Font.Style := [fsBold];
 
   lbSelectedParams := TListBox.Create(Self);
   lbSelectedParams.Parent := gbSelectedParams;
   lbSelectedParams.Align := alClient;
-  lbSelectedParams.Color := $F9FAFB;
+  lbSelectedParams.Color := $030712;
+  lbSelectedParams.Font.Color := $34D399; // Matrix green
+  lbSelectedParams.Font.Name := 'Consolas';
 
   pnlSep := TPanel.Create(Self);
   pnlSep.Parent := pnlRight;
   pnlSep.Align := alBottom;
-  pnlSep.Height := 10;
+  pnlSep.Height := 8;
   pnlSep.BevelOuter := bvNone;
 
   // Physical world resource output logs
@@ -481,154 +543,184 @@ begin
   gbResourceExecution.Parent := pnlRight;
   gbResourceExecution.Align := alBottom;
   gbResourceExecution.Height := 170;
-  gbResourceExecution.Caption := ' 🌐 Execução do Recurso Físico ';
+  gbResourceExecution.Caption := ' 🌐 Log do Atuador do Mundo Físico ';
+  gbResourceExecution.Font.Color := $38BDF8;
   gbResourceExecution.Font.Style := [fsBold];
 
   memResourceExecution := TMemo.Create(Self);
   memResourceExecution.Parent := gbResourceExecution;
   memResourceExecution.Align := alClient;
   memResourceExecution.ReadOnly := True;
-  memResourceExecution.Color := $F0FDF4; // Light soothing green
+  memResourceExecution.Color := $020617;
+  memResourceExecution.Font.Color := $38BDF8; // Cyan logs
+  memResourceExecution.Font.Name := 'Consolas';
   memResourceExecution.ScrollBars := ssAutoVertical;
 
   // Rationale Group
   gbRationale := TGroupBox.Create(Self);
   gbRationale.Parent := pnlRight;
   gbRationale.Align := alClient;
-  gbRationale.Caption := ' 🧠 Raciocínio Analítico (Rationale) ';
+  gbRationale.Caption := ' 🧠 Raciocínio (Rationale) ';
+  gbRationale.Font.Color := $38BDF8;
   gbRationale.Font.Style := [fsBold];
 
   memRationale := TMemo.Create(Self);
   memRationale.Parent := gbRationale;
   memRationale.Align := alClient;
   memRationale.ReadOnly := True;
-  memRationale.Color := $FFFDF5; // Gentle paper color
+  memRationale.Color := $020617;
+  memRationale.Font.Color := $FBBF24; // Amber yellow
   memRationale.ScrollBars := ssAutoVertical;
 
   // Splitter Right
   splitterRight := TSplitter.Create(Self);
   splitterRight.Parent := pnlClient;
   splitterRight.Align := alRight;
-  splitterRight.Color := $E5E7EB;
+  splitterRight.Color := $1F2937;
 
-  { Center Panel: Input data & Log Memo }
+  { Center Panel: Jarvis Terminal Chat Console }
   pnlCenter := TPanel.Create(Self);
   pnlCenter.Parent := pnlClient;
   pnlCenter.Align := alClient;
   pnlCenter.BevelOuter := bvNone;
-  pnlCenter.BorderWidth := 10;
+  pnlCenter.BorderWidth := 8;
 
-  // Input data group
-  gbInput := TGroupBox.Create(Self);
-  gbInput.Parent := pnlCenter;
-  gbInput.Align := alTop;
-  gbInput.Height := 240;
-  gbInput.Caption := ' Dados de Entrada para Análise (InputData) ';
-  gbInput.Font.Style := [fsBold];
+  // Chat Console Group
+  gbChatConsole := TGroupBox.Create(Self);
+  gbChatConsole.Parent := pnlCenter;
+  gbChatConsole.Align := alClient;
+  gbChatConsole.Caption := ' 🖥️ Console de Diálogo Interativo - J.A.R.V.I.S. Terminal ';
+  gbChatConsole.Font.Color := $38BDF8;
+  gbChatConsole.Font.Style := [fsBold];
 
-  memInputData := TMemo.Create(Self);
-  memInputData.Parent := gbInput;
-  memInputData.Align := alClient;
-  memInputData.ScrollBars := ssAutoVertical;
-
-  // Execution buttons bar
-  pnlExecute := TPanel.Create(Self);
-  pnlExecute.Parent := pnlCenter;
-  pnlExecute.Align := alTop;
-  pnlExecute.Height := 48;
-  pnlExecute.BevelOuter := bvNone;
-
-  btnLoadITScenario := TButton.Create(Self);
-  btnLoadITScenario.Parent := pnlExecute;
-  btnLoadITScenario.Align := alLeft;
-  btnLoadITScenario.Width := 125;
-  btnLoadITScenario.Caption := '🔌 Alerta de Servidor';
-  btnLoadITScenario.OnClick := @btnLoadITScenarioClick;
-
-  btnLoadSupportScenario := TButton.Create(Self);
-  btnLoadSupportScenario.Parent := pnlExecute;
-  btnLoadSupportScenario.Align := alLeft;
-  btnLoadSupportScenario.Width := 125;
-  btnLoadSupportScenario.Caption := '📦 Ticket de Entrega';
-  btnLoadSupportScenario.OnClick := @btnLoadSupportScenarioClick;
-
-  btnExecute := TButton.Create(Self);
-  btnExecute.Parent := pnlExecute;
-  btnExecute.Align := alClient;
-  btnExecute.Caption := '🤖 EXECUTAR DECISÃO DO AGENTE';
-  btnExecute.Font.Style := [fsBold];
-  btnExecute.OnClick := @btnExecuteClick;
+  memChatConsole := TMemo.Create(Self);
+  memChatConsole.Parent := gbChatConsole;
+  memChatConsole.Align := alClient;
+  memChatConsole.ReadOnly := True;
+  memChatConsole.Color := $020617; // Cyber black console
+  memChatConsole.Font.Color := $34D399; // Neon emerald-400
+  memChatConsole.Font.Name := 'Consolas';
+  memChatConsole.Font.Size := 10;
+  memChatConsole.ScrollBars := ssAutoVertical;
 
   pnlSep := TPanel.Create(Self);
   pnlSep.Parent := pnlCenter;
-  pnlSep.Align := alTop;
+  pnlSep.Align := alBottom;
   pnlSep.Height := 8;
   pnlSep.BevelOuter := bvNone;
 
-  // Logs group
-  gbLogs := TGroupBox.Create(Self);
-  gbLogs.Parent := pnlCenter;
-  gbLogs.Align := alClient;
-  gbLogs.Caption := ' 📜 Histórico de Comunicação / JSON Logs ';
-  gbLogs.Font.Style := [fsBold];
+  // Command Input Panel
+  pnlCommandInput := TPanel.Create(Self);
+  pnlCommandInput.Parent := pnlCenter;
+  pnlCommandInput.Align := alBottom;
+  pnlCommandInput.Height := 50;
+  pnlCommandInput.Color := $1E293B; // Slate-800
+  pnlCommandInput.BevelOuter := bvNone;
+  pnlCommandInput.BorderWidth := 8;
 
-  memLogs := TMemo.Create(Self);
-  memLogs.Parent := gbLogs;
-  memLogs.Align := alClient;
-  memLogs.ReadOnly := True;
-  memLogs.ScrollBars := ssAutoVertical;
-  memLogs.Color := $F1F5F9;
-  memLogs.Font.Name := 'Courier New';
-  memLogs.Font.Size := 9;
+  btnSendCommand := TButton.Create(Self);
+  btnSendCommand.Parent := pnlCommandInput;
+  btnSendCommand.Align := alRight;
+  btnSendCommand.Width := 130;
+  btnSendCommand.Caption := '⚡ ENVIAR ORDEM';
+  btnSendCommand.Font.Style := [fsBold];
+  btnSendCommand.OnClick := @btnSendCommandClick;
+
+  edtCommandInput := TEdit.Create(Self);
+  edtCommandInput.Parent := pnlCommandInput;
+  edtCommandInput.Align := alClient;
+  edtCommandInput.Color := $0F172A; // Dark input
+  edtCommandInput.Font.Color := clWhite;
+  edtCommandInput.Font.Size := 11;
+  edtCommandInput.OnKeyPress := @edtCommandInputKeyPress;
+
+  pnlSep := TPanel.Create(Self);
+  pnlSep.Parent := pnlCenter;
+  pnlSep.Align := alBottom;
+  pnlSep.Height := 8;
+  pnlSep.BevelOuter := bvNone;
+
+  // Scenario buttons panel
+  pnlScenarioButtons := TPanel.Create(Self);
+  pnlScenarioButtons.Parent := pnlCenter;
+  pnlScenarioButtons.Align := alBottom;
+  pnlScenarioButtons.Height := 40;
+  pnlScenarioButtons.Color := $111827;
+  pnlScenarioButtons.BevelOuter := bvNone;
+
+  btnLoadReactorScenario := TButton.Create(Self);
+  btnLoadReactorScenario.Parent := pnlScenarioButtons;
+  btnLoadReactorScenario.Align := alLeft;
+  btnLoadReactorScenario.Width := 200;
+  btnLoadReactorScenario.Caption := '🔴 Reator Arc (Tony Stark)';
+  btnLoadReactorScenario.OnClick := @btnLoadReactorScenarioClick;
+
+  btnLoadSecurityScenario := TButton.Create(Self);
+  btnLoadSecurityScenario.Parent := pnlScenarioButtons;
+  btnLoadSecurityScenario.Align := alLeft;
+  btnLoadSecurityScenario.Width := 200;
+  btnLoadSecurityScenario.Caption := '🛡️ Protocolo de Segurança';
+  btnLoadSecurityScenario.OnClick := @btnLoadSecurityScenarioClick;
 end;
 
-procedure TfrmAgentDemo.LoadITAlertScenario;
+procedure TfrmAgentDemo.AddConsoleLine(const AText: string);
 begin
-  memSystemPrompt.Text := 'Você é um Agente Inteligente Autônomo de Segurança e Infraestrutura de TI para servidores críticos.';
+  memChatConsole.Lines.Add(AText);
   
-  memQuestions.Clear;
-  memQuestions.Lines.Add('1. Analise a temperatura reportada e configure a gravidade de emergência.');
-  memQuestions.Lines.Add('2. Se a temperatura ultrapassar 40°C, dispare a ação TRIGGER_CRITICAL_COOLING_ALERT com gravidade alta.');
-  memQuestions.Lines.Add('3. Caso seja falha comum, use NOTIFY_MAINTENANCE.');
-
-  memContext.Text := 'Servidores principais em Ribeirão Preto, sala A, climatizados.';
-
-  memAllowedActions.Clear;
-  memAllowedActions.Lines.Add('TRIGGER_CRITICAL_COOLING_ALERT');
-  memAllowedActions.Lines.Add('NOTIFY_MAINTENANCE');
-  memAllowedActions.Lines.Add('REQUEST_MORE_INFO');
-
-  memParameterDefs.Clear;
-  memParameterDefs.Lines.Add('urgency: string (alta, media, baixa)');
-  memParameterDefs.Lines.Add('reason: string (breve justificativa)');
-  memParameterDefs.Lines.Add('target_department: string (suporte, infra, ti)');
-  memParameterDefs.Lines.Add('notification_method: string (slack, email, pagerduty)');
-
-  memInputData.Text := 'ALERT_EVENT: Sensor de temperatura na sala A reportou 48.2 graus Celsius às 19:40h! Ar condicionado falhou em inicializar automaticamente.';
+  // Auto-scroll memo to bottom
+  memChatConsole.SelStart := Length(memChatConsole.Text);
 end;
 
-procedure TfrmAgentDemo.LoadSupportScenario;
+procedure TfrmAgentDemo.LoadReactorScenario;
 begin
-  memSystemPrompt.Text := 'Você é um Agente de Triagem de Tickets de Suporte e Reclamações de Clientes.';
+  memSystemPrompt.Text := 'Você é o J.A.R.V.I.S., assistente autônomo do reator de Tony Stark. Analise ordens do Senhor e dispare ações.';
   
   memQuestions.Clear;
-  memQuestions.Lines.Add('1. Verifique se o pedido está em atraso crítico.');
-  memQuestions.Lines.Add('2. Se o cliente solicitar cancelamento ou devolução, dispare DISPATCH_SUPPORT_TICKET com target_department=financeiro.');
-  memQuestions.Lines.Add('3. Identifique o teor do problema e encaminhe adequadamente.');
+  memQuestions.Lines.Add('1. Extraia o canal de notificação física correto (e-mail, arquivo local ou whatsapp).');
+  memQuestions.Lines.Add('2. Se o usuário mandar gravar log ou arquivo, use WRITE_LOG_FILE.');
+  memQuestions.Lines.Add('3. Se for reator crítico, marque urgency=alta.');
 
-  memContext.Text := 'Sistema de comércio eletrônico integrado via Correios/Transportadoras.';
+  memContext.Text := 'Sistemas do Reator Arc Stark carregados. Monitoramento de potência.';
 
   memAllowedActions.Clear;
-  memAllowedActions.Lines.Add('DISPATCH_SUPPORT_TICKET');
-  memAllowedActions.Lines.Add('REQUEST_MORE_INFO');
+  memAllowedActions.Lines.Add('SEND_EMAIL');
+  memAllowedActions.Lines.Add('WRITE_LOG_FILE');
+  memAllowedActions.Lines.Add('SEND_WHATSAPP_MSG');
+  memAllowedActions.Lines.Add('EXECUTE_WEB_API');
 
   memParameterDefs.Clear;
+  memParameterDefs.Lines.Add('recipient: string (email de Tony ou número telefone)');
+  memParameterDefs.Lines.Add('file_path: string (nome do arquivo log)');
+  memParameterDefs.Lines.Add('subject: string (assunto do email)');
   memParameterDefs.Lines.Add('urgency: string (alta, media, baixa)');
-  memParameterDefs.Lines.Add('reason: string (motivação detalhada)');
-  memParameterDefs.Lines.Add('target_department: string (financeiro, suporte, logistica)');
-  memParameterDefs.Lines.Add('notification_method: string (email, ticket_system)');
+  memParameterDefs.Lines.Add('reason: string (justificativa analítica rápida)');
 
-  memInputData.Text := 'Olá, comprei o smartphone no pedido #98342 com entrega prometida para 3 dias atrás. Ele ainda não foi postado e quero o reembolso imediatamente!';
+  edtCommandInput.Text := 'Jarvis, grave um log de segurança no arquivo reator_stark.log reportando oscilação térmica de 48%!';
+end;
+
+procedure TfrmAgentDemo.LoadSecurityScenario;
+begin
+  memSystemPrompt.Text := 'Você é o J.A.R.V.I.S., assistente cibernético responsável pelas barreiras de segurança física e redes das Indústrias Stark.';
+  
+  memQuestions.Clear;
+  memQuestions.Lines.Add('1. Identifique intrusões de redes ou acessos físicos.');
+  memQuestions.Lines.Add('2. Para tentativas de força bruta na rede principal, envie alerta via Web API para mainframe.');
+  memQuestions.Lines.Add('3. Configure urgência alta caso haja invasão de perímetro.');
+
+  memContext.Text := 'Firewall Stark e monitoramento de câmeras de Ribeirão Preto online.';
+
+  memAllowedActions.Clear;
+  memAllowedActions.Lines.Add('SEND_EMAIL');
+  memAllowedActions.Lines.Add('SEND_WHATSAPP_MSG');
+  memAllowedActions.Lines.Add('EXECUTE_WEB_API');
+
+  memParameterDefs.Clear;
+  memParameterDefs.Lines.Add('recipient: string (email de Tony ou telefone)');
+  memParameterDefs.Lines.Add('api_url: string (url do endpoint de bloqueio)');
+  memParameterDefs.Lines.Add('urgency: string (alta, media, baixa)');
+  memParameterDefs.Lines.Add('reason: string (diagnóstico do incidente)');
+
+  edtCommandInput.Text := 'Jarvis, envie um e-mail para pepper.potts@stark.com com o assunto "Invasão no Laboratório" informando urgência máxima!';
 end;
 
 procedure TfrmAgentDemo.cbProviderChange(Sender: TObject);
@@ -702,21 +794,27 @@ begin
   end;
 end;
 
-procedure TfrmAgentDemo.btnExecuteClick(Sender: TObject);
+procedure TfrmAgentDemo.btnSendCommandClick(Sender: TObject);
 var
   Prov: TAIProvider;
   ModelIdx: Integer;
   VModel: TVersionChat;
+  Cmd: string;
   OK: Boolean;
 begin
+  Cmd := Trim(edtCommandInput.Text);
+  if Cmd = '' then Exit;
+
   Screen.Cursor := crHourGlass;
-  pnlSelectedAction.Color := $FEF3C7;
-  pnlSelectedAction.Font.Color := $92400E;
-  pnlSelectedAction.Caption := 'EXECUTANDO DECISÃO DO AGENTE...';
+  pnlSelectedAction.Color := $1E293B;
+  pnlSelectedAction.Font.Color := $00FFFF;
+  pnlSelectedAction.Caption := 'JARVIS RACIOCINANDO...';
   lbSelectedParams.Clear;
   memRationale.Clear;
-  memLogs.Clear;
   memResourceExecution.Clear;
+  
+  AddConsoleLine('Senhor: ' + Cmd);
+  AddConsoleLine('Jarvis: Acessando redes neurais e decodificando ordens físicas...');
   
   try
     { 1. Configure TCHATGPT }
@@ -769,71 +867,75 @@ begin
 
     { 2. Configure Agent Parameters }
     FAIAgent.SystemPrompt := memSystemPrompt.Text;
-    
-    // Assign Questions
     FAIAgentOptions.Questions.Assign(memQuestions.Lines);
     FAIAgentOptions.Context := memContext.Text;
-    
-    // Assign Actions
     FAIAgentAction.AllowedActions.Assign(memAllowedActions.Lines);
     FAIAgentAction.ParameterDefinitions.Assign(memParameterDefs.Lines);
 
     { 3. Execute Decision }
-    OK := FAIAgent.Execute(memInputData.Text);
-
-    { 4. Show debug log }
-    memLogs.Lines.Add('--- REQUISIÇÃO ---');
-    memLogs.Lines.Add('Endpoint: ' + FChatGPT.LastURL);
-    memLogs.Lines.Add('Modelo: ' + FChatGPT.TipoModelo);
-    memLogs.Lines.Add('');
-    memLogs.Lines.Add('--- JSON RESPOSTA BRUTA ---');
-    memLogs.Lines.Add(FChatGPT.LastJSON);
+    OK := FAIAgent.Execute(Cmd);
 
     if OK then
     begin
-      pnlSelectedAction.Color := $D1FAE5; // Soft green
-      pnlSelectedAction.Font.Color := $065F46; // Dark green
-      pnlSelectedAction.Caption := 'SUCESSO: ' + FAIAgentAction.SelectedAction;
+      pnlSelectedAction.Color := $065F46; // Dark neon green
+      pnlSelectedAction.Font.Color := $34D399; // Neon emerald
+      pnlSelectedAction.Caption := 'ORDE DE EXECUÇÃO: ' + FAIAgentAction.SelectedAction;
       
       memRationale.Text := FAIAgent.LastRationale;
       
       // Update parameter display list
       lbSelectedParams.Items.Assign(FAIAgentAction.SelectedParameters);
+      
+      // Append chatbot dialogues inside our conversational UI
+      AddConsoleLine('Jarvis: Compreendi sua ordem, Senhor.');
+      AddConsoleLine('Jarvis: Ação estruturada resolvida: ' + FAIAgentAction.SelectedAction);
+      AddConsoleLine('Jarvis: ' + FAIAgent.LastRationale);
     end
     else
     begin
-      pnlSelectedAction.Color := $FEE2E2; // Soft red
-      pnlSelectedAction.Font.Color := $991B1B; // Dark red
-      pnlSelectedAction.Caption := 'FALHA NO AGENTE';
+      pnlSelectedAction.Color := $991B1B; // Deep dark red
+      pnlSelectedAction.Font.Color := $FCA5A5;
+      pnlSelectedAction.Caption := 'JARVIS ENCONTROU FALHAS';
       
-      memRationale.Text := 'OCORREU UM ERRO:' + sLineBreak + FAIAgent.LastError;
+      memRationale.Text := 'Diagnóstico de erro:' + sLineBreak + FAIAgent.LastError;
+      
+      AddConsoleLine('Jarvis [FALHA]: Não pude decodificar os comandos físicos.');
+      AddConsoleLine('Jarvis [DIAGNÓSTICO]: ' + FAIAgent.LastError);
     end;
 
+    edtCommandInput.Text := ''; // Clear input for next order
   finally
     Screen.Cursor := crDefault;
   end;
 end;
 
-procedure TfrmAgentDemo.btnLoadITScenarioClick(Sender: TObject);
+procedure TfrmAgentDemo.edtCommandInputKeyPress(Sender: TObject; var Key: char);
 begin
-  LoadITAlertScenario;
-  ShowMessage('Cenário de Alerta de Infraestrutura e Redes de Servidores Carregado!');
+  if Key = #13 then // Enter key
+  begin
+    Key := #0; // Prevent beep
+    btnSendCommandClick(nil);
+  end;
 end;
 
-procedure TfrmAgentDemo.btnLoadSupportScenarioClick(Sender: TObject);
+procedure TfrmAgentDemo.btnLoadReactorScenarioClick(Sender: TObject);
 begin
-  LoadSupportScenario;
-  ShowMessage('Cenário de Triagem de Tickets de Clientes Carregado!');
+  LoadReactorScenario;
+  AddConsoleLine('Jarvis: Cenário "Reator Arc de Tony Stark" ativado. Sistemas de monitoramento e escrita de arquivos reator_stark.log prontos.');
+end;
+
+procedure TfrmAgentDemo.btnLoadSecurityScenarioClick(Sender: TObject);
+begin
+  LoadSecurityScenario;
+  AddConsoleLine('Jarvis: Cenário "Protocolo de Segurança Stark" ativado. Defesas contra força bruta de rede e bloqueios IP Mainframe prontos.');
 end;
 
 procedure TfrmAgentDemo.OnAgentActionTriggered(Sender: TObject; const AActionName: string; AParams: TStrings);
 begin
-  { Triggers when decision executes successfully }
 end;
 
 procedure TfrmAgentDemo.OnAgentExecuteAction(Sender: TObject; const AActionName: string; AParams: TStrings);
 begin
-  { Callbacks for physical action trigger }
 end;
 
 procedure TfrmAgentDemo.OnAgentOutputExecuted(Sender: TObject; const AActionName: string; const AResourceName: string; const ALog: string; ASuccess: Boolean);
@@ -846,13 +948,18 @@ begin
     StatusStr := 'FALHA';
 
   memResourceExecution.Clear;
-  memResourceExecution.Lines.Add('=== RECURSO FÍSICO DISPARADO ===');
-  memResourceExecution.Lines.Add('Ação Decidida: ' + AActionName);
-  memResourceExecution.Lines.Add('Recurso Alocado: ' + AResourceName);
-  memResourceExecution.Lines.Add('Status de Execução: ' + StatusStr);
+  memResourceExecution.Lines.Add('=== PROCESSAMENTO DE REDE FÍSICA ===');
+  memResourceExecution.Lines.Add('Decisão: ' + AActionName);
+  memResourceExecution.Lines.Add('Atuador Mapeado: ' + AResourceName);
+  memResourceExecution.Lines.Add('Resultado: ' + StatusStr);
   memResourceExecution.Lines.Add('');
-  memResourceExecution.Lines.Add('--- DETALHES DA EXECUÇÃO FÍSICA ---');
+  memResourceExecution.Lines.Add('--- REGISTRO FÍSICO DO ATUADOR ---');
   memResourceExecution.Lines.Add(ALog);
+  
+  // Append actuator logging directly inside the chat timeline
+  AddConsoleLine('Jarvis [EXECUÇÃO FÍSICA]: Atuador "' + AResourceName + '" disparado. Status: ' + StatusStr);
+  AddConsoleLine('--------------------------------------------------------------------------------');
+  AddConsoleLine('');
 end;
 
 end.

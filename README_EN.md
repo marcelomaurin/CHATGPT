@@ -65,6 +65,24 @@ The suite installs four feature-rich tabs under the Lazarus component palette:
 
 ---
 
+### Tab: `IA Voice` (Native Multiplatform Text-to-Speech)
+
+*   **`TAIVoiceSynthesizer`**: High-performance Text-to-Speech synthesis component. Communicates directly with the platform's native subsystem: **SAPI (Speech API)** on Windows via COM Automation, and the **eSpeak/eSpeak-NG** library on Linux via dynamic linking.
+    *   **Properties**: `Volume` (0..100), `Rate` (Speed, from -10 to 10), `Asynchronous` (speaks without blocking the application UI), and `VoiceName` (to override language or voice model).
+    *   **Methods**: `Say(Text)` to speak, and `GetAvailableVoices(List)` to dynamically query all voice models installed on the OS.
+
+---
+
+### Tab: `IA Agent` (Autonomous Intelligent Agents and Decision Making)
+
+*   **`TAIAgent`**: The orchestrator brain of the autonomous agent. Dynamically constructs complex instructions via `TCHATGPT` and decodes analytical responses using a native FCL JSON parser.
+*   **`TAIAgentOptions`**: Houses rules and guidelines as a list of directives (`Questions: TStrings`) and operational business context (`Context`).
+*   **`TAIAgentAction`**: Declares allowed external actions (`AllowedActions: TStrings`) and their required parameter definitions (`ParameterDefinitions: TStrings`), triggering native callback events (`OnExecuteAction`) as soon as the structured action and parameters are parsed.
+*   **`TAIAgentResource`**: A bank managing real-world physical channels (such as Email, local File writing, WhatsApp, SMS, TCP/UDP packets, and native HTTP POST Web API with headers).
+*   **`TAIAgentOutput`**: The bridging component that automatically hooks `TAIAgentAction` decisions, maps them to `TAIAgentResource` channels, and executes the physical world actions, yielding detailed logs.
+
+---
+
 ---
 
 ## Quick Start (Code Assistant)
