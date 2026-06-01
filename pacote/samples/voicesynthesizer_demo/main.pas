@@ -24,6 +24,8 @@ type
     
     cbAsynchronous: TCheckBox;
     
+    lblSynthesizer: TLabel;
+    lbSynthesizers: TListBox;
     lblVoiceName: TLabel;
     lbVoices: TListBox;
     
@@ -41,6 +43,7 @@ type
     procedure btnSpeakClick(Sender: TObject);
     procedure tbVolumeChange(Sender: TObject);
     procedure tbRateChange(Sender: TObject);
+    procedure lbSynthesizersClick(Sender: TObject);
   private
     FAIVoice: TAIVoiceSynthesizer;
     procedure LogMsg(const AMsg: string);
@@ -59,8 +62,6 @@ implementation
 { TfrmVoiceDemo }
 
 procedure TfrmVoiceDemo.FormCreate(Sender: TObject);
-var
-  SysName: string;
 begin
   FAIVoice := TAIVoiceSynthesizer.Create(Self);
 
@@ -68,27 +69,56 @@ begin
   tbVolume.Position := 100;
   tbRate.Position := 0;
   cbAsynchronous.Checked := True;
-  
+
+  LogMsg('Preenchendo lista de sintetizadores disponíveis...');
+  lbSynthesizers.Items.Clear;
   {$IFDEF MSWINDOWS}
-  SysName := 'Windows (SAPI Nativo)';
+  lbSynthesizers.Items.Add('SAPI (Windows)');
+  lbSynthesizers.Items.Add('eSpeak');
   {$ELSE}
-  SysName := 'Linux (eSpeak/eSpeak-NG)';
+  lbSynthesizers.Items.Add('eSpeak');
   {$ENDIF}
 
-  // Populate ListBox with native system voices
-  LogMsg('Buscando vozes disponíveis no sistema operacional...');
-  FAIVoice.GetAvailableVoices(lbVoices.Items);
+  // Select the first synthesizer by default
+  if lbSynthesizers.Items.Count > 0 then
+  begin
+    lbSynthesizers.ItemIndex := 0;
+    lbSynthesizersClick(nil);
+  end;
+
+  LogMsg('Demonstração do Componente TAIVoiceSynthesizer Iniciada.');
+  LogMsg('Selecione o sintetizador, regule os controles e fale!');
+end;
+
+procedure TfrmVoiceDemo.lbSynthesizersClick(Sender: TObject);
+var
+  SelectedEngine: string;
+begin
+  if lbSynthesizers.ItemIndex < 0 then Exit;
   
-  if lbVoices.Items.Count > 0 then
-    lbVoices.ItemIndex := 0
+  SelectedEngine := lbSynthesizers.Items[lbSynthesizers.ItemIndex];
+  LogMsg('Sintetizador selecionado: ' + SelectedEngine);
+
+  if SelectedEngine = 'SAPI (Windows)' then
+    FAIVoice.Engine := seSAPI
   else
-    LogMsg('Nenhuma voz encontrada. O sistema usará a voz padrão.');
+    FAIVoice.Engine := seEspeak;
+
+  LogMsg('Carregando vozes correspondentes...');
+  FAIVoice.GetAvailableVoices(lbVoices.Items);
+
+  if lbVoices.Items.Count > 0 then
+  begin
+    lbVoices.ItemIndex := 0;
+    LogMsg(Format('Encontradas %d vozes disponíveis.', [lbVoices.Items.Count]));
+  end
+  else
+  begin
+    lbVoices.ItemIndex := -1;
+    LogMsg('Nenhuma voz encontrada para este sintetizador. O sistema usará a voz padrão.');
+  end;
 
   UpdateStatusUI;
-  
-  LogMsg('Demonstração do Componente TAIVoiceSynthesizer Iniciada.');
-  LogMsg('Sistema de Voz detectado: ' + SysName);
-  LogMsg('Ajuste o volume, velocidade e selecione uma voz para falar!');
 end;
 
 procedure TfrmVoiceDemo.FormDestroy(Sender: TObject);

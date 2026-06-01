@@ -7,13 +7,13 @@ interface
 uses
   Classes, SysUtils,
   {$IFDEF MSWINDOWS}
-  ComObj, ActiveX, Variants
-  {$ELSE}
-  DynLibs
-  {$ENDIF};
+  ComObj, ActiveX, Variants,
+  {$ENDIF}
+  DynLibs;
 
 type
-  {$IFNDEF MSWINDOWS}
+  TSpeechEngine = (seSystemDefault, seSAPI, seEspeak);
+
   Pespeak_VOICE = ^Tespeak_VOICE;
   Tespeak_VOICE = record
     name       : PAnsiChar;
@@ -36,7 +36,6 @@ type
   Tespeak_Synth = function(text: PAnsiChar; size: SizeInt; position: Cardinal; position_type: Integer; end_position: Cardinal; flags: Cardinal; unique_identifier: PCardinal; user_data: Pointer): Integer; cdecl;
   Tespeak_Terminate = function: Integer; cdecl;
   Tespeak_ListVoices = function(voice_selector: Pointer): PPespeak_VOICE; cdecl;
-  {$ENDIF}
 
   { TAIVoiceSynthesizer }
 
@@ -48,8 +47,9 @@ type
     FVoiceName    : string;
     FAsynchronous : Boolean;
     FLastError    : string;
+    FEngine       : TSpeechEngine;
 
-    {$IFNDEF MSWINDOWS}
+    // eSpeak dynamically loaded fields (both Windows and Linux)
     FLibHandle    : TLibHandle;
     FInitialized  : Boolean;
 
@@ -63,7 +63,6 @@ type
 
     function InitEspeak: Boolean;
     procedure UnloadEspeak;
-    {$ENDIF}
 
   public
     constructor Create(AOwner: TComponent); override;
@@ -75,9 +74,10 @@ type
   published
     property Text: string read FText write FText;
     property Volume: Integer read FVolume write FVolume default 100;
-    property Rate: Integer read FRate write FRate default 0; // Windows SAPI: -10 to 10; Linux maps -10..10 to 55..295 words/min
+    property Rate: Integer read FRate write FRate default 0; // SAPI: -10 to 10; eSpeak: scales mapped
     property VoiceName: string read FVoiceName write FVoiceName;
     property Asynchronous: Boolean read FAsynchronous write FAsynchronous default True;
+    property Engine: TSpeechEngine read FEngine write FEngine default seSystemDefault;
     property LastError: string read FLastError;
   end;
 
@@ -100,9 +100,9 @@ begin
   FRate := 0;
   FVoiceName := '';
   FAsynchronous := True;
+  FEngine := seSystemDefault;
   FLastError := '';
 
-  {$IFNDEF MSWINDOWS}
   FLibHandle := NilHandle;
   FInitialized := False;
   espeak_Initialize := nil;
@@ -112,18 +112,14 @@ begin
   espeak_Synth := nil;
   espeak_Terminate := nil;
   espeak_ListVoices := nil;
-  {$ENDIF}
 end;
 
 destructor TAIVoiceSynthesizer.Destroy;
 begin
-  {$IFNDEF MSWINDOWS}
   UnloadEspeak;
-  {$ENDIF}
   inherited Destroy;
 end;
 
-{$IFNDEF MSWINDOWS}
 function TAIVoiceSynthesizer.InitEspeak: Boolean;
 var
   Candidates: array[0..3] of string;
@@ -134,10 +130,17 @@ begin
 
   FLibHandle := NilHandle;
 
+  {$IFDEF MSWINDOWS}
+  Candidates[0] := 'libespeak-ng.dll';
+  Candidates[1] := 'espeak.dll';
+  Candidates[2] := 'libespeak.dll';
+  Candidates[3] := 'espeak-ng.dll';
+  {$ELSE}
   Candidates[0] := 'libespeak-ng.so.1';
   Candidates[1] := 'libespeak.so.1';
   Candidates[2] := 'libespeak-ng.so';
   Candidates[3] := 'libespeak.so';
+  {$ENDIF}
 
   for I := 0 to 3 do
   begin
@@ -148,7 +151,7 @@ begin
 
   if FLibHandle = NilHandle then
   begin
-    FLastError := 'Falha ao carregar libespeak. Certifique-se de que espeak ou espeak-ng está instalado no sistema Linux.';
+    FLastError := 'Falha ao carregar biblioteca eSpeak. Certifique-se de que eSpeak/eSpeak-NG está instalado no sistema.';
     Exit;
   end;
 
@@ -216,7 +219,6 @@ begin
   espeak_Terminate := nil;
   espeak_ListVoices := nil;
 end;
-{$ENDIF}
 
 procedure TAIVoiceSynthesizer.Say(const AText: string);
 var
@@ -234,78 +236,86 @@ begin
 
   FLastError := '';
 
-  {$IFDEF MSWINDOWS}
-  try
-    // SAPI instantiation
-    ActiveX.CoInitialize(nil);
-    SpVoice := CreateOleObject('SAPI.SpVoice');
-    
-    // Set Volume (0 to 100)
-    if FVolume < 0 then FVolume := 0;
-    if FVolume > 100 then FVolume := 100;
-    SpVoice.Volume := FVolume;
-
-    // Set Rate (-10 to 10)
-    if FRate < -10 then FRate := -10;
-    if FRate > 10 then FRate := 10;
-    SpVoice.Rate := FRate;
-
-    // Set Voice by Name if specified
-    if FVoiceName <> '' then
-    begin
-      try
-        SpVoice.Voice := SpVoice.GetVoices('Name=' + FVoiceName).Item(0);
-      except
-        // Ignore and fallback to default SAPI voice
-      end;
-    end;
-
-    // SVSFlagsAsync = 1, SVSFDefault = 0
-    if FAsynchronous then
-      Flags := 1
-    else
-      Flags := 0;
-
-    SpVoice.Speak(SpeakText, Flags);
-  except
-    on E: Exception do
-      FLastError := 'Exceção ao sintetizar voz via SAPI: ' + E.Message;
-  end;
-  {$ELSE}
-  // Linux eSpeak implementation
-  if not FInitialized then
+  // Check if we use Windows SAPI
+  if (FEngine = seSAPI) or ((FEngine = seSystemDefault) and
+     {$IFDEF MSWINDOWS}True{$ELSE}False{$ENDIF}) then
   begin
-    if not InitEspeak then
-      Exit;
-  end;
-
-  if FInitialized and Assigned(espeak_Synth) then
-  begin
+    {$IFDEF MSWINDOWS}
     try
-      // Set Volume
+      ActiveX.CoInitialize(nil);
+      SpVoice := CreateOleObject('SAPI.SpVoice');
+      
+      // Set Volume (0 to 100)
       if FVolume < 0 then FVolume := 0;
       if FVolume > 100 then FVolume := 100;
-      if Assigned(espeak_SetVolume) then
-        espeak_SetVolume(FVolume);
+      SpVoice.Volume := FVolume;
 
-      // Set Rate (Normal is 175 wpm. Map -10..10 to 55..295)
+      // Set Rate (-10 to 10)
       if FRate < -10 then FRate := -10;
       if FRate > 10 then FRate := 10;
-      if Assigned(espeak_SetRate) then
-        espeak_SetRate(175 + (FRate * 12));
+      SpVoice.Rate := FRate;
 
-      // Set Voice by Name
-      if (FVoiceName <> '') and Assigned(espeak_SetVoiceByName) then
-        espeak_SetVoiceByName(PAnsiChar(AnsiString(FVoiceName)));
+      // Set Voice by Name if specified
+      if FVoiceName <> '' then
+      begin
+        try
+          SpVoice.Voice := SpVoice.GetVoices('Name=' + FVoiceName).Item(0);
+        except
+          // Fallback to default
+        end;
+      end;
 
-      // Call Synth (espeakCHARS_UTF8 = 1)
-      espeak_Synth(PAnsiChar(AnsiString(SpeakText)), Length(SpeakText) + 1, 0, 0, 0, 1, nil, nil);
+      // SVSFlagsAsync = 1, SVSFDefault = 0
+      if FAsynchronous then
+        Flags := 1
+      else
+        Flags := 0;
+
+      SpVoice.Speak(SpeakText, Flags);
     except
       on E: Exception do
-        FLastError := 'Exceção ao sintetizar voz via eSpeak: ' + E.Message;
+        FLastError := 'Exceção ao sintetizar voz via SAPI: ' + E.Message;
+    end;
+    {$ELSE}
+    FLastError := 'SAPI é suportado apenas no sistema operacional Windows.';
+    {$ENDIF}
+  end
+  else
+  begin
+    // eSpeak implementation
+    if not FInitialized then
+    begin
+      if not InitEspeak then
+        Exit;
+    end;
+
+    if FInitialized and Assigned(espeak_Synth) then
+    begin
+      try
+        // Set Volume
+        if FVolume < 0 then FVolume := 0;
+        if FVolume > 100 then FVolume := 100;
+        if Assigned(espeak_SetVolume) then
+          espeak_SetVolume(FVolume);
+
+        // Set Rate (Normal is 175 wpm. Map -10..10 to 55..295)
+        if FRate < -10 then FRate := -10;
+        if FRate > 10 then FRate := 10;
+        if Assigned(espeak_SetRate) then
+          espeak_SetRate(175 + (FRate * 12));
+
+        // Set Voice by Name
+        if (FVoiceName <> '') and Assigned(espeak_SetVoiceByName) then
+          espeak_SetVoiceByName(PAnsiChar(AnsiString(FVoiceName)));
+
+        // Call Synth (espeakCHARS_UTF8 = 1)
+        espeak_Synth(PAnsiChar(AnsiString(SpeakText)), Length(SpeakText) + 1, 0, 0, 0, 1, nil, nil);
+      except
+        on E: Exception do
+          FLastError := 'Exceção ao sintetizar voz via eSpeak: ' + E.Message;
+      end;
     end;
   end;
-  {$ENDIF}
 end;
 
 procedure TAIVoiceSynthesizer.GetAvailableVoices(AList: TStrings);
@@ -314,65 +324,72 @@ var
   SpVoice: OleVariant;
   Voices: OleVariant;
   I: Integer;
-  {$ELSE}
+  {$ENDIF}
   VoiceList: PPespeak_VOICE;
   VoicePtr: Pespeak_VOICE;
-  I: Integer;
-  {$ENDIF}
+  Idx: Integer;
 begin
   AList.Clear;
   FLastError := '';
-  
-  {$IFDEF MSWINDOWS}
-  try
-    ActiveX.CoInitialize(nil);
-    SpVoice := CreateOleObject('SAPI.SpVoice');
-    Voices := SpVoice.GetVoices;
-    for I := 0 to Voices.Count - 1 do
-    begin
-      try
-        AList.Add(Voices.Item(I).GetAttribute('Name'));
-      except
-        // Fallback description
-        try
-          AList.Add(Voices.Item(I).GetDescription);
-        except
-        end;
-      end;
-    end;
-  except
-    on E: Exception do
-      FLastError := 'Exceção ao listar vozes via SAPI: ' + E.Message;
-  end;
-  {$ELSE}
-  if not FInitialized then
-  begin
-    if not InitEspeak then Exit;
-  end;
 
-  if FInitialized and Assigned(espeak_ListVoices) then
+  if (FEngine = seSAPI) or ((FEngine = seSystemDefault) and
+     {$IFDEF MSWINDOWS}True{$ELSE}False{$ENDIF}) then
   begin
+    {$IFDEF MSWINDOWS}
     try
-      VoiceList := espeak_ListVoices(nil);
-      if Assigned(VoiceList) then
+      ActiveX.CoInitialize(nil);
+      SpVoice := CreateOleObject('SAPI.SpVoice');
+      Voices := SpVoice.GetVoices;
+      for I := 0 to Voices.Count - 1 do
       begin
-        I := 0;
-        while Assigned(VoiceList[I]) do
-        begin
-          VoicePtr := VoiceList[I];
-          if Assigned(VoicePtr^.name) then
-          begin
-            AList.Add(string(VoicePtr^.name));
+        try
+          AList.Add(Voices.Item(I).GetAttribute('Name'));
+        except
+          try
+            AList.Add(Voices.Item(I).GetDescription);
+          except
           end;
-          Inc(I);
         end;
       end;
     except
       on E: Exception do
-        FLastError := 'Exceção ao listar vozes via eSpeak: ' + E.Message;
+        FLastError := 'Exceção ao listar vozes via SAPI: ' + E.Message;
+    end;
+    {$ELSE}
+    FLastError := 'SAPI é suportado apenas no sistema operacional Windows.';
+    {$ENDIF}
+  end
+  else
+  begin
+    // eSpeak
+    if not FInitialized then
+    begin
+      if not InitEspeak then Exit;
+    end;
+
+    if FInitialized and Assigned(espeak_ListVoices) then
+    begin
+      try
+        VoiceList := espeak_ListVoices(nil);
+        if Assigned(VoiceList) then
+        begin
+          Idx := 0;
+          while Assigned(VoiceList[Idx]) do
+          begin
+            VoicePtr := VoiceList[Idx];
+            if Assigned(VoicePtr^.name) then
+            begin
+              AList.Add(string(VoicePtr^.name));
+            end;
+            Inc(Idx);
+          end;
+        end;
+      except
+        on E: Exception do
+          FLastError := 'Exceção ao listar vozes via eSpeak: ' + E.Message;
+      end;
     end;
   end;
-  {$ENDIF}
 end;
 
 end.
