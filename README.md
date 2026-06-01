@@ -65,6 +65,14 @@ A suíte instala na paleta de componentes do Lazarus quatro abas repletas de fer
 
 ---
 
+### Aba: `IA Voice` (Sintetização de Voz Nativa e Multiplataforma)
+
+*   **`TAIVoiceSynthesizer`**: Componente de sintetização de voz (Text-to-Speech) de alta performance. Comunica-se diretamente com o subsistema nativo da plataforma: **SAPI (Speech API)** no Windows via COM Automation, e a biblioteca **eSpeak/eSpeak-NG** no Linux via ligação dinâmica de biblioteca.
+    *   **Propriedades**: `Volume` (0..100), `Rate` (Velocidade, de -10 a 10), `Asynchronous` (fala sem travar a UI do aplicativo) e `VoiceName` (para trocar o idioma ou modelo de voz).
+    *   **Métodos**: `Say(Texto)` para reproduzir o áudio falado e `GetAvailableVoices(Lista)` para obter dinamicamente todas as vozes instaladas no sistema operacional.
+
+---
+
 ---
 
 ## Uso Rápido (Assistente de Código)

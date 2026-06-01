@@ -136,17 +136,31 @@ Rede Neural Recorrente do tipo **LSTM (Long Short-Term Memory)** configurada din
 
 ---
 
+### 11. `TAIVoiceSynthesizer` (aivoicesynthesizer.pas)
+Sintetizador de Voz Nativo e Multiplataforma (Text-to-Speech) de alta performance:
+- **Propriedades Principais**:
+  - `Volume: Integer`: Nível do volume do áudio (de 0 a 100).
+  - `Rate: Integer`: Velocidade da fala (-10 a 10, com calibração inteligente para eSpeak e SAPI).
+  - `VoiceName: string`: Modelo ou idioma da voz selecionada do sistema operacional.
+  - `Asynchronous: Boolean`: Executa a fala de forma não bloqueante (em thread paralela).
+- **Métodos Principais**:
+  - `procedure Say(const AText: string = '')`: Sintetiza e fala o texto passado.
+  - `procedure GetAvailableVoices(AList: TStrings)`: Lista de forma totalmente nativa e em tempo real todas as vozes instaladas no Windows (via SAPI COM) ou no Linux (via C espeak_ListVoices API).
+
+---
+
 ## 📂 Diretório de Exemplos (Samples)
 
-A pasta **[samples/](samples/)** contém demonstrações completas para cada recurso da suíte:
+A pasta **[samples/](samples/)** contém demonstrações completas para cada recurso da suíte. *Todas as demonstrações baseadas em Python já incluem um ListBox de seleção inteligente de DLLs com auto-detecção de arquitetura (32-bit e 64-bit) e decodificação nativa de imagens PNG via LCL:*
 
 ### 🖥️ Demonstrações Visuais (GUI Completa)
 *   **[visual_demo/](samples/visual_demo/)**: Showcase unificado com abas para TCHATGPT, TNeuralNetwork, TAICodeAssistant e TAIDatasetGenerator.
+*   **[voicesynthesizer_demo/](samples/voicesynthesizer_demo/)**: Playground completo para `TAIVoiceSynthesizer` para ajustar volume, velocidade, listar e selecionar todas as vozes nativas instaladas no sistema e reproduzir textos interativamente.
 *   **[python_demo/](samples/python_demo/)**: Playground dinâmico completo para TPythonConnector (permite escrever scripts, manipular variáveis e rodar Eval interativo). *Já inclui as DLLs `python3.dll` e `python312.dll` copiadas para testes imediatos!*
 *   **[neural_network_demo/](samples/neural_network_demo/)**: Demonstração dedicada para treinamento interativo XOR, predições, ajuste de LR/épocas e persistência de pesos.
 *   **[perceptron_demo/](samples/perceptron_demo/)**: Showcase interativo para treinamento do Perceptron em portas lógicas (AND, OR, NAND, NOR) com exibição dos pesos sinápticos e bias em tempo real.
 *   **[som_demo/](samples/som_demo/)**: Demonstração gráfica da auto-organização topológica de Kohonen em uma grade 20x20 de cores RGB em tempo real!
-*   **[cnn_demo/](samples/cnn_demo/)**: Classificação convolucional interativa de fotos locais utilizando a MobileNetV2 (já com DLLs do interpretador Python inclusas).
+*   **[cnn_demo/](samples/cnn_demo/)**: Classificação convolucional interativa de fotos locais utilizando a MobileNetV2 (com ListBox e auto-detecção de DLLs).
 *   **[lstm_demo/](samples/lstm_demo/)**: Previsão de tendência sequencial (*Rolling Forecast*) em curvas senoidais com ruído utilizando rede recorrente LSTM e plotagem gráfica dos resultados na tela.
 *   **[tokenizer_demo/](samples/tokenizer_demo/)**: Playground completo para inserção e busca de tokens, processamento de frases inteiras e importação de JSON estruturado.
 
