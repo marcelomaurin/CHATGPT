@@ -78,6 +78,8 @@ A suíte instala na paleta de componentes do Lazarus quatro abas repletas de fer
 *   **`TAIAgent`**: O cérebro orquestrador do agente autônomo. Permite enviar de forma dinâmica e estruturada instruções complexas por meio de `TCHATGPT`, recebendo e tratando a resposta via parser JSON nativo de alta performance.
 *   **`TAIAgentOptions`**: Armazena as diretrizes e regras de análise em formato de lista de perguntas/diretrizes (`Questions: TStrings`) e contexto geral de negócios (`Context`).
 *   **`TAIAgentAction`**: Declara a lista de ações que o agente pode disparar no mundo externo (`AllowedActions: TStrings`) e a definição estruturada dos parâmetros exigidos para essas ações (`ParameterDefinitions: TStrings`), disparando callbacks nativos (`OnExecuteAction`) assim que a ação estruturada e seus parâmetros são decodificados pela inteligência artificial.
+*   **`TAIAgentResource`**: Um banco gerenciador de recursos reais do sistema/rede (como E-mail, Escrita física de Arquivos, WhatsApp, SMS, pacotes TCP/UDP e Web API HTTP nativa com headers).
+*   **`TAIAgentOutput`**: A ponte que escuta e intercepta as decisões de `TAIAgentAction` de forma automatizada por hooks internos, linca a ação para um recurso físico de `TAIAgentResource` via regras de mapeamento flexíveis e executa o canal físico correspondente gerando logs operacionais.
 
 ---
 

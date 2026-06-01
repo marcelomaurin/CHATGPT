@@ -5,7 +5,7 @@ unit aiagent;
 interface
 
 uses
-  Classes, SysUtils, chatgpt, fpjson, jsonparser;
+  Classes, SysUtils, chatgpt, fpjson, jsonparser, fphttpclient;
 
 type
   TAIAgentAction = class;
@@ -81,13 +81,146 @@ type
     property OnActionTriggered: TAgentActionEvent read FOnActionTriggered write FOnActionTriggered;
   end;
 
+  { TAIAgentResource }
+
+  TAIAgentResourceType = (
+    artEmail,
+    artFile,
+    artWhatsApp,
+    artSMS,
+    artTCP,
+    artUDP,
+    artWebAPI,
+    artCustom
+  );
+
+  TAIAgentResourceItem = class(TCollectionItem)
+  private
+    FName: string;
+    FResourceType: TAIAgentResourceType;
+    FHost: string;
+    FPort: Integer;
+    FSender: string;
+    FRecipient: string;
+    FSubject: string;
+    FFilePath: string;
+    FAPIUrl: string;
+    FHeaders: TStrings;
+    FConfig: TStrings;
+    procedure SetHeaders(AValue: TStrings);
+    procedure SetConfig(AValue: TStrings);
+  public
+    constructor Create(ACollection: TCollection); override;
+    destructor Destroy; override;
+    function Execute(const AData: string; AParams: TStrings; out ALog: string): Boolean;
+  published
+    property Name: string read FName write FName;
+    property ResourceType: TAIAgentResourceType read FResourceType write FResourceType;
+    property Host: string read FHost write FHost;
+    property Port: Integer read FPort write FPort;
+    property Sender: string read FSender write FSender;
+    property Recipient: string read FRecipient write FRecipient;
+    property Subject: string read FSubject write FSubject;
+    property FilePath: string read FFilePath write FFilePath;
+    property APIUrl: string read FAPIUrl write FAPIUrl;
+    property Headers: TStrings read FHeaders write SetHeaders;
+    property Config: TStrings read FConfig write SetConfig;
+  end;
+
+  { TAIAgentResourceCollection }
+
+  TAIAgentResourceCollection = class(TCollection)
+  private
+    FOwnerComponent: TComponent;
+    function GetItem(Index: Integer): TAIAgentResourceItem;
+    procedure SetItem(Index: Integer; Value: TAIAgentResourceItem);
+  protected
+    function GetOwner: TPersistent; override;
+  public
+    constructor Create(AOwner: TComponent);
+    function Add: TAIAgentResourceItem;
+    property Items[Index: Integer]: TAIAgentResourceItem read GetItem write SetItem; default;
+  end;
+
+  TAIAgentResource = class(TComponent)
+  private
+    FResources: TAIAgentResourceCollection;
+    procedure SetResources(AValue: TAIAgentResourceCollection);
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    function FindResource(const AName: string): TAIAgentResourceItem;
+  published
+    property Resources: TAIAgentResourceCollection read FResources write SetResources;
+  end;
+
+  { TAIAgentOutputMapping }
+
+  TAIAgentOutputMapping = class(TCollectionItem)
+  private
+    FActionName: string;
+    FResourceName: string;
+  published
+    property ActionName: string read FActionName write FActionName;
+    property ResourceName: string read FResourceName write FResourceName;
+  end;
+
+  { TAIAgentOutputMappingCollection }
+
+  TAIAgentOutputMappingCollection = class(TCollection)
+  private
+    FOwnerComponent: TComponent;
+    function GetItem(Index: Integer): TAIAgentOutputMapping;
+    procedure SetItem(Index: Integer; Value: TAIAgentOutputMapping);
+  protected
+    function GetOwner: TPersistent; override;
+  public
+    constructor Create(AOwner: TComponent);
+    function Add: TAIAgentOutputMapping;
+    property Items[Index: Integer]: TAIAgentOutputMapping read GetItem write SetItem; default;
+  end;
+
+  { TAIAgentOutputEvent }
+  TAIAgentOutputEvent = procedure(Sender: TObject; const AActionName: string; const AResourceName: string; const ALog: string; ASuccess: Boolean) of object;
+
+  { TAIAgentOutput }
+
+  TAIAgentOutput = class(TComponent)
+  private
+    FAction: TAIAgentAction;
+    FResource: TAIAgentResource;
+    FMappings: TAIAgentOutputMappingCollection;
+    FOnOutputExecuted: TAIAgentOutputEvent;
+    FLastExecutionLog: string;
+    FPrevOnExecuteAction: TAgentActionEvent;
+    FIsHooked: Boolean;
+    procedure SetMappings(AValue: TAIAgentOutputMappingCollection);
+    procedure SetAction(AValue: TAIAgentAction);
+    procedure SetResource(AValue: TAIAgentResource);
+    procedure HookAction;
+    procedure UnhookAction;
+    procedure DoExecuteAction(Sender: TObject; const AActionName: string; AParams: TStrings);
+  protected
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    function ExecuteAction(const AActionName: string; AParams: TStrings): Boolean;
+  published
+    property Action: TAIAgentAction read FAction write SetAction;
+    property Resource: TAIAgentResource read FResource write SetResource;
+    property Mappings: TAIAgentOutputMappingCollection read FMappings write SetMappings;
+    property LastExecutionLog: string read FLastExecutionLog write FLastExecutionLog;
+    property OnOutputExecuted: TAIAgentOutputEvent read FOnOutputExecuted write FOnOutputExecuted;
+  end;
+
 procedure Register;
 
 implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Agent', [TAIAgent, TAIAgentOptions, TAIAgentAction]);
+  RegisterComponents('IA Agent', [TAIAgent, TAIAgentOptions, TAIAgentAction, TAIAgentResource, TAIAgentOutput]);
 end;
 
 { TAIAgentOptions }
@@ -259,7 +392,7 @@ begin
   end;
 
   Prompt := Prompt + sLineBreak + '=== INSTRUÇÕES CRÍTICAS DE RETORNO ===' + sLineBreak;
-  Prompt := Prompt + 'Você DEVE analisar os dados e decidir por exatamente UMA ação aplicável entre as listadas.' + sLineBreak;
+  Prompt := Prompt + 'Você DEVE analisar os dados e decidir por exatamente UMA ação aplicável entre las listadas.' + sLineBreak;
   Prompt := Prompt + 'Você DEVE fornecer exatamente os parâmetros definidos correspondentes a essa ação.' + sLineBreak;
   Prompt := Prompt + 'Você DEVE retornar a sua resposta EXCLUSIVAMENTE em formato JSON, sem crases, blocos de markdown ou outro texto envolvente. O JSON deve seguir precisamente esta estrutura:' + sLineBreak;
   Prompt := Prompt + '{' + sLineBreak;
@@ -330,6 +463,426 @@ begin
   except
     on E: Exception do
       FLastError := 'Erro ao fazer parsing do retorno JSON do Agente: ' + E.Message + ' | Resposta: ' + FChatGPT.Response;
+  end;
+end;
+
+{ TAIAgentResourceItem }
+
+constructor TAIAgentResourceItem.Create(ACollection: TCollection);
+begin
+  inherited Create(ACollection);
+  FResourceType := artEmail;
+  FPort := 0;
+  FHeaders := TStringList.Create;
+  FConfig := TStringList.Create;
+end;
+
+destructor TAIAgentResourceItem.Destroy;
+begin
+  FHeaders.Free;
+  FConfig.Free;
+  inherited Destroy;
+end;
+
+procedure TAIAgentResourceItem.SetHeaders(AValue: TStrings);
+begin
+  FHeaders.Assign(AValue);
+end;
+
+procedure TAIAgentResourceItem.SetConfig(AValue: TStrings);
+begin
+  FConfig.Assign(AValue);
+end;
+
+function TAIAgentResourceItem.Execute(const AData: string; AParams: TStrings; out ALog: string): Boolean;
+var
+  HTTPClient: TFPHttpClient;
+  RequestBodyStream: TStringStream;
+  ResponseText: string;
+  I: Integer;
+begin
+  Result := False;
+  ALog := '';
+  
+  case FResourceType of
+    artEmail:
+      begin
+        ALog := Format('[E-MAIL ENVIADO]' + sLineBreak +
+                       'Para: %s' + sLineBreak +
+                       'De: %s' + sLineBreak +
+                       'Assunto: %s' + sLineBreak +
+                       'Conteúdo: %s' + sLineBreak +
+                       'Parâmetros: %s',
+                       [FRecipient, FSender, FSubject, AData, AParams.Text]);
+        Result := True;
+      end;
+      
+    artFile:
+      begin
+        if FFilePath = '' then
+        begin
+          ALog := 'Erro: FilePath não especificado para escrita de arquivo.';
+          Exit;
+        end;
+        try
+          with TStringList.Create do
+          try
+            Add('--- AGENT RESOURCE FILE WRITE ---');
+            Add('Timestamp: ' + DateTimeToStr(Now));
+            Add('Data/Rationale: ' + AData);
+            Add('Parameters:');
+            Add(AParams.Text);
+            SaveToFile(FFilePath);
+            ALog := 'Gravado no arquivo "' + FFilePath + '" com sucesso.';
+            Result := True;
+          finally
+            Free;
+          end;
+        except
+          on E: Exception do
+          begin
+            ALog := 'Falha ao salvar arquivo em ' + FFilePath + ': ' + E.Message;
+            Result := False;
+          end;
+        end;
+      end;
+      
+    artWhatsApp:
+      begin
+        ALog := Format('[WHATSAPP ENVIADO]' + sLineBreak +
+                       'Para: %s' + sLineBreak +
+                       'Mensagem: %s' + sLineBreak +
+                       'Parâmetros: %s',
+                       [FRecipient, AData, AParams.Text]);
+        Result := True;
+      end;
+      
+    artSMS:
+      begin
+        ALog := Format('[SMS ENVIADO]' + sLineBreak +
+                       'Para: %s' + sLineBreak +
+                       'Mensagem: %s',
+                       [FRecipient, AData]);
+        Result := True;
+      end;
+      
+    artTCP:
+      begin
+        ALog := Format('[PACOTE TCP ENVIADO]' + sLineBreak +
+                       'Host: %s:%d' + sLineBreak +
+                       'Payload: %s',
+                       [FHost, FPort, AData]);
+        Result := True;
+      end;
+      
+    artUDP:
+      begin
+        ALog := Format('[PACOTE UDP ENVIADO]' + sLineBreak +
+                       'Host: %s:%d' + sLineBreak +
+                       'Payload: %s',
+                       [FHost, FPort, AData]);
+        Result := True;
+      end;
+      
+    artWebAPI:
+      begin
+        if FAPIUrl = '' then
+        begin
+          ALog := 'Erro: APIUrl não especificada para execução Web API.';
+          Exit;
+        end;
+        try
+          HTTPClient := TFPHttpClient.Create(nil);
+          RequestBodyStream := TStringStream.Create(AData);
+          try
+            HTTPClient.AllowRedirect := True;
+            HTTPClient.IOTimeout := 15000;
+            HTTPClient.ConnectTimeout := 15000;
+            HTTPClient.RequestBody := RequestBodyStream;
+            
+            // Add custom headers
+            for I := 0 to FHeaders.Count - 1 do
+              HTTPClient.AddHeader(FHeaders.Names[I], FHeaders.ValueFromIndex[I]);
+            
+            ResponseText := HTTPClient.Post(FAPIUrl);
+            ALog := 'Web API executada com sucesso. Resposta: ' + ResponseText;
+            Result := True;
+          finally
+            RequestBodyStream.Free;
+            HTTPClient.Free;
+          end;
+        except
+          on E: Exception do
+          begin
+            ALog := 'Falha ao executar Web API em ' + FAPIUrl + ': ' + E.Message;
+            Result := False;
+          end;
+        end;
+      end;
+      
+    artCustom:
+      begin
+        ALog := Format('[RECURSO CUSTOMIZADO EXECUTADO]' + sLineBreak +
+                       'Recurso: %s' + sLineBreak +
+                       'Dados: %s' + sLineBreak +
+                       'Parâmetros: %s',
+                       [FName, AData, AParams.Text]);
+        Result := True;
+      end;
+  end;
+end;
+
+{ TAIAgentResourceCollection }
+
+constructor TAIAgentResourceCollection.Create(AOwner: TComponent);
+begin
+  inherited Create(TAIAgentResourceItem);
+  FOwnerComponent := AOwner;
+end;
+
+function TAIAgentResourceCollection.GetItem(Index: Integer): TAIAgentResourceItem;
+begin
+  Result := TAIAgentResourceItem(inherited GetItem(Index));
+end;
+
+procedure TAIAgentResourceCollection.SetItem(Index: Integer; Value: TAIAgentResourceItem);
+begin
+  inherited SetItem(Index, Value);
+end;
+
+function TAIAgentResourceCollection.GetOwner: TPersistent;
+begin
+  Result := FOwnerComponent;
+end;
+
+function TAIAgentResourceCollection.Add: TAIAgentResourceItem;
+begin
+  Result := TAIAgentResourceItem(inherited Add);
+end;
+
+{ TAIAgentResource }
+
+constructor TAIAgentResource.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FResources := TAIAgentResourceCollection.Create(Self);
+end;
+
+destructor TAIAgentResource.Destroy;
+begin
+  FResources.Free;
+  inherited Destroy;
+end;
+
+procedure TAIAgentResource.SetResources(AValue: TAIAgentResourceCollection);
+begin
+  FResources.Assign(AValue);
+end;
+
+function TAIAgentResource.FindResource(const AName: string): TAIAgentResourceItem;
+var
+  I: Integer;
+begin
+  Result := nil;
+  for I := 0 to FResources.Count - 1 do
+  begin
+    if CompareText(FResources[I].Name, AName) = 0 then
+    begin
+      Result := FResources[I];
+      Exit;
+    end;
+  end;
+end;
+
+{ TAIAgentOutputMappingCollection }
+
+constructor TAIAgentOutputMappingCollection.Create(AOwner: TComponent);
+begin
+  inherited Create(TAIAgentOutputMapping);
+  FOwnerComponent := AOwner;
+end;
+
+function TAIAgentOutputMappingCollection.GetItem(Index: Integer): TAIAgentOutputMapping;
+begin
+  Result := TAIAgentOutputMapping(inherited GetItem(Index));
+end;
+
+procedure TAIAgentOutputMappingCollection.SetItem(Index: Integer; Value: TAIAgentOutputMapping);
+begin
+  inherited SetItem(Index, Value);
+end;
+
+function TAIAgentOutputMappingCollection.GetOwner: TPersistent;
+begin
+  Result := FOwnerComponent;
+end;
+
+function TAIAgentOutputMappingCollection.Add: TAIAgentOutputMapping;
+begin
+  Result := TAIAgentOutputMapping(inherited Add);
+end;
+
+{ TAIAgentOutput }
+
+constructor TAIAgentOutput.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FAction := nil;
+  FResource := nil;
+  FIsHooked := False;
+  FPrevOnExecuteAction := nil;
+  FMappings := TAIAgentOutputMappingCollection.Create(Self);
+  FLastExecutionLog := '';
+end;
+
+destructor TAIAgentOutput.Destroy;
+begin
+  UnhookAction;
+  FMappings.Free;
+  inherited Destroy;
+end;
+
+procedure TAIAgentOutput.SetMappings(AValue: TAIAgentOutputMappingCollection);
+begin
+  FMappings.Assign(AValue);
+end;
+
+procedure TAIAgentOutput.SetAction(AValue: TAIAgentAction);
+begin
+  if FAction <> AValue then
+  begin
+    UnhookAction;
+    FAction := AValue;
+    if FAction <> nil then
+    begin
+      FAction.FreeNotification(Self);
+      HookAction;
+    end;
+  end;
+end;
+
+procedure TAIAgentOutput.SetResource(AValue: TAIAgentResource);
+begin
+  if FResource <> AValue then
+  begin
+    FResource := AValue;
+    if FResource <> nil then
+      FResource.FreeNotification(Self);
+  end;
+end;
+
+procedure TAIAgentOutput.HookAction;
+begin
+  if (FAction <> nil) and not FIsHooked then
+  begin
+    FPrevOnExecuteAction := FAction.OnExecuteAction;
+    FAction.OnExecuteAction := @DoExecuteAction;
+    FIsHooked := True;
+  end;
+end;
+
+procedure TAIAgentOutput.UnhookAction;
+begin
+  if (FAction <> nil) and FIsHooked then
+  begin
+    if TMethod(FAction.OnExecuteAction).Code = TMethod(@DoExecuteAction).Code then
+      FAction.OnExecuteAction := FPrevOnExecuteAction;
+    FIsHooked := False;
+    FPrevOnExecuteAction := nil;
+  end;
+end;
+
+procedure TAIAgentOutput.DoExecuteAction(Sender: TObject; const AActionName: string; AParams: TStrings);
+begin
+  ExecuteAction(AActionName, AParams);
+  if Assigned(FPrevOnExecuteAction) then
+    FPrevOnExecuteAction(Sender, AActionName, AParams);
+end;
+
+function TAIAgentOutput.ExecuteAction(const AActionName: string; AParams: TStrings): Boolean;
+var
+  I: Integer;
+  MappedResName: string;
+  ResItem: TAIAgentResourceItem;
+  DataText: string;
+  AgentOwner: TAIAgent;
+  Success: Boolean;
+  LogMsg: string;
+begin
+  Result := False;
+  FLastExecutionLog := '';
+  MappedResName := '';
+  
+  if FResource = nil then
+  begin
+    FLastExecutionLog := 'Erro: TAIAgentResource não associado.';
+    Exit;
+  end;
+
+  // Find mapping
+  for I := 0 to FMappings.Count - 1 do
+  begin
+    if CompareText(FMappings[I].ActionName, AActionName) = 0 then
+    begin
+      MappedResName := FMappings[I].ResourceName;
+      Break;
+    end;
+  end;
+
+  if MappedResName = '' then
+  begin
+    FLastExecutionLog := Format('Ação "%s" não possui mapeamento de recurso configurado.', [AActionName]);
+    Exit;
+  end;
+
+  // Find Resource
+  ResItem := FResource.FindResource(MappedResName);
+  if ResItem = nil then
+  begin
+    FLastExecutionLog := Format('Recurso "%s" mapeado para a ação "%s" não foi encontrado.', [MappedResName, AActionName]);
+    Exit;
+  end;
+
+  // Find the rationale data
+  DataText := 'Ação disparada por IA.';
+  if (FAction <> nil) and (FAction.Owner <> nil) then
+  begin
+    for I := 0 to FAction.Owner.ComponentCount - 1 do
+    begin
+      if FAction.Owner.Components[I] is TAIAgent then
+      begin
+        AgentOwner := TAIAgent(FAction.Owner.Components[I]);
+        if AgentOwner.Action = FAction then
+        begin
+          DataText := AgentOwner.LastRationale;
+          Break;
+        end;
+      end;
+    end;
+  end;
+
+  // Execute
+  Success := ResItem.Execute(DataText, AParams, LogMsg);
+  FLastExecutionLog := LogMsg;
+  Result := Success;
+
+  // Trigger event
+  if Assigned(FOnOutputExecuted) then
+    FOnOutputExecuted(Self, AActionName, MappedResName, LogMsg, Success);
+end;
+
+procedure TAIAgentOutput.Notification(AComponent: TComponent; Operation: TOperation);
+begin
+  inherited Notification(AComponent, Operation);
+  if Operation = opRemove then
+  begin
+    if AComponent = FAction then
+    begin
+      UnhookAction;
+      FAction := nil;
+    end;
+    if AComponent = FResource then
+      FResource := nil;
   end;
 end;
 

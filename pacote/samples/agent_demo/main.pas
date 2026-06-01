@@ -68,12 +68,16 @@ type
     lbSelectedParams: TListBox;
     gbRationale: TGroupBox;
     memRationale: TMemo;
+    gbResourceExecution: TGroupBox;
+    memResourceExecution: TMemo;
 
     { Non-visual IA components }
     FChatGPT: TCHATGPT;
     FAIAgent: TAIAgent;
     FAIAgentOptions: TAIAgentOptions;
     FAIAgentAction: TAIAgentAction;
+    FAIAgentResource: TAIAgentResource;
+    FAIAgentOutput: TAIAgentOutput;
 
     procedure CreateLayout;
     procedure LoadITAlertScenario;
@@ -88,6 +92,7 @@ type
     { Callback events }
     procedure OnAgentActionTriggered(Sender: TObject; const AActionName: string; AParams: TStrings);
     procedure OnAgentExecuteAction(Sender: TObject; const AActionName: string; AParams: TStrings);
+    procedure OnAgentOutputExecuted(Sender: TObject; const AActionName: string; const AResourceName: string; const ALog: string; ASuccess: Boolean);
   public
 
   end;
@@ -114,19 +119,77 @@ begin
   FAIAgent := TAIAgent.Create(Self);
   FAIAgentOptions := TAIAgentOptions.Create(Self);
   FAIAgentAction := TAIAgentAction.Create(Self);
+  FAIAgentResource := TAIAgentResource.Create(Self);
+  FAIAgentOutput := TAIAgentOutput.Create(Self);
 
   { Wire IA components together }
   FAIAgent.ChatGPT := FChatGPT;
   FAIAgent.Options := FAIAgentOptions;
   FAIAgent.Action := FAIAgentAction;
   FAIAgentOptions.Action := FAIAgentAction;
+  
+  { Wire Resource Output system }
+  FAIAgentOutput.Action := FAIAgentAction;
+  FAIAgentOutput.Resource := FAIAgentResource;
 
   { Wire events }
   FAIAgent.OnActionTriggered := @OnAgentActionTriggered;
   FAIAgentAction.OnExecuteAction := @OnAgentExecuteAction;
+  FAIAgentOutput.OnOutputExecuted := @OnAgentOutputExecuted;
 
   { Design layout }
   CreateLayout;
+
+  { Populate Mock Resources }
+  
+  // 1. Email Resource
+  with FAIAgentResource.Resources.Add do
+  begin
+    Name := 'Maintenance_Email';
+    ResourceType := artEmail;
+    Sender := 'agent@empresa.com';
+    Recipient := 'infra@empresa.com';
+    Subject := 'Notificação de Manutenção Urgente';
+  end;
+
+  // 2. File Resource (writes a real file thermal_log.txt on disk!)
+  with FAIAgentResource.Resources.Add do
+  begin
+    Name := 'Cooling_Alert_Log';
+    ResourceType := artFile;
+    FilePath := 'thermal_log.txt';
+  end;
+
+  // 3. WhatsApp Resource
+  with FAIAgentResource.Resources.Add do
+  begin
+    Name := 'WhatsApp_Financeiro';
+    ResourceType := artWhatsApp;
+    Recipient := '+5516999999999';
+  end;
+
+  { Configure Action Mappings }
+  
+  // TRIGGER_CRITICAL_COOLING_ALERT -> cooling log file
+  with FAIAgentOutput.Mappings.Add do
+  begin
+    ActionName := 'TRIGGER_CRITICAL_COOLING_ALERT';
+    ResourceName := 'Cooling_Alert_Log';
+  end;
+
+  // NOTIFY_MAINTENANCE -> email to infra department
+  with FAIAgentOutput.Mappings.Add do
+  begin
+    ActionName := 'NOTIFY_MAINTENANCE';
+    ResourceName := 'Maintenance_Email';
+  end;
+
+  // DISPATCH_SUPPORT_TICKET -> send whatsapp message
+  with FAIAgentOutput.Mappings.Add do
+  begin
+    ActionName := 'DISPATCH_SUPPORT_TICKET';
+    ResourceName := 'WhatsApp_Financeiro';
+  end;
 
   { Setup ComboBox selections }
   cbProvider.ItemIndex := 0; // OpenAI
@@ -409,9 +472,24 @@ begin
 
   pnlSep := TPanel.Create(Self);
   pnlSep.Parent := pnlRight;
-  pnlSep.Align := alTop;
+  pnlSep.Align := alBottom;
   pnlSep.Height := 10;
   pnlSep.BevelOuter := bvNone;
+
+  // Physical world resource output logs
+  gbResourceExecution := TGroupBox.Create(Self);
+  gbResourceExecution.Parent := pnlRight;
+  gbResourceExecution.Align := alBottom;
+  gbResourceExecution.Height := 170;
+  gbResourceExecution.Caption := ' 🌐 Execução do Recurso Físico ';
+  gbResourceExecution.Font.Style := [fsBold];
+
+  memResourceExecution := TMemo.Create(Self);
+  memResourceExecution.Parent := gbResourceExecution;
+  memResourceExecution.Align := alClient;
+  memResourceExecution.ReadOnly := True;
+  memResourceExecution.Color := $F0FDF4; // Light soothing green
+  memResourceExecution.ScrollBars := ssAutoVertical;
 
   // Rationale Group
   gbRationale := TGroupBox.Create(Self);
@@ -638,6 +716,7 @@ begin
   lbSelectedParams.Clear;
   memRationale.Clear;
   memLogs.Clear;
+  memResourceExecution.Clear;
   
   try
     { 1. Configure TCHATGPT }
@@ -749,16 +828,31 @@ end;
 
 procedure TfrmAgentDemo.OnAgentActionTriggered(Sender: TObject; const AActionName: string; AParams: TStrings);
 begin
-  { This triggers when decision is executed successfully }
-  // We can write to system console or log
+  { Triggers when decision executes successfully }
 end;
 
 procedure TfrmAgentDemo.OnAgentExecuteAction(Sender: TObject; const AActionName: string; AParams: TStrings);
 begin
-  { Handle physical world simulated action callbacks }
-  ShowMessage(Format('🔔 EXECUÇÃO EXTERNA DISPARADA!' + sLineBreak + 
-                     'Ação: %s' + sLineBreak + 
-                     'Parâmetros carregados: %d', [AActionName, AParams.Count]));
+  { Callbacks for physical action trigger }
+end;
+
+procedure TfrmAgentDemo.OnAgentOutputExecuted(Sender: TObject; const AActionName: string; const AResourceName: string; const ALog: string; ASuccess: Boolean);
+var
+  StatusStr: string;
+begin
+  if ASuccess then
+    StatusStr := 'SUCESSO'
+  else
+    StatusStr := 'FALHA';
+
+  memResourceExecution.Clear;
+  memResourceExecution.Lines.Add('=== RECURSO FÍSICO DISPARADO ===');
+  memResourceExecution.Lines.Add('Ação Decidida: ' + AActionName);
+  memResourceExecution.Lines.Add('Recurso Alocado: ' + AResourceName);
+  memResourceExecution.Lines.Add('Status de Execução: ' + StatusStr);
+  memResourceExecution.Lines.Add('');
+  memResourceExecution.Lines.Add('--- DETALHES DA EXECUÇÃO FÍSICA ---');
+  memResourceExecution.Lines.Add(ALog);
 end;
 
 end.
