@@ -75,16 +75,17 @@ object frmVoiceDemo: TfrmVoiceDemo
     object lblVoiceName: TLabel
       Left = 420
       Height = 15
-      Top = 15
-      Width = 73
-      Caption = 'Nome da Voz:'
+      Top = 10
+      Width = 170
+      Caption = 'Escolha a Voz:'
       ParentColor = False
     end
-    object edVoiceName: TEdit
+    object lbVoices: TListBox
       Left = 420
-      Height = 23
-      Top = 35
-      Width = 150
+      Height = 50
+      Top = 30
+      Width = 170
+      ItemHeight = 0
       TabOrder = 2
     end
     object cbAsynchronous: TCheckBox

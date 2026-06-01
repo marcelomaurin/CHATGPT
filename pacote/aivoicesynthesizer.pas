@@ -14,6 +14,20 @@ uses
 
 type
   {$IFNDEF MSWINDOWS}
+  Pespeak_VOICE = ^Tespeak_VOICE;
+  Tespeak_VOICE = record
+    name       : PAnsiChar;
+    languages  : PAnsiChar;
+    identifier : PAnsiChar;
+    gender     : Byte;
+    age        : Byte;
+    variant    : Byte;
+    xx1        : Byte;
+    score      : Integer;
+    spare      : Pointer;
+  end;
+  PPespeak_VOICE = ^Pespeak_VOICE;
+
   { eSpeak C API function pointer signatures }
   Tespeak_Initialize = function(output: Integer; buf_length: Integer; path: PAnsiChar; options: Integer): Integer; cdecl;
   Tespeak_SetVoiceByName = function(name: PAnsiChar): Integer; cdecl;
@@ -21,6 +35,7 @@ type
   Tespeak_SetRate = function(rate: Integer): Integer; cdecl;
   Tespeak_Synth = function(text: PAnsiChar; size: SizeInt; position: Cardinal; position_type: Integer; end_position: Cardinal; flags: Cardinal; unique_identifier: PCardinal; user_data: Pointer): Integer; cdecl;
   Tespeak_Terminate = function: Integer; cdecl;
+  Tespeak_ListVoices = function(voice_selector: Pointer): PPespeak_VOICE; cdecl;
   {$ENDIF}
 
   { TAIVoiceSynthesizer }
@@ -44,6 +59,7 @@ type
     espeak_SetRate        : Tespeak_SetRate;
     espeak_Synth          : Tespeak_Synth;
     espeak_Terminate      : Tespeak_Terminate;
+    espeak_ListVoices     : Tespeak_ListVoices;
 
     function InitEspeak: Boolean;
     procedure UnloadEspeak;
@@ -54,6 +70,7 @@ type
     destructor Destroy; override;
 
     procedure Say(const AText: string = '');
+    procedure GetAvailableVoices(AList: TStrings);
 
   published
     property Text: string read FText write FText;
@@ -94,6 +111,7 @@ begin
   espeak_SetRate := nil;
   espeak_Synth := nil;
   espeak_Terminate := nil;
+  espeak_ListVoices := nil;
   {$ENDIF}
 end;
 
@@ -140,6 +158,7 @@ begin
   espeak_SetRate := Tespeak_SetRate(GetProcedureAddress(FLibHandle, 'espeak_SetRate'));
   espeak_Synth := Tespeak_Synth(GetProcedureAddress(FLibHandle, 'espeak_Synth'));
   espeak_Terminate := Tespeak_Terminate(GetProcedureAddress(FLibHandle, 'espeak_Terminate'));
+  espeak_ListVoices := Tespeak_ListVoices(GetProcedureAddress(FLibHandle, 'espeak_ListVoices'));
 
   if not Assigned(espeak_Initialize) or not Assigned(espeak_Synth) then
   begin
@@ -195,6 +214,7 @@ begin
   espeak_SetRate := nil;
   espeak_Synth := nil;
   espeak_Terminate := nil;
+  espeak_ListVoices := nil;
 end;
 {$ENDIF}
 
@@ -283,6 +303,73 @@ begin
     except
       on E: Exception do
         FLastError := 'Exceção ao sintetizar voz via eSpeak: ' + E.Message;
+    end;
+  end;
+  {$ENDIF}
+end;
+
+procedure TAIVoiceSynthesizer.GetAvailableVoices(AList: TStrings);
+var
+  {$IFDEF MSWINDOWS}
+  SpVoice: OleVariant;
+  Voices: OleVariant;
+  I: Integer;
+  {$ELSE}
+  VoiceList: PPespeak_VOICE;
+  VoicePtr: Pespeak_VOICE;
+  I: Integer;
+  {$ENDIF}
+begin
+  AList.Clear;
+  FLastError := '';
+  
+  {$IFDEF MSWINDOWS}
+  try
+    ActiveX.CoInitialize(nil);
+    SpVoice := CreateOleObject('SAPI.SpVoice');
+    Voices := SpVoice.GetVoices;
+    for I := 0 to Voices.Count - 1 do
+    begin
+      try
+        AList.Add(Voices.Item(I).GetAttribute('Name'));
+      except
+        // Fallback description
+        try
+          AList.Add(Voices.Item(I).GetDescription);
+        except
+        end;
+      end;
+    end;
+  except
+    on E: Exception do
+      FLastError := 'Exceção ao listar vozes via SAPI: ' + E.Message;
+  end;
+  {$ELSE}
+  if not FInitialized then
+  begin
+    if not InitEspeak then Exit;
+  end;
+
+  if FInitialized and Assigned(espeak_ListVoices) then
+  begin
+    try
+      VoiceList := espeak_ListVoices(nil);
+      if Assigned(VoiceList) then
+      begin
+        I := 0;
+        while Assigned(VoiceList[I]) do
+        begin
+          VoicePtr := VoiceList[I];
+          if Assigned(VoicePtr^.name) then
+          begin
+            AList.Add(string(VoicePtr^.name));
+          end;
+          Inc(I);
+        end;
+      end;
+    except
+      on E: Exception do
+        FLastError := 'Exceção ao listar vozes via eSpeak: ' + E.Message;
     end;
   end;
   {$ENDIF}

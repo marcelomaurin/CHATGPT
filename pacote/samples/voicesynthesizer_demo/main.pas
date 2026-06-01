@@ -25,7 +25,7 @@ type
     cbAsynchronous: TCheckBox;
     
     lblVoiceName: TLabel;
-    edVoiceName: TEdit;
+    lbVoices: TListBox;
     
     pnlSpeak: TPanel;
     lblSpeakTitle: TLabel;
@@ -71,17 +71,24 @@ begin
   
   {$IFDEF MSWINDOWS}
   SysName := 'Windows (SAPI Nativo)';
-  edVoiceName.Text := ''; // Default SAPI voice
   {$ELSE}
   SysName := 'Linux (eSpeak/eSpeak-NG)';
-  edVoiceName.Text := 'pt'; // Default Portuguese voice for espeak
   {$ENDIF}
+
+  // Populate ListBox with native system voices
+  LogMsg('Buscando vozes disponíveis no sistema operacional...');
+  FAIVoice.GetAvailableVoices(lbVoices.Items);
+  
+  if lbVoices.Items.Count > 0 then
+    lbVoices.ItemIndex := 0
+  else
+    LogMsg('Nenhuma voz encontrada. O sistema usará a voz padrão.');
 
   UpdateStatusUI;
   
   LogMsg('Demonstração do Componente TAIVoiceSynthesizer Iniciada.');
   LogMsg('Sistema de Voz detectado: ' + SysName);
-  LogMsg('Ajuste o volume, velocidade e digite o texto para falar!');
+  LogMsg('Ajuste o volume, velocidade e selecione uma voz para falar!');
 end;
 
 procedure TfrmVoiceDemo.FormDestroy(Sender: TObject);
@@ -127,7 +134,11 @@ begin
   FAIVoice.Volume := tbVolume.Position;
   FAIVoice.Rate := tbRate.Position;
   FAIVoice.Asynchronous := cbAsynchronous.Checked;
-  FAIVoice.VoiceName := Trim(edVoiceName.Text);
+  
+  if lbVoices.ItemIndex >= 0 then
+    FAIVoice.VoiceName := lbVoices.Items[lbVoices.ItemIndex]
+  else
+    FAIVoice.VoiceName := '';
 
   LogMsg(Format('Sintetizando voz: "%s"', [Txt]));
   if FAIVoice.VoiceName <> '' then
