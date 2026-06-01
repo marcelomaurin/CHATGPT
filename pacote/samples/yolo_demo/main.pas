@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  pythonconnector, yolodetect;
+  pythonconnector, yolodetect, lazpng;
 
 type
 
