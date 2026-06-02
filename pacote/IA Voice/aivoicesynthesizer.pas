@@ -9,7 +9,7 @@ uses
   {$IFDEF MSWINDOWS}
   ComObj, ActiveX, Variants,
   {$ENDIF}
-  DynLibs, aibase;
+  DynLibs, aibase, LResources;
 
 type
   TSpeechEngine = (seSystemDefault, seSAPI, seEspeak);
@@ -421,5 +421,8 @@ begin
     end;
   end;
 end;
+
+initialization
+  {$I aivoicesynthesizer_icon.lrs}
 
 end.

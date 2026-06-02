@@ -5,7 +5,7 @@ unit aicftvip;
 interface
 
 uses
-  Classes, SysUtils, Graphics, fphttpclient, Math;
+  Classes, SysUtils, Graphics, fphttpclient, Math, LResources;
 
 type
   { TAICFTVIP }
@@ -135,5 +135,8 @@ begin
   // Trigger external RTSP connection interface
   Result := True;
 end;
+
+initialization
+  {$I aicftvip_icon.lrs}
 
 end.

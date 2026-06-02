@@ -5,7 +5,7 @@ unit aimessenger;
 interface
 
 uses
-  Classes, SysUtils, fphttpclient, opensslsockets;
+  Classes, SysUtils, fphttpclient, opensslsockets, LResources;
 
 type
   { TAIMessenger }
@@ -120,5 +120,8 @@ begin
     HTTP.Free;
   end;
 end;
+
+initialization
+  {$I aimessenger_icon.lrs}
 
 end.

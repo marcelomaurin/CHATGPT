@@ -5,7 +5,7 @@ unit aiagentsafety;
 interface
 
 uses
-  Classes, SysUtils;
+  Classes, SysUtils, LResources;
 
 type
   { TAIAgentSafety }
@@ -288,5 +288,8 @@ begin
     Exit(False);
   end;
 end;
+
+initialization
+  {$I aiagentsafety_icon.lrs}
 
 end.

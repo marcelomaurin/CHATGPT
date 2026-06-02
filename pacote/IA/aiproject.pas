@@ -5,7 +5,7 @@ unit aiproject;
 interface
 
 uses
-  Classes, SysUtils, chatgpt, aiagent, aipipeline, fpjson, jsonparser;
+  Classes, SysUtils, chatgpt, aiagent, aipipeline, fpjson, jsonparser, LResources;
 
 type
   TAIErrorEvent = procedure(Sender: TObject; const AError: string) of object;
@@ -302,5 +302,8 @@ begin
     LList.Free;
   end;
 end;
+
+initialization
+  {$I aiproject_icon.lrs}
 
 end.

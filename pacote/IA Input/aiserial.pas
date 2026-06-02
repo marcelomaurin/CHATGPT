@@ -5,7 +5,7 @@ unit aiserial;
 interface
 
 uses
-  Classes, SysUtils, serial;
+  Classes, SysUtils, serial, LResources;
 
 type
   { TAISerialModem }
@@ -195,5 +195,8 @@ begin
   
   Result := True;
 end;
+
+initialization
+  {$I aiserial_icon.lrs}
 
 end.

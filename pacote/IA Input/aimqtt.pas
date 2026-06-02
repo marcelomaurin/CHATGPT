@@ -15,7 +15,7 @@ uses
     netdb,
     {$ENDIF}
   {$ENDIF}
-  Math;
+  Math, LResources;
 
 type
   TMQTTMessageEvent = procedure(Sender: TObject; const ATopic, APayload: string) of object;
@@ -492,5 +492,8 @@ begin
   if Assigned(FOnDisconnected) then
     FOnDisconnected(Self);
 end;
+
+initialization
+  {$I aimqtt_icon.lrs}
 
 end.

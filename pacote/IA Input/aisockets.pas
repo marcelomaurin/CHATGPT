@@ -15,7 +15,7 @@ uses
     netdb
     {$ENDIF}
   {$ENDIF}
-  ;
+  , LResources;
 
 type
   TSocketMode = (smClient, smServer);
@@ -415,5 +415,8 @@ begin
       FOnDataReceived(Self, AText, AFromIP);
   end;
 end;
+
+initialization
+  {$I aisockets_icon.lrs}
 
 end.

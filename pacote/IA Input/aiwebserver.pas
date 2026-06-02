@@ -5,7 +5,7 @@ unit aiwebserver;
 interface
 
 uses
-  Classes, SysUtils, fphttpserver;
+  Classes, SysUtils, fphttpserver, LResources;
 
 type
   TAPIRequestEvent = procedure(Sender: TObject; const ARoute, AMethod, AContent: string;
@@ -207,5 +207,8 @@ begin
   AResponse.Content := ResponseText;
   AResponse.ContentType := 'application/json';
 end;
+
+initialization
+  {$I aiwebserver_icon.lrs}
 
 end.

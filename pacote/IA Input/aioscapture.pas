@@ -11,7 +11,7 @@ uses
   {$ELSE}
   LCLIntf, LCLType,
   {$ENDIF}
-  Graphics, Controls, ExtCtrls, Forms;
+  Graphics, Controls, ExtCtrls, Forms, LResources;
 
 type
   TOSMouseMoveEvent = procedure(Sender: TObject; X, Y: Integer) of object;
@@ -257,5 +257,8 @@ begin
       Bmp.Free;
   end;
 end;
+
+initialization
+  {$I aioscapture_icon.lrs}
 
 end.

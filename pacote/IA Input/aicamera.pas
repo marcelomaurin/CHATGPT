@@ -11,7 +11,7 @@ uses
   {$ELSE}
   BaseUnix, Unix,
   {$ENDIF}
-  Graphics, Math;
+  Graphics, Math, LResources;
 
 type
   { TAICameraInput }
@@ -153,5 +153,8 @@ begin
   end;
   {$ENDIF}
 end;
+
+initialization
+  {$I aicamera_icon.lrs}
 
 end.

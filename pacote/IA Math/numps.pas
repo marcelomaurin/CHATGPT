@@ -5,7 +5,7 @@ unit numps;
 interface
 
 uses
-  Classes, SysUtils, Math;
+  Classes, SysUtils, Math, LResources;
 
 type
   TArray = array of Double;
@@ -558,5 +558,8 @@ begin
   else
     Result := MatrixSum(A) / TotalElements;
 end;
+
+initialization
+  {$I numps_icon.lrs}
 
 end.

@@ -9,7 +9,7 @@ uses
   {$IFDEF MSWINDOWS}
   mmsystem,
   {$ENDIF}
-  Dialogs;
+  Dialogs, LResources;
 
 type
   TAIAudioSource = (asMic, asSystemMix, asWavFile, asMp3File);
@@ -235,5 +235,8 @@ begin
     end;
   end;
 end;
+
+initialization
+  {$I aiaudio_icon.lrs}
 
 end.

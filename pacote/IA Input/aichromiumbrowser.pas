@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, ExtCtrls, StdCtrls, Buttons,
-  Graphics, iphtml, fphttpclient, opensslsockets, LCLIntf, LCLType;
+  Graphics, iphtml, fphttpclient, opensslsockets, LCLIntf, LCLType, LResources;
 
 type
   { TAIChromiumBrowser }
@@ -289,5 +289,8 @@ function TAIChromiumBrowser.GetHtmlContent: string;
 begin
   Result := FHTML;
 end;
+
+initialization
+  {$I aichromiumbrowser_icon.lrs}
 
 end.

@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, Math,
   // Native FPC PDF generator library
-  fpPDF, aibase;
+  fpPDF, aibase, LResources;
 
 type
   { TAIPDFOutput }
@@ -779,5 +779,8 @@ begin
     end;
   end;
 end;
+
+initialization
+  {$I aioutput_docs_icon.lrs}
 
 end.

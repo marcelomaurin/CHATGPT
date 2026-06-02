@@ -15,7 +15,7 @@ uses
     netdb,
     {$ENDIF}
   {$ENDIF}
-  Math;
+  Math, LResources;
 
 type
   { TAIEmailClient }
@@ -312,5 +312,8 @@ begin
     sockets.CloseSocket(Sock);
   end;
 end;
+
+initialization
+  {$I aiemail_icon.lrs}
 
 end.

@@ -5,7 +5,7 @@ unit aipromptbuilder;
 interface
 
 uses
-  Classes, SysUtils, TypInfo;
+  Classes, SysUtils, TypInfo, LResources;
 
 type
   TAIComponentCategory = (ccInput, ccOutput, ccAction, ccOther);
@@ -277,5 +277,8 @@ begin
     Result := GetStrProp(AComponent, PropInfo);
   end;
 end;
+
+initialization
+  {$I aipromptbuilder_icon.lrs}
 
 end.

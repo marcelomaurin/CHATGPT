@@ -5,7 +5,7 @@ unit aioutput;
 interface
 
 uses
-  Classes, SysUtils, Math, aibase;
+  Classes, SysUtils, Math, aibase, LResources;
 
 type
   TArray = array of Double;
@@ -157,5 +157,8 @@ begin
       SetError('UpdateResult Error: ' + E.Message);
   end;
 end;
+
+initialization
+  {$I aioutput_icon.lrs}
 
 end.

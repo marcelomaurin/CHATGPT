@@ -5,7 +5,7 @@ unit aiindustrial;
 interface
 
 uses
-  Classes, SysUtils, DynLibs, aibase;
+  Classes, SysUtils, DynLibs, aibase, LResources;
 
 type
   TPLCConnectFunc = function(IP: PChar; Rack, Slot: Integer): Integer; stdcall;
@@ -255,5 +255,8 @@ begin
       SetError('Industrial Bridge Write Exception: ' + E.Message);
   end;
 end;
+
+initialization
+  {$I aiindustrial_icon.lrs}
 
 end.

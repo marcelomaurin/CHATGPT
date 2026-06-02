@@ -12,7 +12,7 @@ uses
   aimodbus, aimqtt, aiemail, aimessenger, aiindustrial, aichromiumbrowser,
   aioscapture, aiinput,
   // IA Output components
-  aioutput, aioutput_docs;
+  aioutput, aioutput_docs, LResources;
 
 type
   TAIAgentAction = class;
@@ -1484,5 +1484,8 @@ begin
       FResource := nil;
   end;
 end;
+
+initialization
+  {$I aiagent_icon.lrs}
 
 end.

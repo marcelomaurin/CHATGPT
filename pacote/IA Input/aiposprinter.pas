@@ -15,7 +15,7 @@ uses
     netdb
     {$ENDIF}
   {$ENDIF}
-  ;
+  , LResources;
 
 type
   TPrinterInterface = (piSerial, piEthernet);
@@ -314,5 +314,8 @@ begin
   
   Result := SendRawBytes(Cmd);
 end;
+
+initialization
+  {$I aiposprinter_icon.lrs}
 
 end.

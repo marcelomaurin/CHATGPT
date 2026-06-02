@@ -15,7 +15,7 @@ uses
     netdb
     {$ENDIF}
   {$ENDIF}
-  ;
+  , LResources;
 
 type
   TModbusProtocol = (mbTCP, mbRTU);
@@ -381,5 +381,8 @@ begin
       SetError('Modbus Write Register Exception: ' + E.Message);
   end;
 end;
+
+initialization
+  {$I aimodbus_icon.lrs}
 
 end.

@@ -5,7 +5,7 @@ unit aiinput;
 interface
 
 uses
-  Classes, SysUtils, Math, aibase;
+  Classes, SysUtils, Math, aibase, LResources;
 
 type
   TArray = array of Double;
@@ -154,5 +154,8 @@ function TAIInputData.GetLength: Integer;
 begin
   Result := Length(FRawData);
 end;
+
+initialization
+  {$I aiinput_icon.lrs}
 
 end.

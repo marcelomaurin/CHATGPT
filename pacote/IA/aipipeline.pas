@@ -5,7 +5,7 @@ unit aipipeline;
 interface
 
 uses
-  Classes, SysUtils, chatgpt, NeuralNetwork, aiagent, aiinput, aioutput, aioutput_docs;
+  Classes, SysUtils, chatgpt, NeuralNetwork, aiagent, aiinput, aioutput, aioutput_docs, LResources;
 
 type
   TAIPipelineMode = (
@@ -296,5 +296,8 @@ begin
     end;
   end;
 end;
+
+initialization
+  {$I aipipeline_icon.lrs}
 
 end.
