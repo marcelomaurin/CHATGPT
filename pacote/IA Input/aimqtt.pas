@@ -51,6 +51,8 @@ type
     FOnMessageReceived: TMQTTMessageEvent;
     FOnConnected: TNotifyEvent;
     FOnDisconnected: TNotifyEvent;
+    FLastTopic: string;
+    FLastPayload: string;
     
     procedure SetActive(AValue: Boolean);
     procedure TriggerMessage(const ATopic, APayload: string);
@@ -64,6 +66,9 @@ type
     procedure DisconnectBroker;
     function Subscribe(const ATopic: string): Boolean;
     function Publish(const ATopic, APayload: string): Boolean;
+    
+    property LastTopic: string read FLastTopic;
+    property LastPayload: string read FLastPayload;
   published
     property Host: string read FHost write FHost;
     property Port: Integer read FPort write FPort default 1883;
@@ -480,6 +485,8 @@ end;
 
 procedure TAIMQTTClient.TriggerMessage(const ATopic, APayload: string);
 begin
+  FLastTopic := ATopic;
+  FLastPayload := APayload;
   if Assigned(FOnMessageReceived) then
     FOnMessageReceived(Self, ATopic, APayload);
 end;

@@ -12,7 +12,7 @@ uses
   aimodbus, aimqtt, aiemail, aimessenger, aiindustrial, aichromiumbrowser,
   aioscapture, aiinput,
   // IA Output components
-  aioutput, aioutput_docs, LResources;
+  aioutput, aioutput_docs, LResources, aiagent_executors;
 
 type
   TAIAgentAction = class;
@@ -64,6 +64,18 @@ type
     property OnExecuteAction: TAgentActionEvent read FOnExecuteAction write FOnExecuteAction;
   end;
 
+  { TAIAgentDecision }
+
+  TAIAgentDecision = class
+  public
+    ActionName: string;
+    Parameters: TStrings;
+    Rationale: string;
+    RawJSON: string;
+    constructor Create;
+    destructor Destroy; override;
+  end;
+
   { TAIAgent }
 
   TAIAgent = class(TAIBaseComponent)
@@ -79,6 +91,7 @@ type
     FMaxMemoryLimit: Integer;
     FMaxRetries: Integer;
     FSafety: TAIAgentSafety;
+    FLastDecision: TAIAgentDecision;
     procedure SetMemory(AValue: TStrings);
     procedure SetSafety(AValue: TAIAgentSafety);
   protected
@@ -100,6 +113,7 @@ type
     property MaxMemoryLimit: Integer read FMaxMemoryLimit write FMaxMemoryLimit;
     property MaxRetries: Integer read FMaxRetries write FMaxRetries;
     property OnActionTriggered: TAgentActionEvent read FOnActionTriggered write FOnActionTriggered;
+    property LastDecision: TAIAgentDecision read FLastDecision;
   end;
 
   { TAIAgentResource }
@@ -129,9 +143,13 @@ type
     FHeaders: TStrings;
     FConfig: TStrings;
     FComponent: TComponent;
+    FAllowedProperties: TStrings;
+    FBlockedProperties: TStrings;
     procedure SetHeaders(AValue: TStrings);
     procedure SetConfig(AValue: TStrings);
     procedure SetComponent(AValue: TComponent);
+    procedure SetAllowedProperties(AValue: TStrings);
+    procedure SetBlockedProperties(AValue: TStrings);
   public
     constructor Create(ACollection: TCollection); override;
     destructor Destroy; override;
@@ -149,6 +167,8 @@ type
     property Headers: TStrings read FHeaders write SetHeaders;
     property Config: TStrings read FConfig write SetConfig;
     property Component: TComponent read FComponent write SetComponent;
+    property AllowedProperties: TStrings read FAllowedProperties write SetAllowedProperties;
+    property BlockedProperties: TStrings read FBlockedProperties write SetBlockedProperties;
   end;
 
   { TAIAgentResourceCollection }
@@ -247,6 +267,23 @@ implementation
 procedure Register;
 begin
   RegisterComponents('IA Agent', [TAIAgent, TAIAgentOptions, TAIAgentAction, TAIAgentResource, TAIAgentOutput]);
+end;
+
+{ TAIAgentDecision }
+
+constructor TAIAgentDecision.Create;
+begin
+  inherited Create;
+  Parameters := TStringList.Create;
+  ActionName := '';
+  Rationale := '';
+  RawJSON := '';
+end;
+
+destructor TAIAgentDecision.Destroy;
+begin
+  Parameters.Free;
+  inherited Destroy;
 end;
 
 function GetPropString(AComponent: TComponent; const APropName: string): string;
@@ -349,6 +386,7 @@ end;
 constructor TAIAgent.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FCategory := ccAction;
   FChatGPT := nil;
   FOptions := nil;
   FAction := nil;
@@ -360,11 +398,13 @@ begin
   FMaxRetries := 3;
   FOnActionTriggered := nil;
   FSafety := nil;
+  FLastDecision := TAIAgentDecision.Create;
 end;
 
 destructor TAIAgent.Destroy;
 begin
   FMemory.Free;
+  FLastDecision.Free;
   inherited Destroy;
 end;
 
@@ -424,6 +464,11 @@ begin
   Result := False;
   ClearError;
   FLastRationale := '';
+  
+  FLastDecision.ActionName := '';
+  FLastDecision.Parameters.Clear;
+  FLastDecision.Rationale := '';
+  FLastDecision.RawJSON := '';
 
   if not Assigned(FChatGPT) then
   begin
@@ -533,7 +578,7 @@ begin
   end;
 
   LPrompt := LPrompt + sLineBreak + '=== INSTRUÇÕES CRÍTICAS DE RETORNO ===' + sLineBreak;
-  LPrompt := LPrompt + 'Você DEVE analisar os dados e decidir por exatamente UMA ação aplicável entre las listadas.' + sLineBreak;
+  LPrompt := LPrompt + 'Você DEVE analisar os dados e decidir por exatamente UMA ação aplicável entre as listadas.' + sLineBreak;
   LPrompt := LPrompt + 'Você DEVE fornecer exatamente os parâmetros definidos correspondentes a essa ação.' + sLineBreak;
   LPrompt := LPrompt + 'Você DEVE retornar a sua resposta EXCLUSIVAMENTE em formato JSON, sem crases, blocos de markdown ou outro texto envolvente. O JSON deve seguir precisamente esta estrutura:' + sLineBreak;
   LPrompt := LPrompt + '{' + sLineBreak;
@@ -624,6 +669,15 @@ begin
               FOnActionTriggered(Self, ActionName, FAction.SelectedParameters);
           end;
           
+          // Populate LastDecision
+          FLastDecision.ActionName := ActionName;
+          if Assigned(FAction) then
+            FLastDecision.Parameters.Assign(FAction.SelectedParameters)
+          else
+            FLastDecision.Parameters.Clear;
+          FLastDecision.Rationale := FLastRationale;
+          FLastDecision.RawJSON := FChatGPT.Response;
+
           // Add to short-term Memory
           FMemory.Add('User: ' + AInputData);
           FMemory.Add('Jarvis: Action=' + ActionName + ' | Rationale=' + FLastRationale);
@@ -671,12 +725,22 @@ begin
   FHeaders := TStringList.Create;
   FConfig := TStringList.Create;
   FComponent := nil;
+  FAllowedProperties := TStringList.Create;
+  FBlockedProperties := TStringList.Create;
+  FBlockedProperties.Add('Token');
+  FBlockedProperties.Add('Password');
+  FBlockedProperties.Add('APIKey');
+  FBlockedProperties.Add('Secret');
+  FBlockedProperties.Add('PrivateKey');
+  FBlockedProperties.Add('LibraryPath');
 end;
 
 destructor TAIAgentResourceItem.Destroy;
 begin
   FHeaders.Free;
   FConfig.Free;
+  FAllowedProperties.Free;
+  FBlockedProperties.Free;
   inherited Destroy;
 end;
 
@@ -688,6 +752,16 @@ end;
 procedure TAIAgentResourceItem.SetConfig(AValue: TStrings);
 begin
   FConfig.Assign(AValue);
+end;
+
+procedure TAIAgentResourceItem.SetAllowedProperties(AValue: TStrings);
+begin
+  FAllowedProperties.Assign(AValue);
+end;
+
+procedure TAIAgentResourceItem.SetBlockedProperties(AValue: TStrings);
+begin
+  FBlockedProperties.Assign(AValue);
 end;
 
 
@@ -737,323 +811,18 @@ begin
         VKey := AParams.Names[I];
         VVal := AParams.ValueFromIndex[I];
         if VKey <> '' then
-          SetPropValueByName(FComponent, VKey, VVal);
-      end;
-    end;
-
-    // 2. Despachar a execução com tipagem forte para a suite IA Input / IA Output
-    
-    // IA OUTPUT: PDF
-    if FComponent is TAIPDFOutput then
-    begin
-      with (FComponent as TAIPDFOutput) do
-      begin
-        if FileName = '' then FileName := 'relatorio.pdf';
-        StartDocument;
-        AddPage;
-        AddText('AGENT EXECUTION', 50, 50, 16);
-        AddText('Timestamp: ' + DateTimeToStr(Now), 50, 80, 10);
-        AddText(AData, 50, 110, 10);
-        Result := SavePDF;
-        if Result then
-          ALog := 'PDF salvo com sucesso em: ' + FileName
-        else
-          ALog := 'Erro ao salvar PDF.';
-      end;
-      Exit;
-    end;
-
-    // IA OUTPUT: Word
-    if FComponent is TAIWordOutput then
-    begin
-      with (FComponent as TAIWordOutput) do
-      begin
-        if FileName = '' then FileName := 'relatorio.docx';
-        AddHeading('AGENT EXECUTION', 1);
-        AddParagraph(AData);
-        Result := SaveWord;
-        if Result then
-          ALog := 'Word (.docx) salvo com sucesso em: ' + FileName
-        else
-          ALog := 'Erro ao salvar Word.';
-      end;
-      Exit;
-    end;
-
-    // IA OUTPUT: Excel
-    if FComponent is TAIExcelOutput then
-    begin
-      with (FComponent as TAIExcelOutput) do
-      begin
-        if FileName = '' then FileName := 'dados.xlsx';
-        SetCell(0, 0, 'Agent Data');
-        SetCell(1, 0, AData);
-        Result := SaveExcel;
-        if Result then
-          ALog := 'Excel (.xlsx) salvo com sucesso em: ' + FileName
-        else
-          ALog := 'Erro ao salvar Excel.';
-      end;
-      Exit;
-    end;
-
-    // IA OUTPUT: TXT
-    if FComponent is TAITXTOutput then
-    begin
-      with (FComponent as TAITXTOutput) do
-      begin
-        if FileName = '' then FileName := 'relatorio.txt';
-        AddHeader('AGENT EXECUTION LOG');
-        AddLine(AData);
-        Result := SaveText;
-        if Result then
-          ALog := 'TXT salvo com sucesso em: ' + FileName
-        else
-          ALog := 'Erro ao salvar TXT.';
-      end;
-      Exit;
-    end;
-
-    // IA OUTPUT: Unified OutputDocs
-    if FComponent is TAIOutputDocs then
-    begin
-      with (FComponent as TAIOutputDocs) do
-      begin
-        Title := 'Relatório de Agente';
-        AddHeading('AGENT EXECUTION', 1);
-        AddParagraph(AData);
-        Result := SaveAll('relatorio_agente');
-        if Result then
-          ALog := 'Todos os relatorios (.pdf, .docx, .xlsx, .txt) foram gerados com sucesso.'
-        else
-          ALog := 'Erro ao salvar relatorios unificados.';
-      end;
-      Exit;
-    end;
-
-    // IA OUTPUT: Math OutputData
-    if FComponent is TAIOutputData then
-    begin
-      with (FComponent as TAIOutputData) do
-      begin
-        SoftMax;
-        Result := True;
-        ALog := 'Ativacao SoftMax executada: ' + ClassificationResult;
-      end;
-      Exit;
-    end;
-
-    // IA INPUT: Email
-    if FComponent is TAIEmailClient then
-    begin
-      with (FComponent as TAIEmailClient) do
-      begin
-        VVal := AParams.Values['recipient'];
-        if VVal = '' then VVal := AParams.Values['to'];
-        if VVal = '' then VVal := FRecipient;
-        
-        VKey := AParams.Values['subject'];
-        if VKey = '' then VKey := FSubject;
-        if VKey = '' then VKey := 'Mensagem do Agente';
-
-        Result := SendEmail(VVal, VKey, AData);
-        if Result then
-          ALog := 'E-mail enviado via TAIEmailClient para ' + VVal
-        else
-          ALog := 'Falha ao enviar e-mail via TAIEmailClient.';
-      end;
-      Exit;
-    end;
-
-    // IA INPUT: Messenger (WhatsApp/SMS)
-    if FComponent is TAIMessenger then
-    begin
-      with (FComponent as TAIMessenger) do
-      begin
-        VVal := AParams.Values['recipient'];
-        if VVal = '' then VVal := AParams.Values['to'];
-        if VVal = '' then VVal := FRecipient;
-        
-        if FResourceType = artWhatsApp then
-          Result := SendWhatsApp(VVal, AData)
-        else
-          Result := SendSMS(VVal, AData);
-          
-        if Result then
-          ALog := 'Mensagem enviada via TAIMessenger para ' + VVal
-        else
-          ALog := 'Falha ao enviar mensagem via TAIMessenger.';
-      end;
-      Exit;
-    end;
-
-    // IA INPUT: Sockets TCP
-    if FComponent is TAISocketTCP then
-    begin
-      with (FComponent as TAISocketTCP) do
-      begin
-        if not Active then Active := True;
-        if Connect then
         begin
-          Result := SendText(AData);
-          Disconnect;
-          if Result then
-            ALog := 'Dados TCP enviados com sucesso.'
-          else
-            ALog := 'Falha ao enviar dados via TCP.';
-        end
-        else
-          ALog := 'Falha ao conectar socket TCP.';
+          if FBlockedProperties.IndexOf(VKey) >= 0 then Continue;
+          if (FAllowedProperties.Count > 0) and (FAllowedProperties.IndexOf(VKey) < 0) then Continue;
+          SetPropValueByName(FComponent, VKey, VVal);
+        end;
       end;
-      Exit;
     end;
 
-    // IA INPUT: Sockets UDP
-    if FComponent is TAISocketUDP then
+    // 2. Despachar a execução com tipagem forte para a suite IA Input / IA Output via Executores
+    if DispatchResourceExecution(FComponent, AData, AParams, ALog) then
     begin
-      with (FComponent as TAISocketUDP) do
-      begin
-        if not Active then Active := True;
-        Result := SendText(AData);
-        if Result then
-          ALog := 'Dados UDP enviados com sucesso.'
-        else
-          ALog := 'Falha ao enviar dados via UDP.';
-      end;
-      Exit;
-    end;
-
-    // IA INPUT: Serial/Modem
-    if FComponent is TAISerialModem then
-    begin
-      with (FComponent as TAISerialModem) do
-      begin
-        if not Active then Active := True;
-        VVal := AParams.Values['recipient'];
-        if VVal <> '' then
-          Result := SendSMS(VVal, AData)
-        else
-          Result := WriteText(AData);
-          
-        if Result then
-          ALog := 'Dados gravados com sucesso na serial/modem.'
-        else
-          ALog := 'Falha na escrita na serial/modem.';
-      end;
-      Exit;
-    end;
-
-    // IA INPUT: MODBUS
-    if FComponent is TAIModbusClient then
-    begin
-      with (FComponent as TAIModbusClient) do
-      begin
-        if not Active then Active := True;
-        Result := True;
-        ALog := 'Comando Modbus simulado/executado com sucesso.';
-      end;
-      Exit;
-    end;
-
-    // IA INPUT: MQTT
-    if FComponent is TAIMqttClient then
-    begin
-      with (FComponent as TAIMqttClient) do
-      begin
-        if not Active then ConnectBroker;
-        VVal := AParams.Values['topic'];
-        if VVal = '' then VVal := 'agent/output';
-        Result := Publish(VVal, AData);
-        if Result then
-          ALog := 'Mensagem MQTT publicada no tópico "' + VVal + '"'
-        else
-          ALog := 'Falha ao publicar mensagem MQTT.';
-      end;
-      Exit;
-    end;
-
-    // IA INPUT: OS Capture
-    if FComponent is TAIOSInputCapture then
-    begin
-      with (FComponent as TAIOSInputCapture) do
-      begin
-        Result := True;
-        ALog := 'Captura de eventos do sistema ativo: mouse=' + BoolToStr(TrackMouse, True) + ', keyboard=' + BoolToStr(TrackKeyboard, True);
-      end;
-      Exit;
-    end;
-
-    // IA INPUT: POS Printer
-    if FComponent is TAIPOSPrinter then
-    begin
-      with (FComponent as TAIPOSPrinter) do
-      begin
-        if not Active then Active := True;
-        Result := PrintText(AData);
-        if Result then
-          ALog := 'Recibo impresso com sucesso na impressora Esc/POS.'
-        else
-          ALog := 'Erro de impressão Esc/POS.';
-      end;
-      Exit;
-    end;
-
-    // IA INPUT: Web Server API
-    if FComponent is TAIWebAPIServer then
-    begin
-      with (FComponent as TAIWebAPIServer) do
-      begin
-        if not Active then StartServer;
-        Result := True;
-        ALog := 'Servidor WebAPI REST ativo na porta ' + IntToStr(Port);
-      end;
-      Exit;
-    end;
-
-    // IA INPUT: Industrial Bridge
-    if FComponent is TAIIndustrialBridge then
-    begin
-      with (FComponent as TAIIndustrialBridge) do
-      begin
-        if not Active then ConnectBridge;
-        Result := True;
-        ALog := 'Ponte Profinet/Profibus ativa: ' + IPAddress;
-      end;
-      Exit;
-    end;
-
-    // IA INPUT: Camera
-    if FComponent is TAICameraInput then
-    begin
-      with (FComponent as TAICameraInput) do
-      begin
-        if not Active then StartCapture;
-        Result := True;
-        ALog := 'Dispositivo de camera física ativo.';
-      end;
-      Exit;
-    end;
-
-    // IA INPUT: Audio
-    if FComponent is TAIAudioInput then
-    begin
-      with (FComponent as TAIAudioInput) do
-      begin
-        Result := True;
-        ALog := 'Suíte de sinais de áudio ativa.';
-      end;
-      Exit;
-    end;
-
-    // IA INPUT: TAIInputData
-    if FComponent is TAIInputData then
-    begin
-      with (FComponent as TAIInputData) do
-      begin
-        Normalize;
-        Result := True;
-        ALog := 'Normalização linear executada.';
-      end;
+      Result := True;
       Exit;
     end;
 

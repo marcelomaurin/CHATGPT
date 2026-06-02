@@ -5,16 +5,15 @@ unit aiproject;
 interface
 
 uses
-  Classes, SysUtils, chatgpt, aiagent, aipipeline, fpjson, jsonparser, LResources;
+  Classes, SysUtils, chatgpt, aiagent, aipipeline, fpjson, jsonparser, LResources, aibase;
 
 type
   TAIErrorEvent = procedure(Sender: TObject; const AError: string) of object;
 
   { TAIProject }
 
-  TAIProject = class(TComponent)
+  TAIProject = class(TAIBaseComponent)
   private
-    FPrompt: string;
     FProjectName: string;
     FDescription: string;
     FChatGPT: TCHATGPT;
@@ -26,8 +25,8 @@ type
     FLocalURL: string;
     FSafeMode: Boolean;
     FSimulationMode: Boolean;
-    FLastError: string;
-    FLastResult: string;
+    FSaveToken: Boolean;
+    FConfigFileName: string;
     FOnBeforeExecute: TNotifyEvent;
     FOnAfterExecute: TNotifyEvent;
     FOnError: TAIErrorEvent;
@@ -43,9 +42,10 @@ type
     
     procedure LoadFromFile(const AFileName: string);
     procedure SaveToFile(const AFileName: string);
+    function LoadConfig: Boolean;
+    function SaveConfig: Boolean;
     function BuildSystemPrompt: string;
   published
-    property Prompt: string read FPrompt write FPrompt;
     property ProjectName: string read FProjectName write FProjectName;
     property Description: string read FDescription write FDescription;
     property ChatGPT: TCHATGPT read FChatGPT write FChatGPT;
@@ -57,8 +57,8 @@ type
     property LocalURL: string read FLocalURL write FLocalURL;
     property SafeMode: Boolean read FSafeMode write FSafeMode default False;
     property SimulationMode: Boolean read FSimulationMode write FSimulationMode default False;
-    property LastError: string read FLastError write FLastError;
-    property LastResult: string read FLastResult write FLastResult;
+    property SaveToken: Boolean read FSaveToken write FSaveToken default False;
+    property ConfigFileName: string read FConfigFileName write FConfigFileName;
     property OnBeforeExecute: TNotifyEvent read FOnBeforeExecute write FOnBeforeExecute;
     property OnAfterExecute: TNotifyEvent read FOnAfterExecute write FOnAfterExecute;
     property OnError: TAIErrorEvent read FOnError write FOnError;
@@ -76,10 +76,13 @@ end;
 constructor TAIProject.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FCategory := ccProject;
   FPrompt := 'Component TAIProject coordinates the entire AI Project structure. Properties: ProjectName, Description, ChatGPT, Agent, Pipeline, DefaultProvider, DefaultModel, Token, LocalURL, SafeMode, SimulationMode. Methods: Initialize: Boolean, TestConnection: Boolean, ExecuteText(const AText: string): string, Execute: Boolean, LoadFromFile(const AFileName: string), SaveToFile(const AFileName: string), BuildSystemPrompt: string. AI Agent: Use this as the main project configuration coordinator.';
   FDefaultProvider := AIP_OPENAI;
   FSafeMode := False;
   FSimulationMode := False;
+  FSaveToken := False;
+  FConfigFileName := '';
   FProjectName := 'New AI Project';
   FDescription := '';
   FDefaultModel := '';
@@ -89,7 +92,7 @@ end;
 
 procedure TAIProject.DoError(const AError: string);
 begin
-  FLastError := AError;
+  SetError(AError);
   if Assigned(FOnError) then
     FOnError(Self, AError);
 end;
@@ -97,7 +100,8 @@ end;
 function TAIProject.Initialize: Boolean;
 begin
   Result := True;
-  FLastError := '';
+  ClearError;
+  Log(llInfo, 'Initializing TAIProject: ' + FProjectName);
   
   if Assigned(FChatGPT) then
   begin
@@ -120,16 +124,35 @@ begin
     if FLocalURL <> '' then
       FAgent.ChatGPT.LocalIP := FLocalURL;
   end;
+
+  // Propagate SafeMode and SimulationMode to Agent Safety
+  if Assigned(FAgent) and Assigned(FAgent.Safety) then
+  begin
+    FAgent.Safety.SimulationMode := FSimulationMode;
+    Log(llDebug, 'Propagated SimulationMode=' + BoolToStr(FSimulationMode, True) + ' to agent safety.');
+    if FSafeMode then
+    begin
+      FAgent.Safety.Enabled := True;
+      FAgent.Safety.ReadOnlyMode := True;
+      FAgent.Safety.AllowFileWrite := False;
+      FAgent.Safety.AllowNetwork := False;
+      FAgent.Safety.AllowIndustrialWrite := False;
+      FAgent.Safety.AllowEmailSend := False;
+      Log(llInfo, 'SafeMode is active: Propagated safety constraints to Agent Safety.');
+    end;
+  end;
 end;
 
 function TAIProject.TestConnection: Boolean;
 begin
   Result := False;
-  FLastError := '';
+  ClearError;
+  Log(llInfo, 'Testing connection for TAIProject...');
   
   if FSimulationMode then
   begin
     FLastResult := 'Simulated: Connection Succeeded.';
+    Log(llInfo, 'TestConnection simulated successfully.');
     Result := True;
     Exit;
   end;
@@ -143,20 +166,27 @@ begin
   
   Result := FChatGPT.SendQuestion('Respond strictly with "OK" if you receive this message.');
   if Result then
-    FLastResult := FChatGPT.Response
+  begin
+    FLastResult := FChatGPT.Response;
+    Log(llInfo, 'TestConnection succeeded: ' + FLastResult);
+  end
   else
+  begin
     DoError(FChatGPT.Response);
+  end;
 end;
 
 function TAIProject.ExecuteText(const AText: string): string;
 begin
   Result := '';
-  FLastError := '';
+  ClearError;
+  Log(llInfo, 'Executing custom prompt: ' + AText);
   
   if FSimulationMode then
   begin
     FLastResult := 'Simulated response for: ' + AText;
     Result := FLastResult;
+    Log(llInfo, 'ExecuteText simulated: ' + FLastResult);
     Exit;
   end;
   
@@ -171,6 +201,7 @@ begin
   begin
     FLastResult := FChatGPT.Response;
     Result := FLastResult;
+    Log(llInfo, 'ExecuteText completed successfully.');
   end
   else
   begin
@@ -182,8 +213,9 @@ end;
 function TAIProject.Execute: Boolean;
 begin
   Result := False;
-  FLastError := '';
+  ClearError;
   FLastResult := '';
+  Log(llInfo, 'Starting TAIProject.Execute execution cycle.');
   
   if Assigned(FOnBeforeExecute) then
     FOnBeforeExecute(Self);
@@ -192,6 +224,7 @@ begin
   begin
     FLastResult := 'Simulated Execute Succeeded.';
     Result := True;
+    Log(llInfo, 'Execute execution cycle simulated successfully.');
     if Assigned(FOnAfterExecute) then
       FOnAfterExecute(Self);
     Exit;
@@ -201,17 +234,25 @@ begin
   
   if Assigned(FPipeline) then
   begin
+    Log(llInfo, 'Executing pipeline.');
     Result := FPipeline.Run;
     if Result then
-      FLastResult := FPipeline.LastResult
+    begin
+      FLastResult := FPipeline.LastResult;
+      Log(llInfo, 'Pipeline run completed successfully.');
+    end
     else
       DoError(FPipeline.LastError);
   end
   else if Assigned(FAgent) then
   begin
+    Log(llInfo, 'Executing agent.');
     Result := FAgent.Execute('Analyze state and perform actions.');
     if Result then
-      FLastResult := 'Agent run successfully.'
+    begin
+      FLastResult := 'Agent run successfully.';
+      Log(llInfo, 'Agent execution completed successfully.');
+    end
     else
       DoError(FAgent.LastError);
   end
@@ -226,6 +267,7 @@ end;
 
 function TAIProject.BuildSystemPrompt: string;
 begin
+  Log(llDebug, 'Building system prompt.');
   Result := 'Project: ' + FProjectName + sLineBreak;
   if FDescription <> '' then
     Result := Result + 'Description: ' + FDescription + sLineBreak;
@@ -243,6 +285,7 @@ var
   LObj: TJSONObject;
   LVal: string;
 begin
+  Log(llInfo, 'Loading config from file: ' + AFileName);
   if not FileExists(AFileName) then
     raise Exception.CreateFmt('File %s does not exist.', [AFileName]);
     
@@ -269,6 +312,7 @@ begin
           FSafeMode := LObj.Booleans['SafeMode'];
         if LObj.IndexOfName('SimulationMode') >= 0 then
           FSimulationMode := LObj.Booleans['SimulationMode'];
+        Log(llInfo, 'Config loaded successfully.');
       end;
     finally
       LData.Free;
@@ -282,24 +326,63 @@ procedure TAIProject.SaveToFile(const AFileName: string);
 var
   LObj: TJSONObject;
   LList: TStringList;
-  // Use relative path fallback if needed
 begin
+  Log(llInfo, 'Saving config to file: ' + AFileName);
   LObj := TJSONObject.Create;
   LList := TStringList.Create;
   try
     LObj.Add('ProjectName', FProjectName);
     LObj.Add('Description', FDescription);
     LObj.Add('DefaultModel', FDefaultModel);
-    LObj.Add('Token', FToken);
+    if FSaveToken then
+    begin
+      LObj.Add('Token', FToken);
+      Log(llWarning, 'SaveToken is enabled: Saving API token/key to file.');
+    end;
     LObj.Add('LocalURL', FLocalURL);
     LObj.Add('SafeMode', FSafeMode);
     LObj.Add('SimulationMode', FSimulationMode);
     
     LList.Text := LObj.AsJSON;
     LList.SaveToFile(AFileName);
+    Log(llInfo, 'Config saved successfully.');
   finally
     LObj.Free;
     LList.Free;
+  end;
+end;
+
+function TAIProject.LoadConfig: Boolean;
+begin
+  Result := False;
+  if FConfigFileName = '' then
+  begin
+    DoError('ConfigFileName is empty.');
+    Exit;
+  end;
+  try
+    LoadFromFile(FConfigFileName);
+    Result := True;
+  except
+    on E: Exception do
+      DoError('LoadConfig failed: ' + E.Message);
+  end;
+end;
+
+function TAIProject.SaveConfig: Boolean;
+begin
+  Result := False;
+  if FConfigFileName = '' then
+  begin
+    DoError('ConfigFileName is empty.');
+    Exit;
+  end;
+  try
+    SaveToFile(FConfigFileName);
+    Result := True;
+  except
+    on E: Exception do
+      DoError('SaveConfig failed: ' + E.Message);
   end;
 end;
 

@@ -219,6 +219,10 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiagentsafety"/>
       </Item>
+      <Item>
+        <Filename Value="IA Agent\aiagent_executors.pas"/>
+        <UnitName Value="aiagent_executors"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>

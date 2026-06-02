@@ -5,7 +5,8 @@ unit aipipeline;
 interface
 
 uses
-  Classes, SysUtils, chatgpt, NeuralNetwork, aiagent, aiinput, aioutput, aioutput_docs, LResources;
+  Classes, SysUtils, chatgpt, NeuralNetwork, aiagent, aiinput, aioutput, aioutput_docs, LResources,
+  aibase, aimodbus, aimqtt, aiindustrial;
 
 type
   TAIPipelineMode = (
@@ -18,9 +19,8 @@ type
 
   { TAIPipeline }
 
-  TAIPipeline = class(TComponent)
+  TAIPipeline = class(TAIBaseComponent)
   private
-    FPrompt: string;
     FMode: TAIPipelineMode;
     FChatGPT: TCHATGPT;
     FNeuralNetwork: TNeuralNetwork;
@@ -32,8 +32,15 @@ type
     FOutputText: string;
     FAutoNormalize: Boolean;
     FAutoSoftMax: Boolean;
-    FLastError: string;
-    FLastResult: string;
+    FBaseFileName: string;
+    FDocumentTitle: string;
+    FDocumentAuthor: string;
+    FDocumentSubject: string;
+    FSavePDF: Boolean;
+    FSaveWord: Boolean;
+    FSaveExcel: Boolean;
+    FSaveTXT: Boolean;
+    FIndustrialInput: TComponent;
   public
     constructor Create(AOwner: TComponent); override;
     
@@ -44,7 +51,6 @@ type
     function RunDocument(const AText: string): Boolean;
     function RunIndustrialMonitor: Boolean;
   published
-    property Prompt: string read FPrompt write FPrompt;
     property Mode: TAIPipelineMode read FMode write FMode default pmTextLLM;
     property ChatGPT: TCHATGPT read FChatGPT write FChatGPT;
     property NeuralNetwork: TNeuralNetwork read FNeuralNetwork write FNeuralNetwork;
@@ -56,8 +62,15 @@ type
     property OutputText: string read FOutputText write FOutputText;
     property AutoNormalize: Boolean read FAutoNormalize write FAutoNormalize default True;
     property AutoSoftMax: Boolean read FAutoSoftMax write FAutoSoftMax default True;
-    property LastError: string read FLastError write FLastError;
-    property LastResult: string read FLastResult write FLastResult;
+    property BaseFileName: string read FBaseFileName write FBaseFileName;
+    property DocumentTitle: string read FDocumentTitle write FDocumentTitle;
+    property DocumentAuthor: string read FDocumentAuthor write FDocumentAuthor;
+    property DocumentSubject: string read FDocumentSubject write FDocumentSubject;
+    property SavePDF: Boolean read FSavePDF write FSavePDF default True;
+    property SaveWord: Boolean read FSaveWord write FSaveWord default True;
+    property SaveExcel: Boolean read FSaveExcel write FSaveExcel default True;
+    property SaveTXT: Boolean read FSaveTXT write FSaveTXT default True;
+    property IndustrialInput: TComponent read FIndustrialInput write FIndustrialInput;
   end;
 
 procedure Register;
@@ -72,14 +85,23 @@ end;
 constructor TAIPipeline.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FCategory := ccOther;
   FPrompt := 'Component TAIPipeline integrates Input, AI models, and Output. Mode: pmTextLLM, pmNumericML, pmAgentAction, pmDocumentGeneration, pmIndustrialMonitor. Properties: ChatGPT, NeuralNetwork, Agent, InputData, OutputData, OutputDocs, InputText, OutputText, AutoNormalize, AutoSoftMax. Methods: Run: Boolean, RunText(const AText: string): string, RunNumeric: Boolean, RunAgent(const AInput: string): Boolean, RunDocument(const AText: string): Boolean. AI Agent: Use this component to execute structured pipelines linking perception, decision, and document generation.';
   FMode := pmTextLLM;
   FAutoNormalize := True;
   FAutoSoftMax := True;
-  FLastError := '';
-  FLastResult := '';
   FInputText := '';
   FOutputText := '';
+  FBaseFileName := '';
+  FDocumentTitle := '';
+  FDocumentAuthor := '';
+  FDocumentSubject := '';
+  FSavePDF := True;
+  FSaveWord := True;
+  FSaveExcel := True;
+  FSaveTXT := True;
+  FIndustrialInput := nil;
+  ClearError;
 end;
 
 function TAIPipeline.Run: Boolean;
@@ -208,7 +230,10 @@ begin
   Result := FAgent.Execute(AInput);
   if Result then
   begin
-    FLastResult := 'Action: ' + FAgent.Action.SelectedAction + ' | Rationale: ' + FAgent.LastRationale;
+    if Assigned(FAgent.Action) then
+      FLastResult := 'Action: ' + FAgent.Action.SelectedAction + ' | Rationale: ' + FAgent.LastRationale
+    else
+      FLastResult := 'Agent executed. Rationale: ' + FAgent.LastRationale;
     FOutputText := FLastResult;
   end
   else
@@ -216,6 +241,8 @@ begin
 end;
 
 function TAIPipeline.RunDocument(const AText: string): Boolean;
+var
+  Base: string;
 begin
   Result := False;
   if not Assigned(FOutputDocs) then
@@ -226,19 +253,48 @@ begin
   
   FInputText := AText;
   try
+    if FDocumentTitle <> '' then
+      FOutputDocs.Title := FDocumentTitle
+    else
+      FOutputDocs.Title := 'Pipeline Document Report';
+
+    if FDocumentAuthor <> '' then
+      FOutputDocs.Author := FDocumentAuthor;
+
+    if FDocumentSubject <> '' then
+      FOutputDocs.Subject := FDocumentSubject;
+
     FOutputDocs.Clear;
-    FOutputDocs.AddHeading('Pipeline Document Report', 1);
+    FOutputDocs.AddHeading(FOutputDocs.Title, 1);
     FOutputDocs.AddParagraph('Generated on: ' + DateTimeToStr(Now));
     FOutputDocs.AddParagraph(AText);
     
-    Result := FOutputDocs.SaveAll('relatorio_pipeline');
+    if FBaseFileName = '' then
+      FBaseFileName := 'relatorio_pipeline';
+      
+    Base := ChangeFileExt(FBaseFileName, '');
+    FOutputDocs.FileNamePDF := Base + '.pdf';
+    FOutputDocs.FileNameWord := Base + '.docx';
+    FOutputDocs.FileNameExcel := Base + '.xlsx';
+    FOutputDocs.FileNameTXT := Base + '.txt';
+
+    Result := True;
+    if FSavePDF then
+      Result := Result and FOutputDocs.SaveToPDF;
+    if FSaveWord then
+      Result := Result and FOutputDocs.SaveToWord;
+    if FSaveExcel then
+      Result := Result and FOutputDocs.SaveToExcel;
+    if FSaveTXT then
+      Result := Result and FOutputDocs.SaveToTXT;
+      
     if Result then
     begin
       FLastResult := 'Documents generated successfully.';
       FOutputText := FLastResult;
     end
     else
-      FLastError := 'Failed to generate all document formats.';
+      FLastError := 'Failed to generate one or more document formats.';
   except
     on E: Exception do
     begin
@@ -252,22 +308,98 @@ function TAIPipeline.RunIndustrialMonitor: Boolean;
 var
   PromptStr: string;
   I: Integer;
+  Modbus: TAIModbusClient;
+  MQTT: TAIMQTTClient;
+  Bridge: TAIIndustrialBridge;
+  Regs: array[0..9] of Word;
+  Bytes: array[0..9] of Byte;
 begin
   Result := False;
+  FLastError := '';
+  FLastResult := '';
+  
   if not Assigned(FChatGPT) then
   begin
     FLastError := 'Component TCHATGPT is not connected.';
     Exit;
   end;
-  if not Assigned(FInputData) then
-  begin
-    FLastError := 'Component TAIInputData is not connected.';
-    Exit;
-  end;
   
-  try
-    // Format input data array for prompt evaluation
-    PromptStr := 'Determine if the following sensor telemetries indicate an anomaly, error, or critical state. Raw values: ';
+  PromptStr := 'Determine if the following industrial telemetries indicate an anomaly, error, or critical state. Telemetry details: ';
+  
+  if Assigned(FIndustrialInput) then
+  begin
+    if FIndustrialInput is TAIModbusClient then
+    begin
+      Modbus := TAIModbusClient(FIndustrialInput);
+      if Modbus.Connect then
+      begin
+        if Modbus.ReadHoldingRegisters(1, 0, 10, Regs) then
+        begin
+          PromptStr := PromptStr + 'Modbus TCP [Slave 1, Registers 0-9]: ';
+          for I := 0 to 9 do
+          begin
+            if I > 0 then PromptStr := PromptStr + ', ';
+            PromptStr := PromptStr + IntToStr(Regs[I]);
+          end;
+        end
+        else
+        begin
+          FLastError := 'Modbus read holding registers failed: ' + Modbus.LastError;
+          Exit;
+        end;
+      end
+      else
+      begin
+        FLastError := 'Modbus connect failed: ' + Modbus.LastError;
+        Exit;
+      end;
+    end
+    else if FIndustrialInput is TAIMQTTClient then
+    begin
+      MQTT := TAIMQTTClient(FIndustrialInput);
+      PromptStr := PromptStr + 'MQTT Topic: ' + MQTT.LastTopic + ' | Payload: ' + MQTT.LastPayload;
+    end
+    else if FIndustrialInput is TAIIndustrialBridge then
+    begin
+      Bridge := TAIIndustrialBridge(FIndustrialInput);
+      if Bridge.ConnectBridge then
+      begin
+        if Bridge.ReadBytes(1, 0, 10, Bytes) then
+        begin
+          PromptStr := PromptStr + 'Siemens PLC Bridge [DB 1, Bytes 0-9]: ';
+          for I := 0 to 9 do
+          begin
+            if I > 0 then PromptStr := PromptStr + ', ';
+            PromptStr := PromptStr + IntToStr(Bytes[I]);
+          end;
+        end
+        else
+        begin
+          FLastError := 'Industrial Bridge read bytes failed: ' + Bridge.LastError;
+          Exit;
+        end;
+      end
+      else
+      begin
+        FLastError := 'Industrial Bridge connection failed: ' + Bridge.LastError;
+        Exit;
+      end;
+    end
+    else
+    begin
+      FLastError := 'Unknown IndustrialInput component type: ' + FIndustrialInput.ClassName;
+      Exit;
+    end;
+  end
+  else
+  begin
+    // Fallback to FInputData.RawData if FIndustrialInput is not assigned
+    if not Assigned(FInputData) then
+    begin
+      FLastError := 'No IndustrialInput or InputData assigned.';
+      Exit;
+    end;
+    PromptStr := PromptStr + 'InputData RawValues: ';
     if Length(FInputData.RawData) > 0 then
     begin
       for I := 0 to High(FInputData.RawData) do
@@ -278,23 +410,17 @@ begin
     end
     else
       PromptStr := PromptStr + '[]';
-      
-    // Send to ChatGPT
-    Result := FChatGPT.SendQuestion(PromptStr);
-    if Result then
-    begin
-      FOutputText := FChatGPT.Response;
-      FLastResult := FOutputText;
-    end
-    else
-      FLastError := FChatGPT.Response;
-  except
-    on E: Exception do
-    begin
-      FLastError := E.Message;
-      Result := False;
-    end;
   end;
+  
+  // Send to ChatGPT
+  Result := FChatGPT.SendQuestion(PromptStr);
+  if Result then
+  begin
+    FOutputText := FChatGPT.Response;
+    FLastResult := FOutputText;
+  end
+  else
+    FLastError := FChatGPT.Response;
 end;
 
 initialization

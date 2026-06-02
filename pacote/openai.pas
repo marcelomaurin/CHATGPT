@@ -1,6 +1,6 @@
 { This file was automatically created by Lazarus. Do not edit!
   This source is only used to compile and install the package.
-}
+ }
 
 unit openai;
 
@@ -8,7 +8,14 @@ unit openai;
 interface
 
 uses
-  funcoes, chatgpt, NeuralNetwork, tokenizer, aicodeassistant, aidatasetgenerator, pythonconnector, facedetection, yolodetect, perceptron, sommap, cnnclassifier, lstmpredictor, soundfilters, imagefilters, iaschedule, aivoicesynthesizer, aiagent, numps, aiinput, aicamera, aiaudio, aiwebserver, aisockets, aiserial, aiposprinter, aicftvip, aimodbus, aimqtt, aiemail, aimessenger, aiindustrial, aichromiumbrowser, aioscapture, aioutput, aioutput_docs, aiproject, aipipeline, aipromptbuilder, aibase, aiagentsafety, LazarusPackageIntf;
+  funcoes, chatgpt, NeuralNetwork, tokenizer, aicodeassistant, 
+  aidatasetgenerator, pythonconnector, facedetection, yolodetect, perceptron, 
+  sommap, cnnclassifier, lstmpredictor, soundfilters, imagefilters, 
+  iaschedule, aivoicesynthesizer, aiagent, numps, aiinput, aicamera, aiaudio, 
+  aiwebserver, aisockets, aiserial, aiposprinter, aicftvip, aimodbus, aimqtt, 
+  aiemail, aimessenger, aiindustrial, aichromiumbrowser, aioscapture, 
+  aioutput, aioutput_docs, aiproject, aipipeline, aipromptbuilder, aibase, 
+  aiagentsafety, aiagent_executors, LazarusPackageIntf;
 
 implementation
 

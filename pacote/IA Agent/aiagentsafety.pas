@@ -8,6 +8,13 @@ uses
   Classes, SysUtils, LResources;
 
 type
+  TAIConfirmActionEvent = procedure(
+    Sender: TObject;
+    const AActionName: string;
+    AParams: TStrings;
+    var AConfirmed: Boolean
+  ) of object;
+
   { TAIAgentSafety }
 
   TAIAgentSafety = class(TComponent)
@@ -24,6 +31,7 @@ type
     FAllowedDomains: TStrings;
     FAllowedPorts: TStrings;
     FAllowedActions: TStrings;
+    FOnConfirmAction: TAIConfirmActionEvent;
 
     procedure SetAllowedDomains(AValue: TStrings);
     procedure SetAllowedPorts(AValue: TStrings);
@@ -50,6 +58,7 @@ type
     property AllowedDomains: TStrings read FAllowedDomains write SetAllowedDomains;
     property AllowedPorts: TStrings read FAllowedPorts write SetAllowedPorts;
     property AllowedActions: TStrings read FAllowedActions write SetAllowedActions;
+    property OnConfirmAction: TAIConfirmActionEvent read FOnConfirmAction write FOnConfirmAction;
   end;
 
 procedure Register;
@@ -108,6 +117,7 @@ var
   LActionUpper: string;
   LParamVal: string;
   I: Integer;
+  Confirmed: Boolean;
 begin
   Result := True;
   AError := '';
@@ -210,6 +220,19 @@ begin
       end;
     end;
   end;
+
+  // Require Confirmation Check
+  if FRequireConfirmation then
+  begin
+    Confirmed := False;
+    if Assigned(FOnConfirmAction) then
+      FOnConfirmAction(Self, AActionName, AParams, Confirmed);
+    if not Confirmed then
+    begin
+      AError := 'Ação "' + AActionName + '" rejeitada pelo usuário na confirmação.';
+      Exit(False);
+    end;
+  end;
 end;
 
 function TAIAgentSafety.ValidateFilePath(const AFileName: string; out AError: string): Boolean;
@@ -230,7 +253,7 @@ begin
 
   if FSafeBasePath <> '' then
   begin
-    SafePath := ExpandFileName(FSafeBasePath);
+    SafePath := IncludeTrailingPathDelimiter(ExpandFileName(FSafeBasePath));
     FullPath := ExpandFileName(AFileName);
     if Pos(SafePath, FullPath) <> 1 then
     begin
@@ -248,15 +271,20 @@ var
   LSlashPos: Integer;
   LColonPos: Integer;
   LTemp: string;
+  LProtocol: string;
 begin
   Result := True;
   AError := '';
   if not FEnabled then Exit;
 
   LTemp := AURL;
+  LProtocol := 'http';
   LProtocolPos := Pos('://', LTemp);
   if LProtocolPos > 0 then
+  begin
+    LProtocol := Copy(LTemp, 1, LProtocolPos - 1);
     Delete(LTemp, 1, LProtocolPos + 2);
+  end;
 
   LSlashPos := Pos('/', LTemp);
   if LSlashPos > 0 then
@@ -271,7 +299,10 @@ begin
   else
   begin
     LDomain := LTemp;
-    LPort := '80';
+    if SameText(LProtocol, 'https') then
+      LPort := '443'
+    else
+      LPort := '80';
   end;
 
   // Check AllowedDomains list
