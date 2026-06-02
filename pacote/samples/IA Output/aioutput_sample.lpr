@@ -15,6 +15,11 @@ begin
 
   FAIOutput := TAIOutputData.Create(nil);
   try
+    Writeln('=== ORIENTACAO DE IA (PROMPT) ===');
+    Writeln(FAIOutput.Prompt);
+    Writeln('=================================');
+    Writeln;
+
     // 1. Configurar classes e pontuacoes brutas (Logits)
     Writeln('1. Configurando Classes e Logits brutos de classificacao:');
     

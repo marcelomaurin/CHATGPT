@@ -100,6 +100,17 @@ begin
   FAIOutput := TAIOutputData.Create(Self);
   
   cbMathOp.ItemIndex := 0;
+  
+  // Log prompt values to their respective Memos to showcase AI Agent orientation
+  memInputOutput.Lines.Add('=== TAIInputData Prompt ===');
+  memInputOutput.Lines.Add(FAIInput.Prompt);
+  memInputOutput.Lines.Add('===========================');
+  memInputOutput.Lines.Add('');
+  
+  memOutputScores.Lines.Add('=== TAIOutputData Prompt ===');
+  memOutputScores.Lines.Add(FAIOutput.Prompt);
+  memOutputScores.Lines.Add('============================');
+  memOutputScores.Lines.Add('');
 end;
 
 procedure TfrmDemo.FormDestroy(Sender: TObject);

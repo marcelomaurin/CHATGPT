@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
   StdCtrls, Buttons, aichromiumbrowser, aioscapture, aimqtt, aiemail,
   aimessenger, aiindustrial, aimodbus, aicamera, aiaudio, aisockets,
-  aiserial, aiposprinter, aicftvip, aiinput;
+  aiserial, aiposprinter, aicftvip, aiinput, aiwebserver, aioutput, aioutput_docs;
 
 type
   { TfrmHardwareDemo }
@@ -69,8 +69,14 @@ type
     FBtnMixWavFiles: TButton;
     FHardwareLog: TMemo;
     
+    // TAB 6: IA Prompts Inspection
+    FTabPrompts: TTabSheet;
+    FPromptCombo: TComboBox;
+    FPromptMemo: TMemo;
+    
     // Component Event Handlers
     procedure OnMouseMoveIntercept(Sender: TObject; X, Y: Integer);
+    procedure PromptComboChange(Sender: TObject);
     procedure OnKeyIntercept(Sender: TObject; KeyCode: Word; KeyChar: Char);
     procedure OnMQTTMessage(Sender: TObject; const ATopic, APayload: string);
     procedure OnMQTTConnected(Sender: TObject);
@@ -418,6 +424,64 @@ begin
   FHardwareLog.ScrollBars := ssAutoVertical;
   FHardwareLog.ReadOnly := True;
   FHardwareLog.Lines.Add('=== Log Multimídia de Câmeras e Microfones ===');
+  
+  // ==========================================
+  // TAB 6: IA PROMPTS INSPECTION
+  // ==========================================
+  FTabPrompts := FPageControl.AddTabSheet;
+  FTabPrompts.Caption := 'Prompts de Orientação de IA';
+  
+  LeftPanel := TPanel.Create(Self);
+  LeftPanel.Parent := FTabPrompts;
+  LeftPanel.Align := alLeft;
+  LeftPanel.Width := 300;
+  LeftPanel.BevelOuter := bvNone;
+  
+  LabelTitle := TLabel.Create(Self);
+  LabelTitle.Parent := LeftPanel;
+  LabelTitle.Align := alTop;
+  LabelTitle.Caption := ' Selecione o Componente:';
+  LabelTitle.Font.Style := [fsBold];
+  LabelTitle.Height := 25;
+  
+  FPromptCombo := TComboBox.Create(Self);
+  FPromptCombo.Parent := LeftPanel;
+  FPromptCombo.Align := alTop;
+  FPromptCombo.Style := csDropDownList;
+  FPromptCombo.Items.Add('TAICameraInput (Multimídia)');
+  FPromptCombo.Items.Add('TAIAudioInput (Multimídia)');
+  FPromptCombo.Items.Add('TAIWebAPIServer (Rede/REST API)');
+  FPromptCombo.Items.Add('TAISocketTCP (Rede Sockets TCP)');
+  FPromptCombo.Items.Add('TAISocketUDP (Rede Sockets UDP)');
+  FPromptCombo.Items.Add('TAISerialModem (Hardware/Serial/Modem)');
+  FPromptCombo.Items.Add('TAIPOSPrinter (Hardware/Impressora EscPOS)');
+  FPromptCombo.Items.Add('TAICFTVIP (Rede/Câmeras IP CFTV)');
+  FPromptCombo.Items.Add('TAIModbusClient (Rede/Automação Modbus)');
+  FPromptCombo.Items.Add('TAIMQTTClient (Rede/IoT MQTT)');
+  FPromptCombo.Items.Add('TAIEmailClient (Rede/E-mail SMTP/POP3)');
+  FPromptCombo.Items.Add('TAIMessenger (Rede/WhatsApp e SMS)');
+  FPromptCombo.Items.Add('TAIIndustrialBridge (Automação Profinet/Profibus)');
+  FPromptCombo.Items.Add('TAIChromiumBrowser (Navegador Incorporado)');
+  FPromptCombo.Items.Add('TAIOSInputCapture (OS/Captura Tela/Teclado)');
+  FPromptCombo.Items.Add('TAIInputData (Matemática/Input e Normalização)');
+  FPromptCombo.Items.Add('TAIPDFOutput (Documentos/Gerador PDF)');
+  FPromptCombo.Items.Add('TAIWordOutput (Documentos/Gerador Word)');
+  FPromptCombo.Items.Add('TAIExcelOutput (Documentos/Gerador Excel)');
+  FPromptCombo.Items.Add('TAITXTOutput (Documentos/Gerador TXT)');
+  FPromptCombo.Items.Add('TAIOutputDocs (Documentos/Gerador Unificado)');
+  FPromptCombo.Items.Add('TAIOutputData (Matemática/Output e SoftMax)');
+  FPromptCombo.ItemIndex := 0;
+  FPromptCombo.OnChange := @PromptComboChange;
+  
+  FPromptMemo := TMemo.Create(Self);
+  FPromptMemo.Parent := FTabPrompts;
+  FPromptMemo.Align := alClient;
+  FPromptMemo.ScrollBars := ssAutoVertical;
+  FPromptMemo.ReadOnly := True;
+  FPromptMemo.Font.Name := 'Courier New';
+  FPromptMemo.Font.Size := 10;
+  
+  PromptComboChange(nil);
 end;
 
 procedure TfrmHardwareDemo.FormDestroy(Sender: TObject);
@@ -651,6 +715,111 @@ begin
   MixedFile := 'mistura.wav';
   if FAudio.MixAudio('canal_a.wav', 'canal_b.wav', MixedFile) then
     FHardwareLog.Lines.Add('[Áudio] Sinais de áudio mixados no arquivo: ' + MixedFile);
+end;
+
+procedure TfrmHardwareDemo.PromptComboChange(Sender: TObject);
+var
+  Idx: Integer;
+  CompPrompt: string;
+  TempComp: TComponent;
+begin
+  Idx := FPromptCombo.ItemIndex;
+  CompPrompt := '';
+  case Idx of
+    0: CompPrompt := FCamera.Prompt;
+    1: CompPrompt := FAudio.Prompt;
+    2:
+      begin
+        TempComp := TAIWebAPIServer.Create(nil);
+        CompPrompt := (TempComp as TAIWebAPIServer).Prompt;
+        TempComp.Free;
+      end;
+    3:
+      begin
+        TempComp := TAISocketTCP.Create(nil);
+        CompPrompt := (TempComp as TAISocketTCP).Prompt;
+        TempComp.Free;
+      end;
+    4:
+      begin
+        TempComp := TAISocketUDP.Create(nil);
+        CompPrompt := (TempComp as TAISocketUDP).Prompt;
+        TempComp.Free;
+      end;
+    5:
+      begin
+        TempComp := TAISerialModem.Create(nil);
+        CompPrompt := (TempComp as TAISerialModem).Prompt;
+        TempComp.Free;
+      end;
+    6:
+      begin
+        TempComp := TAIPOSPrinter.Create(nil);
+        CompPrompt := (TempComp as TAIPOSPrinter).Prompt;
+        TempComp.Free;
+      end;
+    7:
+      begin
+        TempComp := TAICFTVIP.Create(nil);
+        CompPrompt := (TempComp as TAICFTVIP).Prompt;
+        TempComp.Free;
+      end;
+    8: CompPrompt := FModbusClient.Prompt;
+    9: CompPrompt := FMQTTClient.Prompt;
+    10: CompPrompt := FMailClient.Prompt;
+    11:
+      begin
+        TempComp := TAIMessenger.Create(nil);
+        CompPrompt := (TempComp as TAIMessenger).Prompt;
+        TempComp.Free;
+      end;
+    12: CompPrompt := FPLCBridge.Prompt;
+    13: CompPrompt := FBrowser.Prompt;
+    14: CompPrompt := FOSCapture.Prompt;
+    15:
+      begin
+        TempComp := TAIInputData.Create(nil);
+        CompPrompt := (TempComp as TAIInputData).Prompt;
+        TempComp.Free;
+      end;
+    16:
+      begin
+        TempComp := TAIPDFOutput.Create(nil);
+        CompPrompt := (TempComp as TAIPDFOutput).Prompt;
+        TempComp.Free;
+      end;
+    17:
+      begin
+        TempComp := TAIWordOutput.Create(nil);
+        CompPrompt := (TempComp as TAIWordOutput).Prompt;
+        TempComp.Free;
+      end;
+    18:
+      begin
+        TempComp := TAIExcelOutput.Create(nil);
+        CompPrompt := (TempComp as TAIExcelOutput).Prompt;
+        TempComp.Free;
+      end;
+    19:
+      begin
+        TempComp := TAITXTOutput.Create(nil);
+        CompPrompt := (TempComp as TAITXTOutput).Prompt;
+        TempComp.Free;
+      end;
+    20:
+      begin
+        TempComp := TAIOutputDocs.Create(nil);
+        CompPrompt := (TempComp as TAIOutputDocs).Prompt;
+        TempComp.Free;
+      end;
+    21:
+      begin
+        TempComp := TAIOutputData.Create(nil);
+        CompPrompt := (TempComp as TAIOutputData).Prompt;
+        TempComp.Free;
+      end;
+  end;
+  FPromptMemo.Text := CompPrompt;
 end;
 
 end.

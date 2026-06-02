@@ -10,9 +10,13 @@ var
   WordOut: TAIWordOutput;
   ExcelOut: TAIExcelOutput;
   TxtOut: TAITXTOutput;
+  DocsOut: TAIOutputDocs;
   
   Headers: array[0..2] of string;
   Rows: array[0..5] of string;
+  
+  Headers2: array[0..1] of string;
+  Rows2: array[0..1] of string;
 begin
   Writeln('=== Exemplo de Uso da Suite de Documentos (IA Output) ===');
   Writeln;
@@ -21,11 +25,12 @@ begin
   Writeln('1. Gerando documento PDF NATIVO...');
   PDFOut := TAIPDFOutput.Create(nil);
   try
+    Writeln('  [IA PROMPT] -> ', PDFOut.Prompt);
     PDFOut.FileName := 'relatorio_ia_gerado.pdf';
     PDFOut.Title := 'Relatorio de Inteligencia Artificial';
     PDFOut.StartDocument;
     PDFOut.AddPage;
-    PDFOut.AddText('RELATORIO ANALTICO DE MODELOS DE IA', 50, 50, 18);
+    PDFOut.AddText('RELATORIO ANALITICO DE MODELOS DE IA', 50, 50, 18);
     PDFOut.AddText('Autor: Suite Antigravity AI para Lazarus', 50, 80, 12);
     PDFOut.AddText('Este documento foi gerado de forma 100% nativa em Pascal.', 50, 120, 10);
     PDFOut.AddText('Resultados preditivos convergem para a classe Cachorro (98.4%).', 50, 140, 10);
@@ -43,6 +48,7 @@ begin
   Writeln('2. Gerando documento Word (.docx)...');
   WordOut := TAIWordOutput.Create(nil);
   try
+    Writeln('  [IA PROMPT] -> ', WordOut.Prompt);
     WordOut.FileName := 'relatorio_ia_gerado.docx';
     WordOut.Title := 'Relatorio de IA';
     WordOut.AddHeading('Relatorio Analitico de Classificacao', 1);
@@ -70,6 +76,7 @@ begin
   Writeln('3. Gerando Planilha Excel (.xlsx)...');
   ExcelOut := TAIExcelOutput.Create(nil);
   try
+    Writeln('  [IA PROMPT] -> ', ExcelOut.Prompt);
     ExcelOut.FileName := 'dados_ia_gerados.xlsx';
     ExcelOut.SetCell(0, 0, 'Metrica');
     ExcelOut.SetCell(0, 1, 'Valor Obtido');
@@ -93,6 +100,7 @@ begin
   Writeln('4. Gerando Arquivo de Texto plano (.txt)...');
   TxtOut := TAITXTOutput.Create(nil);
   try
+    Writeln('  [IA PROMPT] -> ', TxtOut.Prompt);
     TxtOut.FileName := 'relatorio_ia_gerado.txt';
     TxtOut.AddHeader('Resumo de Execucao do Pipeline de IA');
     TxtOut.AddLine('Data: ' + DateTimeToStr(Now));
@@ -107,6 +115,31 @@ begin
       Writeln('  -> Erro ao salvar TXT.');
   finally
     TxtOut.Free;
+  end;
+  Writeln;
+
+  // 5. Unified Document Output Suite Generation
+  Writeln('5. Gerando documentos unificados simultaneos (.pdf, .docx, .xlsx, .txt) via TAIOutputDocs...');
+  DocsOut := TAIOutputDocs.Create(nil);
+  try
+    Writeln('  [IA PROMPT] -> ', DocsOut.Prompt);
+    DocsOut.Title := 'Relatorio Unificado de Inteligencia Artificial';
+    DocsOut.Author := 'Suite Antigravity AI';
+    DocsOut.Subject := 'Resultados do Pipeline';
+    DocsOut.Clear;
+    DocsOut.AddParagraph('Este e um relatorio unificado exportado simultaneamente para quatro formatos.');
+    DocsOut.AddParagraph('Processamento concluido de forma 100% nativa e multiplataforma.');
+    
+    Headers2[0] := 'Metrica'; Headers2[1] := 'Resultado';
+    Rows2[0] := 'Acuracia'; Rows2[1] := '98.5%';
+    DocsOut.AddTable(Headers2, Rows2, 2);
+    
+    if DocsOut.SaveAll('relatorio_ia_unificado') then
+      Writeln('  -> Todos os relatorios unificados (.pdf, .docx, .xlsx, .txt) foram gerados com sucesso!')
+    else
+      Writeln('  -> Erro ao gerar relatorios unificados.');
+  finally
+    DocsOut.Free;
   end;
   Writeln;
 

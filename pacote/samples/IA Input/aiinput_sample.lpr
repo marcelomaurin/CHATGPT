@@ -14,6 +14,11 @@ begin
 
   FAIInput := TAIInputData.Create(nil);
   try
+    Writeln('=== ORIENTACAO DE IA (PROMPT) ===');
+    Writeln(FAIInput.Prompt);
+    Writeln('=================================');
+    Writeln;
+
     // 1. Carregar valores a partir de string delimitada
     Writeln('1. Carregando dados flutuantes brutas a partir de string:');
     FAIInput.LoadFromString('150.0, 300.0, 75.0, 600.0, 450.0', ',');
