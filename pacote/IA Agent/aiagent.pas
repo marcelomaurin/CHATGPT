@@ -5,11 +5,18 @@ unit aiagent;
 interface
 
 uses
-  Classes, SysUtils, chatgpt, fpjson, jsonparser, fphttpclient;
+  Classes, SysUtils, chatgpt, fpjson, jsonparser, fphttpclient, TypInfo,
+  // IA Input components
+  aicamera, aiaudio, aiwebserver, aisockets, aiserial, aiposprinter, aicftvip,
+  aimodbus, aimqtt, aiemail, aimessenger, aiindustrial, aichromiumbrowser,
+  aioscapture, aiinput,
+  // IA Output components
+  aioutput, aioutput_docs;
 
 type
   TAIAgentAction = class;
   TAIAgentOptions = class;
+  TAIAgentResource = class;
 
   { TAgentActionEvent }
   TAgentActionEvent = procedure(Sender: TObject; const AActionName: string; AParams: TStrings) of object;
@@ -63,6 +70,7 @@ type
     FChatGPT: TCHATGPT;
     FOptions: TAIAgentOptions;
     FAction: TAIAgentAction;
+    FResource: TAIAgentResource;
     FSystemPrompt: string;
     FLastError: string;
     FLastRationale: string;
@@ -80,6 +88,7 @@ type
     property ChatGPT: TCHATGPT read FChatGPT write FChatGPT;
     property Options: TAIAgentOptions read FOptions write FOptions;
     property Action: TAIAgentAction read FAction write FAction;
+    property Resource: TAIAgentResource read FResource write FResource;
     property SystemPrompt: string read FSystemPrompt write FSystemPrompt;
     property LastError: string read FLastError;
     property LastRationale: string read FLastRationale;
@@ -115,8 +124,10 @@ type
     FAPIUrl: string;
     FHeaders: TStrings;
     FConfig: TStrings;
+    FComponent: TComponent;
     procedure SetHeaders(AValue: TStrings);
     procedure SetConfig(AValue: TStrings);
+    procedure SetComponent(AValue: TComponent);
   public
     constructor Create(ACollection: TCollection); override;
     destructor Destroy; override;
@@ -133,6 +144,7 @@ type
     property APIUrl: string read FAPIUrl write FAPIUrl;
     property Headers: TStrings read FHeaders write SetHeaders;
     property Config: TStrings read FConfig write SetConfig;
+    property Component: TComponent read FComponent write SetComponent;
   end;
 
   { TAIAgentResourceCollection }
@@ -154,6 +166,8 @@ type
   private
     FResources: TAIAgentResourceCollection;
     procedure SetResources(AValue: TAIAgentResourceCollection);
+  protected
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -213,7 +227,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    function ExecuteAction(const AActionName: string; AParams: TStrings): Boolean;
+    function ExecuteAction(const AActionName: string; AParams: TStrings): Boolean; reintroduce;
   published
     property Action: TAIAgentAction read FAction write SetAction;
     property Resource: TAIAgentResource read FResource write SetResource;
@@ -229,6 +243,33 @@ implementation
 procedure Register;
 begin
   RegisterComponents('IA Agent', [TAIAgent, TAIAgentOptions, TAIAgentAction, TAIAgentResource, TAIAgentOutput]);
+end;
+
+function GetPropString(AComponent: TComponent; const APropName: string): string;
+var
+  PropInfo: PPropInfo;
+begin
+  Result := '';
+  if not Assigned(AComponent) then Exit;
+  PropInfo := GetPropInfo(AComponent, APropName);
+  if PropInfo <> nil then
+    Result := GetStrProp(AComponent, PropInfo);
+end;
+
+procedure SetPropValueByName(AComponent: TComponent; const APropName: string; const AValue: string);
+var
+  PropInfo: PPropInfo;
+begin
+  if not Assigned(AComponent) then Exit;
+  PropInfo := GetPropInfo(AComponent, APropName);
+  if PropInfo = nil then Exit;
+  
+  case PropInfo^.PropType^.Kind of
+    tkInteger: SetOrdProp(AComponent, PropInfo, StrToIntDef(AValue, 0));
+    tkBool: SetOrdProp(AComponent, PropInfo, Ord(SameText(AValue, 'True') or (AValue = '1')));
+    tkFloat: SetFloatProp(AComponent, PropInfo, StrToFloatDef(AValue, 0.0));
+    tkAString, tkUString, tkSString: SetStrProp(AComponent, PropInfo, AValue);
+  end;
 end;
 
 { TAIAgentOptions }
@@ -307,6 +348,7 @@ begin
   FChatGPT := nil;
   FOptions := nil;
   FAction := nil;
+  FResource := nil;
   FSystemPrompt := '';
   FLastError := '';
   FLastRationale := '';
@@ -349,6 +391,7 @@ var
   RetryCount: Integer;
   ParsedSuccessfully: Boolean;
   CurrentPrompt: string;
+  CompPrompt: string;
 begin
   Result := False;
   FLastError := '';
@@ -427,6 +470,38 @@ begin
   begin
     Prompt := Prompt + sLineBreak + '=== DIRETRIZES DE PARÂMETROS PARA AS AÇÕES ===' + sLineBreak;
     Prompt := Prompt + ParamsText;
+  end;
+
+  // Build and append resources and their prompts
+  if Assigned(FResource) and (FResource.Resources.Count > 0) then
+  begin
+    Prompt := Prompt + sLineBreak + '=== RECURSOS E DISPOSITIVOS FÍSICOS DISPONÍVEIS (IA INPUT / IA OUTPUT) ===' + sLineBreak;
+    for I := 0 to FResource.Resources.Count - 1 do
+    begin
+      Prompt := Prompt + 'Recurso: "' + FResource.Resources[I].Name + '"' + sLineBreak;
+      if Assigned(FResource.Resources[I].Component) then
+      begin
+        CompPrompt := GetPropString(FResource.Resources[I].Component, 'Prompt');
+        if CompPrompt <> '' then
+          Prompt := Prompt + '  Orientação de IA: ' + CompPrompt + sLineBreak
+        else
+          Prompt := Prompt + '  Orientação de IA: Componente conectado ' + FResource.Resources[I].Component.ClassName + sLineBreak;
+      end
+      else
+        Prompt := Prompt + '  Tipo Físico: ' + GetEnumName(TypeInfo(TAIAgentResourceType), Ord(FResource.Resources[I].ResourceType)) + sLineBreak;
+        
+      Prompt := Prompt + '  Configuração Padrão:' + sLineBreak;
+      if FResource.Resources[I].Recipient <> '' then Prompt := Prompt + '    Recipient: ' + FResource.Resources[I].Recipient + sLineBreak;
+      if FResource.Resources[I].Sender <> '' then Prompt := Prompt + '    Sender: ' + FResource.Resources[I].Sender + sLineBreak;
+      if FResource.Resources[I].Subject <> '' then Prompt := Prompt + '    Subject: ' + FResource.Resources[I].Subject + sLineBreak;
+      if FResource.Resources[I].Host <> '' then Prompt := Prompt + '    Host: ' + FResource.Resources[I].Host + sLineBreak;
+      if FResource.Resources[I].Port <> 0 then Prompt := Prompt + '    Port: ' + IntToStr(FResource.Resources[I].Port) + sLineBreak;
+      if FResource.Resources[I].FilePath <> '' then Prompt := Prompt + '    FilePath: ' + FResource.Resources[I].FilePath + sLineBreak;
+      if FResource.Resources[I].APIUrl <> '' then Prompt := Prompt + '    APIUrl: ' + FResource.Resources[I].APIUrl + sLineBreak;
+      Prompt := Prompt + sLineBreak;
+    end;
+    
+    Prompt := Prompt + 'Você pode definir ou alterar qualquer um destes parâmetros em sua resposta JSON na seção "parameters".' + sLineBreak;
   end;
 
   Prompt := Prompt + sLineBreak + '=== INSTRUÇÕES CRÍTICAS DE RETORNO ===' + sLineBreak;
@@ -557,6 +632,7 @@ begin
   FPort := 0;
   FHeaders := TStringList.Create;
   FConfig := TStringList.Create;
+  FComponent := nil;
 end;
 
 destructor TAIAgentResourceItem.Destroy;
@@ -576,6 +652,24 @@ begin
   FConfig.Assign(AValue);
 end;
 
+
+
+procedure TAIAgentResourceItem.SetComponent(AValue: TComponent);
+var
+  Coll: TAIAgentResourceCollection;
+begin
+  if FComponent <> AValue then
+  begin
+    FComponent := AValue;
+    if (FComponent <> nil) and (Collection is TAIAgentResourceCollection) then
+    begin
+      Coll := TAIAgentResourceCollection(Collection);
+      if Assigned(Coll.FOwnerComponent) then
+        FComponent.FreeNotification(Coll.FOwnerComponent);
+    end;
+  end;
+end;
+
 function TAIAgentResourceItem.Execute(const AData: string; AParams: TStrings; out ALog: string): Boolean;
 var
   HTTPClient: TFPHttpClient;
@@ -589,11 +683,353 @@ var
   VHost: string;
   VPort: Integer;
   VAPIUrl: string;
+  VKey, VVal: string;
+  CompPrompt: string;
 begin
   Result := False;
   ALog := '';
   
-  // Extract dynamic parameters resolved by AI
+  if Assigned(FComponent) then
+  begin
+    // 1. Injetar parâmetros resolvidos pela IA nas propriedades correspondentes do componente via RTTI
+    if Assigned(AParams) then
+    begin
+      for I := 0 to AParams.Count - 1 do
+      begin
+        VKey := AParams.Names[I];
+        VVal := AParams.ValueFromIndex[I];
+        if VKey <> '' then
+          SetPropValueByName(FComponent, VKey, VVal);
+      end;
+    end;
+
+    // 2. Despachar a execução com tipagem forte para a suite IA Input / IA Output
+    
+    // IA OUTPUT: PDF
+    if FComponent is TAIPDFOutput then
+    begin
+      with (FComponent as TAIPDFOutput) do
+      begin
+        if FileName = '' then FileName := 'relatorio.pdf';
+        StartDocument;
+        AddPage;
+        AddText('AGENT EXECUTION', 50, 50, 16);
+        AddText('Timestamp: ' + DateTimeToStr(Now), 50, 80, 10);
+        AddText(AData, 50, 110, 10);
+        Result := SavePDF;
+        if Result then
+          ALog := 'PDF salvo com sucesso em: ' + FileName
+        else
+          ALog := 'Erro ao salvar PDF.';
+      end;
+      Exit;
+    end;
+
+    // IA OUTPUT: Word
+    if FComponent is TAIWordOutput then
+    begin
+      with (FComponent as TAIWordOutput) do
+      begin
+        if FileName = '' then FileName := 'relatorio.docx';
+        AddHeading('AGENT EXECUTION', 1);
+        AddParagraph(AData);
+        Result := SaveWord;
+        if Result then
+          ALog := 'Word (.docx) salvo com sucesso em: ' + FileName
+        else
+          ALog := 'Erro ao salvar Word.';
+      end;
+      Exit;
+    end;
+
+    // IA OUTPUT: Excel
+    if FComponent is TAIExcelOutput then
+    begin
+      with (FComponent as TAIExcelOutput) do
+      begin
+        if FileName = '' then FileName := 'dados.xlsx';
+        SetCell(0, 0, 'Agent Data');
+        SetCell(1, 0, AData);
+        Result := SaveExcel;
+        if Result then
+          ALog := 'Excel (.xlsx) salvo com sucesso em: ' + FileName
+        else
+          ALog := 'Erro ao salvar Excel.';
+      end;
+      Exit;
+    end;
+
+    // IA OUTPUT: TXT
+    if FComponent is TAITXTOutput then
+    begin
+      with (FComponent as TAITXTOutput) do
+      begin
+        if FileName = '' then FileName := 'relatorio.txt';
+        AddHeader('AGENT EXECUTION LOG');
+        AddLine(AData);
+        Result := SaveText;
+        if Result then
+          ALog := 'TXT salvo com sucesso em: ' + FileName
+        else
+          ALog := 'Erro ao salvar TXT.';
+      end;
+      Exit;
+    end;
+
+    // IA OUTPUT: Unified OutputDocs
+    if FComponent is TAIOutputDocs then
+    begin
+      with (FComponent as TAIOutputDocs) do
+      begin
+        Title := 'Relatório de Agente';
+        AddHeading('AGENT EXECUTION', 1);
+        AddParagraph(AData);
+        Result := SaveAll('relatorio_agente');
+        if Result then
+          ALog := 'Todos os relatorios (.pdf, .docx, .xlsx, .txt) foram gerados com sucesso.'
+        else
+          ALog := 'Erro ao salvar relatorios unificados.';
+      end;
+      Exit;
+    end;
+
+    // IA OUTPUT: Math OutputData
+    if FComponent is TAIOutputData then
+    begin
+      with (FComponent as TAIOutputData) do
+      begin
+        SoftMax;
+        Result := True;
+        ALog := 'Ativacao SoftMax executada: ' + ClassificationResult;
+      end;
+      Exit;
+    end;
+
+    // IA INPUT: Email
+    if FComponent is TAIEmailClient then
+    begin
+      with (FComponent as TAIEmailClient) do
+      begin
+        VVal := AParams.Values['recipient'];
+        if VVal = '' then VVal := AParams.Values['to'];
+        if VVal = '' then VVal := FRecipient;
+        
+        VKey := AParams.Values['subject'];
+        if VKey = '' then VKey := FSubject;
+        if VKey = '' then VKey := 'Mensagem do Agente';
+
+        Result := SendEmail(VVal, VKey, AData);
+        if Result then
+          ALog := 'E-mail enviado via TAIEmailClient para ' + VVal
+        else
+          ALog := 'Falha ao enviar e-mail via TAIEmailClient.';
+      end;
+      Exit;
+    end;
+
+    // IA INPUT: Messenger (WhatsApp/SMS)
+    if FComponent is TAIMessenger then
+    begin
+      with (FComponent as TAIMessenger) do
+      begin
+        VVal := AParams.Values['recipient'];
+        if VVal = '' then VVal := AParams.Values['to'];
+        if VVal = '' then VVal := FRecipient;
+        
+        if FResourceType = artWhatsApp then
+          Result := SendWhatsApp(VVal, AData)
+        else
+          Result := SendSMS(VVal, AData);
+          
+        if Result then
+          ALog := 'Mensagem enviada via TAIMessenger para ' + VVal
+        else
+          ALog := 'Falha ao enviar mensagem via TAIMessenger.';
+      end;
+      Exit;
+    end;
+
+    // IA INPUT: Sockets TCP
+    if FComponent is TAISocketTCP then
+    begin
+      with (FComponent as TAISocketTCP) do
+      begin
+        if not Active then Active := True;
+        if Connect then
+        begin
+          Result := SendText(AData);
+          Disconnect;
+          if Result then
+            ALog := 'Dados TCP enviados com sucesso.'
+          else
+            ALog := 'Falha ao enviar dados via TCP.';
+        end
+        else
+          ALog := 'Falha ao conectar socket TCP.';
+      end;
+      Exit;
+    end;
+
+    // IA INPUT: Sockets UDP
+    if FComponent is TAISocketUDP then
+    begin
+      with (FComponent as TAISocketUDP) do
+      begin
+        if not Active then Active := True;
+        Result := SendText(AData);
+        if Result then
+          ALog := 'Dados UDP enviados com sucesso.'
+        else
+          ALog := 'Falha ao enviar dados via UDP.';
+      end;
+      Exit;
+    end;
+
+    // IA INPUT: Serial/Modem
+    if FComponent is TAISerialModem then
+    begin
+      with (FComponent as TAISerialModem) do
+      begin
+        if not Active then Active := True;
+        VVal := AParams.Values['recipient'];
+        if VVal <> '' then
+          Result := SendSMS(VVal, AData)
+        else
+          Result := WriteText(AData);
+          
+        if Result then
+          ALog := 'Dados gravados com sucesso na serial/modem.'
+        else
+          ALog := 'Falha na escrita na serial/modem.';
+      end;
+      Exit;
+    end;
+
+    // IA INPUT: MODBUS
+    if FComponent is TAIModbusClient then
+    begin
+      with (FComponent as TAIModbusClient) do
+      begin
+        if not Active then Active := True;
+        Result := True;
+        ALog := 'Comando Modbus simulado/executado com sucesso.';
+      end;
+      Exit;
+    end;
+
+    // IA INPUT: MQTT
+    if FComponent is TAIMqttClient then
+    begin
+      with (FComponent as TAIMqttClient) do
+      begin
+        if not Active then ConnectBroker;
+        VVal := AParams.Values['topic'];
+        if VVal = '' then VVal := 'agent/output';
+        Result := Publish(VVal, AData);
+        if Result then
+          ALog := 'Mensagem MQTT publicada no tópico "' + VVal + '"'
+        else
+          ALog := 'Falha ao publicar mensagem MQTT.';
+      end;
+      Exit;
+    end;
+
+    // IA INPUT: OS Capture
+    if FComponent is TAIOSInputCapture then
+    begin
+      with (FComponent as TAIOSInputCapture) do
+      begin
+        Result := True;
+        ALog := 'Captura de eventos do sistema ativo: mouse=' + BoolToStr(TrackMouse, True) + ', keyboard=' + BoolToStr(TrackKeyboard, True);
+      end;
+      Exit;
+    end;
+
+    // IA INPUT: POS Printer
+    if FComponent is TAIPOSPrinter then
+    begin
+      with (FComponent as TAIPOSPrinter) do
+      begin
+        if not Active then Active := True;
+        Result := PrintText(AData);
+        if Result then
+          ALog := 'Recibo impresso com sucesso na impressora Esc/POS.'
+        else
+          ALog := 'Erro de impressão Esc/POS.';
+      end;
+      Exit;
+    end;
+
+    // IA INPUT: Web Server API
+    if FComponent is TAIWebAPIServer then
+    begin
+      with (FComponent as TAIWebAPIServer) do
+      begin
+        if not Active then StartServer;
+        Result := True;
+        ALog := 'Servidor WebAPI REST ativo na porta ' + IntToStr(Port);
+      end;
+      Exit;
+    end;
+
+    // IA INPUT: Industrial Bridge
+    if FComponent is TAIIndustrialBridge then
+    begin
+      with (FComponent as TAIIndustrialBridge) do
+      begin
+        if not Active then ConnectBridge;
+        Result := True;
+        ALog := 'Ponte Profinet/Profibus ativa: ' + IPAddress;
+      end;
+      Exit;
+    end;
+
+    // IA INPUT: Camera
+    if FComponent is TAICameraInput then
+    begin
+      with (FComponent as TAICameraInput) do
+      begin
+        if not Active then StartCapture;
+        Result := True;
+        ALog := 'Dispositivo de camera física ativo.';
+      end;
+      Exit;
+    end;
+
+    // IA INPUT: Audio
+    if FComponent is TAIAudioInput then
+    begin
+      with (FComponent as TAIAudioInput) do
+      begin
+        Result := True;
+        ALog := 'Suíte de sinais de áudio ativa.';
+      end;
+      Exit;
+    end;
+
+    // IA INPUT: TAIInputData
+    if FComponent is TAIInputData then
+    begin
+      with (FComponent as TAIInputData) do
+      begin
+        Normalize;
+        Result := True;
+        ALog := 'Normalização linear executada.';
+      end;
+      Exit;
+    end;
+
+    // Fallback para componentes customizados com propriedade Prompt
+    CompPrompt := GetPropString(FComponent, 'Prompt');
+    if CompPrompt <> '' then
+    begin
+      ALog := 'Componente customizado "' + FComponent.ClassName + '" executado. Prompt: ' + CompPrompt;
+      Result := True;
+      Exit;
+    end;
+  end;
+
+  // Bloco de Fallback legado caso não haja Componente associado
   VRecipient := FRecipient;
   if AParams.Values['recipient'] <> '' then VRecipient := AParams.Values['recipient'];
   
@@ -711,7 +1147,6 @@ begin
             HTTPClient.ConnectTimeout := 15000;
             HTTPClient.RequestBody := RequestBodyStream;
             
-            // Add custom headers
             for I := 0 to FHeaders.Count - 1 do
               HTTPClient.AddHeader(FHeaders.Names[I], FHeaders.ValueFromIndex[I]);
             
@@ -788,6 +1223,21 @@ end;
 procedure TAIAgentResource.SetResources(AValue: TAIAgentResourceCollection);
 begin
   FResources.Assign(AValue);
+end;
+
+procedure TAIAgentResource.Notification(AComponent: TComponent; Operation: TOperation);
+var
+  I: Integer;
+begin
+  inherited Notification(AComponent, Operation);
+  if Operation = opRemove then
+  begin
+    for I := 0 to FResources.Count - 1 do
+    begin
+      if FResources[I].Component = AComponent then
+        FResources[I].Component := nil;
+    end;
+  end;
 end;
 
 function TAIAgentResource.FindResource(const AName: string): TAIAgentResourceItem;
