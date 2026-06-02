@@ -6,8 +6,9 @@ Todas as alterações relevantes para a suíte de componentes Lazarus AI Suite s
 
 ### Adicionado
 - **TAIBaseComponent**: Nova classe base comum (`aibase.pas`) que unifica logs estruturados (`OnLog`, `TAILogLevel`, `TAILogEvent`), versão global da suíte (`AI_SUITE_VERSION`) e propriedades comuns de controle de erro (`Prompt`, `LastError`, `LastResult`, `LastSuccess`).
+- **TAIGraphMap**: Novo componente de classificação textual local e explicável baseado em grafo ponderado de tokens (IA local leve, sem necessidade de LLM ou GPU externos).
 - **TAIProject**: Novo componente coordenador de projetos de IA, permitindo carregar e salvar definições de forma segura e gerenciar modos de simulação.
-- **TAIPipeline**: Novo componente para orquestrar esteiras operacionais e conectar percepção a modelos e a geradores de documentos.
+- **TAIPipeline**: Novo componente para orquestrar esteiras operacionais e conectar percepção a modelos e a geradores de documentos. Suporta classificação local usando `TAIGraphMap` com o modo `pmGraphMapClassification`.
 - **TAIPromptBuilder**: Varrimento inteligente de componentes e formulários com suporte a idiomas (Português, Inglês, Espanhol) e múltiplos formatos de saída (Text, Markdown, JSON).
 - **TAIAgentSafety**: Camada de proteção física para agentes autônomos com normalização estrita de diretórios, fallbacks de portas de rede (como HTTPS para 443) e confirmações de ações com o evento `OnConfirmAction`.
 - **aiagent_executors.pas**: Novo módulo contendo executores modulares desacoplados (`TAIAgentDocsExecutor`, `TAIAgentNetworkExecutor`, `TAIAgentIndustrialExecutor`, `TAIAgentMessagingExecutor`, `TAIAgentHardwareExecutor`) para processar ações físicas solicitadas pelo Agente.

@@ -5,6 +5,7 @@ Este documento descreve o estado atual de maturidade, a categoria operacional e 
 | Componente | Categoria | Status | Observação / Compatibilidade |
 | :--- | :--- | :--- | :--- |
 | **TCHATGPT** | `ccModel` | Beta/Estável | Conector principal para APIs compatíveis com OpenAI. Estável para envio de mensagens e integração de modelos. |
+| **TAIGraphMap** | `ccModel` | Beta | Classificador textual local e explicável baseado em mapa de grafos ponderado de tokens. |
 | **TAIProject** | `ccProject` | Beta | Coordenador central de projetos de IA. Permite carregar e salvar configurações em JSON, omitindo tokens/senhas por padrão para segurança de chaves. |
 | **TAIPipeline** | `ccOther` | Beta | Gerenciador de esteiras integrando Entrada (Input), Redes Neurais (ML) e Saída (Output). Suporta execução de agentes, relatórios e monitoramento de telemetria industrial. |
 | **TAIPromptBuilder**| `ccOther` | Beta | Construtor de prompts que varre formulários e componentes. Suporta múltiplos idiomas (Português, Inglês, Espanhol), múltiplos formatos de saída (Texto, Markdown estruturado, JSON) e inspeção de propriedades via RTTI. |

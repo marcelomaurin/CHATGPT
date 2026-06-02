@@ -14,8 +14,8 @@ uses
   iaschedule, aivoicesynthesizer, aiagent, numps, aiinput, aicamera, aiaudio, 
   aiwebserver, aisockets, aiserial, aiposprinter, aicftvip, aimodbus, aimqtt, 
   aiemail, aimessenger, aiindustrial, aichromiumbrowser, aioscapture, 
-  aioutput, aioutput_docs, aiproject, aipipeline, aipromptbuilder, aibase, 
-  aiagentsafety, aiagent_executors, LazarusPackageIntf;
+  aioutput, aioutput_docs, aiproject, aipipeline, aipromptbuilder, aigraphmap, 
+  aibase, aiagentsafety, aiagent_executors, LazarusPackageIntf;
 
 implementation
 
@@ -59,6 +59,7 @@ begin
   RegisterUnit('aiproject', @aiproject.Register);
   RegisterUnit('aipipeline', @aipipeline.Register);
   RegisterUnit('aipromptbuilder', @aipromptbuilder.Register);
+  RegisterUnit('aigraphmap', @aigraphmap.Register);
   RegisterUnit('aiagentsafety', @aiagentsafety.Register);
 end;
 

@@ -211,6 +211,11 @@
         <UnitName Value="aipromptbuilder"/>
       </Item>
       <Item>
+        <Filename Value="IA\aigraphmap.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aigraphmap"/>
+      </Item>
+      <Item>
         <Filename Value="IA\aibase.pas"/>
         <UnitName Value="aibase"/>
       </Item>

@@ -1,0 +1,317 @@
+object frmGraphMapDemo: TfrmGraphMapDemo
+  Left = 280
+  Height = 650
+  Top = 150
+  Width = 850
+  Caption = 'TAIGraphMap Showcase - Classificador Textual Local por Grafo Ponderado'
+  ClientHeight = 650
+  ClientWidth = 850
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '3.0.0.3'
+  object pnlConfig: TPanel
+    Left = 10
+    Height = 85
+    Top = 10
+    Width = 830
+    Align = alTop
+    BorderSpacing.Around = 10
+    ClientHeight = 85
+    ClientWidth = 830
+    TabOrder = 0
+    object btnLoadDefaults: TButton
+      Left = 15
+      Height = 25
+      Top = 15
+      Width = 160
+      Caption = 'Carregar Exemplos Padrão'
+      OnClick = btnLoadDefaultsClick
+      TabOrder = 0
+    end
+    object btnTrain: TButton
+      Left = 15
+      Height = 25
+      Top = 45
+      Width = 160
+      Caption = 'Treinar Grafo'
+      Font.Style = [fsBold]
+      OnClick = btnTrainClick
+      TabOrder = 1
+    end
+    object chkLowerCase: TCheckBox
+      Left = 195
+      Height = 19
+      Top = 18
+      Width = 113
+      Caption = 'Minúsculas (Lower)'
+      OnChange = ConfigChanged
+      TabOrder = 2
+    end
+    object chkRemoveAccents: TCheckBox
+      Left = 195
+      Height = 19
+      Top = 48
+      Width = 111
+      Caption = 'Remover Acentos'
+      OnChange = ConfigChanged
+      TabOrder = 3
+    end
+    object chkRemoveStopWords: TCheckBox
+      Left = 325
+      Height = 19
+      Top = 18
+      Width = 127
+      Caption = 'Remover Stopwords'
+      OnChange = ConfigChanged
+      TabOrder = 4
+    end
+    object chkDepthSearch: TCheckBox
+      Left = 325
+      Height = 19
+      Top = 48
+      Width = 138
+      Caption = 'Busca em Profundidade'
+      OnChange = ConfigChanged
+      TabOrder = 5
+    end
+    object chkNormalize: TCheckBox
+      Left = 485
+      Height = 19
+      Top = 18
+      Width = 121
+      Caption = 'Normalizar Scores'
+      OnChange = ConfigChanged
+      TabOrder = 6
+    end
+    object lblNodesEdges: TLabel
+      Left = 485
+      Height = 15
+      Top = 50
+      Width = 133
+      Caption = 'Grafo: 0 nós, 0 ramos'
+      Font.Style = [fsBold]
+      ParentColor = False
+    end
+  end
+  object pnlTraining: TPanel
+    Left = 10
+    Height = 280
+    Top = 105
+    Width = 260
+    Align = alLeft
+    BorderSpacing.Left = 10
+    BorderSpacing.Right = 5
+    BorderSpacing.Bottom = 5
+    ClientHeight = 280
+    ClientWidth = 260
+    TabOrder = 1
+    object lblTrainingTitle: TLabel
+      Left = 10
+      Height = 15
+      Top = 10
+      Width = 180
+      Caption = 'Frases de Treinamento (Exemplos):'
+      Font.Style = [fsBold]
+      ParentColor = False
+    end
+    object meTraining: TMemo
+      Left = 10
+      Height = 235
+      Top = 35
+      Width = 240
+      ScrollBars = ssAutoBoth
+      TabOrder = 0
+    end
+  end
+  object pnlInfer: TPanel
+    Left = 275
+    Height = 280
+    Top = 105
+    Width = 290
+    Align = alLeft
+    BorderSpacing.Left = 5
+    BorderSpacing.Right = 5
+    BorderSpacing.Bottom = 5
+    ClientHeight = 280
+    ClientWidth = 290
+    TabOrder = 2
+    object lblInferTitle: TLabel
+      Left = 15
+      Height = 15
+      Top = 10
+      Width = 143
+      Caption = 'Predição (Inferência):'
+      Font.Style = [fsBold]
+      ParentColor = False
+    end
+    object lblInput: TLabel
+      Left = 15
+      Height = 15
+      Top = 40
+      Width = 108
+      Caption = 'Texto para Classificar:'
+      ParentColor = False
+    end
+    object edInput: TEdit
+      Left = 15
+      Height = 23
+      Top = 60
+      Width = 260
+      TabOrder = 0
+      Text = 'não consigo abrir o Hygia'
+    end
+    object btnPredict: TButton
+      Left = 15
+      Height = 30
+      Top = 95
+      Width = 260
+      Caption = 'Classificar Texto (Predict)'
+      Font.Style = [fsBold]
+      OnClick = btnPredictClick
+      TabOrder = 1
+    end
+    object lblPrediction: TLabel
+      Left = 15
+      Height = 15
+      Top = 145
+      Width = 107
+      Caption = 'Categoria Escolhida:'
+      ParentColor = False
+    end
+    object edPrediction: TEdit
+      Left = 15
+      Height = 23
+      Top = 165
+      Width = 260
+      ReadOnly = True
+      TabOrder = 2
+    end
+    object pnlFileActions: TPanel
+      Left = 15
+      Height = 65
+      Top = 205
+      Width = 260
+      BevelOuter = bvNone
+      ClientHeight = 65
+      ClientWidth = 260
+      TabOrder = 3
+      object btnSaveGraph: TButton
+        Left = 0
+        Height = 25
+        Top = 5
+        Width = 125
+        Caption = 'Salvar Grafo'
+        OnClick = btnSaveGraphClick
+        TabOrder = 0
+      end
+      object btnLoadGraph: TButton
+        Left = 135
+        Height = 25
+        Top = 5
+        Width = 125
+        Caption = 'Carregar Grafo'
+        OnClick = btnLoadGraphClick
+        TabOrder = 1
+      end
+      object btnSaveTraining: TButton
+        Left = 0
+        Height = 25
+        Top = 35
+        Width = 125
+        Caption = 'Salvar Treino'
+        OnClick = btnSaveTrainingClick
+        TabOrder = 2
+      end
+      object btnLoadTraining: TButton
+        Left = 135
+        Height = 25
+        Top = 35
+        Width = 125
+        Caption = 'Carregar Treino'
+        OnClick = btnLoadTrainingClick
+        TabOrder = 3
+      end
+    end
+  end
+  object pnlRanking: TPanel
+    Left = 570
+    Height = 280
+    Top = 105
+    Width = 270
+    Align = alClient
+    BorderSpacing.Left = 5
+    BorderSpacing.Right = 10
+    BorderSpacing.Bottom = 5
+    ClientHeight = 280
+    ClientWidth = 270
+    TabOrder = 3
+    object lblRankingTitle: TLabel
+      Left = 15
+      Height = 15
+      Top = 10
+      Width = 117
+      Caption = 'Ranking Resultante:'
+      Font.Style = [fsBold]
+      ParentColor = False
+    end
+    object meRanking: TMemo
+      Left = 15
+      Height = 225
+      Top = 35
+      Width = 240
+      ReadOnly = True
+      ScrollBars = ssAutoBoth
+      TabOrder = 0
+    end
+  end
+  object pnlExplanation: TPanel
+    Left = 10
+    Height = 120
+    Top = 390
+    Width = 830
+    Align = alBottom
+    BorderSpacing.Left = 10
+    BorderSpacing.Right = 10
+    BorderSpacing.Bottom = 5
+    ClientHeight = 120
+    ClientWidth = 830
+    TabOrder = 4
+    object lblExplanationTitle: TLabel
+      Left = 10
+      Height = 15
+      Top = 5
+      Width = 176
+      Caption = 'Explicação Matemática (Grafo):'
+      Font.Style = [fsBold]
+      ParentColor = False
+    end
+    object meExplanation: TMemo
+      Left = 10
+      Height = 85
+      Top = 25
+      Width = 810
+      ReadOnly = True
+      ScrollBars = ssAutoBoth
+      TabOrder = 0
+    end
+  end
+  object meLogs: TMemo
+    Left = 10
+    Height = 90
+    Top = 550
+    Width = 830
+    Align = alBottom
+    BorderSpacing.Around = 10
+    ReadOnly = True
+    ScrollBars = ssAutoBoth
+    TabOrder = 5
+  end
+  object lblLogs: TLabel
+    Left = 10
+    Height = 15
+    Top = 525
+    Width = 99
+    Caption = 'Logs de Operação:'
+    ParentColor = False
+  end
+end

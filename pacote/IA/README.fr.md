@@ -13,6 +13,7 @@ Fournit une connectivité aux modèles de langage (OpenAI) et implémente des r�
 | **TCHATGPT** | Connecteur OpenAI/ChatGPT. | `APIKey, Model, MaxTokens` | `SendQuestion(const AQuestion: string): Boolean` | Traiter le NLP et prendre des décisions textuelles. |
 | **TNeuralNetwork** | Réseau de neurones Perceptron Multicouche natif. | `InputNodes, HiddenNodes, OutputNodes, LearningRate` | `Train, Predict` | Apprendre des modèles complexes à partir d'ensembles de données. |
 | **TTokenizer** | Tokeniseur de texte. | `LowerCase` | `Tokenize, GetVocabulary` | Prétraiter des chaînes brutes en indices numériques. |
+| **TAIGraphMap** | Classificateur de texte par graphe pondéré. | `Training, LowerCaseTokens, RemoveAccents, RemoveStopWords, WindowSize, UseGraphDepthSearch, MaxDepth, DepthDecay` | `Train, TrainItem, Predict, PredictRanking, ExplainPrediction` | Classifier des textes courts localement sans dépendance réseau. |
 
 ### 💻 Exemple de Code Lazarus (TCHATGPT)
 

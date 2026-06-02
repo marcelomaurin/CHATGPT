@@ -23,6 +23,7 @@ Les exemples suivants sont des projets visuels prêts à être compilés et exé
 | **[sound_filters_demo/](sound_filters_demo/)** | Traitement du signal DSP et modulations. | `IA Filtros Sonoros tab filters (TAISoundFilters)` | Models LowPass/HighPass filters, FDM, TDM, CDM, and orthogonal OFDM multiplexing. |
 | **[schedule_demo/](schedule_demo/)** | Planificateur de tâches cron. | `TIASchedule` | Resolves task dependency trees using cron configurations and saves setups to JSON. |
 | **[hardware_net_demo/](hardware_net_demo/)** | Démo avancée matériels, réseaux, API et MQTT. | `TAICameraInput, TAIMQTTClient, TAIEmailClient, TAIMessenger, TAIIndustrialBridge, TAIChromiumBrowser, TAIOSInputCapture` | Captures video frames, reads MQTT broker topics, sends emails, bridges Profinet CLPs, and logs global events. |
+| **[graphmap_demo/](graphmap_demo/)** | Classification et routage de texte par cartes de graphes de jetons pondérés. | `TAIGraphMap` | Allows adding training phrases and target categories, training the model, and visualizing category ranking and weight-based explanations. |
 
 ## 💻 Démonstrations en Ligne de Commande (Console)
 Ces exemples illustrent l'utilisation directe des composants en ligne de commande pour le débogage rapide :

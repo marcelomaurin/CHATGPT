@@ -23,6 +23,7 @@ Los siguientes ejemplos son proyectos visuales listos para compilar y ejecutar i
 | **[sound_filters_demo/](sound_filters_demo/)** | Procesamiento DSP y modulación de señales. | `IA Filtros Sonoros tab filters (TAISoundFilters)` | Models LowPass/HighPass filters, FDM, TDM, CDM, and orthogonal OFDM multiplexing. |
 | **[schedule_demo/](schedule_demo/)** | Programador de tareas periódicas cron. | `TIASchedule` | Resolves task dependency trees using cron configurations and saves setups to JSON. |
 | **[hardware_net_demo/](hardware_net_demo/)** | Demostración de hardware, redes, PLC y MQTT. | `TAICameraInput, TAIMQTTClient, TAIEmailClient, TAIMessenger, TAIIndustrialBridge, TAIChromiumBrowser, TAIOSInputCapture` | Captures video frames, reads MQTT broker topics, sends emails, bridges Profinet CLPs, and logs global events. |
+| **[graphmap_demo/](graphmap_demo/)** | Clasificación de texto y enrutamiento usando mapas de grafos ponderados de tokens. | `TAIGraphMap` | Allows adding training phrases and target categories, training the model, and visualizing category ranking and weight-based explanations. |
 
 ## 💻 Demostraciones de Línea de Comando (Consola)
 Estos ejemplos demuestran la invocación directa de componentes a través de la línea de comandos para depuración rápida o automatización:

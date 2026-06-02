@@ -91,7 +91,8 @@ tab_data = {
             'comps': [
                 {'name': 'TCHATGPT', 'desc': 'Conector OpenAI/ChatGPT.', 'props': 'APIKey, Model, MaxTokens', 'methods': 'SendQuestion(const AQuestion: string): Boolean', 'role': 'Processar NLP e tomar decisões baseadas em texto.'},
                 {'name': 'TNeuralNetwork', 'desc': 'Rede Neural Multicamadas nativa.', 'props': 'InputNodes, HiddenNodes, OutputNodes, LearningRate', 'methods': 'Train, Predict', 'role': 'Aprender padrões complexos a partir de conjuntos de dados.'},
-                {'name': 'TTokenizer', 'desc': 'Tokenizador de texto.', 'props': 'LowerCase', 'methods': 'Tokenize, GetVocabulary', 'role': 'Pré-processar strings brutos em índices numéricos.'}
+                {'name': 'TTokenizer', 'desc': 'Tokenizador de texto.', 'props': 'LowerCase', 'methods': 'Tokenize, GetVocabulary', 'role': 'Pré-processar strings brutos em índices numéricos.'},
+                {'name': 'TAIGraphMap', 'desc': 'Classificador textual por grafo ponderado.', 'props': 'Training, LowerCaseTokens, RemoveAccents, RemoveStopWords, WindowSize, UseGraphDepthSearch, MaxDepth, DepthDecay', 'methods': 'Train, TrainItem, Predict, PredictRanking, ExplainPrediction', 'role': 'Classificar textos curtos localmente sem dependências de rede.'}
             ]
         },
         'en': {
@@ -100,7 +101,8 @@ tab_data = {
             'comps': [
                 {'name': 'TCHATGPT', 'desc': 'OpenAI/ChatGPT connector.', 'props': 'APIKey, Model, MaxTokens', 'methods': 'SendQuestion(const AQuestion: string): Boolean', 'role': 'Process NLP and make text-based decisions.'},
                 {'name': 'TNeuralNetwork', 'desc': 'Native Multilayer Perceptron Neural Network.', 'props': 'InputNodes, HiddenNodes, OutputNodes, LearningRate', 'methods': 'Train, Predict', 'role': 'Learn complex patterns from datasets.'},
-                {'name': 'TTokenizer', 'desc': 'Text tokenizer.', 'props': 'LowerCase', 'methods': 'Tokenize, GetVocabulary', 'role': 'Preprocess raw strings into numerical indices.'}
+                {'name': 'TTokenizer', 'desc': 'Text tokenizer.', 'props': 'LowerCase', 'methods': 'Tokenize, GetVocabulary', 'role': 'Preprocess raw strings into numerical indices.'},
+                {'name': 'TAIGraphMap', 'desc': 'Weighted graph text classifier.', 'props': 'Training, LowerCaseTokens, RemoveAccents, RemoveStopWords, WindowSize, UseGraphDepthSearch, MaxDepth, DepthDecay', 'methods': 'Train, TrainItem, Predict, PredictRanking, ExplainPrediction', 'role': 'Classify short texts locally without network dependencies.'}
             ]
         },
         'es': {
@@ -109,7 +111,8 @@ tab_data = {
             'comps': [
                 {'name': 'TCHATGPT', 'desc': 'Conector OpenAI/ChatGPT.', 'props': 'APIKey, Model, MaxTokens', 'methods': 'SendQuestion(const AQuestion: string): Boolean', 'role': 'Procesar NLP y tomar decisiones basadas en texto.'},
                 {'name': 'TNeuralNetwork', 'desc': 'Red Neuronal Multicapa nativa.', 'props': 'InputNodes, HiddenNodes, OutputNodes, LearningRate', 'methods': 'Train, Predict', 'role': 'Aprender patrones complejos a partir de conjuntos de datos.'},
-                {'name': 'TTokenizer', 'desc': 'Tokenizador de texto.', 'props': 'LowerCase', 'methods': 'Tokenize, GetVocabulary', 'role': 'Preprocesar cadenas de texto en índices numéricos.'}
+                {'name': 'TTokenizer', 'desc': 'Tokenizador de texto.', 'props': 'LowerCase', 'methods': 'Tokenize, GetVocabulary', 'role': 'Preprocesar cadenas de texto en índices numéricos.'},
+                {'name': 'TAIGraphMap', 'desc': 'Clasificador textual por grafo ponderado.', 'props': 'Training, LowerCaseTokens, RemoveAccents, RemoveStopWords, WindowSize, UseGraphDepthSearch, MaxDepth, DepthDecay', 'methods': 'Train, TrainItem, Predict, PredictRanking, ExplainPrediction', 'role': 'Clasificar textos cortos localmente sin dependencias de red.'}
             ]
         },
         'fr': {
@@ -118,7 +121,8 @@ tab_data = {
             'comps': [
                 {'name': 'TCHATGPT', 'desc': 'Connecteur OpenAI/ChatGPT.', 'props': 'APIKey, Model, MaxTokens', 'methods': 'SendQuestion(const AQuestion: string): Boolean', 'role': 'Traiter le NLP et prendre des décisions textuelles.'},
                 {'name': 'TNeuralNetwork', 'desc': 'Réseau de neurones Perceptron Multicouche natif.', 'props': 'InputNodes, HiddenNodes, OutputNodes, LearningRate', 'methods': 'Train, Predict', 'role': 'Apprendre des modèles complexes à partir d\'ensembles de données.'},
-                {'name': 'TTokenizer', 'desc': 'Tokeniseur de texte.', 'props': 'LowerCase', 'methods': 'Tokenize, GetVocabulary', 'role': 'Prétraiter des chaînes brutes en indices numériques.'}
+                {'name': 'TTokenizer', 'desc': 'Tokeniseur de texte.', 'props': 'LowerCase', 'methods': 'Tokenize, GetVocabulary', 'role': 'Prétraiter des chaînes brutes en indices numériques.'},
+                {'name': 'TAIGraphMap', 'desc': 'Classificateur de texte par graphe pondéré.', 'props': 'Training, LowerCaseTokens, RemoveAccents, RemoveStopWords, WindowSize, UseGraphDepthSearch, MaxDepth, DepthDecay', 'methods': 'Train, TrainItem, Predict, PredictRanking, ExplainPrediction', 'role': 'Classifier des textes courts localement sans dépendance réseau.'}
             ]
         },
         'it': {
@@ -127,7 +131,8 @@ tab_data = {
             'comps': [
                 {'name': 'TCHATGPT', 'desc': 'Connettore OpenAI/ChatGPT.', 'props': 'APIKey, Model, MaxTokens', 'methods': 'SendQuestion(const AQuestion: string): Boolean', 'role': 'Elaborare il NLP e prendere decisioni basate sul testo.'},
                 {'name': 'TNeuralNetwork', 'desc': 'Rete Neurale Perceptron Multistrato nativa.', 'props': 'InputNodes, HiddenNodes, OutputNodes, LearningRate', 'methods': 'Train, Predict', 'role': 'Apprendere schemi complessi dai set di dati.'},
-                {'name': 'TTokenizer', 'desc': 'Tokenizzatore di testo.', 'props': 'LowerCase', 'methods': 'Tokenize, GetVocabulary', 'role': 'Pre-elaborare stringhe grezze in indici numerici.'}
+                {'name': 'TTokenizer', 'desc': 'Tokenizzatore di testo.', 'props': 'LowerCase', 'methods': 'Tokenize, GetVocabulary', 'role': 'Pre-elaborare stringhe grezze in indici numerici.'},
+                {'name': 'TAIGraphMap', 'desc': 'Classificatore testuale per grafo pesato.', 'props': 'Training, LowerCaseTokens, RemoveAccents, RemoveStopWords, WindowSize, UseGraphDepthSearch, MaxDepth, DepthDecay', 'methods': 'Train, TrainItem, Predict, PredictRanking, ExplainPrediction', 'role': 'Classificare testi brevi localmente senza dipendenze di rete.'}
             ]
         },
         'ar': {
@@ -136,7 +141,8 @@ tab_data = {
             'comps': [
                 {'name': 'TCHATGPT', 'desc': 'موصل OpenAI/ChatGPT.', 'props': 'APIKey, Model, MaxTokens', 'methods': 'SendQuestion(const AQuestion: string): Boolean', 'role': 'معالجة اللغة الطبيعية واتخاذ القرارات النصية.'},
                 {'name': 'TNeuralNetwork', 'desc': 'شبكة عصبية متعددة الطبقات أصلية.', 'props': 'InputNodes, HiddenNodes, OutputNodes, LearningRate', 'methods': 'Train, Predict', 'role': 'تعلم الأنماط المعقدة من مجموعات البيانات.'},
-                {'name': 'TTokenizer', 'desc': 'مقسم النصوص (Tokenizer).', 'props': 'LowerCase', 'methods': 'Tokenize, GetVocabulary', 'role': 'معالجة النصوص الخام وتحويلها لفهارس رقمية.'}
+                {'name': 'TTokenizer', 'desc': 'مقسم النصوص (Tokenizer).', 'props': 'LowerCase', 'methods': 'Tokenize, GetVocabulary', 'role': 'معالجة النصوص الخام وتحويلها لفهارس رقمية.'},
+                {'name': 'TAIGraphMap', 'desc': 'مصنف نصوص يعتمد على الرسوم البيانية الموزونة للرموز.', 'props': 'Training, LowerCaseTokens, RemoveAccents, RemoveStopWords, WindowSize, UseGraphDepthSearch, MaxDepth, DepthDecay', 'methods': 'Train, TrainItem, Predict, PredictRanking, ExplainPrediction', 'role': 'تصنيف النصوص القصيرة محلياً دون أي اتصال بالشبكة.'}
             ]
         }
     },

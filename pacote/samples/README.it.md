@@ -23,6 +23,7 @@ I seguenti esempi sono progetti visuali pronti per la compilazione e l'esecuzion
 | **[sound_filters_demo/](sound_filters_demo/)** | Elaborazione segnali DSP e modulazioni. | `IA Filtros Sonoros tab filters (TAISoundFilters)` | Models LowPass/HighPass filters, FDM, TDM, CDM, and orthogonal OFDM multiplexing. |
 | **[schedule_demo/](schedule_demo/)** | Pianificatore compiti basato su cron. | `TIASchedule` | Resolves task dependency trees using cron configurations and saves setups to JSON. |
 | **[hardware_net_demo/](hardware_net_demo/)** | Demo hardware, reti, PLC e broker MQTT. | `TAICameraInput, TAIMQTTClient, TAIEmailClient, TAIMessenger, TAIIndustrialBridge, TAIChromiumBrowser, TAIOSInputCapture` | Captures video frames, reads MQTT broker topics, sends emails, bridges Profinet CLPs, and logs global events. |
+| **[graphmap_demo/](graphmap_demo/)** | Classificazione e instradamento del testo tramite mappe di grafi di token pesati. | `TAIGraphMap` | Allows adding training phrases and target categories, training the model, and visualizing category ranking and weight-based explanations. |
 
 ## 💻 Demo a Riga di Comando (Console)
 Questi esempi mostrano l'invocazione diretta dei componenti da riga di comando per debug rapido o automazione:

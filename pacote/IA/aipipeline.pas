@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, chatgpt, NeuralNetwork, aiagent, aiinput, aioutput, aioutput_docs, LResources,
-  aibase, aimodbus, aimqtt, aiindustrial;
+  aibase, aimodbus, aimqtt, aiindustrial, aigraphmap;
 
 type
   TAIPipelineMode = (
@@ -14,7 +14,8 @@ type
     pmNumericML,
     pmAgentAction,
     pmDocumentGeneration,
-    pmIndustrialMonitor
+    pmIndustrialMonitor,
+    pmGraphMapClassification
   );
 
   { TAIPipeline }
@@ -41,6 +42,7 @@ type
     FSaveExcel: Boolean;
     FSaveTXT: Boolean;
     FIndustrialInput: TComponent;
+    FGraphMap: TAIGraphMap;
   public
     constructor Create(AOwner: TComponent); override;
     
@@ -50,6 +52,7 @@ type
     function RunAgent(const AInput: string): Boolean;
     function RunDocument(const AText: string): Boolean;
     function RunIndustrialMonitor: Boolean;
+    function RunGraphMapClassification: Boolean;
   published
     property Mode: TAIPipelineMode read FMode write FMode default pmTextLLM;
     property ChatGPT: TCHATGPT read FChatGPT write FChatGPT;
@@ -71,6 +74,7 @@ type
     property SaveExcel: Boolean read FSaveExcel write FSaveExcel default True;
     property SaveTXT: Boolean read FSaveTXT write FSaveTXT default True;
     property IndustrialInput: TComponent read FIndustrialInput write FIndustrialInput;
+    property GraphMap: TAIGraphMap read FGraphMap write FGraphMap;
   end;
 
 procedure Register;
@@ -101,6 +105,7 @@ begin
   FSaveExcel := True;
   FSaveTXT := True;
   FIndustrialInput := nil;
+  FGraphMap := nil;
   ClearError;
 end;
 
@@ -140,6 +145,9 @@ begin
       
     pmIndustrialMonitor:
       Result := RunIndustrialMonitor;
+      
+    pmGraphMapClassification:
+      Result := RunGraphMapClassification;
   end;
 end;
 
@@ -421,6 +429,29 @@ begin
   end
   else
     FLastError := FChatGPT.Response;
+end;
+
+function TAIPipeline.RunGraphMapClassification: Boolean;
+var
+  LList: TStringList;
+begin
+  Result := False;
+  if not Assigned(FGraphMap) then
+  begin
+    FLastError := 'Component TAIGraphMap is not connected.';
+    Exit;
+  end;
+  
+  LList := TStringList.Create;
+  try
+    FGraphMap.Predict(FInputText);
+    FGraphMap.PredictRanking(FInputText, LList);
+    FOutputText := LList.Text;
+    FLastResult := FOutputText;
+    Result := True;
+  finally
+    LList.Free;
+  end;
 end;
 
 initialization

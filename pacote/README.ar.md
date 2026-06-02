@@ -12,6 +12,7 @@
 | **TAICodeAssistant** | مساعد معرفي لمراجعة الأكواد البرمجية وتحسينها تلقائياً. | `ChatGPT` | `OptimizeCode, FindBugs, DocumentCode, ExplainCode` | تحليل كود باسكال البرمجي واقتراح عمليات إعادة الهيكلة والتصحيح. |
 | **TAIDatasetGenerator** | مولد ومصدر مجموعات البيانات المهيكلة (JSONL, CSV). | `DataRows` | `AddDataRow, Clear, SaveAsJSONL, SaveAsCSV, LoadFromCSV` | تجميع قواعد البيانات وتقسيم مجموعات التدريب. |
 | **TTokenizer** | مقسم النصوص ومحلل الكلمات السريع. | `LowerCase` | `Tokenize, GetVocabulary` | تحويل النصوص الخام البرمجية لفهارس رقمية. |
+| **TAIGraphMap** | مصنف نصوص قابل للتفسير يعتمد على خرائط الرسوم البيانية الموزونة للرموز. | `Training, LowerCaseTokens, RemoveAccents, RemoveStopWords, WindowSize, UseGraphDepthSearch, MaxDepth, DepthDecay` | `Train, TrainItem, Predict, PredictRanking, ExplainPrediction, SaveGraphToFile, LoadGraphFromFile` | تصنيف النصوص القصيرة وتصنيف التذاكر محلياً دون أي اعتماديات خارجية. |
 | **TPythonConnector** | جسر تشغيل ومحاكاة نصوص بايثون البرمجية في وقت التشغيل. | `DLLPath, Active, Version` | `ExecString, GetVar, SetVar, Eval` | دمج النماذج المتقدمة من بيئة عمل بايثون (مثل TensorFlow). |
 | **TPerceptron** | مكون العصبون المنفرد الكلاسيكي الثنائي في باسكال. | `LearningRate, Weights, Bias` | `Initialize, Predict, Train, TrainEpochs` | تصنيف الحالات المنطقية الثنائية القابلة للفصل خطياً بسرعة. |
 | **TSOMMap** | شبكة Kohonen ذاتية التنظيم لعمليات تجميع البيانات. | `GridWidth, GridHeight, InputDim` | `Initialize, FindBMU, TrainStep, Train` | تجميع البيانات المعقدة وعرضها على شبكات ثنائية الأبعاد. |

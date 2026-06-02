@@ -23,6 +23,7 @@ The following examples are visual projects ready for compilation and interactive
 | **[sound_filters_demo/](sound_filters_demo/)** | Digital Signal Processing (DSP) and modulation simulator. | `IA Filtros Sonoros tab filters (TAISoundFilters)` | Models LowPass/HighPass filters, FDM, TDM, CDM, and orthogonal OFDM multiplexing. |
 | **[schedule_demo/](schedule_demo/)** | Automated cron task scheduler and queue timeline manager. | `TIASchedule` | Resolves task dependency trees using cron configurations and saves setups to JSON. |
 | **[hardware_net_demo/](hardware_net_demo/)** | Advanced hardware, network, PLC, and IoT client showcase. | `TAICameraInput, TAIMQTTClient, TAIEmailClient, TAIMessenger, TAIIndustrialBridge, TAIChromiumBrowser, TAIOSInputCapture` | Captures video frames, reads MQTT broker topics, sends emails, bridges Profinet CLPs, and logs global events. |
+| **[graphmap_demo/](graphmap_demo/)** | Text classification and routing using weighted token graph maps. | `TAIGraphMap` | Allows adding training phrases and target categories, training the model, and visualizing category ranking and weight-based explanations. |
 
 ## 💻 Command Line Interface (Console) Demonstrations
 These examples demonstrate direct component invocation via command line for rapid debugging or automation scenarios:

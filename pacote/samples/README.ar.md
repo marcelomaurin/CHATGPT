@@ -23,6 +23,7 @@
 | **[sound_filters_demo/](sound_filters_demo/)** | معالجة الإشارات الصوتية DSP وتعديلها. | `IA Filtros Sonoros tab filters (TAISoundFilters)` | Models LowPass/HighPass filters, FDM, TDM, CDM, and orthogonal OFDM multiplexing. |
 | **[schedule_demo/](schedule_demo/)** | مجدول المهام الدورية والزمنية cron. | `TIASchedule` | Resolves task dependency trees using cron configurations and saves setups to JSON. |
 | **[hardware_net_demo/](hardware_net_demo/)** | عرض متكامل لأتمتة الأجهزة، الشبكات، والتحكم الصناعي. | `TAICameraInput, TAIMQTTClient, TAIEmailClient, TAIMessenger, TAIIndustrialBridge, TAIChromiumBrowser, TAIOSInputCapture` | Captures video frames, reads MQTT broker topics, sends emails, bridges Profinet CLPs, and logs global events. |
+| **[graphmap_demo/](graphmap_demo/)** | تصنيف وتوجيه النصوص باستخدام خرائط الرسوم البيانية الموزونة للرموز. | `TAIGraphMap` | Allows adding training phrases and target categories, training the model, and visualizing category ranking and weight-based explanations. |
 
 ## 💻 مشاريع توضيحية لسطر الأوامر (Console)
 توضح هذه الأمثلة الاستدعاء المباشر للمكونات عبر سطر الأوامر لسيناريوهات تصحيح الأخطاء السريعة وأتمتة العمليات الدورية:
