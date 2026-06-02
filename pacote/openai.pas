@@ -8,7 +8,7 @@ unit openai;
 interface
 
 uses
-  funcoes, chatgpt, NeuralNetwork, tokenizer, aicodeassistant, aidatasetgenerator, pythonconnector, facedetection, yolodetect, perceptron, sommap, cnnclassifier, lstmpredictor, soundfilters, imagefilters, iaschedule, aivoicesynthesizer, aiagent, numps, aiinput, aicamera, aiaudio, aiwebserver, aisockets, aiserial, aiposprinter, aicftvip, aimodbus, aimqtt, aiemail, aimessenger, aiindustrial, aichromiumbrowser, aioscapture, aioutput, aioutput_docs, LazarusPackageIntf;
+  funcoes, chatgpt, NeuralNetwork, tokenizer, aicodeassistant, aidatasetgenerator, pythonconnector, facedetection, yolodetect, perceptron, sommap, cnnclassifier, lstmpredictor, soundfilters, imagefilters, iaschedule, aivoicesynthesizer, aiagent, numps, aiinput, aicamera, aiaudio, aiwebserver, aisockets, aiserial, aiposprinter, aicftvip, aimodbus, aimqtt, aiemail, aimessenger, aiindustrial, aichromiumbrowser, aioscapture, aioutput, aioutput_docs, aiproject, aipipeline, aipromptbuilder, LazarusPackageIntf;
 
 implementation
 
@@ -49,6 +49,9 @@ begin
   RegisterUnit('aioscapture', @aioscapture.Register);
   RegisterUnit('aioutput', @aioutput.Register);
   RegisterUnit('aioutput_docs', @aioutput_docs.Register);
+  RegisterUnit('aiproject', @aiproject.Register);
+  RegisterUnit('aipipeline', @aipipeline.Register);
+  RegisterUnit('aipromptbuilder', @aipromptbuilder.Register);
 end;
 
 initialization

@@ -195,6 +195,21 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="aioutput_docs"/>
       </Item>
+      <Item>
+        <Filename Value="IA\aiproject.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiproject"/>
+      </Item>
+      <Item>
+        <Filename Value="IA\aipipeline.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aipipeline"/>
+      </Item>
+      <Item>
+        <Filename Value="IA\aipromptbuilder.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aipromptbuilder"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>
