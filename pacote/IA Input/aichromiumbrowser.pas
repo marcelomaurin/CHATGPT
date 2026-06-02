@@ -13,6 +13,7 @@ type
 
   TAIChromiumBrowser = class(TPanel)
   private
+    FPrompt: string;
     FURL: string;
     FHTML: string;
     FShowAddressBar: Boolean;
@@ -47,6 +48,7 @@ type
     procedure Reload;
     function GetHtmlContent: string;
   published
+    property Prompt: string read FPrompt write FPrompt;
     property URL: string read FURL write SetURL;
     property HTML: string read FHTML write FHTML;
     property ShowAddressBar: Boolean read FShowAddressBar write SetShowAddressBar default True;
@@ -76,6 +78,7 @@ end;
 constructor TAIChromiumBrowser.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FPrompt := 'Component TAIChromiumBrowser is an embedded web browser widget inherited from TPanel. Properties: URL: string (navigates to web page), HTML: string (raw HTML content), ShowAddressBar: Boolean. Methods: Navigate(const AURL: string), GoBack, GoForward, Reload, GetHtmlContent: string. AI Agent: Use this to visually embed web portals or load internet content for crawling/scraping.';
   Caption := '';
   FShowAddressBar := True;
   FHistory := TStringList.Create;

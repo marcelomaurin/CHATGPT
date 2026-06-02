@@ -26,6 +26,7 @@ type
 
   TAIWebAPIServer = class(TComponent)
   private
+    FPrompt: string;
     FPort: Integer;
     FActive: Boolean;
     FAllowedRoutes: TStrings;
@@ -43,6 +44,7 @@ type
     procedure StartServer;
     procedure StopServer;
   published
+    property Prompt: string read FPrompt write FPrompt;
     property Port: Integer read FPort write FPort default 8080;
     property Active: Boolean read FActive write SetActive default False;
     property AllowedRoutes: TStrings read FAllowedRoutes write SetAllowedRoutes;
@@ -81,6 +83,7 @@ end;
 constructor TAIWebAPIServer.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FPrompt := 'Component TAIWebAPIServer is an embedded Web REST API Server. Properties: Port: Integer (default 8080), Active: Boolean (triggers server start/stop), OnRequestReceived: TWebRouteEvent. Methods: StartServer: Boolean, StopServer. AI Agent: Use this to expose predictions, metrics, or accept remote control commands via HTTP REST endpoints.';
   FPort := 8080;
   FActive := False;
   FAllowedRoutes := TStringList.Create;

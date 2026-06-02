@@ -17,6 +17,7 @@ type
 
   TAIIndustrialBridge = class(TComponent)
   private
+    FPrompt: string;
     FLibraryPath: string;
     FIPAddress: string;
     FRack: Integer;
@@ -41,6 +42,7 @@ type
     function ReadBytes(DBNumber, StartByte, Size: Integer; out AData: array of Byte): Boolean;
     function WriteBytes(DBNumber, StartByte, Size: Integer; const AData: array of Byte): Boolean;
   published
+    property Prompt: string read FPrompt write FPrompt;
     property LibraryPath: string read FLibraryPath write FLibraryPath;
     property IPAddress: string read FIPAddress write FIPAddress;
     property Rack: Integer read FRack write FRack default 0;
@@ -62,6 +64,7 @@ end;
 constructor TAIIndustrialBridge.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FPrompt := 'Component TAIIndustrialBridge bridges Profinet and Profibus communications. Properties: LibraryPath: string (custom DLL/SO path), IPAddress: string, Rack/Slot: Integer, Active: Boolean (triggers dynamic library load). Methods: ConnectBridge, DisconnectBridge, ReadBytes(DBNumber, StartByte, Size: Integer; out AData: array of Byte): Boolean, WriteBytes(DBNumber, StartByte, Size: Integer; const AData: array of Byte): Boolean. AI Agent: Use this to interface directly with Siemens/industrial Siemens PLCs.';
   FIPAddress := '192.168.0.1';
   FRack := 0;
   FSlot := 2;

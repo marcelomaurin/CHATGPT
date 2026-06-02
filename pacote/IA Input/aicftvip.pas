@@ -12,6 +12,7 @@ type
 
   TAICFTVIP = class(TComponent)
   private
+    FPrompt: string;
     FIPAddress: string;
     FPort: Integer;
     FSnapshotURL: string;
@@ -26,6 +27,7 @@ type
     function FetchSnapShot(out ABmp: TBitmap): Boolean;
     function ConnectRTSP(const AUrl: string): Boolean;
   published
+    property Prompt: string read FPrompt write FPrompt;
     property IPAddress: string read FIPAddress write FIPAddress;
     property Port: Integer read FPort write FPort default 80;
     property SnapshotURL: string read FSnapshotURL write FSnapshotURL;
@@ -49,6 +51,7 @@ end;
 constructor TAICFTVIP.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FPrompt := 'Component TAICFTVIP interfaces network IP cameras. Properties: IPAddress: string, Port: Integer (default 80), SnapshotURL: string, Username/Password: string, Active: Boolean. Methods: FetchSnapShot(out ABmp: TBitmap): Boolean (HTTP JPEG snapshot loader), ConnectRTSP(const AUrl: string): Boolean. AI Agent: Use this to capture frames from IP surveillance systems for security monitoring or object detection.';
   FIPAddress := '192.168.1.50';
   FPort := 80;
   FSnapshotURL := '/cgi-bin/snapshot.jpg';

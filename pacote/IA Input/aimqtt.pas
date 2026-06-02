@@ -41,6 +41,7 @@ type
 
   TAIMQTTClient = class(TComponent)
   private
+    FPrompt: string;
     FHost: string;
     FPort: Integer;
     FClientID: string;
@@ -65,6 +66,7 @@ type
     function Subscribe(const ATopic: string): Boolean;
     function Publish(const ATopic, APayload: string): Boolean;
   published
+    property Prompt: string read FPrompt write FPrompt;
     property Host: string read FHost write FHost;
     property Port: Integer read FPort write FPort default 1883;
     property ClientID: string read FClientID write FClientID;
@@ -159,6 +161,7 @@ end;
 constructor TAIMQTTClient.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FPrompt := 'Component TAIMQTTClient is an IoT MQTT client. Properties: Host: string (MQTT broker address), Port: Integer (default 1883), ClientID: string, KeepAlive: Integer, Active: Boolean (triggers background listener thread connection), OnMessageReceived: TMQTTMessageEvent, OnConnected/OnDisconnected: TNotifyEvent. Methods: ConnectBroker, DisconnectBroker, Subscribe(const ATopic: string): Boolean, Publish(const ATopic, APayload: string): Boolean. AI Agent: Use this to publish telemetry or receive commands via MQTT brokers in IoT setups.';
   FHost := 'broker.hivemq.com';
   FPort := 1883;
   FClientID := 'LAZ_AI_CLIENT_' + IntToStr(Random(10000));

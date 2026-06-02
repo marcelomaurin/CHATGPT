@@ -24,6 +24,7 @@ type
 
   TAIModbusClient = class(TComponent)
   private
+    FPrompt: string;
     FProtocolType: TModbusProtocol;
     FIPAddress: string;
     FPort: Integer;
@@ -47,6 +48,7 @@ type
     function ReadHoldingRegisters(SlaveID, Address, Count: Integer; out AData: array of Word): Boolean;
     function WriteSingleRegister(SlaveID, Address, Value: Integer): Boolean;
   published
+    property Prompt: string read FPrompt write FPrompt;
     property ProtocolType: TModbusProtocol read FProtocolType write FProtocolType default mbTCP;
     property IPAddress: string read FIPAddress write FIPAddress;
     property Port: Integer read FPort write FPort default 502; // Modbus default port
@@ -70,6 +72,7 @@ end;
 constructor TAIModbusClient.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FPrompt := 'Component TAIModbusClient connects to PLCs/industrial equipment via Modbus TCP/RTU. Properties: ProtocolType: TModbusProtocol (mbTCP, mbRTU), IPAddress: string, Port: Integer (default 502), DeviceName: string, BaudRate: Integer, Active: Boolean. Methods: Connect, Disconnect, ReadHoldingRegisters(SlaveID, Address, Count: Integer; out AData: array of Word): Boolean, WriteSingleRegister(SlaveID, Address, Value: Integer): Boolean. AI Agent: Use this to read sensor states or write actuator commands in industrial automation.';
   FProtocolType := mbTCP;
   FIPAddress := '192.168.1.100';
   FPort := 502;

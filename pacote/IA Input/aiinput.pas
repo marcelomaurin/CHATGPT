@@ -14,6 +14,7 @@ type
 
   TAIInputData = class(TComponent)
   private
+    FPrompt: string;
     FRawData: TArray;
     FNormalizedData: TArray;
     FMinRange: Double;
@@ -27,6 +28,7 @@ type
     procedure LoadFromString(const AValue: string; const ADelimiter: Char = ',');
     function GetLength: Integer;
   published
+    property Prompt: string read FPrompt write FPrompt;
     property RawData: TArray read FRawData write SetRawData;
     property NormalizedData: TArray read FNormalizedData write FNormalizedData;
     property MinRange: Double read FMinRange write FMinRange;
@@ -45,6 +47,7 @@ end;
 constructor TAIInputData.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FPrompt := 'Component TAIInputData handles preprocessing raw numerical arrays. Properties: RawData: TArray (input), NormalizedData: TArray (output), MinRange/MaxRange: Double (normalization limits, e.g., 0.0 to 1.0). Methods: LoadFromString(const AValue: string; const ADelimiter: Char) to populate RawData, Normalize to scale RawData into NormalizedData, Denormalize to convert NormalizedData back, GetLength: Integer. AI Agent: Use this to scale raw neural inputs before predicting.';
   FMinRange := 0.0;
   FMaxRange := 1.0;
   SetLength(FRawData, 0);

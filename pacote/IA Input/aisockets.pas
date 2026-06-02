@@ -25,6 +25,7 @@ type
 
   TAISocketTCP = class(TComponent)
   private
+    FPrompt: string;
     FHost: string;
     FPort: Integer;
     FActive: Boolean;
@@ -43,6 +44,7 @@ type
     function SendText(const AText: string): Boolean;
     function ReceiveText(out AText: string): Boolean;
   published
+    property Prompt: string read FPrompt write FPrompt;
     property Host: string read FHost write FHost;
     property Port: Integer read FPort write FPort default 9000;
     property Active: Boolean read FActive write SetActive default False;
@@ -55,6 +57,7 @@ type
 
   TAISocketUDP = class(TComponent)
   private
+    FPrompt: string;
     FHost: string;
     FPort: Integer;
     FActive: Boolean;
@@ -72,6 +75,7 @@ type
     function SendText(const AText: string): Boolean;
     function ReceiveText(out AText: string; out AFromIP: string): Boolean;
   published
+    property Prompt: string read FPrompt write FPrompt;
     property Host: string read FHost write FHost;
     property Port: Integer read FPort write FPort default 9001;
     property Active: Boolean read FActive write SetActive default False;
@@ -93,6 +97,7 @@ end;
 constructor TAISocketTCP.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FPrompt := 'Component TAISocketTCP manages standard TCP connections. Properties: Host: string (target IP/domain), Port: Integer, Mode: TSocketMode (smClient, smServer), Active: Boolean (triggers connect/disconnect), OnDataReceived: TSocketDataEvent. Methods: Connect, Disconnect, SendText(const AText: string): Boolean, ReceiveText(out AText: string): Boolean. AI Agent: Use this for persistent bidirectional stream communication.';
   FHost := '127.0.0.1';
   FPort := 9000;
   FActive := False;
@@ -254,6 +259,7 @@ end;
 constructor TAISocketUDP.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FPrompt := 'Component TAISocketUDP handles lightweight connectionless UDP communication. Properties: Host: string (target IP/domain), Port: Integer, Active: Boolean, OnDataReceived: TSocketDataEvent. Methods: OpenSocket, CloseSocket, SendText(const AText: string): Boolean, ReceiveText(out AText: string; out AFromIP: string): Boolean. AI Agent: Use this for quick, non-guaranteed broadcast signals or real-time telemetry.';
   FHost := '127.0.0.1';
   FPort := 9001;
   FActive := False;

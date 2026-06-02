@@ -14,6 +14,7 @@ type
 
   TAIOutputData = class(TComponent)
   private
+    FPrompt: string;
     FProbabilities: TArray;
     FClasses: TStrings;
     FClassificationResult: string;
@@ -27,6 +28,7 @@ type
     function GetBestClassName: string;
     procedure UpdateResult;
   published
+    property Prompt: string read FPrompt write FPrompt;
     property Probabilities: TArray read FProbabilities write FProbabilities;
     property Classes: TStrings read FClasses write SetClasses;
     property ClassificationResult: string read FClassificationResult write FClassificationResult;
@@ -44,6 +46,7 @@ end;
 constructor TAIOutputData.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FPrompt := 'Component TAIOutputData processes raw probabilities into class classifications. Properties: Probabilities: TArray of Double, Classes: TStrings (class labels), ClassificationResult: string (final formatted prediction e.g. "Class A (95.0%)"). Methods: SoftMax (applies exponential normalization stability), GetBestClassIndex: Integer, GetBestClassName: string, UpdateResult. AI Agent: Use this to evaluate and format raw classifier logits/probabilities.';
   FClasses := TStringList.Create;
   FClassificationResult := '';
   SetLength(FProbabilities, 0);

@@ -18,6 +18,7 @@ type
 
   TAIAudioInput = class(TComponent)
   private
+    FPrompt: string;
     FInputSource: TAIAudioSource;
     FSampleRate: Integer;
     FChannels: Integer;
@@ -33,6 +34,7 @@ type
     procedure StopRecord;
     function MixAudio(const AFileA, AFileB, AOutFile: string): Boolean;
   published
+    property Prompt: string read FPrompt write FPrompt;
     property InputSource: TAIAudioSource read FInputSource write FInputSource default asMic;
     property SampleRate: Integer read FSampleRate write FSampleRate default 44100;
     property Channels: Integer read FChannels write FChannels default 2;
@@ -54,6 +56,7 @@ end;
 constructor TAIAudioInput.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FPrompt := 'Component TAIAudioInput records audio natively on Windows (MCI waveaudio) and Linux (ALSA arecord process). Properties: InputSource: TAIAudioSource (asMic, asSystemMix, asWavFile, asMp3File), SampleRate: Integer (default 44100), Channels: Integer (default 2, stereo). Methods: StartRecord(const AOutputWavFile: string): Boolean, StopRecord, MixAudio(const AFileA, AFileB, AOutFile: string): Boolean to mix two WAV files. AI Agent: Use this to capture speech, command inputs, or mix background sounds.';
   FInputSource := asMic;
   FSampleRate := 44100;
   FChannels := 2;

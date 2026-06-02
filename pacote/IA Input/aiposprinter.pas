@@ -24,6 +24,7 @@ type
 
   TAIPOSPrinter = class(TComponent)
   private
+    FPrompt: string;
     FInterfaceType: TPrinterInterface;
     FDeviceName: string; // e.g., 'COM1' or '/dev/ttyUSB0' for Serial
     FHost: string;       // e.g., '192.168.1.100' for Ethernet
@@ -47,6 +48,7 @@ type
     function OpenDrawer: Boolean;
     function PrintBarcode(const ACode: string): Boolean;
   published
+    property Prompt: string read FPrompt write FPrompt;
     property InterfaceType: TPrinterInterface read FInterfaceType write FInterfaceType default piSerial;
     property DeviceName: string read FDeviceName write FDeviceName;
     property Host: string read FHost write FHost;
@@ -70,6 +72,7 @@ end;
 constructor TAIPOSPrinter.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FPrompt := 'Component TAIPOSPrinter handles ESC/POS receipt printers via serial or ethernet sockets. Properties: InterfaceType: TPrinterInterface (piSerial, piEthernet), DeviceName: string (serial port), Host: string, Port: Integer (default 9100), SerialBaud: Integer, Active: Boolean. Methods: OpenConnection, CloseConnection, SendRawBytes(const ABytes: array of Byte): Boolean, PrintText(const AText: string): Boolean, CutPaper: Boolean, OpenDrawer: Boolean, PrintBarcode(const ACode: string): Boolean. AI Agent: Use this to print physical tickets, summaries, or open cash drawers.';
   FInterfaceType := piSerial;
   FDeviceName := 'COM1';
   FHost := '192.168.1.100';

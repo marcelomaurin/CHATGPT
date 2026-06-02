@@ -12,6 +12,7 @@ type
 
   TAIMessenger = class(TComponent)
   private
+    FPrompt: string;
     FSMSApiURL: string;
     FSMSApiKey: string;
     FWhatsAppApiURL: string;
@@ -22,6 +23,7 @@ type
     function SendSMS(const ANumber, AText: string): Boolean;
     function SendWhatsApp(const ANumber, AText: string): Boolean;
   published
+    property Prompt: string read FPrompt write FPrompt;
     property SMSApiURL: string read FSMSApiURL write FSMSApiURL;
     property SMSApiKey: string read FSMSApiKey write FSMSApiKey;
     property WhatsAppApiURL: string read FWhatsAppApiURL write FWhatsAppApiURL;
@@ -42,6 +44,7 @@ end;
 constructor TAIMessenger.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FPrompt := 'Component TAIMessenger wraps WhatsApp (REST API gateway) and SMS messaging. Properties: APIKey: string, PhoneNumber: string, Active: Boolean. Methods: SendWhatsApp(const ATo, AMessage: string): Boolean, SendSMS(const ATo, AMessage: string): Boolean. AI Agent: Use this to send critical real-time alerts or reports to mobile devices via WhatsApp or cellular networks.';
   FSMSApiURL := 'https://api.sms-gateway-service.com/send';
   FSMSApiKey := '';
   FWhatsAppApiURL := 'https://graph.facebook.com/v17.0/YOUR_PHONE_NUMBER_ID/messages';

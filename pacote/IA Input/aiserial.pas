@@ -12,6 +12,7 @@ type
 
   TAISerialModem = class(TComponent)
   private
+    FPrompt: string;
     FDeviceName: string;
     FBaudRate: Integer;
     FDataBits: Integer;
@@ -32,6 +33,7 @@ type
     function SendATCommand(const ACommand: string; out AResponse: string; ATimes: Integer = 2000): Boolean;
     function SendSMS(const ANumber, AText: string): Boolean;
   published
+    property Prompt: string read FPrompt write FPrompt;
     property DeviceName: string read FDeviceName write FDeviceName;
     property BaudRate: Integer read FBaudRate write FBaudRate default 9600;
     property DataBits: Integer read FDataBits write FDataBits default 8;
@@ -55,6 +57,7 @@ end;
 constructor TAISerialModem.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FPrompt := 'Component TAISerialModem handles serial communication and AT modem commands. Properties: PortName: string (COMX or /dev/ttySXX), BaudRate: Integer (default 9600), Active: Boolean (triggers port open/close). Methods: OpenPort: Boolean, ClosePort, SendATCommand(const ACommand: string; out AResponse: string): Boolean. AI Agent: Use this to interface legacy hardware, sensors, microcontrollers, or send raw AT SMS commands.';
   FDeviceName := 'COM1';
   FBaudRate := 9600;
   FDataBits := 8;

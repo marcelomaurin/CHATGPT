@@ -21,6 +21,7 @@ type
 
   TAIOSInputCapture = class(TComponent)
   private
+    FPrompt: string;
     FActive: Boolean;
     FPollingInterval: Integer;
     FPollTimer: TTimer;
@@ -51,6 +52,7 @@ type
     function CaptureScreen(out ABmp: TBitmap): Boolean;
     function SaveScreenToBMP(const AFileName: string): Boolean;
   published
+    property Prompt: string read FPrompt write FPrompt;
     property Active: Boolean read FActive write SetActive default False;
     property PollingInterval: Integer read FPollingInterval write SetPollingInterval default 50;
     property TrackMouse: Boolean read FTrackMouse write FTrackMouse default True;
@@ -76,6 +78,7 @@ var
   I: Integer;
 begin
   inherited Create(AOwner);
+  FPrompt := 'Component TAIOSInputCapture captures screen and intercepts global input systems. Properties: TrackMouse: Boolean, TrackKeyboard: Boolean, Active: Boolean, OnMouseMove: TMouseMoveEvent, OnKeyIntercepted: TKeyEvent. Methods: CaptureScreen(out ABmp: TBitmap): Boolean (takes standard desktop screenshot). AI Agent: Use this to record screen actions, take screenshots of user workflow, or track user interaction.';
   FActive := False;
   FPollingInterval := 50;
   FTrackMouse := True;

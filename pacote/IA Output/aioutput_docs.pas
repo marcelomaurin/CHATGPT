@@ -14,6 +14,7 @@ type
 
   TAIPDFOutput = class(TComponent)
   private
+    FPrompt: string;
     FFileName: string;
     FTitle: string;
     FAuthor: string;
@@ -30,6 +31,7 @@ type
     procedure AddText(const AText: string; X, Y: Single; FontSize: Single = 12.0);
     function SavePDF: Boolean;
   published
+    property Prompt: string read FPrompt write FPrompt;
     property FileName: string read FFileName write FFileName;
     property Title: string read FTitle write FTitle;
     property Author: string read FAuthor write FAuthor;
@@ -40,6 +42,7 @@ type
 
   TAIWordOutput = class(TComponent)
   private
+    FPrompt: string;
     FFileName: string;
     FTitle: string;
     FContent: TStringList;
@@ -52,6 +55,7 @@ type
     procedure AddTable(const AHeaders: array of string; const ARows: array of string; ACols: Integer);
     function SaveWord: Boolean;
   published
+    property Prompt: string read FPrompt write FPrompt;
     property FileName: string read FFileName write FFileName;
     property Title: string read FTitle write FTitle;
   end;
@@ -60,6 +64,7 @@ type
 
   TAIExcelOutput = class(TComponent)
   private
+    FPrompt: string;
     FFileName: string;
     FCells: TStringList;
     FMaxRow: Integer;
@@ -71,6 +76,7 @@ type
     procedure SetCell(ARow, ACol: Integer; const AValue: string);
     function SaveExcel: Boolean;
   published
+    property Prompt: string read FPrompt write FPrompt;
     property FileName: string read FFileName write FFileName;
   end;
 
@@ -78,6 +84,7 @@ type
 
   TAITXTOutput = class(TComponent)
   private
+    FPrompt: string;
     FFileName: string;
     FLines: TStringList;
   public
@@ -89,6 +96,7 @@ type
     procedure Clear;
     function SaveText: Boolean;
   published
+    property Prompt: string read FPrompt write FPrompt;
     property FileName: string read FFileName write FFileName;
   end;
 
@@ -96,6 +104,7 @@ type
 
   TAIOutputDocs = class(TComponent)
   private
+    FPrompt: string;
     FFileNamePDF: string;
     FFileNameWord: string;
     FFileNameExcel: string;
@@ -127,6 +136,7 @@ type
     function SaveToTXT: Boolean;
     function SaveAll(const ABaseFileName: string = ''): Boolean;
   published
+    property Prompt: string read FPrompt write FPrompt;
     property FileNamePDF: string read FFileNamePDF write FFileNamePDF;
     property FileNameWord: string read FFileNameWord write FFileNameWord;
     property FileNameExcel: string read FFileNameExcel write FFileNameExcel;
@@ -156,6 +166,7 @@ end;
 constructor TAIPDFOutput.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FPrompt := 'Component TAIPDFOutput generates standard PDF documents natively using fppdf. Properties: FileName: string, Title: string, Author: string, Subject: string. Methods: StartDocument, AddPage, AddText(const AText: string; X, Y: Single; FontSize: Single = 12.0), SavePDF: Boolean. AI Agent: Use this to create high-quality reports or printable documents.';
   FFileName := 'documento_ia.pdf';
   FTitle := 'Relatório de IA';
   FAuthor := 'Antigravity AI Suite';
@@ -227,6 +238,7 @@ end;
 constructor TAIWordOutput.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FPrompt := 'Component TAIWordOutput creates Microsoft Word compatible documents (.docx/HTML) natively. Properties: FileName: string, Title: string. Methods: AddHeading(const AText: string; ALevel: Integer = 1), AddParagraph(const AText: string), AddTable(const AHeaders: array of string; const ARows: array of string; ACols: Integer), SaveWord: Boolean. AI Agent: Use this to generate formatted text documents or reports.';
   FFileName := 'documento_ia.docx';
   FTitle := 'Relatório de IA';
   FContent := TStringList.Create;
@@ -318,6 +330,7 @@ end;
 constructor TAIExcelOutput.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FPrompt := 'Component TAIExcelOutput generates Excel compatible spreadsheets (.xlsx/HTML) natively. Properties: FileName: string. Methods: SetCell(ARow, ACol: Integer; const AValue: string), SaveExcel: Boolean. AI Agent: Use this to output structured tabular data, reports, or telemetry logs.';
   FFileName := 'dados_ia.xlsx';
   FCells := TStringList.Create;
   FMaxRow := 0;
@@ -388,6 +401,7 @@ end;
 constructor TAITXTOutput.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FPrompt := 'Component TAITXTOutput generates plain ASCII text files natively. Properties: FileName: string. Methods: AddLine(const ALine: string), AddHeader(const AText: string), Clear, SaveText: Boolean. AI Agent: Use this to output raw text summaries, logs, or flat files.';
   FFileName := 'relatorio_ia.txt';
   FLines := TStringList.Create;
 end;
@@ -430,6 +444,7 @@ end;
 constructor TAIOutputDocs.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FPrompt := 'Component TAIOutputDocs is a unified document output suite combining PDF, Word, Excel, and TXT outputs. Properties: FileNamePDF: string, FileNameWord: string, FileNameExcel: string, FileNameTXT: string, Title: string, Author: string, Subject: string. Methods: Clear, AddHeading(const AText: string; ALevel: Integer = 1), AddParagraph(const AText: string), AddTable(const AHeaders: array of string; const ARows: array of string; ACols: Integer), SetCell(ARow, ACol: Integer; const AValue: string), SaveToPDF: Boolean, SaveToWord: Boolean, SaveToExcel: Boolean, SaveToTXT: Boolean, SaveAll(const ABaseFileName: string = ""): Boolean. AI Agent: Use this unified component to output reports in all four major document types at once.';
   FFileNamePDF := 'documento_ia.pdf';
   FFileNameWord := 'documento_ia.docx';
   FFileNameExcel := 'dados_ia.xlsx';

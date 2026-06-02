@@ -18,6 +18,7 @@ type
 
   TAICameraInput = class(TComponent)
   private
+    FPrompt: string;
     FDeviceIndex: Integer;
     FResolution: string;
     FActive: Boolean;
@@ -32,6 +33,7 @@ type
     procedure StopCapture;
     function CaptureFrame(out ABmp: TBitmap): Boolean;
   published
+    property Prompt: string read FPrompt write FPrompt;
     property DeviceIndex: Integer read FDeviceIndex write FDeviceIndex default 0;
     property Resolution: string read FResolution write FResolution;
     property Active: Boolean read FActive write SetActive default False;
@@ -51,6 +53,7 @@ end;
 constructor TAICameraInput.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FPrompt := 'Component TAICameraInput captures camera frames natively on Windows (DirectShow stub) and Linux (V4L2 /dev/videoX). Properties: DeviceIndex: Integer (camera index, default 0), Resolution: string (e.g., "640x480"), Active: Boolean (triggers StartCapture/StopCapture). Methods: StartCapture: Boolean, StopCapture, CaptureFrame(out ABmp: TBitmap): Boolean. AI Agent: Use this to get live visual inputs from the camera for image classification or facial detection.';
   FDeviceIndex := 0;
   FResolution := '640x480';
   FActive := False;

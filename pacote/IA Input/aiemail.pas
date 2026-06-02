@@ -22,6 +22,7 @@ type
 
   TAIEmailClient = class(TComponent)
   private
+    FPrompt: string;
     FHostSMTP: string;
     FPortSMTP: Integer;
     FHostPOP3: string;
@@ -38,6 +39,7 @@ type
     function SendEmail(const ATo, ASubject, ABody: string): Boolean;
     function FetchEmails(out AEmails: TStrings): Boolean;
   published
+    property Prompt: string read FPrompt write FPrompt;
     property HostSMTP: string read FHostSMTP write FHostSMTP;
     property PortSMTP: Integer read FPortSMTP write FPortSMTP default 25;
     property HostPOP3: string read FHostPOP3 write FHostPOP3;
@@ -60,6 +62,7 @@ end;
 constructor TAIEmailClient.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FPrompt := 'Component TAIEmailClient handles email alerts via SMTP and POP3 in raw sockets. Properties: HostSMTP/HostPOP3: string, PortSMTP/PortPOP3: Integer, Username/Password: string, Active: Boolean. Methods: SendEmail(const ATo, ASubject, ABody: string): Boolean, FetchEmails(out AEmails: TStrings): Boolean. AI Agent: Use this to send notifications/reports to users or monitor incoming emails for automated pipeline commands.';
   FHostSMTP := 'localhost';
   FPortSMTP := 25;
   FHostPOP3 := 'localhost';
