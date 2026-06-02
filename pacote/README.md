@@ -1,171 +1,38 @@
-# Pacote de Componentes de IA — openai.lpk
+# 🧠 Lazarus AI Suite — Package: `openai.lpk`
 
-Este diretório contém a implementação do pacote oficial de componentes de IA para Lazarus/Delphi (**openai.lpk**). Este pacote adiciona 5 ferramentas de Inteligência Artificial e Aprendizado de Máquina (Machine Learning) na aba **IA** da paleta de componentes do Lazarus.
+Welcome to the ultimate Artificial Intelligence & Machine Learning suite of components for Lazarus and Free Pascal Compiler (FPC). This package integrates advanced AI connectivity, neural networks, computer vision, audio processing, dynamic scheduling, and cross-platform hardware/automation interfaces directly in Lazarus.
 
----
+> [!NOTE]
+> All components feature a unified published `Prompt` property, acting as a dynamic bridge to automatically guide autonomous AI agents like `TAIAgent` via RTTI reflection.
 
-## 📦 Componentes do Pacote
-
-### 1. `TCHATGPT` (chatgpt.pas)
-O componente central de conectividade com LLMs (Modelos de Linguagem). Ele abstrai as requisições HTTP e o tratamento de JSON para os principais provedores de nuvem e servidores locais.
-- **Propriedades Principais**:
-  - `TOKEN: WideString`: Chave de acesso (API Key) do provedor selecionado.
-  - `Provider: TAIProvider`: Enum para definir a IA (`AIP_OPENAI`, `AIP_OPENROUTER`, `AIP_CEREBRAS`, `AIP_LOCAL`, `AIP_GEMINI`, `AIP_CLAUDE`).
-  - `TipoChat: TVersionChat`: Enum para selecionar o modelo padrão (ex: `VCT_GPT4o`, `VCT_GEMINI_25_FLASH`, `VCT_CLAUDE_35_SONNET`, `VCT_DEEPSEEK_R1_8B`).
-  - `CustomModel: WideString`: Nome de modelo personalizado (sobrescreve a seleção padrão de `TipoChat`).
-  - `LocalIP: WideString`: URL base do servidor Ollama local (padrão: `http://localhost:11434`).
-  - `MaxTokens: Integer`: Limite máximo de tokens de retorno na resposta (padrão: 4096).
-  - `Dev: WideString`: Instruções do prompt do sistema (System/Developer prompt).
-  - `Response: WideString` (Apenas leitura): Contém a resposta da última pergunta.
-  - `LastJSON: WideString` (Apenas leitura): Retorna o JSON completo bruto da resposta HTTP.
-  - `LastURL: WideString` (Apenas leitura): Retorna a URL exata estruturada da última chamada HTTP efetuada (altamente recomendável para depuração e auditoria de chaves de API/endpoints).
-- **Métodos Principais**:
-  - `function SendQuestion(ASK: WideString): Boolean`: Envia a pergunta e retorna `True` em caso de sucesso.
-  - `function ProviderName: WideString`: Retorna o nome amigável do provedor selecionado.
-  - `function TipoModelo: WideString`: Retorna a string do modelo final enviada à API.
+Please select your preferred language for the comprehensive developer documentation:
 
 ---
 
-### 2. `TNeuralNetwork` (neuralnetwork.pas)
-Rede Neural Multicamadas (Perceptron Multicamadas) escrita em **Pascal puro**, desenvolvida para criar, treinar e executar modelos preditivos locais sem dependências externas.
-- **Propriedades Principais**:
-  - `LearningRate: Double`: Taxa de aprendizado que dita o tamanho dos ajustes de pesos (padrão: 0.1).
-  - `ActivationType: TActivationType`: Enum com funções de ativação embutidas (`atSigmoid`, `atReLU`, `atTanh`, `atCustom`).
-- **Métodos Principais**:
-  - `procedure Initialize(LInputs, LHiddens, LOutputs: Integer; LLearningRate: Double)`: Configura a topografia da rede neural (número de neurônios nas camadas de entrada, oculta e saída) e preenche os pesos iniciais com He-initialization.
-  - `function Predict(const LInputs: TArray): TArray`: Realiza a propagação para frente (Forward Pass) e retorna as predições.
-  - `procedure Train(const LInputs, LTargets: TArray)`: Executa o ajuste de pesos pelo algoritmo de Backpropagation para uma única linha de dados.
-  - `procedure TrainEpochs(const LDatasetInputs, LDatasetTargets: TMatrix; LEpochs: Integer; out LFinalLoss: Double)`: Treina a rede neural em lotes por um número configurado de épocas e calcula a taxa final de erro médio quadrado (MSE Loss).
-  - `procedure SaveNetwork(const LFileName: String)`: Salva os pesos e biases da rede em arquivo de texto.
-  - `procedure LoadNetwork(const LFileName: String)`: Carrega os pesos e biases de uma rede pré-treinada.
+## 🌐 Select Language / Selecione o Idioma
+
+| Language | Country Flag | Documentation Link |
+|---|---|---|
+| **Português (PT)** | 🇧🇷 / 🇵🇹 | 📄 [README.pt.md](README.pt.md) |
+| **English (EN)** | 🇺🇸 / 🇬🇧 | 📄 [README.en.md](README.en.md) |
+| **Español (ES)** | 🇪🇸 / 🇲🇽 | 📄 [README.es.md](README.es.md) |
+| **Français (FR)** | 🇫🇷 | 📄 [README.fr.md](README.fr.md) |
+| **Italiano (IT)** | 🇮🇹 | 📄 [README.it.md](README.it.md) |
+| **العربية (AR)** | 🇦🇪 / 🇸🇦 | 📄 [README.ar.md](README.ar.md) |
 
 ---
 
-### 3. `TAICodeAssistant` (aicodeassistant.pas)
-Assistente virtual de codificação integrado para apoiar desenvolvedores na otimização e manutenção de projetos:
-- **Propriedades Principais**:
-  - `ChatGPT: TCHATGPT`: Referência ao componente de comunicação configurado com as chaves e modelos ativos.
-- **Métodos Principais**:
-  - `function OptimizeCode(const ACode: string): string`: Solicita otimização estrutural e de legibilidade.
-  - `function FindBugs(const ACode: string): string`: Analisa o código fonte em busca de erros comuns e sugere correções.
-  - `function DocumentCode(const ACode: string): string`: Adiciona automaticamente documentação XML ou Javadoc estruturada.
-  - `function GenerateUnitTests(const ACode: string; const ATestFramework: string = 'FPCUnit'): string`: Gera classes de testes unitários para a rotina informada.
-  - `function TranslateCode(const ACode, ASourceLang, ATargetLang: string): string`: Traduz o código de uma linguagem para outra.
-  - `function ExplainCode(const ACode: string): string`: Descreve passo a passo o funcionamento do algoritmo.
+## 🎨 Architectural Overview
 
----
+The suite is logically divided into 9 modular Lazarus Component Palette tabs:
+1. **`IA`**: Core neural networks, custom tokenizers, and deep learning connectors.
+2. **`IA Agent`**: Autonomous cognitive execution models and hardware pipelines.
+3. **`IA Filtros Sonoros`**: Linear wave filtering and noise-reduction signal processors.
+4. **`IA Image`**: High-performance computer vision matrix filters.
+5. **`IA Math`**: High-speed multi-threaded tensor algebra (NumPy equivalent for Pascal).
+6. **`IA Input`**: Sensors, cameras, Modbus, MQTT, CLP gateways, and OS-level keyboard/mouse capturing.
+7. **`IA Output`**: Automated formal PDF, Word, Excel, and TXT document generators.
+8. **`IA Schedulle`**: Advanced cron-based periodic task engines.
+9. **`IA Voice`**: Native multi-timbre cross-platform Text-To-Speech (TTS) synthesizers.
 
-### 4. `TAIDatasetGenerator` (aidatasetgenerator.pas)
-Gerenciador e exportador de dados focado em simplificar o fluxo de modelagem de conjuntos de dados em Machine Learning e Fine-Tuning:
-- **Métodos Principais**:
-  - `procedure AddDataRow(const AInput, AOutput: string)`: Adiciona uma linha contendo dados de entrada e saída.
-  - `procedure Clear`: Limpa as linhas armazenadas em memória.
-  - `procedure SaveAsJSONL(const AFileName: string)`: Compila e salva a lista no formato de conversa padrão **JSONL** (JSON Lines) para Fine-Tuning de LLMs.
-  - `procedure SaveAsCSV(const AFileName: string; const ADelimiter: Char = ';')`: Exporta os dados para formato estruturado CSV.
-  - `procedure LoadFromCSV(const AFileName: string; out LInputs, LTargets: TMatrix; LInputCols, LTargetCols: Integer; const ADelimiter: Char = ';')`: Lê dados tabulares em CSV e os divide em matrizes de treino compatíveis com o método `TrainEpochs` da Rede Neural.
-
----
-
-### 5. `TTokenList` (tokenizer.pas)
-Um utilitário de conveniência para contagem, análise e segmentação (tokenização) de palavras em listas estruturadas.
-
----
-
-### 6. `TPythonConnector` (pythonconnector.pas)
-Um conector dinâmico e multiplataforma para integrar scripts e código Python nativamente em aplicações Lazarus/Delphi:
-- **Propriedades Principais**:
-  - `DLLPath: string`: Caminho para a biblioteca dinâmica do Python (ex: `python3.dll`, `python312.dll`, `libpython3.so`).
-  - `Active: Boolean`: Ativa ou desativa o interpretador de forma dinâmica carregando os ponteiros da biblioteca em memória.
-  - `Version: string` (Apenas leitura): Retorna a versão oficial do interpretador carregado via API C.
-  - `LastError: string` (Apenas leitura): Detalha mensagens de erro no carregamento da DLL ou falhas de execução de scripts.
-- **Métodos Principais**:
-  - `function ExecString(const AScript: string): Boolean`: Executa instruções ou scripts arbitrários no Python.
-  - `function GetVar(const AVarName: string): string`: Lê qualquer variável do namespace global e retorna sua representação em string.
-  - `procedure SetVar(const AVarName, AValue: string)`: Cria ou atualiza uma variável do tipo string no contexto global do Python.
-  - `function Eval(const AExpression: string): string`: Avalia expressões matemáticas/lógicas no interpretador e retorna o resultado.
-
----
-
-### 7. `TPerceptron` (perceptron.pas)
-Rede Neural de camada única (Perceptron clássico de Rosenblatt) escrita em **Pascal puro**, ideal para classificar padrões binários linearmente separáveis (como portas lógicas AND, OR, NAND, NOR).
-- **Propriedades Principais**:
-  - `LearningRate: Double`: Taxa de aprendizado que dita o ajuste dos pesos a cada erro (padrão: 0.1).
-  - `Weights: TDoubleArray` (Apenas leitura): Array com os pesos sinápticos atuais de cada entrada.
-  - `Bias: Double`: O limiar de ativação/bias ajustável do neurônio.
-  - `InputSize: Integer` (Apenas leitura): Número de entradas configuradas.
-- **Métodos Principais**:
-  - `procedure Initialize(AInputSize: Integer; ALearningRate: Double = 0.1)`: Configura o tamanho de entrada, a taxa de aprendizado e inicializa pesos e bias aleatoriamente de forma estável.
-  - `function Predict(const AInputs: TDoubleArray): Integer`: Realiza a soma ponderada com bias e aplica a função degrau rápido (*hard-step*), retornando `0` ou `1`.
-  - `function Train(const AInputs: TDoubleArray; ATarget: Integer): Double`: Executa um ajuste de pesos com base na regra delta (regra de aprendizado do perceptron) para uma única amostra.
-  - `procedure TrainEpochs(const ADatasetInputs: TDoubleMatrix; const ADatasetTargets: TIntegerArray; AEpochs: Integer; out AFinalError: Double)`: Treina o perceptron por várias épocas no conjunto de dados completo. Para mais cedo se o erro convergir para zero.
-  - `procedure SaveToFile(const AFileName: string)`: Salva o estado dos pesos e bias em arquivo estruturado.
-  - `procedure LoadFromFile(const AFileName: string)`: Restaura o estado de pesos e bias de um arquivo salvo.
-
----
-
-### 8. `TSOMMap` (sommap.pas)
-Rede de Auto-Organização de Kohonen (Self-Organizing Map) escrita em **Pascal puro**, desenvolvida para agrupamento (clustering) de dados e mapeamento topológico em grades bidimensionais com decaimento dinâmico.
-- **Propriedades Principais**:
-  - `GridWidth`, `GridHeight: Integer` (Apenas leitura): Dimensões configuradas para a grade de neurônios.
-  - `InputDim: Integer` (Apenas leitura): Tamanho dos vetores de entrada (ex: 3 para RGB).
-  - `Weights: TSOMGrid` (Apenas leitura): Estrutura 3D contendo os pesos sinápticos associados a cada posição da grade.
-- **Métodos Principais**:
-  - `procedure Initialize(AWidth, AHeight, AInputDim: Integer)`: Inicializa a grade com pesos aleatórios normalizados.
-  - `function FindBMU(const AInput: TDoubleArray; out ABMUX, ABMUY: Integer): Double`: Encontra as coordenadas na grade do neurônio vencedor (Best Matching Unit) e retorna a distância euclidiana.
-  - `procedure TrainStep(const AInput: TDoubleArray; ALearningRate, ARadius: Double)`: Atualiza os pesos do neurônio BMU e de sua vizinhança topológica com decaimento Gaussiano.
-  - `procedure Train(const ADataset: array of TDoubleArray; AEpochs: Integer; AInitialLearningRate: Double = 0.1)`: Executa treinamento estocástico em lote com decaimento exponencial do raio de vizinhança e taxa de aprendizado.
-  - `procedure SaveToFile(const AFileName: string)`: Grava as configurações e pesos da grade em arquivo de texto.
-  - `procedure LoadFromFile(const AFileName: string)`: Carrega e reconstrói o mapa de Kohonen de um arquivo.
-
----
-
-### 9. `TCNNClassifier` (cnnclassifier.pas)
-Classificador de imagens convolucional profundo que utiliza o modelo de alto desempenho **MobileNetV2** (pré-treinado no ImageNet) localmente por meio do interpretador do Python.
-- **Métodos Principais**:
-  - `function InstallDependencies: Boolean`: Baixa e instala silenciosamente o TensorFlow e Pillow no interpretador local do interpretador Python.
-  - `function ClassifyImage(const AImageFile: string; out AClassLabel: string; out AConfidence: Double): Boolean`: Processa a imagem e retorna a classe identificada traduzida com a probabilidade/confiança (de 0.0 a 1.0).
-
----
-
-### 10. `TLSTMPredictor` (lstmpredictor.pas)
-Rede Neural Recorrente do tipo **LSTM (Long Short-Term Memory)** configurada dinamicamente para modelagem e previsão local de séries temporais e dados sequenciais.
-- **Métodos Principais**:
-  - `function InstallDependencies: Boolean`: Instala de forma silenciosa NumPy e TensorFlow no interpretador Python associado.
-  - `function TrainLSTM(const ATimeSeries: TDoubleArray; AWindowSize, AEpochs: Integer): Boolean`: Constrói e treina silenciosamente a rede LSTM usando uma janela deslizante.
-  - `function PredictNext(const ALastWindow: TDoubleArray; out APredictedValue: Double): Boolean`: Realiza a inferência com base no último bloco de valores históricos (Rolling Forecast).
-
----
-
-### 11. `TAIVoiceSynthesizer` (aivoicesynthesizer.pas)
-Sintetizador de Voz Nativo e Multiplataforma (Text-to-Speech) de alta performance:
-- **Propriedades Principais**:
-  - `Volume: Integer`: Nível do volume do áudio (de 0 a 100).
-  - `Rate: Integer`: Velocidade da fala (-10 a 10, com calibração inteligente para eSpeak e SAPI).
-  - `VoiceName: string`: Modelo ou idioma da voz selecionada do sistema operacional.
-  - `Asynchronous: Boolean`: Executa a fala de forma não bloqueante (em thread paralela).
-- **Métodos Principais**:
-  - `procedure Say(const AText: string = '')`: Sintetiza e fala o texto passado.
-  - `procedure GetAvailableVoices(AList: TStrings)`: Lista de forma totalmente nativa e em tempo real todas as vozes instaladas no Windows (via SAPI COM) ou no Linux (via C espeak_ListVoices API).
-
----
-
-## 📂 Diretório de Exemplos (Samples)
-
-A pasta **[samples/](samples/)** contém demonstrações completas para cada recurso da suíte. *Todas as demonstrações baseadas em Python já incluem um ListBox de seleção inteligente de DLLs com auto-detecção de arquitetura (32-bit e 64-bit) e decodificação nativa de imagens PNG via LCL:*
-
-### 🖥️ Demonstrações Visuais (GUI Completa)
-*   **[visual_demo/](samples/visual_demo/)**: Showcase unificado com abas para TCHATGPT, TNeuralNetwork, TAICodeAssistant e TAIDatasetGenerator.
-*   **[voicesynthesizer_demo/](samples/voicesynthesizer_demo/)**: Playground completo para `TAIVoiceSynthesizer` para ajustar volume, velocidade, listar e selecionar todas as vozes nativas instaladas no sistema e reproduzir textos interativamente.
-*   **[python_demo/](samples/python_demo/)**: Playground dinâmico completo para TPythonConnector (permite escrever scripts, manipular variáveis e rodar Eval interativo). *Já inclui as DLLs `python3.dll` e `python312.dll` copiadas para testes imediatos!*
-*   **[neural_network_demo/](samples/neural_network_demo/)**: Demonstração dedicada para treinamento interativo XOR, predições, ajuste de LR/épocas e persistência de pesos.
-*   **[perceptron_demo/](samples/perceptron_demo/)**: Showcase interativo para treinamento do Perceptron em portas lógicas (AND, OR, NAND, NOR) com exibição dos pesos sinápticos e bias em tempo real.
-*   **[som_demo/](samples/som_demo/)**: Demonstração gráfica da auto-organização topológica de Kohonen em uma grade 20x20 de cores RGB em tempo real!
-*   **[cnn_demo/](samples/cnn_demo/)**: Classificação convolucional interativa de fotos locais utilizando a MobileNetV2 (com ListBox e auto-detecção de DLLs).
-*   **[lstm_demo/](samples/lstm_demo/)**: Previsão de tendência sequencial (*Rolling Forecast*) em curvas senoidais com ruído utilizando rede recorrente LSTM e plotagem gráfica dos resultados na tela.
-*   **[tokenizer_demo/](samples/tokenizer_demo/)**: Playground completo para inserção e busca de tokens, processamento de frases inteiras e importação de JSON estruturado.
-
-### 💻 Demonstrações em Console
-*   `samples/chatgpt_sample.lpr`: Integração direta com OpenAI, Gemini e Claude.
-*   `samples/neuralnetwork_sample.lpr`: Loop clássico de aprendizado XOR local.
-*   `samples/aicodeassistant_sample.lpr`: Auditoria, otimização e geração de testes unitários.
-*   `samples/aidatasetgenerator_sample.lpr`: Criação de conjuntos de treinamento local e Fine-Tuning.
+Each component subdirectory contains its own set of 6 localized `README.<lang>.md` reference manuals detailing properties, methods, and Lazarus code examples.
