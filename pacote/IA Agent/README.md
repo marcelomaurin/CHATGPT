@@ -1,7 +1,7 @@
-# 🔌 Lazarus AI Suite — Tab: `IA Input`
+# 🤖 Lazarus AI Suite — Tab: `IA Agent`
 
 > [!NOTE]
-> Sensors, cameras, Modbus, MQTT, CLP gateways, and OS-level inputs.
+> Autonomous cognitive execution models and hardware pipelines.
 
 Please select your preferred language for the component reference manual:
 

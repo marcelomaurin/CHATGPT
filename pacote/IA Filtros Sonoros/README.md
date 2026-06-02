@@ -1,7 +1,7 @@
-# 🔌 Lazarus AI Suite — Tab: `IA Input`
+# 🎵 Lazarus AI Suite — Tab: `IA Filtros Sonoros`
 
 > [!NOTE]
-> Sensors, cameras, Modbus, MQTT, CLP gateways, and OS-level inputs.
+> Linear wave filtering and noise-reduction signal processors.
 
 Please select your preferred language for the component reference manual:
 

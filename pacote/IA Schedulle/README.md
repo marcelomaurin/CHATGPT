@@ -1,7 +1,7 @@
-# 🔌 Lazarus AI Suite — Tab: `IA Input`
+# 📅 Lazarus AI Suite — Tab: `IA Schedulle`
 
 > [!NOTE]
-> Sensors, cameras, Modbus, MQTT, CLP gateways, and OS-level inputs.
+> Advanced cron-based periodic task engines.
 
 Please select your preferred language for the component reference manual:
 

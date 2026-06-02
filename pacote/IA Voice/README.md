@@ -1,7 +1,7 @@
-# 🔌 Lazarus AI Suite — Tab: `IA Input`
+# 🗣️ Lazarus AI Suite — Tab: `IA Voice`
 
 > [!NOTE]
-> Sensors, cameras, Modbus, MQTT, CLP gateways, and OS-level inputs.
+> Native multi-timbre Text-To-Speech (TTS) synthesizers.
 
 Please select your preferred language for the component reference manual:
 

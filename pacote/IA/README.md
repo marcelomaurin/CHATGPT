@@ -1,7 +1,7 @@
-# 🔌 Lazarus AI Suite — Tab: `IA Input`
+# 🧠 Lazarus AI Suite — Tab: `IA`
 
 > [!NOTE]
-> Sensors, cameras, Modbus, MQTT, CLP gateways, and OS-level inputs.
+> Core Artificial Intelligence & Neural Connectivity components.
 
 Please select your preferred language for the component reference manual:
 

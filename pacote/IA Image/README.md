@@ -1,7 +1,7 @@
-# 🔌 Lazarus AI Suite — Tab: `IA Input`
+# 🖼️ Lazarus AI Suite — Tab: `IA Image`
 
 > [!NOTE]
-> Sensors, cameras, Modbus, MQTT, CLP gateways, and OS-level inputs.
+> High-performance computer vision matrix filters.
 
 Please select your preferred language for the component reference manual:
 

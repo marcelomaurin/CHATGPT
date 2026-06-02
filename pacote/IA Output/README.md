@@ -1,7 +1,7 @@
-# 🔌 Lazarus AI Suite — Tab: `IA Input`
+# 📄 Lazarus AI Suite — Tab: `IA Output`
 
 > [!NOTE]
-> Sensors, cameras, Modbus, MQTT, CLP gateways, and OS-level inputs.
+> Automated formal PDF, Word, Excel, and TXT document generators.
 
 Please select your preferred language for the component reference manual:
 

@@ -1,7 +1,7 @@
-# 🔌 Lazarus AI Suite — Tab: `IA Input`
+# 📐 Lazarus AI Suite — Tab: `IA Math`
 
 > [!NOTE]
-> Sensors, cameras, Modbus, MQTT, CLP gateways, and OS-level inputs.
+> High-speed multi-threaded tensor algebra.
 
 Please select your preferred language for the component reference manual:
 
