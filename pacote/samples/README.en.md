@@ -1,0 +1,34 @@
+# 📂 Demonstration Projects (Samples)
+
+> [!NOTE]
+> This directory contains the complete suite of examples developed to demonstrate and test all Artificial Intelligence, Machine Learning, Image Processing, Digital Signal Processing (DSP), Hardware Automation, and Document Generation components of the **openai.lpk** package.
+
+## 🖥️ Graphical User Interface (GUI) Demonstrations
+The following examples are visual projects ready for compilation and interactive execution through Lazarus:
+
+| Sample | What it does | Components | How it works |
+|---|---|---|---|
+| **[visual_demo/](visual_demo/)** | Unified AI control center with functional testing tabs. | `TCHATGPT, TNeuralNetwork, TAICodeAssistant, TAIDatasetGenerator` | Allows querying cloud LLMs, auditing Pascal code, exporting fine-tuning datasets, and training XOR networks. |
+| **[voicesynthesizer_demo/](voicesynthesizer_demo/)** | Text-to-Speech (TTS) control panel interface. | `TAIVoiceSynthesizer` | Lists system narrator voices (SAPI on Windows, eSpeak on Linux) with volume, rate, and non-blocking thread support. |
+| **[yolo_demo/](yolo_demo/)** | Deep object detection utilizing YOLOv8 models. | `TYOLO, TPythonConnector` | Installs pip dependencies automatically, executes local inference (yolov8n.pt), and renders bounding boxes in Pascal. |
+| **[cnn_demo/](cnn_demo/)** | Deep convolutional classification using MobileNetV2. | `TCNNClassifier, TPythonConnector` | Imports MobileNetV2 via TensorFlow in Python, classifies local files, and outputs top class with probability. |
+| **[lstm_demo/](lstm_demo/)** | Graphical sequential time-series trend forecasting. | `TLSTMPredictor, TPythonConnector` | Trains LSTM recurrent model locally on noisy sine wave data, plotting future predictions in real-time. |
+| **[face_detection_demo/](face_detection_demo/)** | Real-time facial detection playground. | `TFaceDetection, TPythonConnector` | Interfaces with OpenCV Haar Cascades in Python to highlight faces with bounding boxes. |
+| **[python_demo/](python_demo/)** | Interactive Python console and script workspace. | `TPythonConnector` | Runs arbitrary scripts, accesses namespace variables, and evaluates math/logic expression strings. |
+| **[neural_network_demo/](neural_network_demo/)** | Multilayer Perceptron (MLP) network playground. | `TNeuralNetwork` | Trains XOR network natively in Pascal, logging MSE loss and saving trained weight matrices. |
+| **[perceptron_demo/](perceptron_demo/)** | Single-layer Perceptron logic gate trainer. | `TPerceptron` | Demonstrates delta rule updates to synapse weights and neuron bias in Pascal. |
+| **[som_demo/](som_demo/)** | Kohonen Self-Organizing Map topological clustering. | `TSOMMap` | Clusters 3D RGB color vectors into two-dimensional visual topological grids in real-time. |
+| **[tokenizer_demo/](tokenizer_demo/)** | String segmentation and index statistics panel. | `TTokenList` | Splits text into frequency-sorted vocabularies, indexing words with JSON export support. |
+| **[image_filters_demo/](image_filters_demo/)** | Interactive image matrix filters playground. | `IA Image tab filters (TAIImageFilters)` | Applies Sobel, Gaussian, Canny, and Grayscale filters to LCL TBitmap canvases. |
+| **[sound_filters_demo/](sound_filters_demo/)** | Digital Signal Processing (DSP) and modulation simulator. | `IA Filtros Sonoros tab filters (TAISoundFilters)` | Models LowPass/HighPass filters, FDM, TDM, CDM, and orthogonal OFDM multiplexing. |
+| **[schedule_demo/](schedule_demo/)** | Automated cron task scheduler and queue timeline manager. | `TIASchedule` | Resolves task dependency trees using cron configurations and saves setups to JSON. |
+| **[hardware_net_demo/](hardware_net_demo/)** | Advanced hardware, network, PLC, and IoT client showcase. | `TAICameraInput, TAIMQTTClient, TAIEmailClient, TAIMessenger, TAIIndustrialBridge, TAIChromiumBrowser, TAIOSInputCapture` | Captures video frames, reads MQTT broker topics, sends emails, bridges Profinet CLPs, and logs global events. |
+
+## 💻 Command Line Interface (Console) Demonstrations
+These examples demonstrate direct component invocation via command line for rapid debugging or automation scenarios:
+
+*   **aivoicesynthesizer_sample.lpr**: Direct console Text-to-Speech synthesis invocation demo.
+*   **chatgpt_sample.lpr**: Quick command-line questions and payload auditing for OpenAI, Claude, and Gemini.
+*   **aicodeassistant_sample.lpr**: Command-line routine for code auditing, optimizations, and doc formatting.
+*   **aidatasetgenerator_sample.lpr**: Auto-generation loop and JSONL conversations dataset exporter.
+*   **neuralnetwork_sample.lpr**: Classic MLP training XOR convergence simulator in console.
