@@ -6,6 +6,7 @@ interface
 
 uses
   Classes, SysUtils, chatgpt, fpjson, jsonparser, fphttpclient, TypInfo,
+  aibase, aiagentsafety,
   // IA Input components
   aicamera, aiaudio, aiwebserver, aisockets, aiserial, aiposprinter, aicftvip,
   aimodbus, aimqtt, aiemail, aimessenger, aiindustrial, aichromiumbrowser,
@@ -65,20 +66,23 @@ type
 
   { TAIAgent }
 
-  TAIAgent = class(TComponent)
+  TAIAgent = class(TAIBaseComponent)
   private
     FChatGPT: TCHATGPT;
     FOptions: TAIAgentOptions;
     FAction: TAIAgentAction;
     FResource: TAIAgentResource;
     FSystemPrompt: string;
-    FLastError: string;
     FLastRationale: string;
     FOnActionTriggered: TAgentActionEvent;
     FMemory: TStrings;
     FMaxMemoryLimit: Integer;
     FMaxRetries: Integer;
+    FSafety: TAIAgentSafety;
     procedure SetMemory(AValue: TStrings);
+    procedure SetSafety(AValue: TAIAgentSafety);
+  protected
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -89,8 +93,8 @@ type
     property Options: TAIAgentOptions read FOptions write FOptions;
     property Action: TAIAgentAction read FAction write FAction;
     property Resource: TAIAgentResource read FResource write FResource;
+    property Safety: TAIAgentSafety read FSafety write SetSafety;
     property SystemPrompt: string read FSystemPrompt write FSystemPrompt;
-    property LastError: string read FLastError;
     property LastRationale: string read FLastRationale;
     property Memory: TStrings read FMemory write SetMemory;
     property MaxMemoryLimit: Integer read FMaxMemoryLimit write FMaxMemoryLimit;
@@ -350,12 +354,12 @@ begin
   FAction := nil;
   FResource := nil;
   FSystemPrompt := '';
-  FLastError := '';
   FLastRationale := '';
   FMemory := TStringList.Create;
   FMaxMemoryLimit := 20;
   FMaxRetries := 3;
   FOnActionTriggered := nil;
+  FSafety := nil;
 end;
 
 destructor TAIAgent.Destroy;
@@ -369,6 +373,29 @@ begin
   FMemory.Assign(AValue);
 end;
 
+procedure TAIAgent.SetSafety(AValue: TAIAgentSafety);
+begin
+  if FSafety <> AValue then
+  begin
+    FSafety := AValue;
+    if FSafety <> nil then
+      FSafety.FreeNotification(Self);
+  end;
+end;
+
+procedure TAIAgent.Notification(AComponent: TComponent; Operation: TOperation);
+begin
+  inherited Notification(AComponent, Operation);
+  if Operation = opRemove then
+  begin
+    if AComponent = FChatGPT then FChatGPT := nil;
+    if AComponent = FOptions then FOptions := nil;
+    if AComponent = FAction then FAction := nil;
+    if AComponent = FResource then FResource := nil;
+    if AComponent = FSafety then FSafety := nil;
+  end;
+end;
+
 procedure TAIAgent.ClearMemory;
 begin
   FMemory.Clear;
@@ -376,7 +403,7 @@ end;
 
 function TAIAgent.Execute(const AInputData: string): Boolean;
 var
-  Prompt: string;
+  LPrompt: string;
   QuestionsText: string;
   ActionsText: string;
   ParamsText: string;
@@ -392,14 +419,15 @@ var
   ParsedSuccessfully: Boolean;
   CurrentPrompt: string;
   CompPrompt: string;
+  Err: string;
 begin
   Result := False;
-  FLastError := '';
+  ClearError;
   FLastRationale := '';
 
   if not Assigned(FChatGPT) then
   begin
-    FLastError := 'Componente TCHATGPT não está associado ao Agente.';
+    SetError('Componente TCHATGPT não está associado ao Agente.');
     Exit;
   end;
 
@@ -438,95 +466,95 @@ begin
   end;
 
   // 1. Build detailed Agent System instructions
-  Prompt := 'Você é um Agente Inteligente Autônomo.' + sLineBreak;
+  LPrompt := 'Você é um Agente Inteligente Autônomo.' + sLineBreak;
   if FSystemPrompt <> '' then
-    Prompt := Prompt + FSystemPrompt + sLineBreak;
+    LPrompt := LPrompt + FSystemPrompt + sLineBreak;
 
-  Prompt := Prompt + sLineBreak + '=== DADOS DE ENTRADA A ANALISAR ===' + sLineBreak;
-  Prompt := Prompt + AInputData + sLineBreak;
+  LPrompt := LPrompt + sLineBreak + '=== DADOS DE ENTRADA A ANALISAR ===' + sLineBreak;
+  LPrompt := LPrompt + AInputData + sLineBreak;
 
   if MemoryText <> '' then
-    Prompt := Prompt + MemoryText;
+    LPrompt := LPrompt + MemoryText;
 
   if QuestionsText <> '' then
   begin
-    Prompt := Prompt + sLineBreak + '=== PERGUNTAS E DIRETRIZES DE ANÁLISE ===' + sLineBreak;
-    Prompt := Prompt + QuestionsText;
+    LPrompt := LPrompt + sLineBreak + '=== PERGUNTAS E DIRETRIZES DE ANÁLISE ===' + sLineBreak;
+    LPrompt := LPrompt + QuestionsText;
   end;
 
   if (FOptions <> nil) and (FOptions.Context <> '') then
   begin
-    Prompt := Prompt + sLineBreak + '=== CONTEXTO ADICIONAL ===' + sLineBreak;
-    Prompt := Prompt + FOptions.Context + sLineBreak;
+    LPrompt := LPrompt + sLineBreak + '=== CONTEXTO ADICIONAL ===' + sLineBreak;
+    LPrompt := LPrompt + FOptions.Context + sLineBreak;
   end;
 
-  Prompt := Prompt + sLineBreak + '=== AÇÕES DISPONÍVEIS NO MUNDO EXTERNO ===' + sLineBreak;
+  LPrompt := LPrompt + sLineBreak + '=== AÇÕES DISPONÍVEIS NO MUNDO EXTERNO ===' + sLineBreak;
   if ActionsText <> '' then
-    Prompt := Prompt + ActionsText
+    LPrompt := LPrompt + ActionsText
   else
-    Prompt := Prompt + ' - Nenhuma ação permitida (retorne ação vazia)' + sLineBreak;
+    LPrompt := LPrompt + ' - Nenhuma ação permitida (retorne ação vazia)' + sLineBreak;
 
   if ParamsText <> '' then
   begin
-    Prompt := Prompt + sLineBreak + '=== DIRETRIZES DE PARÂMETROS PARA AS AÇÕES ===' + sLineBreak;
-    Prompt := Prompt + ParamsText;
+    LPrompt := LPrompt + sLineBreak + '=== DIRETRIZES DE PARÂMETROS PARA AS AÇÕES ===' + sLineBreak;
+    LPrompt := LPrompt + ParamsText;
   end;
 
   // Build and append resources and their prompts
   if Assigned(FResource) and (FResource.Resources.Count > 0) then
   begin
-    Prompt := Prompt + sLineBreak + '=== RECURSOS E DISPOSITIVOS FÍSICOS DISPONÍVEIS (IA INPUT / IA OUTPUT) ===' + sLineBreak;
+    LPrompt := LPrompt + sLineBreak + '=== RECURSOS E DISPOSITIVOS FÍSICOS DISPONÍVEIS (IA INPUT / IA OUTPUT) ===' + sLineBreak;
     for I := 0 to FResource.Resources.Count - 1 do
     begin
-      Prompt := Prompt + 'Recurso: "' + FResource.Resources[I].Name + '"' + sLineBreak;
+      LPrompt := LPrompt + 'Recurso: "' + FResource.Resources[I].Name + '"' + sLineBreak;
       if Assigned(FResource.Resources[I].Component) then
       begin
         CompPrompt := GetPropString(FResource.Resources[I].Component, 'Prompt');
         if CompPrompt <> '' then
-          Prompt := Prompt + '  Orientação de IA: ' + CompPrompt + sLineBreak
+          LPrompt := LPrompt + '  Orientação de IA: ' + CompPrompt + sLineBreak
         else
-          Prompt := Prompt + '  Orientação de IA: Componente conectado ' + FResource.Resources[I].Component.ClassName + sLineBreak;
+          LPrompt := LPrompt + '  Orientação de IA: Componente conectado ' + FResource.Resources[I].Component.ClassName + sLineBreak;
       end
       else
-        Prompt := Prompt + '  Tipo Físico: ' + GetEnumName(TypeInfo(TAIAgentResourceType), Ord(FResource.Resources[I].ResourceType)) + sLineBreak;
+        LPrompt := LPrompt + '  Tipo Físico: ' + GetEnumName(TypeInfo(TAIAgentResourceType), Ord(FResource.Resources[I].ResourceType)) + sLineBreak;
         
-      Prompt := Prompt + '  Configuração Padrão:' + sLineBreak;
-      if FResource.Resources[I].Recipient <> '' then Prompt := Prompt + '    Recipient: ' + FResource.Resources[I].Recipient + sLineBreak;
-      if FResource.Resources[I].Sender <> '' then Prompt := Prompt + '    Sender: ' + FResource.Resources[I].Sender + sLineBreak;
-      if FResource.Resources[I].Subject <> '' then Prompt := Prompt + '    Subject: ' + FResource.Resources[I].Subject + sLineBreak;
-      if FResource.Resources[I].Host <> '' then Prompt := Prompt + '    Host: ' + FResource.Resources[I].Host + sLineBreak;
-      if FResource.Resources[I].Port <> 0 then Prompt := Prompt + '    Port: ' + IntToStr(FResource.Resources[I].Port) + sLineBreak;
-      if FResource.Resources[I].FilePath <> '' then Prompt := Prompt + '    FilePath: ' + FResource.Resources[I].FilePath + sLineBreak;
-      if FResource.Resources[I].APIUrl <> '' then Prompt := Prompt + '    APIUrl: ' + FResource.Resources[I].APIUrl + sLineBreak;
-      Prompt := Prompt + sLineBreak;
+      LPrompt := LPrompt + '  Configuração Padrão:' + sLineBreak;
+      if FResource.Resources[I].Recipient <> '' then LPrompt := LPrompt + '    Recipient: ' + FResource.Resources[I].Recipient + sLineBreak;
+      if FResource.Resources[I].Sender <> '' then LPrompt := LPrompt + '    Sender: ' + FResource.Resources[I].Sender + sLineBreak;
+      if FResource.Resources[I].Subject <> '' then LPrompt := LPrompt + '    Subject: ' + FResource.Resources[I].Subject + sLineBreak;
+      if FResource.Resources[I].Host <> '' then LPrompt := LPrompt + '    Host: ' + FResource.Resources[I].Host + sLineBreak;
+      if FResource.Resources[I].Port <> 0 then LPrompt := LPrompt + '    Port: ' + IntToStr(FResource.Resources[I].Port) + sLineBreak;
+      if FResource.Resources[I].FilePath <> '' then LPrompt := LPrompt + '    FilePath: ' + FResource.Resources[I].FilePath + sLineBreak;
+      if FResource.Resources[I].APIUrl <> '' then LPrompt := LPrompt + '    APIUrl: ' + FResource.Resources[I].APIUrl + sLineBreak;
+      LPrompt := LPrompt + sLineBreak;
     end;
     
-    Prompt := Prompt + 'Você pode definir ou alterar qualquer um destes parâmetros em sua resposta JSON na seção "parameters".' + sLineBreak;
+    LPrompt := LPrompt + 'Você pode definir ou alterar qualquer um destes parâmetros em sua resposta JSON na seção "parameters".' + sLineBreak;
   end;
 
-  Prompt := Prompt + sLineBreak + '=== INSTRUÇÕES CRÍTICAS DE RETORNO ===' + sLineBreak;
-  Prompt := Prompt + 'Você DEVE analisar os dados e decidir por exatamente UMA ação aplicável entre las listadas.' + sLineBreak;
-  Prompt := Prompt + 'Você DEVE fornecer exatamente os parâmetros definidos correspondentes a essa ação.' + sLineBreak;
-  Prompt := Prompt + 'Você DEVE retornar a sua resposta EXCLUSIVAMENTE em formato JSON, sem crases, blocos de markdown ou outro texto envolvente. O JSON deve seguir precisamente esta estrutura:' + sLineBreak;
-  Prompt := Prompt + '{' + sLineBreak;
-  Prompt := Prompt + '  "action": "nome_da_acao_escolhida",' + sLineBreak;
-  Prompt := Prompt + '  "parameters": {' + sLineBreak;
-  Prompt := Prompt + '    "nome_parametro1": "valor1",' + sLineBreak;
-  Prompt := Prompt + '    "nome_parametro2": "valor2"' + sLineBreak;
-  Prompt := Prompt + '  },' + sLineBreak;
-  Prompt := Prompt + '  "rationale": "sua justificativa e raciocínio analítico aqui"' + sLineBreak;
-  Prompt := Prompt + '}' + sLineBreak;
+  LPrompt := LPrompt + sLineBreak + '=== INSTRUÇÕES CRÍTICAS DE RETORNO ===' + sLineBreak;
+  LPrompt := LPrompt + 'Você DEVE analisar os dados e decidir por exatamente UMA ação aplicável entre las listadas.' + sLineBreak;
+  LPrompt := LPrompt + 'Você DEVE fornecer exatamente os parâmetros definidos correspondentes a essa ação.' + sLineBreak;
+  LPrompt := LPrompt + 'Você DEVE retornar a sua resposta EXCLUSIVAMENTE em formato JSON, sem crases, blocos de markdown ou outro texto envolvente. O JSON deve seguir precisamente esta estrutura:' + sLineBreak;
+  LPrompt := LPrompt + '{' + sLineBreak;
+  LPrompt := LPrompt + '  "action": "nome_da_acao_escolhida",' + sLineBreak;
+  LPrompt := LPrompt + '  "parameters": {' + sLineBreak;
+  LPrompt := LPrompt + '    "nome_parametro1": "valor1",' + sLineBreak;
+  LPrompt := LPrompt + '    "nome_parametro2": "valor2"' + sLineBreak;
+  LPrompt := LPrompt + '  },' + sLineBreak;
+  LPrompt := LPrompt + '  "rationale": "sua justificativa e raciocínio analítico aqui"' + sLineBreak;
+  LPrompt := LPrompt + '}' + sLineBreak;
 
   RetryCount := 0;
   ParsedSuccessfully := False;
-  CurrentPrompt := Prompt;
+  CurrentPrompt := LPrompt;
 
   // 2. Execute Loop with Self-Correction / Critic
   while (RetryCount < FMaxRetries) and not ParsedSuccessfully do
   begin
     if not FChatGPT.SendQuestion(CurrentPrompt) then
     begin
-      FLastError := 'Falha na requisição ao ChatGPT: ' + FChatGPT.Response;
+      SetError('Falha na requisição ao ChatGPT: ' + FChatGPT.Response);
       Inc(RetryCount);
       Continue;
     end;
@@ -549,7 +577,7 @@ begin
             if FAction.AllowedActions.IndexOf(ActionName) < 0 then
             begin
               // Action is not in allowed list! Trigger retry loop with correction warning
-              CurrentPrompt := Prompt + sLineBreak + sLineBreak +
+              CurrentPrompt := LPrompt + sLineBreak + sLineBreak +
                                'WARNING: Você retornou a ação "' + ActionName + '" na tentativa anterior, o que NÃO é permitido.' + sLineBreak +
                                'As ÚNICAS ações permitidas são:' + sLineBreak + ActionsText + sLineBreak +
                                'Por favor, refaça sua análise e selecione estritamente uma ação válida listada acima em formato JSON.';
@@ -580,6 +608,16 @@ begin
               end;
             end;
 
+            // Security Validation Layer
+            if Assigned(FSafety) then
+            begin
+              if not FSafety.ValidateAction(ActionName, FAction.SelectedParameters, Err) then
+              begin
+                SetError(Err);
+                Exit(False);
+              end;
+            end;
+
             // Trigger callbacks
             FAction.TriggerAction(ActionName, FAction.SelectedParameters);
             if Assigned(FOnActionTriggered) then
@@ -599,7 +637,7 @@ begin
         end
         else
         begin
-          CurrentPrompt := Prompt + sLineBreak + sLineBreak +
+          CurrentPrompt := LPrompt + sLineBreak + sLineBreak +
                            'WARNING: A resposta anterior não foi um objeto JSON válido.' + sLineBreak +
                            'Por favor, retorne a resposta estritamente formatada no JSON correto.';
           Inc(RetryCount);
@@ -610,8 +648,8 @@ begin
     except
       on E: Exception do
       begin
-        FLastError := 'Erro no parser: ' + E.Message + ' | Tentativa: ' + IntToStr(RetryCount + 1);
-        CurrentPrompt := Prompt + sLineBreak + sLineBreak +
+        SetError('Erro no parser: ' + E.Message + ' | Tentativa: ' + IntToStr(RetryCount + 1));
+        CurrentPrompt := LPrompt + sLineBreak + sLineBreak +
                          'WARNING: Ocorreu um erro no parsing do JSON retornado: ' + E.Message + sLineBreak +
                          'Por favor, certifique-se de retornar EXCLUSIVAMENTE o JSON estruturado correto, sem blocos de código markdown ou crases.';
         Inc(RetryCount);
@@ -620,7 +658,7 @@ begin
   end;
 
   if not ParsedSuccessfully and (FLastError = '') then
-    FLastError := 'Excedeu o número máximo de tentativas de auto-correção do Agente.';
+    SetError('Excedeu o número máximo de tentativas de auto-correção do Agente.');
 end;
 
 { TAIAgentResourceItem }

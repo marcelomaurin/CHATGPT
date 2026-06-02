@@ -210,6 +210,15 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="aipromptbuilder"/>
       </Item>
+      <Item>
+        <Filename Value="IA\aibase.pas"/>
+        <UnitName Value="aibase"/>
+      </Item>
+      <Item>
+        <Filename Value="IA Agent\aiagentsafety.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiagentsafety"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>
