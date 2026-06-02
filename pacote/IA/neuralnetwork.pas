@@ -30,6 +30,11 @@ type
     FOnActivation: TActivationEvent;
     FOnDerivativeActivation: TDerivativeActivationEvent;
 
+    FPrompt: string;
+    FLastError: string;
+    FLastResult: string;
+    FLastSuccess: Boolean;
+
     function MatrixMultiply(const LA, LB: TMatrix): TMatrix;
     function MatrixAdd(const LA, LB: TMatrix): TMatrix;
     function MatrixSubtract(const LA, LB: TMatrix): TMatrix;
@@ -40,6 +45,8 @@ type
 
     procedure DoActivation(var X: Double);
     procedure DoDerivativeActivation(var Y: Double);
+    procedure ClearError;
+    procedure SetError(const AMessage: string);
   public
     constructor Create(AOwner: TComponent); override;
     procedure Initialize(LInputs, LHiddens, LOutputs: Integer; LLearningRate: Double);
@@ -62,6 +69,12 @@ type
     // Propriedades de eventos para ativação customizada
     property OnActivation: TActivationEvent read FOnActivation write FOnActivation;
     property OnDerivativeActivation: TDerivativeActivationEvent read FOnDerivativeActivation write FOnDerivativeActivation;
+    
+    property LastSuccess: Boolean read FLastSuccess;
+  published
+    property Prompt: string read FPrompt write FPrompt;
+    property LastError: string read FLastError;
+    property LastResult: string read FLastResult;
   end;
 
 procedure Register;
@@ -81,6 +94,22 @@ begin
   FOutputNodes := 0;
   FLearningRate := 0.1;
   FActivationType := atSigmoid;
+  FPrompt := '';
+  FLastError := '';
+  FLastResult := '';
+  FLastSuccess := True;
+end;
+
+procedure TNeuralNetwork.ClearError;
+begin
+  FLastError := '';
+  FLastSuccess := True;
+end;
+
+procedure TNeuralNetwork.SetError(const AMessage: string);
+begin
+  FLastError := AMessage;
+  FLastSuccess := False;
 end;
 
 procedure TNeuralNetwork.Initialize(LInputs, LHiddens, LOutputs: Integer; LLearningRate: Double);
@@ -225,15 +254,27 @@ function TNeuralNetwork.Predict(const LInputs: TArray): TArray;
 var
   InputMatrix, HiddenInputs, HiddenOutputs, FinalInputs, FinalOutputs: TMatrix;
 begin
-  if (FInputNodes = 0) or (FHiddenNodes = 0) or (FOutputNodes = 0) then
-    raise Exception.Create('A rede neural não foi inicializada. Chame Initialize antes de usar.');
+  SetLength(Result, 0);
+  ClearError;
+  try
+    if (FInputNodes = 0) or (FHiddenNodes = 0) or (FOutputNodes = 0) then
+      raise Exception.Create('A rede neural não foi inicializada. Chame Initialize antes de usar.');
 
-  InputMatrix := ArrayToMatrix(LInputs);
-  HiddenInputs := MatrixAdd(MatrixMultiply(FWeightsIH, InputMatrix), FBiasH);
-  HiddenOutputs := MatrixMap(HiddenInputs);
-  FinalInputs := MatrixAdd(MatrixMultiply(FWeightsHO, HiddenOutputs), FBiasO);
-  FinalOutputs := MatrixMap(FinalInputs);
-  Result := MatrixToArray(FinalOutputs);
+    InputMatrix := ArrayToMatrix(LInputs);
+    HiddenInputs := MatrixAdd(MatrixMultiply(FWeightsIH, InputMatrix), FBiasH);
+    HiddenOutputs := MatrixMap(HiddenInputs);
+    FinalInputs := MatrixAdd(MatrixMultiply(FWeightsHO, HiddenOutputs), FBiasO);
+    FinalOutputs := MatrixMap(FinalInputs);
+    Result := MatrixToArray(FinalOutputs);
+    FLastResult := 'Prediction Succeeded';
+    FLastSuccess := True;
+  except
+    on E: Exception do
+    begin
+      SetError(E.Message);
+      raise;
+    end;
+  end;
 end;
 
 procedure TNeuralNetwork.Train(const LInputs, LTargets: TArray);
@@ -244,60 +285,71 @@ var
   TransposedHidden, TransposedInput, TransposedWeightsHO: TMatrix;
   I, J: Integer;
 begin
-  if (FInputNodes = 0) or (FHiddenNodes = 0) or (FOutputNodes = 0) then
-    raise Exception.Create('A rede neural não foi inicializada. Chame Initialize antes de treinar.');
+  ClearError;
+  try
+    if (FInputNodes = 0) or (FHiddenNodes = 0) or (FOutputNodes = 0) then
+      raise Exception.Create('A rede neural não foi inicializada. Chame Initialize antes de treinar.');
 
-  InputMatrix := ArrayToMatrix(LInputs);
-  TargetMatrix := ArrayToMatrix(LTargets);
+    InputMatrix := ArrayToMatrix(LInputs);
+    TargetMatrix := ArrayToMatrix(LTargets);
 
-  // Forward Pass
-  HiddenInputs := MatrixAdd(MatrixMultiply(FWeightsIH, InputMatrix), FBiasH);
-  HiddenOutputs := MatrixMap(HiddenInputs);
-  FinalInputs := MatrixAdd(MatrixMultiply(FWeightsHO, HiddenOutputs), FBiasO);
-  FinalOutputs := MatrixMap(FinalInputs);
+    // Forward Pass
+    HiddenInputs := MatrixAdd(MatrixMultiply(FWeightsIH, InputMatrix), FBiasH);
+    HiddenOutputs := MatrixMap(HiddenInputs);
+    FinalInputs := MatrixAdd(MatrixMultiply(FWeightsHO, HiddenOutputs), FBiasO);
+    FinalOutputs := MatrixMap(FinalInputs);
 
-  // Erros da camada de saída (Target - Output)
-  OutputErrors := MatrixSubtract(TargetMatrix, FinalOutputs);
+    // Erros da camada de saída (Target - Output)
+    OutputErrors := MatrixSubtract(TargetMatrix, FinalOutputs);
 
-  // Gradients da saída = Derivada(Output) * Erro * LearningRate
-  Gradients := MatrixMapDerivative(FinalOutputs);
-  for I := 0 to High(Gradients) do
-    for J := 0 to High(Gradients[I]) do
-      Gradients[I, J] := Gradients[I, J] * OutputErrors[I, J] * FLearningRate;
+    // Gradients da saída = Derivada(Output) * Erro * LearningRate
+    Gradients := MatrixMapDerivative(FinalOutputs);
+    for I := 0 to High(Gradients) do
+      for J := 0 to High(Gradients[I]) do
+        Gradients[I, J] := Gradients[I, J] * OutputErrors[I, J] * FLearningRate;
 
-  // Ajusta pesos da camada oculta para saída (WeightsHO)
-  SetLength(TransposedHidden, Length(HiddenOutputs[0]), Length(HiddenOutputs));
-  for I := 0 to High(HiddenOutputs) do
-    for J := 0 to High(HiddenOutputs[I]) do
-      TransposedHidden[J, I] := HiddenOutputs[I, J];
+    // Ajusta pesos da camada oculta para saída (WeightsHO)
+    SetLength(TransposedHidden, Length(HiddenOutputs[0]), Length(HiddenOutputs));
+    for I := 0 to High(HiddenOutputs) do
+      for J := 0 to High(HiddenOutputs[I]) do
+        TransposedHidden[J, I] := HiddenOutputs[I, J];
 
-  WeightsHODeltas := MatrixMultiply(Gradients, TransposedHidden);
-  FWeightsHO := MatrixAdd(FWeightsHO, WeightsHODeltas);
-  FBiasO := MatrixAdd(FBiasO, Gradients);
+    WeightsHODeltas := MatrixMultiply(Gradients, TransposedHidden);
+    FWeightsHO := MatrixAdd(FWeightsHO, WeightsHODeltas);
+    FBiasO := MatrixAdd(FBiasO, Gradients);
 
-  // Erros da camada oculta (Transposta dos pesos HO * Erros da Saída)
-  SetLength(TransposedWeightsHO, Length(FWeightsHO[0]), Length(FWeightsHO));
-  for I := 0 to High(FWeightsHO) do
-    for J := 0 to High(FWeightsHO[I]) do
-      TransposedWeightsHO[J, I] := FWeightsHO[I, J];
+    // Erros da camada oculta (Transposta dos pesos HO * Erros da Saída)
+    SetLength(TransposedWeightsHO, Length(FWeightsHO[0]), Length(FWeightsHO));
+    for I := 0 to High(FWeightsHO) do
+      for J := 0 to High(FWeightsHO[I]) do
+        TransposedWeightsHO[J, I] := FWeightsHO[I, J];
 
-  HiddenErrors := MatrixMultiply(TransposedWeightsHO, OutputErrors);
+    HiddenErrors := MatrixMultiply(TransposedWeightsHO, OutputErrors);
 
-  // Gradients da camada oculta = Derivada(HiddenOutputs) * ErroOculto * LearningRate
-  HiddenGradients := MatrixMapDerivative(HiddenOutputs);
-  for I := 0 to High(HiddenGradients) do
-    for J := 0 to High(HiddenGradients[I]) do
-      HiddenGradients[I, J] := HiddenGradients[I, J] * HiddenErrors[I, J] * FLearningRate;
+    // Gradients da camada oculta = Derivada(HiddenOutputs) * ErroOculto * LearningRate
+    HiddenGradients := MatrixMapDerivative(HiddenOutputs);
+    for I := 0 to High(HiddenGradients) do
+      for J := 0 to High(HiddenGradients[I]) do
+        HiddenGradients[I, J] := HiddenGradients[I, J] * HiddenErrors[I, J] * FLearningRate;
 
-  // Ajusta pesos da entrada para camada oculta (WeightsIH)
-  SetLength(TransposedInput, Length(InputMatrix[0]), Length(InputMatrix));
-  for I := 0 to High(InputMatrix) do
-    for J := 0 to High(InputMatrix[I]) do
-      TransposedInput[J, I] := InputMatrix[I, J];
+    // Ajusta pesos da entrada para camada oculta (WeightsIH)
+    SetLength(TransposedInput, Length(InputMatrix[0]), Length(InputMatrix));
+    for I := 0 to High(InputMatrix) do
+      for J := 0 to High(InputMatrix[I]) do
+        TransposedInput[J, I] := InputMatrix[I, J];
 
-  WeightsIHDeltas := MatrixMultiply(HiddenGradients, TransposedInput);
-  FWeightsIH := MatrixAdd(FWeightsIH, WeightsIHDeltas);
-  FBiasH := MatrixAdd(FBiasH, HiddenGradients);
+    WeightsIHDeltas := MatrixMultiply(HiddenGradients, TransposedInput);
+    FWeightsIH := MatrixAdd(FWeightsIH, WeightsIHDeltas);
+    FBiasH := MatrixAdd(FBiasH, HiddenGradients);
+    FLastResult := 'Training Pass Succeeded';
+    FLastSuccess := True;
+  except
+    on E: Exception do
+    begin
+      SetError(E.Message);
+      raise;
+    end;
+  end;
 end;
 
 procedure TNeuralNetwork.TrainEpochs(const LDatasetInputs, LDatasetTargets: TMatrix; LEpochs: Integer; out LFinalLoss: Double);
@@ -306,30 +358,41 @@ var
   Predictions: TArray;
   TotalError, TargetVal, Diff: Double;
 begin
-  if Length(LDatasetInputs) <> Length(LDatasetTargets) then
-    raise Exception.Create('O número de entradas do dataset difere do número de alvos (targets).');
-
   LFinalLoss := 0;
-  for Epoch := 1 to LEpochs do
-  begin
-    TotalError := 0;
-    for I := 0 to High(LDatasetInputs) do
+  ClearError;
+  try
+    if Length(LDatasetInputs) <> Length(LDatasetTargets) then
+      raise Exception.Create('O número de entradas do dataset difere do número de alvos (targets).');
+
+    for Epoch := 1 to LEpochs do
     begin
-      // Treina com a linha atual
-      Train(LDatasetInputs[I], LDatasetTargets[I]);
-      
-      // Predição para calcular perda (Loss)
-      Predictions := Predict(LDatasetInputs[I]);
-      for J := 0 to High(Predictions) do
+      TotalError := 0;
+      for I := 0 to High(LDatasetInputs) do
       begin
-        TargetVal := LDatasetTargets[I, J];
-        Diff := TargetVal - Predictions[J];
-        TotalError := TotalError + (Diff * Diff);
+        // Treina com a linha atual
+        Train(LDatasetInputs[I], LDatasetTargets[I]);
+        
+        // Predição para calcular perda (Loss)
+        Predictions := Predict(LDatasetInputs[I]);
+        for J := 0 to High(Predictions) do
+        begin
+          TargetVal := LDatasetTargets[I, J];
+          Diff := TargetVal - Predictions[J];
+          TotalError := TotalError + (Diff * Diff);
+        end;
       end;
+      
+      // MSE Loss
+      LFinalLoss := TotalError / (Length(LDatasetInputs) * FOutputNodes);
     end;
-    
-    // MSE Loss
-    LFinalLoss := TotalError / (Length(LDatasetInputs) * FOutputNodes);
+    FLastResult := Format('Epoch training Succeeded. Final Loss: %f', [LFinalLoss]);
+    FLastSuccess := True;
+  except
+    on E: Exception do
+    begin
+      SetError(E.Message);
+      raise;
+    end;
   end;
 end;
 
@@ -338,35 +401,46 @@ var
   FileOut: TextFile;
   I, J: Integer;
 begin
-  AssignFile(FileOut, LFileName);
-  Rewrite(FileOut);
+  ClearError;
   try
-    Writeln(FileOut, FInputNodes, ' ', FHiddenNodes, ' ', FOutputNodes);
-    Writeln(FileOut, Ord(FActivationType));
+    AssignFile(FileOut, LFileName);
+    Rewrite(FileOut);
+    try
+      Writeln(FileOut, FInputNodes, ' ', FHiddenNodes, ' ', FOutputNodes);
+      Writeln(FileOut, Ord(FActivationType));
 
-    for I := 0 to High(FWeightsIH) do
-    begin
-      for J := 0 to High(FWeightsIH[I]) do
-        Write(FileOut, FWeightsIH[I, J]:0:10, ' ');
+      for I := 0 to High(FWeightsIH) do
+      begin
+        for J := 0 to High(FWeightsIH[I]) do
+          Write(FileOut, FWeightsIH[I, J]:0:10, ' ');
+        Writeln(FileOut);
+      end;
+
+      for I := 0 to High(FWeightsHO) do
+      begin
+        for J := 0 to High(FWeightsHO[I]) do
+          Write(FileOut, FWeightsHO[I, J]:0:10, ' ');
+        Writeln(FileOut);
+      end;
+
+      for I := 0 to High(FBiasH) do
+        Write(FileOut, FBiasH[I, 0]:0:10, ' ');
       Writeln(FileOut);
-    end;
 
-    for I := 0 to High(FWeightsHO) do
-    begin
-      for J := 0 to High(FWeightsHO[I]) do
-        Write(FileOut, FWeightsHO[I, J]:0:10, ' ');
+      for I := 0 to High(FBiasO) do
+        Write(FileOut, FBiasO[I, 0]:0:10, ' ');
       Writeln(FileOut);
+    finally
+      CloseFile(FileOut);
     end;
-
-    for I := 0 to High(FBiasH) do
-      Write(FileOut, FBiasH[I, 0]:0:10, ' ');
-    Writeln(FileOut);
-
-    for I := 0 to High(FBiasO) do
-      Write(FileOut, FBiasO[I, 0]:0:10, ' ');
-    Writeln(FileOut);
-  finally
-    CloseFile(FileOut);
+    FLastResult := 'Network Saved Successfully';
+    FLastSuccess := True;
+  except
+    on E: Exception do
+    begin
+      SetError(E.Message);
+      raise;
+    end;
   end;
 end;
 
@@ -376,30 +450,41 @@ var
   I, J: Integer;
   LAct: Integer;
 begin
-  AssignFile(FileIn, LFileName);
-  Reset(FileIn);
+  ClearError;
   try
-    Read(FileIn, FInputNodes, FHiddenNodes, FOutputNodes);
-    Read(FileIn, LAct);
-    FActivationType := TActivationType(LAct);
+    AssignFile(FileIn, LFileName);
+    Reset(FileIn);
+    try
+      Read(FileIn, FInputNodes, FHiddenNodes, FOutputNodes);
+      Read(FileIn, LAct);
+      FActivationType := TActivationType(LAct);
 
-    Initialize(FInputNodes, FHiddenNodes, FOutputNodes, FLearningRate);
+      Initialize(FInputNodes, FHiddenNodes, FOutputNodes, FLearningRate);
 
-    for I := 0 to High(FWeightsIH) do
-      for J := 0 to High(FWeightsIH[I]) do
-        Read(FileIn, FWeightsIH[I, J]);
+      for I := 0 to High(FWeightsIH) do
+        for J := 0 to High(FWeightsIH[I]) do
+          Read(FileIn, FWeightsIH[I, J]);
 
-    for I := 0 to High(FWeightsHO) do
-      for J := 0 to High(FWeightsHO[I]) do
-        Read(FileIn, FWeightsHO[I, J]);
+      for I := 0 to High(FWeightsHO) do
+        for J := 0 to High(FWeightsHO[I]) do
+          Read(FileIn, FWeightsHO[I, J]);
 
-    for I := 0 to High(FBiasH) do
-      Read(FileIn, FBiasH[I, 0]);
+      for I := 0 to High(FBiasH) do
+        Read(FileIn, FBiasH[I, 0]);
 
-    for I := 0 to High(FBiasO) do
-      Read(FileIn, FBiasO[I, 0]);
-  finally
-    CloseFile(FileIn);
+      for I := 0 to High(FBiasO) do
+        Read(FileIn, FBiasO[I, 0]);
+    finally
+      CloseFile(FileIn);
+    end;
+    FLastResult := 'Network Loaded Successfully';
+    FLastSuccess := True;
+  except
+    on E: Exception do
+    begin
+      SetError(E.Message);
+      raise;
+    end;
   end;
 end;
 

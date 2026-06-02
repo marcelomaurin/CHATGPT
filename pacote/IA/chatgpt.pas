@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, LazUTF8, fpjson, jsonparser,
-  fphttpclient, opensslsockets, LResources;
+  fphttpclient, opensslsockets, LResources, aibase;
 
 const
   CHATGPT_LIB_VERSION = '1.6';
@@ -63,7 +63,7 @@ type
 
   { TCHATGPT }
 
-  TCHATGPT = class(TComponent)
+  TCHATGPT = class(TAIBaseComponent)
   private
     FToken           : WideString;
     FQuestion        : WideString;
@@ -86,12 +86,14 @@ type
     function GetModelName: WideString;
     function MontaURLChatLocal(const AServidor: WideString): WideString;
     procedure AddProviderHeaders(AHTTP: TFPHttpClient);
+    function GetDev: WideString;
+    procedure SetDev(const AValue: WideString);
   public
 
     property TOKEN: WideString read FToken write FToken;
     property Question: WideString read FQuestion;
     property Response: WideString read FResponse write FResponse;
-    property Dev: WideString read FDev write FDev;
+    property Dev: WideString read GetDev write SetDev;
     property TipoChat: TVersionChat read FTipoChat write FTipoChat;
     property Provider: TAIProvider read FProvider write FProvider;
     property CustomModel: WideString read FCustomModel write FCustomModel;
@@ -555,6 +557,20 @@ begin
   end;
 end;
 
+function TCHATGPT.GetDev: WideString;
+begin
+  if FPrompt <> '' then
+    Result := FPrompt
+  else
+    Result := FDev;
+end;
+
+procedure TCHATGPT.SetDev(const AValue: WideString);
+begin
+  FDev := AValue;
+  FPrompt := AValue;
+end;
+
 function TCHATGPT.SendQuestion(ASK: WideString): Boolean;
 var
   LURL, AUX: WideString;
@@ -564,63 +580,97 @@ var
   HasError: Boolean;
 begin
   Result := False;
+  ClearError;
   FQuestion := ASK;
 
   try
-    LURL := GetEndpoint;
-    FLastURL := LURL;
+    try
+      LURL := GetEndpoint;
+      FLastURL := LURL;
+    except
+      on E: Exception do
+      begin
+        FResponse := Format('{"error":{"message":"%s"}}',
+          [StringReplace(E.Message, '"', '\"', [rfReplaceAll])]);
+        FLastJSON := FResponse;
+        SetError(E.Message);
+        Exit(False);
+      end;
+    end;
+
+    AUX := RequestJson(LURL, FToken, ASK);
+    FLastJSON := AUX;
+
+    // Verifica erro no JSON retornado por parse estruturado
+    HasError := False;
+    ErrorParser := TJSONParser.Create(AUX);
+    try
+      try
+        ErrorData := ErrorParser.Parse;
+        try
+          if (ErrorData.JSONType = jtObject) then
+          begin
+            ErrorObj := TJSONObject(ErrorData);
+            if ErrorObj.IndexOfName('error') >= 0 then
+            begin
+              HasError := True;
+              if ErrorObj.Objects['error'] <> nil then
+              begin
+                if ErrorObj.Objects['error'].IndexOfName('message') >= 0 then
+                  SetError(ErrorObj.Objects['error'].Strings['message'])
+                else
+                  SetError('Erro retornado pela API.');
+              end
+              else
+                SetError('Erro retornado pela API.');
+            end;
+          end;
+        finally
+          ErrorData.Free;
+        end;
+      except
+        // Se não conseguir parsear, não é erro de API
+        HasError := False;
+      end;
+    finally
+      ErrorParser.Free;
+    end;
+
+    if HasError then
+    begin
+      FResponse := AUX;
+      FLastResult := FResponse;
+      Exit(False);
+    end;
+
+    try
+      FResponse := PegaMensagem(AUX);
+      Result := (Trim(FResponse) <> '');
+
+      if not Result then
+      begin
+        FResponse := AUX;
+        SetError('Resposta vazia da API.');
+      end
+      else
+      begin
+        FLastResult := FResponse;
+        FLastSuccess := True;
+      end;
+    except
+      on E: Exception do
+      begin
+        FResponse := AUX;
+        SetError(E.Message);
+        Result := False;
+      end;
+    end;
   except
     on E: Exception do
     begin
-      FResponse := Format('{"error":{"message":"%s"}}',
-        [StringReplace(E.Message, '"', '\"', [rfReplaceAll])]);
-      FLastJSON := FResponse;
-      Exit(False);
+      SetError(E.Message);
+      Result := False;
     end;
-  end;
-
-  AUX := RequestJson(LURL, FToken, ASK);
-  FLastJSON := AUX;
-
-  // Verifica erro no JSON retornado por parse estruturado
-  HasError := False;
-  ErrorParser := TJSONParser.Create(AUX);
-  try
-    try
-      ErrorData := ErrorParser.Parse;
-      try
-        if (ErrorData.JSONType = jtObject) then
-        begin
-          ErrorObj := TJSONObject(ErrorData);
-          if ErrorObj.IndexOfName('error') >= 0 then
-            HasError := True;
-        end;
-      finally
-        ErrorData.Free;
-      end;
-    except
-      // Se não conseguir parsear, não é erro de API
-      HasError := False;
-    end;
-  finally
-    ErrorParser.Free;
-  end;
-
-  if HasError then
-  begin
-    FResponse := AUX;
-    Exit(False);
-  end;
-
-  try
-    FResponse := PegaMensagem(AUX);
-    Result := (Trim(FResponse) <> '');
-
-    if not Result then
-      FResponse := AUX;
-  except
-    FResponse := AUX;
-    Result := False;
   end;
 end;
 
@@ -631,6 +681,7 @@ begin
   FTipoChat := VCT_GPT4o;
 
   FDev := 'Você é um assistente.';
+  FPrompt := FDev;
   FParams := TStringList.Create;
   FCustomModel := '';
   FOpenRouterTitle := '';

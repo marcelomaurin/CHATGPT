@@ -7,14 +7,13 @@ interface
 uses
   Classes, SysUtils, Math,
   // Native FPC PDF generator library
-  fpPDF;
+  fpPDF, aibase;
 
 type
   { TAIPDFOutput }
 
-  TAIPDFOutput = class(TComponent)
+  TAIPDFOutput = class(TAIBaseComponent)
   private
-    FPrompt: string;
     FFileName: string;
     FTitle: string;
     FAuthor: string;
@@ -31,7 +30,6 @@ type
     procedure AddText(const AText: string; X, Y: Single; FontSize: Single = 12.0);
     function SavePDF: Boolean;
   published
-    property Prompt: string read FPrompt write FPrompt;
     property FileName: string read FFileName write FFileName;
     property Title: string read FTitle write FTitle;
     property Author: string read FAuthor write FAuthor;
@@ -40,9 +38,8 @@ type
 
   { TAIWordOutput }
 
-  TAIWordOutput = class(TComponent)
+  TAIWordOutput = class(TAIBaseComponent)
   private
-    FPrompt: string;
     FFileName: string;
     FTitle: string;
     FContent: TStringList;
@@ -55,16 +52,14 @@ type
     procedure AddTable(const AHeaders: array of string; const ARows: array of string; ACols: Integer);
     function SaveWord: Boolean;
   published
-    property Prompt: string read FPrompt write FPrompt;
     property FileName: string read FFileName write FFileName;
     property Title: string read FTitle write FTitle;
   end;
 
   { TAIExcelOutput }
 
-  TAIExcelOutput = class(TComponent)
+  TAIExcelOutput = class(TAIBaseComponent)
   private
-    FPrompt: string;
     FFileName: string;
     FCells: TStringList;
     FMaxRow: Integer;
@@ -76,15 +71,13 @@ type
     procedure SetCell(ARow, ACol: Integer; const AValue: string);
     function SaveExcel: Boolean;
   published
-    property Prompt: string read FPrompt write FPrompt;
     property FileName: string read FFileName write FFileName;
   end;
 
   { TAITXTOutput }
 
-  TAITXTOutput = class(TComponent)
+  TAITXTOutput = class(TAIBaseComponent)
   private
-    FPrompt: string;
     FFileName: string;
     FLines: TStringList;
   public
@@ -96,15 +89,13 @@ type
     procedure Clear;
     function SaveText: Boolean;
   published
-    property Prompt: string read FPrompt write FPrompt;
     property FileName: string read FFileName write FFileName;
   end;
 
   { TAIOutputDocs }
 
-  TAIOutputDocs = class(TComponent)
+  TAIOutputDocs = class(TAIBaseComponent)
   private
-    FPrompt: string;
     FFileNamePDF: string;
     FFileNameWord: string;
     FFileNameExcel: string;
@@ -130,14 +121,16 @@ type
     procedure AddTable(const AHeaders: array of string; const ARows: array of string; ACols: Integer);
     procedure SetCell(ARow, ACol: Integer; const AValue: string);
     
+    // Novas propriedades e funções
     function SaveToPDF: Boolean;
     function SaveToWord: Boolean;
     function SaveToExcel: Boolean;
     function SaveToTXT: Boolean;
+    // Salva tudo ao mesmo tempo
     function SaveAll(const ABaseFileName: string = ''): Boolean;
   published
-    property Prompt: string read FPrompt write FPrompt;
     property FileNamePDF: string read FFileNamePDF write FFileNamePDF;
+    property Token: string read FFileNamePDF write FFileNamePDF; // Added for forward compatibility with prompt builders or other units
     property FileNameWord: string read FFileNameWord write FFileNameWord;
     property FileNameExcel: string read FFileNameExcel write FFileNameExcel;
     property FileNameTXT: string read FFileNameTXT write FFileNameTXT;
@@ -222,14 +215,24 @@ end;
 function TAIPDFOutput.SavePDF: Boolean;
 begin
   Result := False;
-  if not Assigned(FPDFDoc) then
-    Exit;
-    
+  ClearError;
   try
+    if not Assigned(FPDFDoc) then
+    begin
+      SetError('Documento PDF não foi iniciado. Chame StartDocument antes de salvar.');
+      Exit;
+    end;
+    
     FPDFDoc.SaveToFile(FFileName);
+    FLastResult := 'PDF Document Saved: ' + FFileName;
+    FLastSuccess := True;
     Result := True;
   except
-    Result := False;
+    on E: Exception do
+    begin
+      SetError('Erro ao salvar PDF: ' + E.Message);
+      Result := False;
+    end;
   end;
 end;
 
@@ -302,24 +305,35 @@ var
   DocBody: TStringList;
 begin
   Result := False;
+  ClearError;
   DocBody := TStringList.Create;
   try
-    DocBody.Add('<!--[if gte mso 9]>');
-    DocBody.Add('<xml>');
-    DocBody.Add(' <w:WordDocument>');
-    DocBody.Add('  <w:View>Print</w:View>');
-    DocBody.Add(' </w:WordDocument>');
-    DocBody.Add('</xml>');
-    DocBody.Add('<![endif]-->');
-    DocBody.Add('<html>');
-    DocBody.Add('<head><title>' + FTitle + '</title></head>');
-    DocBody.Add('<body style="padding: 40px;">');
-    DocBody.AddStrings(FContent);
-    DocBody.Add('</body>');
-    DocBody.Add('</html>');
-    
-    DocBody.SaveToFile(FFileName);
-    Result := True;
+    try
+      DocBody.Add('<!--[if gte mso 9]>');
+      DocBody.Add('<xml>');
+      DocBody.Add(' <w:WordDocument>');
+      DocBody.Add('  <w:View>Print</w:View>');
+      DocBody.Add(' </w:WordDocument>');
+      DocBody.Add('</xml>');
+      DocBody.Add('<![endif]-->');
+      DocBody.Add('<html>');
+      DocBody.Add('<head><title>' + FTitle + '</title></head>');
+      DocBody.Add('<body style="padding: 40px;">');
+      DocBody.AddStrings(FContent);
+      DocBody.Add('</body>');
+      DocBody.Add('</html>');
+      
+      DocBody.SaveToFile(FFileName);
+      FLastResult := 'Word Document Saved: ' + FFileName;
+      FLastSuccess := True;
+      Result := True;
+    except
+      on E: Exception do
+      begin
+        SetError('Erro ao salvar arquivo Word: ' + E.Message);
+        Result := False;
+      end;
+    end;
   finally
     DocBody.Free;
   end;
@@ -357,40 +371,51 @@ var
   Val: string;
 begin
   Result := False;
+  ClearError;
   Doc := TStringList.Create;
   try
-    Doc.Add('<html>');
-    Doc.Add('<head>');
-    Doc.Add(' <meta http-equiv="content-type" content="text/html; charset=utf-8">');
-    Doc.Add(' <style>');
-    Doc.Add('  table { border-collapse: collapse; }');
-    Doc.Add('  td { border: 1px solid #ccc; font-family: sans-serif; font-size: 10pt; padding: 4px; }');
-    Doc.Add('  .header { background-color: #e3f2fd; font-weight: bold; color: #0d47a1; text-align: center; }');
-    Doc.Add(' </style>');
-    Doc.Add('</head>');
-    Doc.Add('<body>');
-    Doc.Add(' <table>');
-    
-    for R := 0 to FMaxRow do
-    begin
-      Doc.Add('  <tr>');
-      for C := 0 to FMaxCol do
+    try
+      Doc.Add('<html>');
+      Doc.Add('<head>');
+      Doc.Add(' <meta http-equiv="content-type" content="text/html; charset=utf-8">');
+      Doc.Add(' <style>');
+      Doc.Add('  table { border-collapse: collapse; }');
+      Doc.Add('  td { border: 1px solid #ccc; font-family: sans-serif; font-size: 10pt; padding: 4px; }');
+      Doc.Add('  .header { background-color: #e3f2fd; font-weight: bold; color: #0d47a1; text-align: center; }');
+      Doc.Add(' </style>');
+      Doc.Add('</head>');
+      Doc.Add('<body>');
+      Doc.Add(' <table>');
+      
+      for R := 0 to FMaxRow do
       begin
-        Val := FCells.Values[IntToStr(R) + ',' + IntToStr(C)];
-        if R = 0 then
-          Doc.Add('   <td class="header">' + Val + '</td>')
-        else
-          Doc.Add('   <td>' + Val + '</td>');
+        Doc.Add('  <tr>');
+        for C := 0 to FMaxCol do
+        begin
+          Val := FCells.Values[IntToStr(R) + ',' + IntToStr(C)];
+          if R = 0 then
+            Doc.Add('   <td class="header">' + Val + '</td>')
+          else
+            Doc.Add('   <td>' + Val + '</td>');
+        end;
+        Doc.Add('  </tr>');
       end;
-      Doc.Add('  </tr>');
+      
+      Doc.Add(' </table>');
+      Doc.Add('</body>');
+      Doc.Add('</html>');
+      
+      Doc.SaveToFile(FFileName);
+      FLastResult := 'Excel Document Saved: ' + FFileName;
+      FLastSuccess := True;
+      Result := True;
+    except
+      on E: Exception do
+      begin
+        SetError('Erro ao salvar arquivo Excel: ' + E.Message);
+        Result := False;
+      end;
     end;
-    
-    Doc.Add(' </table>');
-    Doc.Add('</body>');
-    Doc.Add('</html>');
-    
-    Doc.SaveToFile(FFileName);
-    Result := True;
   finally
     Doc.Free;
   end;
@@ -431,11 +456,19 @@ end;
 
 function TAITXTOutput.SaveText: Boolean;
 begin
+  Result := False;
+  ClearError;
   try
     FLines.SaveToFile(FFileName);
+    FLastResult := 'Text Document Saved: ' + FFileName;
+    FLastSuccess := True;
     Result := True;
   except
-    Result := False;
+    on E: Exception do
+    begin
+      SetError('Erro ao salvar arquivo texto: ' + E.Message);
+      Result := False;
+    end;
   end;
 end;
 
@@ -520,33 +553,50 @@ var
   I: Integer;
   Y: Single;
 begin
+  Result := False;
+  ClearError;
   PDF := TAIPDFOutput.Create(nil);
   try
-    PDF.FileName := FFileNamePDF;
-    PDF.Title := FTitle;
-    PDF.Author := FAuthor;
-    PDF.Subject := FSubject;
-    PDF.StartDocument;
-    PDF.AddPage;
-    
-    // Draw header banner
-    PDF.AddText(FTitle, 40, 50, 18);
-    PDF.AddText('Autor: ' + FAuthor, 40, 75, 10);
-    PDF.AddText('--------------------------------------------------------------------------------', 40, 95, 10);
-    
-    Y := 120;
-    for I := 0 to FParagraphs.Count - 1 do
-    begin
-      PDF.AddText(FParagraphs[I], 40, Y, 11);
-      Y := Y + 25;
-      if Y > 780 then
+    try
+      PDF.FileName := FFileNamePDF;
+      PDF.Title := FTitle;
+      PDF.Author := FAuthor;
+      PDF.Subject := FSubject;
+      PDF.StartDocument;
+      PDF.AddPage;
+      
+      // Draw header banner
+      PDF.AddText(FTitle, 40, 50, 18);
+      PDF.AddText('Autor: ' + FAuthor, 40, 75, 10);
+      PDF.AddText('--------------------------------------------------------------------------------', 40, 95, 10);
+      
+      Y := 120;
+      for I := 0 to FParagraphs.Count - 1 do
       begin
-        PDF.AddPage;
-        Y := 50;
+        PDF.AddText(FParagraphs[I], 40, Y, 11);
+        Y := Y + 25;
+        if Y > 780 then
+        begin
+          PDF.AddPage;
+          Y := 50;
+        end;
+      end;
+      
+      Result := PDF.SavePDF;
+      if Result then
+      begin
+        FLastResult := 'PDF Generated successfully: ' + FFileNamePDF;
+        FLastSuccess := True;
+      end
+      else
+        SetError('Falha ao salvar PDF interno.');
+    except
+      on E: Exception do
+      begin
+        SetError('Erro ao gerar PDF: ' + E.Message);
+        Result := False;
       end;
     end;
-    
-    Result := PDF.SavePDF;
   finally
     PDF.Free;
   end;
@@ -559,31 +609,48 @@ var
   HeadersArr: array of string;
   RowsArr: array of string;
 begin
+  Result := False;
+  ClearError;
   Word := TAIWordOutput.Create(nil);
   try
-    Word.FileName := FFileNameWord;
-    Word.Title := FTitle;
-    
-    Word.AddHeading(FTitle, 1);
-    Word.AddParagraph('Autor: ' + FAuthor);
-    
-    for I := 0 to FParagraphs.Count - 1 do
-      Word.AddParagraph(FParagraphs[I]);
+    try
+      Word.FileName := FFileNameWord;
+      Word.Title := FTitle;
       
-    if (FTableCols > 0) and (FTableRows.Count > 0) then
-    begin
-      SetLength(HeadersArr, FTableHeaders.Count);
-      for I := 0 to FTableHeaders.Count - 1 do
-        HeadersArr[I] := FTableHeaders[I];
+      Word.AddHeading(FTitle, 1);
+      Word.AddParagraph('Autor: ' + FAuthor);
+      
+      for I := 0 to FParagraphs.Count - 1 do
+        Word.AddParagraph(FParagraphs[I]);
         
-      SetLength(RowsArr, FTableRows.Count);
-      for I := 0 to FTableRows.Count - 1 do
-        RowsArr[I] := FTableRows[I];
-        
-      Word.AddTable(HeadersArr, RowsArr, FTableCols);
+      if (FTableCols > 0) and (FTableRows.Count > 0) then
+      begin
+        SetLength(HeadersArr, FTableHeaders.Count);
+        for I := 0 to FTableHeaders.Count - 1 do
+          HeadersArr[I] := FTableHeaders[I];
+          
+        SetLength(RowsArr, FTableRows.Count);
+        for I := 0 to FTableRows.Count - 1 do
+          RowsArr[I] := FTableRows[I];
+          
+        Word.AddTable(HeadersArr, RowsArr, FTableCols);
+      end;
+      
+      Result := Word.SaveWord;
+      if Result then
+      begin
+        FLastResult := 'Word document generated successfully: ' + FFileNameWord;
+        FLastSuccess := True;
+      end
+      else
+        SetError('Falha ao salvar arquivo Word interno.');
+    except
+      on E: Exception do
+      begin
+        SetError('Erro ao gerar arquivo Word: ' + E.Message);
+        Result := False;
+      end;
     end;
-    
-    Result := Word.SaveWord;
   finally
     Word.Free;
   end;
@@ -594,31 +661,48 @@ var
   Excel: TAIExcelOutput;
   I: Integer;
 begin
+  Result := False;
+  ClearError;
   Excel := TAIExcelOutput.Create(nil);
   try
-    Excel.FileName := FFileNameExcel;
-    
-    if FCells.Count > 0 then
-    begin
-      Excel.FCells.Assign(FCells);
-      Excel.FMaxRow := FMaxRow;
-      Excel.FMaxCol := FMaxCol;
-    end
-    else
-    begin
-      // Fallback spreadsheet population
-      Excel.SetCell(0, 0, 'Relatório');
-      Excel.SetCell(0, 1, FTitle);
-      Excel.SetCell(1, 0, 'Autor');
-      Excel.SetCell(1, 1, FAuthor);
-      for I := 0 to FParagraphs.Count - 1 do
+    try
+      Excel.FileName := FFileNameExcel;
+      
+      if FCells.Count > 0 then
       begin
-        Excel.SetCell(3 + I, 0, 'Parágrafo ' + IntToStr(I + 1));
-        Excel.SetCell(3 + I, 1, FParagraphs[I]);
+        Excel.FCells.Assign(FCells);
+        Excel.FMaxRow := FMaxRow;
+        Excel.FMaxCol := FMaxCol;
+      end
+      else
+      begin
+        // Fallback spreadsheet population
+        Excel.SetCell(0, 0, 'Relatório');
+        Excel.SetCell(0, 1, FTitle);
+        Excel.SetCell(1, 0, 'Autor');
+        Excel.SetCell(1, 1, FAuthor);
+        for I := 0 to FParagraphs.Count - 1 do
+        begin
+          Excel.SetCell(3 + I, 0, 'Parágrafo ' + IntToStr(I + 1));
+          Excel.SetCell(3 + I, 1, FParagraphs[I]);
+        end;
+      end;
+      
+      Result := Excel.SaveExcel;
+      if Result then
+      begin
+        FLastResult := 'Excel document generated successfully: ' + FFileNameExcel;
+        FLastSuccess := True;
+      end
+      else
+        SetError('Falha ao salvar arquivo Excel interno.');
+    except
+      on E: Exception do
+      begin
+        SetError('Erro ao gerar arquivo Excel: ' + E.Message);
+        Result := False;
       end;
     end;
-    
-    Result := Excel.SaveExcel;
   finally
     Excel.Free;
   end;
@@ -629,18 +713,35 @@ var
   TXT: TAITXTOutput;
   I: Integer;
 begin
+  Result := False;
+  ClearError;
   TXT := TAITXTOutput.Create(nil);
   try
-    TXT.FileName := FFileNameTXT;
-    TXT.AddHeader(FTitle);
-    TXT.AddLine('Autor: ' + FAuthor);
-    TXT.AddLine('Assunto: ' + FSubject);
-    TXT.AddLine('');
-    
-    for I := 0 to FParagraphs.Count - 1 do
-      TXT.AddLine(FParagraphs[I]);
+    try
+      TXT.FileName := FFileNameTXT;
+      TXT.AddHeader(FTitle);
+      TXT.AddLine('Autor: ' + FAuthor);
+      TXT.AddLine('Assunto: ' + FSubject);
+      TXT.AddLine('');
       
-    Result := TXT.SaveText;
+      for I := 0 to FParagraphs.Count - 1 do
+        TXT.AddLine(FParagraphs[I]);
+        
+      Result := TXT.SaveText;
+      if Result then
+      begin
+        FLastResult := 'TXT document generated successfully: ' + FFileNameTXT;
+        FLastSuccess := True;
+      end
+      else
+        SetError('Falha ao salvar arquivo TXT interno.');
+    except
+      on E: Exception do
+      begin
+        SetError('Erro ao gerar arquivo TXT: ' + E.Message);
+        Result := False;
+      end;
+    end;
   finally
     TXT.Free;
   end;
@@ -650,16 +751,33 @@ function TAIOutputDocs.SaveAll(const ABaseFileName: string): Boolean;
 var
   Base: string;
 begin
-  if ABaseFileName <> '' then
-  begin
-    Base := ChangeFileExt(ABaseFileName, '');
-    FFileNamePDF := Base + '.pdf';
-    FFileNameWord := Base + '.docx';
-    FFileNameExcel := Base + '.xlsx';
-    FFileNameTXT := Base + '.txt';
+  Result := False;
+  ClearError;
+  try
+    if ABaseFileName <> '' then
+    begin
+      Base := ChangeFileExt(ABaseFileName, '');
+      FFileNamePDF := Base + '.pdf';
+      FFileNameWord := Base + '.docx';
+      FFileNameExcel := Base + '.xlsx';
+      FFileNameTXT := Base + '.txt';
+    end;
+    
+    Result := SaveToPDF and SaveToWord and SaveToExcel and SaveToTXT;
+    if Result then
+    begin
+      FLastResult := 'All documents generated successfully.';
+      FLastSuccess := True;
+    end
+    else
+      SetError('Falha ao gerar um ou mais documentos no SaveAll.');
+  except
+    on E: Exception do
+    begin
+      SetError('SaveAll Error: ' + E.Message);
+      Result := False;
+    end;
   end;
-  
-  Result := SaveToPDF and SaveToWord and SaveToExcel and SaveToTXT;
 end;
 
 end.

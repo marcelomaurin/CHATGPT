@@ -5,7 +5,7 @@ unit aiindustrial;
 interface
 
 uses
-  Classes, SysUtils, DynLibs;
+  Classes, SysUtils, DynLibs, aibase;
 
 type
   TPLCConnectFunc = function(IP: PChar; Rack, Slot: Integer): Integer; stdcall;
@@ -15,9 +15,8 @@ type
 
   { TAIIndustrialBridge }
 
-  TAIIndustrialBridge = class(TComponent)
+  TAIIndustrialBridge = class(TAIBaseComponent)
   private
-    FPrompt: string;
     FLibraryPath: string;
     FIPAddress: string;
     FRack: Integer;
@@ -42,7 +41,6 @@ type
     function ReadBytes(DBNumber, StartByte, Size: Integer; out AData: array of Byte): Boolean;
     function WriteBytes(DBNumber, StartByte, Size: Integer; const AData: array of Byte): Boolean;
   published
-    property Prompt: string read FPrompt write FPrompt;
     property LibraryPath: string read FLibraryPath write FLibraryPath;
     property IPAddress: string read FIPAddress write FIPAddress;
     property Rack: Integer read FRack write FRack default 0;
@@ -91,54 +89,81 @@ end;
 function TAIIndustrialBridge.ConnectBridge: Boolean;
 begin
   Result := False;
+  ClearError;
   if FActive then Exit(True);
   
-  if FLibraryPath <> '' then
-  begin
-    FLibHandle := SafeLoadLibrary(FLibraryPath);
-    if FLibHandle <> NilHandle then
+  try
+    if FLibraryPath <> '' then
     begin
-      FConnectFn := TPLCConnectFunc(GetProcAddress(FLibHandle, 'PLC_Connect'));
-      FReadFn := TPLCReadFunc(GetProcAddress(FLibHandle, 'PLC_Read'));
-      FWriteFn := TPLCWriteFunc(GetProcAddress(FLibHandle, 'PLC_Write'));
-      FDisconnectFn := TPLCDisconnectFunc(GetProcAddress(FLibHandle, 'PLC_Disconnect'));
-      
-      if Assigned(FConnectFn) then
+      FLibHandle := SafeLoadLibrary(FLibraryPath);
+      if FLibHandle <> NilHandle then
       begin
-        // If dynamic library is loaded and connection functions found, execute it
-        FActive := (FConnectFn(PChar(FIPAddress), FRack, FSlot) = 0);
-        Result := FActive;
-      end;
+        FConnectFn := TPLCConnectFunc(GetProcAddress(FLibHandle, 'PLC_Connect'));
+        FReadFn := TPLCReadFunc(GetProcAddress(FLibHandle, 'PLC_Read'));
+        FWriteFn := TPLCWriteFunc(GetProcAddress(FLibHandle, 'PLC_Write'));
+        FDisconnectFn := TPLCDisconnectFunc(GetProcAddress(FLibHandle, 'PLC_Disconnect'));
+        
+        if Assigned(FConnectFn) then
+        begin
+          // If dynamic library is loaded and connection functions found, execute it
+          FActive := (FConnectFn(PChar(FIPAddress), FRack, FSlot) = 0);
+          Result := FActive;
+          if FActive then
+          begin
+            FLastResult := 'PLC connection established successfully';
+            FLastSuccess := True;
+          end
+          else
+            SetError('PLC connection function returned failure code.');
+        end
+        else
+          SetError('PLC_Connect function not found in library.');
+      end
+      else
+        SetError('Failed to load library: ' + FLibraryPath);
     end;
-  end;
-  
-  // Fallback simulator if library is not present (permits testing on both Win/Linux)
-  if not FActive then
-  begin
-    FActive := True;
-    Result := True;
+    
+    // Fallback simulator if library is not present (permits testing on both Win/Linux)
+    if not FActive then
+    begin
+      FActive := True;
+      FLastResult := 'PLC simulation mode connection established';
+      FLastSuccess := True;
+      Result := True;
+    end;
+  except
+    on E: Exception do
+      SetError('Industrial Bridge Connect Exception: ' + E.Message);
   end;
 end;
 
 procedure TAIIndustrialBridge.DisconnectBridge;
 begin
-  if not FActive then Exit;
-  
-  if FLibHandle <> NilHandle then
-  begin
-    if Assigned(FDisconnectFn) then
-      FDisconnectFn();
-      
-    UnloadLibrary(FLibHandle);
-    FLibHandle := NilHandle;
+  ClearError;
+  try
+    if not FActive then Exit;
     
-    FConnectFn := nil;
-    FReadFn := nil;
-    FWriteFn := nil;
-    FDisconnectFn := nil;
+    if FLibHandle <> NilHandle then
+    begin
+      if Assigned(FDisconnectFn) then
+        FDisconnectFn();
+        
+      UnloadLibrary(FLibHandle);
+      FLibHandle := NilHandle;
+      
+      FConnectFn := nil;
+      FReadFn := nil;
+      FWriteFn := nil;
+      FDisconnectFn := nil;
+    end;
+    
+    FActive := False;
+    FLastResult := 'PLC connection disconnected';
+    FLastSuccess := True;
+  except
+    on E: Exception do
+      SetError('Industrial Bridge Disconnect Exception: ' + E.Message);
   end;
-  
-  FActive := False;
 end;
 
 function TAIIndustrialBridge.ReadBytes(DBNumber, StartByte, Size: Integer; out AData: array of Byte): Boolean;
@@ -146,43 +171,88 @@ var
   I: Integer;
 begin
   Result := False;
-  if not FActive then Exit;
-  
-  if Length(AData) < Size then
+  ClearError;
+  if not FActive then
+  begin
+    SetError('Industrial Bridge is not active.');
     Exit;
-    
-  if FLibHandle <> NilHandle then
-  begin
-    if Assigned(FReadFn) then
+  end;
+  
+  try
+    if Length(AData) < Size then
     begin
-      Result := (FReadFn(DBNumber, StartByte, Size, @AData[0]) = 0);
+      SetError('Output buffer size is too small.');
+      Exit;
     end;
-  end
-  else
-  begin
-    // Fallback simulation: Fill with simulated register bytes (e.g. counters or temperatures)
-    for I := 0 to Size - 1 do
-      AData[I] := Byte(10 + I + Random(5));
-    Result := True;
+      
+    if FLibHandle <> NilHandle then
+    begin
+      if Assigned(FReadFn) then
+      begin
+        Result := (FReadFn(DBNumber, StartByte, Size, @AData[0]) = 0);
+        if Result then
+        begin
+          FLastResult := Format('Read %d bytes from DB%d', [Size, DBNumber]);
+          FLastSuccess := True;
+        end
+        else
+          SetError('PLC_Read function returned failure code.');
+      end
+      else
+        SetError('PLC_Read function not found in library.');
+    end
+    else
+    begin
+      // Fallback simulation: Fill with simulated register bytes (e.g. counters or temperatures)
+      for I := 0 to Size - 1 do
+        AData[I] := Byte(10 + I + Random(5));
+      FLastResult := Format('Read %d simulated bytes from DB%d', [Size, DBNumber]);
+      FLastSuccess := True;
+      Result := True;
+    end;
+  except
+    on E: Exception do
+      SetError('Industrial Bridge Read Exception: ' + E.Message);
   end;
 end;
 
 function TAIIndustrialBridge.WriteBytes(DBNumber, StartByte, Size: Integer; const AData: array of Byte): Boolean;
 begin
   Result := False;
-  if not FActive then Exit;
+  ClearError;
+  if not FActive then
+  begin
+    SetError('Industrial Bridge is not active.');
+    Exit;
+  end;
   
-  if FLibHandle <> NilHandle then
-  begin
-    if Assigned(FWriteFn) then
+  try
+    if FLibHandle <> NilHandle then
     begin
-      Result := (FWriteFn(DBNumber, StartByte, Size, @AData[0]) = 0);
+      if Assigned(FWriteFn) then
+      begin
+        Result := (FWriteFn(DBNumber, StartByte, Size, @AData[0]) = 0);
+        if Result then
+        begin
+          FLastResult := Format('Wrote %d bytes to DB%d', [Size, DBNumber]);
+          FLastSuccess := True;
+        end
+        else
+          SetError('PLC_Write function returned failure code.');
+      end
+      else
+        SetError('PLC_Write function not found in library.');
+    end
+    else
+    begin
+      // Fallback simulation logger
+      FLastResult := Format('Wrote %d simulated bytes to DB%d', [Size, DBNumber]);
+      FLastSuccess := True;
+      Result := True;
     end;
-  end
-  else
-  begin
-    // Fallback simulation logger
-    Result := True;
+  except
+    on E: Exception do
+      SetError('Industrial Bridge Write Exception: ' + E.Message);
   end;
 end;
 

@@ -9,7 +9,7 @@ uses
   {$IFDEF MSWINDOWS}
   ComObj, ActiveX, Variants,
   {$ENDIF}
-  DynLibs;
+  DynLibs, aibase;
 
 type
   TSpeechEngine = (seSystemDefault, seSAPI, seEspeak);
@@ -39,14 +39,13 @@ type
 
   { TAIVoiceSynthesizer }
 
-  TAIVoiceSynthesizer = class(TComponent)
+  TAIVoiceSynthesizer = class(TAIBaseComponent)
   private
     FText         : string;
     FVolume       : Integer;
     FRate         : Integer;
     FVoiceName    : string;
     FAsynchronous : Boolean;
-    FLastError    : string;
     FEngine       : TSpeechEngine;
 
     {$IFDEF MSWINDOWS}
@@ -83,7 +82,6 @@ type
     property VoiceName: string read FVoiceName write FVoiceName;
     property Asynchronous: Boolean read FAsynchronous write FAsynchronous default True;
     property Engine: TSpeechEngine read FEngine write FEngine default seSystemDefault;
-    property LastError: string read FLastError;
   end;
 
 procedure Register;
@@ -100,13 +98,13 @@ end;
 constructor TAIVoiceSynthesizer.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FPrompt := 'Component TAIVoiceSynthesizer is an AI text-to-speech component. Properties: Text, Volume, Rate, VoiceName, Asynchronous, Engine. Methods: Say(const AText), GetAvailableVoices(AList). AI Agent: Use this to speak responses, alerts or telemetry data to the user.';
   FText := '';
   FVolume := 100;
   FRate := 0;
   FVoiceName := '';
   FAsynchronous := True;
   FEngine := seSystemDefault;
-  FLastError := '';
 
   {$IFDEF MSWINDOWS}
   FSpVoiceCreated := False;
@@ -170,7 +168,7 @@ begin
 
   if FLibHandle = NilHandle then
   begin
-    FLastError := 'Falha ao carregar biblioteca eSpeak. Certifique-se de que eSpeak/eSpeak-NG está instalado no sistema.';
+    SetError('Falha ao carregar biblioteca eSpeak. Certifique-se de que eSpeak/eSpeak-NG está instalado no sistema.');
     Exit;
   end;
 
@@ -184,7 +182,7 @@ begin
 
   if not Assigned(espeak_Initialize) or not Assigned(espeak_Synth) then
   begin
-    FLastError := 'Funções essenciais do eSpeak não foram encontradas na biblioteca carregada.';
+    SetError('Funções essenciais do eSpeak não foram encontradas na biblioteca carregada.');
     FreeLibrary(FLibHandle);
     FLibHandle := NilHandle;
     Exit;
@@ -203,7 +201,7 @@ begin
   except
     on E: Exception do
     begin
-      FLastError := 'Erro na inicialização do eSpeak: ' + E.Message;
+      SetError('Erro na inicialização do eSpeak: ' + E.Message);
       FreeLibrary(FLibHandle);
       FLibHandle := NilHandle;
     end;
@@ -246,13 +244,12 @@ var
   Flags: Integer;
   {$ENDIF}
 begin
+  ClearError;
   if AText <> '' then
     FText := AText;
 
   SpeakText := FText;
   if SpeakText = '' then Exit;
-
-  FLastError := '';
 
   // Check if we use Windows SAPI
   if (FEngine = seSAPI) or ((FEngine = seSystemDefault) and
@@ -294,12 +291,14 @@ begin
         Flags := 0;
 
       FSpVoice.Speak(SpeakText, Flags);
+      FLastResult := 'Speech synthesis completed (SAPI)';
+      FLastSuccess := True;
     except
       on E: Exception do
-        FLastError := 'Exceção ao sintetizar voz via SAPI: ' + E.Message;
+        SetError('Exceção ao sintetizar voz via SAPI: ' + E.Message);
     end;
     {$ELSE}
-    FLastError := 'SAPI é suportado apenas no sistema operacional Windows.';
+    SetError('SAPI é suportado apenas no sistema operacional Windows.');
     {$ENDIF}
   end
   else
@@ -332,9 +331,11 @@ begin
 
         // Call Synth (espeakCHARS_UTF8 = 1)
         espeak_Synth(PAnsiChar(AnsiString(SpeakText)), Length(SpeakText) + 1, 0, 0, 0, 1, nil, nil);
+        FLastResult := 'Speech synthesis completed (eSpeak)';
+        FLastSuccess := True;
       except
         on E: Exception do
-          FLastError := 'Exceção ao sintetizar voz via eSpeak: ' + E.Message;
+          SetError('Exceção ao sintetizar voz via eSpeak: ' + E.Message);
       end;
     end;
   end;
@@ -351,7 +352,7 @@ var
   Idx: Integer;
 begin
   AList.Clear;
-  FLastError := '';
+  ClearError;
 
   if (FEngine = seSAPI) or ((FEngine = seSystemDefault) and
      {$IFDEF MSWINDOWS}True{$ELSE}False{$ENDIF}) then
@@ -376,12 +377,14 @@ begin
           end;
         end;
       end;
+      FLastResult := 'SAPI voices retrieved successfully';
+      FLastSuccess := True;
     except
       on E: Exception do
-        FLastError := 'Exceção ao listar vozes via SAPI: ' + E.Message;
+        SetError('Exceção ao listar vozes via SAPI: ' + E.Message);
     end;
     {$ELSE}
-    FLastError := 'SAPI é suportado apenas no sistema operacional Windows.';
+    SetError('SAPI é suportado apenas no sistema operacional Windows.');
     {$ENDIF}
   end
   else
@@ -409,9 +412,11 @@ begin
             Inc(Idx);
           end;
         end;
+        FLastResult := 'eSpeak voices retrieved successfully';
+        FLastSuccess := True;
       except
         on E: Exception do
-          FLastError := 'Exceção ao listar vozes via eSpeak: ' + E.Message;
+          SetError('Exceção ao listar vozes via eSpeak: ' + E.Message);
       end;
     end;
   end;

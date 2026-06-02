@@ -5,12 +5,12 @@ unit aicodeassistant;
 interface
 
 uses
-  Classes, SysUtils, chatgpt, LResources;
+  Classes, SysUtils, chatgpt, LResources, aibase;
 
 type
   { TAICodeAssistant }
 
-  TAICodeAssistant = class(TComponent)
+  TAICodeAssistant = class(TAIBaseComponent)
   private
     FChatGPT: TCHATGPT;
   public
@@ -51,112 +51,226 @@ end;
 
 function TAICodeAssistant.OptimizeCode(const ACode: string): string;
 var
-  Prompt: WideString;
+  LPrompt: WideString;
 begin
   Result := '';
+  ClearError;
   if FChatGPT = nil then
-    raise Exception.Create('Componente ChatGPT não associado. Defina a propriedade ChatGPT.');
+  begin
+    SetError('Componente ChatGPT não associado. Defina a propriedade ChatGPT.');
+    raise Exception.Create(FLastError);
+  end;
 
-  Prompt := 'Por favor, otimize o seguinte código para melhor desempenho e legibilidade. ' +
+  LPrompt := 'Por favor, otimize o seguinte código para melhor desempenho e legibilidade. ' +
             'Mantenha as diretivas de compilador originais se houver. Retorne apenas o código otimizado ' +
             'sem explicações adicionais, delimitado por bloco de código markdown:' + #13#10 +
             ACode;
 
-  if FChatGPT.SendQuestion(Prompt) then
-    Result := FChatGPT.Response
-  else
-    Result := 'Erro ao otimizar código: ' + FChatGPT.Response;
+  try
+    if FChatGPT.SendQuestion(LPrompt) then
+    begin
+      Result := FChatGPT.Response;
+      FLastResult := Result;
+      FLastSuccess := True;
+    end
+    else
+    begin
+      SetError('Erro ao otimizar código: ' + FChatGPT.Response);
+      Result := FLastError;
+    end;
+  except
+    on E: Exception do
+    begin
+      SetError(E.Message);
+      Result := FLastError;
+    end;
+  end;
 end;
 
 function TAICodeAssistant.FindBugs(const ACode: string): string;
 var
-  Prompt: WideString;
+  LPrompt: WideString;
 begin
   Result := '';
+  ClearError;
   if FChatGPT = nil then
-    raise Exception.Create('Componente ChatGPT não associado. Defina a propriedade ChatGPT.');
+  begin
+    SetError('Componente ChatGPT não associado. Defina a propriedade ChatGPT.');
+    raise Exception.Create(FLastError);
+  end;
 
-  Prompt := 'Analise o seguinte código em busca de erros de lógica, vazamentos de memória, bugs latentes ' +
+  LPrompt := 'Analise o seguinte código em busca de erros de lógica, vazamentos de memória, bugs latentes ' +
             'ou violações de boas práticas. Liste os problemas encontrados de forma sucinta e forneça correções recomendadas:' + #13#10 +
             ACode;
 
-  if FChatGPT.SendQuestion(Prompt) then
-    Result := FChatGPT.Response
-  else
-    Result := 'Erro ao analisar código: ' + FChatGPT.Response;
+  try
+    if FChatGPT.SendQuestion(LPrompt) then
+    begin
+      Result := FChatGPT.Response;
+      FLastResult := Result;
+      FLastSuccess := True;
+    end
+    else
+    begin
+      SetError('Erro ao analisar código: ' + FChatGPT.Response);
+      Result := FLastError;
+    end;
+  except
+    on E: Exception do
+    begin
+      SetError(E.Message);
+      Result := FLastError;
+    end;
+  end;
 end;
 
 function TAICodeAssistant.DocumentCode(const ACode: string): string;
 var
-  Prompt: WideString;
+  LPrompt: WideString;
 begin
   Result := '';
+  ClearError;
   if FChatGPT = nil then
-    raise Exception.Create('Componente ChatGPT não associado. Defina a propriedade ChatGPT.');
+  begin
+    SetError('Componente ChatGPT não associado. Defina a propriedade ChatGPT.');
+    raise Exception.Create(FLastError);
+  end;
 
-  Prompt := 'Adicione comentários detalhados explicativos de cabeçalho e documentação em formato XML ou padrão Javadoc ' +
+  LPrompt := 'Adicione comentários detalhados explicativos de cabeçalho e documentação em formato XML ou padrão Javadoc ' +
             'para cada rotina, parâmetro e classe no seguinte código. Retorne apenas o código documentado ' +
             'sem textos adicionais ao redor:' + #13#10 +
             ACode;
 
-  if FChatGPT.SendQuestion(Prompt) then
-    Result := FChatGPT.Response
-  else
-    Result := 'Erro ao documentar código: ' + FChatGPT.Response;
+  try
+    if FChatGPT.SendQuestion(LPrompt) then
+    begin
+      Result := FChatGPT.Response;
+      FLastResult := Result;
+      FLastSuccess := True;
+    end
+    else
+    begin
+      SetError('Erro ao documentar código: ' + FChatGPT.Response);
+      Result := FLastError;
+    end;
+  except
+    on E: Exception do
+    begin
+      SetError(E.Message);
+      Result := FLastError;
+    end;
+  end;
 end;
 
 function TAICodeAssistant.GenerateUnitTests(const ACode: string; const ATestFramework: string): string;
 var
-  Prompt: WideString;
+  LPrompt: WideString;
 begin
   Result := '';
+  ClearError;
   if FChatGPT = nil then
-    raise Exception.Create('Componente ChatGPT não associado. Defina a propriedade ChatGPT.');
+  begin
+    SetError('Componente ChatGPT não associado. Defina a propriedade ChatGPT.');
+    raise Exception.Create(FLastError);
+  end;
 
-  Prompt := Format('Escreva testes unitários abrangentes para o seguinte código utilizando o framework "%s". ' +
+  LPrompt := Format('Escreva testes unitários abrangentes para o seguinte código utilizando o framework "%s". ' +
             'Inclua casos de teste normais, limites e cenários de exceção. Retorne apenas o código do teste ' +
             'unitário em markdown:', [ATestFramework]) + #13#10 + ACode;
 
-  if FChatGPT.SendQuestion(Prompt) then
-    Result := FChatGPT.Response
-  else
-    Result := 'Erro ao gerar testes: ' + FChatGPT.Response;
+  try
+    if FChatGPT.SendQuestion(LPrompt) then
+    begin
+      Result := FChatGPT.Response;
+      FLastResult := Result;
+      FLastSuccess := True;
+    end
+    else
+    begin
+      SetError('Erro ao gerar testes: ' + FChatGPT.Response);
+      Result := FLastError;
+    end;
+  except
+    on E: Exception do
+    begin
+      SetError(E.Message);
+      Result := FLastError;
+    end;
+  end;
 end;
 
 function TAICodeAssistant.TranslateCode(const ACode, ASourceLang, ATargetLang: string): string;
 var
-  Prompt: WideString;
+  LPrompt: WideString;
 begin
   Result := '';
+  ClearError;
   if FChatGPT = nil then
-    raise Exception.Create('Componente ChatGPT não associado. Defina a propriedade ChatGPT.');
+  begin
+    SetError('Componente ChatGPT não associado. Defina a propriedade ChatGPT.');
+    raise Exception.Create(FLastError);
+  end;
 
-  Prompt := Format('Traduza o seguinte código escrito em "%s" para a linguagem "%s". ' +
+  LPrompt := Format('Traduza o seguinte código escrito em "%s" para a linguagem "%s". ' +
             'Respeite as convenções idiomáticas e boas práticas da linguagem de destino. Retorne apenas o código ' +
             'traduzido em markdown sem explicações:', [ASourceLang, ATargetLang]) + #13#10 + ACode;
 
-  if FChatGPT.SendQuestion(Prompt) then
-    Result := FChatGPT.Response
-  else
-    Result := 'Erro ao traduzir código: ' + FChatGPT.Response;
+  try
+    if FChatGPT.SendQuestion(LPrompt) then
+    begin
+      Result := FChatGPT.Response;
+      FLastResult := Result;
+      FLastSuccess := True;
+    end
+    else
+    begin
+      SetError('Erro ao traduzir código: ' + FChatGPT.Response);
+      Result := FLastError;
+    end;
+  except
+    on E: Exception do
+    begin
+      SetError(E.Message);
+      Result := FLastError;
+    end;
+  end;
 end;
 
 function TAICodeAssistant.ExplainCode(const ACode: string): string;
 var
-  Prompt: WideString;
+  LPrompt: WideString;
 begin
   Result := '';
+  ClearError;
   if FChatGPT = nil then
-    raise Exception.Create('Componente ChatGPT não associado. Defina a propriedade ChatGPT.');
+  begin
+    SetError('Componente ChatGPT não associado. Defina a propriedade ChatGPT.');
+    raise Exception.Create(FLastError);
+  end;
 
-  Prompt := 'Explique detalhadamente o funcionamento e a lógica do seguinte código, passo a passo, ' +
+  LPrompt := 'Explique detalhadamente o funcionamento e a lógica do seguinte código, passo a passo, ' +
             'descrevendo as entradas, saídas e a complexidade algorítmica aproximada:' + #13#10 +
             ACode;
 
-  if FChatGPT.SendQuestion(Prompt) then
-    Result := FChatGPT.Response
-  else
-    Result := 'Erro ao explicar código: ' + FChatGPT.Response;
+  try
+    if FChatGPT.SendQuestion(LPrompt) then
+    begin
+      Result := FChatGPT.Response;
+      FLastResult := Result;
+      FLastSuccess := True;
+    end
+    else
+    begin
+      SetError('Erro ao explicar código: ' + FChatGPT.Response);
+      Result := FLastError;
+    end;
+  except
+    on E: Exception do
+    begin
+      SetError(E.Message);
+      Result := FLastError;
+    end;
+  end;
 end;
 
 initialization

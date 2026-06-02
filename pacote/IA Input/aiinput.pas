@@ -5,16 +5,15 @@ unit aiinput;
 interface
 
 uses
-  Classes, SysUtils, Math;
+  Classes, SysUtils, Math, aibase;
 
 type
   TArray = array of Double;
 
   { TAIInputData }
 
-  TAIInputData = class(TComponent)
+  TAIInputData = class(TAIBaseComponent)
   private
-    FPrompt: string;
     FRawData: TArray;
     FNormalizedData: TArray;
     FMinRange: Double;
@@ -28,7 +27,6 @@ type
     procedure LoadFromString(const AValue: string; const ADelimiter: Char = ',');
     function GetLength: Integer;
   published
-    property Prompt: string read FPrompt write FPrompt;
     property RawData: TArray read FRawData write SetRawData;
     property NormalizedData: TArray read FNormalizedData write FNormalizedData;
     property MinRange: Double read FMinRange write FMinRange;
@@ -64,27 +62,35 @@ var
   I: Integer;
   VMin, VMax, Range: Double;
 begin
-  if Length(FRawData) = 0 then
-    Exit;
-  SetLength(FNormalizedData, Length(FRawData));
-  
-  VMin := FRawData[0];
-  VMax := FRawData[0];
-  for I := 1 to High(FRawData) do
-  begin
-    if FRawData[I] < VMin then
-      VMin := FRawData[I];
-    if FRawData[I] > VMax then
-      VMax := FRawData[I];
-  end;
-  
-  Range := VMax - VMin;
-  if Range = 0.0 then
-    Range := 1.0;
-  
-  for I := 0 to High(FRawData) do
-  begin
-    FNormalizedData[I] := FMinRange + ((FRawData[I] - VMin) / Range) * (FMaxRange - FMinRange);
+  ClearError;
+  try
+    if Length(FRawData) = 0 then
+      Exit;
+    SetLength(FNormalizedData, Length(FRawData));
+    
+    VMin := FRawData[0];
+    VMax := FRawData[0];
+    for I := 1 to High(FRawData) do
+    begin
+      if FRawData[I] < VMin then
+        VMin := FRawData[I];
+      if FRawData[I] > VMax then
+        VMax := FRawData[I];
+    end;
+    
+    Range := VMax - VMin;
+    if Range = 0.0 then
+      Range := 1.0;
+    
+    for I := 0 to High(FRawData) do
+    begin
+      FNormalizedData[I] := FMinRange + ((FRawData[I] - VMin) / Range) * (FMaxRange - FMinRange);
+    end;
+    FLastResult := 'Normalization Completed';
+    FLastSuccess := True;
+  except
+    on E: Exception do
+      SetError('Normalize Error: ' + E.Message);
   end;
 end;
 
@@ -93,19 +99,27 @@ var
   I: Integer;
   VMin, VMax, Range: Double;
 begin
-  if Length(FNormalizedData) = 0 then
-    Exit;
-  SetLength(FRawData, Length(FNormalizedData));
-  
-  VMin := FMinRange;
-  VMax := FMaxRange;
-  Range := VMax - VMin;
-  if Range = 0.0 then
-    Range := 1.0;
-  
-  for I := 0 to High(FNormalizedData) do
-  begin
-    FRawData[I] := ((FNormalizedData[I] - FMinRange) / Range) * Range + VMin;
+  ClearError;
+  try
+    if Length(FNormalizedData) = 0 then
+      Exit;
+    SetLength(FRawData, Length(FNormalizedData));
+    
+    VMin := FMinRange;
+    VMax := FMaxRange;
+    Range := VMax - VMin;
+    if Range = 0.0 then
+      Range := 1.0;
+    
+    for I := 0 to High(FNormalizedData) do
+    begin
+      FRawData[I] := ((FNormalizedData[I] - FMinRange) / Range) * Range + VMin;
+    end;
+    FLastResult := 'Denormalization Completed';
+    FLastSuccess := True;
+  except
+    on E: Exception do
+      SetError('Denormalize Error: ' + E.Message);
   end;
 end;
 
@@ -114,15 +128,23 @@ var
   StrList: TStringList;
   I: Integer;
 begin
+  ClearError;
   StrList := TStringList.Create;
   try
-    StrList.Delimiter := ADelimiter;
-    StrList.StrictDelimiter := True;
-    StrList.DelimitedText := AValue;
-    
-    SetLength(FRawData, StrList.Count);
-    for I := 0 to StrList.Count - 1 do
-      FRawData[I] := StrToFloatDef(Trim(StrList[I]), 0.0);
+    try
+      StrList.Delimiter := ADelimiter;
+      StrList.StrictDelimiter := True;
+      StrList.DelimitedText := AValue;
+      
+      SetLength(FRawData, StrList.Count);
+      for I := 0 to StrList.Count - 1 do
+        FRawData[I] := StrToFloatDef(Trim(StrList[I]), 0.0);
+      FLastResult := 'Data Loaded From String';
+      FLastSuccess := True;
+    except
+      on E: Exception do
+        SetError('LoadFromString Error: ' + E.Message);
+    end;
   finally
     StrList.Free;
   end;

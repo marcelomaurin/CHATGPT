@@ -5,7 +5,7 @@ unit aimqtt;
 interface
 
 uses
-  Classes, SysUtils, sockets,
+  Classes, SysUtils, sockets, aibase,
   {$IFDEF WIN32}
   winsock2,
   {$ELSE}
@@ -39,9 +39,8 @@ type
 
   { TAIMQTTClient }
 
-  TAIMQTTClient = class(TComponent)
+  TAIMQTTClient = class(TAIBaseComponent)
   private
-    FPrompt: string;
     FHost: string;
     FPort: Integer;
     FClientID: string;
@@ -66,7 +65,6 @@ type
     function Subscribe(const ATopic: string): Boolean;
     function Publish(const ATopic, APayload: string): Boolean;
   published
-    property Prompt: string read FPrompt write FPrompt;
     property Host: string read FHost write FHost;
     property Port: Integer read FPort write FPort default 1883;
     property ClientID: string read FClientID write FClientID;
@@ -241,109 +239,137 @@ var
   Res: Integer;
 begin
   Result := False;
-  if FActive then Exit(True);
+  ClearError;
+  if FActive then
+  begin
+    FLastResult := 'Already active';
+    FLastSuccess := True;
+    Exit(True);
+  end;
   
-  FSocket := fpSocket(AF_INET, SOCK_STREAM, 0);
-  if FSocket = TSocket(-1) then
-    Exit;
+  try
+    FSocket := fpSocket(AF_INET, SOCK_STREAM, 0);
+    if FSocket = TSocket(-1) then
+    begin
+      SetError('Could not create socket.');
+      Exit;
+    end;
     
-  Addr.sin_family := AF_INET;
-  Addr.sin_port := htons(FPort);
-  
-  if not ResolveHost(FHost, Addr.sin_addr) then
-  begin
-    sockets.CloseSocket(FSocket);
-    FSocket := TSocket(-1);
-    Exit;
-  end;
-  
-  Res := fpConnect(FSocket, @Addr, SizeOf(Addr));
-  if Res < 0 then
-  begin
-    sockets.CloseSocket(FSocket);
-    FSocket := TSocket(-1);
-    Exit;
-  end;
-  
-  // Format MQTT Connect raw binary packet
-  Idx := 0;
-  ConnectPacket[Idx] := $10; Inc(Idx); // CONNECT
-  ConnectPacket[Idx] := 12 + Length(FClientID); Inc(Idx); // Remaining Length
-  
-  // Protocol Name length (2 bytes)
-  ConnectPacket[Idx] := 0; Inc(Idx);
-  ConnectPacket[Idx] := 4; Inc(Idx);
-  // Protocol Name: MQTT
-  ConnectPacket[Idx] := Ord('M'); Inc(Idx);
-  ConnectPacket[Idx] := Ord('Q'); Inc(Idx);
-  ConnectPacket[Idx] := Ord('T'); Inc(Idx);
-  ConnectPacket[Idx] := Ord('T'); Inc(Idx);
-  
-  ConnectPacket[Idx] := 4; Inc(Idx); // Protocol Level (MQTT v3.1.1)
-  ConnectPacket[Idx] := $02; Inc(Idx); // Connect Flags (Clean Session)
-  
-  // Keep Alive (2 bytes)
-  ConnectPacket[Idx] := FKeepAlive shr 8; Inc(Idx);
-  ConnectPacket[Idx] := FKeepAlive and $FF; Inc(Idx);
-  
-  // Client ID Length (2 bytes)
-  ConnectPacket[Idx] := Length(FClientID) shr 8; Inc(Idx);
-  ConnectPacket[Idx] := Length(FClientID) and $FF; Inc(Idx);
-  
-  // Client ID bytes
-  for I := 1 to Length(FClientID) do
-  begin
-    ConnectPacket[Idx] := Ord(FClientID[I]);
-    Inc(Idx);
-  end;
-  
-  // Send CONNECT packet
-  Res := fpsend(FSocket, @ConnectPacket[0], Idx, 0);
-  if Res <= 0 then
-  begin
-    sockets.CloseSocket(FSocket);
-    FSocket := TSocket(-1);
-    Exit;
-  end;
-  
-  FActive := True;
-  
-  // Start background receiver thread
-  FThread := TAIMQTTReceiverThread.Create(Self, FSocket);
-  FThread.Start;
-  
-  if Assigned(FOnConnected) then
-    FOnConnected(Self);
+    Addr.sin_family := AF_INET;
+    Addr.sin_port := htons(FPort);
     
-  Result := True;
+    if not ResolveHost(FHost, Addr.sin_addr) then
+    begin
+      sockets.CloseSocket(FSocket);
+      FSocket := TSocket(-1);
+      SetError('Host resolution failed: ' + FHost);
+      Exit;
+    end;
+    
+    Res := fpConnect(FSocket, @Addr, SizeOf(Addr));
+    if Res < 0 then
+    begin
+      sockets.CloseSocket(FSocket);
+      FSocket := TSocket(-1);
+      SetError('Connection to host failed.');
+      Exit;
+    end;
+    
+    // Format MQTT Connect raw binary packet
+    Idx := 0;
+    ConnectPacket[Idx] := $10; Inc(Idx); // CONNECT
+    ConnectPacket[Idx] := 12 + Length(FClientID); Inc(Idx); // Remaining Length
+    
+    // Protocol Name length (2 bytes)
+    ConnectPacket[Idx] := 0; Inc(Idx);
+    ConnectPacket[Idx] := 4; Inc(Idx);
+    // Protocol Name: MQTT
+    ConnectPacket[Idx] := Ord('M'); Inc(Idx);
+    ConnectPacket[Idx] := Ord('Q'); Inc(Idx);
+    ConnectPacket[Idx] := Ord('T'); Inc(Idx);
+    ConnectPacket[Idx] := Ord('T'); Inc(Idx);
+    
+    ConnectPacket[Idx] := 4; Inc(Idx); // Protocol Level (MQTT v3.1.1)
+    ConnectPacket[Idx] := $02; Inc(Idx); // Connect Flags (Clean Session)
+    
+    // Keep Alive (2 bytes)
+    ConnectPacket[Idx] := FKeepAlive shr 8; Inc(Idx);
+    ConnectPacket[Idx] := FKeepAlive and $FF; Inc(Idx);
+    
+    // Client ID Length (2 bytes)
+    ConnectPacket[Idx] := Length(FClientID) shr 8; Inc(Idx);
+    ConnectPacket[Idx] := Length(FClientID) and $FF; Inc(Idx);
+    
+    // Client ID bytes
+    for I := 1 to Length(FClientID) do
+    begin
+      ConnectPacket[Idx] := Ord(FClientID[I]);
+      Inc(Idx);
+    end;
+    
+    // Send CONNECT packet
+    Res := fpsend(FSocket, @ConnectPacket[0], Idx, 0);
+    if Res <= 0 then
+    begin
+      sockets.CloseSocket(FSocket);
+      FSocket := TSocket(-1);
+      SetError('Failed to send CONNECT packet.');
+      Exit;
+    end;
+    
+    FActive := True;
+    
+    // Start background receiver thread
+    FThread := TAIMQTTReceiverThread.Create(Self, FSocket);
+    FThread.Start;
+    
+    if Assigned(FOnConnected) then
+      FOnConnected(Self);
+      
+    FLastResult := 'Connected to MQTT broker successfully';
+    FLastSuccess := True;
+    Result := True;
+  except
+    on E: Exception do
+      SetError('MQTT Connect Broker Exception: ' + E.Message);
+  end;
 end;
 
 procedure TAIMQTTClient.DisconnectBroker;
 var
   DisconnectPacket: array[0..1] of Byte;
 begin
-  if not FActive then Exit;
-  
-  if FThread <> nil then
-  begin
-    FThread.Terminate;
-    FThread := nil;
-  end;
-  
-  if FSocket >= 0 then
-  begin
-    // Send DISCONNECT packet
-    DisconnectPacket[0] := $E0;
-    DisconnectPacket[1] := $00;
-    fpsend(FSocket, @DisconnectPacket[0], 2, 0);
+  ClearError;
+  try
+    if not FActive then Exit;
     
-    sockets.CloseSocket(FSocket);
-    FSocket := TSocket(-1);
+    if FThread <> nil then
+    begin
+      FThread.Terminate;
+      FThread := nil;
+    end;
+    
+    if FSocket >= 0 then
+    begin
+      // Send DISCONNECT packet
+      DisconnectPacket[0] := $E0;
+      DisconnectPacket[1] := $00;
+      fpsend(FSocket, @DisconnectPacket[0], 2, 0);
+      
+      sockets.CloseSocket(FSocket);
+      FSocket := TSocket(-1);
+    end;
+    
+    FActive := False;
+    if Assigned(FOnDisconnected) then
+      FOnDisconnected(Self);
+      
+    FLastResult := 'Disconnected from MQTT broker';
+    FLastSuccess := True;
+  except
+    on E: Exception do
+      SetError('MQTT Disconnect Broker Exception: ' + E.Message);
   end;
-  
-  FActive := False;
-  if Assigned(FOnDisconnected) then
-    FOnDisconnected(Self);
 end;
 
 function TAIMQTTClient.Subscribe(const ATopic: string): Boolean;
@@ -354,31 +380,48 @@ var
   Res: Integer;
 begin
   Result := False;
-  if not FActive or (FSocket = TSocket(-1)) then Exit;
-  
-  Idx := 0;
-  SubPacket[Idx] := $82; Inc(Idx); // SUBSCRIBE
-  SubPacket[Idx] := 2 + 2 + Length(ATopic) + 1; Inc(Idx); // Length
-  
-  // Packet Identifier (fixed to 1 for simplicity)
-  SubPacket[Idx] := 0; Inc(Idx);
-  SubPacket[Idx] := 1; Inc(Idx);
-  
-  // Topic Length
-  SubPacket[Idx] := Length(ATopic) shr 8; Inc(Idx);
-  SubPacket[Idx] := Length(ATopic) and $FF; Inc(Idx);
-  
-  // Topic Name
-  for I := 1 to Length(ATopic) do
+  ClearError;
+  if not FActive or (FSocket = TSocket(-1)) then
   begin
-    SubPacket[Idx] := Ord(ATopic[I]);
-    Inc(Idx);
+    SetError('MQTT client is not connected.');
+    Exit;
   end;
   
-  SubPacket[Idx] := 0; Inc(Idx); // QoS level (0)
-  
-  Res := fpsend(FSocket, @SubPacket[0], Idx, 0);
-  Result := (Res > 0);
+  try
+    Idx := 0;
+    SubPacket[Idx] := $82; Inc(Idx); // SUBSCRIBE
+    SubPacket[Idx] := 2 + 2 + Length(ATopic) + 1; Inc(Idx); // Length
+    
+    // Packet Identifier (fixed to 1 for simplicity)
+    SubPacket[Idx] := 0; Inc(Idx);
+    SubPacket[Idx] := 1; Inc(Idx);
+    
+    // Topic Length
+    SubPacket[Idx] := Length(ATopic) shr 8; Inc(Idx);
+    SubPacket[Idx] := Length(ATopic) and $FF; Inc(Idx);
+    
+    // Topic Name
+    for I := 1 to Length(ATopic) do
+    begin
+      SubPacket[Idx] := Ord(ATopic[I]);
+      Inc(Idx);
+    end;
+    
+    SubPacket[Idx] := 0; Inc(Idx); // QoS level (0)
+    
+    Res := fpsend(FSocket, @SubPacket[0], Idx, 0);
+    if Res > 0 then
+    begin
+      FLastResult := 'Subscribed to topic: ' + ATopic;
+      FLastSuccess := True;
+      Result := True;
+    end
+    else
+      SetError('Failed to send SUBSCRIBE packet.');
+  except
+    on E: Exception do
+      SetError('MQTT Subscribe Exception: ' + E.Message);
+  end;
 end;
 
 // MQTT Publication
@@ -390,32 +433,49 @@ var
   Res: Integer;
 begin
   Result := False;
-  if not FActive or (FSocket = TSocket(-1)) then Exit;
-  
-  Idx := 0;
-  PubPacket[Idx] := $30; Inc(Idx); // PUBLISH (QoS 0)
-  PubPacket[Idx] := 2 + Length(ATopic) + Length(APayload); Inc(Idx); // Remaining Length
-  
-  // Topic Length
-  PubPacket[Idx] := Length(ATopic) shr 8; Inc(Idx);
-  PubPacket[Idx] := Length(ATopic) and $FF; Inc(Idx);
-  
-  // Topic
-  for I := 1 to Length(ATopic) do
+  ClearError;
+  if not FActive or (FSocket = TSocket(-1)) then
   begin
-    PubPacket[Idx] := Ord(ATopic[I]);
-    Inc(Idx);
+    SetError('MQTT client is not connected.');
+    Exit;
   end;
   
-  // Payload
-  for I := 1 to Length(APayload) do
-  begin
-    PubPacket[Idx] := Ord(APayload[I]);
-    Inc(Idx);
+  try
+    Idx := 0;
+    PubPacket[Idx] := $30; Inc(Idx); // PUBLISH (QoS 0)
+    PubPacket[Idx] := 2 + Length(ATopic) + Length(APayload); Inc(Idx); // Remaining Length
+    
+    // Topic Length
+    PubPacket[Idx] := Length(ATopic) shr 8; Inc(Idx);
+    PubPacket[Idx] := Length(ATopic) and $FF; Inc(Idx);
+    
+    // Topic
+    for I := 1 to Length(ATopic) do
+    begin
+      PubPacket[Idx] := Ord(ATopic[I]);
+      Inc(Idx);
+    end;
+    
+    // Payload
+    for I := 1 to Length(APayload) do
+    begin
+      PubPacket[Idx] := Ord(APayload[I]);
+      Inc(Idx);
+    end;
+    
+    Res := fpsend(FSocket, @PubPacket[0], Idx, 0);
+    if Res > 0 then
+    begin
+      FLastResult := 'Published message to topic: ' + ATopic;
+      FLastSuccess := True;
+      Result := True;
+    end
+    else
+      SetError('Failed to send PUBLISH packet.');
+  except
+    on E: Exception do
+      SetError('MQTT Publish Exception: ' + E.Message);
   end;
-  
-  Res := fpsend(FSocket, @PubPacket[0], Idx, 0);
-  Result := (Res > 0);
 end;
 
 procedure TAIMQTTClient.TriggerMessage(const ATopic, APayload: string);

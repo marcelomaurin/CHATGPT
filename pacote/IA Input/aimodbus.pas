@@ -5,7 +5,7 @@ unit aimodbus;
 interface
 
 uses
-  Classes, SysUtils, sockets, serial,
+  Classes, SysUtils, sockets, serial, aibase,
   {$IFDEF WIN32}
   winsock2
   {$ELSE}
@@ -22,9 +22,8 @@ type
 
   { TAIModbusClient }
 
-  TAIModbusClient = class(TComponent)
+  TAIModbusClient = class(TAIBaseComponent)
   private
-    FPrompt: string;
     FProtocolType: TModbusProtocol;
     FIPAddress: string;
     FPort: Integer;
@@ -34,7 +33,6 @@ type
     FSocket: TSocket;
     FSerialHandle: TSerialHandle;
     FTransactionID: Word;
-    FLastError: string;
     procedure SetActive(AValue: Boolean);
     function ResolveHost(const AHost: string; var AAddr): Boolean;
     function SocketWrite(const ABuffer; ALength: Integer): Integer;
@@ -48,14 +46,12 @@ type
     function ReadHoldingRegisters(SlaveID, Address, Count: Integer; out AData: array of Word): Boolean;
     function WriteSingleRegister(SlaveID, Address, Value: Integer): Boolean;
   published
-    property Prompt: string read FPrompt write FPrompt;
     property ProtocolType: TModbusProtocol read FProtocolType write FProtocolType default mbTCP;
     property IPAddress: string read FIPAddress write FIPAddress;
     property Port: Integer read FPort write FPort default 502; // Modbus default port
     property DeviceName: string read FDeviceName write FDeviceName;
     property BaudRate: Integer read FBaudRate write FBaudRate default 9600;
     property Active: Boolean read FActive write SetActive default False;
-    property LastError: string read FLastError;
   end;
 
 procedure Register;
@@ -66,8 +62,6 @@ procedure Register;
 begin
   RegisterComponents('IA Input', [TAIModbusClient]);
 end;
-
-{ TAIModbusClient }
 
 constructor TAIModbusClient.Create(AOwner: TComponent);
 begin
@@ -82,7 +76,7 @@ begin
   FSocket := TSocket(-1);
   FSerialHandle := 0;
   FTransactionID := 0;
-  FLastError := '';
+  ClearError;
 end;
 
 destructor TAIModbusClient.Destroy;
@@ -169,77 +163,94 @@ var
   Res: Integer;
 begin
   Result := False;
-  FLastError := '';
+  ClearError;
   if FActive then Exit(True);
   
-  if FProtocolType = mbTCP then
-  begin
-    FSocket := fpSocket(AF_INET, SOCK_STREAM, 0);
-    if FSocket = TSocket(-1) then
+  try
+    if FProtocolType = mbTCP then
     begin
-      FLastError := 'Could not create socket.';
-      Exit;
-    end;
-    
-    Addr.sin_family := AF_INET;
-    Addr.sin_port := htons(FPort);
-    
-    if not ResolveHost(FIPAddress, Addr.sin_addr) then
-    begin
-      sockets.CloseSocket(FSocket);
-      FSocket := TSocket(-1);
-      FLastError := 'Host resolution failed: ' + FIPAddress;
-      Exit;
-    end;
-    
-    Res := fpConnect(FSocket, @Addr, SizeOf(Addr));
-    if Res < 0 then
-    begin
-      sockets.CloseSocket(FSocket);
-      FSocket := TSocket(-1);
-      FLastError := 'Connection to host failed.';
-      Exit;
-    end;
-    
-    FActive := True;
-    Result := True;
-  end
-  else
-  begin
-    FSerialHandle := SerOpen(FDeviceName);
-    if FSerialHandle <> 0 then
-    begin
-      SerSetParams(FSerialHandle, FBaudRate, 8, NoneParity, 1, []);
+      FSocket := fpSocket(AF_INET, SOCK_STREAM, 0);
+      if FSocket = TSocket(-1) then
+      begin
+        SetError('Could not create socket.');
+        Exit;
+      end;
+      
+      Addr.sin_family := AF_INET;
+      Addr.sin_port := htons(FPort);
+      
+      if not ResolveHost(FIPAddress, Addr.sin_addr) then
+      begin
+        sockets.CloseSocket(FSocket);
+        FSocket := TSocket(-1);
+        SetError('Host resolution failed: ' + FIPAddress);
+        Exit;
+      end;
+      
+      Res := fpConnect(FSocket, @Addr, SizeOf(Addr));
+      if Res < 0 then
+      begin
+        sockets.CloseSocket(FSocket);
+        FSocket := TSocket(-1);
+        SetError('Connection to host failed.');
+        Exit;
+      end;
+      
       FActive := True;
+      FLastResult := 'Modbus TCP connection established';
+      FLastSuccess := True;
       Result := True;
     end
     else
-      FLastError := 'Failed to open Modbus RTU serial device: ' + FDeviceName;
+    begin
+      FSerialHandle := SerOpen(FDeviceName);
+      if FSerialHandle <> 0 then
+      begin
+        SerSetParams(FSerialHandle, FBaudRate, 8, NoneParity, 1, []);
+        FActive := True;
+        FLastResult := 'Modbus RTU serial connection established';
+        FLastSuccess := True;
+        Result := True;
+      end
+      else
+        SetError('Failed to open Modbus RTU serial device: ' + FDeviceName);
+    end;
+  except
+    on E: Exception do
+      SetError('Modbus Connect Exception: ' + E.Message);
   end;
 end;
 
 procedure TAIModbusClient.Disconnect;
 begin
-  if not FActive then Exit;
-  
-  if FProtocolType = mbTCP then
-  begin
-    if FSocket <> TSocket(-1) then
+  ClearError;
+  try
+    if not FActive then Exit;
+    
+    if FProtocolType = mbTCP then
     begin
-      sockets.CloseSocket(FSocket);
-      FSocket := TSocket(-1);
-    end;
-  end
-  else
-  begin
-    if FSerialHandle <> 0 then
+      if FSocket <> TSocket(-1) then
+      begin
+        sockets.CloseSocket(FSocket);
+        FSocket := TSocket(-1);
+      end;
+    end
+    else
     begin
-      SerClose(FSerialHandle);
-      FSerialHandle := 0;
+      if FSerialHandle <> 0 then
+      begin
+        SerClose(FSerialHandle);
+        FSerialHandle := 0;
+      end;
     end;
+    
+    FActive := False;
+    FLastResult := 'Modbus disconnected';
+    FLastSuccess := True;
+  except
+    on E: Exception do
+      SetError('Modbus Disconnect Exception: ' + E.Message);
   end;
-  
-  FActive := False;
 end;
 
 function TAIModbusClient.ReadHoldingRegisters(SlaveID, Address, Count: Integer; out AData: array of Word): Boolean;
@@ -249,8 +260,12 @@ var
   BytesRead, I: Integer;
 begin
   Result := False;
-  FLastError := '';
-  if not FActive or (FProtocolType <> mbTCP) or (FSocket = TSocket(-1)) then Exit;
+  ClearError;
+  if not FActive or (FProtocolType <> mbTCP) or (FSocket = TSocket(-1)) then
+  begin
+    SetError('Modbus client not active or not using TCP.');
+    Exit;
+  end;
   
   Inc(FTransactionID);
   
@@ -273,7 +288,7 @@ begin
   try
     if SocketWrite(Frame[0], 12) <> 12 then
     begin
-      FLastError := 'Modbus TCP Write failed.';
+      SetError('Modbus TCP Write failed.');
       Exit;
     end;
     
@@ -290,14 +305,18 @@ begin
           if I <= High(AData) then
             AData[I] := (Response[9 + I * 2] shl 8) or Response[9 + I * 2 + 1];
         end;
+        FLastResult := 'Modbus Registers Read Succeeded';
+        FLastSuccess := True;
         Result := True;
       end
       else
-        FLastError := 'Modbus TCP Read Exception or mismatch.';
-    end;
+        SetError('Modbus TCP Read Exception or mismatch.');
+    end
+    else
+      SetError('Modbus TCP Header Read failed.');
   except
     on E: Exception do
-      FLastError := 'Modbus Read Holding Registers Exception: ' + E.Message;
+      SetError('Modbus Read Holding Registers Exception: ' + E.Message);
   end;
 end;
 
@@ -308,8 +327,12 @@ var
   BytesRead: Integer;
 begin
   Result := False;
-  FLastError := '';
-  if not FActive or (FProtocolType <> mbTCP) or (FSocket = TSocket(-1)) then Exit;
+  ClearError;
+  if not FActive or (FProtocolType <> mbTCP) or (FSocket = TSocket(-1)) then
+  begin
+    SetError('Modbus client not active or not using TCP.');
+    Exit;
+  end;
   
   Inc(FTransactionID);
   
@@ -332,7 +355,7 @@ begin
   try
     if SocketWrite(Frame[0], 12) <> 12 then
     begin
-      FLastError := 'Modbus TCP Write failed.';
+      SetError('Modbus TCP Write failed.');
       Exit;
     end;
     
@@ -343,13 +366,19 @@ begin
       // Read remainder response payload: [FunctCode:1] [Address:2] [Value:2]
       BytesRead := SocketRead(Response[7], 5);
       if (BytesRead = 5) and (Response[7] = 6) then
-        Result := True
+      begin
+        FLastResult := 'Modbus Single Register Write Succeeded';
+        FLastSuccess := True;
+        Result := True;
+      end
       else
-        FLastError := 'Modbus TCP Write Single Register Response mismatch.';
-    end;
+        SetError('Modbus TCP Write Single Register Response mismatch.');
+    end
+    else
+      SetError('Modbus TCP Header Read failed.');
   except
     on E: Exception do
-      FLastError := 'Modbus Write Register Exception: ' + E.Message;
+      SetError('Modbus Write Register Exception: ' + E.Message);
   end;
 end;
 

@@ -5,16 +5,15 @@ unit aioutput;
 interface
 
 uses
-  Classes, SysUtils, Math;
+  Classes, SysUtils, Math, aibase;
 
 type
   TArray = array of Double;
 
   { TAIOutputData }
 
-  TAIOutputData = class(TComponent)
+  TAIOutputData = class(TAIBaseComponent)
   private
-    FPrompt: string;
     FProbabilities: TArray;
     FClasses: TStrings;
     FClassificationResult: string;
@@ -28,7 +27,6 @@ type
     function GetBestClassName: string;
     procedure UpdateResult;
   published
-    property Prompt: string read FPrompt write FPrompt;
     property Probabilities: TArray read FProbabilities write FProbabilities;
     property Classes: TStrings read FClasses write SetClasses;
     property ClassificationResult: string read FClassificationResult write FClassificationResult;
@@ -69,30 +67,38 @@ var
   MaxVal, SumExp: Double;
   ExpVals: TArray;
 begin
-  if Length(FProbabilities) = 0 then
-    Exit;
-  
-  // Encontra o maior valor para estabilidade numérica
-  MaxVal := FProbabilities[0];
-  for I := 1 to High(FProbabilities) do
-    if FProbabilities[I] > MaxVal then
-      MaxVal := FProbabilities[I];
+  ClearError;
+  try
+    if Length(FProbabilities) = 0 then
+      Exit;
     
-  SetLength(ExpVals, Length(FProbabilities));
-  SumExp := 0.0;
-  for I := 0 to High(FProbabilities) do
-  begin
-    ExpVals[I] := Exp(FProbabilities[I] - MaxVal);
-    SumExp := SumExp + ExpVals[I];
+    // Encontra o maior valor para estabilidade numérica
+    MaxVal := FProbabilities[0];
+    for I := 1 to High(FProbabilities) do
+      if FProbabilities[I] > MaxVal then
+        MaxVal := FProbabilities[I];
+      
+    SetLength(ExpVals, Length(FProbabilities));
+    SumExp := 0.0;
+    for I := 0 to High(FProbabilities) do
+    begin
+      ExpVals[I] := Exp(FProbabilities[I] - MaxVal);
+      SumExp := SumExp + ExpVals[I];
+    end;
+    
+    if SumExp = 0.0 then
+      SumExp := 1.0;
+    
+    for I := 0 to High(FProbabilities) do
+      FProbabilities[I] := ExpVals[I] / SumExp;
+      
+    UpdateResult;
+    FLastResult := 'SoftMax normalisation completed';
+    FLastSuccess := True;
+  except
+    on E: Exception do
+      SetError('SoftMax Error: ' + E.Message);
   end;
-  
-  if SumExp = 0.0 then
-    SumExp := 1.0;
-  
-  for I := 0 to High(FProbabilities) do
-    FProbabilities[I] := ExpVals[I] / SumExp;
-    
-  UpdateResult;
 end;
 
 function TAIOutputData.GetBestClassIndex: Integer;
@@ -132,16 +138,24 @@ procedure TAIOutputData.UpdateResult;
 var
   Idx: Integer;
 begin
-  Idx := GetBestClassIndex;
-  if Idx >= 0 then
-  begin
-    if GetBestClassName <> '' then
-      FClassificationResult := Format('%s (%0.2f%%)', [GetBestClassName, FProbabilities[Idx] * 100.0])
+  ClearError;
+  try
+    Idx := GetBestClassIndex;
+    if Idx >= 0 then
+    begin
+      if GetBestClassName <> '' then
+        FClassificationResult := Format('%s (%0.2f%%)', [GetBestClassName, FProbabilities[Idx] * 100.0])
+      else
+        FClassificationResult := Format('Classe %d (%0.2f%%)', [Idx, FProbabilities[Idx] * 100.0]);
+    end
     else
-      FClassificationResult := Format('Classe %d (%0.2f%%)', [Idx, FProbabilities[Idx] * 100.0]);
-  end
-  else
-    FClassificationResult := '';
+      FClassificationResult := '';
+    FLastResult := FClassificationResult;
+    FLastSuccess := True;
+  except
+    on E: Exception do
+      SetError('UpdateResult Error: ' + E.Message);
+  end;
 end;
 
 end.
