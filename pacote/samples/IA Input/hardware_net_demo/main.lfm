@@ -1,0 +1,12 @@
+object frmHardwareDemo: TfrmHardwareDemo
+  Left = 240
+  Height = 650
+  Top = 150
+  Width = 900
+  Caption = 'AI Input Suite — Multiplatform Hardware & Network Demo'
+  ClientHeight = 650
+  ClientWidth = 900
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '2.2.0'
+end

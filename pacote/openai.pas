@@ -8,7 +8,7 @@ unit openai;
 interface
 
 uses
-  funcoes, chatgpt, NeuralNetwork, tokenizer, aicodeassistant, aidatasetgenerator, pythonconnector, facedetection, yolodetect, perceptron, sommap, cnnclassifier, lstmpredictor, soundfilters, imagefilters, iaschedule, aivoicesynthesizer, aiagent, LazarusPackageIntf;
+  funcoes, chatgpt, NeuralNetwork, tokenizer, aicodeassistant, aidatasetgenerator, pythonconnector, facedetection, yolodetect, perceptron, sommap, cnnclassifier, lstmpredictor, soundfilters, imagefilters, iaschedule, aivoicesynthesizer, aiagent, numps, aiinput, aicamera, aiaudio, aiwebserver, aisockets, aiserial, aiposprinter, aicftvip, aimodbus, aimqtt, aiemail, aimessenger, aiindustrial, aichromiumbrowser, aioscapture, aioutput, aioutput_docs, LazarusPackageIntf;
 
 implementation
 
@@ -31,6 +31,24 @@ begin
   RegisterUnit('iaschedule', @iaschedule.Register);
   RegisterUnit('aivoicesynthesizer', @aivoicesynthesizer.Register);
   RegisterUnit('aiagent', @aiagent.Register);
+  RegisterUnit('numps', @numps.Register);
+  RegisterUnit('aiinput', @aiinput.Register);
+  RegisterUnit('aicamera', @aicamera.Register);
+  RegisterUnit('aiaudio', @aiaudio.Register);
+  RegisterUnit('aiwebserver', @aiwebserver.Register);
+  RegisterUnit('aisockets', @aisockets.Register);
+  RegisterUnit('aiserial', @aiserial.Register);
+  RegisterUnit('aiposprinter', @aiposprinter.Register);
+  RegisterUnit('aicftvip', @aicftvip.Register);
+  RegisterUnit('aimodbus', @aimodbus.Register);
+  RegisterUnit('aimqtt', @aimqtt.Register);
+  RegisterUnit('aiemail', @aiemail.Register);
+  RegisterUnit('aimessenger', @aimessenger.Register);
+  RegisterUnit('aiindustrial', @aiindustrial.Register);
+  RegisterUnit('aichromiumbrowser', @aichromiumbrowser.Register);
+  RegisterUnit('aioscapture', @aioscapture.Register);
+  RegisterUnit('aioutput', @aioutput.Register);
+  RegisterUnit('aioutput_docs', @aioutput_docs.Register);
 end;
 
 initialization

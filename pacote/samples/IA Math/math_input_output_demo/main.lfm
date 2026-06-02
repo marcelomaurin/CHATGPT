@@ -1,0 +1,215 @@
+object frmDemo: TfrmDemo
+  Left = 350
+  Height = 550
+  Top = 150
+  Width = 700
+  Caption = 'IA Math, Input e Output Demo'
+  ClientHeight = 550
+  ClientWidth = 700
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '3.0.0.1'
+  object PageControl1: TPageControl
+    Left = 10
+    Height = 530
+    Top = 10
+    Width = 680
+    ActivePage = tabMath
+    Align = alClient
+    BorderSpacing.Around = 10
+    TabIndex = 0
+    TabOrder = 0
+    object tabMath: TTabSheet
+      Caption = 'IA Math (TNumPS)'
+      ClientHeight = 502
+      ClientWidth = 672
+      object lblMathParams: TLabel
+        Left = 15
+        Height = 15
+        Top = 20
+        Width = 120
+        Caption = 'Selecione a Operacao:'
+      end
+      object cbMathOp: TComboBox
+        Left = 15
+        Height = 23
+        Top = 40
+        Width = 300
+        ItemHeight = 15
+        Items.Strings = (
+          'Zeros (3x3)'
+          'Ones (3x3)'
+          'Arange (0..10, step 2)'
+          'LinSpace (0..1, 5 steps)'
+          'Identity (4x4)'
+          'Random Matrix (3x3)'
+          'MatMul (Matrix Multiplication)'
+          'Statistics on [1.2, 4.5, 9.8, -2.1]'
+        )
+        Style = csDropDownList
+        TabOrder = 0
+      end
+      object btnExecMath: TButton
+        Left = 330
+        Height = 25
+        Top = 39
+        Width = 100
+        Caption = 'Executar'
+        OnClick = btnExecMathClick
+        TabOrder = 1
+      end
+      object memMathOutput: TMemo
+        Left = 15
+        Height = 390
+        Top = 80
+        Width = 640
+        Font.CharSet = ANSI_CHARSET
+        Font.Name = 'Courier New'
+        ParentFont = False
+        ReadOnly = True
+        ScrollBars = ssAutoVertical
+        TabOrder = 2
+      end
+    end
+    object tabInput: TTabSheet
+      Caption = 'IA Input (TAIInputData)'
+      ClientHeight = 502
+      ClientWidth = 672
+      object lblInputInfo: TLabel
+        Left = 15
+        Height = 15
+        Top = 15
+        Width = 260
+        Caption = 'Dados de entrada (Valores separados por virgula):'
+      end
+      object edtInputData: TEdit
+        Left = 15
+        Height = 23
+        Top = 35
+        Width = 400
+        Text = '12.5, 45.0, 7.2, 89.1, 33.4'
+        TabOrder = 0
+      end
+      object edtMinRange: TEdit
+        Left = 430
+        Height = 23
+        Top = 35
+        Width = 60
+        Text = '0.0'
+        TabOrder = 1
+      end
+      object edtMaxRange: TEdit
+        Left = 500
+        Height = 23
+        Top = 35
+        Width = 60
+        Text = '1.0'
+        TabOrder = 2
+      end
+      object btnNormalize: TButton
+        Left = 15
+        Height = 25
+        Top = 75
+        Width = 120
+        Caption = 'Normalizar'
+        OnClick = btnNormalizeClick
+        TabOrder = 3
+      end
+      object btnDenormalize: TButton
+        Left = 145
+        Height = 25
+        Top = 75
+        Width = 120
+        Caption = 'Desnormalizar'
+        OnClick = btnDenormalizeClick
+        TabOrder = 4
+      end
+      object memInputOutput: TMemo
+        Left = 15
+        Height = 350
+        Top = 120
+        Width = 640
+        Font.CharSet = ANSI_CHARSET
+        Font.Name = 'Courier New'
+        ParentFont = False
+        ReadOnly = True
+        ScrollBars = ssAutoVertical
+        TabOrder = 5
+      end
+    end
+    object tabOutput: TTabSheet
+      Caption = 'IA Output (TAIOutputData)'
+      ClientHeight = 502
+      ClientWidth = 672
+      object lblClasses: TLabel
+        Left = 15
+        Height = 15
+        Top = 15
+        Width = 100
+        Caption = 'Classes (rotulos):'
+      end
+      object memClasses: TMemo
+        Left = 15
+        Height = 100
+        Top = 35
+        Width = 150
+        Lines.Strings = (
+          'Gato'
+          'Cachorro'
+          'Passaro'
+        )
+        TabOrder = 0
+      end
+      object lblLogits: TLabel
+        Left = 180
+        Height = 15
+        Top = 15
+        Width = 100
+        Caption = 'Logits (Scores):'
+      end
+      object memLogits: TMemo
+        Left = 180
+        Height = 100
+        Top = 35
+        Width = 150
+        Lines.Strings = (
+          '1.2'
+          '3.5'
+          '-0.5'
+        )
+        TabOrder = 1
+      end
+      object btnSoftmax: TButton
+        Left = 15
+        Height = 25
+        Top = 150
+        Width = 315
+        Caption = 'Aplicar SoftMax e Decidir'
+        OnClick = btnSoftmaxClick
+        TabOrder = 2
+      end
+      object memOutputScores: TMemo
+        Left = 350
+        Height = 440
+        Top = 35
+        Width = 300
+        Font.CharSet = ANSI_CHARSET
+        Font.Name = 'Courier New'
+        ParentFont = False
+        ReadOnly = True
+        ScrollBars = ssAutoVertical
+        TabOrder = 3
+      end
+      object lblResult: TLabel
+        Left = 15
+        Height = 25
+        Top = 200
+        Width = 315
+        Caption = 'Decisao: Nenhuma'
+        Font.Height = -16
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+    end
+  end
+end

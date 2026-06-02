@@ -9,7 +9,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value=".."/>
+        <OtherUnitFiles Value="IA;IA Agent;IA Voice;IA Filtros Sonoros;IA Image;IA Schedulle;IA Math;IA Input;IA Output;.."/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
@@ -21,92 +21,185 @@
         <UnitName Value="funcoes"/>
       </Item>
       <Item>
-        <Filename Value="chatgpt.pas"/>
+        <Filename Value="IA\chatgpt.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="chatgpt"/>
       </Item>
       <Item>
-        <Filename Value="neuralnetwork.pas"/>
+        <Filename Value="IA\neuralnetwork.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="neuralnetwork"/>
       </Item>
       <Item>
-        <Filename Value="tokenizer.pas"/>
+        <Filename Value="IA\tokenizer.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="tokenizer"/>
       </Item>
       <Item>
-        <Filename Value="aicodeassistant.pas"/>
+        <Filename Value="IA\aicodeassistant.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aicodeassistant"/>
       </Item>
       <Item>
-        <Filename Value="aidatasetgenerator.pas"/>
+        <Filename Value="IA\aidatasetgenerator.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aidatasetgenerator"/>
       </Item>
       <Item>
-        <Filename Value="pythonconnector.pas"/>
+        <Filename Value="IA\pythonconnector.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="pythonconnector"/>
       </Item>
       <Item>
-        <Filename Value="facedetection.pas"/>
+        <Filename Value="IA\facedetection.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="facedetection"/>
       </Item>
       <Item>
-        <Filename Value="yolodetect.pas"/>
+        <Filename Value="IA\yolodetect.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="yolodetect"/>
       </Item>
       <Item>
-        <Filename Value="perceptron.pas"/>
+        <Filename Value="IA\perceptron.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="perceptron"/>
       </Item>
       <Item>
-        <Filename Value="sommap.pas"/>
+        <Filename Value="IA\sommap.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="sommap"/>
       </Item>
       <Item>
-        <Filename Value="cnnclassifier.pas"/>
+        <Filename Value="IA\cnnclassifier.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="cnnclassifier"/>
       </Item>
       <Item>
-        <Filename Value="lstmpredictor.pas"/>
+        <Filename Value="IA\lstmpredictor.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="lstmpredictor"/>
       </Item>
       <Item>
-        <Filename Value="soundfilters.pas"/>
+        <Filename Value="IA Filtros Sonoros\soundfilters.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="soundfilters"/>
       </Item>
       <Item>
-        <Filename Value="imagefilters.pas"/>
+        <Filename Value="IA Image\imagefilters.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="imagefilters"/>
       </Item>
       <Item>
-        <Filename Value="iaschedule.pas"/>
+        <Filename Value="IA Schedulle\iaschedule.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="iaschedule"/>
       </Item>
       <Item>
-        <Filename Value="aivoicesynthesizer.pas"/>
+        <Filename Value="IA Voice\aivoicesynthesizer.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aivoicesynthesizer"/>
       </Item>
       <Item>
-        <Filename Value="aiagent.pas"/>
+        <Filename Value="IA Agent\aiagent.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiagent"/>
       </Item>
+      <Item>
+        <Filename Value="IA Math\numps.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="numps"/>
+      </Item>
+      <Item>
+        <Filename Value="IA Input\aiinput.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiinput"/>
+      </Item>
+      <Item>
+        <Filename Value="IA Input\aicamera.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aicamera"/>
+      </Item>
+      <Item>
+        <Filename Value="IA Input\aiaudio.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiaudio"/>
+      </Item>
+      <Item>
+        <Filename Value="IA Input\aiwebserver.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiwebserver"/>
+      </Item>
+      <Item>
+        <Filename Value="IA Input\aisockets.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aisockets"/>
+      </Item>
+      <Item>
+        <Filename Value="IA Input\aiserial.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiserial"/>
+      </Item>
+      <Item>
+        <Filename Value="IA Input\aiposprinter.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiposprinter"/>
+      </Item>
+      <Item>
+        <Filename Value="IA Input\aicftvip.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aicftvip"/>
+      </Item>
+      <Item>
+        <Filename Value="IA Input\aimodbus.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aimodbus"/>
+      </Item>
+      <Item>
+        <Filename Value="IA Input\aimqtt.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aimqtt"/>
+      </Item>
+      <Item>
+        <Filename Value="IA Input\aiemail.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiemail"/>
+      </Item>
+      <Item>
+        <Filename Value="IA Input\aimessenger.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aimessenger"/>
+      </Item>
+      <Item>
+        <Filename Value="IA Input\aiindustrial.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiindustrial"/>
+      </Item>
+      <Item>
+        <Filename Value="IA Input\aichromiumbrowser.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aichromiumbrowser"/>
+      </Item>
+      <Item>
+        <Filename Value="IA Input\aioscapture.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aioscapture"/>
+      </Item>
+      <Item>
+        <Filename Value="IA Output\aioutput.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aioutput"/>
+      </Item>
+      <Item>
+        <Filename Value="IA Output\aioutput_docs.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aioutput_docs"/>
+      </Item>
     </Files>
     <RequiredPkgs>
+      <Item>
+        <PackageName Value="TurboPowerIpro"/>
+      </Item>
       <Item>
         <PackageName Value="LCL"/>
       </Item>
