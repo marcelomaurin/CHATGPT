@@ -5,7 +5,7 @@ unit aimodel3d;
 interface
 
 uses
-  Classes, SysUtils, aibase;
+  Classes, SysUtils, StrUtils, aibase;
 
 type
   { TAIModel3D }
@@ -49,14 +49,91 @@ begin
 end;
 
 procedure TAIModel3D.LoadFromFile(const AFileName: string);
+var
+  FStream: TFileStream;
+  Header: array[0..79] of Byte;
+  TrianglesCount: UInt32;
+  IsBinary: Boolean;
+  Lines: TStringList;
+  I: Integer;
+  Line: string;
+  VCount, FCount: Integer;
 begin
   FFilePath := AFileName;
   Log(llInfo, 'Loading 3D model from: ' + AFileName);
-  // Basic parsing simulation for STL/OBJ to update vertices/faces count
-  FVerticesCount := 100;
-  FFacesCount := 200;
-  FLastResult := 'Model loaded.';
-  FLastSuccess := True;
+  ClearError;
+
+  if not FileExists(AFileName) then
+  begin
+    FVerticesCount := 0;
+    FFacesCount := 0;
+    FLastSuccess := False;
+    FLastResult := 'File not found: ' + AFileName;
+    Log(llError, FLastResult);
+    Exit;
+  end;
+
+  try
+    IsBinary := False;
+    // Determine if it is ASCII or Binary
+    FStream := TFileStream.Create(AFileName, fmOpenRead or fmShareDenyWrite);
+    try
+      if FStream.Size >= 84 then
+      begin
+        FStream.ReadBuffer(Header, 80);
+        FStream.ReadBuffer(TrianglesCount, 4);
+        // A binary STL file size must match exactly: 80 + 4 + N * 50
+        if FStream.Size = Int64(84) + Int64(TrianglesCount) * 50 then
+          IsBinary := True;
+      end;
+
+      if IsBinary then
+      begin
+        FFacesCount := TrianglesCount;
+        FVerticesCount := TrianglesCount * 3;
+        FLastResult := Format('Binary STL loaded. Vertices: %d, Faces: %d', [FVerticesCount, FFacesCount]);
+        FLastSuccess := True;
+        Log(llInfo, FLastResult);
+      end;
+    finally
+      FStream.Free;
+    end;
+
+    // If not binary, parse as ASCII
+    if not IsBinary then
+    begin
+      Lines := TStringList.Create;
+      try
+        Lines.LoadFromFile(AFileName);
+        VCount := 0;
+        FCount := 0;
+        for I := 0 to Lines.Count - 1 do
+        begin
+          Line := Trim(Lines[I]);
+          if StartsText('facet', Line) or StartsText('facet ', Line) then
+            Inc(FCount);
+          if StartsText('vertex', Line) or StartsText('vertex ', Line) then
+            Inc(VCount);
+        end;
+        FVerticesCount := VCount;
+        FFacesCount := FCount;
+        FLastResult := Format('ASCII STL loaded. Vertices: %d, Faces: %d', [VCount, FCount]);
+        FLastSuccess := True;
+        Log(llInfo, FLastResult);
+      finally
+        Lines.Free;
+      end;
+    end;
+  except
+    on E: Exception do
+    begin
+      FVerticesCount := 0;
+      FFacesCount := 0;
+      FLastSuccess := False;
+      FLastResult := 'Error parsing STL: ' + E.Message;
+      Log(llError, FLastResult);
+    end;
+  end;
 end;
 
 procedure TAIModel3D.SaveToFile(const AFileName: string);

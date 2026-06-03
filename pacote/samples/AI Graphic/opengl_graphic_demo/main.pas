@@ -31,6 +31,7 @@ type
     btnResetCamera: TButton;
     btnLoadModel: TButton;
     cbRenderMode: TComboBox;
+    btnCreateTestSTL: TButton;
     
     meLogs: TMemo;
     lblLogs: TLabel;
@@ -50,6 +51,7 @@ type
     procedure btnZoomOutClick(Sender: TObject);
     procedure btnResetCameraClick(Sender: TObject);
     procedure btnLoadModelClick(Sender: TObject);
+    procedure btnCreateTestSTLClick(Sender: TObject);
     procedure cbRenderModeChange(Sender: TObject);
     
     procedure ComponentLog(Sender: TObject; ALevel: TAILogLevel; const AMsg: string);
@@ -211,6 +213,87 @@ begin
     end;
   finally
     OpenDlg.Free;
+  end;
+end;
+
+procedure TfrmOpenGLGraphicDemo.btnCreateTestSTLClick(Sender: TObject);
+var
+  STLPath: string;
+  F: TextFile;
+begin
+  STLPath := ExtractFilePath(Application.ExeName) + 'test_model.stl';
+  LogMsg('Generating test STL file at: ' + STLPath);
+  try
+    AssignFile(F, STLPath);
+    Rewrite(F);
+    WriteLn(F, 'solid test_pyramid');
+    
+    // Face 1 (Base Triangle 1)
+    WriteLn(F, '  facet normal 0 0 -1');
+    WriteLn(F, '    outer loop');
+    WriteLn(F, '      vertex -1 -1 0');
+    WriteLn(F, '      vertex 1 -1 0');
+    WriteLn(F, '      vertex 1 1 0');
+    WriteLn(F, '    endloop');
+    WriteLn(F, '  endfacet');
+    
+    // Face 2 (Base Triangle 2)
+    WriteLn(F, '  facet normal 0 0 -1');
+    WriteLn(F, '    outer loop');
+    WriteLn(F, '      vertex -1 -1 0');
+    WriteLn(F, '      vertex 1 1 0');
+    WriteLn(F, '      vertex -1 1 0');
+    WriteLn(F, '    endloop');
+    WriteLn(F, '  endfacet');
+    
+    // Face 3 (Side 1)
+    WriteLn(F, '  facet normal -0.7 0 0.7');
+    WriteLn(F, '    outer loop');
+    WriteLn(F, '      vertex -1 -1 0');
+    WriteLn(F, '      vertex 0 0 1.5');
+    WriteLn(F, '      vertex -1 1 0');
+    WriteLn(F, '    endloop');
+    WriteLn(F, '  endfacet');
+    
+    // Face 4 (Side 2)
+    WriteLn(F, '  facet normal 0 -0.7 0.7');
+    WriteLn(F, '    outer loop');
+    WriteLn(F, '      vertex -1 -1 0');
+    WriteLn(F, '      vertex 1 -1 0');
+    WriteLn(F, '      vertex 0 0 1.5');
+    WriteLn(F, '    endloop');
+    WriteLn(F, '  endfacet');
+    
+    // Face 5 (Side 3)
+    WriteLn(F, '  facet normal 0.7 0 0.7');
+    WriteLn(F, '    outer loop');
+    WriteLn(F, '      vertex 1 -1 0');
+    WriteLn(F, '      vertex 1 1 0');
+    WriteLn(F, '      vertex 0 0 1.5');
+    WriteLn(F, '    endloop');
+    WriteLn(F, '  endfacet');
+    
+    // Face 6 (Side 4)
+    WriteLn(F, '  facet normal 0 0.7 0.7');
+    WriteLn(F, '    outer loop');
+    WriteLn(F, '      vertex 1 1 0');
+    WriteLn(F, '      vertex -1 1 0');
+    WriteLn(F, '      vertex 0 0 1.5');
+    WriteLn(F, '    endloop');
+    WriteLn(F, '  endfacet');
+    
+    WriteLn(F, 'endsolid test_pyramid');
+    CloseFile(F);
+    
+    LogMsg('Test STL file created successfully.');
+    
+    // Load the newly created model
+    FModel.LoadFromFile(STLPath);
+    FViewer.Invalidate;
+    LogMsg(Format('Model loaded. Vertices: %d, Faces: %d', [FModel.VerticesCount, FModel.FacesCount]));
+  except
+    on E: Exception do
+      LogMsg('Error generating/loading test STL: ' + E.Message);
   end;
 end;
 
