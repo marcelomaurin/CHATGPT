@@ -183,6 +183,10 @@ Para que a comunicação HTTPS funcione no Windows, as DLLs OpenSSL adequadas pa
 **Recomendação:** Copie as DLLs da pasta `lib/` correspondente para a **mesma pasta onde está o seu executável compilado**.
 
 ---
+## Screen Shots
+![CNN Demo](screenshots/cnn_demo.jpg)
+
+---
 
 ## Licença
 
