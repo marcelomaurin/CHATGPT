@@ -3,7 +3,7 @@ program aidatasetgenerator_sample;
 {$mode objfpc}{$H+}
 
 uses
-  SysUtils, NeuralNetwork, aidatasetgenerator;
+  Interfaces, SysUtils, NeuralNetwork, aidatasetgenerator;
 
 var
   FGen: TAIDatasetGenerator;

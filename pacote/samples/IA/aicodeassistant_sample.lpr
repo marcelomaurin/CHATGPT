@@ -3,7 +3,7 @@ program aicodeassistant_sample;
 {$mode objfpc}{$H+}
 
 uses
-  SysUtils, Classes, chatgpt, aicodeassistant;
+  Interfaces, SysUtils, Classes, chatgpt, aicodeassistant;
 
 var
   FChatgpt: TCHATGPT;

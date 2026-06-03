@@ -3,7 +3,7 @@ program chatgpt_sample;
 {$mode objfpc}{$H+}
 
 uses
-  SysUtils, Classes, chatgpt;
+  Interfaces, SysUtils, Classes, chatgpt;
 
 var
   FChatgpt: TCHATGPT;

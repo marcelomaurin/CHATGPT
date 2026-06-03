@@ -3,7 +3,7 @@ program neuralnetwork_sample;
 {$mode objfpc}{$H+}
 
 uses
-  SysUtils, Math, NeuralNetwork;
+  Interfaces, SysUtils, Math, NeuralNetwork;
 
 var
   FNet: TNeuralNetwork;
