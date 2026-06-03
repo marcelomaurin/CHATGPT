@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  ComCtrls, Math, aiskeletonrig, aiavatarcontroller, aiposelibrary, aibase;
+  ComCtrls, Math, StrUtils, aiskeletonrig, aiavatarcontroller, aiposelibrary, aibase;
 
 type
 
@@ -16,6 +16,7 @@ type
     pnlLeft: TPanel;
     pnlScene: TPanel;
     lblSceneTitle: TLabel;
+    btnLoadRig: TButton;
     lblBoneSelect: TLabel;
     cbBones: TComboBox;
     lblAxisSelect: TLabel;
@@ -37,6 +38,7 @@ type
 
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure btnLoadRigClick(Sender: TObject);
     procedure cbBonesChange(Sender: TObject);
     procedure cbAxisChange(Sender: TObject);
     procedure tbAngleChange(Sender: TObject);
@@ -110,13 +112,45 @@ begin
   cbAxis.ItemIndex := 2; // Default Z
 
   UpdateBoneControls;
-  LogMsg('Avatar Crash Test Simulator initialized.');
-  LogMsg('Hint: Drag mouse on the right panel to rotate the camera.');
+  LogMsg('Avatar/Robot Kinematics Simulator initialized.');
+  LogMsg('Hint: Click "Load Model / Rig" to load any hierarchical 3D object definition.');
 end;
 
 procedure TfrmAvatarDemo.FormDestroy(Sender: TObject);
 begin
   // Freed by Owner (Self)
+end;
+
+procedure TfrmAvatarDemo.btnLoadRigClick(Sender: TObject);
+var
+  OpenDlg: TOpenDialog;
+begin
+  OpenDlg := TOpenDialog.Create(nil);
+  try
+    OpenDlg.Title := 'Load 3D Hierarchical Rig/Model';
+    OpenDlg.Filter := 'Rig files (*.rig)|*.rig|All Files (*.*)|*.*';
+    OpenDlg.InitialDir := ExtractFilePath(Application.ExeName);
+    if OpenDlg.Execute then
+    begin
+      LogMsg('Loading model hierarchy: ' + OpenDlg.FileName);
+      FSkeleton.LoadRigFromFile(OpenDlg.FileName);
+      
+      // Update the UI controls
+      cbBones.Items.Assign(FSkeleton.BonesList);
+      if cbBones.Items.Count > 0 then
+        cbBones.ItemIndex := 0
+      else
+        cbBones.ItemIndex := -1;
+      
+      UpdateBoneControls;
+      
+      // Redraw the view
+      pnlView.Invalidate;
+      LogMsg(Format('Model hierarchy loaded successfully. %d joints identified.', [FSkeleton.GetJointCount]));
+    end;
+  finally
+    OpenDlg.Free;
+  end;
 end;
 
 procedure TfrmAvatarDemo.ComponentLog(Sender: TObject; ALevel: TAILogLevel; const AMsg: string);
@@ -242,15 +276,11 @@ begin
   // Reset all
   btnTPoseClick(nil);
   
-  // Left hip pitch 90, Right hip pitch 90
+  // Try to apply sit pose to human structure if bones exist
   FSkeleton.SetBoneRotation('left_hip', 90, 0, 0);
   FSkeleton.SetBoneRotation('right_hip', 90, 0, 0);
-  
-  // Left knee pitch -90, Right knee pitch -90
   FSkeleton.SetBoneRotation('left_knee', -90, 0, 0);
   FSkeleton.SetBoneRotation('right_knee', -90, 0, 0);
-  
-  // Arms slightly forward
   FSkeleton.SetBoneRotation('left_shoulder', 0, 0, -30);
   FSkeleton.SetBoneRotation('right_shoulder', 0, 0, 30);
   
@@ -265,9 +295,7 @@ begin
   
   btnTPoseClick(nil);
   
-  // Raise right shoulder high up (130 degrees roll)
   FSkeleton.SetBoneRotation('right_shoulder', 0, 0, 130);
-  // Bend right elbow (90 degrees roll)
   FSkeleton.SetBoneRotation('right_elbow', 0, 0, 90);
   
   UpdateBoneControls;
@@ -281,14 +309,10 @@ begin
   
   btnTPoseClick(nil);
   
-  // Opposing leg angles
   FSkeleton.SetBoneRotation('left_hip', 30, 0, 0);
   FSkeleton.SetBoneRotation('left_knee', -20, 0, 0);
-  
   FSkeleton.SetBoneRotation('right_hip', -30, 0, 0);
   FSkeleton.SetBoneRotation('right_knee', -5, 0, 0);
-  
-  // Opposing arm angles
   FSkeleton.SetBoneRotation('left_shoulder', -25, 0, -10);
   FSkeleton.SetBoneRotation('right_shoulder', 25, 0, 10);
   FSkeleton.SetBoneRotation('right_elbow', 0, 0, 30);
@@ -379,6 +403,8 @@ var
   cosX, sinX, cosY, sinY: Double;
   I: Integer;
   Joint: TBoneJoint;
+  ParentIdx: Integer;
+  LineColor: TColor;
   
   // Floor grid points
   GX, GZ: Double;
@@ -446,25 +472,24 @@ begin
     CanvasLocal.LineTo(sx, sy);
   end;
 
-  // 2. Draw skeleton bones hierarchically
-  DrawBoneLine(CanvasLocal, FSkeleton.GetJoint(0), FSkeleton.GetJoint(1), cosX, sinX, cosY, sinY, CX, CY, Scale, D, clBlack, 4); // pelvis to spine
-  DrawBoneLine(CanvasLocal, FSkeleton.GetJoint(1), FSkeleton.GetJoint(2), cosX, sinX, cosY, sinY, CX, CY, Scale, D, clBlack, 4); // spine to head
-  
-  // Left arm
-  DrawBoneLine(CanvasLocal, FSkeleton.GetJoint(1), FSkeleton.GetJoint(3), cosX, sinX, cosY, sinY, CX, CY, Scale, D, clRed, 3);
-  DrawBoneLine(CanvasLocal, FSkeleton.GetJoint(3), FSkeleton.GetJoint(4), cosX, sinX, cosY, sinY, CX, CY, Scale, D, clRed, 3);
-  
-  // Right arm
-  DrawBoneLine(CanvasLocal, FSkeleton.GetJoint(1), FSkeleton.GetJoint(5), cosX, sinX, cosY, sinY, CX, CY, Scale, D, clGreen, 3);
-  DrawBoneLine(CanvasLocal, FSkeleton.GetJoint(5), FSkeleton.GetJoint(6), cosX, sinX, cosY, sinY, CX, CY, Scale, D, clGreen, 3);
-  
-  // Left leg
-  DrawBoneLine(CanvasLocal, FSkeleton.GetJoint(0), FSkeleton.GetJoint(7), cosX, sinX, cosY, sinY, CX, CY, Scale, D, clRed, 3);
-  DrawBoneLine(CanvasLocal, FSkeleton.GetJoint(7), FSkeleton.GetJoint(8), cosX, sinX, cosY, sinY, CX, CY, Scale, D, clRed, 3);
-  
-  // Right leg
-  DrawBoneLine(CanvasLocal, FSkeleton.GetJoint(0), FSkeleton.GetJoint(9), cosX, sinX, cosY, sinY, CX, CY, Scale, D, clGreen, 3);
-  DrawBoneLine(CanvasLocal, FSkeleton.GetJoint(9), FSkeleton.GetJoint(10), cosX, sinX, cosY, sinY, CX, CY, Scale, D, clGreen, 3);
+  // 2. Draw skeleton bones hierarchically (fully generic loop)
+  for I := 0 to FSkeleton.GetJointCount - 1 do
+  begin
+    Joint := FSkeleton.GetJoint(I);
+    ParentIdx := Joint.ParentIndex;
+    if ParentIdx >= 0 then
+    begin
+      LineColor := clBlack;
+      if ContainsText(Joint.Name, 'left') then
+        LineColor := clRed
+      else if ContainsText(Joint.Name, 'right') then
+        LineColor := clGreen
+      else if ContainsText(Joint.Name, 'base') or ContainsText(Joint.Name, 'pelvis') then
+        LineColor := clNavy;
+        
+      DrawBoneLine(CanvasLocal, FSkeleton.GetJoint(ParentIdx), Joint, cosX, sinX, cosY, sinY, CX, CY, Scale, D, LineColor, 3);
+    end;
+  end;
 
   // 3. Draw joint dots
   for I := 0 to FSkeleton.GetJointCount - 1 do

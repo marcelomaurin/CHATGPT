@@ -35,32 +35,42 @@ object frmAvatarDemo: TfrmAvatarDemo
         Height = 15
         Top = 10
         Width = 150
-        Caption = 'Avatar Joint Kinematics'
+        Caption = 'Object Joint Kinematics'
         Font.Style = [fsBold]
         ParentColor = False
+      end
+      object btnLoadRig: TButton
+        Left = 10
+        Height = 25
+        Top = 30
+        Width = 238
+        Caption = 'Load Model / Rig File'
+        Font.Style = [fsBold]
+        OnClick = btnLoadRigClick
+        TabOrder = 0
       end
       object lblBoneSelect: TLabel
         Left = 10
         Height = 15
-        Top = 40
+        Top = 65
         Width = 150
-        Caption = 'Select Bone Joint:'
+        Caption = 'Select Joint / Object Part:'
         ParentColor = False
       end
       object cbBones: TComboBox
         Left = 10
         Height = 23
-        Top = 60
+        Top = 85
         Width = 238
         ItemHeight = 15
         OnChange = cbBonesChange
         Style = csDropDownList
-        TabOrder = 0
+        TabOrder = 1
       end
       object lblAxisSelect: TLabel
         Left = 10
         Height = 15
-        Top = 95
+        Top = 115
         Width = 150
         Caption = 'Select Rotation Axis:'
         ParentColor = False
@@ -68,17 +78,17 @@ object frmAvatarDemo: TfrmAvatarDemo
       object cbAxis: TComboBox
         Left = 10
         Height = 23
-        Top = 115
+        Top = 135
         Width = 238
         ItemHeight = 15
         OnChange = cbAxisChange
         Style = csDropDownList
-        TabOrder = 1
+        TabOrder = 2
       end
       object lblAngle: TLabel
         Left = 10
         Height = 15
-        Top = 150
+        Top = 170
         Width = 100
         Caption = 'Rotate Angle:'
         ParentColor = False
@@ -86,18 +96,18 @@ object frmAvatarDemo: TfrmAvatarDemo
       object tbAngle: TTrackBar
         Left = 10
         Height = 35
-        Top = 175
+        Top = 195
         Width = 190
         Max = 180
         Min = -180
         OnChange = tbAngleChange
         Position = 0
-        TabOrder = 2
+        TabOrder = 3
       end
       object lblAngleVal: TLabel
         Left = 210
         Height = 15
-        Top = 180
+        Top = 200
         Width = 40
         Caption = '0°'
         Font.Style = [fsBold]

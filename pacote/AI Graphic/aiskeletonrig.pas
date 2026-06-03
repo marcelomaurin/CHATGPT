@@ -5,7 +5,7 @@ unit aiskeletonrig;
 interface
 
 uses
-  Classes, SysUtils, Math, aibase;
+  Classes, SysUtils, Math, StrUtils, aibase;
 
 type
   TMatrix3x3 = array[0..2, 0..2] of Double;
@@ -34,6 +34,7 @@ type
     procedure RotateBone(const ABoneName: string; const Angle: Double);
     procedure SetBoneRotation(const ABoneName: string; const AX, AY, AZ: Double);
     procedure UpdateFK;
+    procedure LoadRigFromFile(const AFileName: string);
     
     function GetJointCount: Integer;
     function GetJoint(Index: Integer): TBoneJoint;
@@ -56,7 +57,7 @@ constructor TAISkeletonRig.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FCategory := ccOther;
-  FPrompt := 'Component TAISkeletonRig manages rigging joints and bone hierarchies. Properties: BonesList. Methods: RotateBone, SetBoneRotation, UpdateFK.';
+  FPrompt := 'Component TAISkeletonRig manages rigging joints and bone hierarchies. Properties: BonesList. Methods: RotateBone, SetBoneRotation, UpdateFK, LoadRigFromFile.';
   FBonesList := TStringList.Create;
   InitializeRig;
   ClearError;
@@ -179,7 +180,7 @@ begin
       FJoints[I].AngleX := AX;
       FJoints[I].AngleY := AY;
       FJoints[I].AngleZ := AZ;
-      Log(llDebug, Format('Set bone %s rotation to (%.1f, %.1f, %.1f)', [ABoneName, AX, AY, AZ]));
+      Log(llDebug, Format('Set joint %s rotation to (%.1f, %.1f, %.1f)', [ABoneName, AX, AY, AZ]));
       UpdateFK;
       Break;
     end;
@@ -280,6 +281,129 @@ begin
       FJoints[I].EndY := FJoints[I].StartY + OffsetGlobalY;
       FJoints[I].EndZ := FJoints[I].StartZ + OffsetGlobalZ;
     end;
+  end;
+end;
+
+procedure TAISkeletonRig.LoadRigFromFile(const AFileName: string);
+var
+  Lines: TStringList;
+  Tokens: TStringList;
+  ParentNames: TStringList;
+  I, JIdx: Integer;
+  Line: string;
+  LName, LParentName: string;
+  OX, OY, OZ: Double;
+  
+  function FindJointIndex(const AName: string): Integer;
+  var
+    K: Integer;
+  begin
+    Result := -1;
+    for K := 0 to JIdx - 1 do
+      if SameText(FJoints[K].Name, AName) then
+      begin
+        Result := K;
+        Break;
+      end;
+  end;
+
+  function ParseFloat(const S: string): Double;
+  var
+    FS: TFormatSettings;
+  begin
+    FS := DefaultFormatSettings;
+    if Pos('.', S) > 0 then
+      FS.DecimalSeparator := '.'
+    else if Pos(',', S) > 0 then
+      FS.DecimalSeparator := ',';
+    Result := StrToFloatDef(Trim(S), 0.0, FS);
+  end;
+
+begin
+  Log(llInfo, 'Loading rig from: ' + AFileName);
+  ClearError;
+  if not FileExists(AFileName) then
+  begin
+    SetError('Rig file not found: ' + AFileName);
+    Exit;
+  end;
+
+  Lines := TStringList.Create;
+  Tokens := TStringList.Create;
+  Tokens.Delimiter := '|';
+  Tokens.StrictDelimiter := True;
+  ParentNames := TStringList.Create;
+  try
+    try
+      Lines.LoadFromFile(AFileName);
+      
+      // First pass: count valid lines to allocate joints array
+      JIdx := 0;
+      for I := 0 to Lines.Count - 1 do
+      begin
+        Line := Trim(Lines[I]);
+        if (Line = '') or StartsText('#', Line) then Continue;
+        Inc(JIdx);
+      end;
+      
+      SetLength(FJoints, JIdx);
+      FBonesList.Clear;
+      
+      // Second pass: read joints and populate
+      JIdx := 0;
+      for I := 0 to Lines.Count - 1 do
+      begin
+        Line := Trim(Lines[I]);
+        if (Line = '') or StartsText('#', Line) then Continue;
+        
+        Tokens.DelimitedText := Line;
+        if Tokens.Count >= 5 then
+        begin
+          LName := Trim(Tokens[0]);
+          LParentName := Trim(Tokens[1]);
+          OX := ParseFloat(Tokens[2]);
+          OY := ParseFloat(Tokens[3]);
+          OZ := ParseFloat(Tokens[4]);
+          
+          FJoints[JIdx].Name := LName;
+          FJoints[JIdx].ParentIndex := -2;
+          FJoints[JIdx].OffsetX := OX;
+          FJoints[JIdx].OffsetY := OY;
+          FJoints[JIdx].OffsetZ := OZ;
+          FJoints[JIdx].AngleX := 0;
+          FJoints[JIdx].AngleY := 0;
+          FJoints[JIdx].AngleZ := 0;
+          
+          ParentNames.Add(LParentName);
+          FBonesList.Add(LName);
+          Inc(JIdx);
+        end;
+      end;
+      
+      // Third pass: resolve parent indices
+      for I := 0 to JIdx - 1 do
+      begin
+        LParentName := ParentNames[I];
+        if (LParentName = '') or (LParentName = '-1') then
+          FJoints[I].ParentIndex := -1
+        else
+          FJoints[I].ParentIndex := FindJointIndex(LParentName);
+      end;
+      
+      UpdateFK;
+      FLastResult := Format('Rig loaded successfully. Joints count: %d', [JIdx]);
+      FLastSuccess := True;
+      Log(llInfo, FLastResult);
+    except
+      on E: Exception do
+      begin
+        SetError('Error loading rig: ' + E.Message);
+      end;
+    end;
+  finally
+    ParentNames.Free;
+    Tokens.Free;
+    Lines.Free;
   end;
 end;
 

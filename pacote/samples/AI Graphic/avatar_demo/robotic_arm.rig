@@ -1,0 +1,7 @@
+# Name | ParentName | OffsetX | OffsetY | OffsetZ
+base | -1 | 0.0 | 0.15 | 0.0
+shoulder | base | 0.0 | 0.4 | 0.0
+elbow | shoulder | 0.0 | 0.35 | 0.0
+wrist | elbow | 0.0 | 0.25 | 0.0
+left_finger | wrist | -0.08 | 0.12 | 0.0
+right_finger | wrist | 0.08 | 0.12 | 0.0

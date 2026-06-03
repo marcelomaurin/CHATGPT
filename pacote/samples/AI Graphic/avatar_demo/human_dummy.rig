@@ -1,0 +1,12 @@
+# Name | ParentName | OffsetX | OffsetY | OffsetZ
+pelvis | -1 | 0.0 | 0.2 | 0.0
+spine | pelvis | 0.0 | 0.5 | 0.0
+head | spine | 0.0 | 0.3 | 0.0
+left_shoulder | spine | -0.3 | 0.0 | 0.0
+left_elbow | left_shoulder | -0.4 | 0.0 | 0.0
+right_shoulder | spine | 0.3 | 0.0 | 0.0
+right_elbow | right_shoulder | 0.4 | 0.0 | 0.0
+left_hip | pelvis | -0.15 | -0.5 | 0.0
+left_knee | left_hip | 0.0 | -0.5 | 0.0
+right_hip | pelvis | 0.15 | -0.5 | 0.0
+right_knee | right_hip | 0.0 | -0.5 | 0.0
