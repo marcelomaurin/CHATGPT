@@ -13,6 +13,7 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Lazarus](https://img.shields.io/badge/Lazarus-3.x-orange.svg)](https://www.lazarus-ide.org/)
 
+
 Uma suíte completa de componentes visuais e não visuais para Free Pascal / Lazarus desenvolvida para integrar **IA generativa e aprendizado de máquina (Machine Learning)** nativamente em suas aplicações. Suporta **OpenAI (ChatGPT)**, **Google Gemini**, **Anthropic Claude**, **OpenRouter**, **Cerebras**, **modelos locais via Ollama** e redes neurais locais.
 
 ---
@@ -185,10 +186,27 @@ Para que a comunicação HTTPS funcione no Windows, as DLLs OpenSSL adequadas pa
 ---
 ## Screen Shots
 ![CNN Demo](screenshots/cnn_demo.jpg)
+
 Detecção de objetos em Python
 
 ![math_input_output_demo](screenshots/math_input_output_demo.jpg)
+
 Biblioteca matematica demo
+
+![python_demo](screenshots/python_demo.jpg)
+
+Conecção com Python demo
+
+![som_demo](screenshots/som_demo.jpg)
+
+Demonstração de som
+
+![sound_filters](screenshots/sound_filters.jpg)
+
+Demonstração de filtro de som
+
+
+
 
 
 ---
