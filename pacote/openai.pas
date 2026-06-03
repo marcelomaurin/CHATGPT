@@ -1,3 +1,7 @@
+{ This file was automatically created by Lazarus. Do not edit!
+  This source is only used to compile and install the package.
+ }
+
 unit openai;
 
 {$warn 5023 off : no warning about unused units}
@@ -11,13 +15,14 @@ uses
   aiwebserver, aisockets, aiserial, aiposprinter, aicftvip, aimodbus, aimqtt, 
   aiemail, aimessenger, aiindustrial, aichromiumbrowser, aioscapture, 
   aioutput, aioutput_docs, aiproject, aipipeline, aipromptbuilder, aigraphmap, 
-  aibase, aiagentsafety, aiagent_executors, aitrainingexporter, aidatasetanalyzer, 
-  aitrainingreport, aigraphvisualizer, aimodelregistry, aiwizardconfig, 
-  frm_aiwizardconfig, aiscene2d3d, aitrainingenvironment, aiphysicssimulator, 
-  aisensorvirtual, airewardfunction, aimodel3d, ai3dmodelviewer, aiskeletonrig, 
-  aiavatarcontroller, aiposelibrary, aianimationsequence, aitripo3dclient, 
-  aiopencv, aicameracapture, aiframeprocessor, aifacetracker, aimotiontracker, 
-  LazarusPackageIntf;
+  aibase, aiagentsafety, aiagent_executors, aitrainingexporter, 
+  aidatasetanalyzer, aitrainingreport, aigraphvisualizer, aimodelregistry, 
+  aiwizardconfig, frm_aiwizardconfig, DBTokenList, GroupResponse, 
+  MatrizComponent, aiscene2d3d, aitrainingenvironment, aiphysicssimulator, 
+  aisensorvirtual, airewardfunction, aimodel3d, ai3dmodelviewer, 
+  aiskeletonrig, aiavatarcontroller, aiposelibrary, aianimationsequence, 
+  aitripo3dclient, aiopencv, aicameracapture, aiframeprocessor, aifacetracker, 
+  aimotiontracker, LazarusPackageIntf;
 
 implementation
 
@@ -69,6 +74,9 @@ begin
   RegisterUnit('aigraphvisualizer', @aigraphvisualizer.Register);
   RegisterUnit('aimodelregistry', @aimodelregistry.Register);
   RegisterUnit('aiwizardconfig', @aiwizardconfig.Register);
+  RegisterUnit('DBTokenList', @DBTokenList.Register);
+  RegisterUnit('GroupResponse', @GroupResponse.Register);
+  RegisterUnit('MatrizComponent', @MatrizComponent.Register);
   RegisterUnit('aiscene2d3d', @aiscene2d3d.Register);
   RegisterUnit('aitrainingenvironment', @aitrainingenvironment.Register);
   RegisterUnit('aiphysicssimulator', @aiphysicssimulator.Register);

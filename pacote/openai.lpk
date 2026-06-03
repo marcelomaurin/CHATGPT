@@ -263,6 +263,21 @@
         <UnitName Value="frm_aiwizardconfig"/>
       </Item>
       <Item>
+        <Filename Value="IA\dbtokenlist.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="DBTokenList"/>
+      </Item>
+      <Item>
+        <Filename Value="IA\groupresponse.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="GroupResponse"/>
+      </Item>
+      <Item>
+        <Filename Value="IA\matrizcomponent.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="MatrizComponent"/>
+      </Item>
+      <Item>
         <Filename Value="AI Graphic\aiscene2d3d.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiscene2d3d"/>
@@ -349,6 +364,9 @@
       </Item>
     </Files>
     <RequiredPkgs>
+      <Item>
+        <PackageName Value="zcomponent"/>
+      </Item>
       <Item>
         <PackageName Value="TurboPowerIpro"/>
       </Item>
