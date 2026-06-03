@@ -9,6 +9,16 @@ uses
   ComCtrls, Math, StrUtils, aiskeletonrig, aiavatarcontroller, aiposelibrary, aibase;
 
 type
+  TProjectedJoint = record
+    SX, SY: Integer;
+    SZ: Double;
+  end;
+
+  TDrawElement = record
+    IsBone: Boolean;
+    Index: Integer;
+    Depth: Double;
+  end;
 
   { TfrmAvatarDemo }
 
@@ -66,8 +76,8 @@ type
     procedure LogMsg(const AMsg: string);
     procedure ComponentLog(Sender: TObject; ALevel: TAILogLevel; const AMsg: string);
     procedure UpdateBoneControls;
-    procedure DrawJoint(ACanvas: TCanvas; const Joint: TBoneJoint; cosX, sinX, cosY, sinY: Double; CX, CY: Integer; Scale, D: Double);
-    procedure DrawBoneLine(ACanvas: TCanvas; const JStart, JEnd: TBoneJoint; cosX, sinX, cosY, sinY: Double; CX, CY: Integer; Scale, D: Double; AColor: TColor; Thickness: Integer);
+    procedure DrawJointProj(ACanvas: TCanvas; const Joint: TBoneJoint; const P: TProjectedJoint; Scale, D: Double);
+    procedure DrawSolidBoneProj(ACanvas: TCanvas; const PStart, PEnd: TProjectedJoint; AColor: TColor; Width3D: Double; Scale, D: Double; const ABoneName: string);
   public
 
   end;
@@ -321,76 +331,121 @@ begin
   pnlView.Invalidate;
 end;
 
-procedure TfrmAvatarDemo.DrawJoint(ACanvas: TCanvas; const Joint: TBoneJoint; cosX, sinX, cosY, sinY: Double; CX, CY: Integer; Scale, D: Double);
+procedure TfrmAvatarDemo.DrawJointProj(ACanvas: TCanvas; const Joint: TBoneJoint; const P: TProjectedJoint; Scale, D: Double);
 var
-  x1, y1, z1, x2, y2, z2: Double;
-  sx, sy: Integer;
   R: Integer;
+  BaseR: Double;
 begin
-  // Project end point of joint
-  x1 := Joint.EndX * cosY - Joint.EndZ * sinY;
-  z1 := Joint.EndX * sinY + Joint.EndZ * cosY;
-  y1 := Joint.EndY;
-  
-  y2 := y1 * cosX - z1 * sinX;
-  z2 := y1 * sinX + z1 * cosX;
-  x2 := x1;
-  
-  sx := CX + Round(x2 * Scale * D / (z2 + D));
-  sy := CY - Round(y2 * Scale * D / (z2 + D));
-  
-  R := Max(2, Round(8 * D / (z2 + D)));
-  
+  // Determine dynamic radius based on the joint type
   if SameText(Joint.Name, 'head') then
+    BaseR := 0.14
+  else if SameText(Joint.Name, 'pelvis') or SameText(Joint.Name, 'spine') or SameText(Joint.Name, 'chest') then
+    BaseR := 0.11
+  else if ContainsText(Joint.Name, 'hip') or ContainsText(Joint.Name, 'knee') or ContainsText(Joint.Name, 'thigh') then
+    BaseR := 0.095
+  else if ContainsText(Joint.Name, 'shoulder') or ContainsText(Joint.Name, 'clavicle') then
+    BaseR := 0.08
+  else if ContainsText(Joint.Name, 'elbow') then
+    BaseR := 0.07
+  else
+    BaseR := 0.055;
+
+  R := Round(BaseR * Scale * D / (P.SZ + D));
+  if R < 2 then R := 2;
+
+  // Head, Spine, Pelvis: draw alternating black & yellow calibration target markers
+  if SameText(Joint.Name, 'head') or SameText(Joint.Name, 'spine') or SameText(Joint.Name, 'pelvis') then
   begin
-    // Head oval
-    ACanvas.Brush.Color := RGBToColor(255, 210, 120);
-    ACanvas.Pen.Color := RGBToColor(200, 150, 80);
-    ACanvas.Ellipse(sx - R * 2, sy - R * 3, sx + R * 2, sy + R * 1);
-    
-    // Draw face cross or dummy crash test marker!
+    // Base circle in yellow
+    ACanvas.Brush.Color := RGBToColor(240, 200, 80);
+    ACanvas.Pen.Color := RGBToColor(160, 120, 20);
+    ACanvas.Ellipse(P.SX - R, P.SY - R, P.SX + R, P.SY + R);
+
+    // Alternating black quadrants
+    ACanvas.Brush.Color := clBlack;
     ACanvas.Pen.Color := clBlack;
-    ACanvas.Line(sx - R * 2, sy - R, sx + R * 2, sy - R);
-    ACanvas.Line(sx, sy - R * 3, sx, sy + R * 1);
+    ACanvas.Pie(P.SX - R, P.SY - R, P.SX + R, P.SY + R, P.SX + R, P.SY, P.SX, P.SY - R);
+    ACanvas.Pie(P.SX - R, P.SY - R, P.SX + R, P.SY + R, P.SX - R, P.SY, P.SX, P.SY + R);
+
+    // Cross lines
+    ACanvas.Pen.Color := clBlack;
+    ACanvas.Pen.Width := 1;
+    ACanvas.Line(P.SX - R, P.SY, P.SX + R, P.SY);
+    ACanvas.Line(P.SX, P.SY - R, P.SX, P.SY + R);
+
+    // Subtle highlight
+    ACanvas.Brush.Color := RGBToColor(255, 230, 130);
+    ACanvas.Pen.Color := clNone;
+    ACanvas.Ellipse(P.SX - R div 2, P.SY - R div 2, P.SX - R div 4, P.SY - R div 4);
   end
   else
   begin
-    // General joint marker
-    ACanvas.Brush.Color := clYellow;
-    ACanvas.Pen.Color := RGBToColor(255, 127, 0);
-    ACanvas.Ellipse(sx - R, sy - R, sx + R, sy + R);
+    // Dark steel mechanical ball joints with 3D radial highlights
+    ACanvas.Brush.Color := RGBToColor(45, 45, 50);
+    ACanvas.Pen.Color := RGBToColor(25, 25, 28);
+    ACanvas.Ellipse(P.SX - R, P.SY - R, P.SX + R, P.SY + R);
+
+    // Highlight
+    ACanvas.Brush.Color := RGBToColor(135, 135, 145);
+    ACanvas.Pen.Color := clNone;
+    ACanvas.Ellipse(P.SX - R div 2, P.SY - R div 2, P.SX - R div 6, P.SY - R div 6);
   end;
 end;
 
-procedure TfrmAvatarDemo.DrawBoneLine(ACanvas: TCanvas; const JStart, JEnd: TBoneJoint; cosX, sinX, cosY, sinY: Double; CX, CY: Integer; Scale, D: Double; AColor: TColor; Thickness: Integer);
+procedure TfrmAvatarDemo.DrawSolidBoneProj(ACanvas: TCanvas; const PStart, PEnd: TProjectedJoint; AColor: TColor; Width3D: Double; Scale, D: Double; const ABoneName: string);
 var
-  x1, y1, z1, x2, y2, z2: Double;
-  sx1, sy1, sx2, sy2: Integer;
+  w1, w2: Double;
+  dx, dy, len: Double;
+  nx, ny: Double;
+  pts: array[0..3] of TPoint;
 begin
-  // Start Point Project
-  x1 := JStart.EndX * cosY - JStart.EndZ * sinY;
-  z1 := JStart.EndX * sinY + JStart.EndZ * cosY;
-  y1 := JStart.EndY;
-  y2 := y1 * cosX - z1 * sinX;
-  z2 := y1 * sinX + z1 * cosX;
-  x2 := x1;
-  sx1 := CX + Round(x2 * Scale * D / (z2 + D));
-  sy1 := CY - Round(y2 * Scale * D / (z2 + D));
+  w1 := Width3D * Scale * D / (PStart.SZ + D);
+  w2 := Width3D * Scale * D / (PEnd.SZ + D);
   
-  // End Point Project
-  x1 := JEnd.EndX * cosY - JEnd.EndZ * sinY;
-  z1 := JEnd.EndX * sinY + JEnd.EndZ * cosY;
-  y1 := JEnd.EndY;
-  y2 := y1 * cosX - z1 * sinX;
-  z2 := y1 * sinX + z1 * cosX;
-  x2 := x1;
-  sx2 := CX + Round(x2 * Scale * D / (z2 + D));
-  sy2 := CY - Round(y2 * Scale * D / (z2 + D));
+  dx := PEnd.SX - PStart.SX;
+  dy := PEnd.SY - PStart.SY;
+  len := Sqrt(dx*dx + dy*dy);
   
-  ACanvas.Pen.Color := AColor;
-  ACanvas.Pen.Width := Thickness;
-  ACanvas.Line(sx1, sy1, sx2, sy2);
-  ACanvas.Pen.Width := 1; // restore
+  if len > 0.001 then
+  begin
+    nx := -dy / len;
+    ny := dx / len;
+    
+    pts[0].X := Round(PStart.SX + nx * w1 * 0.5);
+    pts[0].Y := Round(PStart.SY + ny * w1 * 0.5);
+    
+    pts[1].X := Round(PStart.SX - nx * w1 * 0.5);
+    pts[1].Y := Round(PStart.SY - ny * w1 * 0.5);
+    
+    pts[2].X := Round(PEnd.SX - nx * w2 * 0.5);
+    pts[2].Y := Round(PEnd.SY - ny * w2 * 0.5);
+    
+    pts[3].X := Round(PEnd.SX + nx * w2 * 0.5);
+    pts[3].Y := Round(PEnd.SY + ny * w2 * 0.5);
+    
+    ACanvas.Brush.Color := AColor;
+    ACanvas.Pen.Color := RGBToColor(Max(0, Red(AColor)-40), Max(0, Green(AColor)-40), Max(0, Blue(AColor)-40));
+    ACanvas.Polygon(pts);
+    
+    // Custom ribbed style for the neck to look like a real segmented crash dummy neck
+    if SameText(ABoneName, 'neck') then
+    begin
+      ACanvas.Pen.Color := RGBToColor(60, 60, 65);
+      ACanvas.Pen.Width := 2;
+      ACanvas.Line(Round(PStart.SX + (PEnd.SX - PStart.SX)*0.33 - nx * w1 * 0.45), Round(PStart.SY + (PEnd.SY - PStart.SY)*0.33 - ny * w1 * 0.45),
+                   Round(PStart.SX + (PEnd.SX - PStart.SX)*0.33 + nx * w1 * 0.45), Round(PStart.SY + (PEnd.SY - PStart.SY)*0.33 + ny * w1 * 0.45));
+      ACanvas.Line(Round(PStart.SX + (PEnd.SX - PStart.SX)*0.66 - nx * w1 * 0.45), Round(PStart.SY + (PEnd.SY - PStart.SY)*0.66 - ny * w1 * 0.45),
+                   Round(PStart.SX + (PEnd.SX - PStart.SX)*0.66 + nx * w1 * 0.45), Round(PStart.SY + (PEnd.SY - PStart.SY)*0.66 + ny * w1 * 0.45));
+      ACanvas.Pen.Width := 1;
+    end
+    else
+    begin
+      // Inner lighting line
+      ACanvas.Pen.Color := RGBToColor(Min(255, Red(AColor)+40), Min(255, Green(AColor)+40), Min(255, Blue(AColor)+40));
+      ACanvas.Line(Round(PStart.SX + nx * w1 * 0.1), Round(PStart.SY + ny * w1 * 0.1),
+                   Round(PEnd.SX + nx * w2 * 0.1), Round(PEnd.SY + ny * w2 * 0.1));
+    end;
+  end;
 end;
 
 procedure TfrmAvatarDemo.pnlViewPaint(Sender: TObject);
@@ -401,15 +456,21 @@ var
   D: Double;
   radX, radY: Double;
   cosX, sinX, cosY, sinY: Double;
-  I: Integer;
+  I, J, Idx, ParentIdx: Integer;
   Joint: TBoneJoint;
-  ParentIdx: Integer;
   LineColor: TColor;
+  Width3D: Double;
   
   // Floor grid points
   GX, GZ: Double;
   sx, sy: Integer;
-  x1, z1, y2, z2, x2: Double;
+  x1, y1, z1, y2, z2, x2: Double;
+  
+  // Projection list and elements array
+  Proj: array of TProjectedJoint;
+  Elements: array of TDrawElement;
+  ElementCount: Integer;
+  Tmp: TDrawElement;
 begin
   CanvasLocal := pnlView.Canvas;
   CanvasLocal.Brush.Color := clWhite;
@@ -472,30 +533,115 @@ begin
     CanvasLocal.LineTo(sx, sy);
   end;
 
-  // 2. Draw skeleton bones hierarchically (fully generic loop)
+  if FSkeleton.GetJointCount = 0 then Exit;
+
+  // 2. Project all joint coordinates
+  SetLength(Proj, FSkeleton.GetJointCount);
   for I := 0 to FSkeleton.GetJointCount - 1 do
   begin
     Joint := FSkeleton.GetJoint(I);
-    ParentIdx := Joint.ParentIndex;
-    if ParentIdx >= 0 then
-    begin
-      LineColor := clBlack;
-      if ContainsText(Joint.Name, 'left') then
-        LineColor := clRed
-      else if ContainsText(Joint.Name, 'right') then
-        LineColor := clGreen
-      else if ContainsText(Joint.Name, 'base') or ContainsText(Joint.Name, 'pelvis') then
-        LineColor := clNavy;
-        
-      DrawBoneLine(CanvasLocal, FSkeleton.GetJoint(ParentIdx), Joint, cosX, sinX, cosY, sinY, CX, CY, Scale, D, LineColor, 3);
-    end;
+    x1 := Joint.EndX * cosY - Joint.EndZ * sinY;
+    z1 := Joint.EndX * sinY + Joint.EndZ * cosY;
+    y1 := Joint.EndY;
+    
+    y2 := y1 * cosX - z1 * sinX;
+    z2 := y1 * sinX + z1 * cosX;
+    x2 := x1;
+    
+    Proj[I].SX := CX + Round(x2 * Scale * D / (z2 + D));
+    Proj[I].SY := CY - Round(y2 * Scale * D / (z2 + D));
+    Proj[I].SZ := z2;
   end;
 
-  // 3. Draw joint dots
+  // 3. Build draw elements (joints and bones)
+  SetLength(Elements, FSkeleton.GetJointCount * 2);
+  ElementCount := 0;
+  
   for I := 0 to FSkeleton.GetJointCount - 1 do
   begin
-    Joint := FSkeleton.GetJoint(I);
-    DrawJoint(CanvasLocal, Joint, cosX, sinX, cosY, sinY, CX, CY, Scale, D);
+    // Add Joint element (with slight depth bias of -0.02 to ensure it is drawn on top of its connected bones)
+    Elements[ElementCount].IsBone := False;
+    Elements[ElementCount].Index := I;
+    Elements[ElementCount].Depth := Proj[I].SZ - 0.02;
+    Inc(ElementCount);
+    
+    // Add Bone element if joint has parent
+    ParentIdx := FSkeleton.GetJoint(I).ParentIndex;
+    if ParentIdx >= 0 then
+    begin
+      Elements[ElementCount].IsBone := True;
+      Elements[ElementCount].Index := I;
+      Elements[ElementCount].Depth := (Proj[I].SZ + Proj[ParentIdx].SZ) * 0.5;
+      Inc(ElementCount);
+    end;
+  end;
+  
+  SetLength(Elements, ElementCount);
+
+  // 4. Sort elements using depth (farthest first / descending)
+  for I := 0 to ElementCount - 2 do
+    for J := I + 1 to ElementCount - 1 do
+      if Elements[I].Depth < Elements[J].Depth then
+      begin
+        Tmp := Elements[I];
+        Elements[I] := Elements[J];
+        Elements[J] := Tmp;
+      end;
+
+  // 5. Draw elements in sorted order (Painter's Algorithm)
+  for I := 0 to ElementCount - 1 do
+  begin
+    Idx := Elements[I].Index;
+    Joint := FSkeleton.GetJoint(Idx);
+    
+    if Elements[I].IsBone then
+    begin
+      ParentIdx := Joint.ParentIndex;
+      LineColor := RGBToColor(210, 210, 215);
+      Width3D := 0.08;
+      
+      if SameText(Joint.Name, 'spine') or SameText(Joint.Name, 'chest') then
+      begin
+        LineColor := RGBToColor(240, 200, 80); // Yellow chest/spine block
+        Width3D := 0.22;
+      end
+      else if SameText(Joint.Name, 'pelvis') then
+      begin
+        LineColor := RGBToColor(240, 200, 80); // Yellow pelvis block
+        Width3D := 0.22;
+      end
+      else if SameText(Joint.Name, 'neck') then
+      begin
+        LineColor := RGBToColor(140, 140, 145); // Grey neck
+        Width3D := 0.07;
+      end
+      else if ContainsText(Joint.Name, 'left') or ContainsText(Joint.Name, 'l_') or StartsText('l', Joint.Name) then
+      begin
+        LineColor := RGBToColor(240, 100, 100); // Reddish segments for left limbs
+        if ContainsText(Joint.Name, 'hip') or ContainsText(Joint.Name, 'knee') or ContainsText(Joint.Name, 'thigh') or ContainsText(Joint.Name, 'leg') or ContainsText(Joint.Name, 'shin') then
+          Width3D := 0.11
+        else if ContainsText(Joint.Name, 'shoulder') or ContainsText(Joint.Name, 'clavicle') then
+          Width3D := 0.09
+        else
+          Width3D := 0.07;
+      end
+      else if ContainsText(Joint.Name, 'right') or ContainsText(Joint.Name, 'r_') or StartsText('r', Joint.Name) then
+      begin
+        LineColor := RGBToColor(100, 200, 100); // Greenish segments for right limbs
+        if ContainsText(Joint.Name, 'hip') or ContainsText(Joint.Name, 'knee') or ContainsText(Joint.Name, 'thigh') or ContainsText(Joint.Name, 'leg') or ContainsText(Joint.Name, 'shin') then
+          Width3D := 0.11
+        else if ContainsText(Joint.Name, 'shoulder') or ContainsText(Joint.Name, 'clavicle') then
+          Width3D := 0.09
+        else
+          Width3D := 0.07;
+      end;
+      
+      DrawSolidBoneProj(CanvasLocal, Proj[ParentIdx], Proj[Idx], LineColor, Width3D, Scale, D, Joint.Name);
+    end
+    else
+    begin
+      DrawJointProj(CanvasLocal, Joint, Proj[Idx], Scale, D);
+    end;
   end;
   
   // Draw Coordinate axes at corner

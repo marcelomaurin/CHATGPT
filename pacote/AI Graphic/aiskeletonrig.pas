@@ -79,7 +79,7 @@ end;
 
 procedure TAISkeletonRig.InitializeRig;
 begin
-  SetLength(FJoints, 11);
+  SetLength(FJoints, 12);
   
   // 0. Pelvis/Root
   FJoints[0].Name := 'pelvis';
@@ -90,70 +90,77 @@ begin
   // 1. Spine (child of Pelvis)
   FJoints[1].Name := 'spine';
   FJoints[1].ParentIndex := 0;
-  FJoints[1].OffsetX := 0; FJoints[1].OffsetY := 0.5; FJoints[1].OffsetZ := 0;
+  FJoints[1].OffsetX := 0; FJoints[1].OffsetY := 0.4; FJoints[1].OffsetZ := 0;
   FJoints[1].AngleX := 0; FJoints[1].AngleY := 0; FJoints[1].AngleZ := 0;
   
-  // 2. Head (child of Spine)
-  FJoints[2].Name := 'head';
+  // 2. Neck (child of Spine)
+  FJoints[2].Name := 'neck';
   FJoints[2].ParentIndex := 1;
-  FJoints[2].OffsetX := 0; FJoints[2].OffsetY := 0.3; FJoints[2].OffsetZ := 0;
+  FJoints[2].OffsetX := 0; FJoints[2].OffsetY := 0.1; FJoints[2].OffsetZ := 0;
   FJoints[2].AngleX := 0; FJoints[2].AngleY := 0; FJoints[2].AngleZ := 0;
   
-  // Left Arm
-  // 3. Left Shoulder (child of Spine)
-  FJoints[3].Name := 'left_shoulder';
-  FJoints[3].ParentIndex := 1;
-  FJoints[3].OffsetX := -0.3; FJoints[3].OffsetY := 0; FJoints[3].OffsetZ := 0;
+  // 3. Head (child of Neck)
+  FJoints[3].Name := 'head';
+  FJoints[3].ParentIndex := 2;
+  FJoints[3].OffsetX := 0; FJoints[3].OffsetY := 0.2; FJoints[3].OffsetZ := 0;
   FJoints[3].AngleX := 0; FJoints[3].AngleY := 0; FJoints[3].AngleZ := 0;
   
-  // 4. Left Elbow (child of Left Shoulder)
-  FJoints[4].Name := 'left_elbow';
-  FJoints[4].ParentIndex := 3;
-  FJoints[4].OffsetX := -0.4; FJoints[4].OffsetY := 0; FJoints[4].OffsetZ := 0;
+  // Left Arm
+  // 4. Left Shoulder (child of Spine)
+  FJoints[4].Name := 'left_shoulder';
+  FJoints[4].ParentIndex := 1;
+  FJoints[4].OffsetX := -0.3; FJoints[4].OffsetY := 0; FJoints[4].OffsetZ := 0;
   FJoints[4].AngleX := 0; FJoints[4].AngleY := 0; FJoints[4].AngleZ := 0;
   
-  // Right Arm
-  // 5. Right Shoulder (child of Spine)
-  FJoints[5].Name := 'right_shoulder';
-  FJoints[5].ParentIndex := 1;
-  FJoints[5].OffsetX := 0.3; FJoints[5].OffsetY := 0; FJoints[5].OffsetZ := 0;
+  // 5. Left Elbow (child of Left Shoulder)
+  FJoints[5].Name := 'left_elbow';
+  FJoints[5].ParentIndex := 4;
+  FJoints[5].OffsetX := -0.4; FJoints[5].OffsetY := 0; FJoints[5].OffsetZ := 0;
   FJoints[5].AngleX := 0; FJoints[5].AngleY := 0; FJoints[5].AngleZ := 0;
   
-  // 6. Right Elbow (child of Right Shoulder)
-  FJoints[6].Name := 'right_elbow';
-  FJoints[6].ParentIndex := 5;
-  FJoints[6].OffsetX := 0.4; FJoints[6].OffsetY := 0; FJoints[6].OffsetZ := 0;
+  // Right Arm
+  // 6. Right Shoulder (child of Spine)
+  FJoints[6].Name := 'right_shoulder';
+  FJoints[6].ParentIndex := 1;
+  FJoints[6].OffsetX := 0.3; FJoints[6].OffsetY := 0; FJoints[6].OffsetZ := 0;
   FJoints[6].AngleX := 0; FJoints[6].AngleY := 0; FJoints[6].AngleZ := 0;
   
-  // Left Leg
-  // 7. Left Hip (child of Pelvis)
-  FJoints[7].Name := 'left_hip';
-  FJoints[7].ParentIndex := 0;
-  FJoints[7].OffsetX := -0.15; FJoints[7].OffsetY := -0.5; FJoints[7].OffsetZ := 0;
+  // 7. Right Elbow (child of Right Shoulder)
+  FJoints[7].Name := 'right_elbow';
+  FJoints[7].ParentIndex := 6;
+  FJoints[7].OffsetX := 0.4; FJoints[7].OffsetY := 0; FJoints[7].OffsetZ := 0;
   FJoints[7].AngleX := 0; FJoints[7].AngleY := 0; FJoints[7].AngleZ := 0;
   
-  // 8. Left Knee (child of Left Hip)
-  FJoints[8].Name := 'left_knee';
-  FJoints[8].ParentIndex := 7;
-  FJoints[8].OffsetX := 0; FJoints[8].OffsetY := -0.5; FJoints[8].OffsetZ := 0;
+  // Left Leg
+  // 8. Left Hip (child of Pelvis)
+  FJoints[8].Name := 'left_hip';
+  FJoints[8].ParentIndex := 0;
+  FJoints[8].OffsetX := -0.15; FJoints[8].OffsetY := -0.5; FJoints[8].OffsetZ := 0;
   FJoints[8].AngleX := 0; FJoints[8].AngleY := 0; FJoints[8].AngleZ := 0;
   
-  // Right Leg
-  // 9. Right Hip (child of Pelvis)
-  FJoints[9].Name := 'right_hip';
-  FJoints[9].ParentIndex := 0;
-  FJoints[9].OffsetX := 0.15; FJoints[9].OffsetY := -0.5; FJoints[9].OffsetZ := 0;
+  // 9. Left Knee (child of Left Hip)
+  FJoints[9].Name := 'left_knee';
+  FJoints[9].ParentIndex := 8;
+  FJoints[9].OffsetX := 0; FJoints[9].OffsetY := -0.5; FJoints[9].OffsetZ := 0;
   FJoints[9].AngleX := 0; FJoints[9].AngleY := 0; FJoints[9].AngleZ := 0;
   
-  // 10. Right Knee (child of Right Hip)
-  FJoints[10].Name := 'right_knee';
-  FJoints[10].ParentIndex := 9;
-  FJoints[10].OffsetX := 0; FJoints[10].OffsetY := -0.5; FJoints[10].OffsetZ := 0;
+  // Right Leg
+  // 10. Right Hip (child of Pelvis)
+  FJoints[10].Name := 'right_hip';
+  FJoints[10].ParentIndex := 0;
+  FJoints[10].OffsetX := 0.15; FJoints[10].OffsetY := -0.5; FJoints[10].OffsetZ := 0;
   FJoints[10].AngleX := 0; FJoints[10].AngleY := 0; FJoints[10].AngleZ := 0;
+  
+  // 11. Right Knee (child of Right Hip)
+  FJoints[11].Name := 'right_knee';
+  FJoints[11].ParentIndex := 10;
+  FJoints[11].OffsetX := 0; FJoints[11].OffsetY := -0.5; FJoints[11].OffsetZ := 0;
+  FJoints[11].AngleX := 0; FJoints[11].AngleY := 0; FJoints[11].AngleZ := 0;
   
   FBonesList.Clear;
   FBonesList.Add('pelvis');
   FBonesList.Add('spine');
+  FBonesList.Add('neck');
   FBonesList.Add('head');
   FBonesList.Add('left_shoulder');
   FBonesList.Add('left_elbow');
@@ -529,7 +536,7 @@ var
       if (Attr <> nil) and SameText(Attr.NodeValue, 'JOINT') then
         IsJoint := True;
         
-      if SameText(ANode.NodeName, 'node') and (IsJoint or (LName <> '')) then
+      if SameText(ANode.NodeName, 'node') and IsJoint then
       begin
         SetLength(FJoints, JIdx + 1);
         FJoints[JIdx].Name := LName;
@@ -613,7 +620,10 @@ begin
   try
     RootObj := Parser.Parse as TJSONObject;
     try
-      NodesArray := RootObj.Arrays['nodes'];
+      NodesArray := nil;
+      if RootObj.IndexOfName('nodes') >= 0 then
+        NodesArray := RootObj.Arrays['nodes'];
+        
       if NodesArray = nil then
       begin
         SetError('gltf file does not contain a "nodes" array.');
@@ -627,7 +637,10 @@ begin
       for I := 0 to JIdx - 1 do
       begin
         NodeObj := NodesArray.Objects[I];
-        LName := NodeObj.Strings['name'];
+        
+        LName := '';
+        if NodeObj.IndexOfName('name') >= 0 then
+          LName := NodeObj.Strings['name'];
         if LName = '' then
           LName := 'node_' + IntToStr(I);
           
@@ -640,7 +653,10 @@ begin
         FJoints[I].AngleY := 0;
         FJoints[I].AngleZ := 0;
         
-        Translation := NodeObj.Arrays['translation'];
+        Translation := nil;
+        if NodeObj.IndexOfName('translation') >= 0 then
+          Translation := NodeObj.Arrays['translation'];
+          
         if (Translation <> nil) and (Translation.Count >= 3) then
         begin
           FJoints[I].OffsetX := Translation.Items[0].AsFloat;
@@ -654,7 +670,11 @@ begin
       for I := 0 to JIdx - 1 do
       begin
         NodeObj := NodesArray.Objects[I];
-        ChildrenArray := NodeObj.Arrays['children'];
+        
+        ChildrenArray := nil;
+        if NodeObj.IndexOfName('children') >= 0 then
+          ChildrenArray := NodeObj.Arrays['children'];
+          
         if ChildrenArray <> nil then
         begin
           for J := 0 to ChildrenArray.Count - 1 do
@@ -778,7 +798,7 @@ var
   PyScript: TStringList;
   Process: TProcess;
   I: Integer;
-  SearchPaths: array[0..4] of string;
+  SearchPaths: array[0..5] of string;
   Found: Boolean;
 begin
   Log(llInfo, 'Attempting to load Blender (.blend) file: ' + AFileName);
@@ -787,15 +807,16 @@ begin
   Found := False;
   BlenderPath := '';
   
-  SearchPaths[0] := 'C:\Program Files\Blender Foundation\Blender 4.2\blender.exe';
-  SearchPaths[1] := 'C:\Program Files\Blender Foundation\Blender 4.1\blender.exe';
-  SearchPaths[2] := 'C:\Program Files\Blender Foundation\Blender 4.0\blender.exe';
-  SearchPaths[3] := 'C:\Program Files\Blender Foundation\Blender 3.6\blender.exe';
-  SearchPaths[4] := 'blender.exe';
+  SearchPaths[0] := 'C:\Program Files\Blender Foundation\Blender 4.3\blender.exe';
+  SearchPaths[1] := 'C:\Program Files\Blender Foundation\Blender 4.2\blender.exe';
+  SearchPaths[2] := 'C:\Program Files\Blender Foundation\Blender 4.1\blender.exe';
+  SearchPaths[3] := 'C:\Program Files\Blender Foundation\Blender 4.0\blender.exe';
+  SearchPaths[4] := 'C:\Program Files\Blender Foundation\Blender 3.6\blender.exe';
+  SearchPaths[5] := 'blender.exe';
   
-  for I := 0 to 4 do
+  for I := 0 to 5 do
   begin
-    if (I < 4) and FileExists(SearchPaths[I]) then
+    if (I < 5) and FileExists(SearchPaths[I]) then
     begin
       BlenderPath := SearchPaths[I];
       Found := True;
@@ -824,7 +845,7 @@ begin
     PyScript.Add('        bpy.context.view_layer.objects.active = obj');
     PyScript.Add('        break');
     PyScript.Add('if armature_obj:');
-    PyScript.Add('    bpy.ops.export_scene.gltf(filepath=r"' + TempOutPath + '", export_format="GLTF_EMBEDDED", export_selected=True)');
+    PyScript.Add('    bpy.ops.export_scene.gltf(filepath=r"' + TempOutPath + '", export_format="GLTF_SEPARATE", use_selection=True)');
     PyScript.Add('    print("EXPORT_SUCCESS")');
     PyScript.Add('else:');
     PyScript.Add('    print("NO_ARMATURE_FOUND")');

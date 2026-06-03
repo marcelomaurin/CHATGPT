@@ -5,60 +5,133 @@
   },
   "scenes": [
     {
-      "nodes": [0]
+      "nodes": [
+        0
+      ]
     }
   ],
   "scene": 0,
   "nodes": [
     {
       "name": "pelvis",
-      "translation": [0.0, 0.2, 0.0],
-      "children": [1, 7, 9]
+      "translation": [
+        0.0,
+        0.2,
+        0.0
+      ],
+      "children": [
+        1,
+        8,
+        10
+      ]
     },
     {
       "name": "spine",
-      "translation": [0.0, 0.5, 0.0],
-      "children": [2, 3, 5]
+      "translation": [
+        0.0,
+        0.4,
+        0.0
+      ],
+      "children": [
+        2,
+        4,
+        6
+      ]
+    },
+    {
+      "name": "neck",
+      "translation": [
+        0.0,
+        0.1,
+        0.0
+      ],
+      "children": [
+        3
+      ]
     },
     {
       "name": "head",
-      "translation": [0.0, 0.3, 0.0]
+      "translation": [
+        0.0,
+        0.2,
+        0.0
+      ]
     },
     {
       "name": "left_shoulder",
-      "translation": [-0.3, 0.0, 0.0],
-      "children": [4]
+      "translation": [
+        -0.3,
+        0.0,
+        0.0
+      ],
+      "children": [
+        5
+      ]
     },
     {
       "name": "left_elbow",
-      "translation": [-0.4, 0.0, 0.0]
+      "translation": [
+        -0.4,
+        0.0,
+        0.0
+      ]
     },
     {
       "name": "right_shoulder",
-      "translation": [0.3, 0.0, 0.0],
-      "children": [6]
+      "translation": [
+        0.3,
+        0.0,
+        0.0
+      ],
+      "children": [
+        7
+      ]
     },
     {
       "name": "right_elbow",
-      "translation": [0.4, 0.0, 0.0]
+      "translation": [
+        0.4,
+        0.0,
+        0.0
+      ]
     },
     {
       "name": "left_hip",
-      "translation": [-0.15, -0.5, 0.0],
-      "children": [8]
+      "translation": [
+        -0.15,
+        -0.5,
+        0.0
+      ],
+      "children": [
+        9
+      ]
     },
     {
       "name": "left_knee",
-      "translation": [0.0, -0.5, 0.0]
+      "translation": [
+        0.0,
+        -0.5,
+        0.0
+      ]
     },
     {
       "name": "right_hip",
-      "translation": [0.15, -0.5, 0.0],
-      "children": [10]
+      "translation": [
+        0.15,
+        -0.5,
+        0.0
+      ],
+      "children": [
+        11
+      ]
     },
     {
       "name": "right_knee",
-      "translation": [0.0, -0.5, 0.0]
+      "translation": [
+        0.0,
+        -0.5,
+        0.0
+      ]
     }
   ]
 }
