@@ -84,6 +84,21 @@ A suíte instala na paleta de componentes do Lazarus quatro abas repletas de fer
 
 ---
 
+### Aba: `IA Graph` (Estruturação e Exportação de Modelos baseados em Grafos)
+
+*   **`TAIGraphMap`**: Grafo de pesos ponderados para classificação de textos baseados em tokens. Expõe listas públicas de nós e conexões para mapeamento de tópicos.
+*   **`TAITrainingExporter`**: Exportador de datasets em diversos formatos como CSV, JSON, JSONL (fine-tuning para OpenAI e outros LLMs), ARFF e vetores numéricos para treinamento local de redes neurais.
+*   **`TAIDatasetAnalyzer`**: Analisador local de qualidade do dataset. Detecta categorias vazias, exemplos duplicados, desequilíbrio de classes e textos curtos/longos.
+*   **`TAITrainingReport`**: Gerador de relatórios técnicos completos (acurácia, perda, tokens, confiança média) com exportação nativa formatada.
+*   **`TAIGraphVisualizer`**: Exportador e visualizador de grafos de decisão em formatos como DOT (GraphViz), Mermaid e JSON de visualização.
+
+---
+
+### Aba: `IA Project` (Configuração e Registro de Modelos)
+
+*   **`TAIWizardConfig`**: Assistente e orquestrador de configuração visual e programática para novos projetos de IA (chatbot, classificador, pipeline, agente).
+*   **`TAIModelRegistry`**: Registro central de modelos de IA, provedores, endpoints e parâmetros padrão (temperatura, max tokens), permitindo atualização flexível em tempo de execução sem alterar código-fonte.
+
 ---
 
 ## Uso Rápido (Assistente de Código)
@@ -168,7 +183,7 @@ end;
 2. Navegue até a pasta `pacote/` e selecione **`openai.lpk`**
 3. Clique em **Compile** para compilar o pacote
 4. Clique em **Use > Install** — o Lazarus pedirá para reconstruir a IDE
-5. Após reiniciar, os 5 componentes estarão disponíveis na aba **IA** da paleta de componentes.
+5. Após reiniciar, os componentes estarão disponíveis em suas respectivas abas na paleta de componentes do Lazarus.
 
 ---
 
@@ -185,6 +200,10 @@ Para que a comunicação HTTPS funcione no Windows, as DLLs OpenSSL adequadas pa
 
 ---
 ## Screen Shots
+
+> [!NOTE]
+> Demos visuais e screenshots para os novos componentes das abas **IA Graph** e **IA Project** (incluindo o assistente visual de `TAIWizardConfig`) estão atualmente pendentes e planejados para desenvolvimento futuro. Um programa de teste de integração de ponta a ponta em console está disponível e funcional em [test_new_components.lpr](file:///D:/projetos/maurinsoft/CHATGPT/tests/test_new_components.lpr).
+
 ![CNN Demo](screenshots/cnn_demo.jpg)
 
 Detecção de objetos em Python

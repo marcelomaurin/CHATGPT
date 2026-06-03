@@ -31,6 +31,7 @@ type
     procedure AddDataRow(const AInput, AOutput: string);
     procedure Clear;
     function Count: Integer;
+    property Items: TList read FItems;
 
     // Salva no formato padrão JSONL (JSON Lines) para Fine-Tuning de LLMs (OpenAI, Ollama)
     procedure SaveAsJSONL(const AFileName: string);

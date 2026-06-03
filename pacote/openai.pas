@@ -15,7 +15,9 @@ uses
   aiwebserver, aisockets, aiserial, aiposprinter, aicftvip, aimodbus, aimqtt, 
   aiemail, aimessenger, aiindustrial, aichromiumbrowser, aioscapture, 
   aioutput, aioutput_docs, aiproject, aipipeline, aipromptbuilder, aigraphmap, 
-  aibase, aiagentsafety, aiagent_executors, LazarusPackageIntf;
+  aibase, aiagentsafety, aiagent_executors, aitrainingexporter, aidatasetanalyzer, 
+  aitrainingreport, aigraphvisualizer, aimodelregistry, aiwizardconfig, 
+  frm_aiwizardconfig, LazarusPackageIntf;
 
 implementation
 
@@ -61,6 +63,12 @@ begin
   RegisterUnit('aipromptbuilder', @aipromptbuilder.Register);
   RegisterUnit('aigraphmap', @aigraphmap.Register);
   RegisterUnit('aiagentsafety', @aiagentsafety.Register);
+  RegisterUnit('aitrainingexporter', @aitrainingexporter.Register);
+  RegisterUnit('aidatasetanalyzer', @aidatasetanalyzer.Register);
+  RegisterUnit('aitrainingreport', @aitrainingreport.Register);
+  RegisterUnit('aigraphvisualizer', @aigraphvisualizer.Register);
+  RegisterUnit('aimodelregistry', @aimodelregistry.Register);
+  RegisterUnit('aiwizardconfig', @aiwizardconfig.Register);
 end;
 
 initialization

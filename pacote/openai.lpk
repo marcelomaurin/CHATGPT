@@ -228,6 +228,40 @@
         <Filename Value="IA Agent\aiagent_executors.pas"/>
         <UnitName Value="aiagent_executors"/>
       </Item>
+      <Item>
+        <Filename Value="IA Graph\aitrainingexporter.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aitrainingexporter"/>
+      </Item>
+      <Item>
+        <Filename Value="IA Graph\aidatasetanalyzer.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aidatasetanalyzer"/>
+      </Item>
+      <Item>
+        <Filename Value="IA Graph\aitrainingreport.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aitrainingreport"/>
+      </Item>
+      <Item>
+        <Filename Value="IA Graph\aigraphvisualizer.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aigraphvisualizer"/>
+      </Item>
+      <Item>
+        <Filename Value="IA\aimodelregistry.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aimodelregistry"/>
+      </Item>
+      <Item>
+        <Filename Value="IA\aiwizardconfig.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiwizardconfig"/>
+      </Item>
+      <Item>
+        <Filename Value="IA\frm_aiwizardconfig.pas"/>
+        <UnitName Value="frm_aiwizardconfig"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>

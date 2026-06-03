@@ -43,9 +43,9 @@ type
     function Tokenize(const AText: string): TStrings; virtual; abstract;
   end;
 
-  { TAITrainingExporter }
+  { TAIBaseTrainingExporter }
 
-  TAITrainingExporter = class(TComponent)
+  TAIBaseTrainingExporter = class(TAIBaseComponent)
   public
     procedure ExportData(ATraining: TAITrainingCollection); virtual; abstract;
     procedure ImportData(ATraining: TAITrainingCollection); virtual; abstract;
@@ -151,9 +151,6 @@ type
     FOnGraphChanged: TNotifyEvent;
     FOnError: TAIErrorEvent;
     
-    function FindNode(const AText: string; AType: TAIGraphNodeType): TAIGraphNode;
-    function FindNodeById(AId: Integer): TAIGraphNode;
-    function FindEdge(AFromId, AToId: Integer): TAIGraphEdge;
     function CreateNode(const AText: string; AType: TAIGraphNodeType): TAIGraphNode;
     function CreateEdge(AFromId, AToId: Integer; AWeight: Double): TAIGraphEdge;
     
@@ -172,6 +169,10 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     
+    function FindNode(const AText: string; AType: TAIGraphNodeType): TAIGraphNode;
+    function FindNodeById(AId: Integer): TAIGraphNode;
+    function FindEdge(AFromId, AToId: Integer): TAIGraphEdge;
+
     procedure ClearGraph;
     procedure ClearTraining;
     
@@ -199,11 +200,13 @@ type
     procedure SaveGraphAsDOT(const AFileName: string);
     procedure SaveGraphAsGEXF(const AFileName: string);
     procedure SaveGraphAsCSV(const ANodeFile, AEdgeFile: string);
-    procedure ExportTraining(AExporter: TAITrainingExporter);
-    procedure ImportTraining(AExporter: TAITrainingExporter);
+    procedure ExportTraining(AExporter: TAIBaseTrainingExporter);
+    procedure ImportTraining(AExporter: TAIBaseTrainingExporter);
     
     property NodeCount: Integer read FNodeCount;
     property EdgeCount: Integer read FEdgeCount;
+    property Nodes: TList read FNodes;
+    property Edges: TList read FEdges;
   published
     property Training: TAITrainingCollection read FTraining write FTraining;
     
@@ -1752,7 +1755,7 @@ begin
   end;
 end;
 
-procedure TAIGraphMap.ExportTraining(AExporter: TAITrainingExporter);
+procedure TAIGraphMap.ExportTraining(AExporter: TAIBaseTrainingExporter);
 begin
   if Assigned(AExporter) then
     AExporter.ExportData(FTraining)
@@ -1760,7 +1763,7 @@ begin
     DoError('Exporter is not assigned.');
 end;
 
-procedure TAIGraphMap.ImportTraining(AExporter: TAITrainingExporter);
+procedure TAIGraphMap.ImportTraining(AExporter: TAIBaseTrainingExporter);
 begin
   if Assigned(AExporter) then
   begin

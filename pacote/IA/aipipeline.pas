@@ -47,6 +47,10 @@ type
     FModbusStartAddress: Integer;
     FModbusRegisterCount: Integer;
     FIndustrialPromptTemplate: string;
+    FTrainingExporter: TComponent;
+    FDatasetAnalyzer: TComponent;
+    FTrainingReport: TComponent;
+    FGraphVisualizer: TComponent;
   public
     constructor Create(AOwner: TComponent); override;
     
@@ -83,6 +87,10 @@ type
     property ModbusStartAddress: Integer read FModbusStartAddress write FModbusStartAddress default 0;
     property ModbusRegisterCount: Integer read FModbusRegisterCount write FModbusRegisterCount default 10;
     property IndustrialPromptTemplate: string read FIndustrialPromptTemplate write FIndustrialPromptTemplate;
+    property TrainingExporter: TComponent read FTrainingExporter write FTrainingExporter;
+    property DatasetAnalyzer: TComponent read FDatasetAnalyzer write FDatasetAnalyzer;
+    property TrainingReport: TComponent read FTrainingReport write FTrainingReport;
+    property GraphVisualizer: TComponent read FGraphVisualizer write FGraphVisualizer;
   end;
 
 procedure Register;
@@ -118,6 +126,10 @@ begin
   FModbusStartAddress := 0;
   FModbusRegisterCount := 10;
   FIndustrialPromptTemplate := 'Determine if the following industrial telemetries indicate an anomaly, error, or critical state. Telemetry details: ';
+  FTrainingExporter := nil;
+  FDatasetAnalyzer := nil;
+  FTrainingReport := nil;
+  FGraphVisualizer := nil;
   ClearError;
 end;
 
