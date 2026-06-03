@@ -5,7 +5,7 @@ unit aiscene2d3d;
 interface
 
 uses
-  Classes, SysUtils, Graphics, fpjson, jsonparser, aibase;
+  Classes, SysUtils, Graphics, fpjson, jsonparser, aibase, LResources;
 
 type
   TSceneMode = (sm2D, sm3D);
@@ -113,5 +113,8 @@ begin
     JSONObj.Free;
   end;
 end;
+
+initialization
+  {$I aiscene2d3d_icon.lrs}
 
 end.

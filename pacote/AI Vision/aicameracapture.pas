@@ -5,7 +5,7 @@ unit aicameracapture;
 interface
 
 uses
-  Classes, SysUtils, aibase;
+  Classes, SysUtils, aibase, LResources;
 
 type
   { TAICameraCapture }
@@ -81,5 +81,8 @@ begin
   Result := TObject.Create;
   Log(llDebug, 'Queried frame from camera.');
 end;
+
+initialization
+  {$I aicameracapture_icon.lrs}
 
 end.

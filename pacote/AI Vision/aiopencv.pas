@@ -5,7 +5,7 @@ unit aiopencv;
 interface
 
 uses
-  Classes, SysUtils, aibase;
+  Classes, SysUtils, aibase, LResources;
 
 type
   { TAIOpenCV }
@@ -80,5 +80,8 @@ begin
   end;
   Log(llInfo, 'Applied OpenCV filter: ' + AFilterType);
 end;
+
+initialization
+  {$I aiopencv_icon.lrs}
 
 end.

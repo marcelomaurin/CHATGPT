@@ -5,7 +5,7 @@ unit aitrainingreport;
 interface
 
 uses
-  Classes, SysUtils, StrUtils, aibase, aigraphmap, aitrainingexporter, aioutput_docs, LazUTF8;
+  Classes, SysUtils, StrUtils, aibase, aigraphmap, aitrainingexporter, aioutput_docs, LazUTF8, LResources;
 
 type
   { TAITrainingReport }
@@ -409,5 +409,8 @@ begin
     LList.Free;
   end;
 end;
+
+initialization
+  {$I aitrainingreport_icon.lrs}
 
 end.

@@ -5,7 +5,7 @@ unit aimotiontracker;
 interface
 
 uses
-  Classes, SysUtils, aibase;
+  Classes, SysUtils, aibase, LResources;
 
 type
   { TAIMotionTracker }
@@ -45,5 +45,8 @@ begin
   Result := False;
   Log(llDebug, 'Comparing frames for motion.');
 end;
+
+initialization
+  {$I aimotiontracker_icon.lrs}
 
 end.

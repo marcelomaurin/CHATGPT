@@ -5,7 +5,7 @@ unit aitrainingenvironment;
 interface
 
 uses
-  Classes, SysUtils, aibase, aiscene2d3d;
+  Classes, SysUtils, aibase, aiscene2d3d, LResources;
 
 type
   { TAITrainingEnvironment }
@@ -104,5 +104,8 @@ function TAITrainingEnvironment.IsEpisodeDone: Boolean;
 begin
   Result := FCurrentStep >= FMaxStepsPerEpisode;
 end;
+
+initialization
+  {$I aitrainingenvironment_icon.lrs}
 
 end.

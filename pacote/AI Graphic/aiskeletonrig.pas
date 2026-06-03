@@ -5,7 +5,7 @@ unit aiskeletonrig;
 interface
 
 uses
-  Classes, SysUtils, Math, StrUtils, aibase, DOM, XMLRead, fpjson, jsonparser, Process;
+  Classes, SysUtils, Math, StrUtils, aibase, DOM, XMLRead, fpjson, jsonparser, Process, LResources;
 
 type
   TMatrix3x3 = array[0..2, 0..2] of Double;
@@ -1056,5 +1056,8 @@ begin
   else
     FillChar(Result, SizeOf(Result), 0);
 end;
+
+initialization
+  {$I aiskeletonrig_icon.lrs}
 
 end.

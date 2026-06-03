@@ -21,6 +21,12 @@ font = {
     'W': [[1,0,0,0,1],[1,0,0,0,1],[1,0,1,0,1],[1,1,0,1,1],[1,0,0,0,1]],
     'X': [[1,0,0,0,1],[0,1,0,1,0],[0,0,1,0,0],[0,1,0,1,0],[1,0,0,0,1]],
     'Y': [[1,0,0,0,1],[0,1,0,1,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0]],
+    'F': [[1,1,1,1,1],[1,0,0,0,0],[1,1,1,1,0],[1,0,0,0,0],[1,0,0,0,0]],
+    'H': [[1,0,0,0,1],[1,0,0,0,1],[1,1,1,1,1],[1,0,0,0,1],[1,0,0,0,1]],
+    'K': [[1,0,0,0,1],[1,0,1,0,0],[1,1,0,0,0],[1,0,1,0,0],[1,0,0,0,1]],
+    'V': [[1,0,0,0,1],[1,0,0,0,1],[0,1,0,1,0],[0,1,0,1,0],[0,0,1,0,0]],
+    '3': [[1,1,1,1,0],[0,0,0,0,1],[0,1,1,1,0],[0,0,0,0,1],[1,1,1,1,0]],
+    'Z': [[1,1,1,1,1],[0,0,0,1,0],[0,0,1,0,0],[0,1,0,0,0],[1,1,1,1,1]],
 }
 
 def make_bmp(pixels_rgb_flat):
@@ -99,6 +105,10 @@ C_OUTPUT = [50, 100, 220]
 C_MATH = [150, 50, 200]
 C_PROJECT = [50, 180, 180]
 C_VOICE = [230, 130, 20]
+C_GRAPHIC = [180, 80, 180]
+C_VISION = [0, 150, 150]
+C_GRAPH = [100, 100, 255]
+C_ML = [255, 128, 0]
 
 icons_config = {
     # IA Agent
@@ -193,6 +203,87 @@ icons_config = {
     'IA/aipromptbuilder_icon.lrs': [
         ('taipromptbuilder', C_PROJECT, 'PB'),
     ],
+    
+    # IA Graph / Models
+    'IA Graph/aigraphmap_icon.lrs': [
+        ('taigraphmap', C_GRAPH, 'GM'),
+    ],
+    'IA Graph/aitrainingexporter_icon.lrs': [
+        ('taitrainingexporter', C_GRAPH, 'TE'),
+    ],
+    'IA Graph/aidatasetanalyzer_icon.lrs': [
+        ('taidatasetanalyzer', C_GRAPH, 'DA'),
+    ],
+    'IA Graph/aitrainingreport_icon.lrs': [
+        ('taitrainingreport', C_GRAPH, 'TR'),
+    ],
+    'IA Graph/aigraphvisualizer_icon.lrs': [
+        ('taigraphvisualizer', C_GRAPH, 'GV'),
+    ],
+    'IA/aimodelregistry_icon.lrs': [
+        ('taimodelregistry', C_PROJECT, 'MR'),
+    ],
+    'IA/aiwizardconfig_icon.lrs': [
+        ('taiwizardconfig', C_PROJECT, 'WC'),
+    ],
+    'IA/matrizcomponent_icon.lrs': [
+        ('tamatrizcomponent', C_ML, 'MC'),
+    ],
+
+    # AI Graphic
+    'AI Graphic/aiscene2d3d_icon.lrs': [
+        ('taiscene2d3d', C_GRAPHIC, 'SC'),
+    ],
+    'AI Graphic/aitrainingenvironment_icon.lrs': [
+        ('taitrainingenvironment', C_GRAPHIC, 'EN'),
+    ],
+    'AI Graphic/aiphysicssimulator_icon.lrs': [
+        ('taiphysicssimulator', C_GRAPHIC, 'PH'),
+    ],
+    'AI Graphic/aisensorvirtual_icon.lrs': [
+        ('taisensorvirtual', C_GRAPHIC, 'SV'),
+    ],
+    'AI Graphic/airewardfunction_icon.lrs': [
+        ('tairewardfunction', C_GRAPHIC, 'RF'),
+    ],
+    'AI Graphic/aimodel3d_icon.lrs': [
+        ('taimodel3d', C_GRAPHIC, 'M3'),
+    ],
+    'AI Graphic/ai3dmodelviewer_icon.lrs': [
+        ('tai3dmodelviewer', C_GRAPHIC, 'VW'),
+    ],
+    'AI Graphic/aiskeletonrig_icon.lrs': [
+        ('taiskeletonrig', C_GRAPHIC, 'SK'),
+    ],
+    'AI Graphic/aiavatarcontroller_icon.lrs': [
+        ('taiavatarcontroller', C_GRAPHIC, 'AV'),
+    ],
+    'AI Graphic/aiposelibrary_icon.lrs': [
+        ('taiposelibrary', C_GRAPHIC, 'PS'),
+    ],
+    'AI Graphic/aianimationsequence_icon.lrs': [
+        ('taianimationsequence', C_GRAPHIC, 'AS'),
+    ],
+    'AI Graphic/aitripo3dclient_icon.lrs': [
+        ('taitripo3dclient', C_GRAPHIC, 'T3'),
+    ],
+
+    # AI Vision
+    'AI Vision/aiopencv_icon.lrs': [
+        ('taiopencv', C_VISION, 'CV'),
+    ],
+    'AI Vision/aicameracapture_icon.lrs': [
+        ('taicameracapture', C_VISION, 'CC'),
+    ],
+    'AI Vision/aiframeprocessor_icon.lrs': [
+        ('taiframeprocessor', C_VISION, 'FP'),
+    ],
+    'AI Vision/aifacetracker_icon.lrs': [
+        ('taifacetracker', C_VISION, 'FT'),
+    ],
+    'AI Vision/aimotiontracker_icon.lrs': [
+        ('taimotiontracker', C_VISION, 'MT'),
+    ],
 }
 
 def patch_pas_file(file_path, lrs_filename):
@@ -228,9 +319,9 @@ def patch_pas_file(file_path, lrs_filename):
             return
             
         # Add initialization section before end.
-        init_idx = content.lower().rfind("initialization")
-        if init_idx != -1 and init_idx > content.lower().rfind("implementation"):
-            pos = init_idx + len("initialization")
+        init_match = re.search(r'^\s*initialization\b', content, re.IGNORECASE | re.MULTILINE)
+        if init_match:
+            pos = init_match.end()
             content = content[:pos] + f"\n  {include_str}\n" + content[pos:]
             print(f"Patched existing initialization block in {file_path}")
         else:
@@ -289,6 +380,31 @@ def main():
         ('IA/aiproject.pas', 'aiproject_icon.lrs'),
         ('IA/aipipeline.pas', 'aipipeline_icon.lrs'),
         ('IA/aipromptbuilder.pas', 'aipromptbuilder_icon.lrs'),
+        ('IA Graph/aigraphmap.pas', 'aigraphmap_icon.lrs'),
+        ('IA Graph/aitrainingexporter.pas', 'aitrainingexporter_icon.lrs'),
+        ('IA Graph/aidatasetanalyzer.pas', 'aidatasetanalyzer_icon.lrs'),
+        ('IA Graph/aitrainingreport.pas', 'aitrainingreport_icon.lrs'),
+        ('IA Graph/aigraphvisualizer.pas', 'aigraphvisualizer_icon.lrs'),
+        ('IA/aimodelregistry.pas', 'aimodelregistry_icon.lrs'),
+        ('IA/aiwizardconfig.pas', 'aiwizardconfig_icon.lrs'),
+        ('IA/matrizcomponent.pas', 'matrizcomponent_icon.lrs'),
+        ('AI Graphic/aiscene2d3d.pas', 'aiscene2d3d_icon.lrs'),
+        ('AI Graphic/aitrainingenvironment.pas', 'aitrainingenvironment_icon.lrs'),
+        ('AI Graphic/aiphysicssimulator.pas', 'aiphysicssimulator_icon.lrs'),
+        ('AI Graphic/aisensorvirtual.pas', 'aisensorvirtual_icon.lrs'),
+        ('AI Graphic/airewardfunction.pas', 'airewardfunction_icon.lrs'),
+        ('AI Graphic/aimodel3d.pas', 'aimodel3d_icon.lrs'),
+        ('AI Graphic/ai3dmodelviewer.pas', 'ai3dmodelviewer_icon.lrs'),
+        ('AI Graphic/aiskeletonrig.pas', 'aiskeletonrig_icon.lrs'),
+        ('AI Graphic/aiavatarcontroller.pas', 'aiavatarcontroller_icon.lrs'),
+        ('AI Graphic/aiposelibrary.pas', 'aiposelibrary_icon.lrs'),
+        ('AI Graphic/aianimationsequence.pas', 'aianimationsequence_icon.lrs'),
+        ('AI Graphic/aitripo3dclient.pas', 'aitripo3dclient_icon.lrs'),
+        ('AI Vision/aiopencv.pas', 'aiopencv_icon.lrs'),
+        ('AI Vision/aicameracapture.pas', 'aicameracapture_icon.lrs'),
+        ('AI Vision/aiframeprocessor.pas', 'aiframeprocessor_icon.lrs'),
+        ('AI Vision/aifacetracker.pas', 'aifacetracker_icon.lrs'),
+        ('AI Vision/aimotiontracker.pas', 'aimotiontracker_icon.lrs'),
     ]
     
     for pas_rel_path, lrs_filename in patches:

@@ -5,7 +5,7 @@ unit aigraphvisualizer;
 interface
 
 uses
-  Classes, SysUtils, aibase, aigraphmap, aioutput_docs, LazUTF8, fpjson, jsonparser;
+  Classes, SysUtils, aibase, aigraphmap, aioutput_docs, LazUTF8, fpjson, jsonparser, LResources;
 
 type
   { TAIGraphVisualizer }
@@ -460,5 +460,8 @@ begin
     LOut.Free;
   end;
 end;
+
+initialization
+  {$I aigraphvisualizer_icon.lrs}
 
 end.

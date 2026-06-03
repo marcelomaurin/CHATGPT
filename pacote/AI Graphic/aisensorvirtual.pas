@@ -5,7 +5,7 @@ unit aisensorvirtual;
 interface
 
 uses
-  Classes, SysUtils, aibase;
+  Classes, SysUtils, aibase, LResources;
 
 type
   TSensorType = (stDistance, stCollision, stTarget);
@@ -60,5 +60,8 @@ begin
   Result := False;
   Log(llDebug, 'Reading collision sensor.');
 end;
+
+initialization
+  {$I aisensorvirtual_icon.lrs}
 
 end.

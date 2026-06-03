@@ -5,7 +5,7 @@ unit aianimationsequence;
 interface
 
 uses
-  Classes, SysUtils, aibase;
+  Classes, SysUtils, aibase, LResources;
 
 type
   { TAIAnimationSequence }
@@ -57,5 +57,8 @@ begin
   FLastResult := 'Animation stopped.';
   FLastSuccess := True;
 end;
+
+initialization
+  {$I aianimationsequence_icon.lrs}
 
 end.

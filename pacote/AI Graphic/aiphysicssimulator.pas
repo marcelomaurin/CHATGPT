@@ -5,7 +5,7 @@ unit aiphysicssimulator;
 interface
 
 uses
-  Classes, SysUtils, aibase;
+  Classes, SysUtils, aibase, LResources;
 
 type
   { TAIPhysicsSimulator }
@@ -50,5 +50,8 @@ procedure TAIPhysicsSimulator.ApplyForce(const AObjectID: string; const AX, AY, 
 begin
   Log(llDebug, Format('Applied force to object %s: (%.2f, %.2f, %.2f)', [AObjectID, AX, AY, AZ]));
 end;
+
+initialization
+  {$I aiphysicssimulator_icon.lrs}
 
 end.

@@ -5,7 +5,7 @@ unit aitripo3dclient;
 interface
 
 uses
-  Classes, SysUtils, fphttpclient, opensslsockets, fpjson, jsonparser, aibase;
+  Classes, SysUtils, fphttpclient, opensslsockets, fpjson, jsonparser, aibase, LResources;
 
 type
   TTripoMode = (tmImageTo3D, tmMultiViewTo3D, tmTextTo3D);
@@ -364,5 +364,8 @@ begin
     Client.Free;
   end;
 end;
+
+initialization
+  {$I aitripo3dclient_icon.lrs}
 
 end.

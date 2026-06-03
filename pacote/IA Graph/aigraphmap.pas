@@ -1798,4 +1798,7 @@ begin
   FNegativeRelations.Assign(AValue);
 end;
 
+initialization
+  {$I aigraphmap_icon.lrs}
+
 end.

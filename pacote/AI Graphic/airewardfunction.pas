@@ -5,7 +5,7 @@ unit airewardfunction;
 interface
 
 uses
-  Classes, SysUtils, aibase;
+  Classes, SysUtils, aibase, LResources;
 
 type
   { TAIRewardFunction }
@@ -48,5 +48,8 @@ begin
   Result := 0.0;
   Log(llDebug, 'Calculating reward for state.');
 end;
+
+initialization
+  {$I airewardfunction_icon.lrs}
 
 end.

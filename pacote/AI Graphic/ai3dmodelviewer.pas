@@ -5,7 +5,7 @@ unit ai3dmodelviewer;
 interface
 
 uses
-  Classes, SysUtils, Controls, Graphics, Math, aimodel3d, aibase;
+  Classes, SysUtils, Controls, Graphics, Math, aimodel3d, aibase, LResources;
 
 type
   TRenderMode = (rmSolid, rmWireframe, rmPoints);
@@ -376,5 +376,8 @@ begin
   FLastResult := 'Screenshot exported.';
   FLastSuccess := True;
 end;
+
+initialization
+  {$I ai3dmodelviewer_icon.lrs}
 
 end.

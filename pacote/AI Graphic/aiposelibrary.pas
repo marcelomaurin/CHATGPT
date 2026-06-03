@@ -5,7 +5,7 @@ unit aiposelibrary;
 interface
 
 uses
-  Classes, SysUtils, aibase, aiskeletonrig;
+  Classes, SysUtils, aibase, aiskeletonrig, LResources;
 
 type
   { TAIPoseLibrary }
@@ -64,5 +64,8 @@ begin
   else
     SetError('Skeleton rig not assigned.');
 end;
+
+initialization
+  {$I aiposelibrary_icon.lrs}
 
 end.

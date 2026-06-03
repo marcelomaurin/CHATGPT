@@ -5,7 +5,7 @@ unit aifacetracker;
 interface
 
 uses
-  Classes, SysUtils, aibase;
+  Classes, SysUtils, aibase, LResources;
 
 type
   { TAIFaceTracker }
@@ -49,5 +49,8 @@ begin
   AH := 0;
   Log(llDebug, 'Tracking face in frame.');
 end;
+
+initialization
+  {$I aifacetracker_icon.lrs}
 
 end.

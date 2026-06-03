@@ -5,7 +5,7 @@ unit aiwizardconfig;
 interface
 
 uses
-  Classes, SysUtils, Controls, aibase, chatgpt, aiproject, aipipeline, aimodelregistry, aipromptbuilder, frm_aiwizardconfig, fpjson, jsonparser;
+  Classes, SysUtils, Controls, aibase, chatgpt, aiproject, aipipeline, aimodelregistry, aipromptbuilder, frm_aiwizardconfig, fpjson, jsonparser, LResources;
 
 type
   { TAIWizardConfig }
@@ -299,5 +299,8 @@ begin
     LList.Free;
   end;
 end;
+
+initialization
+  {$I aiwizardconfig_icon.lrs}
 
 end.

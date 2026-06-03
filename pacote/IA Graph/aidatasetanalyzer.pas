@@ -5,7 +5,7 @@ unit aidatasetanalyzer;
 interface
 
 uses
-  Classes, SysUtils, aibase, aigraphmap, aitrainingexporter, LazUTF8;
+  Classes, SysUtils, aibase, aigraphmap, aitrainingexporter, LazUTF8, LResources;
 
 type
   { TAIDatasetAnalyzer }
@@ -374,5 +374,8 @@ begin
     LReport.Free;
   end;
 end;
+
+initialization
+  {$I aidatasetanalyzer_icon.lrs}
 
 end.

@@ -5,7 +5,7 @@ unit aimodelregistry;
 interface
 
 uses
-  Classes, SysUtils, fpjson, jsonparser, aibase, chatgpt;
+  Classes, SysUtils, fpjson, jsonparser, aibase, chatgpt, LResources;
 
 type
   { TAIModelItem }
@@ -384,5 +384,8 @@ begin
     LList.Free;
   end;
 end;
+
+initialization
+  {$I aimodelregistry_icon.lrs}
 
 end.

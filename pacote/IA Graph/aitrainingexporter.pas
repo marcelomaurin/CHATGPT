@@ -5,7 +5,7 @@ unit aitrainingexporter;
 interface
 
 uses
-  Classes, SysUtils, fpjson, jsonparser, aibase, aigraphmap, aipipeline, aiinput, aioutput, aidatasetgenerator, aioutput_docs, LazUTF8;
+  Classes, SysUtils, fpjson, jsonparser, aibase, aigraphmap, aipipeline, aiinput, aioutput, aidatasetgenerator, aioutput_docs, LazUTF8, LResources;
 
 type
   TAIExportFormat = (
@@ -808,5 +808,8 @@ begin
     LOut.Free;
   end;
 end;
+
+initialization
+  {$I aitrainingexporter_icon.lrs}
 
 end.

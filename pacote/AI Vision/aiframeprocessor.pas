@@ -5,7 +5,7 @@ unit aiframeprocessor;
 interface
 
 uses
-  Classes, SysUtils, aibase;
+  Classes, SysUtils, aibase, LResources;
 
 type
   { TAIFrameProcessor }
@@ -48,5 +48,8 @@ begin
   Result := AFrame;
   Log(llDebug, 'Processed frame.');
 end;
+
+initialization
+  {$I aiframeprocessor_icon.lrs}
 
 end.

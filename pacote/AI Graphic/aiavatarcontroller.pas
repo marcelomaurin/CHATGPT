@@ -5,7 +5,7 @@ unit aiavatarcontroller;
 interface
 
 uses
-  Classes, SysUtils, aibase, aiskeletonrig;
+  Classes, SysUtils, aibase, aiskeletonrig, LResources;
 
 type
   TAvatarExpression = (exNeutral, exHappy, exSad, exThinking);
@@ -83,5 +83,8 @@ begin
   FLastResult := 'Expression set: ' + AExpression;
   FLastSuccess := True;
 end;
+
+initialization
+  {$I aiavatarcontroller_icon.lrs}
 
 end.

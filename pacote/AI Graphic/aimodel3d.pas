@@ -5,7 +5,7 @@ unit aimodel3d;
 interface
 
 uses
-  Classes, SysUtils, StrUtils, aibase;
+  Classes, SysUtils, StrUtils, aibase, LResources;
 
 type
   TVertex3D = record
@@ -314,5 +314,8 @@ procedure TAIModel3D.Rotate(const AX, AY, AZ: Double);
 begin
   Log(llDebug, Format('Rotated model: (%.2f, %.2f, %.2f)', [AX, AY, AZ]));
 end;
+
+initialization
+  {$I aimodel3d_icon.lrs}
 
 end.

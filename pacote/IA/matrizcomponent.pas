@@ -5,7 +5,7 @@ unit MatrizComponent;
 interface
 
 uses
-  Classes, SysUtils;
+  Classes, SysUtils, LResources;
 
 type
   TAMatriz = class
@@ -167,6 +167,9 @@ begin
   RegisterComponents('AI Machine Learning', [TAMatrizComponent]);
   RegisterComponents('IA', [TAMatrizComponent]);
 end;
+
+initialization
+  {$I matrizcomponent_icon.lrs}
 
 end.
 
