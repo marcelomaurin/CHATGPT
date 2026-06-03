@@ -5,8 +5,13 @@
     <PathDelim Value="\"/>
     <General>
       <SessionStorage Value="InProjectDir"/>
-      <Title Value="tripo3d_demo"/>
+      <Title Value="opencv_vision_demo"/>
+      <Scaled Value="True"/>
+      <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>
+      <XPManifest>
+        <DpiAware Value="True"/>
+      </XPManifest>
     </General>
     <BuildModes>
       <Item Name="Default" Default="True"/>
@@ -28,8 +33,15 @@
     </RequiredPackages>
     <Units>
       <Unit>
-        <Filename Value="tripo3d_demo.lpr"/>
+        <Filename Value="opencv_vision_demo.lpr"/>
         <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="main.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmOpenCVVisionDemo"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
       </Unit>
     </Units>
   </ProjectOptions>
@@ -37,11 +49,11 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="tripo3d_demo"/>
+      <Filename Value="opencv_vision_demo"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\..\..\pacote;..\..\..\pacote\IA;..\..\..\pacote\AI Graphic;..\..\..\pacote\AI Vision"/>
+      <OtherUnitFiles Value="..\..\..;..\..\..\IA;..\..\..\AI Graphic;..\..\..\AI Vision"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
   </CompilerOptions>

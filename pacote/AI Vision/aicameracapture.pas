@@ -19,6 +19,7 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure StartCapture;
     procedure StopCapture;
+    function QueryFrame: TObject;
   published
     property CameraIndex: Integer read FCameraIndex write FCameraIndex default 0;
     property Active: Boolean read FActive write SetActive default False;
@@ -39,7 +40,7 @@ constructor TAICameraCapture.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FCategory := ccOther;
-  FPrompt := 'Component TAICameraCapture captures raw frames from camera inputs. Properties: CameraIndex, Active. Methods: StartCapture, StopCapture.';
+  FPrompt := 'Component TAICameraCapture captures raw frames from camera inputs. Properties: CameraIndex, Active. Methods: StartCapture, StopCapture, QueryFrame.';
   FCameraIndex := 0;
   FActive := False;
   ClearError;
@@ -70,6 +71,15 @@ begin
   Log(llInfo, 'Stopped camera capture.');
   FLastResult := 'Capture inactive.';
   FLastSuccess := True;
+end;
+
+function TAICameraCapture.QueryFrame: TObject;
+begin
+  Result := nil;
+  if not FActive then
+    Exit;
+  Result := TObject.Create;
+  Log(llDebug, 'Queried frame from camera.');
 end;
 
 end.

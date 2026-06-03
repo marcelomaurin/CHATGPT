@@ -24,6 +24,8 @@ The following examples are visual projects ready for compilation and interactive
 | **[schedule_demo/](IA Schedulle/schedule_demo/)** | Automated cron task scheduler and queue timeline manager. | `TIASchedule` | Resolves task dependency trees using cron configurations and saves setups to JSON. |
 | **[hardware_net_demo/](IA Input/hardware_net_demo/)** | Advanced hardware, network, PLC, and IoT client showcase. | `TAICameraInput, TAIMQTTClient, TAIEmailClient, TAIMessenger, TAIIndustrialBridge, TAIChromiumBrowser, TAIOSInputCapture` | Captures video frames, reads MQTT broker topics, sends emails, bridges Profinet CLPs, and logs global events. |
 | **[graphmap_demo/](IA/graphmap_demo/)** | Text classification and routing using weighted token graph maps. | `TAIGraphMap` | Allows adding training phrases and target categories, training the model, and visualizing category ranking and weight-based explanations. |
+| **[tripo3d_demo/](AI Graphic/tripo3d_demo/)** | 3D model generation using Tripo3D API (Image-to-3D / Text-to-3D). | `TAITripo3DClient, TAI3DModelViewer, TAIModel3D` | Sends images or text to the Tripo3D API, monitors the task progress, and renders the output STL/OBJ mesh in OpenGL. |
+| **[opencv_vision_demo/](AI Vision/opencv_vision_demo/)** | Visual capture, processing, and tracking utilizing the AI Vision suite. | `TAIOpenCV, TAICameraCapture, TAIFrameProcessor, TAIFaceTracker, TAIMotionTracker` | Graphical interface for camera control, grayscale/equalization filtering, and real-time face/motion tracking. |
 
 ## 💻 Command Line Interface (Console) Demonstrations
 These examples demonstrate direct component invocation via command line for rapid debugging or automation scenarios:

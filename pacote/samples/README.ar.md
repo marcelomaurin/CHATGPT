@@ -24,6 +24,8 @@
 | **[schedule_demo/](IA Schedulle/schedule_demo/)** | مجدول المهام الدورية والزمنية cron. | `TIASchedule` | Resolves task dependency trees using cron configurations and saves setups to JSON. |
 | **[hardware_net_demo/](IA Input/hardware_net_demo/)** | عرض متكامل لأتمتة الأجهزة، الشبكات، والتحكم الصناعي. | `TAICameraInput, TAIMQTTClient, TAIEmailClient, TAIMessenger, TAIIndustrialBridge, TAIChromiumBrowser, TAIOSInputCapture` | Captures video frames, reads MQTT broker topics, sends emails, bridges Profinet CLPs, and logs global events. |
 | **[graphmap_demo/](IA/graphmap_demo/)** | تصنيف وتوجيه النصوص باستخدام خرائط الرسوم البيانية الموزونة للرموز. | `TAIGraphMap` | Allows adding training phrases and target categories, training the model, and visualizing category ranking and weight-based explanations. |
+| **[tripo3d_demo/](AI Graphic/tripo3d_demo/)** | إنشاء نماذج ثلاثية الأبعاد عبر واجهة برمجة تطبيقات Tripo3D (صورة إلى ثلاثي الأبعاد / نص إلى ثلاثي الأبعاد). | `TAITripo3DClient, TAI3DModelViewer, TAIModel3D` | Sends images or text to the Tripo3D API, monitors the task progress, and renders the output STL/OBJ mesh in OpenGL. |
+| **[opencv_vision_demo/](AI Vision/opencv_vision_demo/)** | التقاط ومعالجة وتتبع مرئي باستخدام مجموعة AI Vision. | `TAIOpenCV, TAICameraCapture, TAIFrameProcessor, TAIFaceTracker, TAIMotionTracker` | Graphical interface for camera control, grayscale/equalization filtering, and real-time face/motion tracking. |
 
 ## 💻 مشاريع توضيحية لسطر الأوامر (Console)
 توضح هذه الأمثلة الاستدعاء المباشر للمكونات عبر سطر الأوامر لسيناريوهات تصحيح الأخطاء السريعة وأتمتة العمليات الدورية:
