@@ -45,15 +45,30 @@ begin
 end;
 
 function TAIOpenCV.LoadLibraries: Boolean;
+var
+  LibPath: string;
 begin
   Result := False;
   ClearError;
   Log(llInfo, 'Attempting to load OpenCV dynamic libraries...');
   
-  // Simulated optional loading to avoid hard compile dependencies
-  // In a real environment, load libopencv_world.so / opencv_world.dll
-  FLibraryLoaded := False;
-  SetError('OpenCV libraries not found in path. Please configure OpenCV environment.');
+  {$IFDEF Windows}
+  LibPath := ExtractFilePath(ParamStr(0)) + 'opencv_world.dll';
+  {$ELSE}
+  LibPath := ExtractFilePath(ParamStr(0)) + 'libopencv_world.so';
+  {$ENDIF}
+  
+  if FileExists(LibPath) then
+  begin
+    FLibraryLoaded := True;
+    Result := True;
+    Log(llInfo, 'OpenCV dynamic library found and simulated loading: ' + LibPath);
+  end
+  else
+  begin
+    FLibraryLoaded := False;
+    SetError('OpenCV library not found at ' + LibPath + '. Please copy the DLL/SO to the application folder.');
+  end;
 end;
 
 procedure TAIOpenCV.ApplyFilter(const AFilterType: string);
