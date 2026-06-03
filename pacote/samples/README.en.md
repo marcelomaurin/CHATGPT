@@ -26,6 +26,7 @@ The following examples are visual projects ready for compilation and interactive
 | **[graphmap_demo/](IA/graphmap_demo/)** | Text classification and routing using weighted token graph maps. | `TAIGraphMap` | Allows adding training phrases and target categories, training the model, and visualizing category ranking and weight-based explanations. |
 | **[tripo3d_demo/](AI Graphic/tripo3d_demo/)** | 3D model generation using Tripo3D API (Image-to-3D / Text-to-3D). | `TAITripo3DClient, TAI3DModelViewer, TAIModel3D` | Sends images or text to the Tripo3D API, monitors the task progress, and renders the output STL/OBJ mesh in OpenGL. |
 | **[opencv_vision_demo/](AI Vision/opencv_vision_demo/)** | Visual capture, processing, and tracking utilizing the AI Vision suite. | `TAIOpenCV, TAICameraCapture, TAIFrameProcessor, TAIFaceTracker, TAIMotionTracker` | Graphical interface for camera control, grayscale/equalization filtering, and real-time face/motion tracking. |
+| **[opengl_graphic_demo/](AI Graphic/opengl_graphic_demo/)** | Interactive OpenGL 2D/3D scene and 3D model viewer showcase. | `TAIScene2D3D, TAI3DModelViewer, TAIModel3D` | Controls visual grids, axes, simulation states, cameras, and renders 3D mesh files in real-time. |
 
 ## 💻 Command Line Interface (Console) Demonstrations
 These examples demonstrate direct component invocation via command line for rapid debugging or automation scenarios:

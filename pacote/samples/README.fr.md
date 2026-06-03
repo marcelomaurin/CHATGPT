@@ -26,6 +26,7 @@ Les exemples suivants sont des projets visuels prêts à être compilés et exé
 | **[graphmap_demo/](IA/graphmap_demo/)** | Classification et routage de texte par cartes de graphes de jetons pondérés. | `TAIGraphMap` | Allows adding training phrases and target categories, training the model, and visualizing category ranking and weight-based explanations. |
 | **[tripo3d_demo/](AI Graphic/tripo3d_demo/)** | Génération de modèles 3D via l'API Tripo3D (Image-to-3D / Text-to-3D). | `TAITripo3DClient, TAI3DModelViewer, TAIModel3D` | Sends images or text to the Tripo3D API, monitors the task progress, and renders the output STL/OBJ mesh in OpenGL. |
 | **[opencv_vision_demo/](AI Vision/opencv_vision_demo/)** | Capture, traitement et suivi visuels à l'aide de la suite AI Vision. | `TAIOpenCV, TAICameraCapture, TAIFrameProcessor, TAIFaceTracker, TAIMotionTracker` | Graphical interface for camera control, grayscale/equalization filtering, and real-time face/motion tracking. |
+| **[opengl_graphic_demo/](AI Graphic/opengl_graphic_demo/)** | Démo interactive OpenGL de scène 2D/3D et visualiseur. | `TAIScene2D3D, TAI3DModelViewer, TAIModel3D` | Controls visual grids, axes, simulation states, cameras, and renders 3D mesh files in real-time. |
 
 ## 💻 Démonstrations en Ligne de Commande (Console)
 Ces exemples illustrent l'utilisation directe des composants en ligne de commande pour le débogage rapide :

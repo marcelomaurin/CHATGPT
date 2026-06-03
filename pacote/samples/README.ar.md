@@ -26,6 +26,7 @@
 | **[graphmap_demo/](IA/graphmap_demo/)** | تصنيف وتوجيه النصوص باستخدام خرائط الرسوم البيانية الموزونة للرموز. | `TAIGraphMap` | Allows adding training phrases and target categories, training the model, and visualizing category ranking and weight-based explanations. |
 | **[tripo3d_demo/](AI Graphic/tripo3d_demo/)** | إنشاء نماذج ثلاثية الأبعاد عبر واجهة برمجة تطبيقات Tripo3D (صورة إلى ثلاثي الأبعاد / نص إلى ثلاثي الأبعاد). | `TAITripo3DClient, TAI3DModelViewer, TAIModel3D` | Sends images or text to the Tripo3D API, monitors the task progress, and renders the output STL/OBJ mesh in OpenGL. |
 | **[opencv_vision_demo/](AI Vision/opencv_vision_demo/)** | التقاط ومعالجة وتتبع مرئي باستخدام مجموعة AI Vision. | `TAIOpenCV, TAICameraCapture, TAIFrameProcessor, TAIFaceTracker, TAIMotionTracker` | Graphical interface for camera control, grayscale/equalization filtering, and real-time face/motion tracking. |
+| **[opengl_graphic_demo/](AI Graphic/opengl_graphic_demo/)** | عرض رسومي تفاعلي OpenGL للمشهد ثنائي/ثلاثي الأبعاد ومستعرض النماذج. | `TAIScene2D3D, TAI3DModelViewer, TAIModel3D` | Controls visual grids, axes, simulation states, cameras, and renders 3D mesh files in real-time. |
 
 ## 💻 مشاريع توضيحية لسطر الأوامر (Console)
 توضح هذه الأمثلة الاستدعاء المباشر للمكونات عبر سطر الأوامر لسيناريوهات تصحيح الأخطاء السريعة وأتمتة العمليات الدورية:

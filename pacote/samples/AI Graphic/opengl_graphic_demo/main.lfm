@@ -1,0 +1,213 @@
+object frmOpenGLGraphicDemo: TfrmOpenGLGraphicDemo
+  Left = 320
+  Height = 650
+  Top = 150
+  Width = 820
+  Caption = 'TAIScene2D3D & TAI3DModelViewer OpenGL Showcase'
+  ClientHeight = 650
+  ClientWidth = 820
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '3.0.0.3'
+  object pnlLeft: TPanel
+    Left = 10
+    Height = 330
+    Top = 10
+    Width = 260
+    Align = alLeft
+    BorderSpacing.Left = 10
+    BorderSpacing.Top = 10
+    BorderSpacing.Bottom = 5
+    ClientHeight = 330
+    ClientWidth = 260
+    TabOrder = 0
+    object pnlScene: TPanel
+      Left = 1
+      Height = 160
+      Top = 1
+      Width = 258
+      Align = alTop
+      ClientHeight = 160
+      ClientWidth = 258
+      TabOrder = 0
+      object lblSceneTitle: TLabel
+        Left = 10
+        Height = 15
+        Top = 10
+        Width = 180
+        Caption = 'Scene Simulation (TAIScene2D3D)'
+        Font.Style = [fsBold]
+        ParentColor = False
+      end
+      object btnPlay: TButton
+        Left = 10
+        Height = 25
+        Top = 30
+        Width = 70
+        Caption = 'Play'
+        OnClick = btnPlayClick
+        TabOrder = 0
+      end
+      object btnPause: TButton
+        Left = 90
+        Height = 25
+        Top = 30
+        Width = 70
+        Caption = 'Pause'
+        OnClick = btnPauseClick
+        TabOrder = 1
+      end
+      object btnClearScene: TButton
+        Left = 170
+        Height = 25
+        Top = 30
+        Width = 80
+        Caption = 'Clear'
+        OnClick = btnClearSceneClick
+        TabOrder = 2
+      end
+      object chkGrid: TCheckBox
+        Left = 10
+        Height = 19
+        Top = 65
+        Width = 100
+        Caption = 'Show Grid'
+        Checked = True
+        OnChange = chkGridChange
+        State = cbChecked
+        TabOrder = 3
+      end
+      object chkAxes: TCheckBox
+        Left = 120
+        Height = 19
+        Top = 65
+        Width = 100
+        Caption = 'Show Axes'
+        Checked = True
+        OnChange = chkAxesChange
+        State = cbChecked
+        TabOrder = 4
+      end
+      object cbSceneMode: TComboBox
+        Left = 10
+        Height = 23
+        Top = 95
+        Width = 238
+        ItemHeight = 15
+        OnChange = cbSceneModeChange
+        Style = csDropDownList
+        TabOrder = 5
+      end
+      object btnExportJSON: TButton
+        Left = 10
+        Height = 25
+        Top = 125
+        Width = 238
+        Caption = 'Export Scene State to JSON'
+        OnClick = btnExportJSONClick
+        TabOrder = 6
+      end
+    end
+    object pnlViewerOpts: TPanel
+      Left = 1
+      Height = 168
+      Top = 161
+      Width = 258
+      Align = alClient
+      ClientHeight = 168
+      ClientWidth = 258
+      TabOrder = 1
+      object lblViewerTitle: TLabel
+        Left = 10
+        Height = 15
+        Top = 10
+        Width = 200
+        Caption = '3D Model Viewer (TAI3DModelViewer)'
+        Font.Style = [fsBold]
+        ParentColor = False
+      end
+      object btnZoomIn: TButton
+        Left = 10
+        Height = 25
+        Top = 30
+        Width = 75
+        Caption = 'Zoom In'
+        OnClick = btnZoomInClick
+        TabOrder = 0
+      end
+      object btnZoomOut: TButton
+        Left = 90
+        Height = 25
+        Top = 30
+        Width = 75
+        Caption = 'Zoom Out'
+        OnClick = btnZoomOutClick
+        TabOrder = 1
+      end
+      object btnResetCamera: TButton
+        Left = 170
+        Height = 25
+        Top = 30
+        Width = 80
+        Caption = 'Reset'
+        OnClick = btnResetCameraClick
+        TabOrder = 2
+      end
+      object cbRenderMode: TComboBox
+        Left = 10
+        Height = 23
+        Top = 65
+        Width = 238
+        ItemHeight = 15
+        OnChange = cbRenderModeChange
+        Style = csDropDownList
+        TabOrder = 3
+      end
+      object btnLoadModel: TButton
+        Left = 10
+        Height = 40
+        Top = 100
+        Width = 238
+        Caption = 'Load 3D Mesh (STL/OBJ)'
+        Font.Style = [fsBold]
+        OnClick = btnLoadModelClick
+        TabOrder = 4
+      end
+    end
+  end
+  object pnlViewClient: TPanel
+    Left = 275
+    Height = 330
+    Top = 10
+    Width = 535
+    Align = alClient
+    BorderSpacing.Left = 5
+    BorderSpacing.Top = 10
+    BorderSpacing.Right = 10
+    BorderSpacing.Bottom = 5
+    Caption = 'OpenGL Rendering Area'
+    Color = clWhite
+    ParentBackground = False
+    ParentColor = False
+    TabOrder = 1
+  end
+  object meLogs: TMemo
+    Left = 10
+    Height = 260
+    Top = 380
+    Width = 800
+    Align = alBottom
+    BorderSpacing.Around = 10
+    ReadOnly = True
+    ScrollBars = ssAutoBoth
+    TabOrder = 2
+  end
+  object lblLogs: TLabel
+    Left = 10
+    Height = 15
+    Top = 355
+    Width = 150
+    Caption = 'OpenGL Scene & Viewer Log:'
+    ParentColor = False
+  end
+end
