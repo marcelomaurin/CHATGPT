@@ -40,7 +40,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA', [TFaceDetection]);
+  RegisterComponents('AI Machine Learning', [TFaceDetection]);
 end;
 
 { TFaceDetection }

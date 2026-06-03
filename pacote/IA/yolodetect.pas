@@ -42,7 +42,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA', [TYOLO]);
+  RegisterComponents('AI Machine Learning', [TYOLO]);
 end;
 
 { TYOLO }

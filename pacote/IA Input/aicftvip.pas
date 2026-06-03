@@ -43,7 +43,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Input', [TAICFTVIP]);
+  RegisterComponents('AI Communication', [TAICFTVIP]);
 end;
 
 { TAICFTVIP }

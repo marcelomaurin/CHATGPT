@@ -55,7 +55,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Project', [TAIPromptBuilder]);
+  RegisterComponents('AI Core', [TAIPromptBuilder]);
 end;
 
 { TAIPromptBuilder }

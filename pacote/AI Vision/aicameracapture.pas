@@ -1,0 +1,75 @@
+unit aicameracapture;
+
+{$mode objfpc}{$H+}
+
+interface
+
+uses
+  Classes, SysUtils, aibase;
+
+type
+  { TAICameraCapture }
+
+  TAICameraCapture = class(TAIBaseComponent)
+  private
+    FCameraIndex: Integer;
+    FActive: Boolean;
+    procedure SetActive(AValue: Boolean);
+  public
+    constructor Create(AOwner: TComponent); override;
+    procedure StartCapture;
+    procedure StopCapture;
+  published
+    property CameraIndex: Integer read FCameraIndex write FCameraIndex default 0;
+    property Active: Boolean read FActive write SetActive default False;
+  end;
+
+procedure Register;
+
+implementation
+
+procedure Register;
+begin
+  RegisterComponents('AI Vision', [TAICameraCapture]);
+end;
+
+{ TAICameraCapture }
+
+constructor TAICameraCapture.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FCategory := ccOther;
+  FPrompt := 'Component TAICameraCapture captures raw frames from camera inputs. Properties: CameraIndex, Active. Methods: StartCapture, StopCapture.';
+  FCameraIndex := 0;
+  FActive := False;
+  ClearError;
+end;
+
+procedure TAICameraCapture.SetActive(AValue: Boolean);
+begin
+  if FActive <> AValue then
+  begin
+    if AValue then
+      StartCapture
+    else
+      StopCapture;
+  end;
+end;
+
+procedure TAICameraCapture.StartCapture;
+begin
+  FActive := True;
+  Log(llInfo, 'Started camera capture on index: ' + IntToStr(FCameraIndex));
+  FLastResult := 'Capture active.';
+  FLastSuccess := True;
+end;
+
+procedure TAICameraCapture.StopCapture;
+begin
+  FActive := False;
+  Log(llInfo, 'Stopped camera capture.');
+  FLastResult := 'Capture inactive.';
+  FLastSuccess := True;
+end;
+
+end.

@@ -9,7 +9,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="IA;IA Agent;IA Voice;IA Filtros Sonoros;IA Image;IA Schedulle;IA Math;IA Input;IA Output;IA Graph;.."/>
+        <OtherUnitFiles Value="IA;IA Agent;IA Voice;IA Filtros Sonoros;IA Image;IA Schedulle;IA Math;IA Input;IA Output;IA Graph;AI Graphic;AI Vision;.."/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
@@ -261,6 +261,91 @@
       <Item>
         <Filename Value="IA\frm_aiwizardconfig.pas"/>
         <UnitName Value="frm_aiwizardconfig"/>
+      </Item>
+      <Item>
+        <Filename Value="AI Graphic\aiscene2d3d.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiscene2d3d"/>
+      </Item>
+      <Item>
+        <Filename Value="AI Graphic\aitrainingenvironment.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aitrainingenvironment"/>
+      </Item>
+      <Item>
+        <Filename Value="AI Graphic\aiphysicssimulator.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiphysicssimulator"/>
+      </Item>
+      <Item>
+        <Filename Value="AI Graphic\aisensorvirtual.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aisensorvirtual"/>
+      </Item>
+      <Item>
+        <Filename Value="AI Graphic\airewardfunction.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="airewardfunction"/>
+      </Item>
+      <Item>
+        <Filename Value="AI Graphic\aimodel3d.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aimodel3d"/>
+      </Item>
+      <Item>
+        <Filename Value="AI Graphic\ai3dmodelviewer.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="ai3dmodelviewer"/>
+      </Item>
+      <Item>
+        <Filename Value="AI Graphic\aiskeletonrig.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiskeletonrig"/>
+      </Item>
+      <Item>
+        <Filename Value="AI Graphic\aiavatarcontroller.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiavatarcontroller"/>
+      </Item>
+      <Item>
+        <Filename Value="AI Graphic\aiposelibrary.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiposelibrary"/>
+      </Item>
+      <Item>
+        <Filename Value="AI Graphic\aianimationsequence.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aianimationsequence"/>
+      </Item>
+      <Item>
+        <Filename Value="AI Graphic\aitripo3dclient.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aitripo3dclient"/>
+      </Item>
+      <Item>
+        <Filename Value="AI Vision\aiopencv.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiopencv"/>
+      </Item>
+      <Item>
+        <Filename Value="AI Vision\aicameracapture.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aicameracapture"/>
+      </Item>
+      <Item>
+        <Filename Value="AI Vision\aiframeprocessor.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiframeprocessor"/>
+      </Item>
+      <Item>
+        <Filename Value="AI Vision\aifacetracker.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aifacetracker"/>
+      </Item>
+      <Item>
+        <Filename Value="AI Vision\aimotiontracker.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aimotiontracker"/>
       </Item>
     </Files>
     <RequiredPkgs>

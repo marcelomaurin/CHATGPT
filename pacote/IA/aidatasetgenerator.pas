@@ -50,7 +50,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA', [TAIDatasetGenerator]);
+  RegisterComponents('AI Machine Learning', [TAIDatasetGenerator]);
 end;
 
 constructor TDatasetItem.Create(const AInput, AOutput: string);

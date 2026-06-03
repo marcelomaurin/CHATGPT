@@ -89,7 +89,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Input', [TAISocketTCP, TAISocketUDP]);
+  RegisterComponents('AI Communication', [TAISocketTCP, TAISocketUDP]);
 end;
 
 { TAISocketTCP }

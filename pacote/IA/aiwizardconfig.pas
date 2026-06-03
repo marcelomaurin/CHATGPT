@@ -56,7 +56,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Project', [TAIWizardConfig]);
+  RegisterComponents('AI Core', [TAIWizardConfig]);
 end;
 
 { TAIWizardConfig }

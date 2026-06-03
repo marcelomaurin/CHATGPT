@@ -57,7 +57,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Input', [TAIWebAPIServer]);
+  RegisterComponents('AI Communication', [TAIWebAPIServer]);
 end;
 
 { TServerThread }

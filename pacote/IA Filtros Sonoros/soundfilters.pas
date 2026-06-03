@@ -135,7 +135,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Filtros Sonoros', [
+  RegisterComponents('AI Audio', [
     TLowPassFilter,
     THighPassFilter,
     TAverageFilter,

@@ -39,7 +39,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Input', [TAIInputData]);
+  RegisterComponents('AI Communication', [TAIInputData]);
 end;
 
 constructor TAIInputData.Create(AOwner: TComponent);

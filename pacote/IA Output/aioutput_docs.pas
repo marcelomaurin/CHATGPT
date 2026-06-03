@@ -145,7 +145,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Output', [
+  RegisterComponents('AI Documents', [
     TAIPDFOutput,
     TAIWordOutput,
     TAIExcelOutput,

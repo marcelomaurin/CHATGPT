@@ -64,7 +64,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Input', [TAIPOSPrinter]);
+  RegisterComponents('AI Communication', [TAIPOSPrinter]);
 end;
 
 { TAIPOSPrinter }

@@ -266,7 +266,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Graph', [TAIGraphMap]);
+  RegisterComponents('AI Graphic', [TAIGraphMap]);
 end;
 
 function RemoveAccentsStr(const AText: string): string;

@@ -87,7 +87,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Input', [TAIMQTTClient]);
+  RegisterComponents('AI Communication', [TAIMQTTClient]);
 end;
 
 { TAIMQTTReceiverThread }

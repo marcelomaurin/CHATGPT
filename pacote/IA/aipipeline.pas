@@ -99,7 +99,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Project', [TAIPipeline]);
+  RegisterComponents('AI Core', [TAIPipeline]);
 end;
 
 constructor TAIPipeline.Create(AOwner: TComponent);

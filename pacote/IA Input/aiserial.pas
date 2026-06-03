@@ -49,7 +49,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Input', [TAISerialModem]);
+  RegisterComponents('AI Communication', [TAISerialModem]);
 end;
 
 { TAISerialModem }

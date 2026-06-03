@@ -49,7 +49,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Graph', [TAIGraphVisualizer]);
+  RegisterComponents('AI Graphic', [TAIGraphVisualizer]);
 end;
 
 { TAIGraphVisualizer }

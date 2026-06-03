@@ -60,7 +60,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Input', [TAIModbusClient]);
+  RegisterComponents('AI Automation', [TAIModbusClient]);
 end;
 
 constructor TAIModbusClient.Create(AOwner: TComponent);

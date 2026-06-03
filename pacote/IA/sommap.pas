@@ -54,7 +54,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA', [TSOMMap]);
+  RegisterComponents('AI Machine Learning', [TSOMMap]);
 end;
 
 { TSOMMap }

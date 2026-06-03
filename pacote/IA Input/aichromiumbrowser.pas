@@ -70,7 +70,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Input', [TAIChromiumBrowser]);
+  RegisterComponents('AI Communication', [TAIChromiumBrowser]);
 end;
 
 { TAIChromiumBrowser }

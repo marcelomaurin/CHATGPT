@@ -90,7 +90,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Graph', [TAITrainingExporter]);
+  RegisterComponents('AI Graphic', [TAITrainingExporter]);
 end;
 
 { TAITrainingExporter }

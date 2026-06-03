@@ -40,7 +40,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Graph', [TAITrainingReport]);
+  RegisterComponents('AI Graphic', [TAITrainingReport]);
 end;
 
 { TAITrainingReport }

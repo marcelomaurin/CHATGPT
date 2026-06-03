@@ -45,7 +45,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Input', [TAICameraInput]);
+  RegisterComponents('AI Communication', [TAICameraInput]);
 end;
 
 { TAICameraInput }

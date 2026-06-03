@@ -48,7 +48,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Input', [TAIAudioInput]);
+  RegisterComponents('AI Communication', [TAIAudioInput]);
 end;
 
 { TAIAudioInput }

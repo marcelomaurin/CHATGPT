@@ -54,7 +54,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Input', [TAIIndustrialBridge]);
+  RegisterComponents('AI Automation', [TAIIndustrialBridge]);
 end;
 
 { TAIIndustrialBridge }

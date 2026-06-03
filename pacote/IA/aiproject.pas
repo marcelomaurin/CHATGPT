@@ -70,7 +70,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Project', [TAIProject]);
+  RegisterComponents('AI Core', [TAIProject]);
 end;
 
 constructor TAIProject.Create(AOwner: TComponent);

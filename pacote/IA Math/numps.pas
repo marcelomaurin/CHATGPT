@@ -74,7 +74,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Math', [TNumPS]);
+  RegisterComponents('AI Utilities', [TNumPS]);
 end;
 
 { TNumPS }

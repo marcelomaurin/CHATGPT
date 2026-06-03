@@ -39,7 +39,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Graph', [TAIDatasetAnalyzer]);
+  RegisterComponents('AI Graphic', [TAIDatasetAnalyzer]);
 end;
 
 { TAIDatasetAnalyzer }

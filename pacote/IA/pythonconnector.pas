@@ -173,7 +173,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA', [TPythonConnector]);
+  RegisterComponents('AI Machine Learning', [TPythonConnector]);
 end;
 
 { TPythonConnector }

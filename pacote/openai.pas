@@ -1,7 +1,3 @@
-{ This file was automatically created by Lazarus. Do not edit!
-  This source is only used to compile and install the package.
- }
-
 unit openai;
 
 {$warn 5023 off : no warning about unused units}
@@ -17,7 +13,11 @@ uses
   aioutput, aioutput_docs, aiproject, aipipeline, aipromptbuilder, aigraphmap, 
   aibase, aiagentsafety, aiagent_executors, aitrainingexporter, aidatasetanalyzer, 
   aitrainingreport, aigraphvisualizer, aimodelregistry, aiwizardconfig, 
-  frm_aiwizardconfig, LazarusPackageIntf;
+  frm_aiwizardconfig, aiscene2d3d, aitrainingenvironment, aiphysicssimulator, 
+  aisensorvirtual, airewardfunction, aimodel3d, ai3dmodelviewer, aiskeletonrig, 
+  aiavatarcontroller, aiposelibrary, aianimationsequence, aitripo3dclient, 
+  aiopencv, aicameracapture, aiframeprocessor, aifacetracker, aimotiontracker, 
+  LazarusPackageIntf;
 
 implementation
 
@@ -69,6 +69,23 @@ begin
   RegisterUnit('aigraphvisualizer', @aigraphvisualizer.Register);
   RegisterUnit('aimodelregistry', @aimodelregistry.Register);
   RegisterUnit('aiwizardconfig', @aiwizardconfig.Register);
+  RegisterUnit('aiscene2d3d', @aiscene2d3d.Register);
+  RegisterUnit('aitrainingenvironment', @aitrainingenvironment.Register);
+  RegisterUnit('aiphysicssimulator', @aiphysicssimulator.Register);
+  RegisterUnit('aisensorvirtual', @aisensorvirtual.Register);
+  RegisterUnit('airewardfunction', @airewardfunction.Register);
+  RegisterUnit('aimodel3d', @aimodel3d.Register);
+  RegisterUnit('ai3dmodelviewer', @ai3dmodelviewer.Register);
+  RegisterUnit('aiskeletonrig', @aiskeletonrig.Register);
+  RegisterUnit('aiavatarcontroller', @aiavatarcontroller.Register);
+  RegisterUnit('aiposelibrary', @aiposelibrary.Register);
+  RegisterUnit('aianimationsequence', @aianimationsequence.Register);
+  RegisterUnit('aitripo3dclient', @aitripo3dclient.Register);
+  RegisterUnit('aiopencv', @aiopencv.Register);
+  RegisterUnit('aicameracapture', @aicameracapture.Register);
+  RegisterUnit('aiframeprocessor', @aiframeprocessor.Register);
+  RegisterUnit('aifacetracker', @aifacetracker.Register);
+  RegisterUnit('aimotiontracker', @aimotiontracker.Register);
 end;
 
 initialization

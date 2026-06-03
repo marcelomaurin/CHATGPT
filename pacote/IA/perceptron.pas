@@ -55,7 +55,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA', [TPerceptron]);
+  RegisterComponents('AI Machine Learning', [TPerceptron]);
 end;
 
 { TPerceptron }

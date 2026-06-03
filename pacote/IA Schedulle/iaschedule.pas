@@ -101,7 +101,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Schedulle', [
+  RegisterComponents('AI Utilities', [
     TJSONGroupStorage,
     TIASchedule
   ]);

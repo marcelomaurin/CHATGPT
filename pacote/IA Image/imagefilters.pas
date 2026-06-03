@@ -104,7 +104,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Image', [
+  RegisterComponents('AI Vision', [
     TGrayscaleFilter,
     TNegativeFilter,
     TBrightnessContrastFilter,

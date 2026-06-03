@@ -38,7 +38,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Output', [TAIOutputData]);
+  RegisterComponents('AI Communication', [TAIOutputData]);
 end;
 
 constructor TAIOutputData.Create(AOwner: TComponent);

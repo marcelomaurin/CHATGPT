@@ -54,7 +54,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Input', [TAIEmailClient]);
+  RegisterComponents('AI Communication', [TAIEmailClient]);
 end;
 
 { TAIEmailClient }

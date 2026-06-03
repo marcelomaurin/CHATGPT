@@ -46,7 +46,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA', [TLSTMPredictor]);
+  RegisterComponents('AI Machine Learning', [TLSTMPredictor]);
 end;
 
 { TLSTMPredictor }

@@ -90,7 +90,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Voice', [TAIVoiceSynthesizer]);
+  RegisterComponents('AI Audio', [TAIVoiceSynthesizer]);
 end;
 
 { TAIVoiceSynthesizer }

@@ -40,7 +40,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA', [TAICodeAssistant]);
+  RegisterComponents('AI Core', [TAICodeAssistant]);
 end;
 
 constructor TAICodeAssistant.Create(AOwner: TComponent);

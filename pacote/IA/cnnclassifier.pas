@@ -40,7 +40,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA', [TCNNClassifier]);
+  RegisterComponents('AI Machine Learning', [TCNNClassifier]);
 end;
 
 { TCNNClassifier }

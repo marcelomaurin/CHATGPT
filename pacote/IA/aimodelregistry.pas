@@ -82,7 +82,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Project', [TAIModelRegistry]);
+  RegisterComponents('AI Core', [TAIModelRegistry]);
 end;
 
 { TAIModelCollection }

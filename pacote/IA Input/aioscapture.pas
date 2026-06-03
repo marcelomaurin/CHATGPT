@@ -68,7 +68,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Input', [TAIOSInputCapture]);
+  RegisterComponents('AI Communication', [TAIOSInputCapture]);
 end;
 
 { TAIOSInputCapture }

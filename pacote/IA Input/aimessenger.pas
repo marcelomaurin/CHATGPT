@@ -36,7 +36,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('IA Input', [TAIMessenger]);
+  RegisterComponents('AI Communication', [TAIMessenger]);
 end;
 
 { TAIMessenger }
