@@ -5,7 +5,7 @@ unit aiskeletonrig;
 interface
 
 uses
-  Classes, SysUtils, Math, StrUtils, aibase;
+  Classes, SysUtils, Math, StrUtils, aibase, DOM, XMLRead, fpjson, jsonparser, Process;
 
 type
   TMatrix3x3 = array[0..2, 0..2] of Double;
@@ -28,6 +28,14 @@ type
     FJoints: array of TBoneJoint;
     procedure SetBonesList(AValue: TStrings);
     procedure InitializeRig;
+    
+    procedure LoadBVH(const AFileName: string);
+    procedure LoadDAE(const AFileName: string);
+    procedure LoadGLTF(const AFileName: string);
+    procedure LoadGLB(const AFileName: string);
+    procedure LoadBlend(const AFileName: string);
+    procedure ParseGLTFJSON(const AJSONText: string);
+    procedure AutoScaleRig;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -284,6 +292,585 @@ begin
   end;
 end;
 
+procedure TAISkeletonRig.AutoScaleRig;
+var
+  MaxVal: Double;
+  I: Integer;
+  ScaleFactor: Double;
+begin
+  MaxVal := 0.0;
+  for I := 0 to Length(FJoints) - 1 do
+  begin
+    MaxVal := Max(MaxVal, Abs(FJoints[I].OffsetX));
+    MaxVal := Max(MaxVal, Abs(FJoints[I].OffsetY));
+    MaxVal := Max(MaxVal, Abs(FJoints[I].OffsetZ));
+  end;
+  
+  if MaxVal > 2.0 then
+  begin
+    ScaleFactor := 1.5 / MaxVal;
+    Log(llInfo, Format('Auto-scaling rig offsets by factor %.6f (max offset was %.2f)', [ScaleFactor, MaxVal]));
+    for I := 0 to Length(FJoints) - 1 do
+    begin
+      FJoints[I].OffsetX := FJoints[I].OffsetX * ScaleFactor;
+      FJoints[I].OffsetY := FJoints[I].OffsetY * ScaleFactor;
+      FJoints[I].OffsetZ := FJoints[I].OffsetZ * ScaleFactor;
+    end;
+  end;
+end;
+
+procedure TAISkeletonRig.LoadBVH(const AFileName: string);
+var
+  Lines: TStringList;
+  Stack: array of Integer;
+  StackCount: Integer;
+  I: Integer;
+  Line: string;
+  Words: TStringList;
+  W: string;
+  JIdx: Integer;
+  ParentIdx: Integer;
+  FS: TFormatSettings;
+  
+  procedure PushStack(Val: Integer);
+  begin
+    if StackCount >= Length(Stack) then
+      SetLength(Stack, StackCount + 10);
+    Stack[StackCount] := Val;
+    Inc(StackCount);
+  end;
+  
+  function PopStack: Integer;
+  begin
+    if StackCount > 0 then
+    begin
+      Dec(StackCount);
+      Result := Stack[StackCount];
+    end
+    else
+      Result := -1;
+  end;
+
+  function GetStackTop: Integer;
+  begin
+    if StackCount > 0 then
+      Result := Stack[StackCount - 1]
+    else
+      Result := -1;
+  end;
+
+  function ParseFloat(const S: string): Double;
+  begin
+    Result := StrToFloatDef(Trim(S), 0.0, FS);
+  end;
+
+begin
+  FS := DefaultFormatSettings;
+  FS.DecimalSeparator := '.';
+  
+  Log(llInfo, 'Parsing BVH file: ' + AFileName);
+  Lines := TStringList.Create;
+  Words := TStringList.Create;
+  SetLength(Stack, 10);
+  StackCount := 0;
+  JIdx := 0;
+  
+  try
+    Lines.LoadFromFile(AFileName);
+    SetLength(FJoints, Lines.Count);
+    FBonesList.Clear;
+    
+    I := 0;
+    while I < Lines.Count do
+    begin
+      Line := Trim(Lines[I]);
+      Inc(I);
+      if (Line = '') or (StartsText('#', Line)) then Continue;
+      
+      Words.Clear;
+      ExtractStrings([' ', #9], [], PChar(Line), Words);
+      if Words.Count = 0 then Continue;
+      
+      W := UpperCase(Words[0]);
+      if (W = 'ROOT') or (W = 'JOINT') then
+      begin
+        if Words.Count >= 2 then
+        begin
+          FJoints[JIdx].Name := Words[1];
+          FJoints[JIdx].ParentIndex := GetStackTop;
+          FJoints[JIdx].OffsetX := 0;
+          FJoints[JIdx].OffsetY := 0;
+          FJoints[JIdx].OffsetZ := 0;
+          FJoints[JIdx].AngleX := 0;
+          FJoints[JIdx].AngleY := 0;
+          FJoints[JIdx].AngleZ := 0;
+          
+          FBonesList.Add(FJoints[JIdx].Name);
+          PushStack(JIdx);
+          Inc(JIdx);
+        end;
+      end
+      else if W = 'OFFSET' then
+      begin
+        if (Words.Count >= 4) and (StackCount > 0) then
+        begin
+          ParentIdx := GetStackTop;
+          FJoints[ParentIdx].OffsetX := ParseFloat(Words[1]);
+          FJoints[ParentIdx].OffsetY := ParseFloat(Words[2]);
+          FJoints[ParentIdx].OffsetZ := ParseFloat(Words[3]);
+        end;
+      end
+      else if W = '}' then
+      begin
+        PopStack;
+      end;
+    end;
+    
+    SetLength(FJoints, JIdx);
+    AutoScaleRig;
+    UpdateFK;
+    
+    Log(llInfo, Format('BVH rig loaded successfully. %d joints imported.', [JIdx]));
+  finally
+    Words.Free;
+    Lines.Free;
+  end;
+end;
+
+procedure TAISkeletonRig.LoadDAE(const AFileName: string);
+var
+  XMLDoc: TXMLDocument;
+  JIdx: Integer;
+  FS: TFormatSettings;
+
+  function ParseFloat(const S: string): Double;
+  begin
+    Result := StrToFloatDef(Trim(S), 0.0, FS);
+  end;
+
+  procedure ParseOffsets(ANode: TDOMNode; var OX, OY, OZ: Double);
+  var
+    Child: TDOMNode;
+    Text: string;
+    Vals: TStringList;
+    M: array[0..15] of Double;
+    K: Integer;
+  begin
+    OX := 0.0; OY := 0.0; OZ := 0.0;
+    Child := ANode.FirstChild;
+    while Child <> nil do
+    begin
+      if Child.NodeType = ELEMENT_NODE then
+      begin
+        if SameText(Child.NodeName, 'translate') then
+        begin
+          Text := Trim(Child.TextContent);
+          Vals := TStringList.Create;
+          try
+            ExtractStrings([' ', #9, #10, #13], [], PChar(Text), Vals);
+            if Vals.Count >= 3 then
+            begin
+              OX := ParseFloat(Vals[0]);
+              OY := ParseFloat(Vals[1]);
+              OZ := ParseFloat(Vals[2]);
+            end;
+          finally
+            Vals.Free;
+          end;
+          Break;
+        end
+        else if SameText(Child.NodeName, 'matrix') then
+        begin
+          Text := Trim(Child.TextContent);
+          Vals := TStringList.Create;
+          try
+            ExtractStrings([' ', #9, #10, #13], [], PChar(Text), Vals);
+            if Vals.Count >= 16 then
+            begin
+              for K := 0 to 15 do
+                M[K] := ParseFloat(Vals[K]);
+              OX := M[3];
+              OY := M[7];
+              OZ := M[11];
+            end;
+          finally
+            Vals.Free;
+          end;
+          Break;
+        end;
+      end;
+      Child := Child.NextSibling;
+    end;
+  end;
+
+  procedure TraverseNode(ANode: TDOMNode; AParentIdx: Integer);
+  var
+    LName: string;
+    CurIdx: Integer;
+    Child: TDOMNode;
+    Attr: TDOMNode;
+    IsJoint: Boolean;
+    OX, OY, OZ: Double;
+  begin
+    if ANode.NodeType = ELEMENT_NODE then
+    begin
+      IsJoint := False;
+      LName := '';
+      
+      Attr := ANode.Attributes.GetNamedItem('name');
+      if Attr <> nil then LName := Attr.NodeValue;
+      if LName = '' then
+      begin
+        Attr := ANode.Attributes.GetNamedItem('id');
+        if Attr <> nil then LName := Attr.NodeValue;
+      end;
+      
+      Attr := ANode.Attributes.GetNamedItem('type');
+      if (Attr <> nil) and SameText(Attr.NodeValue, 'JOINT') then
+        IsJoint := True;
+        
+      if SameText(ANode.NodeName, 'node') and (IsJoint or (LName <> '')) then
+      begin
+        SetLength(FJoints, JIdx + 1);
+        FJoints[JIdx].Name := LName;
+        FJoints[JIdx].ParentIndex := AParentIdx;
+        
+        ParseOffsets(ANode, OX, OY, OZ);
+        FJoints[JIdx].OffsetX := OX;
+        FJoints[JIdx].OffsetY := OY;
+        FJoints[JIdx].OffsetZ := OZ;
+        FJoints[JIdx].AngleX := 0;
+        FJoints[JIdx].AngleY := 0;
+        FJoints[JIdx].AngleZ := 0;
+        
+        FBonesList.Add(LName);
+        CurIdx := JIdx;
+        Inc(JIdx);
+      end
+      else
+        CurIdx := AParentIdx;
+        
+      Child := ANode.FirstChild;
+      while Child <> nil do
+      begin
+        TraverseNode(Child, CurIdx);
+        Child := Child.NextSibling;
+      end;
+    end
+    else
+    begin
+      Child := ANode.FirstChild;
+      while Child <> nil do
+      begin
+        TraverseNode(Child, AParentIdx);
+        Child := Child.NextSibling;
+      end;
+    end;
+  end;
+
+begin
+  FS := DefaultFormatSettings;
+  FS.DecimalSeparator := '.';
+  
+  Log(llInfo, 'Parsing Collada DAE XML file: ' + AFileName);
+  
+  JIdx := 0;
+  SetLength(FJoints, 0);
+  FBonesList.Clear;
+  
+  try
+    ReadXMLFile(XMLDoc, AFileName);
+    try
+      TraverseNode(XMLDoc.DocumentElement, -1);
+      
+      AutoScaleRig;
+      UpdateFK;
+      
+      Log(llInfo, Format('Collada DAE rig loaded successfully. %d joints imported.', [JIdx]));
+    finally
+      XMLDoc.Free;
+    end;
+  except
+    on E: Exception do
+      SetError('Error parsing DAE XML: ' + E.Message);
+  end;
+end;
+
+procedure TAISkeletonRig.ParseGLTFJSON(const AJSONText: string);
+var
+  Parser: TJSONParser;
+  RootObj, NodeObj: TJSONObject;
+  NodesArray, ChildrenArray: TJSONArray;
+  I, J, JIdx, ChildIdx: Integer;
+  FS: TFormatSettings;
+  LName: string;
+  Translation: TJSONArray;
+begin
+  FS := DefaultFormatSettings;
+  FS.DecimalSeparator := '.';
+  
+  Parser := TJSONParser.Create(AJSONText);
+  try
+    RootObj := Parser.Parse as TJSONObject;
+    try
+      NodesArray := RootObj.Arrays['nodes'];
+      if NodesArray = nil then
+      begin
+        SetError('gltf file does not contain a "nodes" array.');
+        Exit;
+      end;
+      
+      JIdx := NodesArray.Count;
+      SetLength(FJoints, JIdx);
+      FBonesList.Clear;
+      
+      for I := 0 to JIdx - 1 do
+      begin
+        NodeObj := NodesArray.Objects[I];
+        LName := NodeObj.Strings['name'];
+        if LName = '' then
+          LName := 'node_' + IntToStr(I);
+          
+        FJoints[I].Name := LName;
+        FJoints[I].ParentIndex := -2;
+        FJoints[I].OffsetX := 0;
+        FJoints[I].OffsetY := 0;
+        FJoints[I].OffsetZ := 0;
+        FJoints[I].AngleX := 0;
+        FJoints[I].AngleY := 0;
+        FJoints[I].AngleZ := 0;
+        
+        Translation := NodeObj.Arrays['translation'];
+        if (Translation <> nil) and (Translation.Count >= 3) then
+        begin
+          FJoints[I].OffsetX := Translation.Items[0].AsFloat;
+          FJoints[I].OffsetY := Translation.Items[1].AsFloat;
+          FJoints[I].OffsetZ := Translation.Items[2].AsFloat;
+        end;
+        
+        FBonesList.Add(LName);
+      end;
+      
+      for I := 0 to JIdx - 1 do
+      begin
+        NodeObj := NodesArray.Objects[I];
+        ChildrenArray := NodeObj.Arrays['children'];
+        if ChildrenArray <> nil then
+        begin
+          for J := 0 to ChildrenArray.Count - 1 do
+          begin
+            ChildIdx := ChildrenArray.Items[J].AsInteger;
+            if (ChildIdx >= 0) and (ChildIdx < JIdx) then
+              FJoints[ChildIdx].ParentIndex := I;
+          end;
+        end;
+      end;
+      
+      for I := 0 to JIdx - 1 do
+      begin
+        if FJoints[I].ParentIndex = -2 then
+          FJoints[I].ParentIndex := -1;
+      end;
+      
+      AutoScaleRig;
+      UpdateFK;
+      
+      Log(llInfo, Format('glTF/GLB rig loaded successfully. %d joints imported.', [JIdx]));
+    finally
+      RootObj.Free;
+    end;
+  except
+    on E: Exception do
+      SetError('Error parsing glTF JSON: ' + E.Message);
+  end;
+end;
+
+procedure TAISkeletonRig.LoadGLTF(const AFileName: string);
+var
+  JSONString: string;
+  JSONFile: TStringList;
+begin
+  Log(llInfo, 'Parsing glTF JSON file: ' + AFileName);
+  ClearError;
+  if not FileExists(AFileName) then
+  begin
+    SetError('glTF file not found: ' + AFileName);
+    Exit;
+  end;
+  
+  JSONFile := TStringList.Create;
+  try
+    JSONFile.LoadFromFile(AFileName);
+    JSONString := JSONFile.Text;
+    ParseGLTFJSON(JSONString);
+  finally
+    JSONFile.Free;
+  end;
+end;
+
+procedure TAISkeletonRig.LoadGLB(const AFileName: string);
+var
+  FS: TFileStream;
+  Magic: array[0..3] of Char;
+  Version: LongWord;
+  LengthVal: LongWord;
+  ChunkLength: LongWord;
+  ChunkType: array[0..3] of Char;
+  JSONBytes: array of Byte;
+  JSONString: string;
+begin
+  Log(llInfo, 'Parsing GLB binary file: ' + AFileName);
+  ClearError;
+  if not FileExists(AFileName) then
+  begin
+    SetError('GLB file not found: ' + AFileName);
+    Exit;
+  end;
+  
+  FS := TFileStream.Create(AFileName, fmOpenRead or fmShareDenyWrite);
+  try
+    if FS.Size < 20 then
+    begin
+      SetError('Invalid GLB file: file size too small.');
+      Exit;
+    end;
+    
+    FS.Read(Magic[0], 4);
+    FS.Read(Version, 4);
+    FS.Read(LengthVal, 4);
+    
+    if (Magic <> 'glTF') then
+    begin
+      SetError('Invalid GLB file: magic is not glTF.');
+      Exit;
+    end;
+    
+    FS.Read(ChunkLength, 4);
+    FS.Read(ChunkType[0], 4);
+    
+    if (ChunkType <> 'JSON') then
+    begin
+      SetError('Invalid GLB file: first chunk is not JSON.');
+      Exit;
+    end;
+    
+    if ChunkLength > FS.Size - 20 then
+    begin
+      SetError('Invalid GLB file: chunk length exceeds file bounds.');
+      Exit;
+    end;
+    
+    SetLength(JSONBytes, ChunkLength);
+    FS.Read(JSONBytes[0], ChunkLength);
+    
+    SetString(JSONString, PAnsiChar(@JSONBytes[0]), ChunkLength);
+    ParseGLTFJSON(JSONString);
+  finally
+    FS.Free;
+  end;
+end;
+
+procedure TAISkeletonRig.LoadBlend(const AFileName: string);
+var
+  BlenderPath: string;
+  ScriptPath: string;
+  TempOutPath: string;
+  PyScript: TStringList;
+  Process: TProcess;
+  I: Integer;
+  SearchPaths: array[0..4] of string;
+  Found: Boolean;
+begin
+  Log(llInfo, 'Attempting to load Blender (.blend) file: ' + AFileName);
+  ClearError;
+  
+  Found := False;
+  BlenderPath := '';
+  
+  SearchPaths[0] := 'C:\Program Files\Blender Foundation\Blender 4.2\blender.exe';
+  SearchPaths[1] := 'C:\Program Files\Blender Foundation\Blender 4.1\blender.exe';
+  SearchPaths[2] := 'C:\Program Files\Blender Foundation\Blender 4.0\blender.exe';
+  SearchPaths[3] := 'C:\Program Files\Blender Foundation\Blender 3.6\blender.exe';
+  SearchPaths[4] := 'blender.exe';
+  
+  for I := 0 to 4 do
+  begin
+    if (I < 4) and FileExists(SearchPaths[I]) then
+    begin
+      BlenderPath := SearchPaths[I];
+      Found := True;
+      Break;
+    end;
+  end;
+  
+  if not Found then
+    BlenderPath := 'blender.exe';
+  
+  TempOutPath := GetTempDir + 'temp_rig_export.gltf';
+  ScriptPath := GetTempDir + 'temp_blender_export.py';
+  
+  if FileExists(TempOutPath) then DeleteFile(TempOutPath);
+  if FileExists(ScriptPath) then DeleteFile(ScriptPath);
+  
+  PyScript := TStringList.Create;
+  try
+    PyScript.Add('import bpy, os');
+    PyScript.Add('bpy.ops.object.select_all(action="DESELECT")');
+    PyScript.Add('armature_obj = None');
+    PyScript.Add('for obj in bpy.data.objects:');
+    PyScript.Add('    if obj.type == "ARMATURE":');
+    PyScript.Add('        armature_obj = obj');
+    PyScript.Add('        obj.select_set(True)');
+    PyScript.Add('        bpy.context.view_layer.objects.active = obj');
+    PyScript.Add('        break');
+    PyScript.Add('if armature_obj:');
+    PyScript.Add('    bpy.ops.export_scene.gltf(filepath=r"' + TempOutPath + '", export_format="GLTF_EMBEDDED", export_selected=True)');
+    PyScript.Add('    print("EXPORT_SUCCESS")');
+    PyScript.Add('else:');
+    PyScript.Add('    print("NO_ARMATURE_FOUND")');
+    
+    PyScript.SaveToFile(ScriptPath);
+  finally
+    PyScript.Free;
+  end;
+  
+  Process := TProcess.Create(nil);
+  try
+    Process.Executable := BlenderPath;
+    Process.Parameters.Add('--background');
+    Process.Parameters.Add(AFileName);
+    Process.Parameters.Add('--python');
+    Process.Parameters.Add(ScriptPath);
+    Process.Options := [poWaitOnExit];
+    
+    try
+      Process.Execute;
+    except
+      on E: Exception do
+      begin
+        SetError('Blender (.blend) loader requires Blender installed. ' +
+                 'Please install Blender, add it to your PATH, or export the armature to .dae, .bvh, .gltf, or .glb first. ' +
+                 'Error executing Blender CLI: ' + E.Message);
+        Exit;
+      end;
+    end;
+    
+    if FileExists(TempOutPath) then
+    begin
+      LoadGLTF(TempOutPath);
+      DeleteFile(TempOutPath);
+    end
+    else
+    begin
+      SetError('Failed to convert Blender armature. Please verify if the .blend file contains an Armature object.');
+    end;
+    
+    if FileExists(ScriptPath) then DeleteFile(ScriptPath);
+  finally
+    Process.Free;
+  end;
+end;
+
 procedure TAISkeletonRig.LoadRigFromFile(const AFileName: string);
 var
   Lines: TStringList;
@@ -293,6 +880,7 @@ var
   Line: string;
   LName, LParentName: string;
   OX, OY, OZ: Double;
+  Ext: string;
   
   function FindJointIndex(const AName: string): Integer;
   var
@@ -320,6 +908,34 @@ var
   end;
 
 begin
+  Ext := LowerCase(ExtractFileExt(AFileName));
+  if Ext = '.bvh' then
+  begin
+    LoadBVH(AFileName);
+    Exit;
+  end
+  else if Ext = '.dae' then
+  begin
+    LoadDAE(AFileName);
+    Exit;
+  end
+  else if (Ext = '.gltf') then
+  begin
+    LoadGLTF(AFileName);
+    Exit;
+  end
+  else if (Ext = '.glb') then
+  begin
+    LoadGLB(AFileName);
+    Exit;
+  end
+  else if (Ext = '.blend') then
+  begin
+    LoadBlend(AFileName);
+    Exit;
+  end;
+
+  // Otherwise, default to original .rig parser
   Log(llInfo, 'Loading rig from: ' + AFileName);
   ClearError;
   if not FileExists(AFileName) then

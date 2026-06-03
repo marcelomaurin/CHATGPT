@@ -5,7 +5,7 @@ program test_new_components;
 uses
   Interfaces, Classes, SysUtils, chatgpt, aiproject, aipipeline, aigraphmap, aioutput_docs,
   aimodelregistry, aiwizardconfig, aitrainingexporter, aidatasetanalyzer,
-  aitrainingreport, aigraphvisualizer;
+  aitrainingreport, aigraphvisualizer, aiskeletonrig;
 
 procedure TestModelRegistryAndWizard;
 var
@@ -178,11 +178,58 @@ begin
   end;
 end;
 
+procedure TestSkeletonRigLoaders;
+var
+  Rig: TAISkeletonRig;
+  PathPrefix: string;
+begin
+  WriteLn('Testing TAISkeletonRig Loaders (.rig, .bvh, .dae, .gltf, .glb, .blend)...');
+  Rig := TAISkeletonRig.Create(nil);
+  try
+    PathPrefix := 'pacote/samples/AI Graphic/avatar_demo/';
+    
+    // 1. Load original .rig
+    Rig.LoadRigFromFile(PathPrefix + 'human_dummy.rig');
+    if Rig.GetJointCount <> 11 then
+      raise Exception.Create('SkeletonRig: failed to load .rig correctly. Count is: ' + IntToStr(Rig.GetJointCount));
+      
+    // 2. Load .bvh
+    Rig.LoadRigFromFile(PathPrefix + 'human_dummy.bvh');
+    if Rig.GetJointCount <> 11 then
+      raise Exception.Create('SkeletonRig: failed to load .bvh correctly. Count is: ' + IntToStr(Rig.GetJointCount));
+      
+    // 3. Load .dae
+    Rig.LoadRigFromFile(PathPrefix + 'human_dummy.dae');
+    if Rig.GetJointCount <> 11 then
+      raise Exception.Create('SkeletonRig: failed to load .dae correctly. Count is: ' + IntToStr(Rig.GetJointCount));
+      
+    // 4. Load .gltf
+    Rig.LoadRigFromFile(PathPrefix + 'human_dummy.gltf');
+    if Rig.GetJointCount <> 11 then
+      raise Exception.Create('SkeletonRig: failed to load .gltf correctly. Count is: ' + IntToStr(Rig.GetJointCount));
+      
+    // 5. Load .glb
+    Rig.LoadRigFromFile(PathPrefix + 'human_dummy.glb');
+    if Rig.GetJointCount <> 11 then
+      raise Exception.Create('SkeletonRig: failed to load .glb correctly. Count is: ' + IntToStr(Rig.GetJointCount));
+      
+    // 6. Load .blend
+    Rig.LoadRigFromFile(PathPrefix + 'human_dummy.blend');
+    if Rig.GetJointCount <> 11 then
+      raise Exception.Create('SkeletonRig: failed to load .blend correctly. Count is: ' + IntToStr(Rig.GetJointCount));
+
+    WriteLn('TAISkeletonRig Loaders tested successfully.');
+  finally
+    Rig.Free;
+  end;
+end;
+
 begin
   WriteLn('Running test_new_components...');
   try
     TestModelRegistryAndWizard;
     TestGraphMapCycle;
+    TestSkeletonRigLoaders;
     WriteLn('test_new_components COMPLETED SUCCESSFULLY.');
   except
     on E: Exception do

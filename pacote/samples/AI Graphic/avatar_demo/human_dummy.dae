@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
+  <library_visual_scenes>
+    <visual_scene id="Scene" name="Scene">
+      <node id="pelvis" name="pelvis" type="JOINT">
+        <translate sid="location">0.00 0.20 0.00</translate>
+        <node id="spine" name="spine" type="JOINT">
+          <translate sid="location">0.00 0.50 0.00</translate>
+          <node id="head" name="head" type="JOINT">
+            <translate sid="location">0.00 0.30 0.00</translate>
+          </node>
+          <node id="left_shoulder" name="left_shoulder" type="JOINT">
+            <translate sid="location">-0.30 0.00 0.00</translate>
+            <node id="left_elbow" name="left_elbow" type="JOINT">
+              <translate sid="location">-0.40 0.00 0.00</translate>
+            </node>
+          </node>
+          <node id="right_shoulder" name="right_shoulder" type="JOINT">
+            <translate sid="location">0.30 0.00 0.00</translate>
+            <node id="right_elbow" name="right_elbow" type="JOINT">
+              <translate sid="location">0.40 0.00 0.00</translate>
+            </node>
+          </node>
+        </node>
+        <node id="left_hip" name="left_hip" type="JOINT">
+          <translate sid="location">-0.15 -0.50 0.00</translate>
+          <node id="left_knee" name="left_knee" type="JOINT">
+            <translate sid="location">0.00 -0.50 0.00</translate>
+          </node>
+        </node>
+        <node id="right_hip" name="right_hip" type="JOINT">
+          <translate sid="location">0.15 -0.50 0.00</translate>
+          <node id="right_knee" name="right_knee" type="JOINT">
+            <translate sid="location">0.00 -0.50 0.00</translate>
+          </node>
+        </node>
+      </node>
+    </visual_scene>
+  </library_visual_scenes>
+  <scene>
+    <instance_visual_scene url="#Scene"/>
+  </scene>
+</COLLADA>

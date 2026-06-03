@@ -1,0 +1,64 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "Handwritten"
+  },
+  "scenes": [
+    {
+      "nodes": [0]
+    }
+  ],
+  "scene": 0,
+  "nodes": [
+    {
+      "name": "pelvis",
+      "translation": [0.0, 0.2, 0.0],
+      "children": [1, 7, 9]
+    },
+    {
+      "name": "spine",
+      "translation": [0.0, 0.5, 0.0],
+      "children": [2, 3, 5]
+    },
+    {
+      "name": "head",
+      "translation": [0.0, 0.3, 0.0]
+    },
+    {
+      "name": "left_shoulder",
+      "translation": [-0.3, 0.0, 0.0],
+      "children": [4]
+    },
+    {
+      "name": "left_elbow",
+      "translation": [-0.4, 0.0, 0.0]
+    },
+    {
+      "name": "right_shoulder",
+      "translation": [0.3, 0.0, 0.0],
+      "children": [6]
+    },
+    {
+      "name": "right_elbow",
+      "translation": [0.4, 0.0, 0.0]
+    },
+    {
+      "name": "left_hip",
+      "translation": [-0.15, -0.5, 0.0],
+      "children": [8]
+    },
+    {
+      "name": "left_knee",
+      "translation": [0.0, -0.5, 0.0]
+    },
+    {
+      "name": "right_hip",
+      "translation": [0.15, -0.5, 0.0],
+      "children": [10]
+    },
+    {
+      "name": "right_knee",
+      "translation": [0.0, -0.5, 0.0]
+    }
+  ]
+}

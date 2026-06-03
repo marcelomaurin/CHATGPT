@@ -1,0 +1,76 @@
+HIERARCHY
+ROOT pelvis
+{
+  OFFSET 0.00 0.20 0.00
+  CHANNELS 6 Xposition Yposition Zposition Xrotation Yrotation Zrotation
+  JOINT spine
+  {
+    OFFSET 0.00 0.50 0.00
+    CHANNELS 3 Xrotation Yrotation Zrotation
+    JOINT head
+    {
+      OFFSET 0.00 0.30 0.00
+      CHANNELS 3 Xrotation Yrotation Zrotation
+      End Site
+      {
+        OFFSET 0.00 0.15 0.00
+      }
+    }
+    JOINT left_shoulder
+    {
+      OFFSET -0.30 0.00 0.00
+      CHANNELS 3 Xrotation Yrotation Zrotation
+      JOINT left_elbow
+      {
+        OFFSET -0.40 0.00 0.00
+        CHANNELS 3 Xrotation Yrotation Zrotation
+        End Site
+        {
+          OFFSET -0.10 0.00 0.00
+        }
+      }
+    }
+    JOINT right_shoulder
+    {
+      OFFSET 0.30 0.00 0.00
+      CHANNELS 3 Xrotation Yrotation Zrotation
+      JOINT right_elbow
+      {
+        OFFSET 0.40 0.00 0.00
+        CHANNELS 3 Xrotation Yrotation Zrotation
+        End Site
+        {
+          OFFSET 0.10 0.00 0.00
+        }
+      }
+    }
+  }
+  JOINT left_hip
+  {
+    OFFSET -0.15 -0.50 0.00
+    CHANNELS 3 Xrotation Yrotation Zrotation
+    JOINT left_knee
+    {
+      OFFSET 0.00 -0.50 0.00
+      CHANNELS 3 Xrotation Yrotation Zrotation
+      End Site
+      {
+        OFFSET 0.00 -0.10 0.00
+      }
+    }
+  }
+  JOINT right_hip
+  {
+    OFFSET 0.15 -0.50 0.00
+    CHANNELS 3 Xrotation Yrotation Zrotation
+    JOINT right_knee
+    {
+      OFFSET 0.00 -0.50 0.00
+      CHANNELS 3 Xrotation Yrotation Zrotation
+      End Site
+      {
+        OFFSET 0.00 -0.10 0.00
+      }
+    }
+  }
+}

@@ -128,7 +128,7 @@ begin
   OpenDlg := TOpenDialog.Create(nil);
   try
     OpenDlg.Title := 'Load 3D Hierarchical Rig/Model';
-    OpenDlg.Filter := 'Rig files (*.rig)|*.rig|All Files (*.*)|*.*';
+    OpenDlg.Filter := 'All Supported Rigs (*.rig;*.bvh;*.dae;*.gltf;*.glb;*.blend)|*.rig;*.bvh;*.dae;*.gltf;*.glb;*.blend|Rig files (*.rig)|*.rig|BVH Files (*.bvh)|*.bvh|Collada Files (*.dae)|*.dae|glTF Files (*.gltf;*.glb)|*.gltf;*.glb|Blender Files (*.blend)|*.blend|All Files (*.*)|*.*';
     OpenDlg.InitialDir := ExtractFilePath(Application.ExeName);
     if OpenDlg.Execute then
     begin
