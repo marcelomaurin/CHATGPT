@@ -26,6 +26,10 @@ type
     meScript: TMemo;
     btnExecute: TButton;
     
+    pnlOutput: TPanel;
+    lblOutput: TLabel;
+    meOutput: TMemo;
+    
     pnlVars: TPanel;
     lblVarsTitle: TLabel;
     lblVarName: TLabel;
@@ -43,6 +47,7 @@ type
     lblResult: TLabel;
     edResult: TEdit;
     
+    pnlLogs: TPanel;
     meLogs: TMemo;
     lblLogs: TLabel;
 
@@ -231,14 +236,22 @@ begin
     Exit;
   end;
 
+  meOutput.Clear;
   Code := meScript.Text;
   LogMsg('Executando script Python...');
   if FConnector.ExecString(Code) then
-    LogMsg('Executado com sucesso!')
+  begin
+    LogMsg('Executado com sucesso!');
+    meOutput.Text := FConnector.LastOutput;
+  end
   else
   begin
     LogMsg('ERRO de execução: ' + FConnector.LastError);
-    ShowMessage('Erro de execução! Verifique o console ou a sintaxe: ' + FConnector.LastError);
+    meOutput.Text := FConnector.LastOutput;
+    if meOutput.Text <> '' then
+      meOutput.Lines.Add('');
+    meOutput.Lines.Add('=== ERRO DE EXECUÇÃO ===');
+    meOutput.Lines.Add(FConnector.LastError);
   end;
 end;
 

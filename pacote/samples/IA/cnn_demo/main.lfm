@@ -6,9 +6,9 @@ object frmCNNDemo: TfrmCNNDemo
   Caption = 'TCNNClassifier Showcase - Classificação de Imagens com MobileNetV2 (CNN)'
   ClientHeight = 620
   ClientWidth = 820
+  LCLVersion = '4.4.0.0'
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  LCLVersion = '3.0.0.3'
   object pnlConfig: TPanel
     Left = 10
     Height = 115
@@ -23,7 +23,7 @@ object frmCNNDemo: TfrmCNNDemo
       Left = 15
       Height = 15
       Top = 10
-      Width = 280
+      Width = 133
       Caption = 'Escolha a DLL do Python:'
       ParentColor = False
     end
@@ -41,8 +41,8 @@ object frmCNNDemo: TfrmCNNDemo
       Top = 35
       Width = 200
       Caption = 'Ativar Python'
-      OnClick = btnInitPythonClick
       TabOrder = 1
+      OnClick = btnInitPythonClick
     end
     object btnInstallDeps: TButton
       Left = 520
@@ -50,29 +50,37 @@ object frmCNNDemo: TfrmCNNDemo
       Top = 35
       Width = 260
       Caption = 'Instalar Dependências (Pip)'
-      OnClick = btnInstallDepsClick
       TabOrder = 2
+      OnClick = btnInstallDepsClick
     end
   end
   object pnlImageArea: TPanel
     Left = 10
-    Height = 340
-    Top = 110
+    Height = 335
+    Top = 135
     Width = 340
     Align = alLeft
     BorderSpacing.Left = 10
     BorderSpacing.Right = 5
     BorderSpacing.Bottom = 10
-    ClientHeight = 340
+    ClientHeight = 335
     ClientWidth = 340
     TabOrder = 1
     object imgPicture: TImage
       Left = 15
-      Height = 250
+      Height = 200
       Top = 15
       Width = 310
       Proportional = True
       Stretch = True
+    end
+    object lblSelectCat: TLabel
+      Left = 16
+      Height = 15
+      Top = 264
+      Width = 113
+      Caption = 'Imagens de Exemplo:'
+      ParentColor = False
     end
     object btnSelectImage: TButton
       Left = 15
@@ -81,30 +89,32 @@ object frmCNNDemo: TfrmCNNDemo
       Width = 310
       Caption = 'Selecionar Imagem...'
       Font.Style = [fsBold]
-      OnClick = btnSelectImageClick
+      ParentFont = False
       TabOrder = 0
+      OnClick = btnSelectImageClick
     end
   end
   object pnlResult: TPanel
-    Left = 365
-    Height = 340
-    Top = 110
-    Width = 445
+    Left = 355
+    Height = 335
+    Top = 135
+    Width = 455
     Align = alClient
     BorderSpacing.Left = 5
     BorderSpacing.Right = 10
     BorderSpacing.Bottom = 10
-    ClientHeight = 340
-    ClientWidth = 445
+    ClientHeight = 335
+    ClientWidth = 455
     TabOrder = 2
     object lblResultTitle: TLabel
       Left = 15
       Height = 15
       Top = 10
-      Width = 212
+      Width = 210
       Caption = 'Resultados da Predição Convolucional:'
       Font.Style = [fsBold]
       ParentColor = False
+      ParentFont = False
     end
     object btnClassify: TButton
       Left = 15
@@ -113,14 +123,15 @@ object frmCNNDemo: TfrmCNNDemo
       Width = 410
       Caption = 'Classificar Imagem (Executar CNN)'
       Font.Style = [fsBold]
-      OnClick = btnClassifyClick
+      ParentFont = False
       TabOrder = 0
+      OnClick = btnClassifyClick
     end
     object lblLabel: TLabel
       Left = 15
       Height = 15
       Top = 115
-      Width = 96
+      Width = 101
       Caption = 'Classe Identificada:'
       ParentColor = False
     end
@@ -136,7 +147,7 @@ object frmCNNDemo: TfrmCNNDemo
       Left = 15
       Height = 15
       Top = 180
-      Width = 109
+      Width = 112
       Caption = 'Confiança (Precisão):'
       ParentColor = False
     end
@@ -164,7 +175,7 @@ object frmCNNDemo: TfrmCNNDemo
     Left = 10
     Height = 15
     Top = 455
-    Width = 113
+    Width = 115
     Caption = 'Logs do Classificador:'
     ParentColor = False
   end

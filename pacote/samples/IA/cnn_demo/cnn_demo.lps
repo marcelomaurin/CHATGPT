@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectSession>
+    <PathDelim Value="\"/>
+    <Version Value="12"/>
+    <BuildModes Active="Default"/>
+    <Units>
+      <Unit>
+        <Filename Value="cnn_demo.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="4"/>
+        <CursorPos Y="21"/>
+        <UsageCount Value="21"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="main.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmCNNDemo"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UsageCount Value="21"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\..\..\IA\pythonconnector.pas"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="46"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\..\..\IA\cnnclassifier.pas"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="189"/>
+        <CursorPos X="5" Y="222"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\..\IA Voice\aivoicesynthesizer_sample.lpr"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit>
+    </Units>
+    <JumpHistory HistoryIndex="29">
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="258" Column="26" TopLine="241"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="44" Column="30" TopLine="31"/>
+      </Position>
+      <Position>
+        <Filename Value="..\..\..\IA\pythonconnector.pas"/>
+        <Caret Line="55" Column="3" TopLine="38"/>
+      </Position>
+      <Position>
+        <Filename Value="..\..\..\IA\pythonconnector.pas"/>
+        <Caret Line="1564" Column="5" TopLine="1530"/>
+      </Position>
+      <Position>
+        <Filename Value="..\..\..\IA\pythonconnector.pas"/>
+        <Caret Line="1545" Column="69" TopLine="1530"/>
+      </Position>
+      <Position>
+        <Filename Value="..\..\..\IA\pythonconnector.pas"/>
+        <Caret Line="1556" Column="28" TopLine="1530"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="258" Column="26" TopLine="241"/>
+      </Position>
+      <Position>
+        <Filename Value="..\..\..\IA\pythonconnector.pas"/>
+        <Caret Line="1033" Column="5" TopLine="1008"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="349" Column="27" TopLine="342"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="41" Column="33" TopLine="25"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="352" Column="60" TopLine="334"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="399" Column="41" TopLine="368"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="126" Column="5" TopLine="108"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="369" Column="41" TopLine="352"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="41" Column="33" TopLine="24"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="304" Column="41" TopLine="276"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="369" TopLine="339"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="41" Column="33" TopLine="24"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="367" Column="5" TopLine="334"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="61" Column="30" TopLine="44"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="331" Column="5" TopLine="303"/>
+      </Position>
+      <Position>
+        <Filename Value="..\..\..\IA\pythonconnector.pas"/>
+        <Caret Line="1014" Column="35" TopLine="1008"/>
+      </Position>
+      <Position>
+        <Filename Value="..\..\..\IA\pythonconnector.pas"/>
+        <Caret Line="1195" Column="33" TopLine="1167"/>
+      </Position>
+      <Position>
+        <Filename Value="..\..\..\IA\pythonconnector.pas"/>
+        <Caret Line="115" Column="32" TopLine="99"/>
+      </Position>
+      <Position>
+        <Filename Value="..\..\..\IA\pythonconnector.pas"/>
+        <Caret Line="981" Column="32" TopLine="970"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+        <Caret Line="316" Column="32" TopLine="303"/>
+      </Position>
+      <Position>
+        <Filename Value="main.pas"/>
+      </Position>
+      <Position>
+        <Filename Value="..\..\..\IA\cnnclassifier.pas"/>
+        <Caret Line="8" Column="26"/>
+      </Position>
+      <Position>
+        <Filename Value="..\..\..\IA\cnnclassifier.pas"/>
+        <Caret Line="176" Column="32" TopLine="169"/>
+      </Position>
+      <Position>
+        <Filename Value="..\..\..\IA\cnnclassifier.pas"/>
+        <Caret Line="30" Column="27" TopLine="12"/>
+      </Position>
+    </JumpHistory>
+    <RunParams>
+      <FormatVersion Value="2"/>
+      <Modes ActiveMode=""/>
+    </RunParams>
+  </ProjectSession>
+  <Debugging>
+    <BreakPoints>
+      <Item>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="cnn_demo.lpr"/>
+        <Line Value="21"/>
+      </Item>
+    </BreakPoints>
+  </Debugging>
+</CONFIG>

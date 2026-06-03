@@ -81,53 +81,91 @@ object frmPythonDemo: TfrmPythonDemo
   end
   object pnlScript: TPanel
     Left = 10
-    Height = 220
-    Top = 100
+    Height = 365
+    Top = 135
     Width = 400
     Align = alLeft
     BorderSpacing.Left = 10
     BorderSpacing.Right = 5
     BorderSpacing.Bottom = 10
-    ClientHeight = 220
+    ClientHeight = 365
     ClientWidth = 400
     TabOrder = 1
     object lblScript: TLabel
-      Left = 15
+      Left = 5
       Height = 15
-      Top = 10
-      Width = 129
+      Top = 5
+      Width = 390
+      Align = alTop
+      BorderSpacing.Around = 5
       Caption = 'Script Python a Executar:'
       ParentColor = False
     end
+    object btnExecute: TButton
+      Left = 5
+      Height = 35
+      Top = 325
+      Width = 390
+      Align = alBottom
+      BorderSpacing.Around = 5
+      Caption = 'Executar Script no Python'
+      OnClick = btnExecuteClick
+      TabOrder = 1
+    end
     object meScript: TMemo
-      Left = 15
-      Height = 130
-      Top = 30
-      Width = 370
+      Left = 5
+      Height = 275
+      Top = 25
+      Width = 390
+      Align = alClient
+      BorderSpacing.Around = 5
       Lines.Strings = (
-        'import math'
-        'x = 100'
-        'y = math.sqrt(x) * 5'
-        '# Imprime no log pascal'
-        'print("Olá do Python!")'
+        'print("Hello World from Python!")'
       )
       ScrollBars = ssAutoBoth
       TabOrder = 0
     end
-    object btnExecute: TButton
-      Left = 15
-      Height = 30
-      Top = 175
-      Width = 370
-      Caption = 'Executar Script no Python'
-      OnClick = btnExecuteClick
-      TabOrder = 1
+  end
+  object pnlOutput: TPanel
+    Left = 425
+    Height = 150
+    Top = 135
+    Width = 415
+    Align = alTop
+    BorderSpacing.Left = 5
+    BorderSpacing.Right = 10
+    BorderSpacing.Bottom = 5
+    ClientHeight = 150
+    ClientWidth = 415
+    TabOrder = 5
+    object lblOutput: TLabel
+      Left = 10
+      Height = 15
+      Top = 5
+      Width = 395
+      Align = alTop
+      BorderSpacing.Left = 10
+      BorderSpacing.Top = 5
+      Caption = 'Saída do Script (stdout/stderr):'
+      Font.Style = [fsBold]
+      ParentColor = False
+    end
+    object meOutput: TMemo
+      Left = 5
+      Height = 120
+      Top = 25
+      Width = 405
+      Align = alClient
+      BorderSpacing.Around = 5
+      ReadOnly = True
+      ScrollBars = ssAutoBoth
+      TabOrder = 0
     end
   end
   object pnlVars: TPanel
     Left = 425
     Height = 120
-    Top = 100
+    Top = 290
     Width = 415
     Align = alClient
     BorderSpacing.Left = 5
@@ -198,7 +236,7 @@ object frmPythonDemo: TfrmPythonDemo
   object pnlEval: TPanel
     Left = 425
     Height = 95
-    Top = 225
+    Top = 415
     Width = 415
     Align = alBottom
     BorderSpacing.Left = 5
@@ -258,23 +296,37 @@ object frmPythonDemo: TfrmPythonDemo
       TabOrder = 2
     end
   end
-  object meLogs: TMemo
+  object pnlLogs: TPanel
     Left = 10
-    Height = 280
-    Top = 360
+    Height = 140
+    Top = 500
     Width = 830
     Align = alBottom
     BorderSpacing.Around = 10
-    ReadOnly = True
-    ScrollBars = ssAutoBoth
+    ClientHeight = 140
+    ClientWidth = 830
     TabOrder = 4
-  end
-  object lblLogs: TLabel
-    Left = 10
-    Height = 15
-    Top = 335
-    Width = 109
-    Caption = 'Logs de Operações:'
-    ParentColor = False
+    object lblLogs: TLabel
+      Left = 10
+      Height = 15
+      Top = 5
+      Width = 810
+      Align = alTop
+      BorderSpacing.Left = 10
+      BorderSpacing.Top = 5
+      Caption = 'Logs de Operações:'
+      ParentColor = False
+    end
+    object meLogs: TMemo
+      Left = 5
+      Height = 110
+      Top = 25
+      Width = 820
+      Align = alClient
+      BorderSpacing.Around = 5
+      ReadOnly = True
+      ScrollBars = ssAutoBoth
+      TabOrder = 0
+    end
   end
 end

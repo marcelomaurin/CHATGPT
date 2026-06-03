@@ -123,10 +123,16 @@ begin
   end;
 end;
 
-function TCNNClassifier.ClassifyImage(const AImageFile: string; out AClassLabel: string; out AConfidence: Double): Boolean;
+function TCNNClassifier.ClassifyImage(
+  const AImageFile: string;
+  out AClassLabel: string;
+  out AConfidence: Double
+): Boolean;
 var
   PyScript: string;
   EscapedPath: string;
+  ConfStr: string;
+  FS: TFormatSettings;
 begin
   Result := False;
   AClassLabel := '';
@@ -153,30 +159,39 @@ begin
     Exit;
   end;
 
-  // Escapa barras invertidas no caminho da imagem para o interpretador Python
+  // Escapa barras invertidas no caminho da imagem para o Python
   EscapedPath := StringReplace(AImageFile, '\', '\\', [rfReplaceAll]);
 
-  // Script dinâmico em Python para classificação via MobileNetV2 (Carregado e cacheado globalmente no namespace)
+  // Script dinâmico em Python para classificação via MobileNetV2
+  // Observações:
+  // 1. Imports dentro do try para capturar erros corretamente.
+  // 2. TF_CPP_MIN_LOG_LEVEL reduz logs do TensorFlow.
+  // 3. predict(..., verbose=0) evita barra/progresso no stdout.
+  // 4. cnn_confidence_str força saída com ponto decimal.
   PyScript :=
-    'import tensorflow as tf' + sLineBreak +
-    'from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2, preprocess_input, decode_predictions' + sLineBreak +
-    'from tensorflow.keras.preprocessing import image' + sLineBreak +
-    'import numpy as np' + sLineBreak +
+    'import os' + sLineBreak +
+    'os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"' + sLineBreak +
     'try:' + sLineBreak +
+    '    import tensorflow as tf' + sLineBreak +
+    '    from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2, preprocess_input, decode_predictions' + sLineBreak +
+    '    from tensorflow.keras.preprocessing import image' + sLineBreak +
+    '    import numpy as np' + sLineBreak +
     '    if "cnn_model" not in globals():' + sLineBreak +
     '        cnn_model = MobileNetV2(weights="imagenet")' + sLineBreak +
     '    img = image.load_img(r"' + EscapedPath + '", target_size=(224, 224))' + sLineBreak +
     '    x = image.img_to_array(img)' + sLineBreak +
     '    x = np.expand_dims(x, axis=0)' + sLineBreak +
     '    x = preprocess_input(x)' + sLineBreak +
-    '    preds = cnn_model.predict(x)' + sLineBreak +
+    '    preds = cnn_model.predict(x, verbose=0)' + sLineBreak +
     '    decoded = decode_predictions(preds, top=1)[0][0]' + sLineBreak +
     '    cnn_label = decoded[1].replace("_", " ")' + sLineBreak +
     '    cnn_confidence = float(decoded[2])' + sLineBreak +
+    '    cnn_confidence_str = "{:.8f}".format(cnn_confidence)' + sLineBreak +
     '    cnn_success = True' + sLineBreak +
     'except Exception as e:' + sLineBreak +
     '    cnn_label = str(e)' + sLineBreak +
     '    cnn_confidence = 0.0' + sLineBreak +
+    '    cnn_confidence_str = "0.0"' + sLineBreak +
     '    cnn_success = False';
 
   if not FPythonConnector.ExecString(PyScript) then
@@ -192,7 +207,17 @@ begin
   end;
 
   AClassLabel := FPythonConnector.GetVar('cnn_label');
-  AConfidence := StrToFloatDef(FPythonConnector.GetVar('cnn_confidence'), 0.0);
+
+  ConfStr := Trim(FPythonConnector.GetVar('cnn_confidence_str'));
+
+  if ConfStr = '' then
+    ConfStr := Trim(FPythonConnector.GetVar('cnn_confidence'));
+
+  FS := DefaultFormatSettings;
+  FS.DecimalSeparator := '.';
+
+  AConfidence := StrToFloatDef(ConfStr, 0.0, FS);
+
   Result := True;
 end;
 
