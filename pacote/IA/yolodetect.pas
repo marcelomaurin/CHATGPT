@@ -21,7 +21,9 @@ type
   private
     FPythonConnector: TPythonConnector;
     FLastError: string;
+    FPreferProcessMode: Boolean;
     procedure SetPythonConnector(const AValue: TPythonConnector);
+    procedure PrepareConnector;
   protected
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
@@ -31,6 +33,7 @@ type
   published
     property PythonConnector: TPythonConnector read FPythonConnector write SetPythonConnector;
     property LastError: string read FLastError;
+    property PreferProcessMode: Boolean read FPreferProcessMode write FPreferProcessMode default True;
   end;
 
 procedure Register;
@@ -49,6 +52,15 @@ begin
   inherited Create(AOwner);
   FPythonConnector := nil;
   FLastError := '';
+  FPreferProcessMode := True;
+end;
+
+procedure TYOLO.PrepareConnector;
+begin
+  if (FPythonConnector <> nil) and not FPythonConnector.Active and FPreferProcessMode then
+  begin
+    FPythonConnector.ExecutionMode := pemProcess;
+  end;
 end;
 
 procedure TYOLO.SetPythonConnector(const AValue: TPythonConnector);
@@ -56,7 +68,10 @@ begin
   if FPythonConnector = AValue then Exit;
   FPythonConnector := AValue;
   if FPythonConnector <> nil then
+  begin
     FPythonConnector.FreeNotification(Self);
+    PrepareConnector;
+  end;
 end;
 
 procedure TYOLO.Notification(AComponent: TComponent; Operation: TOperation);
@@ -76,6 +91,8 @@ begin
     FLastError := 'PythonConnector não associado ao componente.';
     Exit;
   end;
+
+  PrepareConnector;
 
   if not FPythonConnector.IsInitialized then
   begin
@@ -125,6 +142,8 @@ begin
     FLastError := 'PythonConnector não associado ao componente.';
     Exit;
   end;
+
+  PrepareConnector;
 
   if not FPythonConnector.IsInitialized then
   begin

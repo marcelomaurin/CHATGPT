@@ -9,11 +9,11 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="IA;IA Agent;IA Voice;IA Filtros Sonoros;IA Image;IA Schedulle;IA Math;IA Input;IA Output;.."/>
+        <OtherUnitFiles Value="IA;IA Agent;IA Voice;IA Filtros Sonoros;IA Image;IA Schedulle;IA Math;IA Input;IA Output;IA Graph;.."/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Description Value="Integration OpenAI, CHATGPT, this is not licensed for OpenAI. This is third-party."/>
+    <Description Value="Lazarus AI Suite: Native components for OpenAI ChatGPT integration, local weighted token graph classifiers for explainable NLP, neural networks, industrial Modbus/Siemens PLC gateways, voice synthesizers, and automated PDF/Word document generators."/>
     <License Value="OPEN SOURCE GPL3"/>
     <Files>
       <Item>
@@ -211,7 +211,7 @@
         <UnitName Value="aipromptbuilder"/>
       </Item>
       <Item>
-        <Filename Value="IA\aigraphmap.pas"/>
+        <Filename Value="IA Graph\aigraphmap.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aigraphmap"/>
       </Item>

@@ -13,7 +13,6 @@
 | **TCHATGPT** | موصل OpenAI/ChatGPT. | `APIKey, Model, MaxTokens` | `SendQuestion(const AQuestion: string): Boolean` | معالجة اللغة الطبيعية واتخاذ القرارات النصية. |
 | **TNeuralNetwork** | شبكة عصبية متعددة الطبقات أصلية. | `InputNodes, HiddenNodes, OutputNodes, LearningRate` | `Train, Predict` | تعلم الأنماط المعقدة من مجموعات البيانات. |
 | **TTokenizer** | مقسم النصوص (Tokenizer). | `LowerCase` | `Tokenize, GetVocabulary` | معالجة النصوص الخام وتحويلها لفهارس رقمية. |
-| **TAIGraphMap** | مصنف نصوص يعتمد على الرسوم البيانية الموزونة للرموز. | `Training, LowerCaseTokens, RemoveAccents, RemoveStopWords, WindowSize, UseGraphDepthSearch, MaxDepth, DepthDecay` | `Train, TrainItem, Predict, PredictRanking, ExplainPrediction` | تصنيف النصوص القصيرة محلياً دون أي اتصال بالشبكة. |
 
 ### 💻 مثال على كود لازاروس (TCHATGPT)
 

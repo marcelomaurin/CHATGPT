@@ -43,6 +43,10 @@ type
     FSaveTXT: Boolean;
     FIndustrialInput: TComponent;
     FGraphMap: TAIGraphMap;
+    FModbusSlaveId: Integer;
+    FModbusStartAddress: Integer;
+    FModbusRegisterCount: Integer;
+    FIndustrialPromptTemplate: string;
   public
     constructor Create(AOwner: TComponent); override;
     
@@ -75,6 +79,10 @@ type
     property SaveTXT: Boolean read FSaveTXT write FSaveTXT default True;
     property IndustrialInput: TComponent read FIndustrialInput write FIndustrialInput;
     property GraphMap: TAIGraphMap read FGraphMap write FGraphMap;
+    property ModbusSlaveId: Integer read FModbusSlaveId write FModbusSlaveId default 1;
+    property ModbusStartAddress: Integer read FModbusStartAddress write FModbusStartAddress default 0;
+    property ModbusRegisterCount: Integer read FModbusRegisterCount write FModbusRegisterCount default 10;
+    property IndustrialPromptTemplate: string read FIndustrialPromptTemplate write FIndustrialPromptTemplate;
   end;
 
 procedure Register;
@@ -106,6 +114,10 @@ begin
   FSaveTXT := True;
   FIndustrialInput := nil;
   FGraphMap := nil;
+  FModbusSlaveId := 1;
+  FModbusStartAddress := 0;
+  FModbusRegisterCount := 10;
+  FIndustrialPromptTemplate := 'Determine if the following industrial telemetries indicate an anomaly, error, or critical state. Telemetry details: ';
   ClearError;
 end;
 
@@ -319,8 +331,8 @@ var
   Modbus: TAIModbusClient;
   MQTT: TAIMQTTClient;
   Bridge: TAIIndustrialBridge;
-  Regs: array[0..9] of Word;
-  Bytes: array[0..9] of Byte;
+  Regs: array of Word;
+  Bytes: array of Byte;
 begin
   Result := False;
   FLastError := '';
@@ -332,7 +344,7 @@ begin
     Exit;
   end;
   
-  PromptStr := 'Determine if the following industrial telemetries indicate an anomaly, error, or critical state. Telemetry details: ';
+  PromptStr := FIndustrialPromptTemplate;
   
   if Assigned(FIndustrialInput) then
   begin
@@ -341,10 +353,11 @@ begin
       Modbus := TAIModbusClient(FIndustrialInput);
       if Modbus.Connect then
       begin
-        if Modbus.ReadHoldingRegisters(1, 0, 10, Regs) then
+        SetLength(Regs, FModbusRegisterCount);
+        if Modbus.ReadHoldingRegisters(FModbusSlaveId, FModbusStartAddress, FModbusRegisterCount, Regs) then
         begin
-          PromptStr := PromptStr + 'Modbus TCP [Slave 1, Registers 0-9]: ';
-          for I := 0 to 9 do
+          PromptStr := PromptStr + 'Modbus TCP [Slave ' + IntToStr(FModbusSlaveId) + ', Registers ' + IntToStr(FModbusStartAddress) + '-' + IntToStr(FModbusStartAddress + FModbusRegisterCount - 1) + ']: ';
+          for I := 0 to FModbusRegisterCount - 1 do
           begin
             if I > 0 then PromptStr := PromptStr + ', ';
             PromptStr := PromptStr + IntToStr(Regs[I]);
@@ -372,10 +385,11 @@ begin
       Bridge := TAIIndustrialBridge(FIndustrialInput);
       if Bridge.ConnectBridge then
       begin
-        if Bridge.ReadBytes(1, 0, 10, Bytes) then
+        SetLength(Bytes, FModbusRegisterCount);
+        if Bridge.ReadBytes(FModbusSlaveId, FModbusStartAddress, FModbusRegisterCount, Bytes) then
         begin
-          PromptStr := PromptStr + 'Siemens PLC Bridge [DB 1, Bytes 0-9]: ';
-          for I := 0 to 9 do
+          PromptStr := PromptStr + 'Siemens PLC Bridge [DB ' + IntToStr(FModbusSlaveId) + ', Bytes ' + IntToStr(FModbusStartAddress) + '-' + IntToStr(FModbusStartAddress + FModbusRegisterCount - 1) + ']: ';
+          for I := 0 to FModbusRegisterCount - 1 do
           begin
             if I > 0 then PromptStr := PromptStr + ', ';
             PromptStr := PromptStr + IntToStr(Bytes[I]);
@@ -401,23 +415,8 @@ begin
   end
   else
   begin
-    // Fallback to FInputData.RawData if FIndustrialInput is not assigned
-    if not Assigned(FInputData) then
-    begin
-      FLastError := 'No IndustrialInput or InputData assigned.';
-      Exit;
-    end;
-    PromptStr := PromptStr + 'InputData RawValues: ';
-    if Length(FInputData.RawData) > 0 then
-    begin
-      for I := 0 to High(FInputData.RawData) do
-      begin
-        if I > 0 then PromptStr := PromptStr + ', ';
-        PromptStr := PromptStr + FloatToStr(FInputData.RawData[I]);
-      end;
-    end
-    else
-      PromptStr := PromptStr + '[]';
+    FLastError := 'No IndustrialInput assigned.';
+    Exit;
   end;
   
   // Send to ChatGPT
@@ -434,6 +433,7 @@ end;
 function TAIPipeline.RunGraphMapClassification: Boolean;
 var
   LList: TStringList;
+  LBestCat: string;
 begin
   Result := False;
   if not Assigned(FGraphMap) then
@@ -444,9 +444,9 @@ begin
   
   LList := TStringList.Create;
   try
-    FGraphMap.Predict(FInputText);
+    LBestCat := FGraphMap.Predict(FInputText);
     FGraphMap.PredictRanking(FInputText, LList);
-    FOutputText := LList.Text;
+    FOutputText := LBestCat + sLineBreak + LList.Text;
     FLastResult := FOutputText;
     Result := True;
   finally

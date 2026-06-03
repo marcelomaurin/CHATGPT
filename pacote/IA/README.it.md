@@ -13,7 +13,6 @@ Fornisce connettività ai modelli linguistici (OpenAI) e implementa reti neurali
 | **TCHATGPT** | Connettore OpenAI/ChatGPT. | `APIKey, Model, MaxTokens` | `SendQuestion(const AQuestion: string): Boolean` | Elaborare il NLP e prendere decisioni basate sul testo. |
 | **TNeuralNetwork** | Rete Neurale Perceptron Multistrato nativa. | `InputNodes, HiddenNodes, OutputNodes, LearningRate` | `Train, Predict` | Apprendere schemi complessi dai set di dati. |
 | **TTokenizer** | Tokenizzatore di testo. | `LowerCase` | `Tokenize, GetVocabulary` | Pre-elaborare stringhe grezze in indici numerici. |
-| **TAIGraphMap** | Classificatore testuale per grafo pesato. | `Training, LowerCaseTokens, RemoveAccents, RemoveStopWords, WindowSize, UseGraphDepthSearch, MaxDepth, DepthDecay` | `Train, TrainItem, Predict, PredictRanking, ExplainPrediction` | Classificare testi brevi localmente senza dipendenze di rete. |
 
 ### 💻 Esempio di Codice Lazarus (TCHATGPT)
 

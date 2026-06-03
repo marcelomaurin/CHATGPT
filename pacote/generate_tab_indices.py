@@ -3,6 +3,7 @@ import os
 
 tabs = {
     'IA': {'icon': '🧠', 'desc': 'Core Artificial Intelligence & Neural Connectivity components.'},
+    'IA Graph': {'icon': '📊', 'desc': 'Explainable weighted graph text classification models.'},
     'IA Agent': {'icon': '🤖', 'desc': 'Autonomous cognitive execution models and hardware pipelines.'},
     'IA Filtros Sonoros': {'icon': '🎵', 'desc': 'Linear wave filtering and noise-reduction signal processors.'},
     'IA Image': {'icon': '🖼️', 'desc': 'High-performance computer vision matrix filters.'},

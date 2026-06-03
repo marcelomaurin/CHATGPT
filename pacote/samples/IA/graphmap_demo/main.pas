@@ -49,6 +49,13 @@ type
     btnSaveTraining: TButton;
     btnLoadTraining: TButton;
     
+    // Runtime controls
+    btnEvaluate: TButton;
+    btnConfusionMatrix: TButton;
+    btnExportDOT: TButton;
+    btnExportGEXF: TButton;
+    btnExportCSV: TButton;
+    
     meLogs: TMemo;
     lblLogs: TLabel;
 
@@ -62,6 +69,11 @@ type
     procedure btnSaveTrainingClick(Sender: TObject);
     procedure btnLoadTrainingClick(Sender: TObject);
     procedure ConfigChanged(Sender: TObject);
+    procedure btnEvaluateClick(Sender: TObject);
+    procedure btnConfusionMatrixClick(Sender: TObject);
+    procedure btnExportDOTClick(Sender: TObject);
+    procedure btnExportGEXFClick(Sender: TObject);
+    procedure btnExportCSVClick(Sender: TObject);
   private
     FGraphMap: TAIGraphMap;
     procedure LogMsg(const AMsg: string);
@@ -91,8 +103,60 @@ begin
   chkDepthSearch.Checked := FGraphMap.UseGraphDepthSearch;
   chkNormalize.Checked := FGraphMap.NormalizeScores;
   
+  // Dynamic positioning and creation of new controls
+  Self.Height := 760;
+  pnlTraining.Height := 390;
+  pnlInfer.Height := 390;
+  pnlRanking.Height := 390;
+  pnlFileActions.Height := 170;
+  
+  btnEvaluate := TButton.Create(Self);
+  btnEvaluate.Parent := pnlFileActions;
+  btnEvaluate.Left := 0;
+  btnEvaluate.Top := 65;
+  btnEvaluate.Width := 125;
+  btnEvaluate.Height := 25;
+  btnEvaluate.Caption := 'Avaliar Acurácia';
+  btnEvaluate.OnClick := @btnEvaluateClick;
+
+  btnConfusionMatrix := TButton.Create(Self);
+  btnConfusionMatrix.Parent := pnlFileActions;
+  btnConfusionMatrix.Left := 135;
+  btnConfusionMatrix.Top := 65;
+  btnConfusionMatrix.Width := 125;
+  btnConfusionMatrix.Height := 25;
+  btnConfusionMatrix.Caption := 'Matriz Confusão';
+  btnConfusionMatrix.OnClick := @btnConfusionMatrixClick;
+
+  btnExportDOT := TButton.Create(Self);
+  btnExportDOT.Parent := pnlFileActions;
+  btnExportDOT.Left := 0;
+  btnExportDOT.Top := 95;
+  btnExportDOT.Width := 125;
+  btnExportDOT.Height := 25;
+  btnExportDOT.Caption := 'Exportar DOT';
+  btnExportDOT.OnClick := @btnExportDOTClick;
+
+  btnExportGEXF := TButton.Create(Self);
+  btnExportGEXF.Parent := pnlFileActions;
+  btnExportGEXF.Left := 135;
+  btnExportGEXF.Top := 95;
+  btnExportGEXF.Width := 125;
+  btnExportGEXF.Height := 25;
+  btnExportGEXF.Caption := 'Exportar GEXF';
+  btnExportGEXF.OnClick := @btnExportGEXFClick;
+
+  btnExportCSV := TButton.Create(Self);
+  btnExportCSV.Parent := pnlFileActions;
+  btnExportCSV.Left := 0;
+  btnExportCSV.Top := 125;
+  btnExportCSV.Width := 260;
+  btnExportCSV.Height := 25;
+  btnExportCSV.Caption := 'Exportar CSV (Nós/Arestas)';
+  btnExportCSV.OnClick := @btnExportCSVClick;
+  
   btnLoadDefaultsClick(Self);
-  LogMsg('TAIGraphMap Demo iniciado e pronto.');
+  LogMsg('TAIGraphMap Demo iniciado e pronto com recursos avançados.');
   UpdateStats;
 end;
 
@@ -274,7 +338,7 @@ begin
     OpenDlg.Filter := 'Treino JSON (*.json)|*.json';
     if OpenDlg.Execute then
     begin
-      FGraphMap.LoadTrainingToFile(OpenDlg.FileName);
+      FGraphMap.LoadTrainingFromFile(OpenDlg.FileName);
       
       // Update Training Memo
       meTraining.Lines.Clear;
@@ -289,6 +353,128 @@ begin
     end;
   finally
     OpenDlg.Free;
+  end;
+end;
+
+procedure TfrmGraphMapDemo.btnEvaluateClick(Sender: TObject);
+var
+  LAccuracy: Double;
+begin
+  if FGraphMap.NodeCount = 0 then
+  begin
+    ShowMessage('Treine o grafo antes de avaliar.');
+    Exit;
+  end;
+  
+  LAccuracy := FGraphMap.Evaluate(FGraphMap.Training);
+  LogMsg(Format('Avaliação de acurácia no conjunto de treino: %0.2f%%', [LAccuracy]));
+  ShowMessage(Format('Acurácia obtida: %0.2f%%', [LAccuracy]));
+end;
+
+procedure TfrmGraphMapDemo.btnConfusionMatrixClick(Sender: TObject);
+var
+  LResult: TStringList;
+begin
+  if FGraphMap.NodeCount = 0 then
+  begin
+    ShowMessage('Treine o grafo antes de obter a matriz.');
+    Exit;
+  end;
+  
+  LResult := TStringList.Create;
+  try
+    FGraphMap.ConfusionMatrix(FGraphMap.Training, LResult);
+    meExplanation.Lines.Clear;
+    meExplanation.Lines.Add('=== Matriz de Confusão ===');
+    meExplanation.Lines.AddStrings(LResult);
+    LogMsg('Matriz de Confusão gerada com sucesso.');
+  finally
+    LResult.Free;
+  end;
+end;
+
+procedure TfrmGraphMapDemo.btnExportDOTClick(Sender: TObject);
+var
+  SaveDlg: TSaveDialog;
+begin
+  if FGraphMap.NodeCount = 0 then
+  begin
+    ShowMessage('Treine o grafo antes de exportar.');
+    Exit;
+  end;
+  
+  SaveDlg := TSaveDialog.Create(nil);
+  try
+    SaveDlg.Title := 'Exportar Grafo para DOT (GraphViz)';
+    SaveDlg.Filter := 'Arquivo DOT (*.dot)|*.dot';
+    SaveDlg.DefaultExt := 'dot';
+    if SaveDlg.Execute then
+    begin
+      FGraphMap.SaveGraphAsDOT(SaveDlg.FileName);
+      LogMsg('Grafo exportado para DOT: ' + SaveDlg.FileName);
+      ShowMessage('Grafo exportado para DOT com sucesso!');
+    end;
+  finally
+    SaveDlg.Free;
+  end;
+end;
+
+procedure TfrmGraphMapDemo.btnExportGEXFClick(Sender: TObject);
+var
+  SaveDlg: TSaveDialog;
+begin
+  if FGraphMap.NodeCount = 0 then
+  begin
+    ShowMessage('Treine o grafo antes de exportar.');
+    Exit;
+  end;
+  
+  SaveDlg := TSaveDialog.Create(nil);
+  try
+    SaveDlg.Title := 'Exportar Grafo para GEXF (Gephi)';
+    SaveDlg.Filter := 'Arquivo GEXF (*.gexf)|*.gexf';
+    SaveDlg.DefaultExt := 'gexf';
+    if SaveDlg.Execute then
+    begin
+      FGraphMap.SaveGraphAsGEXF(SaveDlg.FileName);
+      LogMsg('Grafo exportado para GEXF: ' + SaveDlg.FileName);
+      ShowMessage('Grafo exportado para GEXF com sucesso!');
+    end;
+  finally
+    SaveDlg.Free;
+  end;
+end;
+
+procedure TfrmGraphMapDemo.btnExportCSVClick(Sender: TObject);
+var
+  SaveDlg: TSaveDialog;
+  LNodeFile, LEdgeFile: string;
+begin
+  if FGraphMap.NodeCount = 0 then
+  begin
+    ShowMessage('Treine o grafo antes de exportar.');
+    Exit;
+  end;
+  
+  SaveDlg := TSaveDialog.Create(nil);
+  try
+    SaveDlg.Title := 'Exportar Grafo para CSV (Nós/Arestas)';
+    SaveDlg.Filter := 'Arquivo CSV de Nós (*_nodes.csv)|*_nodes.csv';
+    SaveDlg.DefaultExt := 'csv';
+    if SaveDlg.Execute then
+    begin
+      LNodeFile := SaveDlg.FileName;
+      if Pos('_nodes.csv', LNodeFile) > 0 then
+        LEdgeFile := StringReplace(LNodeFile, '_nodes.csv', '_edges.csv', [])
+      else
+        LEdgeFile := ChangeFileExt(LNodeFile, '') + '_edges.csv';
+        
+      FGraphMap.SaveGraphAsCSV(LNodeFile, LEdgeFile);
+      LogMsg('Grafo exportado para CSV: ' + LNodeFile + ' e ' + LEdgeFile);
+      ShowMessage('Grafo exportado para CSV com sucesso!');
+    end;
+  finally
+    SaveDlg.Free;
   end;
 end;
 

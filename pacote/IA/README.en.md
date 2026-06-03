@@ -13,7 +13,6 @@ Provides connectivity to language models (OpenAI) and implements pure Pascal MLP
 | **TCHATGPT** | OpenAI/ChatGPT connector. | `APIKey, Model, MaxTokens` | `SendQuestion(const AQuestion: string): Boolean` | Process NLP and make text-based decisions. |
 | **TNeuralNetwork** | Native Multilayer Perceptron Neural Network. | `InputNodes, HiddenNodes, OutputNodes, LearningRate` | `Train, Predict` | Learn complex patterns from datasets. |
 | **TTokenizer** | Text tokenizer. | `LowerCase` | `Tokenize, GetVocabulary` | Preprocess raw strings into numerical indices. |
-| **TAIGraphMap** | Weighted graph text classifier. | `Training, LowerCaseTokens, RemoveAccents, RemoveStopWords, WindowSize, UseGraphDepthSearch, MaxDepth, DepthDecay` | `Train, TrainItem, Predict, PredictRanking, ExplainPrediction` | Classify short texts locally without network dependencies. |
 
 ### 💻 Lazarus Code Example (TCHATGPT)
 

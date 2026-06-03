@@ -17,6 +17,7 @@ type
     lblDLLPath: TLabel;
     lbDLLs: TListBox;
     btnToggleActive: TButton;
+    chkProcessMode: TCheckBox;
     lblStatusText: TLabel;
     lblVersion: TLabel;
     
@@ -179,8 +180,26 @@ begin
         SelectedDLL := lbDLLs.Items[lbDLLs.ItemIndex];
 
       FConnector.DLLPath := Trim(SelectedDLL);
-      LogMsg('Tentando carregar DLL do Python: ' + FConnector.DLLPath);
+      
+      if chkProcessMode.Checked then
+      begin
+        FConnector.ExecutionMode := pemProcess;
+        LogMsg('Modo de execução selecionado: Processo Externo (pemProcess)');
+      end
+      else
+      begin
+        FConnector.ExecutionMode := pemDLL;
+        LogMsg('Modo de execução selecionado: Biblioteca Dinâmica (pemDLL)');
+      end;
+      
+      LogMsg('Tentando iniciar/carregar o Python...');
       FConnector.Active := True;
+      
+      // Output diagnostic report to log memo
+      LogMsg('=== RELATÓRIO DE DIAGNÓSTICO ===');
+      FConnector.GetDiagnosticReport(meLogs.Lines);
+      LogMsg('================================');
+      
       if FConnector.IsInitialized then
       begin
         LogMsg('Python ativo e pronto.');

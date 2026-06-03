@@ -44,6 +44,16 @@ object frmPythonDemo: TfrmPythonDemo
       OnClick = btnToggleActiveClick
       TabOrder = 1
     end
+    object chkProcessMode: TCheckBox
+      Left = 310
+      Height = 19
+      Top = 80
+      Width = 180
+      Caption = 'Usar Processo Externo'
+      TabOrder = 2
+      Checked = True
+      State = cbChecked
+    end
     object lblStatusText: TLabel
       Left = 510
       Height = 15

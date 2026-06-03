@@ -129,42 +129,48 @@ console_samples = {
         '**chatgpt_sample.lpr**: Envio de perguntas e auditoria de respostas brutas em OpenAI, Claude e Gemini.',
         '**aicodeassistant_sample.lpr**: Rotina em console para otimização e documentação automática de código pascal.',
         '**aidatasetgenerator_sample.lpr**: Loop de compilação e exportação de base de dados em formato JSONL.',
-        '**neuralnetwork_sample.lpr**: Treinamento clássico de perceptron multicamadas XOR em Pascal puro.'
+        '**neuralnetwork_sample.lpr**: Treinamento clássico de perceptron multicamadas XOR em Pascal puro.',
+        '**graphmap_basic.lpr**: Exemplo básico de console para classificação explicável de textos via grafos ponderados.'
     ],
     'en': [
         '**aivoicesynthesizer_sample.lpr**: Direct console Text-to-Speech synthesis invocation demo.',
         '**chatgpt_sample.lpr**: Quick command-line questions and payload auditing for OpenAI, Claude, and Gemini.',
         '**aicodeassistant_sample.lpr**: Command-line routine for code auditing, optimizations, and doc formatting.',
         '**aidatasetgenerator_sample.lpr**: Auto-generation loop and JSONL conversations dataset exporter.',
-        '**neuralnetwork_sample.lpr**: Classic MLP training XOR convergence simulator in console.'
+        '**neuralnetwork_sample.lpr**: Classic MLP training XOR convergence simulator in console.',
+        '**graphmap_basic.lpr**: Basic console sample for explainable text classification using weighted graph maps.'
     ],
     'es': [
         '**aivoicesynthesizer_sample.lpr**: Síntesis de voz directa en consola de forma síncrona/asíncrona.',
         '**chatgpt_sample.lpr**: Preguntas rápidas y auditoría de payloads de OpenAI, Claude y Gemini.',
         '**aicodeassistant_sample.lpr**: Optimización y documentación automática de código Pascal por consola.',
-        '**aidatasetgenerator_sample.lpr**: Bucle de generación y exportación de bases de datos JSONL.',
-        '**neuralnetwork_sample.lpr**: Entrenamiento clásico XOR de perceptrón multicapa MLP en Pascal.'
+        '**aidatasetgenerator_sample.lpr**: Bucle de geração y exportación de bases de datos JSONL.',
+        '**neuralnetwork_sample.lpr**: Entrenamiento clásico XOR de perceptrón multicapa MLP en Pascal.',
+        '**graphmap_basic.lpr**: Ejemplo básico de consola para la clasificación explicable de textos mediante grafos ponderados.'
     ],
     'fr': [
         '**aivoicesynthesizer_sample.lpr**: Démo directe de synthèse vocale s\'exécutant en console.',
         '**chatgpt_sample.lpr**: Requêtes rapides et inspection de payloads pour OpenAI, Claude et Gemini.',
         '**aicodeassistant_sample.lpr**: Routine console pour l\'optimisation et documentation de code.',
         '**aidatasetgenerator_sample.lpr**: Génération et exportation automatisée de datasets JSONL.',
-        '**neuralnetwork_sample.lpr**: Entraînement classique XOR d\'un perceptron multicouche MLP.'
+        '**neuralnetwork_sample.lpr**: Entraînement classique XOR d\'un perceptron multicouche MLP.',
+        '**graphmap_basic.lpr**: Exemple console de base pour la classification explicable de textes via des graphes pondérés.'
     ],
     'it': [
         '**aivoicesynthesizer_sample.lpr**: Sintesi vocale da riga di comando sincrona e asincrona.',
         '**chatgpt_sample.lpr**: Invio rapido domande e ispezione dei payload per OpenAI, Claude e Gemini.',
         '**aicodeassistant_sample.lpr**: Ottimizzazione e documentazione codice Pascal automatica da riga di comando.',
         '**aidatasetgenerator_sample.lpr**: Generazione ed esportazione di dataset per fine-tuning in formato JSONL.',
-        '**neuralnetwork_sample.lpr**: Simulatore di addestramento MLP XOR scritto in Pascal.'
+        '**neuralnetwork_sample.lpr**: Simulatore di addestramento MLP XOR scritto in Pascal.',
+        '**graphmap_basic.lpr**: Esempio console di base per la classificazione spiegabile di testi tramite grafi pesati.'
     ],
     'ar': [
         '**aivoicesynthesizer_sample.lpr**: استدعاء مباشر لتخليق الأصوات عبر الكونسول بشكل متزامن وغير متزامن.',
         '**chatgpt_sample.lpr**: إرسال سريع للأسئلة وفحص البيانات الخام المستلمة من OpenAI, Claude, Gemini.',
         '**aicodeassistant_sample.lpr**: أتمتة تحسين وفحص كود باسكال عبر سطر الأوامر.',
         '**aidatasetgenerator_sample.lpr**: إنشاء وتصدير مجموعات البيانات لتدريب النماذج بصيغة JSONL.',
-        '**neuralnetwork_sample.lpr**: محاكي تدريب XOR للشبكات العصبية متعددة الطبقات بلغة باسكال الخالصة.'
+        '**neuralnetwork_sample.lpr**: محاكي تدريب XOR للشبكات العصبية متعددة الطبقات بلغة باسكال الخالصة.',
+        '**graphmap_basic.lpr**: مثال كونسول بسيط لتصنيف النصوص القابل للتفسير باستخدام خرائط الرسوم البيانية الموزونة.'
     ]
 }
 
@@ -208,7 +214,13 @@ def generate():
                 })
                 
         for item in items:
-            content.append(f"| **[{item['name']}/]({item['name']}/)** | {item['desc']} | `{item['comps']}` | {item['how']} |")
+            # Dynamically resolve relative path of the sample directory to avoid broken links
+            rel_dir = item['name']
+            for root_walk, dirs_walk, files_walk in os.walk(samples_root):
+                if item['name'] in dirs_walk:
+                    rel_dir = os.path.relpath(os.path.join(root_walk, item['name']), samples_root).replace('\\', '/')
+                    break
+            content.append(f"| **[{item['name']}/]({rel_dir}/)** | {item['desc']} | `{item['comps']}` | {item['how']} |")
             
         content.append("")
         content.append(f"## {lang_trans['console_title']}")
