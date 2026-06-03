@@ -13,7 +13,7 @@ type
   end;
 
   { TMockTrainingExporter }
-  TMockTrainingExporter = class(TAITrainingExporter)
+  TMockTrainingExporter = class(TAIBaseTrainingExporter)
   public
     procedure ExportData(ATraining: TAITrainingCollection); override;
     procedure ImportData(ATraining: TAITrainingCollection); override;
