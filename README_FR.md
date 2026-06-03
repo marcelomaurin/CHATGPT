@@ -1,155 +1,761 @@
-# TCHATGPT — Suite de Composants d'IA pour Lazarus
+# TCHATGPT — AI Component Suite for Lazarus / Free Pascal
 
-🌍 **Langues / Idiomas:**
-*   [Português (PT)](README.md)
-*   [English (EN)](README_EN.md)
-*   [Español (ES)](README_ES.md)
-*   [Français (FR)](README_FR.md)
-*   [Italiano (IT)](README_IT.md)
-*   [العربية (AR)](README_AR.md)
+🌍 **Languages / Langues**
+
+* [Português (PT-BR)](README.md)
+* [English (EN)](README_EN.md)
+* [Español (ES)](README_ES.md)
+* [Français (FR)](README_FR.md)
+* [Italiano (IT)](README_IT.md)
+* [العربية (AR)](README_AR.md)
 
 ---
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Lazarus](https://img.shields.io/badge/Lazarus-3.x-orange.svg)](https://www.lazarus-ide.org/)
-
-Une suite complète de composants visuels et non visuels pour Free Pascal / Lazarus conçue pour intégrer l'**IA générative et l'apprentissage automatique (Machine Learning)** nativement dans vos applications. Elle prend en charge **OpenAI (ChatGPT)**, **Google Gemini**, **Anthropic Claude**, **OpenRouter**, **Cerebras**, les **modèles locaux via Ollama** et des réseaux de neurones locaux.
-
----
-
-## 📦 Composants Inclus dans le Paquet
-
-La suite installe les outils suivants sous l'onglet **IA** de la palette de composants de Lazarus :
-
-### 1. `TCHATGPT` (Connecteur d'API d'IA)
-Le moteur principal pour l'intégration des LLM. Envoyez des questions et recevez des réponses textuelles structurées de fournisseurs mondiaux ou locaux.
-- **Fournisseurs Pris en Charge** : OpenAI, Gemini, Claude, OpenRouter, Cerebras et Ollama/Local.
-- **Fonctionnalités** : Contrôle de Max Tokens, System/Developer Prompts, température et modèles personnalisés.
-
-### 2. `TNeuralNetwork` (Réseau de Neurones Multicouche)
-Un Perceptron Multicouche (MLP) écrit en **Pascal pur**, vous permettant de concevoir et d'entraîner des modèles de réseau de neurones localement sans dépendances externes.
-- **Fonctions d'Activation Intégrées** : Sigmoïde (`atSigmoid`), ReLU (`atReLU`), Tanh (`atTanh`) et Personnalisée (`atCustom` via des événements).
-- **Entraînement par Époques** : La méthode `TrainEpochs` entraîne les modèles à partir d'une matrice de jeu de données et calcule la perte d'erreur quadratique moyenne (MSE Loss).
-- **Persistance** : Sauvegardez et chargez rapidement les poids et biais (`SaveNetwork` / `LoadNetwork`).
-
-### 3. `TAICodeAssistant` (Assistant de Code)
-Un assistant virtuel orienté développeur. Il se lie à un composant `TCHATGPT` configuré pour automatiser les tâches de programmation courantes :
-- **`OptimizeCode(ACode)`** : Optimise les performances et la lisibilité des routines.
-- **`FindBugs(ACode)`** : Recherche les bugs logiques, les fuites de mémoire et recommande des correctifs.
-- **`DocumentCode(ACode)`** : Ajoute automatiquement des commentaires explicatifs structurés au format XML/Javadoc.
-- **`GenerateUnitTests(ACode)`** : Écrit des tests unitaires complets à l'aide de frameworks comme `FPCUnit`.
-- **`TranslateCode(ACode, De, Vers)`** : Traduit du code entre langages (ex: C# vers Pascal).
-- **`ExplainCode(ACode)`** : Explique pas à pas le fonctionnement interne d'un algorithme.
-
-### 4. `TAIDatasetGenerator` (Générateur de Datasets d'Entraînement)
-Un outil facilitant la préparation des données. Aide à générer des fichiers pour le Fine-Tuning de LLM ou des fichiers de données pour les réseaux de neurones locaux :
-- **Fine-Tuning** : Exporte les conversations au format standard **JSONL** (JSON Lines) accepté par OpenAI et Ollama.
-- **Intégration du Réseau de Neurones** : Exporte les données au format **CSV** et charge les fichiers CSV délimités directement dans les matrices d'entrée et de sortie (`TMatrix`) compatibles avec `TNeuralNetwork.TrainEpochs`.
-
-### 5. `TTokenList` (Tokeniseur utilitaire)
-Utilitaire d'analyse de chaînes pour créer des listes segmentées à partir de collections de texte.
+[![Free Pascal](https://img.shields.io/badge/Free%20Pascal-FPC-blue.svg)](https://www.freepascal.org/)
+[![Status](https://img.shields.io/badge/status-in%20development-yellow.svg)]()
 
 ---
 
-## Démarrage Rapide (Assistant de Code)
+## Vue d’ensemble
 
-```pascal
-uses chatgpt, aicodeassistant;
+**TCHATGPT** est une suite open source de composants visuels et non visuels pour **Lazarus / Free Pascal**, conçue pour faciliter l’intégration de ressources d’Intelligence Artificielle dans des applications de bureau, industrielles, éducatives et professionnelles.
 
-var
-  FChatgpt: TCHATGPT;
-  FAssistant: TAICodeAssistant;
-  CodeOptimise: string;
-begin
-  FChatgpt := TCHATGPT.Create(nil);
-  FAssistant := TAICodeAssistant.Create(nil);
-  try
-    FChatgpt.TOKEN := 'sk-VOTRE_CLE_ICI';
-    FChatgpt.Provider := AIP_CLAUDE;          // Configure Anthropic Claude
-    FChatgpt.TipoChat := VCT_CLAUDE_35_SONNET;
-    
-    FAssistant.ChatGPT := FChatgpt; // Lie le connecteur d'IA
-    
-    CodeOptimise := FAssistant.OptimizeCode('procedure TForm1.Click; begin i := i + 1; end;');
-    ShowMessage(CodeOptimise);
-  finally
-    FAssistant.Free;
-    FChatgpt.Free;
-  end;
-end;
-```
+Le projet propose des composants pour la connexion à des fournisseurs de LLM, l’utilisation de modèles locaux, le traitement des données, l’apprentissage automatique, la synthèse vocale, le traitement d’images, les agents, les graphes, les canaux d’entrée et de sortie, ainsi que des composants expérimentaux pour la vision par ordinateur et les ressources graphiques 3D.
+
+> Ce projet doit être compris comme une **suite de composants pour l’intégration de l’IA dans des applications Lazarus**, et non comme une plateforme complète d’IA destinée à remplacer des frameworks spécialisés d’entraînement, des plateformes MLOps ou des infrastructures de déploiement de modèles à grande échelle.
 
 ---
 
-## Entraînement Local (`TNeuralNetwork` & `TAIDatasetGenerator`)
+## Objectif du projet
 
-```pascal
-var
-  FNet: TNeuralNetwork;
-  FGen: TAIDatasetGenerator;
-  Inputs, Targets: TMatrix;
-  Loss: Double;
-begin
-  FNet := TNeuralNetwork.Create(nil);
-  FGen := TAIDatasetGenerator.Create(nil);
-  try
-    // Charge les données d'entraînement directement depuis un fichier CSV
-    FGen.LoadFromCSV('data.csv', Inputs, Targets, 2, 1); // 2 Entrées, 1 Sortie
+L’objectif principal est de permettre aux développeurs Lazarus / Free Pascal d’ajouter des capacités d’IA à leurs systèmes de manière simple, réutilisable et basée sur des composants.
 
-    // Initialise le réseau de neurones : 2 Entrées, 4 Cachés, 1 Sortie, Learning Rate = 0.05
-    FNet.Initialize(2, 4, 1, 0.05);
-    FNet.ActivationType := atSigmoid;
+La suite vise à prendre en charge des scénarios tels que :
 
-    // Exécute la boucle d'entraînement sur le dataset pendant 1000 époques
-    FNet.TrainEpochs(Inputs, Targets, 1000, Loss);
-    ShowMessage(Format('Entraînement terminé ! Perte MSE Finale : %0.6f', [Loss]));
-
-    FNet.SaveNetwork('model.net');
-  finally
-    FGen.Free;
-    FNet.Free;
-  end;
-end;
-```
+* assistants avec IA générative ;
+* intégration avec des APIs de LLM ;
+* utilisation de modèles locaux via des serveurs compatibles ;
+* génération et analyse de datasets ;
+* classification simple de textes ;
+* automatisation basée sur des agents ;
+* synthèse vocale ;
+* traitement basique d’images ;
+* filtres numériques audio ;
+* intégration avec des dispositifs, capteurs et canaux externes ;
+* prototypage d’applications IA dans Lazarus.
 
 ---
 
-## Fournisseurs Pris en Charge (LLMs)
+## État actuel du projet
 
-| Fournisseur | Enum | Point de terminaison (Endpoint) | Clé requise | Détails des versions gratuites |
-|---|---|---|---|---|
-| OpenAI | `AIP_OPENAI` | `api.openai.com` | Oui | Prend en charge `gpt-4o-mini` (bas coût / niveau gratuit de l'API) |
-| OpenRouter | `AIP_OPENROUTER` | `openrouter.ai` | Oui | Plusieurs modèles gratuits avec accès illimité (ex: Llama 3, Gemma 2, DeepSeek R1) |
-| Cerebras | `AIP_CEREBRAS` | `api.cerebras.ai` | Oui | Accès gratuit pendant la phase bêta |
-| Google Gemini | `AIP_GEMINI` | `generativelanguage.googleapis.com` | Oui | Niveau d'utilisation gratuit généreux (ex: `gemini-2.5-flash`) |
-| Anthropic Claude | `AIP_CLAUDE` | `api.anthropic.com` | Oui | Jeton payant (développement/tests) |
-| Local (Ollama) | `AIP_LOCAL` | `localhost:11434` | Non | **100% Gratuit** et hors ligne (DeepSeek R1, Llama 3.2, etc.) |
+Le projet est en développement actif et contient des composants à différents niveaux de maturité.
+
+### Composants les plus consolidés
+
+* `TCHATGPT`
+* `TAIBaseComponent`
+* `TNeuralNetwork`
+* `TTokenList`
+* `TAICodeAssistant`
+* `TAIDatasetGenerator`
+* `TAIVoiceSynthesizer`
+* filtres d’image
+* filtres audio
+* composants de graphes et de datasets
+
+### Composants expérimentaux ou en évolution
+
+* intégration avec Python ;
+* composants CNN, YOLO, LSTM et SOM ;
+* composants d’agents autonomes ;
+* composants avancés d’entrée et de sortie ;
+* composants OpenCV ;
+* visualisation 3D ;
+* intégration avec Tripo3D ;
+* composants industriels, caméra, audio, navigateur, MQTT, Modbus et CCTV.
 
 ---
 
-## Installation du Paquet dans Lazarus
+## Onglets de composants du paquet
 
-1. Dans l'IDE Lazarus, allez dans **Paquet > Ouvrir un fichier de paquet (.lpk)**
-2. Accédez au dossier `pacote/` et sélectionnez **`openai.lpk`**
-3. Cliquez sur **Compiler** pour compiler le paquet
-4. Cliquez sur **Utiliser > Installer** — Lazarus vous demandera de reconstruire l'IDE
-5. Après le redémarrage, les 5 composants seront disponibles sous l'onglet **IA** de la palette de composants.
+Le paquet installe des composants dans la palette de Lazarus, organisés par domaine fonctionnel.
 
 ---
 
-## Configuration Requise des Bibliothèques (Windows)
+## AI Core
 
-Pour que la communication HTTPS fonctionne sous Windows, les DLL OpenSSL appropriées pour l'architecture de votre application compilée (32 bits ou 64 bits) doivent être accessibles. La suite comprend déjà les DLL dans le dossier `pacote/lib/` :
+Composants principaux pour l’IA générative, le machine learning et le support du projet.
 
-*   **Applications 32 bits (i386-win32)** : `pacote/lib/i386-win32/`
-    - `libcrypto-1_1.dll`, `libssl-1_1.dll`
-*   **Applications 64 bits (x86_64-win64)** : `pacote/lib/x86_64-win64/`
-    - `libcrypto.dll`, `libssl-1_1-x64.dll`
+### `TCHATGPT`
 
-**Recommandation :** Copiez les DLL du dossier `lib/` correspondant dans le **même répertoire que votre exécutable compilé**.
+Connecteur principal pour les fournisseurs d’IA générative.
+
+Il permet d’envoyer des prompts, de configurer des fournisseurs, de sélectionner des modèles et de recevoir des réponses structurées.
+
+Fournisseurs prévus ou pris en charge :
+
+* OpenAI ;
+* Google Gemini ;
+* Anthropic Claude ;
+* OpenRouter ;
+* Cerebras ;
+* serveur local compatible avec `/v1/chat/completions` ;
+* Ollama ou services locaux similaires.
+
+### `TNeuralNetwork`
+
+Réseau de neurones multicouche simple implémenté en Pascal.
+
+Il permet de :
+
+* créer des réseaux locaux ;
+* configurer les entrées, couches cachées et sorties ;
+* entraîner par époques ;
+* calculer la perte ;
+* sauvegarder et charger des modèles.
+
+### `TTokenList`
+
+Composant utilitaire pour la tokenisation basique de texte.
+
+Il peut être utilisé pour :
+
+* classification ;
+* analyse textuelle ;
+* prétraitement ;
+* graphes de décision ;
+* préparation de datasets.
+
+### `TAICodeAssistant`
+
+Assistant de code basé sur un LLM.
+
+Il peut être utilisé pour :
+
+* réviser du code ;
+* suggérer des améliorations ;
+* générer des commentaires ;
+* expliquer des blocs de code ;
+* assister dans les tests ;
+* convertir ou documenter des routines.
+
+### `TAIDatasetGenerator`
+
+Générateur de datasets pour l’entraînement, le fine-tuning ou la classification locale.
+
+Il prend en charge ou vise à prendre en charge des structures telles que :
+
+* CSV ;
+* JSON ;
+* JSONL ;
+* matrices d’entrée et de sortie pour l’entraînement local.
+
+### `TAIModelRegistry`
+
+Registre central des modèles, fournisseurs, endpoints et paramètres.
+
+Il aide à organiser :
+
+* nom du modèle ;
+* fournisseur ;
+* endpoint ;
+* température ;
+* limite de tokens ;
+* paramètres par défaut.
+
+### `TAIWizardConfig`
+
+Assistant de configuration pour de nouveaux projets d’IA.
+
+Il peut être utilisé pour préparer des projets tels que :
+
+* chatbot ;
+* classificateur ;
+* pipeline ;
+* agent ;
+* assistant technique.
+
+---
+
+## AI Sound Filters
+
+Composants pour le traitement numérique du signal et le filtrage audio.
+
+### `TLowPassFilter`
+
+Filtre passe-bas IIR de premier ordre.
+
+Utilisé pour lisser les variations rapides et réduire le bruit haute fréquence.
+
+### `THighPassFilter`
+
+Filtre passe-haut IIR de premier ordre.
+
+Utilisé pour supprimer les composants basse fréquence, l’offset ou le bruit DC.
+
+### `TAverageFilter`
+
+Filtre de moyenne mobile.
+
+Utilisé pour un lissage simple des signaux.
+
+### `TFDMMultiplexer`
+
+Composant de multiplexage par répartition en fréquence.
+
+Permet de simuler des canaux dans différentes bandes de fréquence.
+
+### `TTDMMultiplexer`
+
+Composant de multiplexage par répartition dans le temps.
+
+Permet d’intercaler des canaux par créneaux temporels.
+
+### `TCDMMultiplexer`
+
+Multiplexeur CDM/CDMA.
+
+Utilise des codes orthogonaux pour séparer les signaux.
+
+### `TOFDMMultiplexer`
+
+Multiplexeur OFDM utilisant FFT/IFFT.
+
+Utile pour les études et simulations de télécommunications.
+
+---
+
+## AI Image
+
+Composants pour le traitement basique d’images.
+
+### `TGrayscaleFilter`
+
+Convertit les images en niveaux de gris.
+
+### `TNegativeFilter`
+
+Applique une inversion des couleurs.
+
+### `TBrightnessContrastFilter`
+
+Ajuste la luminosité et le contraste.
+
+### `TBinarizationFilter`
+
+Applique un seuillage pour produire des images en noir et blanc.
+
+### `TBlurFilter`
+
+Applique un lissage par convolution.
+
+### `TSharpenFilter`
+
+Améliore la netteté à l’aide d’un noyau de convolution.
+
+### `TSobelFilter`
+
+Détecte les contours à l’aide de l’opérateur Sobel.
+
+### `TErosionDilationFilter`
+
+Réalise des opérations morphologiques d’érosion et de dilatation.
+
+---
+
+## AI Schedule
+
+Composants pour l’organisation, la persistance et la gestion des dépendances de tâches.
+
+### `TJSONGroupStorage`
+
+Composant de stockage de données groupées en JSON.
+
+Il peut être utilisé pour :
+
+* sauvegarder des configurations ;
+* persister des paramètres ;
+* stocker des textes ;
+* organiser des données par groupes.
+
+### `TIASchedule`
+
+Gestionnaire de tâches avec contrôle des dépendances.
+
+Il permet de modéliser :
+
+* tâche parente ;
+* tâche enfant ;
+* dépendances ;
+* état de disponibilité ;
+* contrôle simple d’exécution.
+
+---
+
+## AI Voice
+
+Composants de synthèse vocale.
+
+### `TAIVoiceSynthesizer`
+
+Composant Text-to-Speech.
+
+Sous Windows, il peut utiliser SAPI.
+Sous Linux, il peut utiliser eSpeak/eSpeak-NG.
+
+Fonctionnalités principales :
+
+* lire un texte à voix haute ;
+* ajuster le volume ;
+* ajuster la vitesse ;
+* lister les voix disponibles ;
+* exécution asynchrone ;
+* intégration avec des applications de bureau.
+
+---
+
+## AI Agent
+
+Composants pour agents intelligents et prise de décision structurée.
+
+### `TAIAgent`
+
+Composant orchestrateur de l’agent.
+
+Il permet d’envoyer des instructions à un LLM, d’interpréter des réponses structurées et de coordonner des actions.
+
+### `TAIAgentOptions`
+
+Stocke le contexte, les questions, les directives et les règles d’analyse.
+
+### `TAIAgentAction`
+
+Définit les actions autorisées pour l’agent.
+
+Il permet de configurer :
+
+* actions disponibles ;
+* paramètres attendus ;
+* callbacks d’exécution.
+
+### `TAIAgentResource`
+
+Représente des ressources externes pouvant être déclenchées par l’agent.
+
+Exemples :
+
+* fichiers ;
+* e-mail ;
+* HTTP ;
+* SMS ;
+* WhatsApp ;
+* TCP/UDP ;
+* Web APIs.
+
+### `TAIAgentOutput`
+
+Couche de sortie reliant les décisions de l’agent aux ressources réelles du système.
+
+---
+
+## AI Graph
+
+Composants pour la structuration de données, les graphes et les datasets.
+
+### `TAIGraphMap`
+
+Graphe pondéré pour la classification et l’analyse basée sur les tokens.
+
+Il peut être utilisé pour :
+
+* classification textuelle ;
+* regroupement de concepts ;
+* relations entre termes ;
+* analyse simple de sujets.
+
+### `TAITrainingExporter`
+
+Exportateur de données d’entraînement.
+
+Formats prévus ou pris en charge :
+
+* CSV ;
+* JSON ;
+* JSONL ;
+* ARFF ;
+* vecteurs numériques.
+
+### `TAIDatasetAnalyzer`
+
+Analyseur de qualité de dataset.
+
+Il peut détecter :
+
+* catégories vides ;
+* doublons ;
+* déséquilibre des classes ;
+* textes très courts ;
+* textes très longs.
+
+### `TAITrainingReport`
+
+Générateur de rapports techniques d’entraînement.
+
+Il peut enregistrer :
+
+* précision ;
+* erreur ;
+* perte ;
+* nombre de tokens ;
+* confiance moyenne ;
+* statistiques du dataset.
+
+### `TAIGraphVisualizer`
+
+Exportateur et visualiseur de graphes.
+
+Formats prévus ou pris en charge :
+
+* DOT / GraphViz ;
+* Mermaid ;
+* JSON de visualisation.
+
+---
+
+## AI Input
+
+Composants pour l’entrée de données et l’intégration avec des sources externes.
+
+Cet onglet regroupe les composants axés sur la capture d’informations, la communication et l’intégration avec des dispositifs ou systèmes.
+
+Composants prévus ou en évolution :
+
+* caméra ;
+* audio ;
+* serveur web ;
+* sockets ;
+* communication série ;
+* imprimante POS ;
+* CCTV/IP ;
+* Modbus ;
+* MQTT ;
+* e-mail ;
+* messagerie ;
+* capture du système d’exploitation ;
+* navigateur intégré ;
+* entrées industrielles.
+
+> Certains composants de cet onglet peuvent nécessiter des bibliothèques externes, des pilotes, des autorisations du système d’exploitation ou des services supplémentaires.
+
+---
+
+## AI Output
+
+Composants pour la sortie de données, la génération de documents et l’intégration avec des destinations externes.
+
+Ressources prévues ou en évolution :
+
+* génération de documents ;
+* exportation de réponses ;
+* sortie structurée ;
+* intégration avec des canaux externes ;
+* automatisation des réponses.
+
+---
+
+## AI Vision
+
+Composants pour la vision par ordinateur.
+
+Composants prévus ou en évolution :
+
+* OpenCV ;
+* capture caméra ;
+* traitement de frames ;
+* suivi facial ;
+* suivi de mouvement ;
+* classification d’images ;
+* détection d’objets.
+
+> Cette zone doit être considérée comme expérimentale jusqu’à ce que les composants disposent de démonstrations complètes, de dépendances documentées et de tests d’intégration.
+
+---
+
+## AI Graphic
+
+Composants graphiques et 3D liés à l’IA, à la simulation et à la visualisation.
+
+Composants prévus ou en évolution :
+
+* scène 2D/3D ;
+* environnement d’entraînement ;
+* simulateur physique ;
+* capteurs virtuels ;
+* fonction de récompense ;
+* visualisation de modèles 3D ;
+* rig de squelette ;
+* contrôleur d’avatar ;
+* bibliothèque de poses ;
+* séquence d’animation ;
+* intégration avec génération de modèles 3D.
+
+### `TAI3DModelViewer`
+
+Visualiseur de modèles 3D.
+
+Objectif :
+
+* charger des modèles 3D ;
+* afficher des maillages ;
+* faire pivoter ;
+* zoomer ;
+* dézoomer ;
+* alterner entre mode solide, filaire et points.
+
+### `TAITripo3DClient`
+
+Client pour l’intégration avec un service externe de génération de modèles 3D.
+
+Objectif :
+
+* générer un modèle à partir d’un texte ;
+* générer un modèle à partir d’une image ;
+* générer un modèle à partir de plusieurs images ;
+* télécharger le modèle 3D obtenu.
+
+> L’intégration avec des services externes doit être validée conformément à la documentation officielle de l’API du fournisseur utilisé.
+
+---
+
+## Installation du paquet dans Lazarus
+
+1. Ouvrez Lazarus.
+2. Accédez à **Package > Open Package File (.lpk)**.
+3. Sélectionnez le fichier `pacote/openai.lpk`.
+4. Cliquez sur **Compile**.
+5. Cliquez ensuite sur **Use > Install**.
+6. Lazarus demandera de reconstruire l’IDE.
+7. Après le redémarrage, les composants apparaîtront dans la palette de composants.
+
+---
+
+## Fournisseurs de LLM
+
+| Fournisseur                 | Enum             | Type                     |
+| --------------------------- | ---------------- | ------------------------ |
+| OpenAI                      | `AIP_OPENAI`     | API externe              |
+| OpenRouter                  | `AIP_OPENROUTER` | API externe / agrégateur |
+| Cerebras                    | `AIP_CEREBRAS`   | API externe              |
+| Google Gemini               | `AIP_GEMINI`     | API externe              |
+| Anthropic Claude            | `AIP_CLAUDE`     | API externe              |
+| Local / Ollama / compatible | `AIP_LOCAL`      | Serveur local            |
+
+> Les noms de modèles, limites, coûts et disponibilités peuvent changer selon chaque fournisseur. Consultez toujours la documentation officielle du service utilisé.
+
+---
+
+## Prérequis
+
+### Environnement principal
+
+* Lazarus 3.x ou supérieur ;
+* version compatible de Free Pascal ;
+* Windows ou Linux ;
+* paquet `openai.lpk` ;
+* connexion internet pour les fournisseurs externes ;
+* serveur local configuré lorsque des modèles hors ligne sont utilisés.
+
+### Windows
+
+Pour la communication HTTPS, des DLL OpenSSL compatibles avec l’architecture de l’application peuvent être nécessaires.
+
+Vérifiez le dossier `pacote/lib/`.
+
+Il est recommandé de copier les DLL nécessaires dans le même dossier que l’exécutable final.
+
+### Linux
+
+Selon les composants utilisés, des paquets supplémentaires peuvent être nécessaires, tels que :
+
+* OpenSSL ;
+* eSpeak/eSpeak-NG ;
+* libpython ;
+* bibliothèques caméra ou audio ;
+* bibliothèques spécifiques pour la vision par ordinateur.
+
+Les prérequis peuvent varier selon le composant utilisé.
+
+---
+
+## Screenshots
+
+> Les images ci-dessous présentent des fonctionnalités déjà testées ou actuellement en développement.
+> Les nouveaux composants peuvent ne pas encore disposer de démonstrations visuelles complètes.
+
+### CNN Demo
+
+![CNN Demo](screenshots/cnn_demo.jpg)
+
+Démonstration de classification d’images.
+
+### Math Input / Output Demo
+
+![Math Input Output Demo](screenshots/math_input_output_demo.jpg)
+
+Démonstration de composants mathématiques.
+
+### Python Connector Demo
+
+![Python Demo](screenshots/python_demo.jpg)
+
+Démonstration d’intégration avec Python.
+
+### SOM Demo
+
+![SOM Demo](screenshots/som_demo.jpg)
+
+Démonstration de carte auto-organisatrice.
+
+### Sound Filters Demo
+
+![Sound Filters](screenshots/sound_filters.jpg)
+
+Démonstration de filtres audio.
+
+### Voice Synthesizer Demo
+
+![Voice Synthesizer](screenshots/voicesynthesizer.jpg)
+
+Démonstration de synthèse vocale.
+
+---
+
+## Limitations connues
+
+Le projet est encore en développement et contient des composants à différents niveaux de stabilité.
+
+Limitations actuelles attendues :
+
+* certains composants peuvent encore être expérimentaux ;
+* tous les composants ne disposent pas de démonstrations complètes ;
+* les intégrations externes dépendent d’APIs tierces ;
+* les composants de vision par ordinateur peuvent nécessiter des bibliothèques externes ;
+* les composants Python dépendent de versions et d’architectures compatibles ;
+* chaque composant doit être validé avant une utilisation en production ;
+* les tests automatisés et l’intégration continue doivent encore être étendus.
+
+---
+
+## Roadmap
+
+### Court terme
+
+* revoir la documentation des composants ;
+* standardiser les noms des onglets en anglais ;
+* séparer les composants stables et expérimentaux ;
+* ajouter des démonstrations minimales pour chaque composant ;
+* valider la compilation du paquet sous Windows et Linux ;
+* corriger les incohérences entre le README et le code source.
+
+### Moyen terme
+
+* créer des tests automatisés ;
+* créer un pipeline avec `lazbuild` ;
+* créer des releases versionnées ;
+* documenter les dépendances externes ;
+* améliorer la gestion des erreurs ;
+* créer des démonstrations réelles avec LLM, voix, image et agents.
+
+### Long terme
+
+* créer des modèles de projets ;
+* créer un assistant visuel de configuration d’IA ;
+* consolider les composants OpenCV ;
+* consolider les composants 3D ;
+* améliorer l’intégration avec les modèles locaux ;
+* faire évoluer les agents avec un contrôle de sécurité ;
+* créer une documentation complète pour une utilisation en production.
+
+---
+
+## À qui s’adresse ce projet ?
+
+Ce projet est adapté pour :
+
+* développeurs Lazarus ;
+* développeurs Free Pascal ;
+* enseignants et étudiants ;
+* projets desktop avec IA ;
+* automatisation locale ;
+* systèmes professionnels existants ;
+* applications éducatives ;
+* prototypes d’IA ;
+* intégration de l’IA avec des dispositifs ;
+* systèmes qui nécessitent de l’IA sans migrer toute la base de code vers Python ou JavaScript.
+
+---
+
+## À qui ce projet ne s’adresse pas encore ?
+
+À ce stade, le projet ne remplace pas :
+
+* frameworks complets de machine learning ;
+* plateformes MLOps ;
+* pipelines professionnels d’entraînement ;
+* services professionnels de déploiement de modèles ;
+* bibliothèques spécialisées comme PyTorch, TensorFlow, scikit-learn ou OpenCV complet ;
+* infrastructures d’IA à l’échelle entreprise.
+
+---
+
+## Contribution
+
+Les contributions sont les bienvenues.
+
+Domaines prioritaires de contribution :
+
+* correction de bugs ;
+* démonstrations fonctionnelles ;
+* documentation ;
+* tests automatisés ;
+* compatibilité Windows/Linux ;
+* icônes et screenshots ;
+* validation des composants ;
+* amélioration de la gestion des erreurs ;
+* intégration avec les fournisseurs d’IA ;
+* démos pour chaque onglet de composants Lazarus.
 
 ---
 
 ## Licence
 
-Ce projet est sous licence [GNU General Public License v3.0](LICENSE).
+Ce projet est sous licence **GNU General Public License v3.0**.
+
+Consultez le fichier `LICENSE`.
+
+---
+
+## Avis
+
+Ce projet utilise ou intègre des services externes d’IA.
+L’utilisation de ces services peut impliquer des coûts, des limites d’API, des politiques propres aux fournisseurs et la transmission de données à des tiers.
+
+Avant une utilisation en production :
+
+* vérifiez les conditions du fournisseur ;
+* protégez vos clés d’API ;
+* n’envoyez pas de données sensibles sans autorisation ;
+* validez la sécurité, la confidentialité et la conformité ;
+* testez le comportement du composant dans l’environnement réel.
+
+---
+
+## Conclusion
+
+**TCHATGPT** est une suite prometteuse pour apporter des ressources d’IA à l’écosystème Lazarus / Free Pascal.
+
+Sa plus grande valeur est d’offrir un pont pratique entre les applications traditionnelles et les ressources modernes d’IA, permettant aux systèmes desktop, industriels, éducatifs et professionnels d’incorporer des LLMs, de la voix, de l’image, des graphes, de l’automatisation et des modèles locaux de manière componentisée.
+
+Le projet est encore en évolution, mais il possède déjà une base importante pour devenir une référence open source de composants IA pour Lazarus.
