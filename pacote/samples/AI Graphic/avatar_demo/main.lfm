@@ -1,0 +1,202 @@
+object frmAvatarDemo: TfrmAvatarDemo
+  Left = 320
+  Height = 650
+  Top = 150
+  Width = 850
+  Caption = 'Avatar Crash Test Dummy Kinematics Simulator'
+  ClientHeight = 650
+  ClientWidth = 850
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '3.0.0.3'
+  object pnlLeft: TPanel
+    Left = 10
+    Height = 470
+    Top = 10
+    Width = 260
+    Align = alLeft
+    BorderSpacing.Left = 10
+    BorderSpacing.Top = 10
+    BorderSpacing.Bottom = 5
+    ClientHeight = 470
+    ClientWidth = 260
+    TabOrder = 0
+    object pnlScene: TPanel
+      Left = 1
+      Height = 250
+      Top = 1
+      Width = 258
+      Align = alTop
+      ClientHeight = 250
+      ClientWidth = 258
+      TabOrder = 0
+      object lblSceneTitle: TLabel
+        Left = 10
+        Height = 15
+        Top = 10
+        Width = 150
+        Caption = 'Avatar Joint Kinematics'
+        Font.Style = [fsBold]
+        ParentColor = False
+      end
+      object lblBoneSelect: TLabel
+        Left = 10
+        Height = 15
+        Top = 40
+        Width = 150
+        Caption = 'Select Bone Joint:'
+        ParentColor = False
+      end
+      object cbBones: TComboBox
+        Left = 10
+        Height = 23
+        Top = 60
+        Width = 238
+        ItemHeight = 15
+        OnChange = cbBonesChange
+        Style = csDropDownList
+        TabOrder = 0
+      end
+      object lblAxisSelect: TLabel
+        Left = 10
+        Height = 15
+        Top = 95
+        Width = 150
+        Caption = 'Select Rotation Axis:'
+        ParentColor = False
+      end
+      object cbAxis: TComboBox
+        Left = 10
+        Height = 23
+        Top = 115
+        Width = 238
+        ItemHeight = 15
+        OnChange = cbAxisChange
+        Style = csDropDownList
+        TabOrder = 1
+      end
+      object lblAngle: TLabel
+        Left = 10
+        Height = 15
+        Top = 150
+        Width = 100
+        Caption = 'Rotate Angle:'
+        ParentColor = False
+      end
+      object tbAngle: TTrackBar
+        Left = 10
+        Height = 35
+        Top = 175
+        Width = 190
+        Max = 180
+        Min = -180
+        OnChange = tbAngleChange
+        Position = 0
+        TabOrder = 2
+      end
+      object lblAngleVal: TLabel
+        Left = 210
+        Height = 15
+        Top = 180
+        Width = 40
+        Caption = '0°'
+        Font.Style = [fsBold]
+        ParentColor = False
+      end
+    end
+    object pnlPose: TPanel
+      Left = 1
+      Height = 218
+      Top = 251
+      Width = 258
+      Align = alClient
+      ClientHeight = 218
+      ClientWidth = 258
+      TabOrder = 1
+      object lblPoseTitle: TLabel
+        Left = 10
+        Height = 15
+        Top = 10
+        Width = 180
+        Caption = 'Predefined Crash Poses'
+        Font.Style = [fsBold]
+        ParentColor = False
+      end
+      object btnTPose: TButton
+        Left = 10
+        Height = 25
+        Top = 30
+        Width = 238
+        Caption = 'Standard T-Pose'
+        OnClick = btnTPoseClick
+        TabOrder = 0
+      end
+      object btnSit: TButton
+        Left = 10
+        Height = 25
+        Top = 65
+        Width = 238
+        Caption = 'Car Seat Stance'
+        OnClick = btnSitClick
+        TabOrder = 1
+      end
+      object btnWave: TButton
+        Left = 10
+        Height = 25
+        Top = 100
+        Width = 238
+        Caption = 'Wave Gesture'
+        OnClick = btnWaveClick
+        TabOrder = 2
+      end
+      object btnWalk: TButton
+        Left = 10
+        Height = 25
+        Top = 135
+        Width = 238
+        Caption = 'Pedestrian Walking Stance'
+        OnClick = btnWalkClick
+        TabOrder = 3
+      end
+    end
+  end
+  object pnlView: TPanel
+    Left = 275
+    Height = 470
+    Top = 10
+    Width = 565
+    Align = alClient
+    BorderSpacing.Left = 5
+    BorderSpacing.Top = 10
+    BorderSpacing.Right = 10
+    BorderSpacing.Bottom = 5
+    Caption = ''
+    Color = clWhite
+    ParentBackground = False
+    ParentColor = False
+    TabOrder = 1
+    OnPaint = pnlViewPaint
+    OnMouseDown = pnlViewMouseDown
+    OnMouseMove = pnlViewMouseMove
+    OnMouseUp = pnlViewMouseUp
+  end
+  object meLogs: TMemo
+    Left = 10
+    Height = 130
+    Top = 510
+    Width = 830
+    Align = alBottom
+    BorderSpacing.Around = 10
+    ReadOnly = True
+    ScrollBars = ssAutoBoth
+    TabOrder = 2
+  end
+  object lblLogs: TLabel
+    Left = 10
+    Height = 15
+    Top = 490
+    Width = 150
+    Caption = 'Kinematics Simulator Logs:'
+    ParentColor = False
+  end
+end
