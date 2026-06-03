@@ -185,6 +185,11 @@ Para que a comunicação HTTPS funcione no Windows, as DLLs OpenSSL adequadas pa
 ---
 ## Screen Shots
 ![CNN Demo](screenshots/cnn_demo.jpg)
+Detecção de objetos em Python
+
+![math_input_output_demo](screenshots/math_input_output_demo.jpg)
+Biblioteca matematica demo
+
 
 ---
 
