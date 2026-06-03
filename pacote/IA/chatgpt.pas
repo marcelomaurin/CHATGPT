@@ -49,6 +49,10 @@ type
     VCT_OPENROUTER_DEEPSEEK_R1_FREE,
     VCT_OPENROUTER_LLAMA32_3B_FREE,
 
+    // Modelos locais DeepSeek R1 específicos do usuário
+    VCT_DEEPSEEK_R1_1_5b,
+    VCT_DEEPSEEK_R1_7b,
+
     VCT_CUSTOM
   );
 
@@ -79,6 +83,7 @@ type
     FMaxTokens       : Integer;
     FLocalIP         : WideString;
     FLastURL         : WideString;
+    FURL             : WideString;
 
     function RequestJson(const LURL, token, ASK: WideString): WideString;
     function PegaMensagem(const JSON: WideString): WideString;
@@ -89,7 +94,13 @@ type
     function GetDev: WideString;
     procedure SetDev(const AValue: WideString);
   public
-
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    function SendQuestion(ASK: WideString): Boolean;
+    function TipoModelo: WideString;
+    function ProviderName: WideString;
+    function VersaoBiblioteca: WideString;
+  published
     property TOKEN: WideString read FToken write FToken;
     property Question: WideString read FQuestion;
     property Response: WideString read FResponse write FResponse;
@@ -99,6 +110,7 @@ type
     property CustomModel: WideString read FCustomModel write FCustomModel;
     property LocalIP: WideString read FLocalIP write FLocalIP;
     property MaxTokens: Integer read FMaxTokens write FMaxTokens;
+    property URL: WideString read FURL write FURL;
 
     // Opcionais para OpenRouter
     property OpenRouterTitle: WideString read FOpenRouterTitle write FOpenRouterTitle;
@@ -106,13 +118,6 @@ type
 
     property LastJSON: WideString read FLastJSON;
     property LastURL: WideString read FLastURL;
-
-    function SendQuestion(ASK: WideString): Boolean;
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
-    function TipoModelo: WideString;
-    function ProviderName: WideString;
-    function VersaoBiblioteca: WideString;
   end;
 
 procedure Register;
@@ -281,6 +286,12 @@ end;
 
 function TCHATGPT.GetEndpoint: WideString;
 begin
+  if Trim(FURL) <> '' then
+  begin
+    Result := FURL;
+    Exit;
+  end;
+
   case FProvider of
     AIP_OPENAI:
       Result := 'https://api.openai.com/v1/chat/completions';
@@ -320,6 +331,8 @@ begin
       VCT_DEEPSEEK_R1_8B:   Result := 'deepseek-r1:8b';
       VCT_DEEPSEEK_R1_14B:  Result := 'deepseek-r1:14b';
       VCT_DEEPSEEK_R1_70B:  Result := 'deepseek-r1:70b';
+      VCT_DEEPSEEK_R1_1_5b: Result := 'deepseek_r1:1_5b';
+      VCT_DEEPSEEK_R1_7b:   Result := 'deepseek_r1:7b';
     else
       Result := 'llama3.2:3b';
     end;
@@ -690,6 +703,7 @@ begin
   FLocalIP := 'http://localhost:11434';
   FMaxTokens := 4096;
   FLastURL := '';
+  FURL := '';
 end;
 
 destructor TCHATGPT.Destroy;
@@ -725,6 +739,7 @@ end;
 procedure Register;
 begin
   RegisterComponents('AI Core', [TCHATGPT]);
+  RegisterComponents('IA', [TCHATGPT]);
 end;
 
 initialization

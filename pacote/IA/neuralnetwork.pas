@@ -84,6 +84,7 @@ implementation
 procedure Register;
 begin
   RegisterComponents('AI Machine Learning', [TNeuralNetwork]);
+  RegisterComponents('IA', [TNeuralNetwork]);
 end;
 
 constructor TNeuralNetwork.Create(AOwner: TComponent);
