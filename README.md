@@ -206,8 +206,8 @@ Demonstração de som
 Demonstração de filtro de som
 
 
-
-
+![voicesynthesizer](screenshots/voicesynthesizer.jpg)
+Demonstração de sintetização de voz 
 
 ---
 
