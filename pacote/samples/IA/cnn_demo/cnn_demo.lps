@@ -19,6 +19,8 @@
         <ComponentName Value="frmCNNDemo"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <IsVisibleTab Value="True"/>
+        <CursorPos X="12" Y="7"/>
         <UsageCount Value="21"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -40,8 +42,8 @@
       </Unit>
       <Unit>
         <Filename Value="..\..\IA Voice\aivoicesynthesizer_sample.lpr"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
+        <CursorPos X="36" Y="9"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit>
