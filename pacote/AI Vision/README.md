@@ -2,10 +2,11 @@
 
 Componentes de visão computacional da **Lazarus AI Suite**.
 
-Esta área agora possui duas linhas de trabalho:
+Esta área possui três linhas de trabalho:
 
 1. **AI Native Vision** — componentes 100% Lazarus/Free Pascal, sem Python.
 2. **AI Python Vision** — componentes que usam Python/OpenCV por worker externo.
+3. **AI Native OpenCV Runtime** — suporte parcial para localizar e carregar DLL/SO nativa do OpenCV.
 
 ---
 
@@ -34,15 +35,16 @@ AI Native Vision
 
 | Componente | Unit | Status | Descrição |
 |---|---|---|---|
-| `TAIOpenCV` | `aiopencv.pas` | Beta | Processamento básico de imagem via OpenCV usando worker Python |
-| `TAICameraCapture` | `aicameracapture.pas` | Beta parcial | Captura nativa via Windows VFW; stub/não suportado no Linux nesta versão |
+| `TAIOpenCV` | `aiopencv.pas` | Beta | Processamento básico via backend Python e carregamento parcial de runtime nativo OpenCV |
+| `TAICameraCapture` | `aicameracapture.pas` | Experimental | Captura nativa por backend específico do SO; usa VFW no Windows e backend V4L2 no Linux |
 | `TAIFrameProcessor` | `aiframeprocessor.pas` | Experimental | Estrutura de processamento de frames em evolução |
-| `TAIFaceTracker` | `aifacetracker.pas` | Beta técnico | Rastreamento por template matching/SAD em `TBitmap`; não é detector facial semântico |
-| `TAIMotionTracker` | `aimotiontracker.pas` | Beta | Detecção de movimento por variação de luminância entre bitmaps |
-| `TAIImageInfo` | `aiimageinfo.pas` | Beta | Extração nativa de metadados e contagem de pixels de imagem |
-| `TAIFrameBuffer` | `aiframebuffer.pas` | Beta | Buffer circular de frames em memória para processamento de vídeo |
-| `TAINativeImageFilter` | `ainativeimagefilter.pas` | Beta | Filtros nativos: cinza, threshold, inverter, resize e blur box |
-| `TAIFrameDiff` | `aiframediff.pas` | Beta | Geração nativa de diferença absoluta entre frames |
+| `TAIFaceTracker` | `aifacetracker.pas` | Experimental | Rastreamento por template matching/SAD em `TBitmap`; não é detector facial semântico |
+| `TAIMotionTracker` | `aimotiontracker.pas` | Experimental | Detecção de movimento por variação de luminância entre bitmaps |
+| `TAIImageInfo` | `aiimageinfo.pas` | Experimental | Extração nativa de metadados e contagem de pixels de imagem |
+| `TAIFrameBuffer` | `aiframebuffer.pas` | Experimental | Buffer circular de frames em memória para processamento de vídeo |
+| `TAINativeImageFilter` | `ainativeimagefilter.pas` | Experimental | Filtros nativos: cinza, threshold, inverter, resize e blur box |
+| `TAIFrameDiff` | `aiframediff.pas` | Experimental | Geração nativa de diferença absoluta entre frames |
+| `aiopencvruntime` | `aiopencvruntime.pas` | Infraestrutura | Helper para localizar `opencv_world*.dll` e `libopencv_world.so*` por sistema/arquitetura |
 
 ---
 
@@ -52,7 +54,14 @@ Componentes nativos em Pascal, sem dependência de Python ou OpenCV.
 
 ### `TAICameraCapture`
 
-Captura frames de câmera/webcam no Windows usando VFW/`avicap32.dll`.
+Captura frames de câmera/webcam usando backend específico de plataforma.
+
+Backends atuais nos fontes:
+
+```text
+Windows: VFW / avicap32.dll
+Linux: V4L2 / /dev/video*
+```
 
 Recursos atuais:
 
@@ -65,11 +74,10 @@ Recursos atuais:
 * `ListAvailableCameras`
 * eventos `OnFrame`, `OnError` e `OnStateChange`
 
-Limitação importante:
+Observação técnica:
 
 ```text
-Captura real disponível apenas no Windows nesta versão.
-Linux retorna erro de plataforma não suportada/stub.
+O backend Linux V4L2 existe nos fontes, mas deve ser validado em ambientes reais Linux/Raspberry antes de ser tratado como estável.
 ```
 
 ### `TAINativeImageFilter`
@@ -138,9 +146,14 @@ Componentes nativos auxiliares para pipelines de vídeo/imagem:
 
 ### `TAIOpenCV`
 
-`TAIOpenCV` usa um worker Python para chamar OpenCV por processo externo.
+`TAIOpenCV` possui dois backends:
 
-Worker:
+| Backend | Status | Uso recomendado |
+|---|---|---|
+| `ocvPythonProcess` | Funcional/Beta | Processamento real de imagens com filtros OpenCV |
+| `ocvNativeDLL` | Parcial/Experimental | Localização e carregamento de DLL/SO nativa OpenCV |
+
+Worker Python:
 
 ```text
 pacote/python/aiopencv_worker.py
@@ -152,7 +165,7 @@ Dependências Python:
 pip install opencv-python numpy
 ```
 
-Ações suportadas atualmente:
+Ações suportadas pelo worker Python:
 
 | Ação | Descrição |
 |---|---|
@@ -165,33 +178,95 @@ Ações suportadas atualmente:
 | `threshold` | Aplica threshold binário |
 | `resize` | Redimensiona a imagem |
 
-Backend recomendado atualmente:
+---
+
+## AI Native OpenCV Runtime
+
+A unit:
 
 ```text
-Python Process
+pacote/AI Vision/aiopencvruntime.pas
 ```
 
-O backend `Native DLL` está previsto, mas ainda não deve ser tratado como funcional.
+centraliza a busca por bibliotecas nativas do OpenCV.
+
+Ela procura primeiro em:
+
+```text
+runtime/opencv/windows/x86/bin/
+runtime/opencv/windows/x64/bin/
+runtime/opencv/linux/x64/lib/
+runtime/opencv/linux/arm64/lib/
+runtime/opencv/linux/armhf/lib/
+```
+
+No Windows, aceita:
+
+```text
+opencv_world*.dll
+```
+
+No Linux, aceita:
+
+```text
+libopencv_world.so*
+```
+
+A busca registra log com:
+
+* sistema operacional detectado;
+* arquitetura detectada;
+* pasta esperada;
+* manifesto encontrado;
+* biblioteca resolvida;
+* fallback usado.
+
+---
+
+## Limitação atual do backend nativo OpenCV
+
+O backend `ocvNativeDLL` de `TAIOpenCV` atualmente **localiza e carrega** a DLL/SO nativa, mas o processamento real de imagem ainda não chama funções OpenCV nativas.
+
+No código atual, o fluxo nativo de `ProcessFile` executa uma etapa simulada/cópia de arquivo.
+
+Para aplicar filtros reais, use:
+
+```text
+ocvPythonProcess
+```
 
 ---
 
 ## Samples
 
-### Python/OpenCV
+### OpenCV
 
 ```text
 pacote/samples/AI Vision/opencv_filter_demo/
+pacote/samples/AI Vision/opencv_image_real_demo/
 ```
 
-Demonstra:
+`opencv_filter_demo` demonstra:
 
 * SelfTest;
 * carregamento de imagem;
 * leitura de informações da imagem;
 * filtros básicos OpenCV;
 * preview antes/depois;
+* seleção de backend;
+* detecção de runtime nativo;
+* fallback Python;
 * salvamento do resultado;
 * log de execução.
+
+`opencv_image_real_demo` demonstra:
+
+* uso conjunto de `TAIOpenCV` e `TAIFrameProcessor`;
+* detecção do runtime OpenCV no início do formulário;
+* tentativa de backend nativo;
+* fallback para Python;
+* modo simulação;
+* log da detecção.
 
 ### Native Vision
 
@@ -207,9 +282,9 @@ pacote/samples/AI Native Vision/motion_tracker_demo/
 
 ## Limitações atuais
 
-* `TAIOpenCV` ainda depende de Python.
-* O backend nativo DLL/SO do `TAIOpenCV` ainda não está implementado.
-* `TAICameraCapture` usa VFW no Windows; Linux ainda precisa backend próprio.
+* `TAIOpenCV` usa Python como backend recomendado para processamento real.
+* `ocvNativeDLL` ainda não implementa chamadas reais às funções OpenCV nativas.
+* `TAICameraCapture` no Linux/V4L2 precisa validação prática em diferentes câmeras e Raspberry.
 * `TAIFaceTracker` rastreia template, não faz detecção facial semântica.
 * Componentes nativos precisam de mais samples e validação em Windows/Linux.
 
@@ -217,8 +292,8 @@ pacote/samples/AI Native Vision/motion_tracker_demo/
 
 ## Próximos passos recomendados
 
+* Implementar processamento real no backend `ocvNativeDLL` ou renomear explicitamente como loader/teste nativo.
+* Validar V4L2 no Raspberry Pi 32/64 bits.
 * Criar/validar samples nativos: câmera, filtros, motion tracker e frame diff.
-* Documentar versões de Windows/Lazarus testadas para `TAICameraCapture`.
-* Criar alternativa Linux para captura de câmera.
-* Criar testes manuais para cada componente `AI Native Vision`.
+* Documentar versões de Windows/Linux/Lazarus testadas.
 * Atualizar os READMEs individuais em `DOC/components/` sempre que a API mudar.
