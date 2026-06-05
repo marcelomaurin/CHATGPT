@@ -2,7 +2,10 @@
 
 Componentes de visão computacional da **Lazarus AI Suite**.
 
-Esta área concentra componentes relacionados a OpenCV, processamento de frames, câmera, rastreamento facial e movimento.
+Esta área agora possui duas linhas de trabalho:
+
+1. **AI Native Vision** — componentes 100% Lazarus/Free Pascal, sem Python.
+2. **AI Python Vision** — componentes que usam Python/OpenCV por worker externo.
 
 ---
 
@@ -18,6 +21,13 @@ Dependência principal:
 openai_core.lpk
 ```
 
+O pacote registra componentes principalmente nas abas:
+
+```text
+AI Vision
+AI Native Vision
+```
+
 ---
 
 ## Componentes
@@ -25,18 +35,110 @@ openai_core.lpk
 | Componente | Unit | Status | Descrição |
 |---|---|---|---|
 | `TAIOpenCV` | `aiopencv.pas` | Beta | Processamento básico de imagem via OpenCV usando worker Python |
-| `TAICameraCapture` | `aicameracapture.pas` | Placeholder | Estrutura para captura de câmera; captura real ainda precisa validação |
-| `TAIFrameProcessor` | `aiframeprocessor.pas` | Experimental | Estrutura para processamento de frames |
-| `TAIFaceTracker` | `aifacetracker.pas` | Placeholder | Estrutura para rastreamento facial; implementação real ainda precisa validação |
-| `TAIMotionTracker` | `aimotiontracker.pas` | Placeholder | Estrutura para detecção de movimento; implementação real ainda precisa validação |
+| `TAICameraCapture` | `aicameracapture.pas` | Beta parcial | Captura nativa via Windows VFW; stub/não suportado no Linux nesta versão |
+| `TAIFrameProcessor` | `aiframeprocessor.pas` | Experimental | Estrutura de processamento de frames em evolução |
+| `TAIFaceTracker` | `aifacetracker.pas` | Beta técnico | Rastreamento por template matching/SAD em `TBitmap`; não é detector facial semântico |
+| `TAIMotionTracker` | `aimotiontracker.pas` | Beta | Detecção de movimento por variação de luminância entre bitmaps |
+| `TAIImageInfo` | `aiimageinfo.pas` | Beta | Extração nativa de metadados e contagem de pixels de imagem |
+| `TAIFrameBuffer` | `aiframebuffer.pas` | Beta | Buffer circular de frames em memória para processamento de vídeo |
+| `TAINativeImageFilter` | `ainativeimagefilter.pas` | Beta | Filtros nativos: cinza, threshold, inverter, resize e blur box |
+| `TAIFrameDiff` | `aiframediff.pas` | Beta | Geração nativa de diferença absoluta entre frames |
 
 ---
 
-## TAIOpenCV
+## AI Native Vision
 
-`TAIOpenCV` é o componente mais funcional desta aba no estado atual.
+Componentes nativos em Pascal, sem dependência de Python ou OpenCV.
 
-Ele usa um worker Python para chamar OpenCV por processo externo.
+### `TAICameraCapture`
+
+Captura frames de câmera/webcam no Windows usando VFW/`avicap32.dll`.
+
+Recursos atuais:
+
+* `StartCapture`
+* `StopCapture`
+* `QueryFrame`
+* `CaptureToFile`
+* `CaptureToImage`
+* `SelfTest`
+* `ListAvailableCameras`
+* eventos `OnFrame`, `OnError` e `OnStateChange`
+
+Limitação importante:
+
+```text
+Captura real disponível apenas no Windows nesta versão.
+Linux retorna erro de plataforma não suportada/stub.
+```
+
+### `TAINativeImageFilter`
+
+Filtros nativos sobre `TBitmap`/`TLazIntfImage`.
+
+Filtros atuais:
+
+* `niftNone`
+* `niftGray`
+* `niftThreshold`
+* `niftInvert`
+* `niftResize`
+* `niftBlurBox`
+
+Métodos principais:
+
+* `ApplyToBitmap`
+* `ApplyFile`
+
+### `TAIMotionTracker`
+
+Detecta movimento comparando dois `TBitmap` ou dois arquivos de imagem.
+
+Estratégia atual:
+
+```text
+luminância por pixel + threshold + percentual mínimo de movimento
+```
+
+Métodos principais:
+
+* `DetectMotion`
+* `DetectMotionFromFiles`
+* `GetMotionPercent`
+
+### `TAIFaceTracker`
+
+Rastreia uma região usando template matching por SAD.
+
+Atenção:
+
+```text
+Este componente não detecta rosto semanticamente.
+Ele rastreia uma região/template dentro de um bitmap.
+```
+
+Métodos principais:
+
+* `SetTemplateFromBitmap`
+* `TrackInBitmap`
+* `TrackFace`
+* `ClearTemplate`
+
+### `TAIFrameBuffer`, `TAIFrameDiff` e `TAIImageInfo`
+
+Componentes nativos auxiliares para pipelines de vídeo/imagem:
+
+* buffer circular de frames;
+* diferença absoluta entre frames;
+* extração de informações de imagem.
+
+---
+
+## AI Python Vision
+
+### `TAIOpenCV`
+
+`TAIOpenCV` usa um worker Python para chamar OpenCV por processo externo.
 
 Worker:
 
@@ -50,7 +152,7 @@ Dependências Python:
 pip install opencv-python numpy
 ```
 
-### Ações suportadas atualmente
+Ações suportadas atualmente:
 
 | Ação | Descrição |
 |---|---|
@@ -63,57 +165,60 @@ pip install opencv-python numpy
 | `threshold` | Aplica threshold binário |
 | `resize` | Redimensiona a imagem |
 
-### Observação sobre backend nativo
-
-O backend `Native DLL` está previsto, mas ainda não deve ser tratado como funcional.
-
-O backend recomendado atualmente é:
+Backend recomendado atualmente:
 
 ```text
 Python Process
 ```
 
+O backend `Native DLL` está previsto, mas ainda não deve ser tratado como funcional.
+
 ---
 
-## Sample funcional
+## Samples
 
-Caminho:
+### Python/OpenCV
 
 ```text
 pacote/samples/AI Vision/opencv_filter_demo/
 ```
 
-Esse sample demonstra:
+Demonstra:
 
 * SelfTest;
 * carregamento de imagem;
 * leitura de informações da imagem;
-* aplicação de filtros básicos;
+* filtros básicos OpenCV;
 * preview antes/depois;
 * salvamento do resultado;
 * log de execução.
 
-Arquivo de imagem de teste:
+### Native Vision
+
+Samples previstos/documentados no README principal:
 
 ```text
-pacote/samples/AI Vision/opencv_filter_demo/sample.jpg
+pacote/samples/AI Native Vision/camera_capture_demo/
+pacote/samples/AI Native Vision/native_image_filter_demo/
+pacote/samples/AI Native Vision/motion_tracker_demo/
 ```
 
 ---
 
 ## Limitações atuais
 
-* `TAIOpenCV` ainda depende de Python para funcionar.
-* O backend nativo via DLL/SO ainda não está implementado.
-* Câmera, face tracker e motion tracker ainda precisam de implementação ou validação real.
-* Esta aba deve ser considerada Beta/Experimental conforme o componente utilizado.
+* `TAIOpenCV` ainda depende de Python.
+* O backend nativo DLL/SO do `TAIOpenCV` ainda não está implementado.
+* `TAICameraCapture` usa VFW no Windows; Linux ainda precisa backend próprio.
+* `TAIFaceTracker` rastreia template, não faz detecção facial semântica.
+* Componentes nativos precisam de mais samples e validação em Windows/Linux.
 
 ---
 
 ## Próximos passos recomendados
 
-* Criar timeout/cancelamento no processamento OpenCV.
-* Adicionar filtros novos somente após estabilizar os atuais.
-* Criar samples separados para câmera, face tracker e motion tracker.
-* Validar funcionamento em Windows e Linux.
-* Documentar versões de Python/OpenCV testadas.
+* Criar/validar samples nativos: câmera, filtros, motion tracker e frame diff.
+* Documentar versões de Windows/Lazarus testadas para `TAICameraCapture`.
+* Criar alternativa Linux para captura de câmera.
+* Criar testes manuais para cada componente `AI Native Vision`.
+* Atualizar os READMEs individuais em `DOC/components/` sempre que a API mudar.
