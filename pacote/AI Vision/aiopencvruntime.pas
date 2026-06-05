@@ -284,10 +284,27 @@ begin
 end;
 
 function AILoadOpenCVLibrary(const ALibraryPath: string; out AHandle: TLibHandle; out AError: string): Boolean;
+var
+  LSize: Int64;
+  LSR: TSearchRec;
 begin
   AHandle := NilHandle;
   AError := '';
   Result := False;
+
+  LSize := 0;
+  if FindFirst(ALibraryPath, faAnyFile, LSR) = 0 then
+  begin
+    LSize := LSR.Size;
+    FindClose(LSR);
+  end;
+
+  if (LSize > 0) and (LSize < 102400) then
+  begin
+    AError := 'The file ' + ALibraryPath + ' is a placeholder/text file. Please download the real binary DLL/SO and overwrite it.';
+    Exit;
+  end;
+
   try
     AHandle := SafeLoadLibrary(ALibraryPath);
     if AHandle <> NilHandle then
