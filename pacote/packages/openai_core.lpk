@@ -13,7 +13,7 @@
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Description Value="Lazarus AI Suite: Core components (TAIBaseComponent, TCHATGPT, TTokenList, TAICodeAssistant, TAIPromptBuilder, TAIModelRegistry, TAIWizardConfig, TDBTokenList, TGroupResponse)."/>
+    <Description Value="Lazarus AI Suite: Core components, platform helpers and runtime infrastructure."/>
     <License Value="OPEN SOURCE GPL3"/>
     <Files>
       <Item>
@@ -23,6 +23,27 @@
       <Item>
         <Filename Value="..\IA\aibase.pas"/>
         <UnitName Value="aibase"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA\aiplatform.pas"/>
+        <UnitName Value="aiplatform"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA\airuntimepaths.pas"/>
+        <UnitName Value="airuntimepaths"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA\ailibraryloader.pas"/>
+        <UnitName Value="ailibraryloader"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA\aiprocessrunner.pas"/>
+        <UnitName Value="aiprocessrunner"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA\aipythonruntime.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aipythonruntime"/>
       </Item>
       <Item>
         <Filename Value="..\IA\chatgpt.pas"/>
