@@ -1,0 +1,9 @@
+# Windows 7 legacy vision profile
+# Target runtime: Python 3.8.x
+# Use conservative versions and test separately for x86 and x64.
+
+numpy
+pillow
+
+# OpenCV must be validated for Windows 7 and Python 3.8 before packaging.
+# Prefer bundling prevalidated wheels in the release build process.
