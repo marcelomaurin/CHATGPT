@@ -20,24 +20,96 @@ Motivos:
 
 ---
 
-## 2. Samples afetados
+## 2. Samples afetados confirmados nos fontes
 
-Todo sample que usar OpenCV nativo deve seguir esta especificação.
-
-Inicialmente, isso inclui ou poderá incluir:
+### 2.1. Samples obrigatoriamente afetados
 
 ```text
 pacote/samples/AI Vision/opencv_filter_demo/
-pacote/samples/AI Vision/opencv_native_demo/
-pacote/samples/AI Vision/camera_capture_demo/
-pacote/samples/AI Native Vision/native_image_filter_demo/
-pacote/samples/AI Native Vision/motion_tracker_demo/
+pacote/samples/AI Vision/opencv_image_real_demo/
 ```
 
-Observação:
+Esses samples usam `TAIOpenCV`, `aiopencvruntime` ou OpenCV e devem manter busca de runtime OpenCV embarcado antes de bibliotecas do sistema.
 
-- Samples que usam apenas o backend Python continuam podendo usar `opencv-python`.
-- Se o sample permitir alternar entre backend Python e backend nativo, ele deve aplicar esta busca somente quando o backend nativo estiver selecionado.
+### 2.2. Samples a verificar e ajustar se existirem
+
+```text
+pacote/samples/AI Vision/opencv_native_demo/
+pacote/samples/AI Vision/camera_capture_demo/
+pacote/samples/AI Vision/opencv_vision_demo/
+pacote/samples/AI Native Vision/native_image_filter_demo/
+pacote/samples/AI Native Vision/motion_tracker_demo/
+pacote/samples/AI Native Vision/frame_diff_demo/
+pacote/samples/AI Native Vision/frame_buffer_demo/
+pacote/samples/AI Native Vision/face_tracker_demo/
+pacote/samples/AI Image/image_filters_demo/
+```
+
+### 2.3. Varredura obrigatória
+
+Além dos caminhos acima, deve-se varrer toda a pasta:
+
+```text
+pacote/samples/
+```
+
+e considerar afetado qualquer sample que contenha referência a:
+
+```text
+TAIOpenCV
+OpenCV
+opencv
+ocvNativeDLL
+ocvPythonProcess
+opencv_world
+libopencv_world
+cv2
+aiopencv
+aiopencvruntime
+aiopencv_worker.py
+```
+
+### 2.4. Regra de inclusão
+
+Um sample deve ser considerado afetado quando:
+
+- usa `TAIOpenCV`;
+- usa `aiopencv`;
+- usa `aiopencvruntime`;
+- usa worker Python relacionado ao OpenCV;
+- usa `opencv-python`;
+- menciona `opencv_world*.dll`;
+- menciona `libopencv_world.so*`;
+- permite escolher backend OpenCV;
+- manipula imagens usando OpenCV;
+- manipula câmera ou frames com backend OpenCV;
+- declara dependência de OpenCV no README.
+
+### 2.5. Regra de exclusão
+
+Um sample não deve ser alterado apenas por trabalhar com imagem se for 100% nativo Pascal e não tiver dependência de OpenCV.
+
+Exemplo: filtros simples baseados apenas em `TBitmap`, `TLazIntfImage` ou componentes nativos não precisam buscar `opencv_world.dll`, a menos que ofereçam backend OpenCV opcional.
+
+### 2.6. Resultado esperado da varredura
+
+O relatório da tarefa deve separar:
+
+```text
+1. Samples ajustados
+2. Samples verificados e não afetados
+3. Samples inexistentes ou não encontrados
+```
+
+Para cada sample ajustado, informar:
+
+```text
+- caminho do sample
+- motivo da alteração
+- backend usado
+- se há fallback Python
+- pasta runtime esperada
+```
 
 ---
 
@@ -65,28 +137,57 @@ Mapeamento obrigatório:
 
 ---
 
-## 4. Ordem de busca obrigatória nos samples
+## 4. Unit comum usada pelos fontes atuais
 
-Os samples devem usar exatamente esta ordem:
+A unit comum de localização do OpenCV nativo é:
 
 ```text
-1. Pasta do executável + runtime/opencv/<os>/<arch>/bin ou lib
-2. Pasta raiz do projeto/repositório + runtime/opencv/<os>/<arch>/bin ou lib
-3. Caminho configurado no sample pelo usuário
-4. Caminho configurado no componente TAIOpenCV.OpenCVLibraryPath
-5. Caminho informado em chatgpt_ai_runtime.ini
-6. PATH do Windows ou LD_LIBRARY_PATH do Linux
-7. Caminhos comuns do sistema
-8. Erro detalhado
+pacote/AI Vision/aiopencvruntime.pas
+```
+
+Essa unit centraliza:
+
+- detecção de sistema operacional;
+- detecção de arquitetura;
+- definição da pasta `runtime/opencv/<os>/<arch>`;
+- leitura do `manifest.json`, quando existir;
+- seleção da biblioteca preferida;
+- seleção da maior versão disponível;
+- fallback para diretório do executável e caminhos do sistema;
+- geração de log detalhado.
+
+Funções principais presentes nos fontes:
+
+```text
+AIGetOpenCVPlatformFolder
+AIGetOpenCVLibraryNames
+AIFindOpenCVNativeLibrary
+AILoadOpenCVLibrary
+```
+
+---
+
+## 5. Ordem de busca obrigatória nos samples
+
+Os samples devem usar esta prioridade lógica:
+
+```text
+1. Runtime OpenCV versionado em runtime/opencv/<os>/<arch>
+2. Manifesto runtime/opencv/manifest.json, quando existir
+3. Pasta do executável
+4. Caminho configurado manualmente no sample/componente
+5. PATH do Windows ou LD_LIBRARY_PATH do Linux
+6. Caminhos comuns do sistema
+7. Erro detalhado
 ```
 
 A busca no runtime local deve sempre vir antes da busca no sistema.
 
 ---
 
-## 5. Nomes aceitos para Windows
+## 6. Nomes aceitos para Windows
 
-Os samples devem procurar, nesta ordem:
+Os samples devem procurar:
 
 ```text
 opencv_world.dll
@@ -108,9 +209,9 @@ Regras:
 
 ---
 
-## 6. Nomes aceitos para Linux
+## 7. Nomes aceitos para Linux
 
-Os samples devem procurar, nesta ordem:
+Os samples devem procurar:
 
 ```text
 libopencv_world.so
@@ -132,61 +233,35 @@ Regras:
 
 ---
 
-## 7. Implementação recomendada nos demos Lazarus
+## 8. Comportamento esperado dos demos Lazarus
 
-Cada demo OpenCV deve usar uma unit comum, por exemplo:
+Cada demo OpenCV deve:
 
-```text
-pacote/IA/aiopencvruntime.pas
-```
-
-O demo não deve implementar sua própria busca manual duplicada.
-
-Funções recomendadas:
-
-```pascal
-function AIGetOpenCVRuntimeFolder: string;
-function AIFindOpenCVNativeLibrary(out AResolvedPath: string; out AError: string): Boolean;
-function AIDetectOSName: string;
-function AIDetectCPUName: string;
-```
-
-O sample deve fazer algo assim:
-
-```pascal
-var
-  LOpenCVLib: string;
-  LError: string;
-begin
-  if AIFindOpenCVNativeLibrary(LOpenCVLib, LError) then
-  begin
-    MemoLog.Lines.Add('OpenCV native library found: ' + LOpenCVLib);
-    AIOpenCV1.OpenCVLibraryPath := ExtractFilePath(LOpenCVLib);
-    AIOpenCV1.OpenCVLibraryName := ExtractFileName(LOpenCVLib);
-  end
-  else
-  begin
-    MemoLog.Lines.Add(LError);
-    MemoLog.Lines.Add('Falling back to Python OpenCV backend when available.');
-    AIOpenCV1.Backend := ocvPythonProcess;
-  end;
-end;
-```
+1. Usar `pacote/AI Vision/aiopencvruntime.pas`.
+2. Não duplicar lógica própria de busca divergente.
+3. Não depender de caminho absoluto local.
+4. Não depender de instalação global do OpenCV como primeira opção.
+5. Mostrar no log a plataforma, arquitetura, pasta esperada e biblioteca resolvida.
+6. Usar backend nativo somente quando uma biblioteca compatível for encontrada.
+7. Aplicar fallback para backend Python quando o sample suportar esse fallback.
+8. Informar claramente quando o backend nativo está apenas carregando DLL/SO, sem processamento OpenCV nativo real.
 
 ---
 
-## 8. Log obrigatório nos samples
+## 9. Log obrigatório nos samples
 
 Todo sample OpenCV deve exibir no log:
 
 ```text
 OpenCV runtime detection
-OS: <Windows/Linux>
-CPU: <x86/x64/arm64/armhf>
-Expected runtime folder: <pasta>
-Search priority: bundled runtime first
+Search mode: bundled runtime first
+OS detected: <windows/linux>
+CPU detected: <x86/x64/arm64/armhf>
+Expected runtime folder: runtime/opencv/<...>
+Manifest: <manifest encontrado ou vazio>
 Resolved library: <arquivo encontrado>
 Backend selected: <native/python>
+Status: <OK/native unavailable/error>
 ```
 
 Se falhar:
@@ -201,16 +276,20 @@ Suggestion: copy the correct OpenCV runtime files to runtime/opencv/<os>/<arch>/
 
 ---
 
-## 9. Regras para arquivos dos samples
+## 10. Regras para README dos samples
 
-Cada sample OpenCV deve conter no README próprio:
+Cada sample OpenCV deve conter seção informando:
 
 ```text
 ## OpenCV runtime
 
-Este sample procura primeiro o OpenCV nativo em:
+Este sample procura primeiro o OpenCV nativo nas pastas versionadas do projeto:
 
-runtime/opencv/<sistema>/<arquitetura>/
+runtime/opencv/windows/x86/bin/
+runtime/opencv/windows/x64/bin/
+runtime/opencv/linux/x64/lib/
+runtime/opencv/linux/arm64/lib/
+runtime/opencv/linux/armhf/lib/
 
 Somente se não encontrar, tenta caminho manual ou bibliotecas do sistema.
 ```
@@ -221,11 +300,13 @@ Também deve informar:
 - se usa backend nativo;
 - se aceita fallback;
 - quais DLLs/SOs são esperadas;
-- qual pacote Lazarus precisa ser instalado.
+- qual pacote Lazarus precisa ser instalado;
+- que a busca local do runtime tem prioridade;
+- se o processamento real é Python ou nativo.
 
 ---
 
-## 10. Critérios de aceite para cada demo
+## 11. Critérios de aceite para cada demo
 
 Um demo OpenCV só deve ser considerado completo quando:
 
@@ -237,29 +318,8 @@ Um demo OpenCV só deve ser considerado completo quando:
 - permitir fallback para Python quando aplicável;
 - não exigir alteração manual de `PATH`;
 - não misturar DLL/SO entre arquiteturas;
-- documentar o runtime no README do próprio sample.
-
----
-
-## 11. Tarefa para implementação
-
-Implementar ou ajustar os samples OpenCV para:
-
-1. Criar/usar a unit comum `aiopencvruntime.pas`.
-2. Adicionar propriedades em `TAIOpenCV` quando necessário:
-
-```pascal
-UseBundledRuntime: Boolean;
-OpenCVLibraryPath: string;
-OpenCVLibraryName: string;
-AutoDetectLibrary: Boolean;
-ResolvedLibraryPath: string;
-```
-
-3. No `FormCreate` dos demos, chamar a detecção do runtime.
-4. Mostrar resultado no log visual.
-5. Usar backend nativo somente se a biblioteca compatível for encontrada.
-6. Caso contrário, usar backend Python ou mostrar erro controlado.
+- documentar o runtime no README do próprio sample;
+- documentar se o backend nativo faz processamento real ou apenas carregamento/teste.
 
 ---
 
