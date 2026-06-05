@@ -739,7 +739,6 @@ end;
 procedure Register;
 begin
   RegisterComponents('AI Core', [TCHATGPT]);
-  RegisterComponents('IA', [TCHATGPT]);
 end;
 
 initialization

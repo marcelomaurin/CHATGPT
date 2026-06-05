@@ -287,7 +287,6 @@ procedure Register;
 begin
   {$I groupresponse_icon.lrs}
   RegisterComponents('AI Core', [TGroupResponse]);
-  RegisterComponents('IA', [TGroupResponse]);
 end;
 
 end.

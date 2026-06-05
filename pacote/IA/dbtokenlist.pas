@@ -37,7 +37,6 @@ implementation
 procedure Register;
 begin
   RegisterComponents('AI Core', [TDBTokenList]);
-  RegisterComponents('MyComponents', [TDBTokenList]);
 end;
 
 procedure TDBTokenList.LoadFromDatabase;

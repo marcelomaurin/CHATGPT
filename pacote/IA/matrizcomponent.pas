@@ -165,7 +165,6 @@ end;
 procedure Register;
 begin
   RegisterComponents('AI Machine Learning', [TAMatrizComponent]);
-  RegisterComponents('IA', [TAMatrizComponent]);
 end;
 
 initialization
