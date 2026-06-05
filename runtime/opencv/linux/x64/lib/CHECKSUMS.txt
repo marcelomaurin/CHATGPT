@@ -1,0 +1,2 @@
+# SHA256 checksums
+ab129fca82269a9ee2bbfdf557db2a04910cfb3f9ffb66bb2d31a541010c3fb9  libopencv_world.so

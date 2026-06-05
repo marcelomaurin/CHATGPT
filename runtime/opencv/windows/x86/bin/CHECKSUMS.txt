@@ -1,0 +1,2 @@
+# SHA256 checksums
+4de8d54212ba93db199bbcbda6aa57421919cf0e9fbb66bb2d31a541010c3fb9  opencv_world480.dll

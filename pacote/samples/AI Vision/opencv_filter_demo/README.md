@@ -76,3 +76,17 @@ python ../../../python/aiopencv_worker.py --action canny --input sample.jpg --ou
 ## Status
 
 Experimental/Beta.
+
+## Busca Inteligente de Runtime OpenCV
+
+Este demo utiliza uma busca inteligente e padronizada para carregar a biblioteca nativa do OpenCV (via `TAIOpenCV` com backend `Native DLL`), priorizando o runtime local incluído no repositório antes das pastas do sistema.
+
+### Regras de Busca
+
+O sistema detecta automaticamente o sistema operacional e a arquitetura do processo ativo (ex: `windows/x64`, `linux/arm64`) e busca as DLLs/SOs correspondentes na pasta:
+`runtime/opencv/<sistema_operacional>/<arquitetura>/bin/` (ou `lib/` no Linux).
+
+Caso as bibliotecas nativas não sejam encontradas ou falhem ao carregar:
+1. O demo exibe uma mensagem clara de aviso nos logs detalhando todos os caminhos testados.
+2. O backend faz fallback automático e transparente para a execução via **Python Process**, permitindo que o demo funcione sem quebras.
+

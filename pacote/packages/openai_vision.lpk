@@ -17,6 +17,10 @@
     <License Value="OPEN SOURCE GPL3"/>
     <Files>
       <Item>
+        <Filename Value="..\AI Vision\aiopencvruntime.pas"/>
+        <UnitName Value="aiopencvruntime"/>
+      </Item>
+      <Item>
         <Filename Value="..\AI Vision\aiopencv.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiopencv"/>

@@ -1,17 +1,22 @@
-# Opencv Image Real Demo (aiopencv)
+# OpenCV Vision Demo
 
-This sample project demonstrates the usage of component `aiopencv, aiframeprocessor` from the `openai_vision` package.
+This sample demonstrates the combined usage of visual tracking and processing components (`TAIOpenCV`, `TAICameraCapture`, `TAIFrameProcessor`, `TAIFaceTracker`, and `TAIMotionTracker`) from the `openai_vision` package.
 
-## Features Illustrated
-- Exercises at least 3 component properties.
-- Calls at least 2 methods.
-- Supports **Simulation Mode** (enabled by default) to allow immediate verification of components without hardware, brokers, API credentials, or local Python installations.
+## Features
+
+- Dynamic loading of OpenCV runtime.
+- Simulated or real camera capturing.
+- Real-time frame processing filters (Grayscale, Equalize).
+- Simulated face and motion tracking between frames.
+- Standardized logging system.
 
 ## How to Build & Run
+
 1. Open this project folder in Lazarus.
-2. Verify package `openai_vision` is available or referenced.
-3. Build the project (`Ctrl+F9` or run `lazbuild.exe`).
-4. Execute and click "Execute Test".
+2. Verify package `openai_vision` is available.
+3. Build and run the project.
+4. Click "Load OpenCV" to initialize the runtime.
+5. Click "Start Camera" and activate tracking filters to see real-time log output.
 
 ## Busca Inteligente de Runtime OpenCV
 
@@ -25,4 +30,3 @@ O sistema detecta automaticamente o sistema operacional e a arquitetura do proce
 Caso as bibliotecas nativas não sejam encontradas ou falhem ao carregar:
 1. O demo exibe uma mensagem clara de aviso nos logs detalhando todos os caminhos testados.
 2. O backend faz fallback automático e transparente para a execução via **Python Process**, permitindo que o demo funcione sem quebras.
-

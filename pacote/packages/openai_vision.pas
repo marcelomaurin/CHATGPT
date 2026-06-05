@@ -8,9 +8,10 @@ unit openai_vision;
 interface
 
 uses
-  aiopencv, aicamera_backend, aicamera_vfw, aicamera_v4l2, aicameracapture, 
-  aiframeprocessor, aifacetracker, aimotiontracker, aiimageinfo, 
-  aiframebuffer, ainativeimagefilter, aiframediff, LazarusPackageIntf;
+  aiopencvruntime, aiopencv, aicamera_backend, aicamera_vfw, aicamera_v4l2, 
+  aicameracapture, aiframeprocessor, aifacetracker, aimotiontracker, 
+  aiimageinfo, aiframebuffer, ainativeimagefilter, aiframediff, 
+  LazarusPackageIntf;
 
 implementation
 

@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  aiopencv, aicameracapture, aiframeprocessor, aifacetracker, aimotiontracker, aibase;
+  aiopencv, aicameracapture, aiframeprocessor, aifacetracker, aimotiontracker, aibase,
+  aiopencvruntime, aiplatform;
 
 type
 
@@ -60,6 +61,7 @@ type
     
     procedure LogMsg(const AMsg: string);
     procedure UpdateUIState;
+    procedure DetectOpenCVRuntime;
   public
 
   end;
@@ -90,6 +92,7 @@ begin
   FMotionTracker.OnLog := @ComponentLog;
 
   LogMsg('AI Vision Demonstration initialized.');
+  DetectOpenCVRuntime;
   UpdateUIState;
 end;
 
@@ -146,17 +149,34 @@ begin
 end;
 
 procedure TfrmOpenCVVisionDemo.btnLoadOpenCVClick(Sender: TObject);
+var
+  LResolvedPath, LError, LLog: string;
+  LNativeAvailable: Boolean;
 begin
   LogMsg('Loading OpenCV libraries...');
-  if FOpenCV.LoadLibraries then
+  
+  LNativeAvailable := AIFindOpenCVNativeLibrary('', '', True, LResolvedPath, LError, LLog);
+  if LNativeAvailable then
   begin
-    LogMsg('OpenCV libraries loaded successfully.');
+    FOpenCV.Backend := ocvNativeDLL;
+    FOpenCV.UseBundledRuntime := True;
+    if FOpenCV.LoadLibraries then
+    begin
+      LogMsg('OpenCV libraries loaded successfully: ' + FOpenCV.ResolvedLibraryPath);
+    end
+    else
+    begin
+      LogMsg('Warning: Could not load OpenCV binary libraries: ' + FOpenCV.LastError);
+      LogMsg('Running in Python Fallback Mode.');
+      FOpenCV.Backend := ocvPythonProcess;
+    end;
   end
   else
   begin
-    LogMsg('Warning: Could not load OpenCV binary libraries. Running in Simulation / Fallback Mode.');
-    // Force loaded flag for simulation purposes in sample demo
-    // The component provides fallback mocks if dynamic libs are missing.
+    LogMsg('Warning: OpenCV native library not found.');
+    LogMsg(LError);
+    LogMsg('Running in Python Fallback Mode.');
+    FOpenCV.Backend := ocvPythonProcess;
   end;
   UpdateUIState;
 end;
@@ -256,6 +276,35 @@ begin
     finally
       Frame.Free;
     end;
+  end;
+end;
+
+procedure TfrmOpenCVVisionDemo.DetectOpenCVRuntime;
+var
+  LResolvedPath, LError, LLog: string;
+  LFound: Boolean;
+begin
+  LogMsg('=== Detecção de Runtime OpenCV ===');
+  LogMsg('SO detectado: ' + AIOSName);
+  LogMsg('Arquitetura: ' + AIArchitectureName);
+  LogMsg('Pasta esperada do runtime: runtime/opencv/' + AIGetOpenCVPlatformFolder);
+  
+  LFound := AIFindOpenCVNativeLibrary('', '', True, LResolvedPath, LError, LLog);
+  meLogs.Lines.Append(LLog);
+  
+  if LFound then
+  begin
+    LogMsg('Sucesso: Runtime OpenCV nativo encontrado em: ' + LResolvedPath);
+    FOpenCV.Backend := ocvNativeDLL;
+    FOpenCV.UseBundledRuntime := True;
+    LogMsg('Backend nativo configurado.');
+  end
+  else
+  begin
+    LogMsg('Aviso: Runtime OpenCV nativo não encontrado.');
+    LogMsg(LError);
+    LogMsg('Configurando backend Python como fallback automático.');
+    FOpenCV.Backend := ocvPythonProcess;
   end;
 end;
 

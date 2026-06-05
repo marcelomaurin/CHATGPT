@@ -62,6 +62,97 @@ runtime/
 
 ---
 
+## 2.1. Lista de samples afetados
+
+Devem ser analisados e ajustados todos os samples que utilizem direta ou indiretamente OpenCV, processamento de imagem, câmera, frames ou backend nativo de visão computacional.
+
+### Samples obrigatoriamente afetados
+
+```text
+pacote/samples/AI Vision/opencv_filter_demo/
+```
+
+Este sample é afetado porque demonstra o componente `TAIOpenCV` e deve passar a verificar o runtime OpenCV embarcado antes de usar qualquer backend externo.
+
+### Samples a verificar e ajustar se existirem
+
+```text
+pacote/samples/AI Vision/opencv_native_demo/
+pacote/samples/AI Vision/camera_capture_demo/
+pacote/samples/AI Native Vision/native_image_filter_demo/
+pacote/samples/AI Native Vision/motion_tracker_demo/
+pacote/samples/AI Native Vision/frame_diff_demo/
+pacote/samples/AI Native Vision/frame_buffer_demo/
+pacote/samples/AI Native Vision/face_tracker_demo/
+pacote/samples/AI Image/image_filters_demo/
+```
+
+### Samples que devem ser procurados por varredura
+
+Além dos caminhos acima, o bot deve varrer toda a pasta:
+
+```text
+pacote/samples/
+```
+
+e considerar afetado qualquer sample que contenha referência a:
+
+```text
+TAIOpenCV
+OpenCV
+opencv
+ocvNativeDLL
+ocvPythonProcess
+opencv_world
+libopencv_world
+cv2
+aiopencv
+aiopencv_worker.py
+```
+
+### Regra de inclusão
+
+Um sample deve ser considerado afetado quando:
+
+* usa `TAIOpenCV`;
+* usa `aiopencv.pas`;
+* usa worker Python relacionado ao OpenCV;
+* usa `opencv-python`;
+* menciona `opencv_world*.dll`;
+* menciona `libopencv_world.so*`;
+* permite escolher backend OpenCV;
+* manipula imagens usando OpenCV;
+* manipula câmera ou frames com backend OpenCV;
+* declara dependência de OpenCV no README.
+
+### Regra de exclusão
+
+Um sample **não** deve ser alterado apenas por trabalhar com imagem se for 100% nativo Pascal e não tiver dependência de OpenCV.
+
+Exemplo: filtros simples baseados apenas em `TBitmap`, `TLazIntfImage` ou componentes nativos não precisam buscar `opencv_world.dll`, a menos que ofereçam backend OpenCV opcional.
+
+### Resultado esperado da varredura
+
+O bot deve gerar uma lista final no commit ou no relatório da tarefa com três grupos:
+
+```text
+1. Samples ajustados
+2. Samples verificados e não afetados
+3. Samples inexistentes ou não encontrados
+```
+
+Para cada sample ajustado, informar:
+
+```text
+- caminho do sample
+- motivo da alteração
+- backend usado
+- se há fallback Python
+- pasta runtime esperada
+```
+
+---
+
 ## 3. Bibliotecas esperadas
 
 ### Windows

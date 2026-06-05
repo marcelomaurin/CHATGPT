@@ -1,0 +1,7 @@
+OpenCV version: 4.8.0
+Operating system: Windows
+Architecture: x64
+Binary name: opencv_world480.dll
+Source/build origin: official OpenCV build
+Included date: 2026-06-05
+License notes: OpenCV Apache 2.0

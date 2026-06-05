@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  Spin, Buttons, FileUtil, aiopencv, aibase;
+  Spin, Buttons, FileUtil, aiopencv, aibase, aiopencvruntime, aiplatform;
 
 type
 
@@ -90,6 +90,7 @@ type
     procedure LoadOriginalImage(const AFileName: string);
     procedure LoadProcessedImage(const AFileName: string);
     procedure UpdateImageInfo;
+    procedure DetectOpenCVRuntime;
   public
 
   end;
@@ -152,6 +153,9 @@ begin
   SaveDialog1.Filter := 'JPEG|*.jpg|PNG|*.png|BMP|*.bmp|All files|*.*';
 
   AddLog('Demo iniciado.');
+
+  // Auto detect native OpenCV runtime at startup
+  DetectOpenCVRuntime;
 
   // Auto load sample.jpg if found
   LSampleFile := IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName)) + 'sample.jpg';
@@ -321,7 +325,19 @@ begin
 
   case cbBackend.ItemIndex of
     0: AIOpenCV1.Backend := ocvPythonProcess;
-    1: AIOpenCV1.Backend := ocvNativeDLL;
+    1: begin
+         AIOpenCV1.Backend := ocvNativeDLL;
+         if not AIOpenCV1.LibraryLoaded then
+         begin
+           AddLog('Tentando carregar bibliotecas nativas...');
+           if not AIOpenCV1.LoadLibraries then
+           begin
+             AddLog('Falha ao carregar backend nativo. Fazendo fallback para backend Python.');
+             AIOpenCV1.Backend := ocvPythonProcess;
+             cbBackend.ItemIndex := 0;
+           end;
+         end;
+       end;
   end;
 
   AIOpenCV1.InputFile := edInputFile.Text;
@@ -429,6 +445,34 @@ begin
   end
   else
     lblImageInfo.Caption := 'Imagem: nenhuma';
+end;
+
+procedure TfrmOpenCVFilterDemo.DetectOpenCVRuntime;
+var
+  LResolvedPath, LError, LLog: string;
+  LFound: Boolean;
+begin
+  AddLog('=== Detecção de Runtime OpenCV ===');
+  AddLog('SO detectado: ' + AIOSName);
+  AddLog('Arquitetura: ' + AIArchitectureName);
+  AddLog('Pasta esperada do runtime: runtime/opencv/' + AIGetOpenCVPlatformFolder);
+  
+  LFound := AIFindOpenCVNativeLibrary('', '', True, LResolvedPath, LError, LLog);
+  memoLog.Lines.Add(LLog);
+  
+  if LFound then
+  begin
+    AddLog('Sucesso: Runtime OpenCV nativo encontrado em: ' + LResolvedPath);
+    cbBackend.ItemIndex := 1; // Native DLL
+    AddLog('Backend nativo disponível e selecionado.');
+  end
+  else
+  begin
+    AddLog('Aviso: Runtime OpenCV nativo não encontrado.');
+    AddLog(LError);
+    AddLog('Selecionando backend Python como fallback automático.');
+    cbBackend.ItemIndex := 0; // Python fallback
+  end;
 end;
 
 end.

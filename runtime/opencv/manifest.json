@@ -1,0 +1,19 @@
+{
+  "name": "opencv-runtime",
+  "strategy": "bundled-first-version-pinned",
+  "preferred": {
+    "windows": {
+      "x86": "opencv_world480.dll",
+      "x64": "opencv_world480.dll"
+    },
+    "linux": {
+      "x64": "libopencv_world.so",
+      "arm64": "libopencv_world.so",
+      "armhf": "libopencv_world.so"
+    }
+  },
+  "fallback_patterns": {
+    "windows": ["opencv_world*.dll"],
+    "linux": ["libopencv_world.so*"]
+  }
+}

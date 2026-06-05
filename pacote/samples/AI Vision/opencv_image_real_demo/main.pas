@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  aibase, aiopencv, aiframeprocessor;
+  aibase, aiopencv, aiframeprocessor, aiopencvruntime, aiplatform;
 
 type
 
@@ -27,6 +27,7 @@ type
   private
     FAIOpenCV: TAIOpenCV; FFrameProc: TAIFrameProcessor; FEditFile: TEdit;
     procedure AddLog(const AMsg: string);
+    procedure DetectOpenCVRuntime;
   public
 
   end;
@@ -52,6 +53,8 @@ begin
   FEditFile.Top := 115;
   FEditFile.Width := 300;
   FEditFile.Text := 'sample.jpg';
+
+  DetectOpenCVRuntime;
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
@@ -60,45 +63,72 @@ begin
 end;
 
 procedure TfrmMain.btnRunClick(Sender: TObject);
+var
+  LResolvedPath, LError, LLog: string;
+  LNativeAvailable: Boolean;
 begin
   lblStatus.Caption := 'Status: Processing...';
   AddLog('--- Starting Execution ---');
   try
-  FAIOpenCV.LibraryPath := 'opencv_world.dll';
-  FFrameProc.UseGrayscale := True;
-  FFrameProc.ResizeWidth := 640;
-  FFrameProc.ResizeHeight := 480;
-  
-  AddLog('OpenCV Real Image Demo Properties:');
-  AddLog('  LibraryPath: ' + FAIOpenCV.LibraryPath);
-  AddLog('  UseGrayscale: ' + BoolToStr(FFrameProc.UseGrayscale, True));
-  AddLog('  ResizeWidth: ' + IntToStr(FFrameProc.ResizeWidth));
-  
-  if chkSimulation.Checked then
-  begin
-    AddLog('Simulating OpenCV script matrix operations...');
-    AddLog('Loaded: ' + FEditFile.Text);
-    AddLog('Applied Grayscale conversion filter.');
-    AddLog('Resized frame matrix to 640x480 pixels.');
-    AddLog('Saved processed frame: sample_processed.jpg');
-    AddLog('Process complete (Simulated).');
-  end
-  else
-  begin
-    AddLog('Validating production environment for OpenCV DLL...');
-    try
-      if FAIOpenCV.LoadLibraries then
+    FFrameProc.Grayscale := True;
+    FFrameProc.ScaleFactor := 1.0;
+    
+    // Check native library availability using the helper
+    LNativeAvailable := AIFindOpenCVNativeLibrary('', '', True, LResolvedPath, LError, LLog);
+    
+    AddLog('OpenCV Real Image Demo Properties:');
+    if LNativeAvailable then
+      AddLog('  Resolved LibraryPath: ' + LResolvedPath)
+    else
+      AddLog('  Resolved LibraryPath: Not Found');
+    AddLog('  Grayscale: ' + BoolToStr(FFrameProc.Grayscale, True));
+    AddLog('  ScaleFactor: ' + FloatToStr(FFrameProc.ScaleFactor));
+    
+    if chkSimulation.Checked then
+    begin
+      AddLog('Simulating OpenCV script matrix operations...');
+      AddLog('Loaded: ' + FEditFile.Text);
+      AddLog('Applied Grayscale conversion filter.');
+      AddLog('Resized frame matrix to 640x480 pixels.');
+      AddLog('Saved processed frame: sample_processed.jpg');
+      AddLog('Process complete (Simulated).');
+    end
+    else
+    begin
+      AddLog('Validating environment for OpenCV native runtime...');
+      if LNativeAvailable then
       begin
-        AddLog('OpenCV binaries loaded successfully.');
-        FFrameProc.ProcessFrame(FEditFile.Text, 'sample_processed.jpg');
-        AddLog('Frame saved.');
+        FAIOpenCV.Backend := ocvNativeDLL;
+        FAIOpenCV.UseBundledRuntime := True;
+        if FAIOpenCV.LoadLibraries then
+        begin
+          AddLog('OpenCV binaries loaded successfully.');
+          if FAIOpenCV.ProcessFile(FEditFile.Text, 'sample_processed.jpg') then
+            AddLog('Frame processed and saved successfully.')
+          else
+            AddLog('Error processing frame: ' + FAIOpenCV.LastError);
+        end
+        else
+        begin
+          AddLog('OpenCV load libraries failed: ' + FAIOpenCV.LastError);
+          AddLog('Falling back to Python process backend...');
+          FAIOpenCV.Backend := ocvPythonProcess;
+          if FAIOpenCV.ProcessFile(FEditFile.Text, 'sample_processed.jpg') then
+            AddLog('Frame processed via Python backend successfully.')
+          else
+            AddLog('Failed to process via Python fallback: ' + FAIOpenCV.LastError);
+        end;
       end
       else
-        AddLog('OpenCV binaries failed to load. Falling back.');
-    except
-      on E: Exception do AddLog('Exception: ' + E.Message);
+      begin
+        AddLog('OpenCV native binaries not found. Falling back to Python backend...');
+        FAIOpenCV.Backend := ocvPythonProcess;
+        if FAIOpenCV.ProcessFile(FEditFile.Text, 'sample_processed.jpg') then
+          AddLog('Frame processed via Python backend successfully.')
+        else
+          AddLog('Failed to process via Python fallback: ' + FAIOpenCV.LastError);
+      end;
     end;
-  end;
     lblStatus.Caption := 'Status: Completed Successfully';
   except
     on E: Exception do
@@ -118,6 +148,32 @@ end;
 procedure TfrmMain.AddLog(const AMsg: string);
 begin
   memoLog.Lines.Add(AMsg);
+end;
+
+procedure TfrmMain.DetectOpenCVRuntime;
+var
+  LResolvedPath, LError, LLog: string;
+  LFound: Boolean;
+begin
+  AddLog('=== Detecção de Runtime OpenCV ===');
+  AddLog('SO detectado: ' + AIOSName);
+  AddLog('Arquitetura: ' + AIArchitectureName);
+  AddLog('Pasta esperada do runtime: runtime/opencv/' + AIGetOpenCVPlatformFolder);
+  
+  LFound := AIFindOpenCVNativeLibrary('', '', True, LResolvedPath, LError, LLog);
+  memoLog.Lines.Add(LLog);
+  
+  if LFound then
+  begin
+    AddLog('Sucesso: Runtime OpenCV nativo encontrado em: ' + LResolvedPath);
+    AddLog('Backend nativo disponível.');
+  end
+  else
+  begin
+    AddLog('Aviso: Runtime OpenCV nativo não encontrado.');
+    AddLog(LError);
+    AddLog('Selecionando backend Python como fallback automático.');
+  end;
 end;
 
 end.

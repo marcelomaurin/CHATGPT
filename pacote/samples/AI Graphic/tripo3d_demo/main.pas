@@ -64,12 +64,12 @@ begin
   AddLog('--- Starting Execution ---');
   try
   FAITripo3D.APIKey := 'dummy-tripo-api-key';
-  FAITripo3D.ModelFormat := 'obj';
-  FAITripo3D.QualityLevel := 'high';
+  FAITripo3D.OutputFormat := tfOBJ;
+  FAITripo3D.GenerationMode := tmTextTo3D;
   
   AddLog('Tripo3D Client Properties:');
-  AddLog('  ModelFormat: obj');
-  AddLog('  QualityLevel: high');
+  AddLog('  OutputFormat: OBJ');
+  AddLog('  GenerationMode: TextTo3D');
   AddLog('  Prompt: ' + FEditPrompt.Text);
   
   if chkSimulation.Checked then
@@ -86,7 +86,7 @@ begin
   begin
     AddLog('Sending actual API request (production validation)...');
     try
-      if FAITripo3D.SubmitTextTo3D(FEditPrompt.Text) then
+      if FAITripo3D.GenerateFromText(FEditPrompt.Text) then
         AddLog('Task submitted successfully. ID: ' + FAITripo3D.LastTaskId)
       else
         AddLog('Submission failed: ' + FAITripo3D.LastError);

@@ -1,54 +1,17 @@
-# OpenCV Runtime
+# OpenCV Runtime Binaries
 
-Esta pasta é reservada para o runtime nativo do OpenCV usado pelos componentes e demos da Lazarus AI Suite.
+Este diretório contém os manifestos e subpastas para o runtime embarcado do OpenCV de acordo com o sistema operacional e a arquitetura.
 
-O backend Python do `TAIOpenCV` continua usando `opencv-python` instalado no ambiente Python. Esta pasta é destinada ao backend nativo, baseado em DLL/SO.
+## Estrutura de subpastas
 
-## Estrutura esperada
+- `windows/x86/bin/`: DLLs do OpenCV para processos Windows 32 bits.
+- `windows/x64/bin/`: DLLs do OpenCV para processos Windows 64 bits.
+- `linux/x64/lib/`: Bibliotecas compartilhadas `.so` do OpenCV para Linux x64.
+- `linux/arm64/lib/`: Bibliotecas compartilhadas `.so` para Linux ARM64 (como Raspberry Pi OS 64 bits).
+- `linux/armhf/lib/`: Bibliotecas compartilhadas `.so` para Linux ARM 32 bits (como Raspberry Pi OS 32 bits).
 
-```text
-runtime/opencv/
-  manifest.json
-  windows/
-    x86/bin/
-    x64/bin/
-  linux/
-    x64/lib/
-    arm64/lib/
-    armhf/lib/
-```
+## Como adicionar as bibliotecas binárias
 
-## Bibliotecas esperadas
-
-Windows:
-
-```text
-opencv_world*.dll
-```
-
-Linux:
-
-```text
-libopencv_world.so*
-```
-
-## Regras
-
-- Não misturar binários 32 e 64 bits.
-- Não misturar binários Windows e Linux.
-- Não copiar DLLs para `System32`.
-- Não depender exclusivamente de `PATH`.
-- Os demos devem localizar automaticamente a biblioteca correta pela plataforma.
-- Usuários avançados podem informar caminho manual.
-
-## Distribuição dos binários
-
-A recomendação principal é publicar DLLs/SOs grandes em GitHub Releases ou instaladores por plataforma.
-
-Caso sejam versionados diretamente no Git, cada pasta deve conter apenas os binários da arquitetura correspondente e um README informando versão, origem e licença.
-
-Veja também:
-
-```text
-DOC/OPENCV_RUNTIME_SPEC.md
-```
+1. Baixe a biblioteca `opencv_world` correspondente para o seu sistema e arquitetura.
+2. Copie os arquivos da biblioteca para as respectivas subpastas `bin` ou `lib`.
+3. Certifique-se de que os arquivos batam com o mapeamento e os nomes definidos no `manifest.json`.

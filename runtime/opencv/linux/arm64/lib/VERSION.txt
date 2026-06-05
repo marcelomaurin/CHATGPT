@@ -1,0 +1,7 @@
+OpenCV version: 4.8.0
+Operating system: Linux
+Architecture: arm64
+Binary name: libopencv_world.so
+Source/build origin: official OpenCV build
+Included date: 2026-06-05
+License notes: OpenCV Apache 2.0
