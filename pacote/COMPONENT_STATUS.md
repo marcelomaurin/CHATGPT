@@ -76,7 +76,7 @@ Use esta classificação para documentação, README de abas, samples e planejam
 | Componente | Unit | Pacote | Status | Observação |
 |---|---|---|---|---|
 | `TAIOpenCV` | `aiopencv.pas` | `openai_vision` | Beta | Funcional via worker Python; sample disponível |
-| `TAICameraCapture` | `aicameracapture.pas` | `openai_vision` | Placeholder | Estrutura existe; captura real ainda precisa validação |
+| `TAICameraCapture` | `aicameracapture.pas` | `openai_vision` | Experimental | Funcional via worker Python; captura real implementada |
 | `TAIFrameProcessor` | `aiframeprocessor.pas` | `openai_vision` | Experimental | Processamento de frames em evolução |
 | `TAIFaceTracker` | `aifacetracker.pas` | `openai_vision` | Placeholder | Rastreamento real ainda precisa implementação/validação |
 | `TAIMotionTracker` | `aimotiontracker.pas` | `openai_vision` | Placeholder | Detecção real ainda precisa implementação/validação |
