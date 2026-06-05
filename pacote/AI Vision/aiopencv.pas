@@ -755,6 +755,22 @@ begin
   Result := ProcessFile(FInputFile, FOutputFile);
 end;
 
+procedure TAIOpenCV.DoError(const AMessage: string; AStatus: TAIOpenCVStatus);
+begin
+  FLastError := AMessage;
+  FLastSuccess := False;
+  FStatus := AStatus;
+  Log(llError, AMessage);
+  if Assigned(FOnOpenCVError) then
+    FOnOpenCVError(Self, AMessage);
+end;
+
+procedure TAIOpenCV.DoLog(ALevel: TAILogLevel; const AMessage: string);
+begin
+  Log(ALevel, AMessage);
+end;
+
+
 procedure TAIOpenCV.Clear;
 begin
   FInputFile := '';
