@@ -63,8 +63,7 @@ type
     // OpenCV Component Event Handlers
     procedure AIOpenCVBeforeProcess(Sender: TObject);
     procedure AIOpenCVAfterProcess(Sender: TObject);
-    procedure AIOpenCVImageLoaded(Sender: TObject);
-    procedure AIOpenCVImageSaved(Sender: TObject);
+    procedure AIOpenCVImageProcessed(Sender: TObject);
     procedure AIOpenCVError(Sender: TObject; const AError: string);
     procedure AIOpenCVLog(Sender: TObject; Level: TAILogLevel; const Message: string);
     
@@ -98,35 +97,24 @@ begin
   AIOpenCV1 := TAIOpenCV.Create(Self);
   AIOpenCV1.OnBeforeProcess := @AIOpenCVBeforeProcess;
   AIOpenCV1.OnAfterProcess := @AIOpenCVAfterProcess;
-  AIOpenCV1.OnImageLoaded := @AIOpenCVImageLoaded;
-  AIOpenCV1.OnImageSaved := @AIOpenCVImageSaved;
+  AIOpenCV1.OnImageProcessed := @AIOpenCVImageProcessed;
   AIOpenCV1.OnOpenCVError := @AIOpenCVError;
   AIOpenCV1.OnLog := @AIOpenCVLog;
 
   Caption := 'TAIOpenCV Filter Demo';
 
   cbBackend.Items.Clear;
-  cbBackend.Items.Add('Auto');
-  cbBackend.Items.Add('Native DLL');
   cbBackend.Items.Add('Python Process');
-  cbBackend.ItemIndex := 2; // Default to Python Process
+  cbBackend.Items.Add('Native DLL');
+  cbBackend.ItemIndex := 0; // Default to Python Process
 
   cbFilter.Items.Clear;
   cbFilter.Items.Add('None');
   cbFilter.Items.Add('Gray');
   cbFilter.Items.Add('Blur');
-  cbFilter.Items.Add('Gaussian Blur');
-  cbFilter.Items.Add('Median Blur');
   cbFilter.Items.Add('Canny');
   cbFilter.Items.Add('Threshold');
-  cbFilter.Items.Add('Adaptive Threshold');
-  cbFilter.Items.Add('Sharpen');
-  cbFilter.Items.Add('Invert');
-  cbFilter.Items.Add('Erode');
-  cbFilter.Items.Add('Dilate');
   cbFilter.Items.Add('Resize');
-  cbFilter.Items.Add('Normalize');
-  cbFilter.Items.Add('Equalize Histogram');
   cbFilter.ItemIndex := 1; // Default to Gray
 
   seBlurKernel.Value := 5;
@@ -204,6 +192,8 @@ begin
 end;
 
 procedure TfrmOpenCVDemo.btnSaveClick(Sender: TObject);
+var
+  SourceStream, DestStream: TFileStream;
 begin
   if not FileExists(edOutputFile.Text) then
   begin
@@ -214,13 +204,22 @@ begin
   SaveDialog1.FileName := edOutputFile.Text;
   if SaveDialog1.Execute then
   begin
-    if AIOpenCV1.SaveImage(SaveDialog1.FileName) then
-    begin
-      AddLog('Imagem salva com sucesso: ' + SaveDialog1.FileName);
-    end
-    else
-    begin
-      AddLog('Erro ao salvar imagem: ' + AIOpenCV1.LastError);
+    try
+      SourceStream := TFileStream.Create(edOutputFile.Text, fmOpenRead or fmShareDenyWrite);
+      try
+        DestStream := TFileStream.Create(SaveDialog1.FileName, fmCreate);
+        try
+          DestStream.CopyFrom(SourceStream, SourceStream.Size);
+          AddLog('Imagem salva com sucesso: ' + SaveDialog1.FileName);
+        finally
+          DestStream.Free;
+        end;
+      finally
+        SourceStream.Free;
+      end;
+    except
+      on E: Exception do
+        AddLog('Erro ao salvar imagem: ' + E.Message);
     end;
   end;
 end;
@@ -248,14 +247,9 @@ begin
   AddLog('Processamento finalizado.');
 end;
 
-procedure TfrmOpenCVDemo.AIOpenCVImageLoaded(Sender: TObject);
+procedure TfrmOpenCVDemo.AIOpenCVImageProcessed(Sender: TObject);
 begin
-  AddLog('Imagem carregada.');
-end;
-
-procedure TfrmOpenCVDemo.AIOpenCVImageSaved(Sender: TObject);
-begin
-  AddLog('Imagem salva.');
+  AddLog('Imagem processada e salva com sucesso.');
 end;
 
 procedure TfrmOpenCVDemo.AIOpenCVError(Sender: TObject; const AError: string);
@@ -293,27 +287,17 @@ begin
     0: AIOpenCV1.FilterType := ocvfNone;
     1: AIOpenCV1.FilterType := ocvfGray;
     2: AIOpenCV1.FilterType := ocvfBlur;
-    3: AIOpenCV1.FilterType := ocvfGaussianBlur;
-    4: AIOpenCV1.FilterType := ocvfMedianBlur;
-    5: AIOpenCV1.FilterType := ocvfCanny;
-    6: AIOpenCV1.FilterType := ocvfThreshold;
-    7: AIOpenCV1.FilterType := ocvfAdaptiveThreshold;
-    8: AIOpenCV1.FilterType := ocvfSharpen;
-    9: AIOpenCV1.FilterType := ocvfInvert;
-    10: AIOpenCV1.FilterType := ocvfErode;
-    11: AIOpenCV1.FilterType := ocvfDilate;
-    12: AIOpenCV1.FilterType := ocvfResize;
-    13: AIOpenCV1.FilterType := ocvfNormalize;
-    14: AIOpenCV1.FilterType := ocvfEqualizeHistogram;
+    3: AIOpenCV1.FilterType := ocvfCanny;
+    4: AIOpenCV1.FilterType := ocvfThreshold;
+    5: AIOpenCV1.FilterType := ocvfResize;
   end;
 end;
 
 procedure TfrmOpenCVDemo.AtualizaBackendSelecionado;
 begin
   case cbBackend.ItemIndex of
-    0: AIOpenCV1.Backend := ocvAuto;
+    0: AIOpenCV1.Backend := ocvPythonProcess;
     1: AIOpenCV1.Backend := ocvNativeDLL;
-    2: AIOpenCV1.Backend := ocvPythonProcess;
   end;
 end;
 
@@ -368,18 +352,9 @@ begin
     0: FilterName := 'none';
     1: FilterName := 'gray';
     2: FilterName := 'blur';
-    3: FilterName := 'gaussian_blur';
-    4: FilterName := 'median_blur';
-    5: FilterName := 'canny';
-    6: FilterName := 'threshold';
-    7: FilterName := 'adaptive_threshold';
-    8: FilterName := 'sharpen';
-    9: FilterName := 'invert';
-    10: FilterName := 'erode';
-    11: FilterName := 'dilate';
-    12: FilterName := 'resize';
-    13: FilterName := 'normalize';
-    14: FilterName := 'equalize';
+    3: FilterName := 'canny';
+    4: FilterName := 'threshold';
+    5: FilterName := 'resize';
     else FilterName := 'output';
   end;
   
@@ -387,13 +362,16 @@ begin
 end;
 
 procedure TfrmOpenCVDemo.AtualizaInfoImagem;
-var
-  Info: string;
 begin
   if FileExists(edInputFile.Text) then
   begin
-    Info := AIOpenCV1.GetImageInfo(edInputFile.Text);
-    lblImageInfo.Caption := 'Image: ' + Info;
+    if AIOpenCV1.GetImageInfo(edInputFile.Text) then
+    begin
+      lblImageInfo.Caption := Format('Image: %dx%d, channels: %d', 
+        [AIOpenCV1.LastImageWidth, AIOpenCV1.LastImageHeight, AIOpenCV1.LastChannels]);
+    end
+    else
+      lblImageInfo.Caption := 'Image: error reading info';
   end
   else
     lblImageInfo.Caption := 'Image: none';

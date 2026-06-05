@@ -5,47 +5,50 @@ unit aiopencv;
 interface
 
 uses
-  Classes, SysUtils, aibase, LResources;
+  Classes, SysUtils, aibase, LResources, fpjson, jsonparser;
 
 type
-  TOpenCVFilterType = (
+  TAIOpenCVBackend = (
+    ocvPythonProcess,
+    ocvNativeDLL
+  );
+
+  TAIOpenCVFilterType = (
     ocvfNone,
     ocvfGray,
     ocvfBlur,
-    ocvfGaussianBlur,
-    ocvfMedianBlur,
     ocvfCanny,
     ocvfThreshold,
-    ocvfAdaptiveThreshold,
-    ocvfSharpen,
-    ocvfInvert,
-    ocvfErode,
-    ocvfDilate,
-    ocvfResize,
-    ocvfNormalize,
-    ocvfEqualizeHistogram
+    ocvfResize
   );
 
-  TOpenCVBackend = (
-    ocvAuto,
-    ocvNativeDLL,
-    ocvPythonProcess
+  TAIOpenCVStatus = (
+    ocvsNotTested,
+    ocvsAvailable,
+    ocvsPythonNotFound,
+    ocvsWorkerNotFound,
+    ocvsOpenCVNotInstalled,
+    ocvsBackendNotImplemented,
+    ocvsError
   );
 
-  TOpenCVErrorEvent = procedure(Sender: TObject; const AError: string) of object;
+  TAIErrorEvent = procedure(Sender: TObject; const AError: string) of object;
 
   { TAIOpenCV }
 
   TAIOpenCV = class(TAIBaseComponent)
   private
-    FLibraryLoaded: Boolean;
-    FVersion: string;
-    FBackend: TOpenCVBackend;
-    FFilterType: TOpenCVFilterType;
+    FBackend: TAIOpenCVBackend;
+    FStatus: TAIOpenCVStatus;
+
+    FPythonPath: string;
+    FWorkerScript: string;
+
     FInputFile: string;
     FOutputFile: string;
-    FAutoSave: Boolean;
-    FOverwriteOutput: Boolean;
+
+    FFilterType: TAIOpenCVFilterType;
+
     FBlurKernelSize: Integer;
     FThresholdValue: Integer;
     FCannyThreshold1: Integer;
@@ -53,34 +56,59 @@ type
     FResizeWidth: Integer;
     FResizeHeight: Integer;
 
+    FLibraryLoaded: Boolean;
+    FVersion: string;
+
+    FLastImageWidth: Integer;
+    FLastImageHeight: Integer;
+    FLastChannels: Integer;
+
+    FAutoSave: Boolean;
+    FOverwriteOutput: Boolean;
+
     FOnBeforeProcess: TNotifyEvent;
     FOnAfterProcess: TNotifyEvent;
-    FOnImageLoaded: TNotifyEvent;
-    FOnImageSaved: TNotifyEvent;
-    FOnOpenCVError: TOpenCVErrorEvent;
+    FOnImageProcessed: TNotifyEvent;
+    FOnOpenCVError: TAIErrorEvent;
 
+    // Helper functions
     function FindPythonExecutable: string;
-    function ExecutePythonScript(const AScript: string; out AOutput, AError: string): Boolean;
-    function GetFilterNameStr(AFilter: TOpenCVFilterType): string;
-    function CopyFileStream(const SourceFile, DestFile: string): Boolean;
+    function ExecuteWorker(const AAction: string; const AExtraParams: array of string): string;
+    function ParseWorkerJSON(const AJSON: string): Boolean;
+    function FilterToAction(AFilter: TAIOpenCVFilterType): string;
+    
+    function ValidatePython: Boolean;
+    function ValidateWorker: Boolean;
+    function ValidateInputFile(const AFileName: string): Boolean;
+    function ValidateOutputFile(const AFileName: string): Boolean;
+    function ValidateParameters: Boolean;
+
+    procedure DoError(const AMessage: string; AStatus: TAIOpenCVStatus = ocvsError);
+    procedure DoLog(ALevel: TAILogLevel; const AMessage: string);
   public
     constructor Create(AOwner: TComponent); override;
+
     function LoadLibraries: Boolean;
-    procedure ApplyFilter(const AFilterType: string);
     function SelfTest: Boolean;
+
+    function GetImageInfo(const AFileName: string): Boolean;
+
     function ProcessFile(const AInputFile, AOutputFile: string): Boolean;
-    function SaveImage(const AFileName: string): Boolean;
-    function GetImageInfo(const AFileName: string): string; overload;
-    function GetImageInfo: string; overload;
+    function ApplyFilter: Boolean;
+
+    procedure Clear;
   published
-    property LibraryLoaded: Boolean read FLibraryLoaded;
-    property Version: string read FVersion write FVersion;
-    property Backend: TOpenCVBackend read FBackend write FBackend default ocvPythonProcess;
-    property FilterType: TOpenCVFilterType read FFilterType write FFilterType default ocvfGray;
+    property Backend: TAIOpenCVBackend read FBackend write FBackend default ocvPythonProcess;
+    property Status: TAIOpenCVStatus read FStatus;
+
+    property PythonPath: string read FPythonPath write FPythonPath;
+    property WorkerScript: string read FWorkerScript write FWorkerScript;
+
     property InputFile: string read FInputFile write FInputFile;
     property OutputFile: string read FOutputFile write FOutputFile;
-    property AutoSave: Boolean read FAutoSave write FAutoSave default True;
-    property OverwriteOutput: Boolean read FOverwriteOutput write FOverwriteOutput default True;
+
+    property FilterType: TAIOpenCVFilterType read FFilterType write FFilterType default ocvfGray;
+
     property BlurKernelSize: Integer read FBlurKernelSize write FBlurKernelSize default 5;
     property ThresholdValue: Integer read FThresholdValue write FThresholdValue default 127;
     property CannyThreshold1: Integer read FCannyThreshold1 write FCannyThreshold1 default 100;
@@ -88,11 +116,20 @@ type
     property ResizeWidth: Integer read FResizeWidth write FResizeWidth default 640;
     property ResizeHeight: Integer read FResizeHeight write FResizeHeight default 480;
 
+    property LibraryLoaded: Boolean read FLibraryLoaded;
+    property Version: string read FVersion;
+
+    property LastImageWidth: Integer read FLastImageWidth;
+    property LastImageHeight: Integer read FLastImageHeight;
+    property LastChannels: Integer read FLastChannels;
+
+    property AutoSave: Boolean read FAutoSave write FAutoSave default True;
+    property OverwriteOutput: Boolean read FOverwriteOutput write FOverwriteOutput default True;
+
     property OnBeforeProcess: TNotifyEvent read FOnBeforeProcess write FOnBeforeProcess;
     property OnAfterProcess: TNotifyEvent read FOnAfterProcess write FOnAfterProcess;
-    property OnImageLoaded: TNotifyEvent read FOnImageLoaded write FOnImageLoaded;
-    property OnImageSaved: TNotifyEvent read FOnImageSaved write FOnImageSaved;
-    property OnOpenCVError: TOpenCVErrorEvent read FOnOpenCVError write FOnOpenCVError;
+    property OnImageProcessed: TNotifyEvent read FOnImageProcessed write FOnImageProcessed;
+    property OnOpenCVError: TAIErrorEvent read FOnOpenCVError write FOnOpenCVError;
   end;
 
 procedure Register;
@@ -112,22 +149,33 @@ end;
 constructor TAIOpenCV.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  FCategory := ccOther;
+  FCategory := ccModel;
   FPrompt := 'Component TAIOpenCV binds to OpenCV libraries dynamically. Properties: LibraryLoaded, Version. Methods: LoadLibraries, ApplyFilter, ProcessFile, SelfTest.';
-  FLibraryLoaded := False;
-  FVersion := '4.x';
+  
   FBackend := ocvPythonProcess;
+  FStatus := ocvsNotTested;
+
+  FPythonPath := 'python';
+  FWorkerScript := ExtractFilePath(ParamStr(0)) + 'python' + DirectorySeparator + 'aiopencv_worker.py';
+
   FFilterType := ocvfGray;
-  FInputFile := '';
-  FOutputFile := '';
-  FAutoSave := True;
-  FOverwriteOutput := True;
+
   FBlurKernelSize := 5;
   FThresholdValue := 127;
   FCannyThreshold1 := 100;
   FCannyThreshold2 := 200;
   FResizeWidth := 640;
   FResizeHeight := 480;
+
+  FAutoSave := True;
+  FOverwriteOutput := True;
+
+  FLibraryLoaded := False;
+  FVersion := '';
+  FLastImageWidth := 0;
+  FLastImageHeight := 0;
+  FLastChannels := 0;
+  
   ClearError;
 end;
 
@@ -202,53 +250,44 @@ begin
   Result := ExeName;
 end;
 
-function TAIOpenCV.ExecutePythonScript(const AScript: string; out AOutput, AError: string): Boolean;
+function TAIOpenCV.ExecuteWorker(const AAction: string; const AExtraParams: array of string): string;
 var
   PyProc: TProcess;
-  TempFile: string;
-  Lines: TStringList;
+  I: Integer;
   OutputStream: TMemoryStream;
   BytesRead: Integer;
   Buf: array[0..2047] of Byte;
+  OutputStr, ErrorStr: string;
 begin
-  Result := False;
-  AOutput := '';
-  AError := '';
-
-  // Write script to a temporary file
-  TempFile := IncludeTrailingPathDelimiter(GetTempDir) + 'py_cv_' + IntToStr(Random(1000000)) + '.py';
-  
-  Lines := TStringList.Create;
-  try
-    Lines.Text := AScript;
-    Lines.SaveToFile(TempFile);
-  finally
-    Lines.Free;
-  end;
-
+  Result := '';
   PyProc := TProcess.Create(nil);
   try
-    PyProc.Executable := FindPythonExecutable;
-    PyProc.Parameters.Add(TempFile);
+    PyProc.Executable := FPythonPath;
+    PyProc.Parameters.Add(FWorkerScript);
+    PyProc.Parameters.Add('--action');
+    PyProc.Parameters.Add(AAction);
+    
+    // Add extra parameters
+    for I := Low(AExtraParams) to High(AExtraParams) do
+      PyProc.Parameters.Add(AExtraParams[I]);
+      
     PyProc.Options := [poUsePipes, poNoConsole];
     
-    Log(llDebug, 'Executing Python script: ' + TempFile);
+    DoLog(llDebug, 'Running worker: ' + PyProc.Executable + ' ' + FWorkerScript + ' --action ' + AAction);
     
     try
       PyProc.Execute;
     except
       on E: Exception do
       begin
-        AError := 'Failed to run python executable: ' + PyProc.Executable + '. Details: ' + E.Message;
-        if FileExists(TempFile) then
-          DeleteFile(TempFile);
-        Exit(False);
+        DoError('Python executable not found.', ocvsPythonNotFound);
+        Exit;
       end;
     end;
     
     OutputStream := TMemoryStream.Create;
     try
-      // Read output while process is running to avoid buffer overflows
+      // Read stdout
       while PyProc.Running or (PyProc.Output.NumBytesAvailable > 0) do
       begin
         if PyProc.Output.NumBytesAvailable > 0 then
@@ -263,12 +302,12 @@ begin
       
       if OutputStream.Size > 0 then
       begin
-        SetLength(AOutput, OutputStream.Size);
+        SetLength(OutputStr, OutputStream.Size);
         OutputStream.Position := 0;
-        OutputStream.Read(AOutput[1], OutputStream.Size);
+        OutputStream.Read(OutputStr[1], OutputStream.Size);
       end;
       
-      // Read error output
+      // Read stderr
       OutputStream.Clear;
       while PyProc.Stderr.NumBytesAvailable > 0 do
       begin
@@ -279,466 +318,453 @@ begin
       
       if OutputStream.Size > 0 then
       begin
-        SetLength(AError, OutputStream.Size);
+        SetLength(ErrorStr, OutputStream.Size);
         OutputStream.Position := 0;
-        OutputStream.Read(AError[1], OutputStream.Size);
+        OutputStream.Read(ErrorStr[1], OutputStream.Size);
       end;
       
-      Result := (PyProc.ExitStatus = 0);
+      if PyProc.ExitStatus <> 0 then
+      begin
+        if Trim(OutputStr) = '' then
+        begin
+          DoError('Image processing failed. Stderr: ' + Trim(ErrorStr), ocvsError);
+          Exit;
+        end;
+      end;
+      
+      Result := OutputStr;
       
     finally
       OutputStream.Free;
     end;
   finally
     PyProc.Free;
-    if FileExists(TempFile) then
-      DeleteFile(TempFile);
   end;
 end;
 
-function TAIOpenCV.CopyFileStream(const SourceFile, DestFile: string): Boolean;
+function TAIOpenCV.ParseWorkerJSON(const AJSON: string): Boolean;
 var
-  SourceStream, DestStream: TFileStream;
+  JSONData: TJSONData;
+  JSONObj: TJSONObject;
+  LSuccess: Boolean;
 begin
   Result := False;
+  JSONData := nil;
   try
-    SourceStream := TFileStream.Create(SourceFile, fmOpenRead or fmShareDenyWrite);
     try
-      DestStream := TFileStream.Create(DestFile, fmCreate);
-      try
-        DestStream.CopyFrom(SourceStream, SourceStream.Size);
-        Result := True;
-      finally
-        DestStream.Free;
+      JSONData := GetJSON(AJSON);
+    except
+      on E: Exception do
+      begin
+        DoError('Worker returned invalid JSON.', ocvsError);
+        Exit;
       end;
-    finally
-      SourceStream.Free;
     end;
-  except
-    on E: Exception do
-      Log(llError, 'CopyFileStream error: ' + E.Message);
+    
+    if not Assigned(JSONData) or (not (JSONData is TJSONObject)) then
+    begin
+      DoError('Worker returned invalid JSON.', ocvsError);
+      Exit;
+    end;
+    
+    JSONObj := TJSONObject(JSONData);
+    
+    if JSONObj.Find('success') = nil then
+    begin
+      DoError('Worker returned invalid JSON.', ocvsError);
+      Exit;
+    end;
+    
+    LSuccess := JSONObj.Booleans['success'];
+    
+    if LSuccess then
+    begin
+      FLastSuccess := True;
+      
+      if JSONObj.Find('message') <> nil then
+        FLastResult := JSONObj.Strings['message'];
+        
+      if JSONObj.Find('version') <> nil then
+      begin
+        FVersion := JSONObj.Strings['version'];
+        FLibraryLoaded := True;
+        FStatus := ocvsAvailable;
+      end;
+      
+      if JSONObj.Find('width') <> nil then
+        FLastImageWidth := JSONObj.Integers['width'];
+        
+      if JSONObj.Find('height') <> nil then
+        FLastImageHeight := JSONObj.Integers['height'];
+        
+      if JSONObj.Find('channels') <> nil then
+        FLastChannels := JSONObj.Integers['channels'];
+        
+      Result := True;
+    end
+    else
+    begin
+      FLastSuccess := False;
+      if JSONObj.Find('error') <> nil then
+      begin
+        FLastError := JSONObj.Strings['error'];
+        if Pos('package not installed', FLastError) > 0 then
+          FStatus := ocvsOpenCVNotInstalled
+        else if Pos('not found', FLastError) > 0 then
+          FStatus := ocvsError
+        else
+          FStatus := ocvsError;
+        DoError(FLastError, FStatus);
+      end
+      else
+        DoError('Image processing failed.', ocvsError);
+    end;
+    
+  finally
+    if Assigned(JSONData) then
+      JSONData.Free;
   end;
 end;
 
-function TAIOpenCV.GetFilterNameStr(AFilter: TOpenCVFilterType): string;
+function TAIOpenCV.FilterToAction(AFilter: TAIOpenCVFilterType): string;
 begin
   case AFilter of
-    ocvfNone: Result := 'None';
-    ocvfGray: Result := 'Gray';
-    ocvfBlur: Result := 'Blur';
-    ocvfGaussianBlur: Result := 'GaussianBlur';
-    ocvfMedianBlur: Result := 'MedianBlur';
-    ocvfCanny: Result := 'Canny';
-    ocvfThreshold: Result := 'Threshold';
-    ocvfAdaptiveThreshold: Result := 'AdaptiveThreshold';
-    ocvfSharpen: Result := 'Sharpen';
-    ocvfInvert: Result := 'Invert';
-    ocvfErode: Result := 'Erode';
-    ocvfDilate: Result := 'Dilate';
-    ocvfResize: Result := 'Resize';
-    ocvfNormalize: Result := 'Normalize';
-    ocvfEqualizeHistogram: Result := 'EqualizeHistogram';
-    else Result := 'None';
+    ocvfGray:      Result := 'gray';
+    ocvfBlur:      Result := 'blur';
+    ocvfCanny:     Result := 'canny';
+    ocvfThreshold: Result := 'threshold';
+    ocvfResize:    Result := 'resize';
+    else           Result := 'none';
   end;
+end;
+
+function TAIOpenCV.ValidatePython: Boolean;
+var
+  PyProc: TProcess;
+begin
+  Result := False;
+  PyProc := TProcess.Create(nil);
+  try
+    PyProc.Executable := FPythonPath;
+    PyProc.Parameters.Add('--version');
+    PyProc.Options := [poUsePipes, poNoConsole];
+    try
+      PyProc.Execute;
+      while PyProc.Running do Sleep(10);
+      Result := (PyProc.ExitStatus = 0) or (PyProc.ExitStatus = 1);
+    except
+      // Try to auto-resolve Python executable
+      FPythonPath := FindPythonExecutable;
+      PyProc.Executable := FPythonPath;
+      try
+        PyProc.Execute;
+        while PyProc.Running do Sleep(10);
+        Result := True;
+      except
+        DoError('Python executable not found.', ocvsPythonNotFound);
+      end;
+    end;
+  finally
+    PyProc.Free;
+  end;
+end;
+
+function TAIOpenCV.ValidateWorker: Boolean;
+var
+  FallbackPath: string;
+begin
+  Result := FileExists(FWorkerScript);
+  if not Result then
+  begin
+    // Check fallback relative to samples/AI Vision/opencv_filter_demo/ or run directories
+    FallbackPath := ExpandFileName(ExtractFilePath(ParamStr(0)) + '..' + DirectorySeparator + '..' + DirectorySeparator + '..' + DirectorySeparator + 'python' + DirectorySeparator + 'aiopencv_worker.py');
+    if FileExists(FallbackPath) then
+    begin
+      FWorkerScript := FallbackPath;
+      Result := True;
+    end;
+  end;
+  
+  if not Result then
+    DoError('Worker script not found.', ocvsWorkerNotFound);
+end;
+
+function TAIOpenCV.ValidateInputFile(const AFileName: string): Boolean;
+begin
+  Result := False;
+  if AFileName = '' then
+  begin
+    DoError('Input file not found.', ocvsError);
+    Exit;
+  end;
+  if not FileExists(AFileName) then
+  begin
+    DoError('Input file not found.', ocvsError);
+    Exit;
+  end;
+  Result := True;
+end;
+
+function TAIOpenCV.ValidateOutputFile(const AFileName: string): Boolean;
+begin
+  Result := False;
+  if FAutoSave then
+  begin
+    if AFileName = '' then
+    begin
+      DoError('Output file is required.', ocvsError);
+      Exit;
+    end;
+    if (not FOverwriteOutput) and FileExists(AFileName) then
+    begin
+      DoError('Output file already exists.', ocvsError);
+      Exit;
+    end;
+  end;
+  Result := True;
+end;
+
+function TAIOpenCV.ValidateParameters: Boolean;
+begin
+  Result := False;
+  
+  if FFilterType = ocvfBlur then
+  begin
+    if (FBlurKernelSize <= 0) or (FBlurKernelSize mod 2 = 0) then
+    begin
+      DoError('Invalid blur kernel size.', ocvsError);
+      Exit;
+    end;
+  end;
+  
+  if FFilterType = ocvfThreshold then
+  begin
+    if (FThresholdValue < 0) or (FThresholdValue > 255) then
+    begin
+      DoError('Invalid threshold value.', ocvsError);
+      Exit;
+    end;
+  end;
+  
+  if FFilterType = ocvfCanny then
+  begin
+    if (FCannyThreshold1 < 0) or (FCannyThreshold1 > 255) or
+       (FCannyThreshold2 < 0) or (FCannyThreshold2 > 255) or
+       (FCannyThreshold1 >= FCannyThreshold2) then
+    begin
+      DoError('Invalid Canny thresholds.', ocvsError);
+      Exit;
+    end;
+  end;
+  
+  if FFilterType = ocvfResize then
+  begin
+    if (FResizeWidth <= 0) or (FResizeHeight <= 0) then
+    begin
+      DoError('Invalid resize dimensions.', ocvsError);
+      Exit;
+    end;
+  end;
+  
+  Result := True;
 end;
 
 function TAIOpenCV.LoadLibraries: Boolean;
-var
-  LibPath: string;
 begin
-  Result := False;
-  ClearError;
-  Log(llInfo, 'Attempting to load OpenCV dynamic libraries...');
-  
-  {$IFDEF Windows}
-  LibPath := ExtractFilePath(ParamStr(0)) + 'opencv_world.dll';
-  {$ELSE}
-  LibPath := ExtractFilePath(ParamStr(0)) + 'libopencv_world.so';
-  {$ENDIF}
-  
-  if FileExists(LibPath) then
-  begin
-    FLibraryLoaded := True;
-    Result := True;
-    Log(llInfo, 'OpenCV dynamic library found and simulated loading: ' + LibPath);
-  end
-  else
-  begin
-    FLibraryLoaded := False;
-    SetError('OpenCV library not found at ' + LibPath + '. Please copy the DLL/SO to the application folder.');
-  end;
-end;
-
-procedure TAIOpenCV.ApplyFilter(const AFilterType: string);
-begin
-  if not FLibraryLoaded then
-  begin
-    SetError('OpenCV not loaded. Cannot apply filter.');
-    Exit;
-  end;
-  Log(llInfo, 'Applied OpenCV filter: ' + AFilterType);
+  Result := SelfTest;
 end;
 
 function TAIOpenCV.SelfTest: Boolean;
 var
-  Script: string;
-  OutputStr, ErrorStr: string;
-  Lines: TStringList;
-begin
-  ClearError;
-  Log(llInfo, 'SelfTest: Starting...');
-  
-  if FBackend = ocvNativeDLL then
-  begin
-    Log(llInfo, 'SelfTest: Testing Native DLL backend...');
-    Result := LoadLibraries;
-    if Result then
-    begin
-      FLastResult := 'Native DLL: OpenCV Simulated Library Loaded. (Version: ' + FVersion + ')';
-      Log(llInfo, FLastResult);
-    end
-    else
-    begin
-      Log(llError, 'SelfTest: Native DLL error - ' + FLastError);
-      if Assigned(FOnOpenCVError) then
-        FOnOpenCVError(Self, FLastError);
-    end;
-    Exit;
-  end;
-
-  // Auto or Python Process
-  Log(llInfo, 'SelfTest: Testing Python process backend...');
-  Script :=
-    'import sys' + sLineBreak +
-    'try:' + sLineBreak +
-    '    import cv2' + sLineBreak +
-    '    import numpy as np' + sLineBreak +
-    '    print("OK")' + sLineBreak +
-    '    print(cv2.__version__)' + sLineBreak +
-    'except Exception as e:' + sLineBreak +
-    '    print("ERROR")' + sLineBreak +
-    '    print(str(e))' + sLineBreak;
-
-  if ExecutePythonScript(Script, OutputStr, ErrorStr) then
-  begin
-    if Pos('OK', OutputStr) > 0 then
-    begin
-      FLibraryLoaded := True;
-      
-      // Parse version from second line
-      FVersion := '4.x';
-      Lines := TStringList.Create;
-      try
-        Lines.Text := OutputStr;
-        if Lines.Count > 1 then
-          FVersion := Trim(Lines[1]);
-      finally
-        Lines.Free;
-      end;
-      
-      Result := True;
-      FLastResult := 'Python Process: OpenCV available. (Version: ' + FVersion + ')';
-      Log(llInfo, FLastResult);
-    end
-    else
-    begin
-      FLibraryLoaded := False;
-      SetError('OpenCV dependency check failed. Output: ' + Trim(OutputStr) + ' Error: ' + Trim(ErrorStr));
-      if Assigned(FOnOpenCVError) then
-        FOnOpenCVError(Self, FLastError);
-      Result := False;
-    end;
-  end
-  else
-  begin
-    FLibraryLoaded := False;
-    SetError('Python executable not found or execution failed. Make sure Python is installed and on PATH. Details: ' + Trim(ErrorStr));
-    if Assigned(FOnOpenCVError) then
-      FOnOpenCVError(Self, FLastError);
-    Result := False;
-  end;
-end;
-
-function TAIOpenCV.ProcessFile(const AInputFile, AOutputFile: string): Boolean;
-var
-  InFile, OutFile: string;
-  Script: string;
-  OutputStr, ErrorStr: string;
-  FilterName: string;
+  ResponseStr: string;
 begin
   ClearError;
   Result := False;
-
-  if Assigned(FOnBeforeProcess) then
-    FOnBeforeProcess(Self);
-
-  // Determine files to use
-  if AInputFile <> '' then
-    InFile := AInputFile
-  else
-    InFile := FInputFile;
-
-  if AOutputFile <> '' then
-    OutFile := AOutputFile
-  else
-    OutFile := FOutputFile;
-
-  if InFile = '' then
-  begin
-    SetError('Input file is not specified.');
-    if Assigned(FOnOpenCVError) then
-      FOnOpenCVError(Self, FLastError);
-    if Assigned(FOnAfterProcess) then FOnAfterProcess(Self);
-    Exit;
-  end;
-
-  if not FileExists(InFile) then
-  begin
-    SetError('Input file does not exist: ' + InFile);
-    if Assigned(FOnOpenCVError) then
-      FOnOpenCVError(Self, FLastError);
-    if Assigned(FOnAfterProcess) then FOnAfterProcess(Self);
-    Exit;
-  end;
-
-  if OutFile = '' then
-  begin
-    SetError('Output file is not specified.');
-    if Assigned(FOnOpenCVError) then
-      FOnOpenCVError(Self, FLastError);
-    if Assigned(FOnAfterProcess) then FOnAfterProcess(Self);
-    Exit;
-  end;
-
-  // If FBackend = ocvNativeDLL, we simulate it
+  FStatus := ocvsNotTested;
+  
   if FBackend = ocvNativeDLL then
   begin
-    Log(llInfo, 'Processing with Native DLL (Simulated)...');
-    try
-      if FileExists(OutFile) and FOverwriteOutput then
-        DeleteFile(OutFile);
-      Result := CopyFileStream(InFile, OutFile);
-      if Result then
-      begin
-        FLastResult := 'Simulated process done (Native DLL).';
-        Log(llInfo, FLastResult);
-        if Assigned(FOnImageLoaded) then FOnImageLoaded(Self);
-        if Assigned(FOnImageSaved) then FOnImageSaved(Self);
-      end
-      else
-        SetError('Failed to simulate image processing output file.');
-    except
-      on E: Exception do
-        SetError('Native DLL Simulation Exception: ' + E.Message);
-    end;
-    
-    if Assigned(FOnAfterProcess) then FOnAfterProcess(Self);
-    Exit;
-  end;
-
-  // Auto or Python Process
-  Log(llInfo, 'Processing with Python Process...');
-  FilterName := GetFilterNameStr(FFilterType);
-  
-  // Format the paths to be Python friendly
-  InFile := StringReplace(InFile, '\', '/', [rfReplaceAll]);
-  OutFile := StringReplace(OutFile, '\', '/', [rfReplaceAll]);
-
-  Script :=
-    'import sys' + sLineBreak +
-    'import os' + sLineBreak +
-    'try:' + sLineBreak +
-    '    import cv2' + sLineBreak +
-    '    import numpy as np' + sLineBreak +
-    'except ImportError as e:' + sLineBreak +
-    '    print("ERROR: dependencies missing. Make sure opencv-python and numpy are installed.")' + sLineBreak +
-    '    sys.exit(1)' + sLineBreak +
-    sLineBreak +
-    'input_path = "' + InFile + '"' + sLineBreak +
-    'output_path = "' + OutFile + '"' + sLineBreak +
-    'filter_type = "' + FilterName + '"' + sLineBreak +
-    'blur_kernel = ' + IntToStr(FBlurKernelSize) + sLineBreak +
-    'thresh_val = ' + IntToStr(FThresholdValue) + sLineBreak +
-    'canny1 = ' + IntToStr(FCannyThreshold1) + sLineBreak +
-    'canny2 = ' + IntToStr(FCannyThreshold2) + sLineBreak +
-    'resize_w = ' + IntToStr(FResizeWidth) + sLineBreak +
-    'resize_h = ' + IntToStr(FResizeHeight) + sLineBreak +
-    sLineBreak +
-    'if not os.path.exists(input_path):' + sLineBreak +
-    '    print(f"ERROR: Input file does not exist: {input_path}")' + sLineBreak +
-    '    sys.exit(1)' + sLineBreak +
-    sLineBreak +
-    'try:' + sLineBreak +
-    '    img = cv2.imread(input_path)' + sLineBreak +
-    '    if img is None:' + sLineBreak +
-    '        print("ERROR: Could not read image using OpenCV.")' + sLineBreak +
-    '        sys.exit(1)' + sLineBreak +
-    sLineBreak +
-    '    k_size = blur_kernel' + sLineBreak +
-    '    if k_size % 2 == 0:' + sLineBreak +
-    '        k_size = max(1, k_size + 1)' + sLineBreak +
-    sLineBreak +
-    '    res = img' + sLineBreak +
-    '    if filter_type == "Gray":' + sLineBreak +
-    '        res = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)' + sLineBreak +
-    '    elif filter_type == "Blur":' + sLineBreak +
-    '        res = cv2.blur(img, (blur_kernel, blur_kernel))' + sLineBreak +
-    '    elif filter_type == "GaussianBlur":' + sLineBreak +
-    '        res = cv2.GaussianBlur(img, (k_size, k_size), 0)' + sLineBreak +
-    '    elif filter_type == "MedianBlur":' + sLineBreak +
-    '        res = cv2.medianBlur(img, k_size)' + sLineBreak +
-    '    elif filter_type == "Canny":' + sLineBreak +
-    '        res = cv2.Canny(img, canny1, canny2)' + sLineBreak +
-    '    elif filter_type == "Threshold":' + sLineBreak +
-    '        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) if len(img.shape) == 3 else img' + sLineBreak +
-    '        _, res = cv2.threshold(gray, thresh_val, 255, cv2.THRESH_BINARY)' + sLineBreak +
-    '    elif filter_type == "AdaptiveThreshold":' + sLineBreak +
-    '        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) if len(img.shape) == 3 else img' + sLineBreak +
-    '        res = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, k_size, 2)' + sLineBreak +
-    '    elif filter_type == "Sharpen":' + sLineBreak +
-    '        kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]], dtype=np.float32)' + sLineBreak +
-    '        res = cv2.filter2D(img, -1, kernel)' + sLineBreak +
-    '    elif filter_type == "Invert":' + sLineBreak +
-    '        res = cv2.bitwise_not(img)' + sLineBreak +
-    '    elif filter_type == "Erode":' + sLineBreak +
-    '        kernel = np.ones((blur_kernel, blur_kernel), np.uint8)' + sLineBreak +
-    '        res = cv2.erode(img, kernel, iterations=1)' + sLineBreak +
-    '    elif filter_type == "Dilate":' + sLineBreak +
-    '        kernel = np.ones((blur_kernel, blur_kernel), np.uint8)' + sLineBreak +
-    '        res = cv2.dilate(img, kernel, iterations=1)' + sLineBreak +
-    '    elif filter_type == "Resize":' + sLineBreak +
-    '        res = cv2.resize(img, (resize_w, resize_h))' + sLineBreak +
-    '    elif filter_type == "Normalize":' + sLineBreak +
-    '        res = cv2.normalize(img, None, 0, 255, cv2.NORM_MINMAX)' + sLineBreak +
-    '    elif filter_type == "EqualizeHistogram":' + sLineBreak +
-    '        if len(img.shape) == 3:' + sLineBreak +
-    '            yuv = cv2.cvtColor(img, cv2.COLOR_BGR2YUV)' + sLineBreak +
-    '            yuv[:,:,0] = cv2.equalizeHist(yuv[:,:,0])' + sLineBreak +
-    '            res = cv2.cvtColor(yuv, cv2.YUV2BGR)' + sLineBreak +
-    '        else:' + sLineBreak +
-    '            res = cv2.equalizeHist(img)' + sLineBreak +
-    '    elif filter_type == "None":' + sLineBreak +
-    '        res = img' + sLineBreak +
-    sLineBreak +
-    '    # Make sure output directory exists' + sLineBreak +
-    '    out_dir = os.path.dirname(output_path)' + sLineBreak +
-    '    if out_dir and not os.path.exists(out_dir):' + sLineBreak +
-    '        os.makedirs(out_dir)' + sLineBreak +
-    sLineBreak +
-    '    cv2.imwrite(output_path, res)' + sLineBreak +
-    '    print("SUCCESS")' + sLineBreak +
-    'except Exception as e:' + sLineBreak +
-    '    print(f"ERROR: {e}")' + sLineBreak +
-    '    sys.exit(1)' + sLineBreak;
-
-  if ExecutePythonScript(Script, OutputStr, ErrorStr) then
-  begin
-    if Pos('SUCCESS', OutputStr) > 0 then
-    begin
-      Result := True;
-      FLastResult := 'Process completed: ' + FilterName;
-      Log(llInfo, FLastResult);
-      if Assigned(FOnImageLoaded) then FOnImageLoaded(Self);
-      if Assigned(FOnImageSaved) then FOnImageSaved(Self);
-    end
-    else
-    begin
-      SetError('Process failed: ' + Trim(OutputStr) + ' Stderr: ' + Trim(ErrorStr));
-      if Assigned(FOnOpenCVError) then
-        FOnOpenCVError(Self, FLastError);
-    end;
-  end
-  else
-  begin
-    SetError('Python invocation failed: ' + Trim(OutputStr) + ' Stderr: ' + Trim(ErrorStr));
-    if Assigned(FOnOpenCVError) then
-      FOnOpenCVError(Self, FLastError);
-  end;
-
-  if Assigned(FOnAfterProcess) then
-    FOnAfterProcess(Self);
-end;
-
-function TAIOpenCV.SaveImage(const AFileName: string): Boolean;
-begin
-  ClearError;
-  Result := False;
-  
-  if FOutputFile = '' then
-  begin
-    SetError('No processed image to save (OutputFile is empty).');
+    DoError('Native DLL backend is not implemented yet.', ocvsBackendNotImplemented);
     Exit;
   end;
   
-  if not FileExists(FOutputFile) then
+  if not ValidatePython then Exit;
+  if not ValidateWorker then Exit;
+  
+  ResponseStr := ExecuteWorker('selftest', []);
+  if ResponseStr = '' then Exit;
+  
+  Result := ParseWorkerJSON(ResponseStr);
+  if Result then
   begin
-    SetError('Processed image file does not exist: ' + FOutputFile);
-    Exit;
-  end;
-
-  try
-    if FileExists(AFileName) and FOverwriteOutput then
-      DeleteFile(AFileName);
-      
-    Result := CopyFileStream(FOutputFile, AFileName);
-    if Result then
-    begin
-      FLastResult := 'Saved image to ' + AFileName;
-      Log(llInfo, FLastResult);
-      if Assigned(FOnImageSaved) then
-        FOnImageSaved(Self);
-    end
-    else
-      SetError('Failed to copy file from ' + FOutputFile + ' to ' + AFileName);
-  except
-    on E: Exception do
-      SetError('Error saving image: ' + E.Message);
+    FLastSuccess := True;
+    FLastResult := 'OpenCV available. Version: ' + FVersion;
+    DoLog(llInfo, FLastResult);
   end;
 end;
 
-function TAIOpenCV.GetImageInfo(const AFileName: string): string;
+function TAIOpenCV.GetImageInfo(const AFileName: string): Boolean;
 var
-  Script: string;
-  OutputStr, ErrorStr: string;
+  ResponseStr: string;
   FileToQuery: string;
 begin
-  Result := 'Dimensions: Unknown, Channels: Unknown';
+  ClearError;
+  Result := False;
   
   if AFileName <> '' then
     FileToQuery := AFileName
   else
     FileToQuery := FInputFile;
     
-  if FileToQuery = '' then Exit;
-  if not FileExists(FileToQuery) then Exit;
+  if not ValidateInputFile(FileToQuery) then Exit;
+  if not ValidatePython then Exit;
+  if not ValidateWorker then Exit;
   
   FileToQuery := StringReplace(FileToQuery, '\', '/', [rfReplaceAll]);
   
-  Script :=
-    'import sys' + sLineBreak +
-    'import os' + sLineBreak +
-    'try:' + sLineBreak +
-    '    import cv2' + sLineBreak +
-    '    img = cv2.imread("' + FileToQuery + '")' + sLineBreak +
-    '    if img is not None:' + sLineBreak +
-    '        h, w, *c = img.shape' + sLineBreak +
-    '        channels = c[0] if c else 1' + sLineBreak +
-    '        print(f"Dimensions: {w}x{h}, Channels: {channels}")' + sLineBreak +
-    '    else:' + sLineBreak +
-    '        print("ERROR")' + sLineBreak +
-    'except Exception as e:' + sLineBreak +
-    '    print("ERROR")' + sLineBreak;
-
-  if ExecutePythonScript(Script, OutputStr, ErrorStr) then
+  ResponseStr := ExecuteWorker('info', ['--input', FileToQuery]);
+  if ResponseStr = '' then Exit;
+  
+  Result := ParseWorkerJSON(ResponseStr);
+  if Result then
   begin
-    if (Pos('ERROR', OutputStr) = 0) and (Trim(OutputStr) <> '') then
-      Result := Trim(OutputStr);
+    FLastResult := 'Image info: ' + IntToStr(FLastImageWidth) + 'x' + IntToStr(FLastImageHeight) + ', channels: ' + IntToStr(FLastChannels);
+    DoLog(llInfo, FLastResult);
   end;
 end;
 
-function TAIOpenCV.GetImageInfo: string;
+function TAIOpenCV.ProcessFile(const AInputFile, AOutputFile: string): Boolean;
+var
+  InFile, OutFile: string;
+  ActionName: string;
+  ResponseStr: string;
+  ExtraArgs: array of string;
 begin
-  Result := GetImageInfo(FInputFile);
+  ClearError;
+  Result := False;
+  
+  if Assigned(FOnBeforeProcess) then
+    FOnBeforeProcess(Self);
+    
+  if FBackend = ocvNativeDLL then
+  begin
+    DoError('Native DLL backend is not implemented yet.', ocvsBackendNotImplemented);
+    if Assigned(FOnAfterProcess) then FOnAfterProcess(Self);
+    Exit;
+  end;
+  
+  // Set files to process
+  if AInputFile <> '' then
+    InFile := AInputFile
+  else
+    InFile := FInputFile;
+    
+  if AOutputFile <> '' then
+    OutFile := AOutputFile
+  else
+    OutFile := FOutputFile;
+    
+  // Validate Python, worker, files, parameters
+  if not ValidatePython then begin if Assigned(FOnAfterProcess) then FOnAfterProcess(Self); Exit; end;
+  if not ValidateWorker then begin if Assigned(FOnAfterProcess) then FOnAfterProcess(Self); Exit; end;
+  if not ValidateInputFile(InFile) then begin if Assigned(FOnAfterProcess) then FOnAfterProcess(Self); Exit; end;
+  if not ValidateOutputFile(OutFile) then begin if Assigned(FOnAfterProcess) then FOnAfterProcess(Self); Exit; end;
+  if not ValidateParameters then begin if Assigned(FOnAfterProcess) then FOnAfterProcess(Self); Exit; end;
+  
+  ActionName := FilterToAction(FFilterType);
+  InFile := StringReplace(InFile, '\', '/', [rfReplaceAll]);
+  OutFile := StringReplace(OutFile, '\', '/', [rfReplaceAll]);
+  
+  // Build arguments list based on filter
+  case FFilterType of
+    ocvfBlur:
+      begin
+        SetLength(ExtraArgs, 6);
+        ExtraArgs[0] := '--input';
+        ExtraArgs[1] := InFile;
+        ExtraArgs[2] := '--output';
+        ExtraArgs[3] := OutFile;
+        ExtraArgs[4] := '--kernel';
+        ExtraArgs[5] := IntToStr(FBlurKernelSize);
+      end;
+    ocvfCanny:
+      begin
+        SetLength(ExtraArgs, 8);
+        ExtraArgs[0] := '--input';
+        ExtraArgs[1] := InFile;
+        ExtraArgs[2] := '--output';
+        ExtraArgs[3] := OutFile;
+        ExtraArgs[4] := '--canny1';
+        ExtraArgs[5] := IntToStr(FCannyThreshold1);
+        ExtraArgs[6] := '--canny2';
+        ExtraArgs[7] := IntToStr(FCannyThreshold2);
+      end;
+    ocvfThreshold:
+      begin
+        SetLength(ExtraArgs, 6);
+        ExtraArgs[0] := '--input';
+        ExtraArgs[1] := InFile;
+        ExtraArgs[2] := '--output';
+        ExtraArgs[3] := OutFile;
+        ExtraArgs[4] := '--threshold';
+        ExtraArgs[5] := IntToStr(FThresholdValue);
+      end;
+    ocvfResize:
+      begin
+        SetLength(ExtraArgs, 8);
+        ExtraArgs[0] := '--input';
+        ExtraArgs[1] := InFile;
+        ExtraArgs[2] := '--output';
+        ExtraArgs[3] := OutFile;
+        ExtraArgs[4] := '--width';
+        ExtraArgs[5] := IntToStr(FResizeWidth);
+        ExtraArgs[6] := '--height';
+        ExtraArgs[7] := IntToStr(FResizeHeight);
+      end;
+    else
+      begin
+        SetLength(ExtraArgs, 4);
+        ExtraArgs[0] := '--input';
+        ExtraArgs[1] := InFile;
+        ExtraArgs[2] := '--output';
+        ExtraArgs[3] := OutFile;
+      end;
+  end;
+  
+  ResponseStr := ExecuteWorker(ActionName, ExtraArgs);
+  if ResponseStr = '' then
+  begin
+    if Assigned(FOnAfterProcess) then FOnAfterProcess(Self);
+    Exit;
+  end;
+  
+  Result := ParseWorkerJSON(ResponseStr);
+  
+  if Assigned(FOnAfterProcess) then
+    FOnAfterProcess(Self);
+    
+  if Result then
+  begin
+    if Assigned(FOnImageProcessed) then
+      FOnImageProcessed(Self);
+  end;
+end;
+
+function TAIOpenCV.ApplyFilter: Boolean;
+begin
+  Result := ProcessFile(FInputFile, FOutputFile);
+end;
+
+procedure TAIOpenCV.Clear;
+begin
+  FInputFile := '';
+  FOutputFile := '';
+  FLastImageWidth := 0;
+  FLastImageHeight := 0;
+  FLastChannels := 0;
+  FLastResult := '';
+  FLastError := '';
+  FLastSuccess := True;
 end;
 
 initialization
