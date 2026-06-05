@@ -136,7 +136,7 @@ Esse pacote ainda existe, mas deve ser tratado como **legacy wrapper**. Ele não
 | `openai_ml` | Sem Python obrigatório; usa Pascal/FPC |
 | `openai_graph` | `openai_core`, `openai_ml` |
 | `openai_python` | Python 3, arquitetura compatível, bibliotecas Python conforme componente |
-| `openai_vision` | Para `TAIOpenCV`: Python 3, `opencv-python`, `numpy` |
+| `openai_vision` | Para `TAIOpenCV`: Python 3, `opencv-python`, `numpy`. Componentes nativos usam LCL/FPC; `TAICameraCapture` usa VFW no Windows |
 | `openai_voice` | Windows SAPI ou Linux eSpeak/eSpeak-NG conforme uso |
 | `openai_output` | `fpPDF`/FPC para PDF; Word/Excel podem ser HTML compatível |
 | `openai_industrial` | Dependências de Modbus/MQTT e permissões do ambiente |
@@ -168,25 +168,28 @@ Componentes centrais:
 A camada de Visão Computacional do projeto é dividida em duas abordagens:
 
 #### 1. AI Native Vision (100% Lazarus / Free Pascal)
-Componentes puramente Pascal, rápidos, sem dependência de Python, OpenCV ou executores externos. Estão registrados na aba **`AI Native Vision`** da IDE e utilizam `TLazIntfImage` para alta performance:
 
-* `TAICameraCapture`: Captura de câmera/webcam nativa e unificada (VFW no Windows e V4L2 no Linux) sem dependência de Python.
-* `TAINativeImageFilter`: Filtros de imagem rápidos (Cinza, Limiar, Inverter, Redimensionar, Blur).
-* `TAIImageInfo`: Extração de dimensões e metadados de imagem nativamente.
-* `TAIFrameBuffer`: Fila circular de frames em memória para processamento de vídeo.
-* `TAIMotionTracker`: Detetor de movimento nativo por variação de luminância.
-* `TAIFrameDiff`: Gerador de mapa de diferença absoluta entre frames.
-* `TAIFaceTracker`: Rastreador local baseado em template matching (SAD).
+Componentes Pascal, sem dependência de Python, OpenCV ou executores externos. Estão registrados principalmente na aba **`AI Native Vision`** da IDE e utilizam recursos como `TBitmap` e `TLazIntfImage`.
 
-Demos Visuais (Samples) em Pascal Puro:
-* `pacote/samples/AI Native Vision/camera_capture_demo/` (Exibição de câmera ao vivo e capturas)
-* `pacote/samples/AI Native Vision/native_image_filter_demo/` (Ferramenta interativa de filtros nativos)
-* `pacote/samples/AI Native Vision/motion_tracker_demo/` (Detecção de movimento e diferença de frames)
+* `TAICameraCapture`: captura de câmera/webcam via Windows VFW/`avicap32.dll`. No Linux, a versão atual ainda retorna stub/erro de plataforma não suportada.
+* `TAINativeImageFilter`: filtros de imagem nativos, como cinza, threshold, inverter, resize e blur box.
+* `TAIImageInfo`: extração nativa de dimensões e informações básicas de imagem.
+* `TAIFrameBuffer`: buffer circular de frames em memória para processamento de vídeo.
+* `TAIMotionTracker`: detecção de movimento por variação de luminância entre bitmaps.
+* `TAIFrameDiff`: geração de mapa de diferença absoluta entre frames.
+* `TAIFaceTracker`: rastreador local baseado em template matching/SAD. Não é detector facial semântico.
+
+Samples nativos previstos ou em validação:
+
+* `pacote/samples/AI Native Vision/camera_capture_demo/`
+* `pacote/samples/AI Native Vision/native_image_filter_demo/`
+* `pacote/samples/AI Native Vision/motion_tracker_demo/`
 
 #### 2. AI Python Vision (Integração Externa)
+
 Componentes que realizam chamadas ou utilizam scripts Python externos para executar tarefas mais pesadas:
 
-* `TAIOpenCV`: Funcional via worker Python. Possui sample funcional em `pacote/samples/AI Vision/opencv_filter_demo/`.
+* `TAIOpenCV`: funcional via worker Python. Possui sample funcional em `pacote/samples/AI Vision/opencv_filter_demo/`.
   * Recursos atuais do `TAIOpenCV`: `SelfTest`, `Image Info`, `Gray`, `Blur`, `Canny`, `Threshold`, `Resize`.
   * Dependências do OpenCV Python: `pip install opencv-python numpy`.
 
@@ -228,9 +231,14 @@ Sample atualmente consolidado:
 | Sample | Tipo | Pacote | Dependência externa | Status |
 |---|---|---|---|---|
 | `opencv_filter_demo` | GUI | `openai_vision` | Python + OpenCV | Funcional/Beta |
-| `camera_capture_demo` | GUI | `openai_vision` | Nenhuma (Webcam VFW no Windows) | Funcional/Beta |
-| `native_image_filter_demo` | GUI | `openai_vision` | Nenhuma | Funcional/Beta |
-| `motion_tracker_demo` | GUI | `openai_vision` | Nenhuma | Funcional/Beta |
+
+Samples nativos em validação/documentação:
+
+| Sample | Tipo | Pacote | Dependência externa | Status |
+|---|---|---|---|---|
+| `camera_capture_demo` | GUI | `openai_vision` | Webcam VFW no Windows | Em validação |
+| `native_image_filter_demo` | GUI | `openai_vision` | Nenhuma | Previsto/em validação |
+| `motion_tracker_demo` | GUI | `openai_vision` | Nenhuma | Previsto/em validação |
 
 ---
 
@@ -243,6 +251,8 @@ Sample atualmente consolidado:
 * Componentes Python dependem de versão, arquitetura e ambiente compatíveis.
 * É recomendado validar cada componente antes de uso em produção.
 * Testes automatizados e integração contínua ainda precisam ser ampliados.
+* `TAICameraCapture` usa VFW no Windows; Linux ainda precisa backend próprio.
+* `TAIFaceTracker` rastreia template, não detecta rosto semanticamente.
 
 ---
 
