@@ -164,7 +164,6 @@ end;
 procedure Register;
 begin
   RegisterComponents('AI Core', [TTokenList]);
-  RegisterComponents('IA', [TTokenList]);
 end;
 
 initialization
