@@ -75,3 +75,37 @@ backup/
 *.bak
 packagefiles.xml
 
+# CHATGPT-AI generated runtime/installers
+runtime/windows-x64/python/
+runtime/linux-x64/python/
+runtime/linux-arm64/python/
+runtime/linux-armhf/python/
+runtime/**/venv/
+runtime/**/.venv/
+installer/**/runtime/python/
+installer/**/runtime/venv/
+installer/**/output/
+dist/output/
+
+# Python caches and local environments
+venv/
+.venv/
+*/venv/
+*/.venv/
+site-packages/
+__pycache__/
+*.pyc
+*.pyo
+
+# Generated archives should be attached to GitHub Releases, not committed
+*.zip
+*.tar.gz
+*.tgz
+*.7z
+*.rar
+
+# Installation logs/reports
+*.log
+install_report.txt
+runtime_check_report.txt
+chatgpt_ai_runtime.ini
