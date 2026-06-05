@@ -64,6 +64,10 @@ A documentação aqui complementa os READMEs principais do projeto e deve ser us
 * [TAIFrameProcessor](components/TAIFrameProcessor/README.md)
 * [TAIFaceTracker](components/TAIFaceTracker/README.md)
 * [TAIMotionTracker](components/TAIMotionTracker/README.md)
+* [TAIImageInfo](components/TAIImageInfo/README.md)
+* [TAIFrameBuffer](components/TAIFrameBuffer/README.md)
+* [TAINativeImageFilter](components/TAINativeImageFilter/README.md)
+* [TAIFrameDiff](components/TAIFrameDiff/README.md)
 
 ### Output
 
