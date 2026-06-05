@@ -1,0 +1,5 @@
+requests
+openai
+numpy
+pillow
+# OpenCV, SciPy, Torch and TensorFlow must be installed only when a compatible ARM wheel or distro package exists.
