@@ -6,7 +6,12 @@
     <General>
       <SessionStorage Value="InProjectDir"/>
       <Title Value="tripo3d_demo"/>
+      <Scaled Value="True"/>
+      <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>
+      <XPManifest>
+        <DpiAware Value="True"/>
+      </XPManifest>
     </General>
     <BuildModes>
       <Item Name="Default" Default="True"/>
@@ -20,7 +25,7 @@
     </RunParams>
     <RequiredPackages>
       <Item>
-        <PackageName Value="openai"/>
+        <PackageName Value="openai_graphic"/>
       </Item>
       <Item>
         <PackageName Value="LCL"/>
@@ -30,6 +35,13 @@
       <Unit>
         <Filename Value="tripo3d_demo.lpr"/>
         <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="main.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmMain"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
       </Unit>
     </Units>
   </ProjectOptions>
@@ -41,7 +53,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\..\..;..\..\..\IA;..\..\..\AI Graphic;..\..\..\AI Vision"/>
+      <OtherUnitFiles Value="..\..\..;..\..\..\IA;..\..\..\IA Agent;..\..\..\IA Voice;..\..\..\IA Filtros Sonoros;..\..\..\IA Image;..\..\..\IA Schedulle;..\..\..\IA Math;..\..\..\IA Input;..\..\..\IA Output;..\..\..\IA Graph;..\..\..\AI Graphic;..\..\..\AI Vision;..\..\..\packages"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
   </CompilerOptions>

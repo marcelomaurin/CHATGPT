@@ -14,7 +14,7 @@ jsonparser, RegExpr, DateUtils
 ,windows, jwaWinBase, shellAPI , Registry , JwaTlHelp32
 {$ENDIF}
 
-{$IFDEF LINUX}
+{$IFDEF UNIX}
 //LCLType,
 //LCLIntf
 ,BaseUnix, UnixType, Unix
@@ -105,7 +105,7 @@ function Callprg(filename: string; source: String; var Output: string): boolean;
 
 {$ENDIF}
 
-{$IFDEF LINUX}
+{$IFDEF UNIX}
 function RunBatch(const batch, Params: string; var Output : string): boolean;
 function Callprg(FileName: string; Source: String; var Output: string): boolean;
 {$ENDIF}
@@ -779,7 +779,7 @@ end;
 
 
 
-{$IFDEF LINUX}
+{$IFDEF UNIX}
 function Callprg(FileName: string; Source: String; var Output: string): boolean;
 var
   Process: TProcess;
@@ -1077,10 +1077,7 @@ begin
         else
           result := false;
  {$ENDIF}
- {$IFDEF LINUX}
-   result := true;
- {$ENDIF}
- {$IFDEF DARWIN}
+ {$IFDEF UNIX}
    result := true;
  {$ENDIF}
 
@@ -1108,7 +1105,7 @@ begin
 end;
 {$endif}
 
-{$IFDEF LINUX}
+{$IFDEF UNIX}
 
 function RunBatch(const batch, Params: string; var Output : string): boolean;
 var
@@ -1565,21 +1562,18 @@ var  c1, c2, c3      : cardinal;
      perfInstanceDef : ^TPerfInstanceDefinition;
 begin
   result := 0;
+  {$IFDEF MSWINDOWS}
   perfDataBlock := nil;
   try
     c1 := $10000;
     while true do begin
       ReallocMem(perfDataBlock, c1);
       c2 := c1;
-      {$IFDEF MSWINDOWS}
       case RegQueryValueEx(HKEY_PERFORMANCE_DATA, '238', nil, @c3, pointer(perfDataBlock), @c2) of
         ERROR_MORE_DATA : c1 := c1 * 2;
         ERROR_SUCCESS   : break;
         else              exit;
       end;
-      {$else}
-
-      {$endif}
     end;
     perfObjectType := pointer(cardinal(perfDataBlock) + perfDataBlock^.headerLength);
     for i1 := 0 to perfDataBlock^.numObjectTypes - 1 do begin
@@ -1598,6 +1592,7 @@ begin
       perfObjectType := pointer(cardinal(perfObjectType) + perfObjectType^.totalByteLength);
     end;
   finally FreeMem(perfDataBlock)end;
+  {$ENDIF}
 end;
 
 function GetProcessorUsage : integer;
