@@ -1,0 +1,5 @@
+numpy
+pillow
+# Install OpenCV according to the target platform.
+# Windows/Linux x64 usually use opencv-python.
+# Linux ARM may require distro packages or a custom wheel.
