@@ -1,0 +1,374 @@
+object frmOpenCVDemo: TfrmOpenCVDemo
+  Left = 250
+  Height = 720
+  Top = 120
+  Width = 1000
+  Caption = 'TAIOpenCV Filter Demo'
+  ClientHeight = 720
+  ClientWidth = 1000
+  OnCreate = FormCreate
+  LCLVersion = '3.0.0.3'
+  object pnlTop: TPanel
+    Left = 10
+    Height = 150
+    Top = 10
+    Width = 980
+    Align = alTop
+    BorderSpacing.Around = 10
+    ClientHeight = 150
+    ClientWidth = 980
+    TabOrder = 0
+    object lblInputFile: TLabel
+      Left = 15
+      Height = 15
+      Top = 15
+      Width = 80
+      Caption = 'Input File:'
+      ParentColor = False
+    end
+    object edInputFile: TEdit
+      Left = 110
+      Height = 23
+      Top = 12
+      Width = 500
+      TabOrder = 0
+    end
+    object btnLoadImage: TButton
+      Left = 620
+      Height = 25
+      Top = 11
+      Width = 150
+      Caption = 'Carregar imagem'
+      OnClick = btnLoadImageClick
+      TabOrder = 1
+    end
+    object lblOutputFile: TLabel
+      Left = 15
+      Height = 15
+      Top = 47
+      Width = 80
+      Caption = 'Output File:'
+      ParentColor = False
+    end
+    object edOutputFile: TEdit
+      Left = 110
+      Height = 23
+      Top = 44
+      Width = 500
+      TabOrder = 2
+    end
+    object btnSave: TButton
+      Left = 620
+      Height = 25
+      Top = 43
+      Width = 150
+      Caption = 'Salvar como'
+      OnClick = btnSaveClick
+      TabOrder = 3
+    end
+    object lblBackendText: TLabel
+      Left = 15
+      Height = 15
+      Top = 80
+      Width = 80
+      Caption = 'Backend:'
+      ParentColor = False
+    end
+    object cbBackend: TComboBox
+      Left = 110
+      Height = 23
+      Top = 77
+      Width = 150
+      ItemHeight = 15
+      Style = csDropDownList
+      TabOrder = 4
+    end
+    object lblFilterText: TLabel
+      Left = 280
+      Height = 15
+      Top = 80
+      Width = 80
+      Caption = 'Filtro:'
+      ParentColor = False
+    end
+    object cbFilter: TComboBox
+      Left = 340
+      Height = 23
+      Top = 77
+      Width = 180
+      ItemHeight = 15
+      Style = csDropDownList
+      OnChange = cbFilterChange
+      TabOrder = 5
+    end
+    object btnSelfTest: TButton
+      Left = 530
+      Height = 25
+      Top = 76
+      Width = 110
+      Caption = 'SelfTest'
+      OnClick = btnSelfTestClick
+      TabOrder = 6
+    end
+    object btnProcess: TButton
+      Left = 650
+      Height = 25
+      Top = 76
+      Width = 120
+      Caption = 'Processar'
+      OnClick = btnProcessClick
+      TabOrder = 7
+    end
+    object lblStatus: TLabel
+      Left = 15
+      Height = 15
+      Top = 115
+      Width = 200
+      Caption = 'Status: aguardando'
+      Font.Style = [fsBold]
+      ParentColor = False
+    end
+    object lblImageInfo: TLabel
+      Left = 300
+      Height = 15
+      Top = 115
+      Width = 200
+      Caption = 'Image: none'
+      ParentColor = False
+    end
+  end
+  object pnlImages: TPanel
+    Left = 10
+    Height = 340
+    Top = 170
+    Width = 980
+    Align = alClient
+    BorderSpacing.Left = 10
+    BorderSpacing.Right = 10
+    ClientHeight = 340
+    ClientWidth = 980
+    TabOrder = 1
+    object pnlOriginal: TPanel
+      Left = 5
+      Height = 330
+      Top = 5
+      Width = 480
+      Align = alLeft
+      BorderSpacing.Around = 5
+      Caption = 'Imagem Original'
+      ClientHeight = 330
+      ClientWidth = 480
+      TabOrder = 0
+      object imgOriginal: TImage
+        Left = 1
+        Height = 328
+        Top = 1
+        Width = 478
+        Align = alClient
+        Center = True
+        Proportional = True
+        Stretch = True
+      end
+    end
+    object pnlProcessed: TPanel
+      Left = 495
+      Height = 330
+      Top = 5
+      Width = 480
+      Align = alClient
+      BorderSpacing.Around = 5
+      Caption = 'Imagem Processada'
+      ClientHeight = 330
+      ClientWidth = 480
+      TabOrder = 1
+      object imgProcessed: TImage
+        Left = 1
+        Height = 328
+        Top = 1
+        Width = 478
+        Align = alClient
+        Center = True
+        Proportional = True
+        Stretch = True
+      end
+    end
+  end
+  object pnlBottom: TPanel
+    Left = 10
+    Height = 190
+    Top = 520
+    Width = 980
+    Align = alBottom
+    BorderSpacing.Around = 10
+    ClientHeight = 190
+    ClientWidth = 980
+    TabOrder = 2
+    object pnlParams: TPanel
+      Left = 5
+      Height = 180
+      Top = 5
+      Width = 350
+      Align = alLeft
+      BorderSpacing.Around = 5
+      ClientHeight = 180
+      ClientWidth = 350
+      TabOrder = 0
+      object lblBlurKernel: TLabel
+        Left = 10
+        Height = 15
+        Top = 15
+        Width = 100
+        Caption = 'Blur Kernel:'
+        ParentColor = False
+      end
+      object seBlurKernel: TSpinEdit
+        Left = 120
+        Height = 23
+        Top = 12
+        Width = 70
+        TabOrder = 0
+      end
+      object lblThresholdValue: TLabel
+        Left = 10
+        Height = 15
+        Top = 45
+        Width = 100
+        Caption = 'Threshold Value:'
+        ParentColor = False
+      end
+      object seThresholdValue: TSpinEdit
+        Left = 120
+        Height = 23
+        Top = 42
+        Width = 70
+        TabOrder = 1
+      end
+      object lblCannyT1: TLabel
+        Left = 10
+        Height = 15
+        Top = 75
+        Width = 100
+        Caption = 'Canny T1:'
+        ParentColor = False
+      end
+      object seCanny1: TSpinEdit
+        Left = 120
+        Height = 23
+        Top = 72
+        Width = 70
+        TabOrder = 2
+      end
+      object lblCannyT2: TLabel
+        Left = 10
+        Height = 15
+        Top = 105
+        Width = 100
+        Caption = 'Canny T2:'
+        ParentColor = False
+      end
+      object seCanny2: TSpinEdit
+        Left = 120
+        Height = 23
+        Top = 102
+        Width = 70
+        TabOrder = 3
+      end
+      object lblResizeWidth: TLabel
+        Left = 200
+        Height = 15
+        Top = 15
+        Width = 80
+        Caption = 'Resize W:'
+        ParentColor = False
+      end
+      object seResizeWidth: TSpinEdit
+        Left = 270
+        Height = 23
+        Top = 12
+        Width = 70
+        MaxValue = 5000
+        TabOrder = 4
+      end
+      object lblResizeHeight: TLabel
+        Left = 200
+        Height = 15
+        Top = 45
+        Width = 80
+        Caption = 'Resize H:'
+        ParentColor = False
+      end
+      object seResizeHeight: TSpinEdit
+        Left = 270
+        Height = 23
+        Top = 42
+        Width = 70
+        MaxValue = 5000
+        TabOrder = 5
+      end
+      object chkAutoSave: TCheckBox
+        Left = 200
+        Height = 19
+        Top = 75
+        Width = 120
+        Caption = 'AutoSave'
+        TabOrder = 6
+      end
+      object chkOverwrite: TCheckBox
+        Left = 200
+        Height = 19
+        Top = 105
+        Width = 130
+        Caption = 'Overwrite Output'
+        TabOrder = 7
+      end
+    end
+    object pnlLogArea: TPanel
+      Left = 365
+      Height = 180
+      Top = 5
+      Width = 610
+      Align = alClient
+      BorderSpacing.Around = 5
+      ClientHeight = 180
+      ClientWidth = 610
+      TabOrder = 1
+      object lblLogText: TLabel
+        Left = 10
+        Height = 15
+        Top = 10
+        Width = 100
+        Caption = 'Logs:'
+        Font.Style = [fsBold]
+        ParentColor = False
+      end
+      object btnClearLog: TButton
+        Left = 510
+        Height = 22
+        Top = 7
+        Width = 90
+        Caption = 'Limpar Log'
+        OnClick = btnClearLogClick
+        TabOrder = 0
+      end
+      object memoLog: TMemo
+        Left = 10
+        Height = 130
+        Top = 35
+        Width = 590
+        Align = alBottom
+        BorderSpacing.Around = 5
+        ReadOnly = True
+        ScrollBars = ssAutoBoth
+        TabOrder = 1
+      end
+    end
+  end
+  object OpenDialog1: TOpenDialog
+    Left = 850
+    Top = 20
+  end
+  object SaveDialog1: TSaveDialog
+    Left = 900
+    Top = 20
+  end
+end
