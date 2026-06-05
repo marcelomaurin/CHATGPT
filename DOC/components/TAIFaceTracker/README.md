@@ -2,7 +2,9 @@
 
 ## Finalidade
 
-`TAIFaceTracker` representa a estrutura inicial para detecção/rastreamento facial dentro da aba **AI Vision**.
+`TAIFaceTracker` rastreia uma região/template dentro de um `TBitmap` usando template matching nativo por SAD.
+
+Apesar do nome, no estado atual ele **não é um detector facial semântico**. Ele acompanha uma região visual definida como template.
 
 ## Unit
 
@@ -16,18 +18,28 @@ pacote/AI Vision/aifacetracker.pas
 openai_vision.lpk
 ```
 
+## Aba na IDE
+
+```text
+AI Native Vision
+```
+
 ## Status
 
 ```text
-Placeholder
+Beta técnico
 ```
 
 ## Propriedades principais
 
 | Propriedade | Descrição |
 |---|---|
-| `CascadeClassifierPath` | Caminho previsto para classificador cascade |
-| `Prompt` | Descrição do componente |
+| `SearchRadius` | Raio de busca ao redor da última posição conhecida |
+| `MatchThreshold` | Diferença média máxima aceita para considerar match |
+| `LastX` | Última posição X rastreada |
+| `LastY` | Última posição Y rastreada |
+| `LastWidth` | Largura do template |
+| `LastHeight` | Altura do template |
 | `LastError` | Último erro registrado |
 | `LastResult` | Último resultado textual |
 
@@ -35,26 +47,34 @@ Placeholder
 
 | Método | Descrição |
 |---|---|
-| `TrackFace` | Recebe um frame e retorna coordenadas de face. Atualmente sempre retorna `False` |
+| `SetTemplateFromBitmap` | Define o template a partir de uma região de um `TBitmap` |
+| `TrackInBitmap` | Procura o template dentro de um novo `TBitmap` |
+| `TrackFace` | Método compatível que aceita `TObject`, esperando um `TBitmap` |
+| `ClearTemplate` | Remove o template atual |
 
 ## Exemplo
 
 ```pascal
-procedure TForm1.Button1Click(Sender: TObject);
-var
-  X, Y, W, H: Integer;
+procedure TForm1.ButtonSetTemplateClick(Sender: TObject);
 begin
-  AIFaceTracker1.CascadeClassifierPath := 'haarcascade_frontalface_default.xml';
+  if not AIFaceTracker1.SetTemplateFromBitmap(Image1.Picture.Bitmap, 100, 80, 120, 120) then
+    ShowMessage(AIFaceTracker1.LastError);
+end;
 
-  if AIFaceTracker1.TrackFace(nil, X, Y, W, H) then
-    ShowMessage(Format('Face: %d,%d %dx%d', [X, Y, W, H]))
+procedure TForm1.ButtonTrackClick(Sender: TObject);
+var
+  X, Y: Integer;
+begin
+  if AIFaceTracker1.TrackInBitmap(Image2.Picture.Bitmap, X, Y) then
+    ShowMessage(Format('Template encontrado em X=%d Y=%d', [X, Y]))
   else
-    ShowMessage('Nenhuma face detectada. Atualmente este componente ainda é placeholder.');
+    ShowMessage(AIFaceTracker1.LastError);
 end;
 ```
 
 ## Limitações
 
-* Não realiza detecção facial real no estado atual.
-* `TrackFace` sempre retorna `False`.
-* Deve ser integrado futuramente com OpenCV, DNN ou outro backend real.
+* Não identifica rosto automaticamente.
+* Não usa cascade, DNN ou OpenCV.
+* Rastreia similaridade de pixels por template matching/SAD.
+* Pode falhar com mudança forte de iluminação, escala, rotação ou oclusão.
