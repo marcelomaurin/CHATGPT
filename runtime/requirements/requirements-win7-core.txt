@@ -1,0 +1,9 @@
+# Windows 7 legacy core profile
+# Target runtime: Python 3.8.x
+# Architecture-specific ZIPs must provide x86 or x64 runtime.
+
+requests
+openai
+
+# Keep dependencies conservative.
+# Avoid packages that require Python 3.9+ or modern Windows APIs.
