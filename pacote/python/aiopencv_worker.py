@@ -13,12 +13,12 @@ try:
 except ImportError as e:
     return_json({
         "success": False,
-        "error": "OpenCV Python package not installed."
+        "error": "OpenCV Python package not installed"
     })
 
 def main():
     parser = argparse.ArgumentParser(description="TAIOpenCV Python Worker Script")
-    parser.add_argument("--action", required=True, choices=["selftest", "info", "gray", "blur", "canny", "threshold", "resize"])
+    parser.add_argument("--action", required=True, choices=["selftest", "info", "none", "gray", "blur", "canny", "threshold", "resize"])
     parser.add_argument("--input", default="")
     parser.add_argument("--output", default="")
     parser.add_argument("--kernel", type=int, default=5)
@@ -77,7 +77,9 @@ def main():
         
     # Apply filter
     res = img
-    if args.action == "gray":
+    if args.action == "none":
+        res = img
+    elif args.action == "gray":
         res = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     elif args.action == "blur":
         k = args.kernel

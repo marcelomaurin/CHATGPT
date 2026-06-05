@@ -32,15 +32,19 @@ Install dependencies:
 pip install opencv-python numpy
 ```
 
+## Sample Image
+
+The sample includes a pre-generated `sample.jpg` in its directory for quick testing.
+
 ## Worker
 
-The component expects the worker script:
+The component expects the worker script at:
 
 ```text
-python/aiopencv_worker.py
+pacote/python/aiopencv_worker.py
 ```
 
-Make sure the worker exists relative to the executable or in the package python folder.
+Make sure the worker exists in the package's python folder.
 
 ## How to run
 
