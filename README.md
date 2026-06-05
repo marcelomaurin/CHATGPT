@@ -170,7 +170,7 @@ A camada de Visão Computacional do projeto é dividida em duas abordagens:
 #### 1. AI Native Vision (100% Lazarus / Free Pascal)
 Componentes puramente Pascal, rápidos, sem dependência de Python, OpenCV ou executores externos. Estão registrados na aba **`AI Native Vision`** da IDE e utilizam `TLazIntfImage` para alta performance:
 
-* `TAICameraCapture`: Captura de câmera/webcam via Windows VFW (Stub no Linux).
+* `TAICameraCapture`: Captura de câmera/webcam nativa e unificada (VFW no Windows e V4L2 no Linux) sem dependência de Python.
 * `TAINativeImageFilter`: Filtros de imagem rápidos (Cinza, Limiar, Inverter, Redimensionar, Blur).
 * `TAIImageInfo`: Extração de dimensões e metadados de imagem nativamente.
 * `TAIFrameBuffer`: Fila circular de frames em memória para processamento de vídeo.

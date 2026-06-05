@@ -7,7 +7,7 @@ uses
   cthreads,
   {$ENDIF}
   Interfaces,
-  Classes, SysUtils, aicameracapture, aibase;
+  Classes, SysUtils, aicamera_backend, aicameracapture, aibase;
 
 type
   TTestRunner = class
@@ -124,14 +124,11 @@ begin
       if not Cam.Active then
         raise Exception.Create('Test failed: Active should be True after StartCapture');
 
-      // Wait a short time to let capture run
-      WriteLn('Waiting 1 second...');
-      Sleep(1000);
+      // Grab frame explicitly
+      WriteLn('Querying frame explicitly...');
+      if not Cam.QueryFrame then
+        raise Exception.Create('Test failed: QueryFrame returned False: ' + Cam.LastError);
 
-      // Verify LastFrameFile is generated and exists
-      WriteLn('Checking captured frame...');
-      if Cam.LastFrameFile = '' then
-        raise Exception.Create('Test failed: LastFrameFile should not be empty after capture runs');
       if not FileExists(Cam.LastFrameFile) then
         raise Exception.Create('Test failed: Captured frame file does not exist on disk: ' + Cam.LastFrameFile);
       

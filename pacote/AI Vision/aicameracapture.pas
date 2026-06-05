@@ -5,19 +5,17 @@ unit aicameracapture;
 interface
 
 uses
-  Classes, SysUtils, aibase, ExtCtrls, LResources, Controls, Graphics
+  Classes, SysUtils, aibase, ExtCtrls, LResources, Controls, Graphics,
+  aicamera_backend
   {$IFDEF MSWINDOWS}
-  , Windows, Messages
+  , aicamera_vfw
+  {$ENDIF}
+  {$IFDEF LINUX}
+  , aicamera_v4l2
   {$ENDIF}
   ;
 
 type
-  TAICameraBackend = (
-    cbAuto,
-    cbWindowsVFW,
-    cbNativeStub
-  );
-
   TAIFrameEvent = procedure(Sender: TObject; const AFrameFile: string) of object;
   TAICameraErrorEvent = procedure(Sender: TObject; const AError: string) of object;
   TAICameraStateEvent = procedure(Sender: TObject; AActive: Boolean) of object;
@@ -27,6 +25,7 @@ type
   TAICameraCapture = class(TAIBaseComponent)
   private
     FCameraIndex: Integer;
+    FDeviceName: string;
     FActive: Boolean;
     FWidth: Integer;
     FHeight: Integer;
@@ -42,10 +41,7 @@ type
 
     FTimer: TTimer;
     FInTimerCall: Boolean;
-
-    {$IFDEF MSWINDOWS}
-    FCaptureWnd: HWND;
-    {$ENDIF}
+    FActiveBackend: TAICameraNativeBackend;
 
     FOnFrame: TAIFrameEvent;
     FOnError: TAICameraErrorEvent;
@@ -53,6 +49,8 @@ type
 
     procedure OnTimerCapture(Sender: TObject);
     function GetActualTempFolder: string;
+    function ResolveBackend: TAICameraBackend;
+    function CreateBackendInstance(ABackend: TAICameraBackend): TAICameraNativeBackend;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -69,6 +67,7 @@ type
     property LastFrameFile: string read FLastFrameFile;
   published
     property CameraIndex: Integer read FCameraIndex write FCameraIndex default 0;
+    property DeviceName: string read FDeviceName write FDeviceName;
     property Width: Integer read FWidth write FWidth default 640;
     property Height: Integer read FHeight write FHeight default 480;
     property FPS: Integer read FFPS write FFPS default 30;
@@ -95,41 +94,15 @@ begin
   RegisterComponents('AI Native Vision', [TAICameraCapture]);
 end;
 
-{$IFDEF MSWINDOWS}
-const
-  WM_CAP_START                  = WM_USER;
-  WM_CAP_DRIVER_CONNECT         = WM_CAP_START + 10;
-  WM_CAP_DRIVER_DISCONNECT      = WM_CAP_START + 11;
-  WM_CAP_FILE_SAVEDIB           = WM_CAP_START + 25;
-  WM_CAP_SET_PREVIEW            = WM_CAP_START + 50;
-  WM_CAP_SET_PREVIEWRATE        = WM_CAP_START + 52;
-  WM_CAP_GRAB_FRAME             = WM_CAP_START + 60;
-
-function capCreateCaptureWindowA(
-  lpszWindowName: PChar;
-  dwStyle: DWORD;
-  x, y, nWidth, nHeight: Integer;
-  hwndParent: HWND;
-  nID: Integer
-): HWND; stdcall; external 'avicap32.dll';
-
-function capGetDriverDescriptionA(
-  wDriverIndex: Word;
-  lpszName: PChar;
-  cbName: Integer;
-  lpszVer: PChar;
-  cbVer: Integer
-): BOOL; stdcall; external 'avicap32.dll';
-{$ENDIF}
-
 { TAICameraCapture }
 
 constructor TAICameraCapture.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FCategory := ccInput;
-  FPrompt := 'Component TAICameraCapture captures frames from camera inputs natively using Windows VFW.';
+  FPrompt := 'Component TAICameraCapture captures frames from camera inputs natively using OS-specific backends.';
   FCameraIndex := 0;
+  FDeviceName := '';
   FActive := False;
   FWidth := 640;
   FHeight := 480;
@@ -147,10 +120,8 @@ begin
   FTimer.Enabled := False;
   FTimer.OnTimer := @OnTimerCapture;
   FInTimerCall := False;
-
-  {$IFDEF MSWINDOWS}
-  FCaptureWnd := 0;
-  {$ENDIF}
+  
+  FActiveBackend := nil;
 
   ClearError;
 end;
@@ -177,6 +148,42 @@ begin
     Result := IncludeTrailingPathDelimiter(GetTempDir);
 end;
 
+function TAICameraCapture.ResolveBackend: TAICameraBackend;
+begin
+  Result := FBackend;
+  if Result = cbAuto then
+  begin
+    {$IFDEF MSWINDOWS}
+    Result := cbWindowsVFW;
+    {$ELSE}
+      {$IFDEF LINUX}
+      Result := cbLinuxV4L2;
+      {$ELSE}
+      Result := cbNativeStub;
+      {$ENDIF}
+    {$ENDIF}
+  end;
+end;
+
+function TAICameraCapture.CreateBackendInstance(ABackend: TAICameraBackend): TAICameraNativeBackend;
+begin
+  Result := nil;
+  case ABackend of
+    cbWindowsVFW:
+      begin
+        {$IFDEF MSWINDOWS}
+        Result := TAICameraVFWBackend.Create;
+        {$ENDIF}
+      end;
+    cbLinuxV4L2:
+      begin
+        {$IFDEF LINUX}
+        Result := TAICameraV4L2Backend.Create;
+        {$ENDIF}
+      end;
+  end;
+end;
+
 procedure TAICameraCapture.OnTimerCapture(Sender: TObject);
 begin
   if FInTimerCall then Exit;
@@ -190,6 +197,8 @@ begin
 end;
 
 function TAICameraCapture.StartCapture: Boolean;
+var
+  LResBackend: TAICameraBackend;
 begin
   Result := False;
   ClearError;
@@ -200,77 +209,47 @@ begin
     Exit;
   end;
 
-  if FBackend = cbNativeStub then
+  LResBackend := ResolveBackend;
+  if LResBackend = cbNativeStub then
   begin
-    SetError('Native camera backend is not implemented yet.');
+    SetError('Native camera backend is not implemented yet on this platform.');
     if Assigned(FOnError) then
       FOnError(Self, FLastError);
     Exit;
   end;
 
-  {$IFDEF MSWINDOWS}
-  if (FBackend = cbAuto) or (FBackend = cbWindowsVFW) then
+  FActiveBackend := CreateBackendInstance(LResBackend);
+  if not Assigned(FActiveBackend) then
   begin
-    if FPreviewEnabled and (FPreviewHandle = 0) then
-    begin
-      SetError('PreviewHandle is required when PreviewEnabled is True.');
-      if Assigned(FOnError) then
-        FOnError(Self, FLastError);
-      Exit;
-    end;
-
-    FCaptureWnd := capCreateCaptureWindowA(
-      'TAICameraCaptureWnd',
-      WS_CHILD or WS_VISIBLE,
-      0, 0, FWidth, FHeight,
-      FPreviewHandle,
-      0
-    );
-
-    if FCaptureWnd = 0 then
-    begin
-      SetError('Could not create capture window.');
-      if Assigned(FOnError) then
-        FOnError(Self, FLastError);
-      Exit;
-    end;
-
-    if SendMessage(FCaptureWnd, WM_CAP_DRIVER_CONNECT, FCameraIndex, 0) = 0 then
-    begin
-      DestroyWindow(FCaptureWnd);
-      FCaptureWnd := 0;
-      SetError('Could not connect to camera driver.');
-      if Assigned(FOnError) then
-        FOnError(Self, FLastError);
-      Exit;
-    end;
-
-    if FPreviewEnabled then
-    begin
-      SendMessage(FCaptureWnd, WM_CAP_SET_PREVIEWRATE, FCaptureInterval, 0);
-      SendMessage(FCaptureWnd, WM_CAP_SET_PREVIEW, 1, 0);
-    end;
-
-    FActive := True;
-    FTimer.Interval := FCaptureInterval;
-    FTimer.Enabled := True;
-
-    if Assigned(FOnStateChange) then
-      FOnStateChange(Self, True);
-
-    Result := True;
-  end
-  else
-  begin
-    SetError('Backend not implemented.');
+    SetError('Failed to instantiate camera backend.');
     if Assigned(FOnError) then
       FOnError(Self, FLastError);
+    Exit;
   end;
-  {$ELSE}
-  SetError('Platform not supported in this version.');
-  if Assigned(FOnError) then
-    FOnError(Self, FLastError);
-  {$ENDIF}
+
+  if not FActiveBackend.OpenCamera(FDeviceName, FCameraIndex, FWidth, FHeight, FFPS, FPreviewHandle, FPreviewEnabled) then
+  begin
+    SetError(FActiveBackend.LastError);
+    FreeAndNil(FActiveBackend);
+    if Assigned(FOnError) then
+      FOnError(Self, FLastError);
+    Exit;
+  end;
+
+  FActive := True;
+  
+  if FFPS > 0 then
+    FCaptureInterval := 1000 div FFPS
+  else
+    FCaptureInterval := 100;
+    
+  FTimer.Interval := FCaptureInterval;
+  FTimer.Enabled := True;
+
+  if Assigned(FOnStateChange) then
+    FOnStateChange(Self, True);
+
+  Result := True;
 end;
 
 procedure TAICameraCapture.StopCapture;
@@ -279,15 +258,11 @@ begin
 
   FTimer.Enabled := False;
 
-  {$IFDEF MSWINDOWS}
-  if FCaptureWnd <> 0 then
+  if Assigned(FActiveBackend) then
   begin
-    SendMessage(FCaptureWnd, WM_CAP_SET_PREVIEW, 0, 0);
-    SendMessage(FCaptureWnd, WM_CAP_DRIVER_DISCONNECT, 0, 0);
-    DestroyWindow(FCaptureWnd);
-    FCaptureWnd := 0;
+    FActiveBackend.CloseCamera;
+    FreeAndNil(FActiveBackend);
   end;
-  {$ENDIF}
 
   FActive := False;
 
@@ -302,7 +277,7 @@ begin
   Result := False;
   ClearError;
 
-  if not FActive then
+  if not FActive or not Assigned(FActiveBackend) then
   begin
     SetError('Camera is not active.');
     if Assigned(FOnError) then
@@ -310,60 +285,37 @@ begin
     Exit;
   end;
 
-  {$IFDEF MSWINDOWS}
-  if FCaptureWnd <> 0 then
+  LTempFile := GetActualTempFolder + 'tai_frame_' + IntToStr(GetTickCount64) + '.bmp';
+  
+  if FActiveBackend.CaptureToFile(LTempFile) then
   begin
-    LTempFile := GetActualTempFolder + 'tai_frame_' + IntToStr(GetTickCount64) + '.bmp';
-    
-    if SendMessage(FCaptureWnd, WM_CAP_GRAB_FRAME, 0, 0) <> 0 then
+    if FileExists(LTempFile) then
     begin
-      if SendMessage(FCaptureWnd, WM_CAP_FILE_SAVEDIB, 0, LPARAM(PtrUInt(PChar(LTempFile)))) <> 0 then
+      if FAutoDeleteTempFiles and (FLastFrameFile <> '') and (FLastFrameFile <> LTempFile) and FileExists(FLastFrameFile) then
       begin
-        if FileExists(LTempFile) then
-        begin
-          if FAutoDeleteTempFiles and (FLastFrameFile <> '') and (FLastFrameFile <> LTempFile) and FileExists(FLastFrameFile) then
-          begin
-            try
-              SysUtils.DeleteFile(FLastFrameFile);
-            except
-              // ignore
-            end;
-          end;
-
-          FLastFrameFile := LTempFile;
-          FLastResult := 'Frame captured successfully: ' + LTempFile;
-          FLastSuccess := True;
-          Result := True;
-
-          if Assigned(FOnFrame) then
-            FOnFrame(Self, FLastFrameFile);
-        end
-        else
-        begin
-          SetError('Could not save frame file.');
-          if Assigned(FOnError) then
-            FOnError(Self, FLastError);
+        try
+          SysUtils.DeleteFile(FLastFrameFile);
+        except
+          // ignore
         end;
-      end
-      else
-      begin
-        SetError('Could not save frame file.');
-        if Assigned(FOnError) then
-          FOnError(Self, FLastError);
       end;
-    end
-    else
-    begin
-      SetError('Could not capture frame.');
-      if Assigned(FOnError) then
-        FOnError(Self, FLastError);
+
+      FLastFrameFile := LTempFile;
+      FLastResult := 'Frame captured successfully: ' + LTempFile;
+      FLastSuccess := True;
+      Result := True;
+
+      if Assigned(FOnFrame) then
+        FOnFrame(Self, FLastFrameFile);
     end;
   end;
-  {$ELSE}
-  SetError('Platform not supported.');
-  if Assigned(FOnError) then
-    FOnError(Self, FLastError);
-  {$ENDIF}
+
+  if not Result then
+  begin
+    SetError('Failed to capture frame: ' + FActiveBackend.LastError);
+    if Assigned(FOnError) then
+      FOnError(Self, FLastError);
+  end;
 end;
 
 function TAICameraCapture.CaptureToFile(const AFileName: string): Boolean;
@@ -371,7 +323,7 @@ begin
   Result := False;
   ClearError;
 
-  if not FActive then
+  if not FActive or not Assigned(FActiveBackend) then
   begin
     SetError('Camera is not active.');
     if Assigned(FOnError) then
@@ -379,46 +331,19 @@ begin
     Exit;
   end;
 
-  {$IFDEF MSWINDOWS}
-  if FCaptureWnd <> 0 then
+  if FActiveBackend.CaptureToFile(AFileName) then
   begin
-    if SendMessage(FCaptureWnd, WM_CAP_GRAB_FRAME, 0, 0) <> 0 then
-    begin
-      if SendMessage(FCaptureWnd, WM_CAP_FILE_SAVEDIB, 0, LPARAM(PtrUInt(PChar(AFileName)))) <> 0 then
-      begin
-        if FileExists(AFileName) then
-        begin
-          FLastFrameFile := AFileName;
-          FLastResult := 'Frame saved to: ' + AFileName;
-          FLastSuccess := True;
-          Result := True;
-        end
-        else
-        begin
-          SetError('Could not save frame file.');
-          if Assigned(FOnError) then
-            FOnError(Self, FLastError);
-        end;
-      end
-      else
-      begin
-        SetError('Could not save frame file.');
-        if Assigned(FOnError) then
-          FOnError(Self, FLastError);
-      end;
-    end
-    else
-    begin
-      SetError('Could not capture frame.');
-      if Assigned(FOnError) then
-        FOnError(Self, FLastError);
-    end;
+    FLastFrameFile := AFileName;
+    FLastResult := 'Frame saved to: ' + AFileName;
+    FLastSuccess := True;
+    Result := True;
+  end
+  else
+  begin
+    SetError(FActiveBackend.LastError);
+    if Assigned(FOnError) then
+      FOnError(Self, FLastError);
   end;
-  {$ELSE}
-  SetError('Platform not supported.');
-  if Assigned(FOnError) then
-    FOnError(Self, FLastError);
-  {$ENDIF}
 end;
 
 function TAICameraCapture.CaptureToImage(AImage: TImage): Boolean;
@@ -450,95 +375,81 @@ end;
 
 function TAICameraCapture.SelfTest: Boolean;
 var
-  {$IFDEF MSWINDOWS}
-  LTestWnd: HWND;
+  LResBackend: TAICameraBackend;
+  LTestBackend: TAICameraNativeBackend;
   LTempFile: string;
-  {$ENDIF}
 begin
   Result := False;
   ClearError;
 
-  if FBackend = cbNativeStub then
+  LResBackend := ResolveBackend;
+  if LResBackend = cbNativeStub then
   begin
     SetError('Native camera backend is not implemented yet.');
     Exit;
   end;
 
-  {$IFDEF MSWINDOWS}
-  if (FBackend = cbAuto) or (FBackend = cbWindowsVFW) then
+  LTestBackend := CreateBackendInstance(LResBackend);
+  if not Assigned(LTestBackend) then
   begin
-    LTestWnd := capCreateCaptureWindowA('TaisSelfTestWnd', 0, 0, 0, 160, 120, 0, 0);
-    if LTestWnd <> 0 then
+    SetError('Could not instantiate camera backend.');
+    Exit;
+  end;
+
+  try
+    if LTestBackend.OpenCamera(FDeviceName, FCameraIndex, 160, 120, 15, 0, False) then
     begin
-      if SendMessage(LTestWnd, WM_CAP_DRIVER_CONNECT, FCameraIndex, 0) <> 0 then
+      LTempFile := GetActualTempFolder + 'tai_selftest_' + IntToStr(GetTickCount64) + '.bmp';
+      if LTestBackend.CaptureToFile(LTempFile) then
       begin
-        LTempFile := GetActualTempFolder + 'tai_selftest_' + IntToStr(GetTickCount64) + '.bmp';
-        if SendMessage(LTestWnd, WM_CAP_GRAB_FRAME, 0, 0) <> 0 then
+        if FileExists(LTempFile) then
         begin
-          if SendMessage(LTestWnd, WM_CAP_FILE_SAVEDIB, 0, LPARAM(PtrUInt(PChar(LTempFile)))) <> 0 then
-          begin
-            if FileExists(LTempFile) then
-            begin
-              Result := True;
-              SysUtils.DeleteFile(LTempFile);
-            end
-            else
-              SetError('SelfTest frame file was not created.');
-          end
-          else
-            SetError('SelfTest could not save frame to DIB.');
+          Result := True;
+          SysUtils.DeleteFile(LTempFile);
         end
         else
-          SetError('SelfTest could not grab frame.');
-          
-        SendMessage(LTestWnd, WM_CAP_DRIVER_DISCONNECT, 0, 0);
+          SetError('SelfTest frame file was not created.');
       end
       else
-        SetError('SelfTest could not connect to camera driver.');
-      DestroyWindow(LTestWnd);
+        SetError('SelfTest could not capture frame: ' + LTestBackend.LastError);
+      
+      LTestBackend.CloseCamera;
     end
     else
-      SetError('SelfTest could not create capture window.');
-  end
-  else
-    SetError('Backend not implemented.');
-  {$ELSE}
-  SetError('Platform not supported.');
-  {$ENDIF}
+      SetError('SelfTest could not open camera: ' + LTestBackend.LastError);
+  finally
+    LTestBackend.Free;
+  end;
 end;
 
 function TAICameraCapture.ListAvailableCameras: TStringList;
 var
-  LTempList: TStringList;
-  {$IFDEF MSWINDOWS}
-  I: Integer;
-  LName: array[0..255] of Char;
-  LVer: array[0..255] of Char;
-  {$ENDIF}
+  LResBackend: TAICameraBackend;
+  LTestBackend: TAICameraNativeBackend;
 begin
-  LTempList := TStringList.Create;
-  Result := LTempList;
   ClearError;
-
-  if FBackend = cbNativeStub then
+  LResBackend := ResolveBackend;
+  
+  if LResBackend = cbNativeStub then
   begin
     SetError('Native camera backend is not implemented yet.');
+    Result := TStringList.Create;
     Exit;
   end;
 
-  {$IFDEF MSWINDOWS}
-  for I := 0 to FMaxCameraScan do
+  LTestBackend := CreateBackendInstance(LResBackend);
+  if not Assigned(LTestBackend) then
   begin
-    FillChar(LName, SizeOf(LName), 0);
-    FillChar(LVer, SizeOf(LVer), 0);
-    if capGetDriverDescriptionA(I, LName, SizeOf(LName), LVer, SizeOf(LVer)) then
-    begin
-      LTempList.Add(IntToStr(I) + ' - ' + string(LName));
-    end;
+    SetError('Could not instantiate camera backend.');
+    Result := TStringList.Create;
+    Exit;
   end;
-  {$ELSE}
-  SetError('Platform not supported.');
-  {$ENDIF}
+
+  try
+    Result := LTestBackend.ListCameras(FMaxCameraScan);
+  finally
+    LTestBackend.Free;
+  end;
 end;
 
 initialization

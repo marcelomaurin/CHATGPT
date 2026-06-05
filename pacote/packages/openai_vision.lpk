@@ -22,6 +22,18 @@
         <UnitName Value="aiopencv"/>
       </Item>
       <Item>
+        <Filename Value="..\AI Vision\aicamera_backend.pas"/>
+        <UnitName Value="aicamera_backend"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Vision\aicamera_vfw.pas"/>
+        <UnitName Value="aicamera_vfw"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Vision\aicamera_v4l2.pas"/>
+        <UnitName Value="aicamera_v4l2"/>
+      </Item>
+      <Item>
         <Filename Value="..\AI Vision\aicameracapture.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aicameracapture"/>
