@@ -6,7 +6,7 @@ uses
   {$IFDEF UNIX}
   cthreads,
   {$ENDIF}
-  Interfaces, // Links LCL widgetset interface
+  Interfaces,
   Classes, SysUtils, aicameracapture, aibase;
 
 type
@@ -47,8 +47,14 @@ begin
       raise Exception.Create('Test failed: Height default value should be 480');
     if Cam.FPS <> 30 then
       raise Exception.Create('Test failed: FPS default value should be 30');
-    if Cam.Backend <> cbOpenCVPython then
-      raise Exception.Create('Test failed: Backend default value should be cbOpenCVPython');
+    if Cam.Backend <> cbAuto then
+      raise Exception.Create('Test failed: Backend default value should be cbAuto');
+    if Cam.PreviewHandle <> 0 then
+      raise Exception.Create('Test failed: PreviewHandle default value should be 0');
+    if not Cam.PreviewEnabled then
+      raise Exception.Create('Test failed: PreviewEnabled default value should be True');
+    if Cam.TempFolder <> '' then
+      raise Exception.Create('Test failed: TempFolder default value should be empty');
     if not Cam.AutoDeleteTempFiles then
       raise Exception.Create('Test failed: AutoDeleteTempFiles default value should be True');
     if Cam.CaptureInterval <> 100 then
@@ -70,14 +76,14 @@ begin
     if Cam.Active then
       raise Exception.Create('Test failed: Active should remain False on failed StartCapture');
 
-    // Reset backend to cvOpenCVPython for subsequent checks
-    Cam.Backend := cbOpenCVPython;
+    // Reset backend for subsequent checks
+    Cam.Backend := cbAuto;
 
     // 3. Verify nil check on CaptureToImage
     WriteLn('Testing CaptureToImage(nil) validation...');
     if Cam.CaptureToImage(nil) then
       raise Exception.Create('Test failed: CaptureToImage(nil) should return False');
-    if Pos('TImage nil', Cam.LastError) = 0 then
+    if Pos('TImage parameter is nil', Cam.LastError) = 0 then
       raise Exception.Create('Test failed: LastError should indicate TImage is nil');
 
     // 4. Test physical camera functions if AI_CAMERA_TEST=1 is configured
@@ -109,8 +115,9 @@ begin
         List.Free;
       end;
 
-      // Start capture
-      WriteLn('Starting capture...');
+      // Start capture headlessly
+      WriteLn('Starting capture headlessly...');
+      Cam.PreviewEnabled := False;
       if not Cam.StartCapture then
         raise Exception.Create('Test failed: StartCapture returned False: ' + Cam.LastError);
       

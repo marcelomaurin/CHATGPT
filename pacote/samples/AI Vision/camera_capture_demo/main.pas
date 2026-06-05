@@ -16,6 +16,10 @@ type
     pnlLeft: TPanel;
     pnlClient: TPanel;
     pnlLog: TPanel;
+    pnlPreviews: TPanel;
+    
+    PanelPreview: TPanel;
+    ImageCaptured: TImage;
     
     cbCamera: TComboBox;
     btnListCameras: TButton;
@@ -29,12 +33,13 @@ type
     lblHeight: TLabel;
     lblFPS: TLabel;
     lblStatus: TLabel;
+    lblPreviewTitle: TLabel;
+    lblCapturedTitle: TLabel;
     
     edWidth: TEdit;
     edHeight: TEdit;
     edFPS: TEdit;
     
-    ImagePreview: TImage;
     memLog: TMemo;
     SaveDialog1: TSaveDialog;
 
@@ -80,12 +85,10 @@ begin
   
   cbCamera.Items.Clear;
   cbCamera.Items.Add('0');
-  cbCamera.Items.Add('1');
-  cbCamera.Items.Add('2');
   cbCamera.ItemIndex := 0;
 
   lblStatus.Caption := 'Status: Inativo';
-  LogMsg('Demo inicializado. Backend: Python/OpenCV.');
+  LogMsg('Demo inicializado. Backend: Nativo Windows VFW.');
 end;
 
 procedure TfrmCameraCaptureDemo.FormDestroy(Sender: TObject);
@@ -98,7 +101,7 @@ var
   LList: TStringList;
   I: Integer;
 begin
-  LogMsg('Escaneando cameras...');
+  LogMsg('Escaneando cameras (VFW)...');
   btnListCameras.Enabled := False;
   try
     LList := Camera.ListAvailableCameras;
@@ -106,9 +109,9 @@ begin
       cbCamera.Items.Clear;
       if LList.Count = 0 then
       begin
-        cbCamera.Items.Add('0');
+        cbCamera.Items.Add('0 - Nenhuma encontrada');
         cbCamera.ItemIndex := 0;
-        LogMsg('Nenhuma camera encontrada. Usando padrao index 0.');
+        LogMsg('Nenhuma camera encontrada via VFW.');
       end
       else
       begin
@@ -117,7 +120,7 @@ begin
           cbCamera.Items.Add(LList[I]);
         end;
         cbCamera.ItemIndex := 0;
-        LogMsg('Scan concluido. ' + IntToStr(LList.Count) + ' camera(s) encontrada(s).');
+        LogMsg(Format('Scan concluido. %d camera(s) encontrada(s).', [LList.Count]));
       end;
     finally
       LList.Free;
@@ -148,6 +151,9 @@ begin
   else
     Camera.CaptureInterval := 100;
 
+  Camera.PreviewHandle := PanelPreview.Handle;
+  Camera.PreviewEnabled := True;
+
   LogMsg(Format('Iniciando captura da Camera %d (%dx%d, %d FPS)...', [Camera.CameraIndex, Camera.Width, Camera.Height, Camera.FPS]));
   
   btnStart.Enabled := False;
@@ -170,28 +176,26 @@ begin
 end;
 
 procedure TfrmCameraCaptureDemo.btnCaptureFrameClick(Sender: TObject);
-var
-  LIndexStr: string;
-  LPos: Integer;
 begin
-  LIndexStr := cbCamera.Text;
-  LPos := Pos(' ', LIndexStr);
-  if LPos > 0 then
-    LIndexStr := Copy(LIndexStr, 1, LPos - 1);
-
-  LogMsg('Capturando frame unico da Camera ' + LIndexStr + '...');
-  Camera.CameraIndex := StrToIntDef(LIndexStr, 0);
-  Camera.Width := StrToIntDef(edWidth.Text, 640);
-  Camera.Height := StrToIntDef(edHeight.Text, 480);
-
-  if Camera.CaptureToImage(ImagePreview) then
-    LogMsg('Frame capturado com sucesso.')
+  if not Camera.Active then
+  begin
+    LogMsg('Erro: A camera deve estar ativa para capturar um frame.');
+    Exit;
+  end;
+  LogMsg('Capturando frame unico para visualizacao...');
+  if Camera.CaptureToImage(ImageCaptured) then
+    LogMsg('Frame capturado e carregado com sucesso.')
   else
     LogMsg('Erro ao capturar frame: ' + Camera.LastError);
 end;
 
 procedure TfrmCameraCaptureDemo.btnSaveFrameClick(Sender: TObject);
 begin
+  if not Camera.Active then
+  begin
+    LogMsg('Erro: A camera deve estar ativa para salvar um frame.');
+    Exit;
+  end;
   if SaveDialog1.Execute then
   begin
     LogMsg('Salvando frame em: ' + SaveDialog1.FileName);
@@ -204,13 +208,9 @@ end;
 
 procedure TfrmCameraCaptureDemo.OnCameraFrame(Sender: TObject; const AFrameFile: string);
 begin
-  try
-    ImagePreview.Picture.LoadFromFile(AFrameFile);
-    lblStatus.Caption := 'Status: Ativo | Frame: ' + ExtractFileName(AFrameFile);
-  except
-    on E: Exception do
-      LogMsg('Erro ao carregar frame na tela: ' + E.Message);
-  end;
+  // O preview visual já é renderizado nativamente no PanelPreview pelo Windows.
+  // O evento OnFrame nos notifica sobre a geracao de arquivo temporario, que registramos no log.
+  lblStatus.Caption := 'Status: Ativo | Frame salvo: ' + ExtractFileName(AFrameFile);
 end;
 
 procedure TfrmCameraCaptureDemo.OnCameraError(Sender: TObject; const AError: string);

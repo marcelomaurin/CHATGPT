@@ -5,11 +5,16 @@ unit aicameracapture;
 interface
 
 uses
-  Classes, SysUtils, aibase, ExtCtrls, LResources;
+  Classes, SysUtils, aibase, ExtCtrls, LResources, Controls, Graphics
+  {$IFDEF MSWINDOWS}
+  , Windows, Messages
+  {$ENDIF}
+  ;
 
 type
   TAICameraBackend = (
-    cbOpenCVPython,
+    cbAuto,
+    cbWindowsVFW,
     cbNativeStub
   );
 
@@ -27,27 +32,27 @@ type
     FHeight: Integer;
     FFPS: Integer;
     FBackend: TAICameraBackend;
+    FPreviewHandle: THandle;
+    FPreviewEnabled: Boolean;
     FLastFrameFile: string;
+    FTempFolder: string;
     FAutoDeleteTempFiles: Boolean;
     FCaptureInterval: Integer;
     FMaxCameraScan: Integer;
 
-    FPythonPath: string;
-    FScriptPath: string;
-
     FTimer: TTimer;
     FInTimerCall: Boolean;
+
+    {$IFDEF MSWINDOWS}
+    FCaptureWnd: HWND;
+    {$ENDIF}
 
     FOnFrame: TAIFrameEvent;
     FOnError: TAICameraErrorEvent;
     FOnStateChange: TAICameraStateEvent;
 
-    // Helper functions
-    function FindPythonExecutable: string;
-    function ExecuteCaptureScript(const AAction: string; const AExtraParams: array of string; out AOutput: string): Boolean;
-    function ValidatePython: Boolean;
-    function ValidateWorker: Boolean;
     procedure OnTimerCapture(Sender: TObject);
+    function GetActualTempFolder: string;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -67,12 +72,13 @@ type
     property Width: Integer read FWidth write FWidth default 640;
     property Height: Integer read FHeight write FHeight default 480;
     property FPS: Integer read FFPS write FFPS default 30;
-    property Backend: TAICameraBackend read FBackend write FBackend default cbOpenCVPython;
+    property Backend: TAICameraBackend read FBackend write FBackend default cbAuto;
+    property PreviewHandle: THandle read FPreviewHandle write FPreviewHandle default 0;
+    property PreviewEnabled: Boolean read FPreviewEnabled write FPreviewEnabled default True;
+    property TempFolder: string read FTempFolder write FTempFolder;
     property AutoDeleteTempFiles: Boolean read FAutoDeleteTempFiles write FAutoDeleteTempFiles default True;
     property CaptureInterval: Integer read FCaptureInterval write FCaptureInterval default 100;
     property MaxCameraScan: Integer read FMaxCameraScan write FMaxCameraScan default 5;
-    property PythonPath: string read FPythonPath write FPythonPath;
-    property ScriptPath: string read FScriptPath write FScriptPath;
 
     // Events
     property OnFrame: TAIFrameEvent read FOnFrame write FOnFrame;
@@ -84,13 +90,37 @@ procedure Register;
 
 implementation
 
-uses
-  Process, fpjson, jsonparser;
-
 procedure Register;
 begin
   RegisterComponents('AI Vision', [TAICameraCapture]);
 end;
+
+{$IFDEF MSWINDOWS}
+const
+  WM_CAP_START                  = WM_USER;
+  WM_CAP_DRIVER_CONNECT         = WM_CAP_START + 10;
+  WM_CAP_DRIVER_DISCONNECT      = WM_CAP_START + 11;
+  WM_CAP_FILE_SAVEDIB           = WM_CAP_START + 25;
+  WM_CAP_SET_PREVIEW            = WM_CAP_START + 50;
+  WM_CAP_SET_PREVIEWRATE        = WM_CAP_START + 52;
+  WM_CAP_GRAB_FRAME             = WM_CAP_START + 60;
+
+function capCreateCaptureWindowA(
+  lpszWindowName: PChar;
+  dwStyle: DWORD;
+  x, y, nWidth, nHeight: Integer;
+  hwndParent: HWND;
+  nID: Integer
+): HWND; stdcall; external 'avicap32.dll';
+
+function capGetDriverDescriptionA(
+  wDriverIndex: Word;
+  lpszName: PChar;
+  cbName: Integer;
+  lpszVer: PChar;
+  cbVer: Integer
+): BOOL; stdcall; external 'avicap32.dll';
+{$ENDIF}
 
 { TAICameraCapture }
 
@@ -98,25 +128,29 @@ constructor TAICameraCapture.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FCategory := ccInput;
-  FPrompt := 'Component TAICameraCapture captures frames from camera inputs using OpenCV and Python.';
+  FPrompt := 'Component TAICameraCapture captures frames from camera inputs natively using Windows VFW.';
   FCameraIndex := 0;
   FActive := False;
   FWidth := 640;
   FHeight := 480;
   FFPS := 30;
-  FBackend := cbOpenCVPython;
+  FBackend := cbAuto;
+  FPreviewHandle := 0;
+  FPreviewEnabled := True;
   FLastFrameFile := '';
+  FTempFolder := '';
   FAutoDeleteTempFiles := True;
   FCaptureInterval := 100;
   FMaxCameraScan := 5;
-
-  FPythonPath := 'python';
-  FScriptPath := ExtractFilePath(ParamStr(0)) + 'python' + DirectorySeparator + 'camera_capture.py';
 
   FTimer := TTimer.Create(Self);
   FTimer.Enabled := False;
   FTimer.OnTimer := @OnTimerCapture;
   FInTimerCall := False;
+
+  {$IFDEF MSWINDOWS}
+  FCaptureWnd := 0;
+  {$ENDIF}
 
   ClearError;
 end;
@@ -127,7 +161,7 @@ begin
   if FAutoDeleteTempFiles and (FLastFrameFile <> '') and FileExists(FLastFrameFile) then
   begin
     try
-      DeleteFile(FLastFrameFile);
+      SysUtils.DeleteFile(FLastFrameFile);
     except
       // ignore
     end;
@@ -135,254 +169,12 @@ begin
   inherited Destroy;
 end;
 
-function TAICameraCapture.FindPythonExecutable: string;
-var
-  PathEnv: string;
-  Paths: TStringList;
-  I: Integer;
-  Candidate: string;
-  ExeName: string;
-  AppDir: string;
+function TAICameraCapture.GetActualTempFolder: string;
 begin
-  Result := '';
-  AppDir := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)));
-  {$IFDEF MSWINDOWS}
-  ExeName := 'python.exe';
-  {$ELSE}
-  ExeName := 'python3';
-  {$ENDIF}
-
-  if FileExists(AppDir + ExeName) then
-    Exit(AppDir + ExeName);
-
-  PathEnv := GetEnvironmentVariable('PATH');
-  if PathEnv <> '' then
-  begin
-    Paths := TStringList.Create;
-    try
-      {$IFDEF MSWINDOWS}
-      Paths.Delimiter := ';';
-      {$ELSE}
-      Paths.Delimiter := ':';
-      {$ENDIF}
-      Paths.StrictDelimiter := True;
-      Paths.DelimitedText := PathEnv;
-      for I := 0 to Paths.Count - 1 do
-      begin
-        if Paths[I] <> '' then
-        begin
-          Candidate := IncludeTrailingPathDelimiter(Paths[I]) + ExeName;
-          if FileExists(Candidate) then
-          begin
-            Result := Candidate;
-            Break;
-          end;
-        end;
-      end;
-    finally
-      Paths.Free;
-    end;
-  end;
-
-  if Result <> '' then Exit;
-
-  {$IFDEF MSWINDOWS}
-  for I := 14 downto 8 do
-  begin
-    Candidate := 'C:\Python3' + IntToStr(I) + '\python.exe';
-    if FileExists(Candidate) then
-      Exit(Candidate);
-
-    Candidate := GetEnvironmentVariable('USERPROFILE') + '\AppData\Local\Programs\Python\Python3' + IntToStr(I) + '\python.exe';
-    if FileExists(Candidate) then
-      Exit(Candidate);
-  end;
-  {$ENDIF}
-
-  Result := ExeName;
-end;
-
-function TAICameraCapture.ExecuteCaptureScript(const AAction: string; const AExtraParams: array of string; out AOutput: string): Boolean;
-var
-  PyProc: TProcess;
-  I: Integer;
-  OutputStream: TMemoryStream;
-  BytesRead: Integer;
-  Buf: array[0..2047] of Byte;
-  OutputStr, ErrorStr: string;
-  JSONData: TJSONData;
-  JSONObj: TJSONObject;
-begin
-  Result := False;
-  AOutput := '';
-  OutputStr := '';
-  ErrorStr := '';
-  FillChar(Buf, SizeOf(Buf), 0);
-  PyProc := TProcess.Create(nil);
-  try
-    PyProc.Executable := FPythonPath;
-    PyProc.Parameters.Add(FScriptPath);
-    PyProc.Parameters.Add('--action');
-    PyProc.Parameters.Add(AAction);
-    
-    for I := Low(AExtraParams) to High(AExtraParams) do
-      PyProc.Parameters.Add(AExtraParams[I]);
-      
-    PyProc.Options := [poUsePipes, poNoConsole];
-    
-    try
-      PyProc.Execute;
-    except
-      on E: Exception do
-      begin
-        SetError('Python executable not found.');
-        if Assigned(FOnError) then
-          FOnError(Self, FLastError);
-        Exit;
-      end;
-    end;
-    
-    OutputStream := TMemoryStream.Create;
-    try
-      while PyProc.Running or (PyProc.Output.NumBytesAvailable > 0) do
-      begin
-        if PyProc.Output.NumBytesAvailable > 0 then
-        begin
-          BytesRead := PyProc.Output.Read(Buf, SizeOf(Buf));
-          if BytesRead > 0 then
-            OutputStream.Write(Buf, BytesRead);
-        end
-        else
-          Sleep(10);
-      end;
-      
-      if OutputStream.Size > 0 then
-      begin
-        SetLength(OutputStr, OutputStream.Size);
-        OutputStream.Position := 0;
-        OutputStream.Read(OutputStr[1], OutputStream.Size);
-      end;
-      
-      OutputStream.Clear;
-      while PyProc.Stderr.NumBytesAvailable > 0 do
-      begin
-        BytesRead := PyProc.Stderr.Read(Buf, SizeOf(Buf));
-        if BytesRead > 0 then
-          OutputStream.Write(Buf, BytesRead);
-      end;
-      
-      if OutputStream.Size > 0 then
-      begin
-        SetLength(ErrorStr, OutputStream.Size);
-        OutputStream.Position := 0;
-        OutputStream.Read(ErrorStr[1], OutputStream.Size);
-      end;
-      
-      AOutput := OutputStr;
-      
-      if PyProc.ExitStatus <> 0 then
-      begin
-        // Try to parse structured JSON error first
-        if Trim(OutputStr) <> '' then
-        begin
-          try
-            JSONData := GetJSON(OutputStr);
-            try
-              if Assigned(JSONData) and (JSONData is TJSONObject) then
-              begin
-                JSONObj := TJSONObject(JSONData);
-                if JSONObj.Find('error') <> nil then
-                begin
-                  SetError(JSONObj.Strings['error']);
-                  if Assigned(FOnError) then
-                    FOnError(Self, FLastError);
-                  Exit;
-                end;
-              end;
-            finally
-              JSONData.Free;
-            end;
-          except
-            // fallback if not JSON
-          end;
-        end;
-
-        if Pos('ERROR:', ErrorStr) > 0 then
-          SetError(Trim(ErrorStr))
-        else if Pos('ERROR:', OutputStr) > 0 then
-          SetError(Trim(OutputStr))
-        else if Trim(ErrorStr) <> '' then
-          SetError('Capture process failed. Stderr: ' + Trim(ErrorStr))
-        else
-          SetError('Capture process failed with code ' + IntToStr(PyProc.ExitStatus));
-          
-        if Assigned(FOnError) then
-          FOnError(Self, FLastError);
-        Exit;
-      end;
-      
-      Result := True;
-    finally
-      OutputStream.Free;
-    end;
-  finally
-    PyProc.Free;
-  end;
-end;
-
-function TAICameraCapture.ValidatePython: Boolean;
-var
-  PyProc: TProcess;
-begin
-  Result := False;
-  PyProc := TProcess.Create(nil);
-  try
-    PyProc.Executable := FPythonPath;
-    PyProc.Parameters.Add('--version');
-    PyProc.Options := [poUsePipes, poNoConsole];
-    try
-      PyProc.Execute;
-      while PyProc.Running do Sleep(10);
-      Result := (PyProc.ExitStatus = 0) or (PyProc.ExitStatus = 1);
-    except
-      FPythonPath := FindPythonExecutable;
-      PyProc.Executable := FPythonPath;
-      try
-        PyProc.Execute;
-        while PyProc.Running do Sleep(10);
-        Result := True;
-      except
-        SetError('Python executable not found.');
-        if Assigned(FOnError) then
-          FOnError(Self, FLastError);
-      end;
-    end;
-  finally
-    PyProc.Free;
-  end;
-end;
-
-function TAICameraCapture.ValidateWorker: Boolean;
-var
-  FallbackPath: string;
-begin
-  Result := FileExists(FScriptPath);
-  if not Result then
-  begin
-    FallbackPath := ExpandFileName(ExtractFilePath(ParamStr(0)) + '..' + DirectorySeparator + '..' + DirectorySeparator + '..' + DirectorySeparator + 'python' + DirectorySeparator + 'camera_capture.py');
-    if FileExists(FallbackPath) then
-    begin
-      FScriptPath := FallbackPath;
-      Result := True;
-    end;
-  end;
-  
-  if not Result then
-  begin
-    SetError('OpenCV camera capture helper script not found.');
-    if Assigned(FOnError) then
-      FOnError(Self, FLastError);
-  end;
+  if FTempFolder <> '' then
+    Result := IncludeTrailingPathDelimiter(FTempFolder)
+  else
+    Result := IncludeTrailingPathDelimiter(GetTempDir);
 end;
 
 procedure TAICameraCapture.OnTimerCapture(Sender: TObject);
@@ -401,7 +193,7 @@ function TAICameraCapture.StartCapture: Boolean;
 begin
   Result := False;
   ClearError;
-  
+
   if FActive then
   begin
     Result := True;
@@ -416,41 +208,89 @@ begin
     Exit;
   end;
 
-  // Temporarily set active to True so QueryFrame executes
-  FActive := True; 
-  try
-    if not QueryFrame then
+  {$IFDEF MSWINDOWS}
+  if (FBackend = cbAuto) or (FBackend = cbWindowsVFW) then
+  begin
+    if FPreviewEnabled and (FPreviewHandle = 0) then
     begin
-      FActive := False;
-      Exit;
-    end;
-  except
-    on E: Exception do
-    begin
-      FActive := False;
-      SetError('Failed to capture initial frame: ' + E.Message);
+      SetError('PreviewHandle is required when PreviewEnabled is True.');
       if Assigned(FOnError) then
         FOnError(Self, FLastError);
       Exit;
     end;
+
+    FCaptureWnd := capCreateCaptureWindowA(
+      'TAICameraCaptureWnd',
+      WS_CHILD or WS_VISIBLE,
+      0, 0, FWidth, FHeight,
+      FPreviewHandle,
+      0
+    );
+
+    if FCaptureWnd = 0 then
+    begin
+      SetError('Could not create capture window.');
+      if Assigned(FOnError) then
+        FOnError(Self, FLastError);
+      Exit;
+    end;
+
+    if SendMessage(FCaptureWnd, WM_CAP_DRIVER_CONNECT, FCameraIndex, 0) = 0 then
+    begin
+      DestroyWindow(FCaptureWnd);
+      FCaptureWnd := 0;
+      SetError('Could not connect to camera driver.');
+      if Assigned(FOnError) then
+        FOnError(Self, FLastError);
+      Exit;
+    end;
+
+    if FPreviewEnabled then
+    begin
+      SendMessage(FCaptureWnd, WM_CAP_SET_PREVIEWRATE, FCaptureInterval, 0);
+      SendMessage(FCaptureWnd, WM_CAP_SET_PREVIEW, 1, 0);
+    end;
+
+    FActive := True;
+    FTimer.Interval := FCaptureInterval;
+    FTimer.Enabled := True;
+
+    if Assigned(FOnStateChange) then
+      FOnStateChange(Self, True);
+
+    Result := True;
+  end
+  else
+  begin
+    SetError('Backend not implemented.');
+    if Assigned(FOnError) then
+      FOnError(Self, FLastError);
   end;
-
-  FTimer.Interval := FCaptureInterval;
-  FTimer.Enabled := True;
-  
-  if Assigned(FOnStateChange) then
-    FOnStateChange(Self, True);
-
-  Result := True;
+  {$ELSE}
+  SetError('Platform not supported in this version.');
+  if Assigned(FOnError) then
+    FOnError(Self, FLastError);
+  {$ENDIF}
 end;
 
 procedure TAICameraCapture.StopCapture;
 begin
   if not FActive then Exit;
-  
+
   FTimer.Enabled := False;
+
+  {$IFDEF MSWINDOWS}
+  if FCaptureWnd <> 0 then
+  begin
+    SendMessage(FCaptureWnd, WM_CAP_SET_PREVIEW, 0, 0);
+    SendMessage(FCaptureWnd, WM_CAP_DRIVER_DISCONNECT, 0, 0);
+    DestroyWindow(FCaptureWnd);
+    FCaptureWnd := 0;
+  end;
+  {$ENDIF}
+
   FActive := False;
-  
+
   if Assigned(FOnStateChange) then
     FOnStateChange(Self, False);
 end;
@@ -458,117 +298,127 @@ end;
 function TAICameraCapture.QueryFrame: Boolean;
 var
   LTempFile: string;
-  LOutput: string;
-  LParams: array of string;
 begin
   Result := False;
   ClearError;
-  LParams := nil;
 
-  if FBackend = cbNativeStub then
+  if not FActive then
   begin
-    SetError('Native camera backend is not implemented yet.');
+    SetError('Camera is not active.');
     if Assigned(FOnError) then
       FOnError(Self, FLastError);
     Exit;
   end;
 
-  if not ValidatePython then Exit;
-  if not ValidateWorker then Exit;
-
-  LTempFile := IncludeTrailingPathDelimiter(GetTempDir) + 'tai_frame_' + IntToStr(GetTickCount64) + '.png';
-  LTempFile := StringReplace(LTempFile, '\', '/', [rfReplaceAll]);
-
-  SetLength(LParams, 8);
-  LParams[0] := '--camera';
-  LParams[1] := IntToStr(FCameraIndex);
-  LParams[2] := '--width';
-  LParams[3] := IntToStr(FWidth);
-  LParams[4] := '--height';
-  LParams[5] := IntToStr(FHeight);
-  LParams[6] := '--output';
-  LParams[7] := LTempFile;
-
-  if ExecuteCaptureScript('capture', LParams, LOutput) then
+  {$IFDEF MSWINDOWS}
+  if FCaptureWnd <> 0 then
   begin
-    if FileExists(LTempFile) then
+    LTempFile := GetActualTempFolder + 'tai_frame_' + IntToStr(GetTickCount64) + '.bmp';
+    
+    if SendMessage(FCaptureWnd, WM_CAP_GRAB_FRAME, 0, 0) <> 0 then
     begin
-      if FAutoDeleteTempFiles and (FLastFrameFile <> '') and (FLastFrameFile <> LTempFile) and FileExists(FLastFrameFile) then
+      if SendMessage(FCaptureWnd, WM_CAP_FILE_SAVEDIB, 0, LPARAM(PtrUInt(PChar(LTempFile)))) <> 0 then
       begin
-        try
-          DeleteFile(FLastFrameFile);
-        except
-          // ignore
+        if FileExists(LTempFile) then
+        begin
+          if FAutoDeleteTempFiles and (FLastFrameFile <> '') and (FLastFrameFile <> LTempFile) and FileExists(FLastFrameFile) then
+          begin
+            try
+              SysUtils.DeleteFile(FLastFrameFile);
+            except
+              // ignore
+            end;
+          end;
+
+          FLastFrameFile := LTempFile;
+          FLastResult := 'Frame captured successfully: ' + LTempFile;
+          FLastSuccess := True;
+          Result := True;
+
+          if Assigned(FOnFrame) then
+            FOnFrame(Self, FLastFrameFile);
+        end
+        else
+        begin
+          SetError('Could not save frame file.');
+          if Assigned(FOnError) then
+            FOnError(Self, FLastError);
         end;
+      end
+      else
+      begin
+        SetError('Could not save frame file.');
+        if Assigned(FOnError) then
+          FOnError(Self, FLastError);
       end;
-
-      FLastFrameFile := LTempFile;
-      FLastResult := 'Frame captured successfully: ' + LTempFile;
-      FLastSuccess := True;
-      Result := True;
-
-      if Assigned(FOnFrame) then
-        FOnFrame(Self, FLastFrameFile);
     end
     else
     begin
-      SetError('Frame file was not created by capture process.');
+      SetError('Could not capture frame.');
       if Assigned(FOnError) then
         FOnError(Self, FLastError);
     end;
   end;
+  {$ELSE}
+  SetError('Platform not supported.');
+  if Assigned(FOnError) then
+    FOnError(Self, FLastError);
+  {$ENDIF}
 end;
 
 function TAICameraCapture.CaptureToFile(const AFileName: string): Boolean;
-var
-  LParams: array of string;
-  LOutput: string;
-  LFileClean: string;
 begin
   Result := False;
   ClearError;
-  LParams := nil;
-  LOutput := '';
-  LFileClean := '';
 
-  if FBackend = cbNativeStub then
+  if not FActive then
   begin
-    SetError('Native camera backend is not implemented yet.');
+    SetError('Camera is not active.');
     if Assigned(FOnError) then
       FOnError(Self, FLastError);
     Exit;
   end;
 
-  if not ValidatePython then Exit;
-  if not ValidateWorker then Exit;
-
-  LFileClean := StringReplace(AFileName, '\', '/', [rfReplaceAll]);
-
-  SetLength(LParams, 8);
-  LParams[0] := '--camera';
-  LParams[1] := IntToStr(FCameraIndex);
-  LParams[2] := '--width';
-  LParams[3] := IntToStr(FWidth);
-  LParams[4] := '--height';
-  LParams[5] := IntToStr(FHeight);
-  LParams[6] := '--output';
-  LParams[7] := LFileClean;
-
-  if ExecuteCaptureScript('capture', LParams, LOutput) then
+  {$IFDEF MSWINDOWS}
+  if FCaptureWnd <> 0 then
   begin
-    if FileExists(AFileName) then
+    if SendMessage(FCaptureWnd, WM_CAP_GRAB_FRAME, 0, 0) <> 0 then
     begin
-      FLastResult := 'Frame captured to file: ' + AFileName;
-      FLastSuccess := True;
-      Result := True;
+      if SendMessage(FCaptureWnd, WM_CAP_FILE_SAVEDIB, 0, LPARAM(PtrUInt(PChar(AFileName)))) <> 0 then
+      begin
+        if FileExists(AFileName) then
+        begin
+          FLastFrameFile := AFileName;
+          FLastResult := 'Frame saved to: ' + AFileName;
+          FLastSuccess := True;
+          Result := True;
+        end
+        else
+        begin
+          SetError('Could not save frame file.');
+          if Assigned(FOnError) then
+            FOnError(Self, FLastError);
+        end;
+      end
+      else
+      begin
+        SetError('Could not save frame file.');
+        if Assigned(FOnError) then
+          FOnError(Self, FLastError);
+      end;
     end
     else
     begin
-      SetError('Output file was not created.');
+      SetError('Could not capture frame.');
       if Assigned(FOnError) then
         FOnError(Self, FLastError);
     end;
   end;
+  {$ELSE}
+  SetError('Platform not supported.');
+  if Assigned(FOnError) then
+    FOnError(Self, FLastError);
+  {$ENDIF}
 end;
 
 function TAICameraCapture.CaptureToImage(AImage: TImage): Boolean;
@@ -576,7 +426,7 @@ begin
   Result := False;
   if not Assigned(AImage) then
   begin
-    SetError('TImage nil.');
+    SetError('TImage parameter is nil.');
     if Assigned(FOnError) then
       FOnError(Self, FLastError);
     Exit;
@@ -600,14 +450,13 @@ end;
 
 function TAICameraCapture.SelfTest: Boolean;
 var
-  LOutput: string;
-  LParams: array of string;
-  JSONData: TJSONData;
-  JSONObj: TJSONObject;
+  {$IFDEF MSWINDOWS}
+  LTestWnd: HWND;
+  LTempFile: string;
+  {$ENDIF}
 begin
   Result := False;
   ClearError;
-  LParams := nil;
 
   if FBackend = cbNativeStub then
   begin
@@ -615,65 +464,61 @@ begin
     Exit;
   end;
 
-  if not ValidatePython then Exit;
-  if not ValidateWorker then Exit;
-
-  SetLength(LParams, 2);
-  LParams[0] := '--camera';
-  LParams[1] := IntToStr(FCameraIndex);
-
-  if not ExecuteCaptureScript('selftest', LParams, LOutput) then
-    Exit;
-
-  JSONData := nil;
-  try
-    try
-      JSONData := GetJSON(LOutput);
-    except
-      on E: Exception do
-      begin
-        SetError('SelfTest returned invalid JSON output.');
-        Exit;
-      end;
-    end;
-
-    if Assigned(JSONData) and (JSONData is TJSONObject) then
+  {$IFDEF MSWINDOWS}
+  if (FBackend = cbAuto) or (FBackend = cbWindowsVFW) then
+  begin
+    LTestWnd := capCreateCaptureWindowA('TaisSelfTestWnd', 0, 0, 0, 160, 120, 0, 0);
+    if LTestWnd <> 0 then
     begin
-      JSONObj := TJSONObject(JSONData);
-      if JSONObj.Find('success') <> nil then
+      if SendMessage(LTestWnd, WM_CAP_DRIVER_CONNECT, FCameraIndex, 0) <> 0 then
       begin
-        if JSONObj.Booleans['success'] then
+        LTempFile := GetActualTempFolder + 'tai_selftest_' + IntToStr(GetTickCount64) + '.bmp';
+        if SendMessage(LTestWnd, WM_CAP_GRAB_FRAME, 0, 0) <> 0 then
         begin
-          FLastResult := 'SelfTest succeeded. ' + JSONObj.Strings['message'];
-          FLastSuccess := True;
-          Result := True;
+          if SendMessage(LTestWnd, WM_CAP_FILE_SAVEDIB, 0, LPARAM(PtrUInt(PChar(LTempFile)))) <> 0 then
+          begin
+            if FileExists(LTempFile) then
+            begin
+              Result := True;
+              SysUtils.DeleteFile(LTempFile);
+            end
+            else
+              SetError('SelfTest frame file was not created.');
+          end
+          else
+            SetError('SelfTest could not save frame to DIB.');
         end
         else
-        begin
-          SetError(JSONObj.Strings['error']);
-        end;
+          SetError('SelfTest could not grab frame.');
+          
+        SendMessage(LTestWnd, WM_CAP_DRIVER_DISCONNECT, 0, 0);
       end
       else
-        SetError('SelfTest returned invalid JSON structure.');
+        SetError('SelfTest could not connect to camera driver.');
+      DestroyWindow(LTestWnd);
     end
     else
-      SetError('SelfTest returned invalid JSON data.');
-  finally
-    if Assigned(JSONData) then
-      JSONData.Free;
-  end;
+      SetError('SelfTest could not create capture window.');
+  end
+  else
+    SetError('Backend not implemented.');
+  {$ELSE}
+  SetError('Platform not supported.');
+  {$ENDIF}
 end;
 
 function TAICameraCapture.ListAvailableCameras: TStringList;
 var
-  LOutput: string;
-  LParams: array of string;
   LTempList: TStringList;
+  {$IFDEF MSWINDOWS}
+  I: Integer;
+  LName: array[0..255] of Char;
+  LVer: array[0..255] of Char;
+  {$ENDIF}
 begin
   LTempList := TStringList.Create;
   Result := LTempList;
   ClearError;
-  LParams := nil;
 
   if FBackend = cbNativeStub then
   begin
@@ -681,17 +526,19 @@ begin
     Exit;
   end;
 
-  if not ValidatePython then Exit;
-  if not ValidateWorker then Exit;
-
-  SetLength(LParams, 2);
-  LParams[0] := '--max-scan';
-  LParams[1] := IntToStr(FMaxCameraScan);
-
-  if ExecuteCaptureScript('list', LParams, LOutput) then
+  {$IFDEF MSWINDOWS}
+  for I := 0 to FMaxCameraScan do
   begin
-    LTempList.Text := LOutput;
+    FillChar(LName, SizeOf(LName), 0);
+    FillChar(LVer, SizeOf(LVer), 0);
+    if capGetDriverDescriptionA(I, LName, SizeOf(LName), LVer, SizeOf(LVer)) then
+    begin
+      LTempList.Add(IntToStr(I) + ' - ' + string(LName));
+    end;
   end;
+  {$ELSE}
+  SetError('Platform not supported.');
+  {$ENDIF}
 end;
 
 initialization

@@ -2,10 +2,10 @@ object frmCameraCaptureDemo: TfrmCameraCaptureDemo
   Left = 250
   Height = 650
   Top = 150
-  Width = 950
-  Caption = 'TAICameraCapture - Demo'
+  Width = 980
+  Caption = 'TAICameraCapture - Demo Nativo VFW'
   ClientHeight = 650
-  ClientWidth = 950
+  ClientWidth = 980
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   LCLVersion = '3.0.0.3'
@@ -23,7 +23,7 @@ object frmCameraCaptureDemo: TfrmCameraCaptureDemo
       Left = 15
       Height = 15
       Top = 15
-      Width = 80
+      Width = 100
       Caption = 'Selecionar Câmera:'
       ParentColor = False
     end
@@ -134,38 +134,82 @@ object frmCameraCaptureDemo: TfrmCameraCaptureDemo
     Left = 300
     Height = 630
     Top = 10
-    Width = 640
+    Width = 670
     Align = alClient
     BorderSpacing.Top = 10
     BorderSpacing.Right = 10
     BorderSpacing.Bottom = 10
     ClientHeight = 630
-    ClientWidth = 640
+    ClientWidth = 670
     TabOrder = 1
-    object ImagePreview: TImage
+    object pnlPreviews: TPanel
       Left = 1
       Height = 440
       Top = 1
-      Width = 638
+      Width = 668
       Align = alClient
-      Center = True
-      Proportional = True
-      Stretch = True
+      ClientHeight = 440
+      ClientWidth = 668
+      TabOrder = 0
+      object PanelPreview: TPanel
+        Left = 10
+        Height = 400
+        Top = 30
+        Width = 310
+        Align = alLeft
+        BorderSpacing.Around = 10
+        BevelOuter = bvLowered
+        Caption = 'Vídeo ao Vivo (Preview)'
+        TabOrder = 0
+      end
+      object ImageCaptured: TImage
+        Left = 340
+        Height = 400
+        Top = 30
+        Width = 318
+        Align = alClient
+        BorderSpacing.Around = 10
+        Center = True
+        Proportional = True
+        Stretch = True
+      end
+      object lblPreviewTitle: TLabel
+        Left = 10
+        Height = 15
+        Top = 10
+        Width = 310
+        Alignment = taCenter
+        Caption = 'Live Stream Preview'
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+      end
+      object lblCapturedTitle: TLabel
+        Left = 340
+        Height = 15
+        Top = 10
+        Width = 318
+        Alignment = taCenter
+        Caption = 'Captured Frame Snapshot'
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+      end
     end
     object pnlLog: TPanel
       Left = 1
       Height = 180
       Top = 449
-      Width = 638
+      Width = 668
       Align = alBottom
       ClientHeight = 180
-      ClientWidth = 638
-      TabOrder = 0
+      ClientWidth = 668
+      TabOrder = 1
       object lblStatus: TLabel
         Left = 10
         Height = 15
         Top = 5
-        Width = 618
+        Width = 648
         Align = alTop
         BorderSpacing.Around = 5
         Caption = 'Status: Inativo'
@@ -177,7 +221,7 @@ object frmCameraCaptureDemo: TfrmCameraCaptureDemo
         Left = 1
         Height = 154
         Top = 25
-        Width = 636
+        Width = 666
         Align = alClient
         ReadOnly = True
         ScrollBars = ssAutoVertical
@@ -186,8 +230,8 @@ object frmCameraCaptureDemo: TfrmCameraCaptureDemo
     end
   end
   object SaveDialog1: TSaveDialog
-    DefaultExt = '.png'
-    Filter = 'PNG Image (*.png)|*.png|JPEG Image (*.jpg)|*.jpg|All Files (*.*)|*.*'
+    DefaultExt = '.bmp'
+    Filter = 'Bitmap Image (*.bmp)|*.bmp|All Files (*.*)|*.*'
     Left = 400
     Top = 200
   end
