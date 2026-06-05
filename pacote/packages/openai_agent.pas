@@ -2,20 +2,22 @@
   This source is only used to compile and install the package.
  }
 
-unit openai;
+unit openai_agent;
 
 {$warn 5023 off : no warning about unused units}
 interface
 
 uses
-  LazarusPackageIntf;
+  aiagent, aiagentsafety, aiagent_executors, LazarusPackageIntf;
 
 implementation
 
 procedure Register;
 begin
+  RegisterUnit('aiagent', @aiagent.Register);
+  RegisterUnit('aiagentsafety', @aiagentsafety.Register);
 end;
 
 initialization
-  RegisterPackage('openai', @Register);
+  RegisterPackage('openai_agent', @Register);
 end.

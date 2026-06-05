@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="5">
+    <PathDelim Value="\"/>
+    <Name Value="openai_ml"/>
+    <Type Value="RunAndDesignTime"/>
+    <Author Value="Marcelo Maurin Martins"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <PathDelim Value="\"/>
+      <SearchPaths>
+        <OtherUnitFiles Value="..\IA;..\IA Agent;..\IA Voice;..\IA Filtros Sonoros;..\IA Image;..\IA Schedulle;..\IA Math;..\IA Input;..\IA Output;..\IA Graph;..\AI Graphic;..\AI Vision;.."/>
+        <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+      </SearchPaths>
+    </CompilerOptions>
+    <Description Value="Lazarus AI Suite: Machine Learning components (TNeuralNetwork, TPerceptron, TSOMMap, TAIDatasetGenerator, TAMatrizComponent, TNumPS)."/>
+    <License Value="OPEN SOURCE GPL3"/>
+    <Files>
+      <Item>
+        <Filename Value="..\IA\neuralnetwork.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="neuralnetwork"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA\perceptron.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="perceptron"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA\sommap.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="sommap"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA\aidatasetgenerator.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aidatasetgenerator"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA\matrizcomponent.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="matrizcomponent"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA Math\numps.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="numps"/>
+      </Item>
+    </Files>
+    <RequiredPkgs>
+      <Item>
+        <PackageName Value="openai_core"/>
+      </Item>
+      <Item>
+        <PackageName Value="LCL"/>
+      </Item>
+      <Item>
+        <PackageName Value="FCL"/>
+      </Item>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+      <UseFileFilters Value="True"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>

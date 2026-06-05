@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="5">
+    <PathDelim Value="\"/>
+    <Name Value="openai_input"/>
+    <Type Value="RunAndDesignTime"/>
+    <Author Value="Marcelo Maurin Martins"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <PathDelim Value="\"/>
+      <SearchPaths>
+        <OtherUnitFiles Value="..\IA;..\IA Agent;..\IA Voice;..\IA Filtros Sonoros;..\IA Image;..\IA Schedulle;..\IA Math;..\IA Input;..\IA Output;..\IA Graph;..\AI Graphic;..\AI Vision;.."/>
+        <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+      </SearchPaths>
+    </CompilerOptions>
+    <Description Value="Lazarus AI Suite: Generic inputs, cameras, web servers, serial ports and Chromium integrations."/>
+    <License Value="OPEN SOURCE GPL3"/>
+    <Files>
+      <Item>
+        <Filename Value="..\IA Input\aiinput.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiinput"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA Input\aicamera.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aicamera"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA Input\aiwebserver.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiwebserver"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA Input\aisockets.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aisockets"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA Input\aiserial.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiserial"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA Input\aicftvip.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aicftvip"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA Input\aiemail.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiemail"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA Input\aimessenger.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aimessenger"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA Input\aichromiumbrowser.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aichromiumbrowser"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA Input\aioscapture.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aioscapture"/>
+      </Item>
+    </Files>
+    <RequiredPkgs>
+      <Item>
+        <PackageName Value="openai_core"/>
+      </Item>
+      <Item>
+        <PackageName Value="LCL"/>
+      </Item>
+      <Item>
+        <PackageName Value="FCL"/>
+      </Item>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+      <UseFileFilters Value="True"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="5">
+    <PathDelim Value="\"/>
+    <Name Value="openai_graph"/>
+    <Type Value="RunAndDesignTime"/>
+    <Author Value="Marcelo Maurin Martins"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <PathDelim Value="\"/>
+      <SearchPaths>
+        <OtherUnitFiles Value="..\IA;..\IA Agent;..\IA Voice;..\IA Filtros Sonoros;..\IA Image;..\IA Schedulle;..\IA Math;..\IA Input;..\IA Output;..\IA Graph;..\AI Graphic;..\AI Vision;.."/>
+        <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+      </SearchPaths>
+    </CompilerOptions>
+    <Description Value="Lazarus AI Suite: Graph Classifier and Visualization components (TAIGraphMap, TAITrainingExporter, TAIDatasetAnalyzer, TAITrainingReport, TAIGraphVisualizer)."/>
+    <License Value="OPEN SOURCE GPL3"/>
+    <Files>
+      <Item>
+        <Filename Value="..\IA Graph\aigraphmap.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aigraphmap"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA Graph\aitrainingexporter.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aitrainingexporter"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA Graph\aidatasetanalyzer.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aidatasetanalyzer"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA Graph\aitrainingreport.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aitrainingreport"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA Graph\aigraphvisualizer.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aigraphvisualizer"/>
+      </Item>
+    </Files>
+    <RequiredPkgs>
+      <Item>
+        <PackageName Value="openai_core"/>
+      </Item>
+      <Item>
+        <PackageName Value="openai_ml"/>
+      </Item>
+      <Item>
+        <PackageName Value="LCL"/>
+      </Item>
+      <Item>
+        <PackageName Value="FCL"/>
+      </Item>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+      <UseFileFilters Value="True"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>

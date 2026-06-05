@@ -2,20 +2,21 @@
   This source is only used to compile and install the package.
  }
 
-unit openai;
+unit openai_image;
 
 {$warn 5023 off : no warning about unused units}
 interface
 
 uses
-  LazarusPackageIntf;
+  imagefilters, LazarusPackageIntf;
 
 implementation
 
 procedure Register;
 begin
+  RegisterUnit('imagefilters', @imagefilters.Register);
 end;
 
 initialization
-  RegisterPackage('openai', @Register);
+  RegisterPackage('openai_image', @Register);
 end.

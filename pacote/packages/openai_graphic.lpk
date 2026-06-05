@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="5">
+    <PathDelim Value="\"/>
+    <Name Value="openai_graphic"/>
+    <Type Value="RunAndDesignTime"/>
+    <Author Value="Marcelo Maurin Martins"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <PathDelim Value="\"/>
+      <SearchPaths>
+        <OtherUnitFiles Value="..\IA;..\IA Agent;..\IA Voice;..\IA Filtros Sonoros;..\IA Image;..\IA Schedulle;..\IA Math;..\IA Input;..\IA Output;..\IA Graph;..\AI Graphic;..\AI Vision;.."/>
+        <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+      </SearchPaths>
+    </CompilerOptions>
+    <Description Value="Lazarus AI Suite: 3D Scene modeling, physics simulation, skeletons, avatars and Tripo3D API client."/>
+    <License Value="OPEN SOURCE GPL3"/>
+    <Files>
+      <Item>
+        <Filename Value="..\AI Graphic\aiscene2d3d.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiscene2d3d"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Graphic\aitrainingenvironment.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aitrainingenvironment"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Graphic\aiphysicssimulator.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiphysicssimulator"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Graphic\aisensorvirtual.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aisensorvirtual"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Graphic\airewardfunction.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="airewardfunction"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Graphic\aimodel3d.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aimodel3d"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Graphic\ai3dmodelviewer.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="ai3dmodelviewer"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Graphic\aiskeletonrig.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiskeletonrig"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Graphic\aiavatarcontroller.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiavatarcontroller"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Graphic\aiposelibrary.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiposelibrary"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Graphic\aianimationsequence.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aianimationsequence"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Graphic\aitripo3dclient.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aitripo3dclient"/>
+      </Item>
+    </Files>
+    <RequiredPkgs>
+      <Item>
+        <PackageName Value="openai_core"/>
+      </Item>
+      <Item>
+        <PackageName Value="LCL"/>
+      </Item>
+      <Item>
+        <PackageName Value="FCL"/>
+      </Item>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+      <UseFileFilters Value="True"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>

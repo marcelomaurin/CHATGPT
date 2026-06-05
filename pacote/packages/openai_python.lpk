@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="5">
+    <PathDelim Value="\"/>
+    <Name Value="openai_python"/>
+    <Type Value="RunAndDesignTime"/>
+    <Author Value="Marcelo Maurin Martins"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <PathDelim Value="\"/>
+      <SearchPaths>
+        <OtherUnitFiles Value="..\IA;..\IA Agent;..\IA Voice;..\IA Filtros Sonoros;..\IA Image;..\IA Schedulle;..\IA Math;..\IA Input;..\IA Output;..\IA Graph;..\AI Graphic;..\AI Vision;.."/>
+        <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+      </SearchPaths>
+    </CompilerOptions>
+    <Description Value="Lazarus AI Suite: Python Integration and deep learning components (TPythonConnector, TYoloDetect, TFaceDetection, TCNNClassifier, TLSTMPredictor)."/>
+    <License Value="OPEN SOURCE GPL3"/>
+    <Files>
+      <Item>
+        <Filename Value="..\IA\pythonconnector.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="pythonconnector"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA\facedetection.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="facedetection"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA\yolodetect.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="yolodetect"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA\cnnclassifier.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="cnnclassifier"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA\lstmpredictor.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="lstmpredictor"/>
+      </Item>
+    </Files>
+    <RequiredPkgs>
+      <Item>
+        <PackageName Value="openai_core"/>
+      </Item>
+      <Item>
+        <PackageName Value="openai_ml"/>
+      </Item>
+      <Item>
+        <PackageName Value="LCL"/>
+      </Item>
+      <Item>
+        <PackageName Value="FCL"/>
+      </Item>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+      <UseFileFilters Value="True"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>

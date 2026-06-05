@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="5">
+    <PathDelim Value="\"/>
+    <Name Value="openai_core"/>
+    <Type Value="RunAndDesignTime"/>
+    <Author Value="Marcelo Maurin Martins"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <PathDelim Value="\"/>
+      <SearchPaths>
+        <OtherUnitFiles Value="..\IA;..\IA Agent;..\IA Voice;..\IA Filtros Sonoros;..\IA Image;..\IA Schedulle;..\IA Math;..\IA Input;..\IA Output;..\IA Graph;..\AI Graphic;..\AI Vision;.."/>
+        <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+      </SearchPaths>
+    </CompilerOptions>
+    <Description Value="Lazarus AI Suite: Core components (TAIBaseComponent, TCHATGPT, TTokenList, TAICodeAssistant, TAIPromptBuilder, TAIModelRegistry, TAIWizardConfig, TDBTokenList, TGroupResponse)."/>
+    <License Value="OPEN SOURCE GPL3"/>
+    <Files>
+      <Item>
+        <Filename Value="..\funcoes.pas"/>
+        <UnitName Value="funcoes"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA\aibase.pas"/>
+        <UnitName Value="aibase"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA\chatgpt.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="chatgpt"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA\tokenizer.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="tokenizer"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA\aicodeassistant.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aicodeassistant"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA\aipromptbuilder.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aipromptbuilder"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA\aimodelregistry.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aimodelregistry"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA\aiwizardconfig.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiwizardconfig"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA\frm_aiwizardconfig.pas"/>
+        <UnitName Value="frm_aiwizardconfig"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA\dbtokenlist.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="dbtokenlist"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA\groupresponse.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="groupresponse"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA Schedulle\iaschedule.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="iaschedule"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA\aiproject.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiproject"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA\aipipeline.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aipipeline"/>
+      </Item>
+    </Files>
+    <RequiredPkgs>
+      <Item>
+        <PackageName Value="LCL"/>
+      </Item>
+      <Item>
+        <PackageName Value="FCL"/>
+      </Item>
+      <Item>
+        <PackageName Value="zcomponent"/>
+      </Item>
+      <Item>
+        <PackageName Value="TurboPowerIpro"/>
+      </Item>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+      <UseFileFilters Value="True"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>

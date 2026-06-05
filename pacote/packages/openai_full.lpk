@@ -2,19 +2,21 @@
 <CONFIG>
   <Package Version="5">
     <PathDelim Value="\"/>
-    <Name Value="openai"/>
+    <Name Value="openai_full"/>
     <Type Value="RunAndDesignTime"/>
     <Author Value="Marcelo Maurin Martins"/>
     <CompilerOptions>
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
+        <OtherUnitFiles Value="..\IA;..\IA Agent;..\IA Voice;..\IA Filtros Sonoros;..\IA Image;..\IA Schedulle;..\IA Math;..\IA Input;..\IA Output;..\IA Graph;..\AI Graphic;..\AI Vision;.."/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Description Value="[DEPRECATED / LEGACY WRAPPER] Lazarus AI Suite package. Please use the new modular packages (e.g. openai_core.lpk) instead of this monolithic wrapper."/>
+    <Description Value="Lazarus AI Suite: Full installation umbrella package referencing all modular packages."/>
     <License Value="OPEN SOURCE GPL3"/>
-    <Files Count="0"/>
+    <Files>
+    </Files>
     <RequiredPkgs>
       <Item>
         <PackageName Value="openai_core"/>
@@ -51,12 +53,6 @@
       </Item>
       <Item>
         <PackageName Value="openai_agent"/>
-      </Item>
-      <Item>
-        <PackageName Value="zcomponent"/>
-      </Item>
-      <Item>
-        <PackageName Value="TurboPowerIpro"/>
       </Item>
       <Item>
         <PackageName Value="LCL"/>
