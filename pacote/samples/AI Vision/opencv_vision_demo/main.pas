@@ -184,6 +184,7 @@ end;
 procedure TfrmOpenCVVisionDemo.btnStartCameraClick(Sender: TObject);
 begin
   LogMsg('Starting camera capture...');
+  FCamera.PreviewHandle := pnlCamera.Handle;
   FCamera.StartCapture;
   if FCamera.LastSuccess then
   begin
