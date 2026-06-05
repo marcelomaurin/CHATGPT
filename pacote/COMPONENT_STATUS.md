@@ -73,10 +73,11 @@ Use esta classificação para documentação, README de abas, samples e planejam
 
 ## Vision
 
-| Componente | Unit | Pacote | Status | Observação |
+| Componente/Unit | Unit | Pacote | Status | Observação |
 |---|---|---|---|---|
-| `TAIOpenCV` | `aiopencv.pas` | `openai_vision` | Beta | Funcional via worker Python; sample disponível |
-| `TAICameraCapture` | `aicameracapture.pas` | `openai_vision` | Experimental | Captura nativa via Windows VFW (Stub em Linux) sem dependência de Python |
+| `TAIOpenCV` | `aiopencv.pas` | `openai_vision` | Beta/Parcial | Funcional via worker Python; backend Native DLL localiza/carrega DLL/SO, mas processamento nativo real ainda é simulado |
+| `aiopencvruntime` | `aiopencvruntime.pas` | `openai_vision` | Beta | Helper de busca inteligente para `opencv_world*.dll` e `libopencv_world.so*` por SO/arquitetura |
+| `TAICameraCapture` | `aicameracapture.pas` | `openai_vision` | Experimental | Captura nativa via Windows VFW e backend Linux V4L2; precisa validação ampla por plataforma |
 | `TAIFrameProcessor` | `aiframeprocessor.pas` | `openai_vision` | Experimental | Processamento de frames em evolução |
 | `TAIFaceTracker` | `aifacetracker.pas` | `openai_vision` | Experimental | Rastreamento por template matching (SAD) 100% nativo |
 | `TAIMotionTracker` | `aimotiontracker.pas` | `openai_vision` | Experimental | Detecção de movimento por variação de luminância 100% nativa |
@@ -94,8 +95,8 @@ Use esta classificação para documentação, README de abas, samples e planejam
 | `TAIOutputData` | `aioutput.pas` | `openai_output` | Beta | Saída estruturada |
 | `TAIOutputDocs` | `aioutput_docs.pas` | `openai_output` | Beta | Documentos; revisar formatos reais gerados |
 | `TAIPDFOutput` | `aioutput_docs.pas` | `openai_output` | Beta | PDF via FPC/fpPDF |
-| `TAIWordOutput` | `aioutput_docs.pas` | `openai_output` | Beta/Compatível | Verificar se gera DOCX real ou HTML compatível |
-| `TAIExcelOutput` | `aioutput_docs.pas` | `openai_output` | Beta/Compatível | Verificar se gera XLSX real ou HTML compatível |
+| `TAIWordOutput` | `aioutput_docs.pas` | `openai_output` | Beta/Compatível | Gera HTML compatível salvo como arquivo Word; não é DOCX nativo |
+| `TAIExcelOutput` | `aioutput_docs.pas` | `openai_output` | Beta/Compatível | Gera HTML compatível salvo como arquivo Excel; não é XLSX nativo |
 | `TAITXTOutput` | `aioutput_docs.pas` | `openai_output` | Stable/Beta | Saída texto simples |
 
 ---
