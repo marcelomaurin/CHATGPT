@@ -233,7 +233,7 @@ object frmOpenCVFilterDemo: TfrmOpenCVFilterDemo
     object chkOverwrite: TCheckBox
       Left = 740
       Height = 19
-      Top = 105
+      Top = 48
       Width = 130
       Caption = 'Overwrite Output'
       TabOrder = 9

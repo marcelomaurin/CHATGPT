@@ -32,19 +32,35 @@ Install dependencies:
 pip install opencv-python numpy
 ```
 
-## Sample Image
+## Included files
 
-The sample includes a pre-generated `sample.jpg` in its directory for quick testing.
+- `opencv_filter_demo.lpi`
+- `opencv_filter_demo.lpr`
+- `main.pas`
+- `main.lfm`
+- `sample.jpg`
+- `README.md`
 
 ## Worker
 
-The component expects the worker script at:
+The OpenCV worker is located at:
 
 ```text
 pacote/python/aiopencv_worker.py
 ```
 
-Make sure the worker exists in the package's python folder.
+The component searches for the worker relative to the executable and package folders.
+
+## Testing the worker manually
+
+From the sample folder:
+
+```bash
+python ../../../python/aiopencv_worker.py --action selftest
+python ../../../python/aiopencv_worker.py --action info --input sample.jpg
+python ../../../python/aiopencv_worker.py --action gray --input sample.jpg --output output/sample_gray.jpg
+python ../../../python/aiopencv_worker.py --action canny --input sample.jpg --output output/sample_canny.jpg --canny1 100 --canny2 200
+```
 
 ## How to run
 

@@ -104,6 +104,8 @@ implementation
 { TfrmOpenCVFilterDemo }
 
 procedure TfrmOpenCVFilterDemo.FormCreate(Sender: TObject);
+var
+  LSampleFile: string;
 begin
   AIOpenCV1 := TAIOpenCV.Create(Self);
   AIOpenCV1.OnBeforeProcess := @AIOpenCVBeforeProcess;
@@ -135,10 +137,13 @@ begin
   seResizeWidth.Value := 640;
   seResizeHeight.Value := 480;
 
+  chkAutoSave.Checked := True;
+  chkOverwrite.Checked := True;
+
   AIOpenCV1.Backend := ocvPythonProcess;
   AIOpenCV1.FilterType := ocvfGray;
-  AIOpenCV1.AutoSave := True;
-  AIOpenCV1.OverwriteOutput := True;
+  AIOpenCV1.AutoSave := chkAutoSave.Checked;
+  AIOpenCV1.OverwriteOutput := chkOverwrite.Checked;
 
   lblStatus.Caption := 'Status: aguardando';
   lblImageInfo.Caption := 'Imagem: nenhuma';
@@ -147,6 +152,25 @@ begin
   SaveDialog1.Filter := 'JPEG|*.jpg|PNG|*.png|BMP|*.bmp|All files|*.*';
 
   AddLog('Demo iniciado.');
+
+  // Auto load sample.jpg if found
+  LSampleFile := IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName)) + 'sample.jpg';
+
+  if not FileExists(LSampleFile) then
+    LSampleFile := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))) + 'sample.jpg';
+
+  if FileExists(LSampleFile) then
+  begin
+    edInputFile.Text := LSampleFile;
+    edOutputFile.Text := GenerateOutputName(LSampleFile);
+    LoadOriginalImage(LSampleFile);
+    ConfigureOpenCV;
+    UpdateImageInfo;
+  end
+  else
+  begin
+    AddLog('sample.jpg não encontrado. Use o botão Carregar Imagem.');
+  end;
 end;
 
 procedure TfrmOpenCVFilterDemo.btnLoadImageClick(Sender: TObject);
@@ -310,8 +334,8 @@ begin
   AIOpenCV1.ResizeWidth := seResizeWidth.Value;
   AIOpenCV1.ResizeHeight := seResizeHeight.Value;
 
-  AIOpenCV1.AutoSave := True;
-  AIOpenCV1.OverwriteOutput := True;
+  AIOpenCV1.AutoSave := chkAutoSave.Checked;
+  AIOpenCV1.OverwriteOutput := chkOverwrite.Checked;
 end;
 
 procedure TfrmOpenCVFilterDemo.ApplyFilterSelection;
