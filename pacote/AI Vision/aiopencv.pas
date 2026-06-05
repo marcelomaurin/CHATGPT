@@ -5,7 +5,8 @@ unit aiopencv;
 interface
 
 uses
-  Classes, SysUtils, aibase, LResources, fpjson, jsonparser;
+  Classes, SysUtils, aibase, LResources, fpjson, jsonparser,
+  aipythonruntime, aiprocessrunner, airuntimepaths, aiplatform;
 
 type
   TAIOpenCVBackend = (
@@ -40,9 +41,11 @@ type
   private
     FBackend: TAIOpenCVBackend;
     FStatus: TAIOpenCVStatus;
+    FRuntime: TAIPythonRuntime;
 
     FPythonPath: string;
     FWorkerScript: string;
+    FTimeoutMs: Integer;
 
     FInputFile: string;
     FOutputFile: string;
@@ -71,12 +74,12 @@ type
     FOnImageProcessed: TNotifyEvent;
     FOnOpenCVError: TAIErrorEvent;
 
-    // Helper functions
-    function FindPythonExecutable: string;
+    function ResolvePythonExecutable: string;
+    function ResolveWorkerScript: string;
     function ExecuteWorker(const AAction: string; const AExtraParams: array of string): string;
     function ParseWorkerJSON(const AJSON: string): Boolean;
     function FilterToAction(AFilter: TAIOpenCVFilterType): string;
-    
+
     function ValidatePython: Boolean;
     function ValidateWorker: Boolean;
     function ValidateInputFile(const AFileName: string): Boolean;
@@ -100,9 +103,11 @@ type
   published
     property Backend: TAIOpenCVBackend read FBackend write FBackend default ocvPythonProcess;
     property Status: TAIOpenCVStatus read FStatus;
+    property Runtime: TAIPythonRuntime read FRuntime write FRuntime;
 
     property PythonPath: string read FPythonPath write FPythonPath;
     property WorkerScript: string read FWorkerScript write FWorkerScript;
+    property TimeoutMs: Integer read FTimeoutMs write FTimeoutMs default 120000;
 
     property InputFile: string read FInputFile write FInputFile;
     property OutputFile: string read FOutputFile write FOutputFile;
@@ -136,27 +141,24 @@ procedure Register;
 
 implementation
 
-uses
-  Process;
-
 procedure Register;
 begin
   RegisterComponents('AI Vision', [TAIOpenCV]);
 end;
 
-{ TAIOpenCV }
-
 constructor TAIOpenCV.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FCategory := ccModel;
-  FPrompt := 'Component TAIOpenCV binds to OpenCV libraries dynamically. Properties: LibraryLoaded, Version. Methods: LoadLibraries, ApplyFilter, ProcessFile, SelfTest.';
-  
+  FPrompt := 'Component TAIOpenCV uses a Python worker for OpenCV operations. Prefer assigning TAIPythonRuntime for portable execution.';
+
   FBackend := ocvPythonProcess;
   FStatus := ocvsNotTested;
+  FRuntime := nil;
 
-  FPythonPath := 'python';
-  FWorkerScript := ExtractFilePath(ParamStr(0)) + 'python' + DirectorySeparator + 'aiopencv_worker.py';
+  FPythonPath := '';
+  FWorkerScript := '';
+  FTimeoutMs := 120000;
 
   FFilterType := ocvfGray;
 
@@ -175,170 +177,68 @@ begin
   FLastImageWidth := 0;
   FLastImageHeight := 0;
   FLastChannels := 0;
-  
+
   ClearError;
 end;
 
-function TAIOpenCV.FindPythonExecutable: string;
-var
-  PathEnv: string;
-  Paths: TStringList;
-  I: Integer;
-  Candidate: string;
-  ExeName: string;
-  AppDir: string;
+function TAIOpenCV.ResolvePythonExecutable: string;
 begin
-  Result := '';
-  AppDir := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)));
-  {$IFDEF MSWINDOWS}
-  ExeName := 'python.exe';
-  {$ELSE}
-  ExeName := 'python3';
-  {$ENDIF}
+  if Assigned(FRuntime) then
+    Result := FRuntime.GetPythonExecutable
+  else if Trim(FPythonPath) <> '' then
+    Result := FPythonPath
+  else
+    Result := AIResolvePythonExecutable(AIGetDefaultRuntimeRoot);
+end;
 
-  // 1. Check in application directory
-  if FileExists(AppDir + ExeName) then
-    Exit(AppDir + ExeName);
-
-  // 2. Check in PATH environment variable
-  PathEnv := GetEnvironmentVariable('PATH');
-  if PathEnv <> '' then
+function TAIOpenCV.ResolveWorkerScript: string;
+var
+  Candidate: string;
+begin
+  if Assigned(FRuntime) then
+    Result := FRuntime.GetWorkerPath('aiopencv_worker.py')
+  else if Trim(FWorkerScript) <> '' then
+    Result := FWorkerScript
+  else
   begin
-    Paths := TStringList.Create;
-    try
-      {$IFDEF MSWINDOWS}
-      Paths.Delimiter := ';';
-      {$ELSE}
-      Paths.Delimiter := ':';
-      {$ENDIF}
-      Paths.StrictDelimiter := True;
-      Paths.DelimitedText := PathEnv;
-      for I := 0 to Paths.Count - 1 do
-      begin
-        if Paths[I] <> '' then
-        begin
-          Candidate := IncludeTrailingPathDelimiter(Paths[I]) + ExeName;
-          if FileExists(Candidate) then
-          begin
-            Result := Candidate;
-            Break;
-          end;
-        end;
-      end;
-    finally
-      Paths.Free;
-    end;
-  end;
-
-  if Result <> '' then Exit;
-
-  // 3. Fallbacks on Windows
-  {$IFDEF MSWINDOWS}
-  for I := 14 downto 8 do
-  begin
-    Candidate := 'C:\Python3' + IntToStr(I) + '\python.exe';
+    Candidate := AIResolveWorkerPath(AIGetDefaultRuntimeRoot, 'aiopencv_worker.py');
     if FileExists(Candidate) then
-      Exit(Candidate);
-
-    Candidate := GetEnvironmentVariable('USERPROFILE') + '\AppData\Local\Programs\Python\Python3' + IntToStr(I) + '\python.exe';
-    if FileExists(Candidate) then
-      Exit(Candidate);
+      Result := Candidate
+    else
+      Result := AICombinePath(AICombinePath(ExtractFilePath(ParamStr(0)), 'python'), 'aiopencv_worker.py');
   end;
-  {$ENDIF}
-
-  // 4. Default fallback
-  Result := ExeName;
 end;
 
 function TAIOpenCV.ExecuteWorker(const AAction: string; const AExtraParams: array of string): string;
 var
-  PyProc: TProcess;
+  Runner: TAIProcessRunner;
+  Params: array of string;
   I: Integer;
-  OutputStream: TMemoryStream;
-  BytesRead: Integer;
-  Buf: array[0..2047] of Byte;
-  OutputStr, ErrorStr: string;
 begin
   Result := '';
-  PyProc := TProcess.Create(nil);
+  Runner := TAIProcessRunner.Create(nil);
   try
-    PyProc.Executable := FPythonPath;
-    PyProc.Parameters.Add(FWorkerScript);
-    PyProc.Parameters.Add('--action');
-    PyProc.Parameters.Add(AAction);
-    
-    // Add extra parameters
+    Runner.Executable := ResolvePythonExecutable;
+    Runner.TimeoutMs := FTimeoutMs;
+
+    SetLength(Params, Length(AExtraParams) + 3);
+    Params[0] := ResolveWorkerScript;
+    Params[1] := '--action';
+    Params[2] := AAction;
     for I := Low(AExtraParams) to High(AExtraParams) do
-      PyProc.Parameters.Add(AExtraParams[I]);
-      
-    PyProc.Options := [poUsePipes, poNoConsole];
-    
-    DoLog(llDebug, 'Running worker: ' + PyProc.Executable + ' ' + FWorkerScript + ' --action ' + AAction);
-    
-    try
-      PyProc.Execute;
-    except
-      on E: Exception do
-      begin
-        DoError('Python executable not found.', ocvsPythonNotFound);
-        Exit;
-      end;
+      Params[I + 3] := AExtraParams[I];
+
+    DoLog(llDebug, 'Running OpenCV worker: ' + Runner.Executable + ' ' + Params[0] + ' --action ' + AAction);
+
+    if not Runner.Execute(Params) then
+    begin
+      DoError(Runner.LastError, ocvsError);
+      Exit;
     end;
-    
-    OutputStream := TMemoryStream.Create;
-    try
-      // Read stdout
-      while PyProc.Running or (PyProc.Output.NumBytesAvailable > 0) do
-      begin
-        if PyProc.Output.NumBytesAvailable > 0 then
-        begin
-          BytesRead := PyProc.Output.Read(Buf, SizeOf(Buf));
-          if BytesRead > 0 then
-            OutputStream.Write(Buf, BytesRead);
-        end
-        else
-          Sleep(10);
-      end;
-      
-      if OutputStream.Size > 0 then
-      begin
-        SetLength(OutputStr, OutputStream.Size);
-        OutputStream.Position := 0;
-        OutputStream.Read(OutputStr[1], OutputStream.Size);
-      end;
-      
-      // Read stderr
-      OutputStream.Clear;
-      while PyProc.Stderr.NumBytesAvailable > 0 do
-      begin
-        BytesRead := PyProc.Stderr.Read(Buf, SizeOf(Buf));
-        if BytesRead > 0 then
-          OutputStream.Write(Buf, BytesRead);
-      end;
-      
-      if OutputStream.Size > 0 then
-      begin
-        SetLength(ErrorStr, OutputStream.Size);
-        OutputStream.Position := 0;
-        OutputStream.Read(ErrorStr[1], OutputStream.Size);
-      end;
-      
-      if PyProc.ExitStatus <> 0 then
-      begin
-        if Trim(OutputStr) = '' then
-        begin
-          DoError('Image processing failed. Stderr: ' + Trim(ErrorStr), ocvsError);
-          Exit;
-        end;
-      end;
-      
-      Result := OutputStr;
-      
-    finally
-      OutputStream.Free;
-    end;
+
+    Result := Runner.StdOutText;
   finally
-    PyProc.Free;
+    Runner.Free;
   end;
 end;
 
@@ -356,50 +256,50 @@ begin
     except
       on E: Exception do
       begin
-        DoError('Worker returned invalid JSON.', ocvsError);
+        DoError('Worker returned invalid JSON: ' + E.Message, ocvsError);
         Exit;
       end;
     end;
-    
+
     if not Assigned(JSONData) or (not (JSONData is TJSONObject)) then
     begin
       DoError('Worker returned invalid JSON.', ocvsError);
       Exit;
     end;
-    
+
     JSONObj := TJSONObject(JSONData);
-    
+
     if JSONObj.Find('success') = nil then
     begin
-      DoError('Worker returned invalid JSON.', ocvsError);
+      DoError('Worker returned invalid JSON: success field missing.', ocvsError);
       Exit;
     end;
-    
+
     LSuccess := JSONObj.Booleans['success'];
-    
+
     if LSuccess then
     begin
       FLastSuccess := True;
-      
+
       if JSONObj.Find('message') <> nil then
         FLastResult := JSONObj.Strings['message'];
-        
+
       if JSONObj.Find('version') <> nil then
       begin
         FVersion := JSONObj.Strings['version'];
         FLibraryLoaded := True;
         FStatus := ocvsAvailable;
       end;
-      
+
       if JSONObj.Find('width') <> nil then
         FLastImageWidth := JSONObj.Integers['width'];
-        
+
       if JSONObj.Find('height') <> nil then
         FLastImageHeight := JSONObj.Integers['height'];
-        
+
       if JSONObj.Find('channels') <> nil then
         FLastChannels := JSONObj.Integers['channels'];
-        
+
       Result := True;
     end
     else
@@ -408,10 +308,8 @@ begin
       if JSONObj.Find('error') <> nil then
       begin
         FLastError := JSONObj.Strings['error'];
-        if Pos('package not installed', FLastError) > 0 then
+        if Pos('package not installed', LowerCase(FLastError)) > 0 then
           FStatus := ocvsOpenCVNotInstalled
-        else if Pos('not found', FLastError) > 0 then
-          FStatus := ocvsError
         else
           FStatus := ocvsError;
         DoError(FLastError, FStatus);
@@ -419,7 +317,7 @@ begin
       else
         DoError('Image processing failed.', ocvsError);
     end;
-    
+
   finally
     if Assigned(JSONData) then
       JSONData.Free;
@@ -440,53 +338,35 @@ end;
 
 function TAIOpenCV.ValidatePython: Boolean;
 var
-  PyProc: TProcess;
+  Runner: TAIProcessRunner;
 begin
   Result := False;
-  PyProc := TProcess.Create(nil);
+  if Assigned(FRuntime) then
+  begin
+    Result := FRuntime.ValidatePython;
+    if not Result then
+      DoError(FRuntime.LastError, ocvsPythonNotFound);
+    Exit;
+  end;
+
+  Runner := TAIProcessRunner.Create(nil);
   try
-    PyProc.Executable := FPythonPath;
-    PyProc.Parameters.Add('--version');
-    PyProc.Options := [poUsePipes, poNoConsole];
-    try
-      PyProc.Execute;
-      while PyProc.Running do Sleep(10);
-      Result := (PyProc.ExitStatus = 0) or (PyProc.ExitStatus = 1);
-    except
-      // Try to auto-resolve Python executable
-      FPythonPath := FindPythonExecutable;
-      PyProc.Executable := FPythonPath;
-      try
-        PyProc.Execute;
-        while PyProc.Running do Sleep(10);
-        Result := True;
-      except
-        DoError('Python executable not found.', ocvsPythonNotFound);
-      end;
-    end;
+    Runner.Executable := ResolvePythonExecutable;
+    Runner.TimeoutMs := FTimeoutMs;
+    Result := Runner.Execute(['--version']);
+    if not Result then
+      DoError('Python validation failed. ' + Runner.LastError, ocvsPythonNotFound);
   finally
-    PyProc.Free;
+    Runner.Free;
   end;
 end;
 
 function TAIOpenCV.ValidateWorker: Boolean;
-var
-  FallbackPath: string;
 begin
+  FWorkerScript := ResolveWorkerScript;
   Result := FileExists(FWorkerScript);
   if not Result then
-  begin
-    // Check fallback relative to samples/AI Vision/opencv_filter_demo/ or run directories
-    FallbackPath := ExpandFileName(ExtractFilePath(ParamStr(0)) + '..' + DirectorySeparator + '..' + DirectorySeparator + '..' + DirectorySeparator + 'python' + DirectorySeparator + 'aiopencv_worker.py');
-    if FileExists(FallbackPath) then
-    begin
-      FWorkerScript := FallbackPath;
-      Result := True;
-    end;
-  end;
-  
-  if not Result then
-    DoError('Worker script not found.', ocvsWorkerNotFound);
+    DoError('Worker script not found: ' + FWorkerScript, ocvsWorkerNotFound);
 end;
 
 function TAIOpenCV.ValidateInputFile(const AFileName: string): Boolean;
@@ -499,7 +379,7 @@ begin
   end;
   if not FileExists(AFileName) then
   begin
-    DoError('Input file not found.', ocvsError);
+    DoError('Input file not found: ' + AFileName, ocvsError);
     Exit;
   end;
   Result := True;
@@ -527,7 +407,7 @@ end;
 function TAIOpenCV.ValidateParameters: Boolean;
 begin
   Result := False;
-  
+
   if FFilterType = ocvfBlur then
   begin
     if (FBlurKernelSize <= 0) or (FBlurKernelSize mod 2 = 0) then
@@ -536,7 +416,7 @@ begin
       Exit;
     end;
   end;
-  
+
   if FFilterType = ocvfThreshold then
   begin
     if (FThresholdValue < 0) or (FThresholdValue > 255) then
@@ -545,7 +425,7 @@ begin
       Exit;
     end;
   end;
-  
+
   if FFilterType = ocvfCanny then
   begin
     if (FCannyThreshold1 < 0) or (FCannyThreshold1 > 255) or
@@ -556,7 +436,7 @@ begin
       Exit;
     end;
   end;
-  
+
   if FFilterType = ocvfResize then
   begin
     if (FResizeWidth <= 0) or (FResizeHeight <= 0) then
@@ -565,7 +445,7 @@ begin
       Exit;
     end;
   end;
-  
+
   Result := True;
 end;
 
@@ -581,19 +461,22 @@ begin
   ClearError;
   Result := False;
   FStatus := ocvsNotTested;
-  
+
   if FBackend = ocvNativeDLL then
   begin
     DoError('Native DLL backend is not implemented yet.', ocvsBackendNotImplemented);
     Exit;
   end;
-  
+
+  if Assigned(FRuntime) then
+    FRuntime.ConfigureEnvironment;
+
   if not ValidatePython then Exit;
   if not ValidateWorker then Exit;
-  
+
   ResponseStr := ExecuteWorker('selftest', []);
   if ResponseStr = '' then Exit;
-  
+
   Result := ParseWorkerJSON(ResponseStr);
   if Result then
   begin
@@ -610,21 +493,19 @@ var
 begin
   ClearError;
   Result := False;
-  
+
   if AFileName <> '' then
     FileToQuery := AFileName
   else
     FileToQuery := FInputFile;
-    
+
   if not ValidateInputFile(FileToQuery) then Exit;
   if not ValidatePython then Exit;
   if not ValidateWorker then Exit;
-  
-  FileToQuery := StringReplace(FileToQuery, '\', '/', [rfReplaceAll]);
-  
+
   ResponseStr := ExecuteWorker('info', ['--input', FileToQuery]);
   if ResponseStr = '' then Exit;
-  
+
   Result := ParseWorkerJSON(ResponseStr);
   if Result then
   begin
@@ -642,40 +523,38 @@ var
 begin
   ClearError;
   Result := False;
-  
+
   if Assigned(FOnBeforeProcess) then
     FOnBeforeProcess(Self);
-    
+
   if FBackend = ocvNativeDLL then
   begin
     DoError('Native DLL backend is not implemented yet.', ocvsBackendNotImplemented);
     if Assigned(FOnAfterProcess) then FOnAfterProcess(Self);
     Exit;
   end;
-  
-  // Set files to process
+
   if AInputFile <> '' then
     InFile := AInputFile
   else
     InFile := FInputFile;
-    
+
   if AOutputFile <> '' then
     OutFile := AOutputFile
   else
     OutFile := FOutputFile;
-    
-  // Validate Python, worker, files, parameters
+
+  if Assigned(FRuntime) then
+    FRuntime.ConfigureEnvironment;
+
   if not ValidatePython then begin if Assigned(FOnAfterProcess) then FOnAfterProcess(Self); Exit; end;
   if not ValidateWorker then begin if Assigned(FOnAfterProcess) then FOnAfterProcess(Self); Exit; end;
   if not ValidateInputFile(InFile) then begin if Assigned(FOnAfterProcess) then FOnAfterProcess(Self); Exit; end;
   if not ValidateOutputFile(OutFile) then begin if Assigned(FOnAfterProcess) then FOnAfterProcess(Self); Exit; end;
   if not ValidateParameters then begin if Assigned(FOnAfterProcess) then FOnAfterProcess(Self); Exit; end;
-  
+
   ActionName := FilterToAction(FFilterType);
-  InFile := StringReplace(InFile, '\', '/', [rfReplaceAll]);
-  OutFile := StringReplace(OutFile, '\', '/', [rfReplaceAll]);
-  
-  // Build arguments list based on filter
+
   case FFilterType of
     ocvfBlur:
       begin
@@ -730,24 +609,21 @@ begin
         ExtraArgs[3] := OutFile;
       end;
   end;
-  
+
   ResponseStr := ExecuteWorker(ActionName, ExtraArgs);
   if ResponseStr = '' then
   begin
     if Assigned(FOnAfterProcess) then FOnAfterProcess(Self);
     Exit;
   end;
-  
+
   Result := ParseWorkerJSON(ResponseStr);
-  
+
   if Assigned(FOnAfterProcess) then
     FOnAfterProcess(Self);
-    
-  if Result then
-  begin
-    if Assigned(FOnImageProcessed) then
-      FOnImageProcessed(Self);
-  end;
+
+  if Result and Assigned(FOnImageProcessed) then
+    FOnImageProcessed(Self);
 end;
 
 function TAIOpenCV.ApplyFilter: Boolean;
@@ -769,7 +645,6 @@ procedure TAIOpenCV.DoLog(ALevel: TAILogLevel; const AMessage: string);
 begin
   Log(ALevel, AMessage);
 end;
-
 
 procedure TAIOpenCV.Clear;
 begin
