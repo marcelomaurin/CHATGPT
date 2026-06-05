@@ -1,60 +1,136 @@
-=============================================================================
-OpenSSL v1.0.2u                                Precompiled Binaries for Win64
------------------------------------------------------------------------------
+TCHATGPT - AI Component Suite for Lazarus / Free Pascal
+======================================================
 
-                         *** Release Information ***
+Repository:
+https://github.com/marcelomaurin/CHATGPT
 
-Release Date:     Dec 21, 2019
+Author:
+Marcelo Maurin Martins
 
-Author:           Frederik A. Winkelsdorf (opendec.wordpress.com)
-                  for the Indy Project (www.indyproject.org)
+Overview
+--------
+TCHATGPT is an open source suite of visual and non-visual components for
+Lazarus / Free Pascal. The goal is to make it easier to add Artificial
+Intelligence features to desktop, industrial, educational and corporate
+applications.
 
-Requirements:     Indy 10.5.5+ (SVN Version or Delphi 2009 and newer)
+The project includes components for:
 
-Dependencies:     The libraries have no noteworthy dependencies
+- LLM / ChatGPT provider integration;
+- local and remote AI model access;
+- prompt construction and pipeline organization;
+- text processing and tokenization support;
+- graph-based AI utilities;
+- simple machine learning helpers;
+- voice and audio processing;
+- image processing and computer vision;
+- input/output integration;
+- industrial communication;
+- agent-oriented automation;
+- 3D and graphic visualization experiments.
 
-Installation:     Copy both DLL files into your application directory
+Project status
+--------------
+This project is under active development. Components may have different
+maturity levels: stable, beta, experimental, placeholder or deprecated.
 
-Supported OS:     Windows XP x64 up to Windows 10 x64
+Before using a component in production, check the component status matrix:
 
------------------------------------------------------------------------------
+  pacote/COMPONENT_STATUS.md
 
-                          *** Legal Disclaimer ***
+Recommended package structure
+-----------------------------
+The modern package structure is modular and is located under:
 
-THIS SOFTWARE IS PROVIDED BY ITS AUTHOR AND THE INDY PROJECT "AS IS" AND ANY 
-EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
-DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY 
-DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND 
-ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
-THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  pacote/packages/
 
-OpenSSL license terms are provided in the file "OpenSSL License.txt".
+Recommended base package:
 
-PLEASE CHECK IF YOU NEED TO COMPLY WITH EXPORT RESTRICTIONS FOR CRYPTOGRAPHIC
-SOFTWARE AND/OR PATENTS.
+  pacote/packages/openai_core.lpk
 
------------------------------------------------------------------------------
+Optional packages include:
 
-                       *** Build Information Win64 ***
+  pacote/packages/openai_ml.lpk
+  pacote/packages/openai_graph.lpk
+  pacote/packages/openai_python.lpk
+  pacote/packages/openai_vision.lpk
+  pacote/packages/openai_image.lpk
+  pacote/packages/openai_voice.lpk
+  pacote/packages/openai_input.lpk
+  pacote/packages/openai_output.lpk
+  pacote/packages/openai_industrial.lpk
+  pacote/packages/openai_graphic.lpk
+  pacote/packages/openai_agent.lpk
 
-Built with:       Windows Server 2003 SP1 Platform SDK for x64
-                  The Netwide Assembler (NASM) v2.11.08 Win32
-                  Strawberry Perl v5.22.0.1 Win32 Portable
-                  Windows PowerShell
-                  FinalBuilder 7
+Legacy package
+--------------
+The old package still exists for compatibility:
 
-Shell:            Windows XP x64 Build Environment (Retail)
+  pacote/openai.lpk
 
-Commands:         perl configure VC-WIN64A
-                  ms\do_win64a
-                  adjusted ms\version32.rc    (Indy Information inserted)
-                  nmake -f ms\ntdll.mak
-                  nmake -f ms\ntdll.mak test
-                  editbin.exe /rebase:base=0x11000000 libeay32.dll
-                  editbin.exe /rebase:base=0x12000000 ssleay32.dll
+For new projects, prefer the modular packages from pacote/packages/.
+The legacy package should be treated only as a compatibility wrapper.
 
-=============================================================================
+Installation
+------------
+See the installation guide:
+
+  INSTALL.md
+
+Basic installation summary:
+
+1. Install Lazarus 3.x and Free Pascal.
+2. Clone or download this repository.
+3. Open Lazarus.
+4. Go to Package > Open Package File (.lpk).
+5. Open and install pacote/packages/openai_core.lpk first.
+6. Install only the additional packages needed by your project.
+7. Rebuild the Lazarus IDE when requested.
+8. Open the samples/examples to validate the installation.
+
+External dependencies
+---------------------
+Some components are pure Lazarus / Free Pascal. Others may require external
+runtime dependencies depending on the feature being used.
+
+Common optional dependencies:
+
+- OpenSSL DLLs / libraries for HTTPS access;
+- Python 3 for Python-based AI integrations;
+- Python packages such as numpy, opencv-python or model-specific libraries;
+- Windows SAPI or Linux eSpeak/eSpeak-NG for voice resources;
+- platform-specific camera, serial, socket or industrial libraries.
+
+Windows notes
+-------------
+On Windows, keep required DLLs next to the application executable when needed,
+especially OpenSSL libraries used by Indy/HTTPS components.
+
+For Python-based components, the Python architecture must match the compiled
+application architecture:
+
+- 32-bit application -> 32-bit Python;
+- 64-bit application -> 64-bit Python.
+
+Linux notes
+-----------
+On Linux, verify library packages, permissions and device access when using
+camera, audio, serial ports or industrial communication.
+
+Typical checks:
+
+  sudo usermod -aG dialout $USER
+  sudo usermod -aG video $USER
+  sudo usermod -aG audio $USER
+
+After changing groups, log out and log in again.
+
+License
+-------
+This project is distributed under the GPLv3 license, unless a specific file
+states otherwise.
+
+Notes
+-----
+This ReadMe.txt is a plain text quick reference. The main project documentation
+is maintained in README.md and related translated README files.
