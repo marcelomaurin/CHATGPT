@@ -68,7 +68,7 @@ begin
   if chkSimulation.Checked then
   begin
     AddLog('Simulating header info lookup...');
-    FAIImageInfo.LoadFromFile(FEditFile.Text);
+    FAIImageInfo.LoadInfoFromFile(FEditFile.Text);
     AddLog('Image Details (Simulated):');
     AddLog('  Width: 800 px');
     AddLog('  Height: 600 px');
@@ -80,11 +80,11 @@ begin
   begin
     AddLog('Reading image file headers: ' + FEditFile.Text);
     try
-      if FAIImageInfo.LoadFromFile(FEditFile.Text) then
+      if FAIImageInfo.LoadInfoFromFile(FEditFile.Text) then
       begin
         AddLog('Image loaded successfully.');
         AddLog('  Dimensions: ' + IntToStr(FAIImageInfo.Width) + 'x' + IntToStr(FAIImageInfo.Height));
-        AddLog('  Format: ' + FAIImageInfo.FormatName);
+        AddLog('  PixelCount: ' + IntToStr(FAIImageInfo.PixelCount));
       end
       else
         AddLog('Failed to read image header properties.');

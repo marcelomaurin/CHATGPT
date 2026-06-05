@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  aibase, aicameracapture;
+  aibase, aicameracapture, aicamera_backend;
 
 type
 
@@ -64,13 +64,13 @@ begin
   AddLog('--- Starting Execution ---');
   try
   FAICamera.CameraIndex := StrToInt(FEditDevice.Text);
-  FAICamera.FrameRate := 30;
-  FAICamera.DriverMode := 'VFW';
+  FAICamera.FPS := 30;
+  FAICamera.Backend := cbWindowsVFW;
   
   AddLog('Windows Camera Capture Properties:');
   AddLog('  CameraIndex: ' + IntToStr(FAICamera.CameraIndex));
-  AddLog('  FrameRate: ' + IntToStr(FAICamera.FrameRate));
-  AddLog('  DriverMode: ' + FAICamera.DriverMode);
+  AddLog('  FPS: ' + IntToStr(FAICamera.FPS));
+  AddLog('  Backend: cbWindowsVFW');
   
   if chkSimulation.Checked then
   begin

@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  aibase, aicameracapture;
+  aibase, aicameracapture, aicamera_backend;
 
 type
 
@@ -63,39 +63,37 @@ begin
   lblStatus.Caption := 'Status: Processing...';
   AddLog('--- Starting Execution ---');
   try
-  FAICamera.DevicePath := FEditDevicePath.Text;
-  FAICamera.FrameRate := 25;
-  FAICamera.DriverMode := 'V4L2';
+  FAICamera.DeviceName := FEditDevicePath.Text;
+  FAICamera.FPS := 25;
+  FAICamera.Backend := cbLinuxV4L2;
   
   AddLog('Linux Camera Capture Properties:');
-  AddLog('  DevicePath: ' + FAICamera.DevicePath);
-  AddLog('  FrameRate: ' + IntToStr(FAICamera.FrameRate));
-  AddLog('  DriverMode: ' + FAICamera.DriverMode);
+  AddLog('  DeviceName: ' + FAICamera.DeviceName);
+  AddLog('  FPS: ' + IntToStr(FAICamera.FPS));
+  AddLog('  Backend: cbLinuxV4L2');
   
   if chkSimulation.Checked then
   begin
     AddLog('Simulating Linux V4L2 frame query...');
     FAICamera.StartCapture;
-    AddLog('Stream active on ' + FAICamera.DevicePath);
+    AddLog('Stream active on ' + FAICamera.DeviceName);
     AddLog('QueryFrame: Frame obtained. Pixels: 1280x720 RGB24 (Simulated).');
     FAICamera.StopCapture;
     AddLog('Linux camera stream stopped.');
-  end
-  else
-  begin
-    AddLog('Ingesting ' + FAICamera.DevicePath + ' V4L2 handle...');
-    try
-      FAICamera.StartCapture;
-      if FAICamera.Active then
-      begin
-        AddLog('Capture active.');
-        FAICamera.StopCapture;
-      end
-      else
-        AddLog('Failed to bind V4L2 handler file.');
-    except
-      on E: Exception do AddLog('Exception: ' + E.Message);
-    end;
+  end;
+  // Let's remove the empty line or keep formatting
+  AddLog('Connecting to Windows device ' + FEditDevicePath.Text + '...');
+  try
+    FAICamera.StartCapture;
+    if FAICamera.Active then
+    begin
+      AddLog('Capture active.');
+      FAICamera.StopCapture;
+    end
+    else
+      AddLog('Failed to bind V4L2 handler file.');
+  except
+    on E: Exception do AddLog('Exception: ' + E.Message);
   end;
     lblStatus.Caption := 'Status: Completed Successfully';
   except

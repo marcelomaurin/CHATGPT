@@ -218,7 +218,8 @@ begin
     if DummyFrameOut <> nil then
     begin
       LogMsg('Frame processed successfully.');
-      DummyFrameOut.Free;
+      if DummyFrameOut <> DummyFrameIn then
+        DummyFrameOut.Free;
     end
     else
       LogMsg('Error processing frame: ' + FProcessor.LastError);
@@ -229,48 +230,56 @@ end;
 
 procedure TfrmOpenCVVisionDemo.tmrCameraTimer(Sender: TObject);
 var
-  Frame: TObject;
-  ProcessedFrame: TObject;
+  LSuccess: Boolean;
+  Frame: TBitmap;
+  ProcessedFrame: TBitmap;
   X, Y, W, H: Integer;
 begin
-  // Periodic capture simulation
-  Frame := FCamera.QueryFrame;
-  if Frame <> nil then
+  LSuccess := FCamera.QueryFrame;
+  if LSuccess then
   begin
+    Frame := TBitmap.Create;
     try
-      // Apply frame processor options
-      FProcessor.Grayscale := chkGrayscale.Checked;
-      ProcessedFrame := FProcessor.ProcessFrame(Frame);
-      
-      if ProcessedFrame <> nil then
+      if FileExists(FCamera.LastFrameFile) then
       begin
         try
-          // Face tracking simulation
-          if chkTrackFaces.Checked then
+          Frame.LoadFromFile(FCamera.LastFrameFile);
+          
+          FProcessor.Grayscale := chkGrayscale.Checked;
+          ProcessedFrame := TBitmap(FProcessor.ProcessFrame(Frame));
+          
+          if ProcessedFrame <> nil then
           begin
-            if FFaceTracker.TrackFace(ProcessedFrame, X, Y, W, H) then
-            begin
-              lblTrackStatus.Caption := Format('Face Detected at X:%d Y:%d (W:%d, H:%d)', [X, Y, W, H]);
-              lblTrackStatus.Font.Color := clGreen;
-            end
-            else
-            begin
-              lblTrackStatus.Caption := 'Tracking: No face detected';
-              lblTrackStatus.Font.Color := clBlue;
+            try
+              if chkTrackFaces.Checked then
+              begin
+                if FFaceTracker.TrackFace(ProcessedFrame, X, Y, W, H) then
+                begin
+                  lblTrackStatus.Caption := Format('Face Detected at X:%d Y:%d (W:%d, H:%d)', [X, Y, W, H]);
+                  lblTrackStatus.Font.Color := clGreen;
+                end
+                else
+                begin
+                  lblTrackStatus.Caption := 'Tracking: No face detected';
+                  lblTrackStatus.Font.Color := clBlue;
+                end;
+              end;
+
+              if chkTrackMotion.Checked then
+              begin
+                if FMotionTracker.DetectMotion(Frame, ProcessedFrame) then
+                begin
+                  LogMsg('[MOTION] Significant motion detected between consecutive frames.');
+                end;
+              end;
+
+            finally
+              if ProcessedFrame <> Frame then
+                ProcessedFrame.Free;
             end;
           end;
-
-          // Motion tracking simulation
-          if chkTrackMotion.Checked then
-          begin
-            if FMotionTracker.DetectMotion(Frame, ProcessedFrame) then
-            begin
-              LogMsg('[MOTION] Significant motion detected between consecutive frames.');
-            end;
-          end;
-
-        finally
-          ProcessedFrame.Free;
+        except
+          on E: Exception do LogMsg('Error loading/processing frame: ' + E.Message);
         end;
       end;
     finally

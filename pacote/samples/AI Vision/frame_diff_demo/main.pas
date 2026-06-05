@@ -57,30 +57,29 @@ begin
   lblStatus.Caption := 'Status: Processing...';
   AddLog('--- Starting Execution ---');
   try
-  FAIFrameDiff.Threshold := 35;
-  FAIFrameDiff.Mode := fdmAbsolute;
-  FMotionTracker.Sensitivity := 10;
+  FMotionTracker.Threshold := 15;
+  FMotionTracker.MinMotionPercent := 1.5;
   
   AddLog('Frame Diff & Motion Tracker Properties:');
-  AddLog('  Threshold: ' + IntToStr(FAIFrameDiff.Threshold));
-  AddLog('  Sensitivity: ' + IntToStr(FMotionTracker.Sensitivity));
+  AddLog('  Motion Threshold: ' + IntToStr(FMotionTracker.Threshold));
+  AddLog('  MinMotionPercent: ' + FloatToStr(FMotionTracker.MinMotionPercent));
   
   if chkSimulation.Checked then
   begin
     AddLog('Simulating frame evaluation difference analysis...');
     AddLog('Frame A: 640x480 | Frame B: 640x480');
     // Call methods
-    FAIFrameDiff.ProcessDiff('frameA.bmp', 'frameB.bmp', 'diff.bmp');
-    AddLog('Absolute difference calculated. Matrix difference threshold pixels: 1245');
-    FMotionTracker.TrackMotion('diff.bmp');
-    AddLog('Motion percentage: 4.8% -> Alert: None');
+    FAIFrameDiff.GenerateDiffFile('frameA.bmp', 'frameB.bmp', 'diff.bmp');
+    AddLog('Absolute difference calculated.');
+    FMotionTracker.DetectMotionFromFiles('frameA.bmp', 'frameB.bmp');
+    AddLog('Motion percentage: ' + FloatToStr(FMotionTracker.MotionPercent) + '% -> Detected: ' + BoolToStr(FMotionTracker.LastMotionDetected, True));
     AddLog('Simulation complete.');
   end
   else
   begin
     AddLog('Processing real frame buffer difference details...');
     try
-      FAIFrameDiff.ProcessDiff('frameA.bmp', 'frameB.bmp', 'diff.bmp');
+      FAIFrameDiff.GenerateDiffFile('frameA.bmp', 'frameB.bmp', 'diff.bmp');
       AddLog('Frame process completed.');
     except
       on E: Exception do AddLog('Exception: ' + E.Message);
