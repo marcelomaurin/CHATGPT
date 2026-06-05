@@ -1,0 +1,3 @@
+# Core runtime dependencies for API/LLM integration
+requests
+openai
