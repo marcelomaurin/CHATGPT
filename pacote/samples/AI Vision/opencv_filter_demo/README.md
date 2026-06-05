@@ -1,19 +1,30 @@
 # TAIOpenCV Filter Demo
 
-This demo shows how to use the `TAIOpenCV` component to process images using OpenCV from Lazarus / Free Pascal.
+This sample demonstrates how to use the `TAIOpenCV` component in a Lazarus graphical application.
 
 ## Features
 
-- Load image file
-- Run OpenCV self-test
+- OpenCV SelfTest
+- Load image
+- Read image information
 - Apply basic filters
-- Preview original and processed image
-- Save processed image
-- Show component logs and errors
+- Preview original image
+- Preview processed image
+- Save processed output
+- Show logs and errors
 
-## Recommended backend
+## Supported filters
 
-Python Process.
+- None
+- Gray
+- Blur
+- Canny
+- Threshold
+- Resize
+
+## Required backend
+
+The current implementation uses Python Process.
 
 Install dependencies:
 
@@ -21,22 +32,15 @@ Install dependencies:
 pip install opencv-python numpy
 ```
 
-## Supported filters
+## Worker
 
-* Gray
-* Blur
-* Gaussian Blur
-* Median Blur
-* Canny
-* Threshold
-* Adaptive Threshold
-* Sharpen
-* Invert
-* Erode
-* Dilate
-* Resize
-* Normalize
-* Equalize Histogram
+The component expects the worker script:
+
+```text
+python/aiopencv_worker.py
+```
+
+Make sure the worker exists relative to the executable or in the package python folder.
 
 ## How to run
 
@@ -45,8 +49,9 @@ pip install opencv-python numpy
 3. Run the application.
 4. Click `SelfTest`.
 5. Load an image.
-6. Choose a filter.
+6. Select a filter.
 7. Click `Process`.
+8. Preview and save the processed image.
 
 ## Status
 

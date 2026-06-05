@@ -6,16 +6,18 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  Spin, aiopencv, aibase;
+  Spin, Buttons, FileUtil, aiopencv, aibase;
 
 type
 
-  { TfrmOpenCVDemo }
+  { TfrmOpenCVFilterDemo }
 
-  TfrmOpenCVDemo = class(TForm)
+  TfrmOpenCVFilterDemo = class(TForm)
     pnlTop: TPanel;
+    pnlParams: TPanel;
     pnlImages: TPanel;
-    pnlBottom: TPanel;
+    pnlStatus: TPanel;
+    pnlLog: TPanel;
     
     imgOriginal: TImage;
     imgProcessed: TImage;
@@ -33,6 +35,17 @@ type
     lblOutputFile: TLabel;
     lblStatus: TLabel;
     lblImageInfo: TLabel;
+    lblOriginal: TLabel;
+    lblProcessed: TLabel;
+    lblLogText: TLabel;
+    lblBackendText: TLabel;
+    lblFilterText: TLabel;
+    lblBlurKernel: TLabel;
+    lblThresholdValue: TLabel;
+    lblCannyT1: TLabel;
+    lblCannyT2: TLabel;
+    lblResizeWidth: TLabel;
+    lblResizeHeight: TLabel;
     
     edInputFile: TEdit;
     edOutputFile: TEdit;
@@ -71,28 +84,26 @@ type
     AIOpenCV1: TAIOpenCV;
     
     procedure AddLog(const AMsg: string);
-    procedure ConfiguraOpenCV;
-    procedure AtualizaFiltroSelecionado;
-    procedure AtualizaBackendSelecionado;
-    procedure AtualizaParametros;
-    procedure CarregaImagemOriginal(const AFileName: string);
-    procedure CarregaImagemProcessada(const AFileName: string);
-    function GeraNomeSaida(const AInputFile: string): string;
-    procedure AtualizaInfoImagem;
+    procedure ConfigureOpenCV;
+    procedure ApplyFilterSelection;
+    function GenerateOutputName(const AInputFile: string): string;
+    procedure LoadOriginalImage(const AFileName: string);
+    procedure LoadProcessedImage(const AFileName: string);
+    procedure UpdateImageInfo;
   public
 
   end;
 
 var
-  frmOpenCVDemo: TfrmOpenCVDemo;
+  frmOpenCVFilterDemo: TfrmOpenCVFilterDemo;
 
 implementation
 
 {$R *.lfm}
 
-{ TfrmOpenCVDemo }
+{ TfrmOpenCVFilterDemo }
 
-procedure TfrmOpenCVDemo.FormCreate(Sender: TObject);
+procedure TfrmOpenCVFilterDemo.FormCreate(Sender: TObject);
 begin
   AIOpenCV1 := TAIOpenCV.Create(Self);
   AIOpenCV1.OnBeforeProcess := @AIOpenCVBeforeProcess;
@@ -124,53 +135,75 @@ begin
   seResizeWidth.Value := 640;
   seResizeHeight.Value := 480;
 
-  chkAutoSave.Checked := True;
-  chkOverwrite.Checked := True;
-
-  OpenDialog1.Filter := 'Images|*.jpg;*.jpeg;*.png;*.bmp;*.tif;*.tiff|All files|*.*';
-  SaveDialog1.Filter := 'JPEG|*.jpg|PNG|*.png|BMP|*.bmp';
+  AIOpenCV1.Backend := ocvPythonProcess;
+  AIOpenCV1.FilterType := ocvfGray;
+  AIOpenCV1.AutoSave := True;
+  AIOpenCV1.OverwriteOutput := True;
 
   lblStatus.Caption := 'Status: aguardando';
-  lblImageInfo.Caption := 'Image: none';
+  lblImageInfo.Caption := 'Imagem: nenhuma';
+
+  OpenDialog1.Filter := 'Images|*.jpg;*.jpeg;*.png;*.bmp;*.tif;*.tiff|All files|*.*';
+  SaveDialog1.Filter := 'JPEG|*.jpg|PNG|*.png|BMP|*.bmp|All files|*.*';
 
   AddLog('Demo iniciado.');
 end;
 
-procedure TfrmOpenCVDemo.btnLoadImageClick(Sender: TObject);
+procedure TfrmOpenCVFilterDemo.btnLoadImageClick(Sender: TObject);
 begin
-  if OpenDialog1.Execute then
+  if not OpenDialog1.Execute then
+    Exit;
+
+  edInputFile.Text := OpenDialog1.FileName;
+  edOutputFile.Text := GenerateOutputName(OpenDialog1.FileName);
+
+  LoadOriginalImage(edInputFile.Text);
+
+  ConfigureOpenCV;
+
+  if AIOpenCV1.GetImageInfo(edInputFile.Text) then
   begin
-    edInputFile.Text := OpenDialog1.FileName;
-    CarregaImagemOriginal(OpenDialog1.FileName);
-    
-    // Sugerir output file
-    edOutputFile.Text := GeraNomeSaida(OpenDialog1.FileName);
-    
-    // Configura e puxa informações da imagem
-    ConfiguraOpenCV;
-    AtualizaInfoImagem;
+    lblImageInfo.Caption :=
+      Format('Imagem: %dx%d, canais: %d',
+        [AIOpenCV1.LastImageWidth,
+         AIOpenCV1.LastImageHeight,
+         AIOpenCV1.LastChannels]);
+
+    AddLog(lblImageInfo.Caption);
+  end
+  else
+  begin
+    lblImageInfo.Caption := 'Imagem: erro ao ler informações';
+    AddLog('Erro ao ler imagem: ' + AIOpenCV1.LastError);
   end;
 end;
 
-procedure TfrmOpenCVDemo.btnSelfTestClick(Sender: TObject);
+procedure TfrmOpenCVFilterDemo.btnSelfTestClick(Sender: TObject);
 begin
-  ConfiguraOpenCV;
+  ConfigureOpenCV;
 
   if AIOpenCV1.SelfTest then
   begin
     lblStatus.Caption := 'Status: OpenCV disponível';
     AddLog('SelfTest OK: ' + AIOpenCV1.LastResult);
+    AddLog('Versão: ' + AIOpenCV1.Version);
   end
   else
   begin
-    lblStatus.Caption := 'Status: erro';
+    lblStatus.Caption := 'Status: erro no SelfTest';
     AddLog('SelfTest ERRO: ' + AIOpenCV1.LastError);
   end;
 end;
 
-procedure TfrmOpenCVDemo.btnProcessClick(Sender: TObject);
+procedure TfrmOpenCVFilterDemo.btnProcessClick(Sender: TObject);
 begin
-  ConfiguraOpenCV;
+  ConfigureOpenCV;
+
+  if edInputFile.Text = '' then
+  begin
+    AddLog('Selecione uma imagem de entrada.');
+    Exit;
+  end;
 
   if not FileExists(edInputFile.Text) then
   begin
@@ -178,110 +211,110 @@ begin
     Exit;
   end;
 
+  if edOutputFile.Text = '' then
+    edOutputFile.Text := GenerateOutputName(edInputFile.Text);
+
   if AIOpenCV1.ProcessFile(edInputFile.Text, edOutputFile.Text) then
   begin
-    AddLog('Processamento concluído.');
-    CarregaImagemProcessada(edOutputFile.Text);
     lblStatus.Caption := 'Status: imagem processada';
+    AddLog('Processamento OK: ' + AIOpenCV1.LastResult);
+
+    if FileExists(edOutputFile.Text) then
+      LoadProcessedImage(edOutputFile.Text)
+    else
+      AddLog('Aviso: arquivo de saída não encontrado após processamento.');
   end
   else
   begin
-    AddLog('Erro: ' + AIOpenCV1.LastError);
     lblStatus.Caption := 'Status: erro no processamento';
+    AddLog('Erro: ' + AIOpenCV1.LastError);
   end;
 end;
 
-procedure TfrmOpenCVDemo.btnSaveClick(Sender: TObject);
-var
-  SourceStream, DestStream: TFileStream;
+procedure TfrmOpenCVFilterDemo.btnSaveClick(Sender: TObject);
 begin
-  if not FileExists(edOutputFile.Text) then
+  if (edOutputFile.Text = '') or (not FileExists(edOutputFile.Text)) then
   begin
     AddLog('Nenhuma imagem processada para salvar.');
     Exit;
   end;
-  
-  SaveDialog1.FileName := edOutputFile.Text;
+
   if SaveDialog1.Execute then
   begin
-    try
-      SourceStream := TFileStream.Create(edOutputFile.Text, fmOpenRead or fmShareDenyWrite);
-      try
-        DestStream := TFileStream.Create(SaveDialog1.FileName, fmCreate);
-        try
-          DestStream.CopyFrom(SourceStream, SourceStream.Size);
-          AddLog('Imagem salva com sucesso: ' + SaveDialog1.FileName);
-        finally
-          DestStream.Free;
-        end;
-      finally
-        SourceStream.Free;
-      end;
-    except
-      on E: Exception do
-        AddLog('Erro ao salvar imagem: ' + E.Message);
-    end;
+    CopyFile(edOutputFile.Text, SaveDialog1.FileName);
+    AddLog('Imagem salva em: ' + SaveDialog1.FileName);
   end;
 end;
 
-procedure TfrmOpenCVDemo.btnClearLogClick(Sender: TObject);
+procedure TfrmOpenCVFilterDemo.btnClearLogClick(Sender: TObject);
 begin
   memoLog.Clear;
 end;
 
-procedure TfrmOpenCVDemo.cbFilterChange(Sender: TObject);
+procedure TfrmOpenCVFilterDemo.cbFilterChange(Sender: TObject);
 begin
   if edInputFile.Text <> '' then
-    edOutputFile.Text := GeraNomeSaida(edInputFile.Text);
+    edOutputFile.Text := GenerateOutputName(edInputFile.Text);
 end;
 
 { OpenCV Component Event Handlers }
 
-procedure TfrmOpenCVDemo.AIOpenCVBeforeProcess(Sender: TObject);
+procedure TfrmOpenCVFilterDemo.AIOpenCVBeforeProcess(Sender: TObject);
 begin
   AddLog('Iniciando processamento...');
 end;
 
-procedure TfrmOpenCVDemo.AIOpenCVAfterProcess(Sender: TObject);
+procedure TfrmOpenCVFilterDemo.AIOpenCVAfterProcess(Sender: TObject);
 begin
   AddLog('Processamento finalizado.');
 end;
 
-procedure TfrmOpenCVDemo.AIOpenCVImageProcessed(Sender: TObject);
+procedure TfrmOpenCVFilterDemo.AIOpenCVImageProcessed(Sender: TObject);
 begin
-  AddLog('Imagem processada e salva com sucesso.');
+  AddLog('Imagem processada pelo componente.');
 end;
 
-procedure TfrmOpenCVDemo.AIOpenCVError(Sender: TObject; const AError: string);
+procedure TfrmOpenCVFilterDemo.AIOpenCVError(Sender: TObject; const AError: string);
 begin
   AddLog('ERRO: ' + AError);
 end;
 
-procedure TfrmOpenCVDemo.AIOpenCVLog(Sender: TObject; Level: TAILogLevel; const Message: string);
+procedure TfrmOpenCVFilterDemo.AIOpenCVLog(Sender: TObject; Level: TAILogLevel; const Message: string);
 begin
   AddLog(Message);
 end;
 
 { Métodos auxiliares do form }
 
-procedure TfrmOpenCVDemo.AddLog(const AMsg: string);
+procedure TfrmOpenCVFilterDemo.AddLog(const AMsg: string);
 begin
   memoLog.Lines.Add(FormatDateTime('hh:nn:ss', Now) + ' - ' + AMsg);
 end;
 
-procedure TfrmOpenCVDemo.ConfiguraOpenCV;
+procedure TfrmOpenCVFilterDemo.ConfigureOpenCV;
 begin
-  AtualizaBackendSelecionado;
-  AtualizaFiltroSelecionado;
-  AtualizaParametros;
+  ApplyFilterSelection;
+
+  case cbBackend.ItemIndex of
+    0: AIOpenCV1.Backend := ocvPythonProcess;
+    1: AIOpenCV1.Backend := ocvNativeDLL;
+  end;
 
   AIOpenCV1.InputFile := edInputFile.Text;
   AIOpenCV1.OutputFile := edOutputFile.Text;
-  AIOpenCV1.AutoSave := chkAutoSave.Checked;
-  AIOpenCV1.OverwriteOutput := chkOverwrite.Checked;
+
+  AIOpenCV1.BlurKernelSize := seBlurKernel.Value;
+  AIOpenCV1.ThresholdValue := seThresholdValue.Value;
+  AIOpenCV1.CannyThreshold1 := seCanny1.Value;
+  AIOpenCV1.CannyThreshold2 := seCanny2.Value;
+  AIOpenCV1.ResizeWidth := seResizeWidth.Value;
+  AIOpenCV1.ResizeHeight := seResizeHeight.Value;
+
+  AIOpenCV1.AutoSave := True;
+  AIOpenCV1.OverwriteOutput := True;
 end;
 
-procedure TfrmOpenCVDemo.AtualizaFiltroSelecionado;
+procedure TfrmOpenCVFilterDemo.ApplyFilterSelection;
 begin
   case cbFilter.ItemIndex of
     0: AIOpenCV1.FilterType := ocvfNone;
@@ -290,64 +323,23 @@ begin
     3: AIOpenCV1.FilterType := ocvfCanny;
     4: AIOpenCV1.FilterType := ocvfThreshold;
     5: AIOpenCV1.FilterType := ocvfResize;
+  else
+    AIOpenCV1.FilterType := ocvfGray;
   end;
 end;
 
-procedure TfrmOpenCVDemo.AtualizaBackendSelecionado;
-begin
-  case cbBackend.ItemIndex of
-    0: AIOpenCV1.Backend := ocvPythonProcess;
-    1: AIOpenCV1.Backend := ocvNativeDLL;
-  end;
-end;
-
-procedure TfrmOpenCVDemo.AtualizaParametros;
-begin
-  AIOpenCV1.BlurKernelSize := seBlurKernel.Value;
-  AIOpenCV1.ThresholdValue := seThresholdValue.Value;
-  AIOpenCV1.CannyThreshold1 := seCanny1.Value;
-  AIOpenCV1.CannyThreshold2 := seCanny2.Value;
-  AIOpenCV1.ResizeWidth := seResizeWidth.Value;
-  AIOpenCV1.ResizeHeight := seResizeHeight.Value;
-end;
-
-procedure TfrmOpenCVDemo.CarregaImagemOriginal(const AFileName: string);
-begin
-  if FileExists(AFileName) then
-  begin
-    try
-      imgOriginal.Picture.LoadFromFile(AFileName);
-      AddLog('Imagem original exibida: ' + ExtractFileName(AFileName));
-    except
-      on E: Exception do
-        AddLog('Erro ao exibir imagem original: ' + E.Message);
-    end;
-  end;
-end;
-
-procedure TfrmOpenCVDemo.CarregaImagemProcessada(const AFileName: string);
-begin
-  if FileExists(AFileName) then
-  begin
-    try
-      imgProcessed.Picture.LoadFromFile(AFileName);
-      AddLog('Imagem processada exibida: ' + ExtractFileName(AFileName));
-    except
-      on E: Exception do
-        AddLog('Erro ao exibir imagem processada: ' + E.Message);
-    end;
-  end;
-end;
-
-function TfrmOpenCVDemo.GeraNomeSaida(const AInputFile: string): string;
+function TfrmOpenCVFilterDemo.GenerateOutputName(const AInputFile: string): string;
 var
-  Dir, Name, Ext: string;
-  FilterName: string;
+  DirName, BaseName, ExtName, FilterName: string;
 begin
-  Dir := ExtractFilePath(AInputFile);
-  Name := ChangeFileExt(ExtractFileName(AInputFile), '');
-  Ext := ExtractFileExt(AInputFile);
-  
+  DirName := IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName)) + 'output';
+
+  if not DirectoryExists(DirName) then
+    CreateDir(DirName);
+
+  BaseName := ChangeFileExt(ExtractFileName(AInputFile), '');
+  ExtName := ExtractFileExt(AInputFile);
+
   case cbFilter.ItemIndex of
     0: FilterName := 'none';
     1: FilterName := 'gray';
@@ -355,26 +347,64 @@ begin
     3: FilterName := 'canny';
     4: FilterName := 'threshold';
     5: FilterName := 'resize';
-    else FilterName := 'output';
+  else
+    FilterName := 'processed';
   end;
-  
-  Result := Dir + Name + '_' + FilterName + Ext;
+
+  Result := IncludeTrailingPathDelimiter(DirName) +
+            BaseName + '_' + FilterName + ExtName;
 end;
 
-procedure TfrmOpenCVDemo.AtualizaInfoImagem;
+procedure TfrmOpenCVFilterDemo.LoadOriginalImage(const AFileName: string);
+begin
+  if FileExists(AFileName) then
+  begin
+    try
+      imgOriginal.Picture.LoadFromFile(AFileName);
+      AddLog('Imagem original carregada: ' + ExtractFileName(AFileName));
+    except
+      on E: Exception do
+        AddLog('Erro ao carregar imagem original: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmOpenCVFilterDemo.LoadProcessedImage(const AFileName: string);
+begin
+  if FileExists(AFileName) then
+  begin
+    try
+      imgProcessed.Picture.LoadFromFile(AFileName);
+      AddLog('Imagem processada carregada: ' + ExtractFileName(AFileName));
+    except
+      on E: Exception do
+        AddLog('Erro ao carregar imagem processada: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmOpenCVFilterDemo.UpdateImageInfo;
 begin
   if FileExists(edInputFile.Text) then
   begin
     if AIOpenCV1.GetImageInfo(edInputFile.Text) then
     begin
-      lblImageInfo.Caption := Format('Image: %dx%d, channels: %d', 
-        [AIOpenCV1.LastImageWidth, AIOpenCV1.LastImageHeight, AIOpenCV1.LastChannels]);
+      lblImageInfo.Caption :=
+        Format('Imagem: %dx%d, canais: %d',
+          [AIOpenCV1.LastImageWidth,
+           AIOpenCV1.LastImageHeight,
+           AIOpenCV1.LastChannels]);
+
+      AddLog(lblImageInfo.Caption);
     end
     else
-      lblImageInfo.Caption := 'Image: error reading info';
+    begin
+      lblImageInfo.Caption := 'Imagem: erro ao ler informações';
+      AddLog('Erro ao ler imagem: ' + AIOpenCV1.LastError);
+    end;
   end
   else
-    lblImageInfo.Caption := 'Image: none';
+    lblImageInfo.Caption := 'Imagem: nenhuma';
 end;
 
 end.

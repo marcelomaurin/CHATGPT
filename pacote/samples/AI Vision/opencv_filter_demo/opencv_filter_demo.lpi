@@ -39,7 +39,7 @@
       <Unit>
         <Filename Value="main.pas"/>
         <IsPartOfProject Value="True"/>
-        <ComponentName Value="frmOpenCVDemo"/>
+        <ComponentName Value="frmOpenCVFilterDemo"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit>

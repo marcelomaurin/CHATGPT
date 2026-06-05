@@ -16,6 +16,6 @@ begin
   RequireDerivedFormResource:=True;
   Application.Scaled:=True;
   Application.Initialize;
-  Application.CreateForm(TfrmOpenCVDemo, frmOpenCVDemo);
+  Application.CreateForm(TfrmOpenCVFilterDemo, frmOpenCVFilterDemo);
   Application.Run;
 end.
