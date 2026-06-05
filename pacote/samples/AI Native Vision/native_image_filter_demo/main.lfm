@@ -1,0 +1,235 @@
+object frmFilterDemo: TfrmFilterDemo
+  Left = 200
+  Height = 650
+  Top = 100
+  Width = 1000
+  Caption = 'Filtros de Imagem Nativos (Sem Dependência Python)'
+  ClientHeight = 650
+  ClientWidth = 1000
+  OnCreate = FormCreate
+  LCLVersion = '3.0.0.3'
+  object pnlLeft: TPanel
+    Left = 10
+    Height = 630
+    Top = 10
+    Width = 260
+    Align = alLeft
+    BorderSpacing.Around = 10
+    ClientHeight = 630
+    ClientWidth = 260
+    TabOrder = 0
+    object btnLoad: TButton
+      Left = 15
+      Height = 35
+      Top = 15
+      Width = 230
+      Caption = 'Carregar Imagem'
+      OnClick = btnLoadClick
+      TabOrder = 0
+    end
+    object lblFilter: TLabel
+      Left = 15
+      Height = 15
+      Top = 70
+      Width = 120
+      Caption = 'Escolher Filtro:'
+      ParentColor = False
+    end
+    object cbFilterType: TComboBox
+      Left = 15
+      Height = 23
+      Top = 90
+      Width = 230
+      ItemHeight = 15
+      OnChange = cbFilterTypeChange
+      Style = csDropDownList
+      TabOrder = 1
+    end
+    object lblThreshold: TLabel
+      Left = 15
+      Height = 15
+      Top = 130
+      Width = 150
+      Caption = 'Limiar (Threshold 0..255):'
+      ParentColor = False
+    end
+    object edThreshold: TEdit
+      Left = 15
+      Height = 23
+      Top = 150
+      Width = 230
+      TabOrder = 2
+      Text = '128'
+    end
+    object lblWidth: TLabel
+      Left = 15
+      Height = 15
+      Top = 190
+      Width = 90
+      Caption = 'Nova Largura:'
+      ParentColor = False
+    end
+    object edWidth: TEdit
+      Left = 15
+      Height = 23
+      Top = 210
+      Width = 100
+      TabOrder = 3
+      Text = '320'
+    end
+    object lblHeight: TLabel
+      Left = 145
+      Height = 15
+      Top = 190
+      Width = 90
+      Caption = 'Nova Altura:'
+      ParentColor = False
+    end
+    object edHeight: TEdit
+      Left = 145
+      Height = 23
+      Top = 210
+      Width = 100
+      TabOrder = 4
+      Text = '240'
+    end
+    object btnApply: TButton
+      Left = 15
+      Height = 40
+      Top = 260
+      Width = 230
+      Caption = 'Aplicar Filtro'
+      Font.Style = [fsBold]
+      OnClick = btnApplyClick
+      ParentFont = False
+      TabOrder = 5
+    end
+    object btnSave: TButton
+      Left = 15
+      Height = 35
+      Top = 320
+      Width = 230
+      Caption = 'Salvar Imagem Processada'
+      OnClick = btnSaveClick
+      TabOrder = 6
+    end
+  end
+  object pnlClient: TPanel
+    Left = 280
+    Height = 450
+    Top = 10
+    Width = 710
+    Align = alClient
+    BorderSpacing.Top = 10
+    BorderSpacing.Right = 10
+    BorderSpacing.Bottom = 10
+    ClientHeight = 450
+    ClientWidth = 710
+    TabOrder = 1
+    object pnlOriginal: TPanel
+      Left = 1
+      Height = 448
+      Top = 1
+      Width = 350
+      Align = alLeft
+      ClientHeight = 448
+      ClientWidth = 350
+      TabOrder = 0
+      object lblInfoOrig: TLabel
+        Left = 1
+        Height = 20
+        Top = 1
+        Width = 348
+        Align = alTop
+        Alignment = taCenter
+        Caption = 'Imagem Original'
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+      end
+      object imgOriginal: TImage
+        Left = 1
+        Height = 426
+        Top = 21
+        Width = 348
+        Align = alClient
+        Center = True
+        Proportional = True
+        Stretch = True
+      end
+    end
+    object Splitter1: TSplitter
+      Left = 351
+      Height = 448
+      Top = 1
+      Width = 5
+    end
+    object pnlProcessed: TPanel
+      Left = 356
+      Height = 448
+      Top = 1
+      Width = 353
+      Align = alClient
+      ClientHeight = 448
+      ClientWidth = 353
+      TabOrder = 2
+      object lblInfoProc: TLabel
+        Left = 1
+        Height = 20
+        Top = 1
+        Width = 351
+        Align = alTop
+        Alignment = taCenter
+        Caption = 'Imagem Processada'
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+      end
+      object imgProcessed: TImage
+        Left = 1
+        Height = 426
+        Top = 21
+        Width = 351
+        Align = alClient
+        Center = True
+        Proportional = True
+        Stretch = True
+      end
+    end
+  end
+  object pnlBottom: TPanel
+    Left = 280
+    Height = 170
+    Top = 470
+    Width = 710
+    Align = alBottom
+    BorderSpacing.Right = 10
+    BorderSpacing.Bottom = 10
+    ClientHeight = 170
+    ClientWidth = 710
+    TabOrder = 2
+    object memLog: TMemo
+      Left = 1
+      Height = 168
+      Top = 1
+      Width = 708
+      Align = alClient
+      ReadOnly = True
+      ScrollBars = ssAutoVertical
+      TabOrder = 0
+    end
+  end
+  object OpenDialog1: TOpenDialog
+    Title = 'Carregar Imagem'
+    Filter = 'Imagens Suportadas (*.bmp;*.png;*.jpg;*.jpeg)|*.bmp;*.png;*.jpg;*.jpeg|Imagens BMP (*.bmp)|*.bmp|Imagens PNG (*.png)|*.png|Imagens JPEG (*.jpg;*.jpeg)|*.jpg;*.jpeg|Todos Arquivos (*.*)|*.*'
+    Left = 310
+    Top = 80
+  end
+  object SaveDialog1: TSaveDialog
+    Title = 'Salvar Imagem Processada'
+    DefaultExt = '.bmp'
+    Filter = 'Imagem BMP (*.bmp)|*.bmp|Imagem PNG (*.png)|*.png|Todos Arquivos (*.*)|*.*'
+    Left = 390
+    Top = 80
+  end
+end

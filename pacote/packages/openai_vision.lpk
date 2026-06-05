@@ -41,6 +41,26 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="aimotiontracker"/>
       </Item>
+      <Item>
+        <Filename Value="..\AI Vision\aiimageinfo.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiimageinfo"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Vision\aiframebuffer.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiframebuffer"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Vision\ainativeimagefilter.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="ainativeimagefilter"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Vision\aiframediff.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiframediff"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>

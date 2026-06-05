@@ -1,0 +1,258 @@
+object frmMotionDemo: TfrmMotionDemo
+  Left = 150
+  Height = 650
+  Top = 100
+  Width = 1100
+  Caption = 'Detecção de Movimento e Diferença de Frames (100% Lazarus)'
+  ClientHeight = 650
+  ClientWidth = 1100
+  OnCreate = FormCreate
+  LCLVersion = '3.0.0.3'
+  object pnlLeft: TPanel
+    Left = 10
+    Height = 630
+    Top = 10
+    Width = 240
+    Align = alLeft
+    BorderSpacing.Around = 10
+    ClientHeight = 630
+    ClientWidth = 240
+    TabOrder = 0
+    object btnLoadA: TButton
+      Left = 15
+      Height = 35
+      Top = 15
+      Width = 210
+      Caption = 'Carregar Frame A'
+      OnClick = btnLoadAClick
+      TabOrder = 0
+    end
+    object btnLoadB: TButton
+      Left = 15
+      Height = 35
+      Top = 60
+      Width = 210
+      Caption = 'Carregar Frame B'
+      OnClick = btnLoadBClick
+      TabOrder = 1
+    end
+    object lblThreshold: TLabel
+      Left = 15
+      Height = 15
+      Top = 110
+      Width = 150
+      Caption = 'Sensibilidade Pixel (0..255):'
+      ParentColor = False
+    end
+    object edThreshold: TEdit
+      Left = 15
+      Height = 23
+      Top = 130
+      Width = 210
+      TabOrder = 2
+      Text = '15'
+    end
+    object lblMinMotion: TLabel
+      Left = 15
+      Height = 15
+      Top = 170
+      Width = 180
+      Caption = 'Mínimo de Movimento %:'
+      ParentColor = False
+    end
+    object edMinMotion: TEdit
+      Left = 15
+      Height = 23
+      Top = 190
+      Width = 210
+      TabOrder = 3
+      Text = '1.5'
+    end
+    object btnRun: TButton
+      Left = 15
+      Height = 40
+      Top = 240
+      Width = 210
+      Caption = 'Analisar Movimento'
+      Font.Style = [fsBold]
+      OnClick = btnRunClick
+      ParentFont = False
+      TabOrder = 4
+    end
+    object btnSaveDiff: TButton
+      Left = 15
+      Height = 35
+      Top = 300
+      Width = 210
+      Caption = 'Salvar Frame Diferença'
+      OnClick = btnSaveDiffClick
+      TabOrder = 5
+    end
+    object lblResultMotion: TLabel
+      Left = 15
+      Height = 25
+      Top = 360
+      Width = 210
+      Alignment = taCenter
+      Caption = 'Movimento: N/A'
+      Font.Height = -16
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object lblResultPercent: TLabel
+      Left = 15
+      Height = 20
+      Top = 395
+      Width = 210
+      Alignment = taCenter
+      Caption = 'Diferença: 0.0%'
+      Font.Height = -13
+      ParentColor = False
+    end
+  end
+  object pnlClient: TPanel
+    Left = 260
+    Height = 450
+    Top = 10
+    Width = 830
+    Align = alClient
+    BorderSpacing.Top = 10
+    BorderSpacing.Right = 10
+    BorderSpacing.Bottom = 10
+    ClientHeight = 450
+    ClientWidth = 830
+    TabOrder = 1
+    object pnlFrameA: TPanel
+      Left = 1
+      Height = 448
+      Top = 1
+      Width = 270
+      Align = alLeft
+      ClientHeight = 448
+      ClientWidth = 270
+      TabOrder = 0
+      object lblInfoA: TLabel
+        Left = 1
+        Height = 20
+        Top = 1
+        Width = 268
+        Align = alTop
+        Alignment = taCenter
+        Caption = 'Frame A'
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+      end
+      object imgFrameA: TImage
+        Left = 1
+        Height = 426
+        Top = 21
+        Width = 268
+        Align = alClient
+        Center = True
+        Proportional = True
+        Stretch = True
+      end
+    end
+    object pnlFrameB: TPanel
+      Left = 271
+      Height = 448
+      Top = 1
+      Width = 270
+      Align = alLeft
+      ClientHeight = 448
+      ClientWidth = 270
+      TabOrder = 1
+      object lblInfoB: TLabel
+        Left = 1
+        Height = 20
+        Top = 1
+        Width = 268
+        Align = alTop
+        Alignment = taCenter
+        Caption = 'Frame B'
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+      end
+      object imgFrameB: TImage
+        Left = 1
+        Height = 426
+        Top = 21
+        Width = 268
+        Align = alClient
+        Center = True
+        Proportional = True
+        Stretch = True
+      end
+    end
+    object pnlFrameDiff: TPanel
+      Left = 541
+      Height = 448
+      Top = 1
+      Width = 288
+      Align = alClient
+      ClientHeight = 448
+      ClientWidth = 288
+      TabOrder = 2
+      object lblInfoDiff: TLabel
+        Left = 1
+        Height = 20
+        Top = 1
+        Width = 286
+        Align = alTop
+        Alignment = taCenter
+        Caption = 'Diferença (Diff Map)'
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+      end
+      object imgFrameDiff: TImage
+        Left = 1
+        Height = 426
+        Top = 21
+        Width = 286
+        Align = alClient
+        Center = True
+        Proportional = True
+        Stretch = True
+      end
+    end
+  end
+  object pnlBottom: TPanel
+    Left = 260
+    Height = 170
+    Top = 470
+    Width = 830
+    Align = alBottom
+    BorderSpacing.Right = 10
+    BorderSpacing.Bottom = 10
+    ClientHeight = 170
+    ClientWidth = 830
+    TabOrder = 2
+    object memLog: TMemo
+      Left = 1
+      Height = 168
+      Top = 1
+      Width = 828
+      Align = alClient
+      ReadOnly = True
+      ScrollBars = ssAutoVertical
+      TabOrder = 0
+    end
+  end
+  object OpenDialog1: TOpenDialog
+    Title = 'Carregar Frame'
+    Filter = 'Imagens Suportadas (*.bmp;*.png;*.jpg;*.jpeg)|*.bmp;*.png;*.jpg;*.jpeg|Todos Arquivos (*.*)|*.*'
+    Left = 300
+    Top = 80
+  end
+  object SaveDialog1: TSaveDialog
+    Title = 'Salvar Frame Diferença'
+    DefaultExt = '.bmp'
+    Filter = 'Imagem BMP (*.bmp)|*.bmp|Todos Arquivos (*.*)|*.*'
+    Left = 380
+    Top = 80
+  end
+end

@@ -76,10 +76,14 @@ Use esta classificação para documentação, README de abas, samples e planejam
 | Componente | Unit | Pacote | Status | Observação |
 |---|---|---|---|---|
 | `TAIOpenCV` | `aiopencv.pas` | `openai_vision` | Beta | Funcional via worker Python; sample disponível |
-| `TAICameraCapture` | `aicameracapture.pas` | `openai_vision` | Experimental | Funcional via worker Python; captura real implementada |
+| `TAICameraCapture` | `aicameracapture.pas` | `openai_vision` | Beta | Captura nativa via Windows VFW (Stub em Linux) sem dependência de Python |
 | `TAIFrameProcessor` | `aiframeprocessor.pas` | `openai_vision` | Experimental | Processamento de frames em evolução |
-| `TAIFaceTracker` | `aifacetracker.pas` | `openai_vision` | Placeholder | Rastreamento real ainda precisa implementação/validação |
-| `TAIMotionTracker` | `aimotiontracker.pas` | `openai_vision` | Placeholder | Detecção real ainda precisa implementação/validação |
+| `TAIFaceTracker` | `aifacetracker.pas` | `openai_vision` | Beta | Rastreamento por template matching (SAD) 100% nativo |
+| `TAIMotionTracker` | `aimotiontracker.pas` | `openai_vision` | Beta | Detecção de movimento por variação de luminância 100% nativa |
+| `TAIImageInfo` | `aiimageinfo.pas` | `openai_vision` | Beta | Extração nativa de metadados e contagem de pixels de imagem |
+| `TAIFrameBuffer` | `aiframebuffer.pas` | `openai_vision` | Beta | Buffer de frames circular em memória para processamento de vídeo |
+| `TAINativeImageFilter` | `ainativeimagefilter.pas` | `openai_vision` | Beta | Filtros rápidos de pixel (Cinza, Limiar, Inverter, Resize, Blur) 100% nativos |
+| `TAIFrameDiff` | `aiframediff.pas` | `openai_vision` | Beta | Geração nativa de diferença absoluta de pixels entre frames |
 
 ---
 

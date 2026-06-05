@@ -9,6 +9,7 @@ interface
 
 uses
   aiopencv, aicameracapture, aiframeprocessor, aifacetracker, aimotiontracker, 
+  aiimageinfo, aiframebuffer, ainativeimagefilter, aiframediff, 
   LazarusPackageIntf;
 
 implementation
@@ -20,6 +21,10 @@ begin
   RegisterUnit('aiframeprocessor', @aiframeprocessor.Register);
   RegisterUnit('aifacetracker', @aifacetracker.Register);
   RegisterUnit('aimotiontracker', @aimotiontracker.Register);
+  RegisterUnit('aiimageinfo', @aiimageinfo.Register);
+  RegisterUnit('aiframebuffer', @aiframebuffer.Register);
+  RegisterUnit('ainativeimagefilter', @ainativeimagefilter.Register);
+  RegisterUnit('aiframediff', @aiframediff.Register);
 end;
 
 initialization

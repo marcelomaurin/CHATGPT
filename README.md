@@ -165,30 +165,30 @@ Componentes centrais:
 
 ### AI Vision
 
-`TAIOpenCV` já possui sample funcional em:
+A camada de Visão Computacional do projeto é dividida em duas abordagens:
 
-```text
-pacote/samples/AI Vision/opencv_filter_demo/
-```
+#### 1. AI Native Vision (100% Lazarus / Free Pascal)
+Componentes puramente Pascal, rápidos, sem dependência de Python, OpenCV ou executores externos. Estão registrados na aba **`AI Native Vision`** da IDE e utilizam `TLazIntfImage` para alta performance:
 
-Recursos atuais do `TAIOpenCV`:
+* `TAICameraCapture`: Captura de câmera/webcam via Windows VFW (Stub no Linux).
+* `TAINativeImageFilter`: Filtros de imagem rápidos (Cinza, Limiar, Inverter, Redimensionar, Blur).
+* `TAIImageInfo`: Extração de dimensões e metadados de imagem nativamente.
+* `TAIFrameBuffer`: Fila circular de frames em memória para processamento de vídeo.
+* `TAIMotionTracker`: Detetor de movimento nativo por variação de luminância.
+* `TAIFrameDiff`: Gerador de mapa de diferença absoluta entre frames.
+* `TAIFaceTracker`: Rastreador local baseado em template matching (SAD).
 
-* `SelfTest`
-* `Image Info`
-* `None`
-* `Gray`
-* `Blur`
-* `Canny`
-* `Threshold`
-* `Resize`
+Demos Visuais (Samples) em Pascal Puro:
+* `pacote/samples/AI Native Vision/camera_capture_demo/` (Exibição de câmera ao vivo e capturas)
+* `pacote/samples/AI Native Vision/native_image_filter_demo/` (Ferramenta interativa de filtros nativos)
+* `pacote/samples/AI Native Vision/motion_tracker_demo/` (Detecção de movimento e diferença de frames)
 
-Dependências:
+#### 2. AI Python Vision (Integração Externa)
+Componentes que realizam chamadas ou utilizam scripts Python externos para executar tarefas mais pesadas:
 
-```bash
-pip install opencv-python numpy
-```
-
-O backend `Native DLL` ainda não está implementado. Os componentes `TAICameraCapture`, `TAIFaceTracker` e `TAIMotionTracker` devem ser tratados como experimentais/placeholders até validação real.
+* `TAIOpenCV`: Funcional via worker Python. Possui sample funcional em `pacote/samples/AI Vision/opencv_filter_demo/`.
+  * Recursos atuais do `TAIOpenCV`: `SelfTest`, `Image Info`, `Gray`, `Blur`, `Canny`, `Threshold`, `Resize`.
+  * Dependências do OpenCV Python: `pip install opencv-python numpy`.
 
 ### AI Output
 
@@ -228,6 +228,9 @@ Sample atualmente consolidado:
 | Sample | Tipo | Pacote | Dependência externa | Status |
 |---|---|---|---|---|
 | `opencv_filter_demo` | GUI | `openai_vision` | Python + OpenCV | Funcional/Beta |
+| `camera_capture_demo` | GUI | `openai_vision` | Nenhuma (Webcam VFW no Windows) | Funcional/Beta |
+| `native_image_filter_demo` | GUI | `openai_vision` | Nenhuma | Funcional/Beta |
+| `motion_tracker_demo` | GUI | `openai_vision` | Nenhuma | Funcional/Beta |
 
 ---
 

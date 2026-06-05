@@ -92,7 +92,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('AI Vision', [TAICameraCapture]);
+  RegisterComponents('AI Native Vision', [TAICameraCapture]);
 end;
 
 {$IFDEF MSWINDOWS}
