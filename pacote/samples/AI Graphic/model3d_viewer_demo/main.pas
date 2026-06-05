@@ -65,41 +65,37 @@ begin
   lblStatus.Caption := 'Status: Processing...';
   AddLog('--- Starting Execution ---');
   try
-  FAI3DViewer.AutoRotate := True;
-  FAI3DViewer.ZoomFactor := 1.5;
-  FAI3DViewer.ViewAngle := StrToInt(FEditRotation.Text);
-  
-  AddLog('3D Model Viewer & Model 3D Properties:');
-  AddLog('  AutoRotate: ' + BoolToStr(FAI3DViewer.AutoRotate, True));
-  AddLog('  ZoomFactor: 1.5');
-  AddLog('  ViewAngle: ' + IntToStr(FAI3DViewer.ViewAngle));
-  
-  if chkSimulation.Checked then
-  begin
-    AddLog('Simulating 3D Model load...');
-    FAIModel3D.LoadModel('sample_part.stl');
-    AddLog('Model details (Simulated):');
-    AddLog('  Vertices: 1424');
-    AddLog('  Faces: 2848');
-    AddLog('Rotated 3D view by ' + FEditRotation.Text + ' degrees.');
-    AddLog('View rendered successfully.');
-  end
-  else
-  begin
-    AddLog('Loading actual model coordinates...');
-    try
-      if FAIModel3D.LoadFromFile('sample_part.stl') then
-      begin
-        AddLog('Model loaded successfully.');
-        FAI3DViewer.RenderView;
-        AddLog('RenderView method executed.');
-      end
-      else
-        AddLog('Model file not found: sample_part.stl');
-    except
-      on E: Exception do AddLog('Exception: ' + E.Message);
+    AddLog('3D Model Viewer & Model 3D Properties:');
+    AddLog('  Rotation: ' + FEditRotation.Text + ' degrees');
+    
+    if chkSimulation.Checked then
+    begin
+      AddLog('Simulating 3D Model load...');
+      FAIModel3D.LoadFromFile('sample_part.stl');
+      AddLog('Model details (Simulated):');
+      AddLog('  Vertices: 1424');
+      AddLog('  Faces: 2848');
+      AddLog('Rotated 3D view by ' + FEditRotation.Text + ' degrees.');
+      AddLog('View rendered successfully.');
+    end
+    else
+    begin
+      AddLog('Loading actual model coordinates...');
+      try
+        if FileExists('sample_part.stl') then
+        begin
+          FAIModel3D.LoadFromFile('sample_part.stl');
+          AddLog('Model loaded successfully.');
+          FAIModel3D.Rotate(StrToIntDef(FEditRotation.Text, 45), 0, 0);
+          FAI3DViewer.Invalidate;
+          AddLog('Invalidate redraw method executed.');
+        end
+        else
+          AddLog('Model file not found: sample_part.stl');
+      except
+        on E: Exception do AddLog('Exception: ' + E.Message);
+      end;
     end;
-  end;
     lblStatus.Caption := 'Status: Completed Successfully';
   except
     on E: Exception do
