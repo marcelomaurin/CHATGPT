@@ -5,7 +5,7 @@ unit aiprocessrunner;
 interface
 
 uses
-  Classes, SysUtils, Process;
+  Classes, SysUtils, Process, pipes;
 
 type
   TAIProcessRunner = class(TComponent)

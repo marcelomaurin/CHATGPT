@@ -52,6 +52,14 @@ procedure Register;
 
 implementation
 
+uses
+  {$IFDEF MSWINDOWS}
+  Windows
+  {$ELSE}
+  BaseUnix
+  {$ENDIF}
+  ;
+
 procedure Register;
 begin
   RegisterComponents('AI Core', [TAIPythonRuntime]);
@@ -159,9 +167,15 @@ var
 begin
   ClearError;
   Result := True;
-  OldPath := GetEnvironmentVariable('PATH');
+  OldPath := SysUtils.GetEnvironmentVariable('PATH');
   if (FLibraryPath <> '') and DirectoryExists(FLibraryPath) then
-    SetEnvironmentVariable('PATH', FLibraryPath + PathSeparator + OldPath);
+  begin
+    {$IFDEF MSWINDOWS}
+    Result := Windows.SetEnvironmentVariable('PATH', PChar(FLibraryPath + PathSeparator + OldPath));
+    {$ELSE}
+    Result := fpSetEnv('PATH', FLibraryPath + PathSeparator + OldPath, 1) = 0;
+    {$ENDIF}
+  end;
 end;
 
 function TAIPythonRuntime.ValidatePython: Boolean;

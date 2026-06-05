@@ -8,14 +8,17 @@ unit openai_core;
 interface
 
 uses
-  funcoes, aibase, chatgpt, tokenizer, aicodeassistant, aipromptbuilder, 
-  aimodelregistry, aiwizardconfig, frm_aiwizardconfig, DBTokenList, 
-  GroupResponse, iaschedule, aiproject, aipipeline, LazarusPackageIntf;
+  funcoes, aibase, aiplatform, airuntimepaths, ailibraryloader, 
+  aiprocessrunner, aipythonruntime, chatgpt, tokenizer, aicodeassistant, 
+  aipromptbuilder, aimodelregistry, aiwizardconfig, frm_aiwizardconfig, 
+  DBTokenList, GroupResponse, iaschedule, aiproject, aipipeline, 
+  LazarusPackageIntf;
 
 implementation
 
 procedure Register;
 begin
+  RegisterUnit('aipythonruntime', @aipythonruntime.Register);
   RegisterUnit('chatgpt', @chatgpt.Register);
   RegisterUnit('tokenizer', @tokenizer.Register);
   RegisterUnit('aicodeassistant', @aicodeassistant.Register);
