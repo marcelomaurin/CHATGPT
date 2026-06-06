@@ -18,6 +18,7 @@ type
     ccModel,
     ccProject,
     ccSafety,
+    ccSimulation,
     ccOther
   );
 

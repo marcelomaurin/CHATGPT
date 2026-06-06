@@ -1,0 +1,239 @@
+object frmMain: TfrmMain
+  Left = 350
+  Height = 620
+  Top = 150
+  Width = 850
+  Caption = 'Lazarus AI Suite - Contamination Simulation'
+  ClientHeight = 620
+  ClientWidth = 850
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  Position = poScreenCenter
+  object pbGrid: TPaintBox
+    Left = 0
+    Height = 620
+    Top = 0
+    Width = 580
+    Align = alClient
+    OnPaint = pbGridPaint
+  end
+  object pnlControl: TPanel
+    Left = 580
+    Height = 620
+    Top = 0
+    Width = 270
+    Align = alRight
+    ClientHeight = 620
+    ClientWidth = 270
+    TabOrder = 0
+    object btnStart: TButton
+      Left = 16
+      Height = 30
+      Top = 10
+      Width = 238
+      Caption = 'Iniciar Simulação'
+      OnClick = btnStartClick
+      TabOrder = 0
+    end
+    object btnPause: TButton
+      Left = 16
+      Height = 30
+      Top = 45
+      Width = 238
+      Caption = 'Pausar'
+      OnClick = btnPauseClick
+      TabOrder = 1
+    end
+    object btnStep: TButton
+      Left = 16
+      Height = 30
+      Top = 80
+      Width = 238
+      Caption = 'Passo a Passo (Step)'
+      OnClick = btnStepClick
+      TabOrder = 2
+    end
+    object btnStop: TButton
+      Left = 16
+      Height = 30
+      Top = 115
+      Width = 238
+      Caption = 'Parar'
+      OnClick = btnStopClick
+      TabOrder = 3
+    end
+    object btnReset: TButton
+      Left = 16
+      Height = 30
+      Top = 150
+      Width = 238
+      Caption = 'Reiniciar Cenário'
+      OnClick = btnResetClick
+      TabOrder = 4
+    end
+    object btnExport: TButton
+      Left = 16
+      Height = 30
+      Top = 185
+      Width = 238
+      Caption = 'Exportar Histórico'
+      OnClick = btnExportClick
+      TabOrder = 5
+    end
+    object lblConfig: TLabel
+      Left = 16
+      Height = 15
+      Top = 225
+      Width = 238
+      Caption = 'Configurações:'
+      Font.Style = [fsBold]
+      ParentColor = False
+    end
+    object lblPeoplePrompt: TLabel
+      Left = 16
+      Height = 15
+      Top = 245
+      Width = 140
+      Caption = 'Qtd Inicial Pessoas:'
+      ParentColor = False
+    end
+    object edtInitialPeople: TEdit
+      Left = 170
+      Height = 23
+      Top = 242
+      Width = 84
+      TabOrder = 6
+      Text = '30'
+    end
+    object lblInfectedPrompt: TLabel
+      Left = 16
+      Height = 15
+      Top = 275
+      Width = 140
+      Caption = 'Qtd Inicial Infectados:'
+      ParentColor = False
+    end
+    object edtInitialInfected: TEdit
+      Left = 170
+      Height = 23
+      Top = 272
+      Width = 84
+      TabOrder = 7
+      Text = '2'
+    end
+    object lblChancePrompt: TLabel
+      Left = 16
+      Height = 15
+      Top = 305
+      Width = 140
+      Caption = 'Chance Contaminação %:'
+      ParentColor = False
+    end
+    object edtContaminationChance: TEdit
+      Left = 170
+      Height = 23
+      Top = 302
+      Width = 84
+      TabOrder = 8
+      Text = '30'
+    end
+    object lblRecoveryPrompt: TLabel
+      Left = 16
+      Height = 15
+      Top = 335
+      Width = 140
+      Caption = 'Tempo Recuperação (ciclos):'
+      ParentColor = False
+    end
+    object edtRecoveryTime: TEdit
+      Left = 170
+      Height = 23
+      Top = 332
+      Width = 84
+      TabOrder = 9
+      Text = '15'
+    end
+    object lblStatsTitle: TLabel
+      Left = 16
+      Height = 15
+      Top = 370
+      Width = 238
+      Caption = 'Estatísticas em Tempo Real:'
+      Font.Style = [fsBold]
+      ParentColor = False
+    end
+    object lblCycles: TLabel
+      Left = 16
+      Height = 15
+      Top = 390
+      Width = 238
+      Caption = 'Ciclos: 0'
+      ParentColor = False
+    end
+    object lblHealthy: TLabel
+      Left = 16
+      Height = 15
+      Top = 410
+      Width = 238
+      Caption = 'Saudáveis (Azul): 0'
+      ParentColor = False
+    end
+    object lblInfected: TLabel
+      Left = 16
+      Height = 15
+      Top = 430
+      Width = 238
+      Caption = 'Infectados (Vermelho): 0'
+      ParentColor = False
+    end
+    object lblRecovered: TLabel
+      Left = 16
+      Height = 15
+      Top = 450
+      Width = 238
+      Caption = 'Recuperados (Verde): 0'
+      ParentColor = False
+    end
+    object lblTotalContaminated: TLabel
+      Left = 16
+      Height = 15
+      Top = 470
+      Width = 238
+      Caption = 'Total Acumulado Contaminações: 0'
+      ParentColor = False
+    end
+    object lblStabilization: TLabel
+      Left = 16
+      Height = 15
+      Top = 490
+      Width = 238
+      Caption = 'Tempo até Estabilização: N/A'
+      ParentColor = False
+    end
+    object lblLogTitle: TLabel
+      Left = 16
+      Height = 15
+      Top = 515
+      Width = 238
+      Caption = 'Últimos Eventos:'
+      Font.Style = [fsBold]
+      ParentColor = False
+    end
+    object lblLastEvent: TLabel
+      Left = 16
+      Height = 15
+      Top = 535
+      Width = 238
+      Caption = 'Último Evento: N/A'
+      ParentColor = False
+    end
+    object lblStatus: TLabel
+      Left = 16
+      Height = 15
+      Top = 565
+      Width = 238
+      Caption = 'Status: Parado'
+      ParentColor = False
+    end
+  end
+end

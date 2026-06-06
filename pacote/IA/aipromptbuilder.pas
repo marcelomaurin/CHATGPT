@@ -378,6 +378,7 @@ begin
           ccModel: CatName := 'Model';
           ccProject: CatName := 'Project';
           ccSafety: CatName := 'Safety';
+          ccSimulation: CatName := 'Simulation';
           else CatName := 'Other';
         end;
         JSONComp.Add('category', CatName);

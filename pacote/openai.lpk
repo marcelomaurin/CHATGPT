@@ -49,6 +49,9 @@
         <PackageName Value="openai_agent"/>
       </Item>
       <Item>
+        <PackageName Value="openai_simulation"/>
+      </Item>
+      <Item>
         <PackageName Value="zcomponent"/>
       </Item>
       <Item>

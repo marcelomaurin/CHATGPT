@@ -123,6 +123,28 @@ Use esta classificação para documentação, README de abas, samples e planejam
 
 ---
 
+## AI Simulation
+
+| Componente | Unit | Pacote | Status | Observação |
+|---|---|---|---|---|
+| `TAIGridWorld` | `aigridworld.pas` | `openai_simulation` | Experimental | Mundo 2D baseado em grade |
+| `TAIGridCell` | `aigridcell.pas` | `openai_simulation` | Experimental | Tipo auxiliar de representação de célula |
+| `TAIGridBuffer` | `aigridbuffer.pas` | `openai_simulation` | Experimental | Tipo auxiliar de duplo buffer |
+| `TAISimEntity` | `aisimentity.pas` | `openai_simulation` | Experimental | Entidade ativa base de simulação |
+| `TAIEntityFactory` | `aientityfactory.pas` | `openai_simulation` | Experimental | Fábrica de criação de agentes |
+| `TAISimulationEngine` | `aisimulationengine.pas` | `openai_simulation` | Experimental | Motor de ciclo principal da simulação |
+| `TAIRuleEngine` | `airuleengine.pas` | `openai_simulation` | Experimental | Motor de gerenciamento de regras comportamentais |
+| `TAITriggerEngine` | `aitriggerengine.pas` | `openai_simulation` | Experimental | Motor de eventos e loggers |
+| `TAIMovementEngine` | `aimovementengine.pas` | `openai_simulation` | Experimental | Motor de caminhada e busca 2D |
+| `TAIEvolutionEngine` | `aievolutionengine.pas` | `openai_simulation` | Experimental | Mecanismos de mutação e adaptação genética |
+| `TAISimulationStats` | `aisimulationstats.pas` | `openai_simulation` | Experimental | Coletor de métricas e ciclo de execução |
+| `TAIGridRenderer2D` | `aigridrenderer2d.pas` | `openai_simulation` | Experimental | Desenho nativo 2D da simulação em TCanvas |
+| `TAIScenarioConfig` | `aiscenarioconfig.pas` | `openai_simulation` | Experimental | Salvar/carregar layouts em JSON |
+| `TAIScenarioGenerator` | `aiscenariogenerator.pas` | `openai_simulation` | Experimental | Criador de cenários baseado em prompt com ChatGPT |
+| `TAISimulationExporter` | `aisimulationexporter.pas` | `openai_simulation` | Experimental | Exportador de relatórios (CSV, TXT, JSON) |
+
+---
+
 ## Legacy
 
 | Componente/Pacote | Caminho | Status | Observação |
