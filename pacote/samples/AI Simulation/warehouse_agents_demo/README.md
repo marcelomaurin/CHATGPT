@@ -39,3 +39,9 @@ O projeto pode ser executado diretamente em runtime:
 2. Abra o arquivo `warehouse_agents_demo.lpi`.
 3. Pressione **F9** para rodar.
 4. Ajuste as quantidades e clique em **Iniciar Simulação**.
+
+---
+
+## Bugs Conhecidos
+
+* Está gerando erro ao executar e os pacotes não estão sendo armazenados.
