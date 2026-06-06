@@ -12,4 +12,8 @@
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Description Value="[DEPRECATED / LEG
+    <Description Value="[DEPRECATED / LEGACY WRAPPER] Lazarus AI Suite package. Please use the new modular packages (e.g. openai_core.lpk) instead of this monolithic wrapper."/>
+    <License Value="OPEN SOURCE GPL3"/>
+    <Files Count="0"/>
+    <RequiredPkgs>
+      <Item
