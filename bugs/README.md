@@ -31,3 +31,9 @@ Este diretório contém o registro de problemas e limitações identificados nos
 ## 5. Contamination Demo (`contamination_demo`)
 * **Problema**: Erro ao iniciar, não gera contaminações por proximidade, suspeita de erro na rotina de movimentação.
 * **Detalhes**: Relatado que além de um erro na inicialização, a simulação não propaga a contaminação (movimento) entre agentes vizinhos, provavelmente por falhas na rotina de movimentação.
+
+---
+
+## 6. Avatar Demo (`avatar_demo`)
+* **Problema**: Erro na carga de modelos, mas modelo pré-carregado funciona.
+* **Detalhes**: Relatado que ocorre um erro ao carregar novos modelos 3D externos no exemplo, porém o modelo padrão pré-carregado inicializa e funciona de maneira correta.
