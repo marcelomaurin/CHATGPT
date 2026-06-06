@@ -13,3 +13,9 @@ Este diretório contém o registro de problemas e limitações identificados nos
 ## 2. Robot Grid Demo (`robot_grid_demo`)
 * **Problema**: O `robot_grid_demo` não realiza movimento.
 * **Detalhes**: Relatado que os robôs na simulação não realizam movimentação pela grade.
+
+---
+
+## 3. Service Queue Demo (`service_queue_demo`)
+* **Problema**: O movimento não está acontecendo e não estão sendo geradas filas de atendimento no ciclo.
+* **Detalhes**: Relatado que a movimentação dos agentes em direção aos guichês não ocorre e que as filas de atendimento correspondentes não são geradas durante a execução dos ciclos.

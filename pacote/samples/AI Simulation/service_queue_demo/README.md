@@ -42,3 +42,9 @@ Não é necessário instalar componentes no Lazarus IDE para rodar o projeto, po
 2. Abra o arquivo `service_queue_demo.lpi`.
 3. Pressione **F9** para compilar e rodar.
 4. Ajuste as taxas de chegada e tempo de atendimento nos campos de configuração e clique em **Iniciar Simulação**.
+
+---
+
+## Bugs Conhecidos
+
+* O movimento no service queue simulation não está acontecendo e não estão sendo geradas filas de atendimento no ciclo.
