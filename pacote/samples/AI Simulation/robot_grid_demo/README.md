@@ -42,3 +42,9 @@ Este projeto foi projetado para instanciar os componentes dinamicamente no carre
 2. Abra o projeto `robot_grid_demo.lpi` localizado nesta pasta.
 3. Clique em **Executar (F9)**.
 4. Utilize os botões do painel lateral para controlar o fluxo da simulação.
+
+---
+
+## Bugs Conhecidos
+
+* O `robot_grid_demo` não realiza movimento.
