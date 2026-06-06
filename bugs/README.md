@@ -25,3 +25,9 @@ Este diretório contém o registro de problemas e limitações identificados nos
 ## 4. Warehouse Agents Demo (`warehouse_agents_demo`)
 * **Problema**: Erro ao executar e pacotes não estão sendo armazenados.
 * **Detalhes**: Relatado que ocorre um erro em tempo de execução e que os pacotes não estão sendo devidamente armazenados ou entregues na zona correspondente.
+
+---
+
+## 5. Contamination Demo (`contamination_demo`)
+* **Problema**: Erro ao iniciar, não gera contaminações por proximidade, suspeita de erro na rotina de movimentação.
+* **Detalhes**: Relatado que além de um erro na inicialização, a simulação não propaga a contaminação (movimento) entre agentes vizinhos, provavelmente por falhas na rotina de movimentação.

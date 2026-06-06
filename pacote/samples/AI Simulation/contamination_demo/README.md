@@ -45,3 +45,9 @@ O projeto instancia todos os componentes dinamicamente no runtime:
 2. Abra o arquivo `contamination_demo.lpi`.
 3. Pressione **F9** para compilar e rodar.
 4. Ajuste as quantidades iniciais, chance de infecção e ciclos para cura e clique em **Iniciar Simulação**.
+
+---
+
+## Bugs Conhecidos
+
+* Além de um erro ao iniciar, não está gerando contaminados (movimento). O erro deve ser na rotina de movimentação.
