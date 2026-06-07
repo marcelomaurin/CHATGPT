@@ -90,6 +90,8 @@ install_recommended() {
   install_package "pacote/packages/openai_output.lpk"
   install_package "pacote/packages/openai_input.lpk"
   install_package "pacote/packages/openai_image.lpk"
+  install_package "pacote/packages/openai_simulation.lpk"
+  install_package "pacote/packages/openai_full.lpk"
 }
 
 install_all() {
@@ -105,6 +107,8 @@ install_all() {
   install_package "pacote/packages/openai_industrial.lpk"
   install_package "pacote/packages/openai_graphic.lpk"
   install_package "pacote/packages/openai_agent.lpk"
+  install_package "pacote/packages/openai_simulation.lpk"
+  install_package "pacote/packages/openai_full.lpk"
 }
 
 case "$MODE" in
@@ -160,7 +164,18 @@ echo
 echo "============================================================"
 if [[ $FAILED -eq 0 ]]; then
   echo "Installation commands finished successfully."
-  echo "Open Lazarus and rebuild the IDE if requested."
+  echo
+  echo "------------------------------------------------------------"
+  echo "Rebuilding Lazarus IDE with installed packages..."
+  echo "------------------------------------------------------------"
+  "$LAZBUILD" --build-ide=
+  rc=$?
+  if [[ $rc -ne 0 ]]; then
+    echo "[ERROR] Lazarus IDE rebuild failed. Open Lazarus and rebuild manually."
+    exit 1
+  else
+    echo "[OK] Lazarus IDE rebuilt successfully."
+  fi
 else
   echo "Installation finished with warnings or errors."
   echo "Review the messages above before using the components."

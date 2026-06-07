@@ -87,6 +87,8 @@ call :install_package "pacote\packages\openai_graph.lpk"
 call :install_package "pacote\packages\openai_output.lpk"
 call :install_package "pacote\packages\openai_input.lpk"
 call :install_package "pacote\packages\openai_image.lpk"
+call :install_package "pacote\packages\openai_simulation.lpk"
+call :install_package "pacote\packages\openai_full.lpk"
 goto :eof
 
 :install_all
@@ -102,6 +104,8 @@ call :install_package "pacote\packages\openai_voice.lpk"
 call :install_package "pacote\packages\openai_industrial.lpk"
 call :install_package "pacote\packages\openai_graphic.lpk"
 call :install_package "pacote\packages\openai_agent.lpk"
+call :install_package "pacote\packages\openai_simulation.lpk"
+call :install_package "pacote\packages\openai_full.lpk"
 goto :eof
 
 :install_package
@@ -132,7 +136,17 @@ echo.
 echo ============================================================
 if "%FAILED%"=="0" (
   echo Installation commands finished successfully.
-  echo Open Lazarus and rebuild the IDE if requested.
+  echo.
+  echo ------------------------------------------------------------
+  echo Rebuilding Lazarus IDE with installed packages...
+  echo ------------------------------------------------------------
+  "%LAZBUILD%" --build-ide=
+  if errorlevel 1 (
+    echo [ERROR] Lazarus IDE rebuild failed. Open Lazarus and rebuild manually.
+    exit /b 1
+  ) else (
+    echo [OK] Lazarus IDE rebuilt successfully.
+  )
 ) else (
   echo Installation finished with warnings or errors.
   echo Review the messages above before using the components.
