@@ -49,6 +49,8 @@ pacote/packages/
 | `openai_industrial.lpk` | Modbus, MQTT e componentes industriais |
 | `openai_graphic.lpk` | 3D, viewer, avatar, cena e Tripo3D |
 | `openai_agent.lpk` | Agentes, segurança e executores |
+| `openai_simulation.lpk` | Simulação celular 2D: grade, entidades, regras, movimento, evolução e exportação |
+| `openai_full.lpk` | Wrapper que agrega todos os pacotes acima |
 
 ---
 
@@ -78,6 +80,8 @@ Para novos projetos, prefira instalar diretamente os pacotes em `pacote/packages
 10. `packages/openai_industrial.lpk`
 11. `packages/openai_graphic.lpk`
 12. `packages/openai_agent.lpk`
+13. `packages/openai_simulation.lpk`
+14. `packages/openai_full.lpk` *(opcional — agrega todos)*
 
 Instale apenas os pacotes necessários ao seu projeto.
 
