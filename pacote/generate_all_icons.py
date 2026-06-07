@@ -285,6 +285,18 @@ icons_config = {
     'AI Vision/aimotiontracker_icon.lrs': [
         ('taimotiontracker', C_VISION, 'MT'),
     ],
+    'AI Vision/aiimageinfo_icon.lrs': [
+        ('taiimageinfo', C_VISION, 'II'),
+    ],
+    'AI Vision/aiframebuffer_icon.lrs': [
+        ('taiframebuffer', C_VISION, 'FB'),
+    ],
+    'AI Vision/ainativeimagefilter_icon.lrs': [
+        ('tainativeimagefilter', C_VISION, 'NF'),
+    ],
+    'AI Vision/aiframediff_icon.lrs': [
+        ('taiframediff', C_VISION, 'FD'),
+    ],
 
     # AI Simulation
     'AI Simulation/aigridworld_icon.lrs': [
@@ -447,6 +459,10 @@ def main():
         ('AI Vision/aiframeprocessor.pas', 'aiframeprocessor_icon.lrs'),
         ('AI Vision/aifacetracker.pas', 'aifacetracker_icon.lrs'),
         ('AI Vision/aimotiontracker.pas', 'aimotiontracker_icon.lrs'),
+        ('AI Vision/aiimageinfo.pas', 'aiimageinfo_icon.lrs'),
+        ('AI Vision/aiframebuffer.pas', 'aiframebuffer_icon.lrs'),
+        ('AI Vision/ainativeimagefilter.pas', 'ainativeimagefilter_icon.lrs'),
+        ('AI Vision/aiframediff.pas', 'aiframediff_icon.lrs'),
         # AI Simulation
         ('AI Simulation/aigridworld.pas', 'aigridworld_icon.lrs'),
         ('AI Simulation/aisimentity.pas', 'aisimentity_icon.lrs'),

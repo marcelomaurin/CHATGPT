@@ -169,4 +169,7 @@ begin
   end;
 end;
 
+initialization
+  {$I aiframediff_icon.lrs}
+
 end.

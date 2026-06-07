@@ -323,4 +323,7 @@ begin
   end;
 end;
 
+initialization
+  {$I ainativeimagefilter_icon.lrs}
+
 end.

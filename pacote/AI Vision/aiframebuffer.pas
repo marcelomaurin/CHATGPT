@@ -188,4 +188,7 @@ begin
     SetError('Buffer does not contain a previous frame.');
 end;
 
+initialization
+  {$I aiframebuffer_icon.lrs}
+
 end.

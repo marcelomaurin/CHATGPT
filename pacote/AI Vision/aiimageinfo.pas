@@ -131,4 +131,7 @@ begin
                      'Pixel Count: %d', [FFileName, FWidth, FHeight, FPixelCount]);
 end;
 
+initialization
+  {$I aiimageinfo_icon.lrs}
+
 end.

@@ -77,6 +77,22 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiframediff"/>
       </Item>
+      <Item>
+        <Filename Value="..\AI Vision\aiimageinfo_icon.lrs"/>
+        <Type Value="LRS"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Vision\aiframebuffer_icon.lrs"/>
+        <Type Value="LRS"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Vision\ainativeimagefilter_icon.lrs"/>
+        <Type Value="LRS"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Vision\aiframediff_icon.lrs"/>
+        <Type Value="LRS"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>
