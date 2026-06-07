@@ -5,7 +5,7 @@ unit aientityfactory;
 interface
 
 uses
-  Classes, SysUtils, aibase, aisimentity, fpjson, jsonparser;
+  Classes, SysUtils, aibase, aisimentity, fpjson, jsonparser, LResources;
 
 type
   { TEntityRegistryItem }
@@ -177,5 +177,8 @@ begin
     AOutList.Add(CreateEntity(ATypeName, AOwner));
   end;
 end;
+
+initialization
+  {$I aientityfactory_icon.lrs}
 
 end.

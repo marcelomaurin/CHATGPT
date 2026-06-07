@@ -5,7 +5,7 @@ unit aitriggerengine;
 interface
 
 uses
-  Classes, SysUtils, aibase, aisimentity;
+  Classes, SysUtils, aibase, aisimentity, LResources;
 
 type
   TOnCycleEvent = procedure(Sender: TObject; CycleNum: Integer) of object;
@@ -105,5 +105,8 @@ begin
     FOnTriggerError(Self, AError);
   SetError(AError);
 end;
+
+initialization
+  {$I aitriggerengine_icon.lrs}
 
 end.

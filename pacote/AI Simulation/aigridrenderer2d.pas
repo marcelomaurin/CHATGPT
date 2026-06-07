@@ -5,7 +5,7 @@ unit aigridrenderer2d;
 interface
 
 uses
-  Classes, SysUtils, Graphics, Types, aibase, aigridworld, aigridcell, aisimentity;
+  Classes, SysUtils, Graphics, Types, aibase, aigridworld, aigridcell, aisimentity, LResources;
 
 type
   { TAIGridRenderer2D }
@@ -203,5 +203,8 @@ begin
   LRect := Rect(0, 0, LWidth, LHeight);
   RenderToCanvas(Result.Canvas, LRect);
 end;
+
+initialization
+  {$I aigridrenderer2d_icon.lrs}
 
 end.

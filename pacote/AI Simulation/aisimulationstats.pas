@@ -5,7 +5,7 @@ unit aisimulationstats;
 interface
 
 uses
-  Classes, SysUtils, aibase, fpjson;
+  Classes, SysUtils, aibase, fpjson, LResources;
 
 type
   { TAISimulationStats }
@@ -168,5 +168,8 @@ begin
     LList.Free;
   end;
 end;
+
+initialization
+  {$I aisimulationstats_icon.lrs}
 
 end.

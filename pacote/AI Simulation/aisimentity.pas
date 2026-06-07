@@ -5,7 +5,7 @@ unit aisimentity;
 interface
 
 uses
-  Classes, SysUtils, aibase, fpjson;
+  Classes, SysUtils, aibase, fpjson, LResources;
 
 type
   { TAISimEntity }
@@ -193,5 +193,8 @@ begin
   if Assigned(LData) then
     Result := LData.AsBoolean;
 end;
+
+initialization
+  {$I aisimentity_icon.lrs}
 
 end.

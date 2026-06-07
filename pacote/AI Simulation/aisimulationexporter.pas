@@ -5,7 +5,7 @@ unit aisimulationexporter;
 interface
 
 uses
-  Classes, SysUtils, aibase, aisimulationstats, aiscenarioconfig, fpjson;
+  Classes, SysUtils, aibase, aisimulationstats, aiscenarioconfig, fpjson, LResources;
 
 type
   { TAISimulationExporter }
@@ -117,5 +117,8 @@ begin
   end;
   LList.Free;
 end;
+
+initialization
+  {$I aisimulationexporter_icon.lrs}
 
 end.

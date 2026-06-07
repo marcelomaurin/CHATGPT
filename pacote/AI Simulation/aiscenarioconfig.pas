@@ -5,7 +5,7 @@ unit aiscenarioconfig;
 interface
 
 uses
-  Classes, SysUtils, aibase, fpjson, jsonparser, aigridworld, aientityfactory, aisimentity, aigridcell;
+  Classes, SysUtils, aibase, fpjson, jsonparser, aigridworld, aientityfactory, aisimentity, aigridcell, LResources;
 
 type
   { TAIScenarioConfig }
@@ -264,5 +264,8 @@ begin
   
   Result := True;
 end;
+
+initialization
+  {$I aiscenarioconfig_icon.lrs}
 
 end.

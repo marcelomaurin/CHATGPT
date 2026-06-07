@@ -5,7 +5,7 @@ unit aigridworld;
 interface
 
 uses
-  Classes, SysUtils, aibase, aisimentity, aigridcell;
+  Classes, SysUtils, aibase, aisimentity, aigridcell, LResources;
 
 type
   TNeighborhoodMode = (nmMoore, nmVonNeumann);
@@ -314,5 +314,8 @@ begin
       AOutList.Add(LEntity);
   end;
 end;
+
+initialization
+  {$I aigridworld_icon.lrs}
 
 end.

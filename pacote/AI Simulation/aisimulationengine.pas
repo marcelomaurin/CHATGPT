@@ -5,7 +5,7 @@ unit aisimulationengine;
 interface
 
 uses
-  Classes, SysUtils, ExtCtrls, aibase, aisimentity, aigridworld, airuleengine, aitriggerengine, aimovementengine, aievolutionengine, aisimulationstats;
+  Classes, SysUtils, ExtCtrls, aibase, aisimentity, aigridworld, airuleengine, aitriggerengine, aimovementengine, aievolutionengine, aisimulationstats, LResources;
 
 type
   { TAISimulationEngine }
@@ -246,5 +246,8 @@ begin
       FTimer.Enabled := True;
   end;
 end;
+
+initialization
+  {$I aisimulationengine_icon.lrs}
 
 end.

@@ -89,6 +89,58 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="aisimulationexporter"/>
       </Item>
+      <Item>
+        <Filename Value="..\AI Simulation\aigridworld_icon.lrs"/>
+        <Type Value="LRS"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Simulation\aisimentity_icon.lrs"/>
+        <Type Value="LRS"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Simulation\aientityfactory_icon.lrs"/>
+        <Type Value="LRS"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Simulation\aisimulationengine_icon.lrs"/>
+        <Type Value="LRS"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Simulation\airuleengine_icon.lrs"/>
+        <Type Value="LRS"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Simulation\aitriggerengine_icon.lrs"/>
+        <Type Value="LRS"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Simulation\aimovementengine_icon.lrs"/>
+        <Type Value="LRS"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Simulation\aievolutionengine_icon.lrs"/>
+        <Type Value="LRS"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Simulation\aisimulationstats_icon.lrs"/>
+        <Type Value="LRS"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Simulation\aigridrenderer2d_icon.lrs"/>
+        <Type Value="LRS"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Simulation\aiscenarioconfig_icon.lrs"/>
+        <Type Value="LRS"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Simulation\aiscenariogenerator_icon.lrs"/>
+        <Type Value="LRS"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Simulation\aisimulationexporter_icon.lrs"/>
+        <Type Value="LRS"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>

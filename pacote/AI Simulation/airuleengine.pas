@@ -5,7 +5,7 @@ unit airuleengine;
 interface
 
 uses
-  Classes, SysUtils, aibase, aisimentity, aigridworld;
+  Classes, SysUtils, aibase, aisimentity, aigridworld, LResources;
 
 type
   TRuleConditionEvent = function(Sender: TObject; AEntity: TAISimEntity; AWorld: TAIGridWorld): Boolean of object;
@@ -200,5 +200,8 @@ begin
     LTempList.Free;
   end;
 end;
+
+initialization
+  {$I airuleengine_icon.lrs}
 
 end.

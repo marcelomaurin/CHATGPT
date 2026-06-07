@@ -5,7 +5,7 @@ unit aiscenariogenerator;
 interface
 
 uses
-  Classes, SysUtils, aibase, chatgpt, aiscenarioconfig, fpjson, jsonparser;
+  Classes, SysUtils, aibase, chatgpt, aiscenarioconfig, fpjson, jsonparser, LResources;
 
 type
   { TAIScenarioGenerator }
@@ -206,5 +206,8 @@ begin
     end;
   end;
 end;
+
+initialization
+  {$I aiscenariogenerator_icon.lrs}
 
 end.

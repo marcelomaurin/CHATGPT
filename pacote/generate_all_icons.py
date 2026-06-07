@@ -109,6 +109,7 @@ C_GRAPHIC = [180, 80, 180]
 C_VISION = [0, 150, 150]
 C_GRAPH = [100, 100, 255]
 C_ML = [255, 128, 0]
+C_SIMULATION = [20, 140, 120]
 
 icons_config = {
     # IA Agent
@@ -284,6 +285,47 @@ icons_config = {
     'AI Vision/aimotiontracker_icon.lrs': [
         ('taimotiontracker', C_VISION, 'MT'),
     ],
+
+    # AI Simulation
+    'AI Simulation/aigridworld_icon.lrs': [
+        ('taigridworld', C_SIMULATION, 'GW'),
+    ],
+    'AI Simulation/aisimentity_icon.lrs': [
+        ('taisimentity', C_SIMULATION, 'EN'),
+    ],
+    'AI Simulation/aientityfactory_icon.lrs': [
+        ('taientityfactory', C_SIMULATION, 'EF'),
+    ],
+    'AI Simulation/aisimulationengine_icon.lrs': [
+        ('taisimulationengine', C_SIMULATION, 'SE'),
+    ],
+    'AI Simulation/airuleengine_icon.lrs': [
+        ('tairuleengine', C_SIMULATION, 'RE'),
+    ],
+    'AI Simulation/aitriggerengine_icon.lrs': [
+        ('taitriggerengine', C_SIMULATION, 'TE'),
+    ],
+    'AI Simulation/aimovementengine_icon.lrs': [
+        ('taimovementengine', C_SIMULATION, 'ME'),
+    ],
+    'AI Simulation/aievolutionengine_icon.lrs': [
+        ('taievolutionengine', C_SIMULATION, 'EV'),
+    ],
+    'AI Simulation/aisimulationstats_icon.lrs': [
+        ('taisimulationstats', C_SIMULATION, 'ST'),
+    ],
+    'AI Simulation/aigridrenderer2d_icon.lrs': [
+        ('taigridrenderer2d', C_SIMULATION, 'GR'),
+    ],
+    'AI Simulation/aiscenarioconfig_icon.lrs': [
+        ('taiscenarioconfig', C_SIMULATION, 'SC'),
+    ],
+    'AI Simulation/aiscenariogenerator_icon.lrs': [
+        ('taiscenariogenerator', C_SIMULATION, 'SG'),
+    ],
+    'AI Simulation/aisimulationexporter_icon.lrs': [
+        ('taisimulationexporter', C_SIMULATION, 'EX'),
+    ],
 }
 
 def patch_pas_file(file_path, lrs_filename):
@@ -405,6 +447,20 @@ def main():
         ('AI Vision/aiframeprocessor.pas', 'aiframeprocessor_icon.lrs'),
         ('AI Vision/aifacetracker.pas', 'aifacetracker_icon.lrs'),
         ('AI Vision/aimotiontracker.pas', 'aimotiontracker_icon.lrs'),
+        # AI Simulation
+        ('AI Simulation/aigridworld.pas', 'aigridworld_icon.lrs'),
+        ('AI Simulation/aisimentity.pas', 'aisimentity_icon.lrs'),
+        ('AI Simulation/aientityfactory.pas', 'aientityfactory_icon.lrs'),
+        ('AI Simulation/aisimulationengine.pas', 'aisimulationengine_icon.lrs'),
+        ('AI Simulation/airuleengine.pas', 'airuleengine_icon.lrs'),
+        ('AI Simulation/aitriggerengine.pas', 'aitriggerengine_icon.lrs'),
+        ('AI Simulation/aimovementengine.pas', 'aimovementengine_icon.lrs'),
+        ('AI Simulation/aievolutionengine.pas', 'aievolutionengine_icon.lrs'),
+        ('AI Simulation/aisimulationstats.pas', 'aisimulationstats_icon.lrs'),
+        ('AI Simulation/aigridrenderer2d.pas', 'aigridrenderer2d_icon.lrs'),
+        ('AI Simulation/aiscenarioconfig.pas', 'aiscenarioconfig_icon.lrs'),
+        ('AI Simulation/aiscenariogenerator.pas', 'aiscenariogenerator_icon.lrs'),
+        ('AI Simulation/aisimulationexporter.pas', 'aisimulationexporter_icon.lrs'),
     ]
     
     for pas_rel_path, lrs_filename in patches:

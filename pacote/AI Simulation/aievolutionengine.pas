@@ -5,7 +5,7 @@ unit aievolutionengine;
 interface
 
 uses
-  Classes, SysUtils, aibase, aisimentity, aientityfactory, fpjson;
+  Classes, SysUtils, aibase, aisimentity, aientityfactory, fpjson, LResources;
 
 type
   { TAIEvolutionEngine }
@@ -82,5 +82,8 @@ begin
     Result.EntityName := 'mutated_' + AEntity.EntityName;
   end;
 end;
+
+initialization
+  {$I aievolutionengine_icon.lrs}
 
 end.

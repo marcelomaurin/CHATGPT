@@ -5,7 +5,7 @@ unit aimovementengine;
 interface
 
 uses
-  Classes, SysUtils, aibase, aisimentity, aigridworld, aigridcell;
+  Classes, SysUtils, aibase, aisimentity, aigridworld, aigridcell, LResources;
 
 type
   TMovementStrategy = (msStop, msRandom, msTarget, msFlee);
@@ -238,5 +238,8 @@ begin
     msFlee: Result := FleeFromThreat(AEntity, FThreatType);
   end;
 end;
+
+initialization
+  {$I aimovementengine_icon.lrs}
 
 end.
