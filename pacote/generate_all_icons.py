@@ -133,8 +133,8 @@ icons_config = {
     'IA Input/aiinput_icon.lrs': [
         ('taiinputdata', C_INPUT, 'IN'),
     ],
-    'IA Input/aicamera_icon.lrs': [
-        ('taicamerainput', C_INPUT, 'CM'),
+    'IA Input/aicapturesource_icon.lrs': [
+        ('taicapturesource', C_INPUT, 'CS'),
     ],
     'IA Input/aiaudio_icon.lrs': [
         ('taiaudioinput', C_INPUT, 'AD'),
@@ -151,9 +151,6 @@ icons_config = {
     ],
     'IA Input/aiposprinter_icon.lrs': [
         ('taiposprinter', C_INPUT, 'PR'),
-    ],
-    'IA Input/aicftvip_icon.lrs': [
-        ('taicftvip', C_INPUT, 'CF'),
     ],
     'IA Input/aimodbus_icon.lrs': [
         ('taimodbusclient', C_INPUT, 'MB'),
@@ -172,9 +169,6 @@ icons_config = {
     ],
     'IA Input/aichromiumbrowser_icon.lrs': [
         ('taichromiumbrowser', C_INPUT, 'CR'),
-    ],
-    'IA Input/aioscapture_icon.lrs': [
-        ('taiosinputcapture', C_INPUT, 'OS'),
     ],
     
     # IA Output
@@ -414,20 +408,18 @@ def main():
         ('IA Agent/aiagentsafety.pas', 'aiagentsafety_icon.lrs'),
         ('IA Math/numps.pas', 'numps_icon.lrs'),
         ('IA Input/aiinput.pas', 'aiinput_icon.lrs'),
-        ('IA Input/aicamera.pas', 'aicamera_icon.lrs'),
+        ('IA Input/aicapturesource.pas', 'aicapturesource_icon.lrs'),
         ('IA Input/aiaudio.pas', 'aiaudio_icon.lrs'),
         ('IA Input/aiwebserver.pas', 'aiwebserver_icon.lrs'),
         ('IA Input/aisockets.pas', 'aisockets_icon.lrs'),
         ('IA Input/aiserial.pas', 'aiserial_icon.lrs'),
         ('IA Input/aiposprinter.pas', 'aiposprinter_icon.lrs'),
-        ('IA Input/aicftvip.pas', 'aicftvip_icon.lrs'),
         ('IA Input/aimodbus.pas', 'aimodbus_icon.lrs'),
         ('IA Input/aimqtt.pas', 'aimqtt_icon.lrs'),
         ('IA Input/aiemail.pas', 'aiemail_icon.lrs'),
         ('IA Input/aimessenger.pas', 'aimessenger_icon.lrs'),
         ('IA Input/aiindustrial.pas', 'aiindustrial_icon.lrs'),
         ('IA Input/aichromiumbrowser.pas', 'aichromiumbrowser_icon.lrs'),
-        ('IA Input/aioscapture.pas', 'aioscapture_icon.lrs'),
         ('IA Output/aioutput.pas', 'aioutput_icon.lrs'),
         ('IA Output/aioutput_docs.pas', 'aioutput_docs_icon.lrs'),
         ('IA Voice/aivoicesynthesizer.pas', 'aivoicesynthesizer_icon.lrs'),
@@ -455,7 +447,6 @@ def main():
         ('AI Graphic/aianimationsequence.pas', 'aianimationsequence_icon.lrs'),
         ('AI Graphic/aitripo3dclient.pas', 'aitripo3dclient_icon.lrs'),
         ('AI Vision/aiopencv.pas', 'aiopencv_icon.lrs'),
-        ('AI Vision/aicameracapture.pas', 'aicameracapture_icon.lrs'),
         ('AI Vision/aiframeprocessor.pas', 'aiframeprocessor_icon.lrs'),
         ('AI Vision/aifacetracker.pas', 'aifacetracker_icon.lrs'),
         ('AI Vision/aimotiontracker.pas', 'aimotiontracker_icon.lrs'),

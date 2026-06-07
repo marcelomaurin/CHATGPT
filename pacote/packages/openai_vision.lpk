@@ -13,7 +13,7 @@
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Description Value="Lazarus AI Suite: Computer Vision and OpenCV components (TAIOpenCV, TAICameraCapture, TAIFrameProcessor, TAIFaceTracker, TAIMotionTracker)."/>
+    <Description Value="Lazarus AI Suite: Computer Vision and OpenCV components (TAIOpenCV, TAIFrameProcessor, TAIFaceTracker, TAIMotionTracker)."/>
     <License Value="OPEN SOURCE GPL3"/>
     <Files>
       <Item>
@@ -36,11 +36,6 @@
       <Item>
         <Filename Value="..\AI Vision\aicamera_v4l2.pas"/>
         <UnitName Value="aicamera_v4l2"/>
-      </Item>
-      <Item>
-        <Filename Value="..\AI Vision\aicameracapture.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="aicameracapture"/>
       </Item>
       <Item>
         <Filename Value="..\AI Vision\aiframeprocessor.pas"/>

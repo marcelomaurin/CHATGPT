@@ -6,9 +6,10 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
-  StdCtrls, Buttons, aichromiumbrowser, aioscapture, aimqtt, aiemail,
-  aimessenger, aiindustrial, aimodbus, aicamera, aiaudio, aisockets,
-  aiserial, aiposprinter, aicftvip, aiinput, aiwebserver, aioutput, aioutput_docs;
+  StdCtrls, Buttons, aichromiumbrowser, aimqtt, aiemail,
+  aimessenger, aiindustrial, aimodbus, aiaudio, aisockets,
+  aiserial, aiposprinter, aiinput, aiwebserver, aioutput, aioutput_docs,
+  aicapturesource;
 
 type
   { TfrmHardwareDemo }
@@ -18,21 +19,21 @@ type
     procedure FormDestroy(Sender: TObject);
   private
     FPageControl: TPageControl;
-    
+
     // TAB 1: Browser
     FTabBrowser: TTabSheet;
     FBrowser: TAIChromiumBrowser;
-    
-    // TAB 2: Screen and OS Capture
-    FTabOSCapture: TTabSheet;
-    FOSCapture: TAIOSInputCapture;
+
+    // TAB 2: Capture (TAICaptureSource — cskScreen + mouse/keyboard tracking)
+    FTabCapture: TTabSheet;
+    FCapture: TAICaptureSource;
     FBtnCaptureScreen: TButton;
     FImgScreen: TImage;
     FTrackMouseChk: TCheckBox;
     FTrackKeyChk: TCheckBox;
     FMouseLogMemo: TMemo;
     FKeyLogMemo: TMemo;
-    
+
     // TAB 3: Network & IoT
     FTabNetwork: TTabSheet;
     FMQTTClient: TAIMQTTClient;
@@ -47,7 +48,7 @@ type
     FEditMailSubject: TEdit;
     FEditMailBody: TEdit;
     FNetworkLog: TMemo;
-    
+
     // TAB 4: Industrial Automations
     FTabIndustrial: TTabSheet;
     FPLCBridge: TAIIndustrialBridge;
@@ -55,10 +56,10 @@ type
     FBtnConnectCLP: TButton;
     FBtnReadRegisters: TButton;
     FIndustrialLog: TMemo;
-    
-    // TAB 5: Hardware Adapters (Audio & Camera)
+
+    // TAB 5: Hardware Adapters (Audio & Camera via TAICaptureSource)
     FTabHardware: TTabSheet;
-    FCamera: TAICameraInput;
+    FCamera: TAICaptureSource;
     FAudio: TAIAudioInput;
     FBtnStartCamera: TButton;
     FBtnStopCamera: TButton;
@@ -68,12 +69,12 @@ type
     FBtnStopRecordAudio: TButton;
     FBtnMixWavFiles: TButton;
     FHardwareLog: TMemo;
-    
+
     // TAB 6: IA Prompts Inspection
     FTabPrompts: TTabSheet;
     FPromptCombo: TComboBox;
     FPromptMemo: TMemo;
-    
+
     // Component Event Handlers
     procedure OnMouseMoveIntercept(Sender: TObject; X, Y: Integer);
     procedure PromptComboChange(Sender: TObject);
@@ -81,20 +82,20 @@ type
     procedure OnMQTTMessage(Sender: TObject; const ATopic, APayload: string);
     procedure OnMQTTConnected(Sender: TObject);
     procedure OnMQTTDisconnected(Sender: TObject);
-    
+
     // UI Event Handlers
     procedure BtnCaptureScreenClick(Sender: TObject);
     procedure TrackMouseChkChange(Sender: TObject);
     procedure TrackKeyChkChange(Sender: TObject);
-    
+
     procedure BtnMQTTConnectClick(Sender: TObject);
     procedure BtnMQTTPublishClick(Sender: TObject);
     procedure BtnMQTTSubscribeClick(Sender: TObject);
     procedure BtnSendEmailClick(Sender: TObject);
-    
+
     procedure BtnConnectCLPClick(Sender: TObject);
     procedure BtnReadRegistersClick(Sender: TObject);
-    
+
     procedure BtnStartCameraClick(Sender: TObject);
     procedure BtnStopCameraClick(Sender: TObject);
     procedure BtnCaptureCameraFrameClick(Sender: TObject);
@@ -122,65 +123,70 @@ begin
   Width := 900;
   Height := 650;
   Position := poScreenCenter;
-  
+
   // 1. Page Control setup
   FPageControl := TPageControl.Create(Self);
   FPageControl.Parent := Self;
   FPageControl.Align := alClient;
-  
+
   // ==========================================
   // TAB 1: BROWSER INCORPORADO
   // ==========================================
   FTabBrowser := FPageControl.AddTabSheet;
   FTabBrowser.Caption := 'Navegador Web';
-  
+
   FBrowser := TAIChromiumBrowser.Create(Self);
   FBrowser.Parent := FTabBrowser;
   FBrowser.Align := alClient;
   FBrowser.URL := 'https://www.google.com';
-  
+
   // ==========================================
   // TAB 2: CAPTURA DO SISTEMA OPERACIONAL
+  // (usando TAICaptureSource modo cskScreen)
   // ==========================================
-  FTabOSCapture := FPageControl.AddTabSheet;
-  FTabOSCapture.Caption := 'Captura de Sistema (OS)';
-  
-  FOSCapture := TAIOSInputCapture.Create(Self);
-  FOSCapture.OnMouseMove := @OnMouseMoveIntercept;
-  FOSCapture.OnKeyIntercepted := @OnKeyIntercept;
-  FOSCapture.Active := True;
-  
+  FTabCapture := FPageControl.AddTabSheet;
+  FTabCapture.Caption := 'Captura de Sistema (OS)';
+
+  FCapture := TAICaptureSource.Create(Self);
+  FCapture.SourceKind := cskScreen;
+  FCapture.CaptureFullScreen := True;
+  FCapture.TrackMouse := True;
+  FCapture.TrackKeyboard := False;
+  FCapture.OnMouseMove := @OnMouseMoveIntercept;
+  FCapture.OnKeyIntercepted := @OnKeyIntercept;
+  FCapture.StartCapture;
+
   LeftPanel := TPanel.Create(Self);
-  LeftPanel.Parent := FTabOSCapture;
+  LeftPanel.Parent := FTabCapture;
   LeftPanel.Align := alLeft;
   LeftPanel.Width := 440;
   LeftPanel.BevelOuter := bvNone;
-  
+
   FBtnCaptureScreen := TButton.Create(Self);
   FBtnCaptureScreen.Parent := LeftPanel;
   FBtnCaptureScreen.Align := alTop;
   FBtnCaptureScreen.Height := 40;
   FBtnCaptureScreen.Caption := 'Capturar Tela Inteira';
   FBtnCaptureScreen.OnClick := @BtnCaptureScreenClick;
-  
+
   FImgScreen := TImage.Create(Self);
   FImgScreen.Parent := LeftPanel;
   FImgScreen.Align := alClient;
   FImgScreen.Stretch := True;
   FImgScreen.Proportional := True;
-  
+
   RightPanel := TPanel.Create(Self);
-  RightPanel.Parent := FTabOSCapture;
+  RightPanel.Parent := FTabCapture;
   RightPanel.Align := alClient;
   RightPanel.BevelOuter := bvNone;
-  
+
   FTrackMouseChk := TCheckBox.Create(Self);
   FTrackMouseChk.Parent := RightPanel;
   FTrackMouseChk.Align := alTop;
   FTrackMouseChk.Caption := 'Rastrear Cursor do Mouse (e Touchscreen)';
   FTrackMouseChk.Checked := True;
   FTrackMouseChk.OnChange := @TrackMouseChkChange;
-  
+
   FMouseLogMemo := TMemo.Create(Self);
   FMouseLogMemo.Parent := RightPanel;
   FMouseLogMemo.Align := alTop;
@@ -188,281 +194,286 @@ begin
   FMouseLogMemo.ScrollBars := ssAutoVertical;
   FMouseLogMemo.ReadOnly := True;
   FMouseLogMemo.Lines.Add('=== Log de Movimentos do Mouse/Touch ===');
-  
+
   FTrackKeyChk := TCheckBox.Create(Self);
   FTrackKeyChk.Parent := RightPanel;
   FTrackKeyChk.Align := alTop;
   FTrackKeyChk.Caption := 'Interceptar Teclado Globais';
-  FTrackKeyChk.Checked := True;
+  FTrackKeyChk.Checked := False; // padrão seguro
   FTrackKeyChk.OnChange := @TrackKeyChkChange;
-  
+
   FKeyLogMemo := TMemo.Create(Self);
   FKeyLogMemo.Parent := RightPanel;
   FKeyLogMemo.Align := alClient;
   FKeyLogMemo.ScrollBars := ssAutoVertical;
   FKeyLogMemo.ReadOnly := True;
   FKeyLogMemo.Lines.Add('=== Log de Teclas Interceptadas ===');
-  
+
   // ==========================================
   // TAB 3: NETWORK & IOT (MQTT & EMAIL)
   // ==========================================
   FTabNetwork := FPageControl.AddTabSheet;
   FTabNetwork.Caption := 'Rede & IoT';
-  
+
   FMQTTClient := TAIMQTTClient.Create(Self);
   FMQTTClient.OnMessageReceived := @OnMQTTMessage;
   FMQTTClient.OnConnected := @OnMQTTConnected;
   FMQTTClient.OnDisconnected := @OnMQTTDisconnected;
-  
+
   LeftPanel := TPanel.Create(Self);
   LeftPanel.Parent := FTabNetwork;
   LeftPanel.Align := alLeft;
   LeftPanel.Width := 400;
   LeftPanel.BevelOuter := bvNone;
-  
+
   LabelTitle := TLabel.Create(Self);
   LabelTitle.Parent := LeftPanel;
   LabelTitle.Align := alTop;
   LabelTitle.Caption := ' IoT Telemetria (MQTT)';
   LabelTitle.Font.Style := [fsBold];
   LabelTitle.Height := 25;
-  
+
   FBtnMQTTConnect := TButton.Create(Self);
   FBtnMQTTConnect.Parent := LeftPanel;
   FBtnMQTTConnect.Align := alTop;
   FBtnMQTTConnect.Height := 38;
   FBtnMQTTConnect.Caption := 'Conectar Broker MQTT';
   FBtnMQTTConnect.OnClick := @BtnMQTTConnectClick;
-  
+
   FEditMQTTTopic := TEdit.Create(Self);
   FEditMQTTTopic.Parent := LeftPanel;
   FEditMQTTTopic.Align := alTop;
   FEditMQTTTopic.Text := 'lazarus/ai/demo';
   FEditMQTTTopic.Height := 28;
-  
+
   FBtnMQTTSubscribe := TButton.Create(Self);
   FBtnMQTTSubscribe.Parent := LeftPanel;
   FBtnMQTTSubscribe.Align := alTop;
   FBtnMQTTSubscribe.Height := 35;
   FBtnMQTTSubscribe.Caption := 'Subscrever no Tópico';
   FBtnMQTTSubscribe.OnClick := @BtnMQTTSubscribeClick;
-  
+
   FEditMQTTPayload := TEdit.Create(Self);
   FEditMQTTPayload.Parent := LeftPanel;
   FEditMQTTPayload.Align := alTop;
   FEditMQTTPayload.Text := '{"temperatura": 24.5, "sensor": "A1"}';
   FEditMQTTPayload.Height := 28;
-  
+
   FBtnMQTTPublish := TButton.Create(Self);
   FBtnMQTTPublish.Parent := LeftPanel;
   FBtnMQTTPublish.Align := alTop;
   FBtnMQTTPublish.Height := 35;
   FBtnMQTTPublish.Caption := 'Publicar Mensagem MQTT';
   FBtnMQTTPublish.OnClick := @BtnMQTTPublishClick;
-  
+
   // Separator
   TPanel.Create(Self).Parent := LeftPanel;
   LeftPanel.Controls[LeftPanel.ControlCount - 1].Align := alTop;
   LeftPanel.Controls[LeftPanel.ControlCount - 1].Height := 15;
-  
+
   LabelTitle := TLabel.Create(Self);
   LabelTitle.Parent := LeftPanel;
   LabelTitle.Align := alTop;
   LabelTitle.Caption := ' Notificações por E-mail (SMTP)';
   LabelTitle.Font.Style := [fsBold];
   LabelTitle.Height := 25;
-  
+
   FMailClient := TAIEmailClient.Create(Self);
   FMailClient.HostSMTP := 'localhost';
   FMailClient.PortSMTP := 25;
-  
+
   FEditMailTo := TEdit.Create(Self);
   FEditMailTo.Parent := LeftPanel;
   FEditMailTo.Align := alTop;
   FEditMailTo.Text := 'alerta-sensor@empresa.com';
   FEditMailTo.Height := 28;
-  
+
   FEditMailSubject := TEdit.Create(Self);
   FEditMailSubject.Parent := LeftPanel;
   FEditMailSubject.Align := alTop;
   FEditMailSubject.Text := 'Anomalia Detectada pela IA';
   FEditMailSubject.Height := 28;
-  
+
   FEditMailBody := TEdit.Create(Self);
   FEditMailBody.Parent := LeftPanel;
   FEditMailBody.Align := alTop;
   FEditMailBody.Text := 'Modelo detectou aumento atípico de temperatura na correia transportadora.';
   FEditMailBody.Height := 28;
-  
+
   FBtnSendEmail := TButton.Create(Self);
   FBtnSendEmail.Parent := LeftPanel;
   FBtnSendEmail.Align := alTop;
   FBtnSendEmail.Height := 38;
   FBtnSendEmail.Caption := 'Enviar E-mail de Teste';
   FBtnSendEmail.OnClick := @BtnSendEmailClick;
-  
+
   RightPanel := TPanel.Create(Self);
   RightPanel.Parent := FTabNetwork;
   RightPanel.Align := alClient;
   RightPanel.BevelOuter := bvNone;
-  
+
   FNetworkLog := TMemo.Create(Self);
   FNetworkLog.Parent := RightPanel;
   FNetworkLog.Align := alClient;
   FNetworkLog.ScrollBars := ssAutoVertical;
   FNetworkLog.ReadOnly := True;
   FNetworkLog.Lines.Add('=== Console de Operações IoT e Rede ===');
-  
+
   // ==========================================
   // TAB 4: INDUSTRIAL (MODBUS & PROFINET/PROFIBUS)
   // ==========================================
   FTabIndustrial := FPageControl.AddTabSheet;
   FTabIndustrial.Caption := 'Automação Industrial';
-  
+
   FPLCBridge := TAIIndustrialBridge.Create(Self);
   FModbusClient := TAIModbusClient.Create(Self);
-  
+
   LeftPanel := TPanel.Create(Self);
   LeftPanel.Parent := FTabIndustrial;
   LeftPanel.Align := alLeft;
   LeftPanel.Width := 350;
   LeftPanel.BevelOuter := bvNone;
-  
+
   FBtnConnectCLP := TButton.Create(Self);
   FBtnConnectCLP.Parent := LeftPanel;
   FBtnConnectCLP.Align := alTop;
   FBtnConnectCLP.Height := 40;
   FBtnConnectCLP.Caption := 'Conectar Ponte Industrial (Profinet/Profibus)';
   FBtnConnectCLP.OnClick := @BtnConnectCLPClick;
-  
+
   FBtnReadRegisters := TButton.Create(Self);
   FBtnReadRegisters.Parent := LeftPanel;
   FBtnReadRegisters.Align := alTop;
   FBtnReadRegisters.Height := 40;
   FBtnReadRegisters.Caption := 'Ler Registros Modbus / CLP';
   FBtnReadRegisters.OnClick := @BtnReadRegistersClick;
-  
+
   FIndustrialLog := TMemo.Create(Self);
   FIndustrialLog.Parent := FTabIndustrial;
   FIndustrialLog.Align := alClient;
   FIndustrialLog.ScrollBars := ssAutoVertical;
   FIndustrialLog.ReadOnly := True;
   FIndustrialLog.Lines.Add('=== Log Industrial e Telemetria de CLP ===');
-  
+
   // ==========================================
   // TAB 5: HARDWARE ADAPTERS (CAMERA & AUDIO)
+  // TAICaptureSource modo cskCameraLocal
   // ==========================================
   FTabHardware := FPageControl.AddTabSheet;
   FTabHardware.Caption := 'Multimídia & Adaptores';
-  
-  FCamera := TAICameraInput.Create(Self);
+
+  FCamera := TAICaptureSource.Create(Self);
+  FCamera.SourceKind := cskCameraLocal;
+  FCamera.CameraIndex := 0;
+  FCamera.Width := 640;
+  FCamera.Height := 480;
+  FCamera.FPS := 30;
+
   FAudio := TAIAudioInput.Create(Self);
-  
+
   LeftPanel := TPanel.Create(Self);
   LeftPanel.Parent := FTabHardware;
   LeftPanel.Align := alLeft;
   LeftPanel.Width := 420;
   LeftPanel.BevelOuter := bvNone;
-  
+
   FBtnStartCamera := TButton.Create(Self);
   FBtnStartCamera.Parent := LeftPanel;
   FBtnStartCamera.Align := alTop;
   FBtnStartCamera.Height := 38;
   FBtnStartCamera.Caption := 'Ligar Câmera';
   FBtnStartCamera.OnClick := @BtnStartCameraClick;
-  
+
   FBtnStopCamera := TButton.Create(Self);
   FBtnStopCamera.Parent := LeftPanel;
   FBtnStopCamera.Align := alTop;
   FBtnStopCamera.Height := 38;
   FBtnStopCamera.Caption := 'Desligar Câmera';
   FBtnStopCamera.OnClick := @BtnStopCameraClick;
-  
+
   FBtnCaptureCameraFrame := TButton.Create(Self);
   FBtnCaptureCameraFrame.Parent := LeftPanel;
   FBtnCaptureCameraFrame.Align := alTop;
   FBtnCaptureCameraFrame.Height := 38;
   FBtnCaptureCameraFrame.Caption := 'Capturar Frame de Câmera';
   FBtnCaptureCameraFrame.OnClick := @BtnCaptureCameraFrameClick;
-  
+
   FImgCamera := TImage.Create(Self);
   FImgCamera.Parent := LeftPanel;
   FImgCamera.Align := alClient;
   FImgCamera.Stretch := True;
   FImgCamera.Proportional := True;
   FImgCamera.Center := True;
-  
+
   RightPanel := TPanel.Create(Self);
   RightPanel.Parent := FTabHardware;
   RightPanel.Align := alClient;
   RightPanel.BevelOuter := bvNone;
-  
+
   FBtnRecordAudio := TButton.Create(Self);
   FBtnRecordAudio.Parent := RightPanel;
   FBtnRecordAudio.Align := alTop;
   FBtnRecordAudio.Height := 38;
   FBtnRecordAudio.Caption := 'Gravar Áudio (Microfone)';
   FBtnRecordAudio.OnClick := @BtnRecordAudioClick;
-  
+
   FBtnStopRecordAudio := TButton.Create(Self);
   FBtnStopRecordAudio.Parent := RightPanel;
   FBtnStopRecordAudio.Align := alTop;
   FBtnStopRecordAudio.Height := 38;
   FBtnStopRecordAudio.Caption := 'Parar Gravação';
   FBtnStopRecordAudio.OnClick := @BtnStopRecordAudioClick;
-  
+
   FBtnMixWavFiles := TButton.Create(Self);
   FBtnMixWavFiles.Parent := RightPanel;
   FBtnMixWavFiles.Align := alTop;
   FBtnMixWavFiles.Height := 38;
   FBtnMixWavFiles.Caption := 'Misturar Arquivos WAV (Mixer)';
   FBtnMixWavFiles.OnClick := @BtnMixWavFilesClick;
-  
+
   FHardwareLog := TMemo.Create(Self);
   FHardwareLog.Parent := RightPanel;
   FHardwareLog.Align := alClient;
   FHardwareLog.ScrollBars := ssAutoVertical;
   FHardwareLog.ReadOnly := True;
   FHardwareLog.Lines.Add('=== Log Multimídia de Câmeras e Microfones ===');
-  
+
   // ==========================================
   // TAB 6: IA PROMPTS INSPECTION
   // ==========================================
   FTabPrompts := FPageControl.AddTabSheet;
   FTabPrompts.Caption := 'Prompts de Orientação de IA';
-  
+
   LeftPanel := TPanel.Create(Self);
   LeftPanel.Parent := FTabPrompts;
   LeftPanel.Align := alLeft;
   LeftPanel.Width := 300;
   LeftPanel.BevelOuter := bvNone;
-  
+
   LabelTitle := TLabel.Create(Self);
   LabelTitle.Parent := LeftPanel;
   LabelTitle.Align := alTop;
   LabelTitle.Caption := ' Selecione o Componente:';
   LabelTitle.Font.Style := [fsBold];
   LabelTitle.Height := 25;
-  
+
   FPromptCombo := TComboBox.Create(Self);
   FPromptCombo.Parent := LeftPanel;
   FPromptCombo.Align := alTop;
   FPromptCombo.Style := csDropDownList;
-  FPromptCombo.Items.Add('TAICameraInput (Multimídia)');
+  FPromptCombo.Items.Add('TAICaptureSource (Captura Unificada)');
   FPromptCombo.Items.Add('TAIAudioInput (Multimídia)');
   FPromptCombo.Items.Add('TAIWebAPIServer (Rede/REST API)');
   FPromptCombo.Items.Add('TAISocketTCP (Rede Sockets TCP)');
   FPromptCombo.Items.Add('TAISocketUDP (Rede Sockets UDP)');
   FPromptCombo.Items.Add('TAISerialModem (Hardware/Serial/Modem)');
   FPromptCombo.Items.Add('TAIPOSPrinter (Hardware/Impressora EscPOS)');
-  FPromptCombo.Items.Add('TAICFTVIP (Rede/Câmeras IP CFTV)');
   FPromptCombo.Items.Add('TAIModbusClient (Rede/Automação Modbus)');
   FPromptCombo.Items.Add('TAIMQTTClient (Rede/IoT MQTT)');
   FPromptCombo.Items.Add('TAIEmailClient (Rede/E-mail SMTP/POP3)');
   FPromptCombo.Items.Add('TAIMessenger (Rede/WhatsApp e SMS)');
   FPromptCombo.Items.Add('TAIIndustrialBridge (Automação Profinet/Profibus)');
   FPromptCombo.Items.Add('TAIChromiumBrowser (Navegador Incorporado)');
-  FPromptCombo.Items.Add('TAIOSInputCapture (OS/Captura Tela/Teclado)');
   FPromptCombo.Items.Add('TAIInputData (Matemática/Input e Normalização)');
   FPromptCombo.Items.Add('TAIPDFOutput (Documentos/Gerador PDF)');
   FPromptCombo.Items.Add('TAIWordOutput (Documentos/Gerador Word)');
@@ -472,7 +483,7 @@ begin
   FPromptCombo.Items.Add('TAIOutputData (Matemática/Output e SoftMax)');
   FPromptCombo.ItemIndex := 0;
   FPromptCombo.OnChange := @PromptComboChange;
-  
+
   FPromptMemo := TMemo.Create(Self);
   FPromptMemo.Parent := FTabPrompts;
   FPromptMemo.Align := alClient;
@@ -480,13 +491,14 @@ begin
   FPromptMemo.ReadOnly := True;
   FPromptMemo.Font.Name := 'Courier New';
   FPromptMemo.Font.Size := 10;
-  
+
   PromptComboChange(nil);
 end;
 
 procedure TfrmHardwareDemo.FormDestroy(Sender: TObject);
 begin
   if FCamera.Active then FCamera.StopCapture;
+  if FCapture.Active then FCapture.StopCapture;
   if FPLCBridge.Active then FPLCBridge.DisconnectBridge;
   if FMQTTClient.Active then FMQTTClient.DisconnectBroker;
 end;
@@ -509,7 +521,7 @@ begin
     FKeyLogMemo.Lines.Add(Format('Caractere: "%s" [Código Tecla: %d]', [KeyChar, KeyCode]))
   else
     FKeyLogMemo.Lines.Add(Format('Tecla de Controle: [Código Tecla: %d]', [KeyCode]));
-    
+
   if FKeyLogMemo.Lines.Count > 100 then
     FKeyLogMemo.Lines.Delete(1);
 end;
@@ -539,29 +551,28 @@ procedure TfrmHardwareDemo.BtnCaptureScreenClick(Sender: TObject);
 var
   Bmp: TBitmap;
 begin
-  Bmp := nil;
-  try
-    FNetworkLog.Lines.Add('[Captura] Capturando imagem do Desktop...');
-    if FOSCapture.CaptureScreen(Bmp) then
-    begin
+  FMouseLogMemo.Lines.Add('[Captura] Capturando imagem do Desktop...');
+  if FCapture.CaptureToBitmap(Bmp) then
+  begin
+    try
       FImgScreen.Picture.Assign(Bmp);
-      FNetworkLog.Lines.Add('[Captura] Tela capturada com sucesso!');
-    end
-    else
-      FNetworkLog.Lines.Add('[Captura] Falha ao capturar tela.');
-  finally
-    if Bmp <> nil then Bmp.Free;
-  end;
+      FMouseLogMemo.Lines.Add('[Captura] Tela capturada com sucesso!');
+    finally
+      Bmp.Free;
+    end;
+  end
+  else
+    FMouseLogMemo.Lines.Add('[Captura] Falha ao capturar tela: ' + FCapture.LastError);
 end;
 
 procedure TfrmHardwareDemo.TrackMouseChkChange(Sender: TObject);
 begin
-  FOSCapture.TrackMouse := FTrackMouseChk.Checked;
+  FCapture.TrackMouse := FTrackMouseChk.Checked;
 end;
 
 procedure TfrmHardwareDemo.TrackKeyChkChange(Sender: TObject);
 begin
-  FOSCapture.TrackKeyboard := FTrackKeyChk.Checked;
+  FCapture.TrackKeyboard := FTrackKeyChk.Checked;
 end;
 
 procedure TfrmHardwareDemo.BtnMQTTConnectClick(Sender: TObject);
@@ -584,7 +595,7 @@ begin
     ShowMessage('Favor conectar ao Broker MQTT primeiro.');
     Exit;
   end;
-  
+
   if FMQTTClient.Publish(FEditMQTTTopic.Text, FEditMQTTPayload.Text) then
     FNetworkLog.Lines.Add(Format('[MQTT] Publicado no tópico "%s": %s', [FEditMQTTTopic.Text, FEditMQTTPayload.Text]))
   else
@@ -598,7 +609,7 @@ begin
     ShowMessage('Favor conectar ao Broker MQTT primeiro.');
     Exit;
   end;
-  
+
   if FMQTTClient.Subscribe(FEditMQTTTopic.Text) then
     FNetworkLog.Lines.Add(Format('[MQTT] Subscrição registrada para o tópico: %s', [FEditMQTTTopic.Text]))
   else
@@ -645,7 +656,7 @@ begin
     ShowMessage('Favor conectar a ponte do CLP antes de ler.');
     Exit;
   end;
-  
+
   FIndustrialLog.Lines.Add('[Industrial] Lendo 10 bytes do Bloco DB1...');
   if FPLCBridge.ReadBytes(1, 0, 10, Data) then
   begin
@@ -664,9 +675,9 @@ procedure TfrmHardwareDemo.BtnStartCameraClick(Sender: TObject);
 begin
   FHardwareLog.Lines.Add('[Câmera] Ligando dispositivo de captura multimídia...');
   if FCamera.StartCapture then
-  begin
-    FHardwareLog.Lines.Add('[Câmera] Câmera ativa!');
-  end;
+    FHardwareLog.Lines.Add('[Câmera] Câmera ativa!')
+  else
+    FHardwareLog.Lines.Add('[Câmera] Falha ao iniciar: ' + FCamera.LastError);
 end;
 
 procedure TfrmHardwareDemo.BtnStopCameraClick(Sender: TObject);
@@ -679,19 +690,18 @@ procedure TfrmHardwareDemo.BtnCaptureCameraFrameClick(Sender: TObject);
 var
   Bmp: TBitmap;
 begin
-  Bmp := nil;
-  try
-    FHardwareLog.Lines.Add('[Câmera] Adquirindo quadro instantâneo...');
-    if FCamera.CaptureFrame(Bmp) then
-    begin
+  FHardwareLog.Lines.Add('[Câmera] Adquirindo quadro instantâneo...');
+  if FCamera.CaptureToBitmap(Bmp) then
+  begin
+    try
       FImgCamera.Picture.Assign(Bmp);
       FHardwareLog.Lines.Add('[Câmera] Frame adquirido!');
-    end
-    else
-      FHardwareLog.Lines.Add('[Câmera] Falha ao ler quadro. Certifique-se de ter ativado a câmera.');
-  finally
-    if Bmp <> nil then Bmp.Free;
-  end;
+    finally
+      Bmp.Free;
+    end;
+  end
+  else
+    FHardwareLog.Lines.Add('[Câmera] Falha ao ler quadro: ' + FCamera.LastError);
 end;
 
 procedure TfrmHardwareDemo.BtnRecordAudioClick(Sender: TObject);
@@ -726,7 +736,7 @@ begin
   Idx := FPromptCombo.ItemIndex;
   CompPrompt := '';
   case Idx of
-    0: CompPrompt := FCamera.Prompt;
+    0: CompPrompt := FCamera.Prompt;  // TAICaptureSource
     1: CompPrompt := FAudio.Prompt;
     2:
       begin
@@ -758,61 +768,54 @@ begin
         CompPrompt := (TempComp as TAIPOSPrinter).Prompt;
         TempComp.Free;
       end;
-    7:
-      begin
-        TempComp := TAICFTVIP.Create(nil);
-        CompPrompt := (TempComp as TAICFTVIP).Prompt;
-        TempComp.Free;
-      end;
-    8: CompPrompt := FModbusClient.Prompt;
-    9: CompPrompt := FMQTTClient.Prompt;
-    10: CompPrompt := FMailClient.Prompt;
-    11:
+    7: CompPrompt := FModbusClient.Prompt;
+    8: CompPrompt := FMQTTClient.Prompt;
+    9: CompPrompt := FMailClient.Prompt;
+    10:
       begin
         TempComp := TAIMessenger.Create(nil);
         CompPrompt := (TempComp as TAIMessenger).Prompt;
         TempComp.Free;
       end;
-    12: CompPrompt := FPLCBridge.Prompt;
-    13: CompPrompt := FBrowser.Prompt;
-    14: CompPrompt := FOSCapture.Prompt;
-    15:
+    11: CompPrompt := FPLCBridge.Prompt;
+    12: CompPrompt := FBrowser.Prompt;
+    13:
       begin
         TempComp := TAIInputData.Create(nil);
         CompPrompt := (TempComp as TAIInputData).Prompt;
         TempComp.Free;
       end;
-    16:
+    14:
       begin
         TempComp := TAIPDFOutput.Create(nil);
         CompPrompt := (TempComp as TAIPDFOutput).Prompt;
         TempComp.Free;
       end;
-    17:
+    15:
       begin
         TempComp := TAIWordOutput.Create(nil);
         CompPrompt := (TempComp as TAIWordOutput).Prompt;
         TempComp.Free;
       end;
-    18:
+    16:
       begin
         TempComp := TAIExcelOutput.Create(nil);
         CompPrompt := (TempComp as TAIExcelOutput).Prompt;
         TempComp.Free;
       end;
-    19:
+    17:
       begin
         TempComp := TAITXTOutput.Create(nil);
         CompPrompt := (TempComp as TAITXTOutput).Prompt;
         TempComp.Free;
       end;
-    20:
+    18:
       begin
         TempComp := TAIOutputDocs.Create(nil);
         CompPrompt := (TempComp as TAIOutputDocs).Prompt;
         TempComp.Free;
       end;
-    21:
+    19:
       begin
         TempComp := TAIOutputData.Create(nil);
         CompPrompt := (TempComp as TAIOutputData).Prompt;

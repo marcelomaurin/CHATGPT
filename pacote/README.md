@@ -41,10 +41,10 @@ pacote/packages/
 | `openai_ml.lpk` | Machine learning simples, matrizes e utilitários matemáticos |
 | `openai_graph.lpk` | Grafos, classificação, exportação, análise e relatórios |
 | `openai_python.lpk` | Integração Python, YOLO, face, CNN e LSTM |
-| `openai_vision.lpk` | OpenCV, câmera, frame, face tracker e motion tracker |
+| `openai_vision.lpk` | OpenCV, camera native backends (VFW/V4L2), frame, face tracker and motion tracker |
 | `openai_image.lpk` | Filtros simples de imagem |
 | `openai_voice.lpk` | Voz, áudio e filtros sonoros |
-| `openai_input.lpk` | Entrada de dados, comunicação, sensores e protocolos |
+| `openai_input.lpk` | Entrada de dados: **TAICaptureSource** (captura unificada), comunicação, sensores e protocolos |
 | `openai_output.lpk` | Saída de dados, documentos e impressoras |
 | `openai_industrial.lpk` | Modbus, MQTT e componentes industriais |
 | `openai_graphic.lpk` | 3D, viewer, avatar, cena e Tripo3D |
@@ -134,13 +134,13 @@ Os samples ficam em:
 samples/
 ```
 
-Sample funcional atual:
+Samples funcionais:
 
 ```text
 samples/AI Vision/opencv_filter_demo/
+samples/IA Input/capture_source_demo/    ← TAICaptureSource (todos os 5 modos)
+samples/IA Input/hardware_net_demo/
 ```
-
-Esse demo usa `TAIOpenCV` com Python + OpenCV para processar imagens em uma interface gráfica Lazarus.
 
 ---
 

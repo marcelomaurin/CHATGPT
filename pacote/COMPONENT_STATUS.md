@@ -77,7 +77,9 @@ Use esta classificação para documentação, README de abas, samples e planejam
 |---|---|---|---|---|
 | `TAIOpenCV` | `aiopencv.pas` | `openai_vision` | Beta/Parcial | Funcional via worker Python; backend Native DLL localiza/carrega DLL/SO, mas processamento nativo real ainda é simulado |
 | `aiopencvruntime` | `aiopencvruntime.pas` | `openai_vision` | Beta | Helper de busca inteligente para `opencv_world*.dll` e `libopencv_world.so*` por SO/arquitetura |
-| `TAICameraCapture` | `aicameracapture.pas` | `openai_vision` | Experimental | Captura nativa via Windows VFW e backend Linux V4L2; precisa validação ampla por plataforma |
+| `aicamera_backend` | `aicamera_backend.pas` | `openai_vision` | Stable | Interface base para backends de câmera nativa (usada por `TAICaptureSource`) |
+| `aicamera_vfw` | `aicamera_vfw.pas` | `openai_vision` | Beta | Backend Windows VFW para câmera local (usado internamente por `TAICaptureSource`) |
+| `aicamera_v4l2` | `aicamera_v4l2.pas` | `openai_vision` | Beta | Backend Linux V4L2 para câmera local (usado internamente por `TAICaptureSource`) |
 | `TAIFrameProcessor` | `aiframeprocessor.pas` | `openai_vision` | Experimental | Processamento de frames em evolução |
 | `TAIFaceTracker` | `aifacetracker.pas` | `openai_vision` | Experimental | Rastreamento por template matching (SAD) 100% nativo |
 | `TAIMotionTracker` | `aimotiontracker.pas` | `openai_vision` | Experimental | Detecção de movimento por variação de luminância 100% nativa |
@@ -85,6 +87,27 @@ Use esta classificação para documentação, README de abas, samples e planejam
 | `TAIFrameBuffer` | `aiframebuffer.pas` | `openai_vision` | Experimental | Buffer de frames circular em memória para processamento de vídeo |
 | `TAINativeImageFilter` | `ainativeimagefilter.pas` | `openai_vision` | Experimental | Filtros rápidos de pixel (Cinza, Limiar, Inverter, Resize, Blur) 100% nativos |
 | `TAIFrameDiff` | `aiframediff.pas` | `openai_vision` | Experimental | Geração nativa de diferença absoluta de pixels entre frames |
+
+---
+
+## Input
+
+| Componente | Unit | Pacote | Status | Observação |
+|---|---|---|---|---|
+| `TAICaptureSource` | `aicapturesource.pas` | `openai_input` | Beta | Fonte de captura unificada: câmera local, IP snapshot, tela, arquivo; substitui os 4 componentes legados |
+| `TAIInputData` | `aiinput.pas` | `openai_input` | Beta | Entrada e normalização de dados numéricos |
+| `TAIAudioInput` | `aiaudio.pas` | `openai_input` | Beta | Captura de áudio via microfone (WAV/MP3) |
+| `TAIWebAPIServer` | `aiwebserver.pas` | `openai_input` | Beta | Servidor REST/HTTP embutido |
+| `TAISocketTCP` | `aisockets.pas` | `openai_input` | Beta | Cliente/servidor TCP |
+| `TAISocketUDP` | `aisockets.pas` | `openai_input` | Beta | Cliente/servidor UDP |
+| `TAISerialModem` | `aiserial.pas` | `openai_input` | Beta | Comunicação serial / modem |
+| `TAIPOSPrinter` | `aiposprinter.pas` | `openai_input` | Beta | Impressora térmica EscPOS |
+| `TAIModbusClient` | `aimodbus.pas` | `openai_input` | Beta | Cliente Modbus TCP/RTU |
+| `TAIMQTTClient` | `aimqtt.pas` | `openai_input` | Beta | Cliente IoT MQTT |
+| `TAIEmailClient` | `aiemail.pas` | `openai_input` | Beta | E-mail SMTP/POP3 |
+| `TAIMessenger` | `aimessenger.pas` | `openai_input` | Beta | WhatsApp e SMS |
+| `TAIIndustrialBridge` | `aiindustrial.pas` | `openai_input` | Beta | Ponte Profinet/Profibus para CLPs |
+| `TAIChromiumBrowser` | `aichromiumbrowser.pas` | `openai_input` | Beta | Navegador Chromium incorporado |
 
 ---
 
@@ -150,3 +173,7 @@ Use esta classificação para documentação, README de abas, samples e planejam
 | Componente/Pacote | Caminho | Status | Observação |
 |---|---|---|---|
 | `openai.lpk` | `pacote/openai.lpk` | Deprecated | Wrapper legado para compatibilidade; preferir pacotes em `pacote/packages/` |
+| `TAICameraCapture` | `AI Vision/aicameracapture.pas` | Removed (v1.9.0) | Substituído por `TAICaptureSource` (cskCameraLocal) |
+| `TAICameraInput` | `IA Input/aicamera.pas` | Removed (v1.9.0) | Substituído por `TAICaptureSource` (cskCameraLocal) |
+| `TAICFTVIP` | `IA Input/aicftvip.pas` | Removed (v1.9.0) | Substituído por `TAICaptureSource` (cskCameraIPSnapshot) |
+| `TAIOSInputCapture` | `IA Input/aioscapture.pas` | Removed (v1.9.0) | Substituído por `TAICaptureSource` (cskScreen) |

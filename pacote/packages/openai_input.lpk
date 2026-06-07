@@ -22,9 +22,13 @@
         <UnitName Value="aiinput"/>
       </Item>
       <Item>
-        <Filename Value="..\IA Input\aicamera.pas"/>
+        <Filename Value="..\IA Input\aicapturesource.pas"/>
         <HasRegisterProc Value="True"/>
-        <UnitName Value="aicamera"/>
+        <UnitName Value="aicapturesource"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA Input\aicapturesource_icon.lrs"/>
+        <Type Value="LRS"/>
       </Item>
       <Item>
         <Filename Value="..\IA Input\aiwebserver.pas"/>
@@ -42,11 +46,6 @@
         <UnitName Value="aiserial"/>
       </Item>
       <Item>
-        <Filename Value="..\IA Input\aicftvip.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="aicftvip"/>
-      </Item>
-      <Item>
         <Filename Value="..\IA Input\aiemail.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiemail"/>
@@ -62,9 +61,29 @@
         <UnitName Value="aichromiumbrowser"/>
       </Item>
       <Item>
-        <Filename Value="..\IA Input\aioscapture.pas"/>
+        <Filename Value="..\IA Input\aiaudio.pas"/>
         <HasRegisterProc Value="True"/>
-        <UnitName Value="aioscapture"/>
+        <UnitName Value="aiaudio"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA Input\aimodbus.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aimodbus"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA Input\aimqtt.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aimqtt"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA Input\aiindustrial.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiindustrial"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA Input\aiposprinter.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiposprinter"/>
       </Item>
     </Files>
     <RequiredPkgs>

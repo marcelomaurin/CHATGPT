@@ -1,0 +1,12 @@
+object frmCaptureDemo: TfrmCaptureDemo
+  Left = 0
+  Height = 680
+  Top = 0
+  Width = 1000
+  Caption = 'TAICaptureSource — Unified Capture Demo'
+  ClientHeight = 680
+  ClientWidth = 1000
+  Position = poScreenCenter
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+end

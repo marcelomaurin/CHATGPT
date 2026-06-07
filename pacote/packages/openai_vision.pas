@@ -9,16 +9,14 @@ interface
 
 uses
   aiopencvruntime, aiopencv, aicamera_backend, aicamera_vfw, aicamera_v4l2, 
-  aicameracapture, aiframeprocessor, aifacetracker, aimotiontracker, 
-  aiimageinfo, aiframebuffer, ainativeimagefilter, aiframediff, 
-  LazarusPackageIntf;
+  aiframeprocessor, aifacetracker, aimotiontracker, aiimageinfo, 
+  aiframebuffer, ainativeimagefilter, aiframediff, LazarusPackageIntf;
 
 implementation
 
 procedure Register;
 begin
   RegisterUnit('aiopencv', @aiopencv.Register);
-  RegisterUnit('aicameracapture', @aicameracapture.Register);
   RegisterUnit('aiframeprocessor', @aiframeprocessor.Register);
   RegisterUnit('aifacetracker', @aifacetracker.Register);
   RegisterUnit('aimotiontracker', @aimotiontracker.Register);

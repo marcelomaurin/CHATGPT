@@ -8,23 +8,27 @@ unit openai_input;
 interface
 
 uses
-  aiinput, aicamera, aiwebserver, aisockets, aiserial, aicftvip, aiemail, 
-  aimessenger, aichromiumbrowser, aioscapture, LazarusPackageIntf;
+  aiinput, aicapturesource, aiwebserver, aisockets, aiserial, aiemail, 
+  aimessenger, aichromiumbrowser, aiaudio, aimodbus, aimqtt, aiindustrial, 
+  aiposprinter, LazarusPackageIntf;
 
 implementation
 
 procedure Register;
 begin
   RegisterUnit('aiinput', @aiinput.Register);
-  RegisterUnit('aicamera', @aicamera.Register);
+  RegisterUnit('aicapturesource', @aicapturesource.Register);
   RegisterUnit('aiwebserver', @aiwebserver.Register);
   RegisterUnit('aisockets', @aisockets.Register);
   RegisterUnit('aiserial', @aiserial.Register);
-  RegisterUnit('aicftvip', @aicftvip.Register);
   RegisterUnit('aiemail', @aiemail.Register);
   RegisterUnit('aimessenger', @aimessenger.Register);
   RegisterUnit('aichromiumbrowser', @aichromiumbrowser.Register);
-  RegisterUnit('aioscapture', @aioscapture.Register);
+  RegisterUnit('aiaudio', @aiaudio.Register);
+  RegisterUnit('aimodbus', @aimodbus.Register);
+  RegisterUnit('aimqtt', @aimqtt.Register);
+  RegisterUnit('aiindustrial', @aiindustrial.Register);
+  RegisterUnit('aiposprinter', @aiposprinter.Register);
 end;
 
 initialization
