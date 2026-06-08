@@ -9,7 +9,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\IA;..\IA Agent;..\IA Voice;..\IA Filtros Sonoros;..\IA Image;..\IA Schedulle;..\IA Math;..\IA Input;..\IA Output;..\IA Graph;..\AI Graphic;..\AI Vision;.."/>
+        <OtherUnitFiles Value="..\IA;..\IA Agent;..\IA Voice;..\IA Filtros Sonoros;..\IA Image;..\IA Schedulle;..\IA Math;..\IA Input;..\IA Output;..\IA Graph;..\AI Graphic;..\AI Vision;..;..\IA Industrial"/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
@@ -17,19 +17,21 @@
     <License Value="OPEN SOURCE GPL3"/>
     <Files>
       <Item>
-        <Filename Value="..\IA Input\aimodbus.pas"/>
+        <Filename Value="..\IA Industrial\aimodbus.pas"/>
         <HasRegisterProc Value="True"/>
+        <AddToUsesPkgSection Value="False"/>
         <UnitName Value="aimodbus"/>
       </Item>
       <Item>
-        <Filename Value="..\IA Input\aimqtt.pas"/>
+        <Filename Value="..\IA Industrial\aimqtt.pas"/>
         <HasRegisterProc Value="True"/>
+        <AddToUsesPkgSection Value="False"/>
         <UnitName Value="aimqtt"/>
       </Item>
       <Item>
-        <Filename Value="..\IA Input\aiindustrial.pas"/>
+        <Filename Value="..\IA Industrial\aiposprinter.pas"/>
         <HasRegisterProc Value="True"/>
-        <UnitName Value="aiindustrial"/>
+        <UnitName Value="aiposprinter"/>
       </Item>
     </Files>
     <RequiredPkgs>

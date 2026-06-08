@@ -26,11 +26,6 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="aioutput_docs"/>
       </Item>
-      <Item>
-        <Filename Value="..\IA Input\aiposprinter.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="aiposprinter"/>
-      </Item>
     </Files>
     <RequiredPkgs>
       <Item>

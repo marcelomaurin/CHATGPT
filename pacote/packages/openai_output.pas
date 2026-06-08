@@ -8,7 +8,7 @@ unit openai_output;
 interface
 
 uses
-  aioutput, aioutput_docs, aiposprinter, LazarusPackageIntf;
+  aioutput, aioutput_docs, LazarusPackageIntf;
 
 implementation
 
@@ -16,7 +16,6 @@ procedure Register;
 begin
   RegisterUnit('aioutput', @aioutput.Register);
   RegisterUnit('aioutput_docs', @aioutput_docs.Register);
-  RegisterUnit('aiposprinter', @aiposprinter.Register);
 end;
 
 initialization

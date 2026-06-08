@@ -60,31 +60,6 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="aichromiumbrowser"/>
       </Item>
-      <Item>
-        <Filename Value="..\IA Input\aiaudio.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="aiaudio"/>
-      </Item>
-      <Item>
-        <Filename Value="..\IA Input\aimodbus.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="aimodbus"/>
-      </Item>
-      <Item>
-        <Filename Value="..\IA Input\aimqtt.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="aimqtt"/>
-      </Item>
-      <Item>
-        <Filename Value="..\IA Input\aiindustrial.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="aiindustrial"/>
-      </Item>
-      <Item>
-        <Filename Value="..\IA Input\aiposprinter.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="aiposprinter"/>
-      </Item>
     </Files>
     <RequiredPkgs>
       <Item>

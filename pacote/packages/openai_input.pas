@@ -9,8 +9,7 @@ interface
 
 uses
   aiinput, aicapturesource, aiwebserver, aisockets, aiserial, aiemail, 
-  aimessenger, aichromiumbrowser, aiaudio, aimodbus, aimqtt, aiindustrial, 
-  aiposprinter, LazarusPackageIntf;
+  aimessenger, aichromiumbrowser, LazarusPackageIntf;
 
 implementation
 
@@ -24,11 +23,6 @@ begin
   RegisterUnit('aiemail', @aiemail.Register);
   RegisterUnit('aimessenger', @aimessenger.Register);
   RegisterUnit('aichromiumbrowser', @aichromiumbrowser.Register);
-  RegisterUnit('aiaudio', @aiaudio.Register);
-  RegisterUnit('aimodbus', @aimodbus.Register);
-  RegisterUnit('aimqtt', @aimqtt.Register);
-  RegisterUnit('aiindustrial', @aiindustrial.Register);
-  RegisterUnit('aiposprinter', @aiposprinter.Register);
 end;
 
 initialization
