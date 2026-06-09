@@ -9,7 +9,7 @@ interface
 
 uses
   pythonconnector, facedetection, yolodetect, cnnclassifier, lstmpredictor, 
-  LazarusPackageIntf;
+  aipythonruntime, LazarusPackageIntf;
 
 implementation
 
@@ -20,6 +20,7 @@ begin
   RegisterUnit('yolodetect', @yolodetect.Register);
   RegisterUnit('cnnclassifier', @cnnclassifier.Register);
   RegisterUnit('lstmpredictor', @lstmpredictor.Register);
+  RegisterUnit('aipythonruntime', @aipythonruntime.Register);
 end;
 
 initialization

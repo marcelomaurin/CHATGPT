@@ -9,7 +9,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\IA;..\IA Agent;..\IA Voice;..\IA Filtros Sonoros;..\IA Image;..\IA Schedulle;..\IA Math;..\IA Input;..\IA Output;..\IA Graph;..\AI Graphic;..\AI Vision;.."/>
+        <OtherUnitFiles Value="..\IA;..\IA Agent;..\IA Voice;..\IA Filtros Sonoros;..\IA Image;..\IA Schedulle;..\IA Math;..\IA Input;..\IA Output;..\IA Graph;..\AI Graphic;..\AI Vision;..;..\python"/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
@@ -40,6 +40,11 @@
         <Filename Value="..\IA\lstmpredictor.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="lstmpredictor"/>
+      </Item>
+      <Item>
+        <Filename Value="..\python\aipythonruntime.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aipythonruntime"/>
       </Item>
     </Files>
     <RequiredPkgs>

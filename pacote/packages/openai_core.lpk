@@ -41,11 +41,6 @@
         <UnitName Value="aiprocessrunner"/>
       </Item>
       <Item>
-        <Filename Value="..\IA\aipythonruntime.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="aipythonruntime"/>
-      </Item>
-      <Item>
         <Filename Value="..\IA\chatgpt.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="chatgpt"/>
