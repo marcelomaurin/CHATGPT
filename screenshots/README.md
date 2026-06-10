@@ -1,9 +1,5 @@
 # Screenshots
 
-## Cnn Demo
-
-![Cnn Demo](cnn_demo.jpg)
-
 ## CNN Classifier Complete Demo
 
 ![CNN Classifier Complete Demo](cnn_classifier_complete_demo.jpg)
