@@ -5,7 +5,7 @@ unit cnnclassifier;
 interface
 
 uses
-  Classes, SysUtils, pythonconnector, LResources;
+  Classes, SysUtils, pythonconnector, LResources, Math;
 
 type
   { TCNNClassifier }
@@ -123,6 +123,9 @@ end;
 
 function TCNNClassifier.CheckConnectorReady: Boolean;
 begin
+  // Mask floating point exceptions to avoid HDF5 / TensorFlow initialization error.
+  SetExceptionMask([exInvalidOp, exDenormalized, exZeroDivide, exOverflow, exUnderflow, exPrecision]);
+
   Result := False;
   FLastError := '';
 
