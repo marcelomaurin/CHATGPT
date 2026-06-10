@@ -696,13 +696,13 @@ begin
           FloatToStr(CNNClassifier1.LastConfidence)
         );
 
-        lblStatus.Caption := 'Status: Completed Successfully';
+        lblStatus.Caption := 'Identified: ' + CNNClassifier1.LastLabel + ' (Confidence: ' + FloatToStrF(CNNClassifier1.LastConfidence, ffFixed, 1, 4) + ')';
       end
       else
       begin
         AddLog('Failed classifying image: ' + CNNClassifier1.LastError);
         AddConnLog('CNN classification failed: ' + CNNClassifier1.LastError);
-        lblStatus.Caption := 'Status: Classification Error';
+        lblStatus.Caption := 'Status: ' + CNNClassifier1.LastError;
         Exit;
       end;
     end
@@ -711,7 +711,7 @@ begin
       AddLog('Failed loading CNN weights. See connection log.');
       AddConnLog('Failed loading CNN weights: ' + CNNClassifier1.LastError);
       AddConnectorError('Loading CNN weights');
-      lblStatus.Caption := 'Status: Model Load Error';
+      lblStatus.Caption := 'Status: Model Load Error - ' + CNNClassifier1.LastError;
       Exit;
     end;
 
