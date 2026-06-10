@@ -4,6 +4,10 @@
 
 ![Cnn Demo](cnn_demo.jpg)
 
+## CNN Classifier Complete Demo
+
+![CNN Classifier Complete Demo](cnn_classifier_complete_demo.jpg)
+
 ## Math Input Output Demo
 
 ![Math Input Output Demo](math_input_output_demo.jpg)
