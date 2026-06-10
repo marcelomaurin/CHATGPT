@@ -419,22 +419,31 @@ begin
 end;
 
 procedure TfrmMain.ApplyPythonPath;
+var
+  LTargetDll: string;
 begin
+  LTargetDll := Trim(edPythonDllPath.Text);
+  if LTargetDll = '' then
+    LTargetDll := ExpandFileName(IncludeTrailingPathDelimiter(RuntimePythonLibDir) + FindPythonLibraryFile(RuntimePythonLibDir));
+
+  if LTargetDll = '' then
+    LTargetDll := ExpandFileName(IncludeTrailingPathDelimiter(RuntimePythonLibDir) + DefaultPythonLibraryName);
+
   if PythonConnector1.Active then
   begin
-    AddConnLog('PythonConnector1 was active. Deactivating before applying new Python DLL/SO...');
+    if SameText(ExpandFileName(PythonConnector1.DLLPath), ExpandFileName(LTargetDll)) then
+    begin
+      AddConnLog('Python DLL/SO is already active with the same path: ' + PythonConnector1.DLLPath);
+      Exit;
+    end;
+
+    AddConnLog('PythonConnector1 was active with a different path. Deactivating before applying new Python DLL/SO...');
     PythonConnector1.Active := False;
   end;
 
   PythonConnector1.ExecutionMode := pemDLL;
   PythonConnector1.LoadMode := plmManualPath;
-  PythonConnector1.DLLPath := Trim(edPythonDllPath.Text);
-
-  if PythonConnector1.DLLPath = '' then
-  begin
-    AddConnLog('Python DLL/SO path is empty. Loading default path...');
-    ConfigureDefaultPythonPath;
-  end;
+  PythonConnector1.DLLPath := LTargetDll;
 
   CNNClassifier1.PythonConnector := PythonConnector1;
   CNNClassifier1.PreferProcessMode := False;
