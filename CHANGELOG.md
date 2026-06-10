@@ -2,6 +2,18 @@
 
 Todas as alterações relevantes para a suíte de componentes Lazarus AI Suite serão registradas neste arquivo.
 
+## [1.10.0] - 2026-06-10
+
+### Adicionado
+- **Runtimes Python Embutidos**: Suporte para carregar interpretador portátil 32-bits e 64-bits (Python 3.12.6) a partir de `runtime/python/libs/windows` de forma transparente.
+- **Amostras de Imagens de Alta Confiança**: Adição de 7 novas imagens JPG (`banana.jpg`, `coffee_mug.jpg`, `soccer_ball.jpg`, `goldfish.jpg`, `zebra.jpg`, `school_bus.jpg`, `sports_car.jpg`) facilitando o teste e validação do modelo com ImageNet.
+- **Screenshots e Documentação**: Atualização do `README.md` com avisos de compatibilidade 64-bits (requisitada pelo TensorFlow) e inclusão da captura de tela `cnn_classifier_complete_demo.jpg`.
+
+### Corrigido
+- **FPU Exceptions (HDF5/TensorFlow)**: Mascaramento automático via `SetExceptionMask` evitando falhas e crashes silenciosos ao carregar pesos de rede neural CNN.
+- **Crash em Execuções Consecutivas**: Correção do crash no segundo clique do botão "Execute Test". Agora a sessão ativa do Python e TensorFlow é reutilizada se o caminho da DLL/SO for o mesmo, evitando re-inicializações e vazamento de ponteiros de C.
+- **Feedback Visual na UI**: O rótulo de status (`lblStatus`) agora mostra detalhadamente a classe identificada e a respectiva taxa de confiança ou erros detalhados.
+
 ## [1.9.0] - 2026-06-07
 
 ### ⚡ Breaking Changes

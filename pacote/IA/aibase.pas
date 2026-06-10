@@ -8,7 +8,7 @@ uses
   Classes, SysUtils;
 
 const
-  AI_SUITE_VERSION = '1.7.0';
+  AI_SUITE_VERSION = '1.10.0';
 
 type
   TAIComponentCategory = (
