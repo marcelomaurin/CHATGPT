@@ -117,12 +117,12 @@ object frmMain: TfrmMain
       ClientWidth = 792
       object pnlTop: TPanel
         Left = 10
-        Height = 150
+        Height = 110
         Top = 10
         Width = 772
         Align = alTop
         BorderSpacing.Around = 10
-        ClientHeight = 150
+        ClientHeight = 110
         ClientWidth = 772
         TabOrder = 0
         object lblTitle: TLabel
@@ -164,11 +164,58 @@ object frmMain: TfrmMain
           OnClick = btnClearLogClick
         end
       end
+      object pnlRight: TPanel
+        Left = 482
+        Height = 442
+        Top = 120
+        Width = 300
+        Align = alRight
+        BorderSpacing.Around = 10
+        ClientHeight = 442
+        ClientWidth = 300
+        TabOrder = 2
+        object lblSelectImage: TLabel
+          Left = 10
+          Height = 15
+          Top = 10
+          Width = 98
+          Caption = 'Select Test Image:'
+          ParentColor = False
+        end
+        object cbImageSelect: TComboBox
+          Left = 10
+          Height = 23
+          Top = 30
+          Width = 280
+          ItemHeight = 15
+          Style = csDropDownList
+          TabOrder = 0
+          OnChange = cbImageSelectChange
+        end
+        object lblImagePath: TLabel
+          Left = 10
+          Height = 15
+          Top = 60
+          Width = 280
+          Caption = 'Path: /imagem'
+          ParentColor = False
+          WordWrap = True
+        end
+        object imgPreview: TImage
+          Left = 10
+          Height = 330
+          Top = 100
+          Width = 280
+          Center = True
+          Proportional = True
+          Stretch = True
+        end
+      end
       object memoLog: TMemo
         Left = 10
-        Height = 392
-        Top = 170
-        Width = 772
+        Height = 442
+        Top = 120
+        Width = 462
         Align = alClient
         BorderSpacing.Around = 10
         ScrollBars = ssAutoBoth

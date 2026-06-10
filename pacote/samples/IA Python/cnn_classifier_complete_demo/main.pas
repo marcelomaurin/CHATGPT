@@ -35,6 +35,11 @@ type
     PythonConnector1: TPythonConnector;
     tsConfig: TTabSheet;
     tsDemo: TTabSheet;
+    pnlRight: TPanel;
+    lblSelectImage: TLabel;
+    cbImageSelect: TComboBox;
+    lblImagePath: TLabel;
+    imgPreview: TImage;
 
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -43,9 +48,9 @@ type
     procedure btnApplyPythonPathClick(Sender: TObject);
     procedure btnBrowsePythonDllClick(Sender: TObject);
     procedure btnTestPythonConfigClick(Sender: TObject);
+    procedure cbImageSelectChange(Sender: TObject);
 
   private
-    FEditImage: TEdit;
 
     procedure AddLog(const AMsg: string);
     procedure AddConnLog(const AMsg: string);
@@ -78,6 +83,8 @@ implementation
 { TfrmMain }
 
 procedure TfrmMain.FormCreate(Sender: TObject);
+var
+  SR: TSearchRec;
 begin
   if Assigned(pcMain) and Assigned(tsConfig) then
     pcMain.ActivePage := tsConfig;
@@ -94,22 +101,53 @@ begin
 
   ConfigureDefaultPythonPath;
 
-  FEditImage := TEdit.Create(Self);
-  FEditImage.Parent := pnlTop;
-  FEditImage.Left := 15;
-  FEditImage.Top := 115;
-  FEditImage.Width := 500;
-
+  // Carregar imagens do diretório no cbImageSelect
   if not DirectoryExists(SampleImageDir) then
     ForceDirectories(SampleImageDir);
 
-  FEditImage.Text := SampleImageFile;
+  if Assigned(lblImagePath) then
+    lblImagePath.Caption := 'Path: ' + SampleImageDir;
+
+  if Assigned(cbImageSelect) then
+  begin
+    cbImageSelect.Items.Clear;
+    cbImageSelect.Style := csDropDownList;
+    
+    // Procura arquivos de imagem no diretório
+    if FindFirst(IncludeTrailingPathDelimiter(SampleImageDir) + '*.*', faAnyFile, SR) = 0 then
+    begin
+      try
+        repeat
+          if (SR.Attr and faDirectory) = 0 then
+          begin
+            if SameText(ExtractFileExt(SR.Name), '.jpg') or
+               SameText(ExtractFileExt(SR.Name), '.jpeg') or
+               SameText(ExtractFileExt(SR.Name), '.png') then
+            begin
+              cbImageSelect.Items.Add(SR.Name);
+            end;
+          end;
+        until FindNext(SR) <> 0;
+      finally
+        FindClose(SR);
+      end;
+    end;
+
+    if cbImageSelect.Items.Count > 0 then
+    begin
+      cbImageSelect.ItemIndex := 0;
+      cbImageSelectChange(nil);
+    end;
+  end;
 
   UpdateConfigFromConnector;
 
   AddLog('Cnn Classifier Complete Demo (cnnclassifier) initialized.');
   AddLog('Components linked: CNNClassifier1 -> PythonConnector1');
-  AddLog('Sample image path: ' + FEditImage.Text);
+  if cbImageSelect.ItemIndex >= 0 then
+    AddLog('Sample image selected: ' + cbImageSelect.Items[cbImageSelect.ItemIndex])
+  else
+    AddLog('No sample images found in: ' + SampleImageDir);
 
   AddConnLog('Configuration log initialized.');
   AddConnLog('Using visual component: PythonConnector1.');
@@ -579,12 +617,23 @@ begin
 end;
 
 procedure TfrmMain.btnRunClick(Sender: TObject);
+var
+  LSelectedImage: string;
 begin
   lblStatus.Caption := 'Status: Processing...';
   AddLog('--- Starting Execution ---');
 
   try
     ApplyPythonPath;
+
+    if (cbImageSelect.ItemIndex < 0) then
+    begin
+      AddLog('Error: No image selected.');
+      lblStatus.Caption := 'Status: No Image Selected';
+      Exit;
+    end;
+
+    LSelectedImage := IncludeTrailingPathDelimiter(SampleImageDir) + cbImageSelect.Items[cbImageSelect.ItemIndex];
 
     CNNClassifier1.WeightsFile := 'weights.h5';
     CNNClassifier1.Threshold := 0.75;
@@ -600,7 +649,7 @@ begin
     AddLog('  Threshold: ' + FloatToStr(CNNClassifier1.Threshold));
     AddLog('  BackendMode: ' + CNNClassifier1.BackendMode);
     AddLog('  AutoInstallDependencies: True');
-    AddLog('  Image: ' + FEditImage.Text);
+    AddLog('  Image: ' + LSelectedImage);
 
     if not FileExists(PythonConnector1.DLLPath) then
     begin
@@ -610,10 +659,10 @@ begin
       Exit;
     end;
 
-    if not FileExists(FEditImage.Text) then
+    if not FileExists(LSelectedImage) then
     begin
-      AddLog('Image file not found: ' + FEditImage.Text);
-      AddConnLog('ERROR: Sample image file not found: ' + FEditImage.Text);
+      AddLog('Image file not found: ' + LSelectedImage);
+      AddConnLog('ERROR: Sample image file not found: ' + LSelectedImage);
       lblStatus.Caption := 'Status: Image Not Found';
       Exit;
     end;
@@ -638,7 +687,7 @@ begin
 
     if CNNClassifier1.LoadWeights then
     begin
-      if CNNClassifier1.ClassifyFrame(FEditImage.Text) then
+      if CNNClassifier1.ClassifyFrame(LSelectedImage) then
       begin
         AddLog(
           'Classified Label: ' +
@@ -678,6 +727,26 @@ begin
 
   UpdateConfigFromConnector;
   AddLog('--- Execution Finished ---');
+end;
+
+procedure TfrmMain.cbImageSelectChange(Sender: TObject);
+var
+  LFilePath: string;
+begin
+  if cbImageSelect.ItemIndex >= 0 then
+  begin
+    LFilePath := IncludeTrailingPathDelimiter(SampleImageDir) + cbImageSelect.Items[cbImageSelect.ItemIndex];
+    if FileExists(LFilePath) then
+    begin
+      try
+        imgPreview.Picture.LoadFromFile(LFilePath);
+        AddLog('Loaded preview: ' + cbImageSelect.Items[cbImageSelect.ItemIndex]);
+      except
+        on E: Exception do
+          AddLog('Error loading preview image: ' + E.Message);
+      end;
+    end;
+  end;
 end;
 
 procedure TfrmMain.btnClearLogClick(Sender: TObject);
