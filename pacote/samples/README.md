@@ -28,12 +28,41 @@ arquivos de entrada de teste
 
 ---
 
-## Samples OpenCV confirmados nos fontes
+## Samples OpenCV/IA confirmados nos fontes
 
 | Sample | Tipo | Pacote necessário | Componentes/units usados | Backend | Status |
 |---|---|---|---|---|---|
 | `AI Vision/opencv_filter_demo` | GUI | `openai_vision.lpk` | `TAIOpenCV`, `aiopencvruntime`, `aiplatform` | Python Process + Native DLL com fallback | Funcional/Beta |
 | `AI Vision/opencv_image_real_demo` | GUI | `openai_vision.lpk` | `TAIOpenCV`, `TAIFrameProcessor`, `aiopencvruntime`, `aiplatform` | Native DLL com fallback Python e modo simulação | Funcional/Beta |
+| `IA Python/cnn_classifier_complete_demo` | GUI | `openai_python.lpk` | `TCNNClassifier`, `TPythonConnector`, `pythonconnector` | Python DLL/SO (TensorFlow) | Funcional |
+
+---
+
+## Sample: CNN Classifier Complete Demo
+
+Caminho:
+
+```text
+pacote/samples/IA Python/cnn_classifier_complete_demo/
+```
+
+Esse sample demonstra o componente `TCNNClassifier` e `TPythonConnector` em uma interface gráfica Lazarus para classificar imagens usando redes neurais convolucionais (CNN).
+
+Recursos demonstrados:
+
+* Inicialização de runtime Python embarcado em 64-bits;
+* carregamento de modelo CNN (`weights.h5` customizado ou fallback automático para MobileNetV2 pré-treinado no ImageNet);
+* carregamento e classificação de imagens selecionadas dinamicamente via `TComboBox` na pasta `/imagem`;
+* exibição instantânea do preview de imagem (`TImage`);
+* exibição do resultado da classificação (Classe identificada e confiança) diretamente na tela principal;
+* uso de máscara de exceção de ponto flutuante (`SetExceptionMask`) para compatibilidade com inicializadores do TensorFlow/HDF5;
+* reaproveitamento de sessão ativa do Python para evitar falhas consecutivas de re-inicialização do TensorFlow.
+
+Dependências:
+
+```bash
+pip install tensorflow numpy pillow
+```
 
 ---
 
