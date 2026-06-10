@@ -6,9 +6,9 @@ interface
 
 uses
   Classes, SysUtils, TypInfo, fpjson, fphttpclient, aibase,
-  aicamera, aiaudio, aiwebserver, aisockets, aiserial, aiposprinter, aicftvip,
+  aicapturesource, aiaudio, aiwebserver, aisockets, aiserial, aiposprinter,
   aimodbus, aimqtt, aiemail, aimessenger, aiindustrial, aichromiumbrowser,
-  aioscapture, aiinput, aioutput, aioutput_docs;
+  aiinput, aioutput, aioutput_docs;
 
 type
   TAIAgentResourceExecutor = class
@@ -336,9 +336,8 @@ end;
 
 class function TAIAgentHardwareExecutor.CanExecute(AComponent: TComponent): Boolean;
 begin
-  Result := (AComponent is TAICameraInput) or
+  Result := (AComponent is TAICaptureSource) or
             (AComponent is TAIAudioInput) or
-            (AComponent is TAIOSInputCapture) or
             (AComponent is TAIPOSPrinter) or
             (AComponent is TAIOutputData) or
             (AComponent is TAIInputData);
@@ -349,13 +348,13 @@ begin
   Result := False;
   ALog := '';
 
-  if AComponent is TAICameraInput then
+  if AComponent is TAICaptureSource then
   begin
-    with (AComponent as TAICameraInput) do
+    with (AComponent as TAICaptureSource) do
     begin
       if not Active then StartCapture;
       Result := True;
-      ALog := 'Dispositivo de camera física ativo.';
+      ALog := 'Dispositivo de captura unificado (TAICaptureSource) ativo. Mode: ' + GetEnumName(TypeInfo(TAICaptureSourceKind), Ord(SourceKind));
     end;
   end
   else if AComponent is TAIAudioInput then
@@ -364,14 +363,6 @@ begin
     begin
       Result := True;
       ALog := 'Suíte de sinais de áudio ativa.';
-    end;
-  end
-  else if AComponent is TAIOSInputCapture then
-  begin
-    with (AComponent as TAIOSInputCapture) do
-    begin
-      Result := True;
-      ALog := 'Captura de eventos do sistema ativo: mouse=' + BoolToStr(TrackMouse, True) + ', keyboard=' + BoolToStr(TrackKeyboard, True);
     end;
   end
   else if AComponent is TAIPOSPrinter then

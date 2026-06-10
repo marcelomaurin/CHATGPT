@@ -8,9 +8,9 @@ uses
   Classes, SysUtils, chatgpt, fpjson, jsonparser, fphttpclient, TypInfo,
   aibase, aiagentsafety,
   // IA Input components
-  aicamera, aiaudio, aiwebserver, aisockets, aiserial, aiposprinter, aicftvip,
+  aiaudio, aiwebserver, aisockets, aiserial, aiposprinter,
   aimodbus, aimqtt, aiemail, aimessenger, aiindustrial, aichromiumbrowser,
-  aioscapture, aiinput,
+  aicapturesource, aiinput,
   // IA Output components
   aioutput, aioutput_docs, LResources, aiagent_executors;
 
