@@ -51,6 +51,10 @@
     <Target>
       <Filename Value="cnn_classifier_complete_demo"/>
     </Target>
+    <CodeGeneration>
+      <TargetCPU Value="x86_64"/>
+      <TargetOS Value="win64"/>
+    </CodeGeneration>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
       <OtherUnitFiles Value="..\..\..;..\..\..\IA;..\..\..\IA Agent;..\..\..\IA Voice;..\..\..\IA Filtros Sonoros;..\..\..\IA Image;..\..\..\IA Schedulle;..\..\..\IA Math;..\..\..\IA Input;..\..\..\IA Output;..\..\..\IA Graph;..\..\..\AI Graphic;..\..\..\AI Vision;..\..\..\packages"/>
