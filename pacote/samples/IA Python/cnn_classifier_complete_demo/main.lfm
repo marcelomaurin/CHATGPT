@@ -6,75 +6,192 @@ object frmMain: TfrmMain
   Caption = 'Cnn Classifier Complete Demo (cnnclassifier)'
   ClientHeight = 600
   ClientWidth = 800
+  LCLVersion = '4.4.0.0'
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  LCLVersion = '3.0.0.3'
-  object pnlTop: TPanel
-    Left = 10
-    Height = 150
-    Top = 10
-    Width = 780
-    Align = alTop
-    BorderSpacing.Around = 10
-    ClientHeight = 150
-    ClientWidth = 780
+  object pcMain: TPageControl
+    Left = 0
+    Height = 600
+    Top = 0
+    Width = 800
+    ActivePage = tsDemo
+    Align = alClient
+    TabIndex = 1
     TabOrder = 0
-    object lblTitle: TLabel
-      Left = 15
-      Height = 25
-      Top = 15
-      Width = 500
-      Caption = 'Cnn Classifier Complete Demo (cnnclassifier)'
-      Font.Height = -18
-      Font.Name = 'Segoe UI'
-      Font.Style = [fsBold]
-      ParentColor = False
+    object tsConfig: TTabSheet
+      Caption = 'Configuration'
+      ClientHeight = 572
+      ClientWidth = 792
+      object pnlConfig: TPanel
+        Left = 10
+        Height = 180
+        Top = 10
+        Width = 772
+        Align = alTop
+        BorderSpacing.Around = 10
+        ClientHeight = 180
+        ClientWidth = 772
+        TabOrder = 0
+        object lblPythonPath: TLabel
+          Left = 15
+          Height = 15
+          Top = 20
+          Width = 150
+          Caption = 'Python DLL/SO Library Path:'
+          ParentColor = False
+        end
+        object edPythonDllPath: TEdit
+          Left = 15
+          Height = 23
+          Top = 45
+          Width = 560
+          TabOrder = 0
+          Text = 'python3.dll'
+        end
+        object btnBrowsePythonDll: TButton
+          Left = 585
+          Height = 28
+          Top = 43
+          Width = 80
+          Caption = 'Browse'
+          TabOrder = 1
+          OnClick = btnBrowsePythonDllClick
+        end
+        object btnApplyPythonPath: TButton
+          Left = 675
+          Height = 28
+          Top = 43
+          Width = 80
+          Caption = 'Apply'
+          TabOrder = 2
+          OnClick = btnApplyPythonPathClick
+        end
+        object lblPythonMode: TLabel
+          Left = 15
+          Height = 15
+          Top = 90
+          Width = 153
+          Caption = 'ExecutionMode: pemProcess'
+          ParentColor = False
+        end
+        object lblPythonInfo: TLabel
+          Left = 15
+          Height = 15
+          Top = 115
+          Width = 119
+          Caption = 'Python status: Inactive'
+          ParentColor = False
+        end
+        object btnTestPythonConfig: TButton
+          Left = 15
+          Height = 32
+          Top = 140
+          Width = 160
+          Caption = 'Test Python Config'
+          TabOrder = 3
+          OnClick = btnTestPythonConfigClick
+        end
+      end
+      object melog: TMemo
+        Left = 0
+        Height = 354
+        Top = 218
+        Width = 792
+        Align = alBottom
+        Lines.Strings = (
+          'melog'
+        )
+        TabOrder = 1
+      end
+      object Label1: TLabel
+        Left = 6
+        Height = 15
+        Top = 202
+        Width = 17
+        Caption = 'log'
+      end
     end
-    object lblStatus: TLabel
-      Left = 15
-      Height = 15
-      Top = 50
-      Width = 400
-      Caption = 'Status: Ready'
-      ParentColor = False
-    end
-    object chkSimulation: TCheckBox
-      Left = 15
-      Height = 19
-      Top = 80
-      Width = 150
-      Caption = 'Simulation Mode'
-      Checked = True
-      State = cbChecked
-      TabOrder = 0
-    end
-    object btnRun: TButton
-      Left = 200
-      Height = 30
-      Top = 75
-      Width = 150
-      Caption = 'Execute Test'
-      OnClick = btnRunClick
-      TabOrder = 1
-    end
-    object btnClearLog: TButton
-      Left = 360
-      Height = 30
-      Top = 75
-      Width = 120
-      Caption = 'Clear Log'
-      OnClick = btnClearLogClick
-      TabOrder = 2
+    object tsDemo: TTabSheet
+      Caption = 'CNN Classifier'
+      ClientHeight = 572
+      ClientWidth = 792
+      object pnlTop: TPanel
+        Left = 10
+        Height = 150
+        Top = 10
+        Width = 772
+        Align = alTop
+        BorderSpacing.Around = 10
+        ClientHeight = 150
+        ClientWidth = 772
+        TabOrder = 0
+        object lblTitle: TLabel
+          Left = 15
+          Height = 25
+          Top = 15
+          Width = 379
+          Caption = 'Cnn Classifier Complete Demo (cnnclassifier)'
+          Font.Height = -18
+          Font.Name = 'Segoe UI'
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+        end
+        object lblStatus: TLabel
+          Left = 15
+          Height = 15
+          Top = 50
+          Width = 70
+          Caption = 'Status: Ready'
+          ParentColor = False
+        end
+        object btnRun: TButton
+          Left = 200
+          Height = 30
+          Top = 75
+          Width = 150
+          Caption = 'Execute Test'
+          TabOrder = 0
+          OnClick = btnRunClick
+        end
+        object btnClearLog: TButton
+          Left = 360
+          Height = 30
+          Top = 75
+          Width = 120
+          Caption = 'Clear Log'
+          TabOrder = 1
+          OnClick = btnClearLogClick
+        end
+      end
+      object memoLog: TMemo
+        Left = 10
+        Height = 392
+        Top = 170
+        Width = 772
+        Align = alClient
+        BorderSpacing.Around = 10
+        ScrollBars = ssAutoBoth
+        TabOrder = 1
+      end
     end
   end
-  object memoLog: TMemo
-    Left = 10
-    Height = 410
-    Top = 180
-    Width = 780
-    Align = alClient
-    BorderSpacing.Around = 10
-    ScrollBars = ssAutoBoth
-    TabOrder = 1
+  object CNNClassifier1: TCNNClassifier
+    PythonConnector = PythonConnector1
+    Left = 512
+    Top = 69
+  end
+  object PythonConnector1: TPythonConnector
+    DLLPath = 'python3.dll'
+    Active = False
+    ExecutionMode = pemProcess
+    Left = 616
+    Top = 69
+  end
+  object dlgPythonLib: TOpenDialog
+    Title = 'Select Python DLL/SO'
+    Filter = 'Python Library|python*.dll;libpython*.so;libpython*.dylib|All files|*.*'
+    Left = 704
+    Top = 69
   end
 end
