@@ -18,11 +18,10 @@ Esta matriz registra a compatibilidade planejada e o estado de validação por s
 
 | Pacote | Win x86 | Win x64 | Win7 x86 | Win7 x64 | Linux x64 | ARM64 | ARMHF | Observação |
 |---|---|---|---|---|---|---|---|---|
-| openai_core | Planejado | Sim | Planejado | Planejado | Sim | Provável | Provável | Pascal/FPC, base comum |
+| openai_core | Planejado | Sim | Planejado | Planejado | Sim | Provável | Provável | Pascal/FPC, base comum (e componentes de integração Python) |
 | openai_ml | Planejado | Sim | Planejado | Planejado | Sim | Provável | Provável | Pascal puro, limitado por CPU/RAM |
 | openai_graph | Planejado | Sim | Planejado | Planejado | Sim | Provável | Provável | Pascal puro |
 | openai_output | Planejado | Sim | Planejado | Planejado | Sim | Provável | Provável | PDF/TXT tendem a ser portáveis |
-| openai_python | Experimental | Experimental | Experimental | Experimental | Experimental | Experimental | Experimental | Depende de runtime Python por arquitetura |
 | openai_vision | Parcial | Parcial | Parcial | Parcial | Parcial | Experimental | Experimental | OpenCV via Python e visão nativa parcial |
 | openai_industrial | Planejado | Sim | Planejado | Planejado | Sim | Provável | Provável | Serial/sockets dependem do ambiente |
 | openai_graphic | Experimental | Experimental | Experimental | Experimental | Experimental | Experimental | Experimental | Depende de backend gráfico |
