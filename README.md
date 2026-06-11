@@ -118,7 +118,7 @@ pacote/packages/openai_core.lpk
 | `openai_core` | Lazarus, FPC, LCL, FCL, OpenSSL para HTTPS. Para componentes de integração Python: Python 3, arquitetura compatível e bibliotecas Python conforme componente |
 | `openai_ml` | Sem Python obrigatório; usa Pascal/FPC |
 | `openai_graph` | `openai_core`, `openai_ml` |
-| `openai_vision` | Para `TAIOpenCV`: Python 3, `opencv-python`, `numpy`. Componentes nativos usam LCL/FPC; `TAICameraCapture` usa VFW no Windows |
+| `openai_vision` | Para `TAIOpenCV`: Python 3, `opencv-python`, `numpy`. Componentes nativos usam LCL/FPC;usa VFW no Windows |
 | `openai_voice` | Windows SAPI ou Linux eSpeak/eSpeak-NG conforme uso |
 | `openai_output` | `fpPDF`/FPC para PDF; Word/Excel podem ser HTML compatível |
 | `openai_industrial` | Dependências de Modbus/MQTT e permissões do ambiente |
@@ -153,7 +153,7 @@ A camada de Visão Computacional do projeto é dividida em duas abordagens:
 
 Componentes Pascal, sem dependência de Python, OpenCV ou executores externos. Estão registrados principalmente na aba **`AI Native Vision`** da IDE e utilizam recursos como `TBitmap` e `TLazIntfImage`.
 
-* `TAICameraCapture`: captura de câmera/webcam via Windows VFW/`avicap32.dll`. No Linux, a versão atual ainda retorna stub/erro de plataforma não suportada.
+*: captura de câmera/webcam via Windows VFW/`avicap32.dll`. No Linux, a versão atual ainda retorna stub/erro de plataforma não suportada.
 * `TAINativeImageFilter`: filtros de imagem nativos, como cinza, threshold, inverter, resize e blur box.
 * `TAIImageInfo`: extração nativa de dimensões e informações básicas de imagem.
 * `TAIFrameBuffer`: buffer circular de frames em memória para processamento de vídeo.
@@ -233,7 +233,6 @@ Samples nativos em validação/documentação:
 * Componentes Python dependem de versão, arquitetura e ambiente compatíveis.
 * É recomendado validar cada componente antes de uso em produção.
 * Testes automatizados e integração contínua ainda precisam ser ampliados.
-* `TAICameraCapture` usa VFW no Windows; Linux ainda precisa backend próprio.
 * `TAIFaceTracker` rastreia template, não detecta rosto semanticamente.
 
 ---

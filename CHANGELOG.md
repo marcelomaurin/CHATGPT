@@ -17,7 +17,7 @@ Todas as alterações relevantes para a suíte de componentes Lazarus AI Suite s
 ## [1.9.0] - 2026-06-07
 
 ### ⚡ Breaking Changes
-- **Componentes removidos da paleta**: `TAICameraCapture`, `TAICameraInput`, `TAICFTVIP` e `TAIOSInputCapture` foram removidos de todos os pacotes `.lpk` e seus arquivos `.pas` foram deletados. Projetos existentes devem migrar para `TAICaptureSource`.
+- **Componentes removidos da paleta**: `TAICameraInput`, `TAICFTVIP` e `TAIOSInputCapture` foram removidos de todos os pacotes `.lpk` e seus arquivos `.pas` foram deletados. Projetos existentes devem migrar para `TAICaptureSource`.
 
 ### Adicionado
 - **`TAICaptureSource`** (`aicapturesource.pas`, pacote `openai_input`): componente unificado de captura com 5 modos via `SourceKind`:
@@ -35,7 +35,6 @@ Todas as alterações relevantes para a suíte de componentes Lazarus AI Suite s
 - `IA Input/aicamera.pas` + ícone (`TAICameraInput`)
 - `IA Input/aicftvip.pas` + ícone (`TAICFTVIP`)
 - `IA Input/aioscapture.pas` + ícone (`TAIOSInputCapture`)
-- `AI Vision/aicameracapture.pas` + ícone (`TAICameraCapture`)
 - `samples/AI Vision/camera_capture_linux_demo/`
 - `samples/AI Native Vision/camera_capture_demo/`
 - `samples/IA Input/os_capture_demo/`
@@ -51,7 +50,7 @@ Todas as alterações relevantes para a suíte de componentes Lazarus AI Suite s
 
 | Componente Antigo | Substituto | Configuração |
 |---|---|---|
-| `TAICameraInput` / `TAICameraCapture` | `TAICaptureSource` | `SourceKind := cskCameraLocal` |
+| `TAICameraInput` /| `TAICaptureSource` | `SourceKind := cskCameraLocal` |
 | `TAICFTVIP` | `TAICaptureSource` | `SourceKind := cskCameraIPSnapshot` |
 | `TAIOSInputCapture.CaptureScreen` | `TAICaptureSource.CaptureToBitmap` | `SourceKind := cskScreen` |
 | `TAIOSInputCapture.TrackKeyboard` | `TAICaptureSource.TrackKeyboard` | ⚠️ padrão alterado de `True` para `False` |
@@ -67,7 +66,7 @@ Todas as alterações relevantes para a suíte de componentes Lazarus AI Suite s
 
 ### Corrigido
 - **AI Vision — Ícones faltantes**: 4 componentes nativos de visão estavam sem ícone na paleta: `TAIImageInfo`, `TAIFrameBuffer`, `TAINativeImageFilter` e `TAIFrameDiff`. Criados os respectivos arquivos `.lrs` e adicionado bloco `initialization` em cada `.pas`.
-- **`install_components.bat` / `install_components.sh`**: Adicionados `openai_simulation.lpk` e `openai_full.lpk` que estavam faltando nos modos `recommended` e `all`. Scripts agora executam `lazbuild --build-ide=` automaticamente ao final de uma instalação bem-sucedida.
+- **`install_components.bat` / `install_components.sh`**: Adicionados `openai_simulation.lpk` eque estavam faltando nos modos `recommended` e `all`. Scripts agora executam `lazbuild --build-ide=` automaticamente ao final de uma instalação bem-sucedida.
 
 ---
 
@@ -112,12 +111,11 @@ Todas as alterações relevantes para a suíte de componentes Lazarus AI Suite s
 ## [1.5.0] - 2026-05-xx
 
 ### Adicionado
-- **AI Native Vision Layer**: Implementada camada de visão nativa multiplataforma sem dependência do OpenCV: `TAICameraCapture` (backend Windows VFW nativo), `TAINativeImageFilter`, `TAIMotionTracker` (detecção por luminância), `TAIFrameBuffer`, `TAIFrameDiff`, `TAIFaceTracker` (rastreamento por template nativo).
+- **AI Native Vision Layer**: Implementada camada de visão nativa multiplataforma sem dependência do OpenCV:(backend Windows VFW nativo), `TAINativeImageFilter`, `TAIMotionTracker` (detecção por luminância), `TAIFrameBuffer`, `TAIFrameDiff`, `TAIFaceTracker` (rastreamento por template nativo).
 - `TAIImageInfo`: Componente de metadados de imagem.
 - Suporte a câmera Linux via V4L2 (`aicamera_v4l2.pas`) e Windows VFW (`aicamera_vfw.pas`) com abstração via `aicamera_backend.pas`.
 
 ### Modificado
-- `TAICameraCapture` refatorado para backend Windows VFW puro sem dependências externas.
 - `TAIOpenCV` atualizado para usar runtime Python seguro com `TAISafeProcessRunner`.
 - Detecção inteligente de runtime OpenCV com suporte a libraries placeholder identificadas por tamanho.
 
@@ -132,7 +130,7 @@ Todas as alterações relevantes para a suíte de componentes Lazarus AI Suite s
 ### Adicionado
 - **Runtime OpenCV multiplataforma**: Adicionados templates de runtime para Windows x86/x64, Linux x64/arm64, Windows 7 x86/x64 (legado).
 - **Scripts de instalação**: `install_components.bat` (Windows) e `install_components.sh` (Linux) com modos `core`, `recommended` e `all`.
-- **Sistema de pacotes modular**: `openai_core`, `openai_ml`, `openai_graph`, `openai_output`, `openai_input`, `openai_python`, `openai_vision`, `openai_image`, `openai_voice`, `openai_industrial`, `openai_graphic`, `openai_agent`, `openai_simulation`, `openai_full`.
+- **Sistema de pacotes modular**: `openai_core`, `openai_ml`, `openai_graph`, `openai_output`, `openai_input`, `openai_python`, `openai_vision`, `openai_image`, `openai_voice`, `openai_industrial`, `openai_graphic`, `openai_agent`, `openai_simulation`.
 - **Guia de instalação** (`INSTALL.md`) com instruções detalhadas para Windows e Linux.
 
 ### Adicionado (Runtime)
@@ -157,7 +155,7 @@ Todas as alterações relevantes para a suíte de componentes Lazarus AI Suite s
 ## [1.2.0] - 2026-04-xx
 
 ### Adicionado
-- **Documentação completa de componentes** em `DOC/`: guias individuais para `TAICameraCapture`, `TAIFrameProcessor`, `TAIFaceTracker`, `TAIMotionTracker`, `TAIAgent`, `TAIAgentSafety`, `TAIAgentExecutor`, `TPythonConnector`, `TAIOutputData`, `TAIOutputDocs` (PDF, Word, Excel, TXT), `TAIModel3D`, `TAI3DModelViewer`, `TAIAvatar3D`, `TAIScene3D`, `TYoloDetect`, `TFaceDetection`, `TCNNClassifier`, `TLSTMPredictor`, `TAIGraphMap`, `TAITrainingExporter`, `TAIDatasetAnalyzer`, `TAITrainingReport`, `TAIGraphVisualizer`, `TAIImageInfo`, `TAIFrameBuffer`, `TAIFrameDiff`, `TAINativeImageFilter`, `TAIMotionTracker` (nativo).
+- **Documentação completa de componentes** em `DOC/`: guias individuais para `TAIFrameProcessor`, `TAIFaceTracker`, `TAIMotionTracker`, `TAIAgent`, `TAIAgentSafety`, `TAIAgentExecutor`, `TPythonConnector`, `TAIOutputData`, `TAIOutputDocs` (PDF, Word, Excel, TXT), `TAIModel3D`, `TAI3DModelViewer`, `TAIAvatar3D`, `TAIScene3D`, `TYoloDetect`, `TFaceDetection`, `TCNNClassifier`, `TLSTMPredictor`, `TAIGraphMap`, `TAITrainingExporter`, `TAIDatasetAnalyzer`, `TAITrainingReport`, `TAIGraphVisualizer`, `TAIImageInfo`, `TAIFrameBuffer`, `TAIFrameDiff`, `TAINativeImageFilter`, `TAIMotionTracker` (nativo).
 - **Ícones gerados** para todos os componentes existentes via `generate_all_icons.py` usando recursos BMP 24×24 px embutidos em arquivos `.lrs`.
 
 ---
@@ -165,7 +163,6 @@ Todas as alterações relevantes para a suíte de componentes Lazarus AI Suite s
 ## [1.1.0] - 2026-03-xx
 
 ### Adicionado
-- **`TAICameraCapture`**: Implementação inicial com demo GUI e testes unitários.
 - Componentes de ML: `TNeuralNetwork`, `TPerceptron`, `TSOMMap`, `TAIDatasetGenerator`.
 - Componentes de IA: `TCHATGPT`, `TAICodeAssistant`, `TTokenList`, `TAIWizardConfig`, `TAIModelRegistry`.
 - Documentação inicial no `DOC/` para componentes de base.

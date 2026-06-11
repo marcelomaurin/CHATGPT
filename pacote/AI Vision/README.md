@@ -36,7 +36,6 @@ AI Native Vision
 | Componente | Unit | Status | Descrição |
 |---|---|---|---|
 | `TAIOpenCV` | `aiopencv.pas` | Beta | Processamento básico via backend Python e carregamento parcial de runtime nativo OpenCV |
-| `TAICameraCapture` | `aicameracapture.pas` | Experimental | Captura nativa por backend específico do SO; usa VFW no Windows e backend V4L2 no Linux |
 | `TAIFrameProcessor` | `aiframeprocessor.pas` | Experimental | Estrutura de processamento de frames em evolução |
 | `TAIFaceTracker` | `aifacetracker.pas` | Experimental | Rastreamento por template matching/SAD em `TBitmap`; não é detector facial semântico |
 | `TAIMotionTracker` | `aimotiontracker.pas` | Experimental | Detecção de movimento por variação de luminância entre bitmaps |
@@ -52,7 +51,7 @@ AI Native Vision
 
 Componentes nativos em Pascal, sem dependência de Python ou OpenCV.
 
-### `TAICameraCapture`
+###
 
 Captura frames de câmera/webcam usando backend específico de plataforma.
 
@@ -284,7 +283,6 @@ pacote/samples/AI Native Vision/motion_tracker_demo/
 
 * `TAIOpenCV` usa Python como backend recomendado para processamento real.
 * `ocvNativeDLL` ainda não implementa chamadas reais às funções OpenCV nativas.
-* `TAICameraCapture` no Linux/V4L2 precisa validação prática em diferentes câmeras e Raspberry.
 * `TAIFaceTracker` rastreia template, não faz detecção facial semântica.
 * Componentes nativos precisam de mais samples e validação em Windows/Linux.
 

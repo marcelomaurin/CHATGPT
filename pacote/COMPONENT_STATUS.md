@@ -173,7 +173,6 @@ Use esta classificação para documentação, README de abas, samples e planejam
 | Componente/Pacote | Caminho | Status | Observação |
 |---|---|---|---|
 | `openai.lpk` | `pacote/openai.lpk` | Removed (v2.0.0) | Pacote legado removido completamente; utilizar pacotes modulares em `pacote/packages/` |
-| `TAICameraCapture` | `AI Vision/aicameracapture.pas` | Removed (v1.9.0) | Substituído por `TAICaptureSource` (cskCameraLocal) |
 | `TAICameraInput` | `IA Input/aicamera.pas` | Removed (v1.9.0) | Substituído por `TAICaptureSource` (cskCameraLocal) |
 | `TAICFTVIP` | `IA Input/aicftvip.pas` | Removed (v1.9.0) | Substituído por `TAICaptureSource` (cskCameraIPSnapshot) |
 | `TAIOSInputCapture` | `IA Input/aioscapture.pas` | Removed (v1.9.0) | Substituído por `TAICaptureSource` (cskScreen) |

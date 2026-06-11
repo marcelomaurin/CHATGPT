@@ -268,7 +268,7 @@ icons_config = {
         ('taiopencv', C_VISION, 'CV'),
     ],
     'AI Vision/aicameracapture_icon.lrs': [
-        ('taicameracapture', C_VISION, 'CC'),
+    ('', C_VISION, 'CC'),
     ],
     'AI Vision/aiframeprocessor_icon.lrs': [
         ('taiframeprocessor', C_VISION, 'FP'),

@@ -8,7 +8,6 @@ Unlike the components under **AI Python Vision**, these components **do not requ
 
 | Component | Class | Purpose | Key Properties/Methods |
 |---|---|---|---|
-| **Camera Capture** | `TAICameraCapture` | Camera capture stream & snapshot | `StartCapture`, `StopCapture`, `CaptureToFile`, `CaptureToImage` |
 | **Native Image Filter** | `TAINativeImageFilter` | Grayscale, Threshold, Inverted, Resize, and Box Blur | `FilterType`, `ThresholdValue`, `ApplyToBitmap`, `ApplyFile` |
 | **Image Info** | `TAIImageInfo` | Extracts image dimensions & details | `LoadInfoFromBitmap`, `LoadInfoFromFile`, `Width`, `Height`, `PixelCount` |
 | **Frame Buffer** | `TAIFrameBuffer` | Circular frame queue for video processing | `MaxFrames`, `AddFrame`, `GetLastFrame`, `GetPreviousFrame`, `Clear` |

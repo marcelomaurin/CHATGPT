@@ -33,7 +33,6 @@ O status em `DOC/components/README.md`, `pacote/COMPONENT_STATUS.md` e nos READM
 
 Exemplo de divergencia atual:
 
-- `TAICameraCapture` aparece como Placeholder no indice antigo de componentes;
 - o README individual informa Beta parcial;
 - a matriz oficial informa Experimental.
 
@@ -45,7 +44,6 @@ A documentacao da area Vision precisa refletir os novos componentes nativos:
 - TAIFrameBuffer;
 - TAINativeImageFilter;
 - TAIFrameDiff;
-- TAICameraCapture;
 - TAIFaceTracker;
 - TAIMotionTracker.
 

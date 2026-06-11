@@ -4,7 +4,6 @@
 
 ### ⚡ Breaking Changes
 
-- **Removed components**: `TAICameraCapture`, `TAICameraInput`, `TAICFTVIP`, `TAIOSInputCapture` are no longer registered in any package and their source files have been deleted.
   - All projects using these components must be updated to use `TAICaptureSource`.
   - See migration table below.
 
@@ -44,7 +43,7 @@
 
 | Old Component | New Code |
 |---|---|
-| `TAICameraInput` / `TAICameraCapture` | `TAICaptureSource` with `SourceKind := cskCameraLocal` |
+| `TAICameraInput` /| `TAICaptureSource` with `SourceKind := cskCameraLocal` |
 | `TAICFTVIP` | `TAICaptureSource` with `SourceKind := cskCameraIPSnapshot; IPAddress := ...; SnapshotURL := ...` |
 | `TAIOSInputCapture.CaptureScreen(Bmp)` | `TAICaptureSource.CaptureToBitmap(Bmp)` with `SourceKind := cskScreen` |
 | `TAIOSInputCapture.TrackMouse` | `TAICaptureSource.TrackMouse` |

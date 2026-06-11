@@ -1,6 +1,6 @@
 # OpenCV Vision Demo
 
-This sample demonstrates the combined usage of visual tracking and processing components (`TAIOpenCV`, `TAICameraCapture`, `TAIFrameProcessor`, `TAIFaceTracker`, and `TAIMotionTracker`) from the `openai_vision` package.
+This sample demonstrates the combined usage of visual tracking and processing components (`TAIOpenCV` `TAIFrameProcessor`, `TAIFaceTracker`, and `TAIMotionTracker`) from the `openai_vision` package.
 
 ## Features
 

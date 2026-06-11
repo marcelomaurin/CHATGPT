@@ -8,7 +8,7 @@
 
 ## Overview
 
-`TAICaptureSource` is the unified capture component of the Lazarus AI Suite. It consolidates four previously separate components (`TAICameraCapture`, `TAICameraInput`, `TAICFTVIP`, `TAIOSInputCapture`) into a single component with a clear backend architecture.
+`TAICaptureSource` is the unified capture component of the Lazarus AI Suite. It consolidates four previously separate components ( `TAICameraInput`, `TAICFTVIP`, `TAIOSInputCapture`) into a single component with a clear backend architecture.
 
 The active capture mode is selected via the `SourceKind` property.
 
@@ -176,7 +176,7 @@ CaptureSource1.StartCapture;
 
 | Old Component | New Property Mapping |
 |---|---|
-| `TAICameraCapture` / `TAICameraInput` | `SourceKind := cskCameraLocal` |
+|/ `TAICameraInput` | `SourceKind := cskCameraLocal` |
 | `TAICFTVIP` | `SourceKind := cskCameraIPSnapshot; IPAddress := ...; SnapshotURL := ...` |
 | `TAIOSInputCapture.CaptureScreen` | `SourceKind := cskScreen; CaptureToBitmap(Bmp)` |
 | `TAIOSInputCapture.TrackKeyboard` | `TrackKeyboard := True` (⚠️ default is now **False**) |

@@ -45,7 +45,6 @@ Todos os componentes Python devem usar `TAIPythonRuntime`.
 
 | Componente | Windows | Linux x64 | ARM/Raspberry | Observação |
 |---|---|---|---|---|
-| TAICameraCapture | Parcial | Pendente | Pendente | Windows VFW existe; Linux precisa V4L2/libcamera |
 | TAINativeImageFilter | Provável | Provável | Provável | Deve ser Pascal puro |
 | TAIImageInfo | Provável | Provável | Provável | Deve ser Pascal puro |
 | TAIFrameBuffer | Provável | Provável | Provável | Memória pode limitar ARM |

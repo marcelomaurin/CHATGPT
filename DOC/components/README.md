@@ -62,7 +62,6 @@ Este índice lista os componentes documentados individualmente.
 | Componente | Documentação | Unit | Pacote | Status |
 |---|---|---|---|---|
 | `TAIOpenCV` | [`TAIOpenCV`](TAIOpenCV/) | `aiopencv.pas` | `openai_vision` | Beta |
-| `TAICameraCapture` | [`TAICameraCapture`](TAICameraCapture/) | `aicameracapture.pas` | `openai_vision` | Placeholder |
 | `TAIFrameProcessor` | [`TAIFrameProcessor`](TAIFrameProcessor/) | `aiframeprocessor.pas` | `openai_vision` | Experimental |
 | `TAIFaceTracker` | [`TAIFaceTracker`](TAIFaceTracker/) | `aifacetracker.pas` | `openai_vision` | Placeholder |
 | `TAIMotionTracker` | [`TAIMotionTracker`](TAIMotionTracker/) | `aimotiontracker.pas` | `openai_vision` | Placeholder |

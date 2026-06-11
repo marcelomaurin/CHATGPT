@@ -28,7 +28,6 @@ This package (`openai_input.lpk`) provides input and capture components for the 
 
 | Old Component | Replaced By | Mode |
 |---|---|---|
-| `TAICameraCapture` | `TAICaptureSource` | `cskCameraLocal` |
 | `TAICameraInput` | `TAICaptureSource` | `cskCameraLocal` |
 | `TAICFTVIP` | `TAICaptureSource` | `cskCameraIPSnapshot` |
 | `TAIOSInputCapture` | `TAICaptureSource` | `cskScreen` |

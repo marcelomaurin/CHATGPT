@@ -60,7 +60,6 @@ A documentação aqui complementa os READMEs principais do projeto e deve ser us
 ### Vision
 
 * [TAIOpenCV](components/TAIOpenCV/README.md)
-* [TAICameraCapture](components/TAICameraCapture/README.md)
 * [TAIFrameProcessor](components/TAIFrameProcessor/README.md)
 * [TAIFaceTracker](components/TAIFaceTracker/README.md)
 * [TAIMotionTracker](components/TAIMotionTracker/README.md)
