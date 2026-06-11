@@ -175,6 +175,29 @@ Componentes que realizam chamadas ou utilizam scripts Python externos para execu
   * Recursos atuais do `TAIOpenCV`: `SelfTest`, `Image Info`, `Gray`, `Blur`, `Canny`, `Threshold`, `Resize`.
   * Dependências do OpenCV Python: `pip install opencv-python numpy`.
 
+#### 3. AI MediaPipe Vision (Nativo via Bridge DLL/SO)
+
+| Componente | Pacote | Backend | Função | Status |
+|---|---|---|---|---|
+| `TAIHumanPoseDetector` | `openai_vision.lpk` | MediaPipe Bridge DLL/SO | Detecta pose humana, retorna 33 landmarks corporais, world landmarks 3D e máscara opcional | Experimental |
+
+##### Runtime MediaPipe
+
+O componente `TAIHumanPoseDetector` usa runtime versionado em:
+
+`runtime/mediapipe/pose/mp_0_10_35/`
+
+A DLL/SO da bridge deve informar:
+
+- versão da bridge;
+- ABI da bridge;
+- versão compatível do MediaPipe;
+- plataforma;
+- arquitetura;
+- modelo `.task` usado.
+
+O componente Pascal valida essas informações antes de inicializar.
+
 ### AI Output
 
 Componentes de documentos e saídas. Atenção: quando a saída Word/Excel for feita por HTML compatível, a documentação do componente deve indicar isso claramente, sem prometer DOCX/XLSX nativo.

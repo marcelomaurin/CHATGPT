@@ -5,7 +5,7 @@ unit aicamera_vfw;
 interface
 
 uses
-  Classes, SysUtils, aicamera_backend
+  Classes, SysUtils, aicamera_backend, Graphics
   {$IFDEF MSWINDOWS}
   , Windows, Messages
   {$ENDIF}
@@ -28,6 +28,7 @@ type
     function OpenCamera(const ADevice: string; AIndex, AWidth, AHeight, AFPS: Integer; APreviewHandle: THandle; APreviewEnabled: Boolean): Boolean; override;
     procedure CloseCamera; override;
     function CaptureToFile(const AFileName: string): Boolean; override;
+    function CaptureToBitmap(out ABmp: Graphics.TBitmap): Boolean; override;
     function ListCameras(AMaxScan: Integer): TStringList; override;
   end;
   {$ELSE}
@@ -38,6 +39,7 @@ type
     function OpenCamera(const ADevice: string; AIndex, AWidth, AHeight, AFPS: Integer; APreviewHandle: THandle; APreviewEnabled: Boolean): Boolean; override;
     procedure CloseCamera; override;
     function CaptureToFile(const AFileName: string): Boolean; override;
+    function CaptureToBitmap(out ABmp: Graphics.TBitmap): Boolean; override;
     function ListCameras(AMaxScan: Integer): TStringList; override;
   end;
   {$ENDIF}
@@ -63,6 +65,13 @@ begin
   Result := False;
 end;
 
+function TAICameraVFWBackend.CaptureToBitmap(out ABmp: Graphics.TBitmap): Boolean;
+begin
+  LastError := 'VFW backend is only supported on Windows.';
+  ABmp := nil;
+  Result := False;
+end;
+
 function TAICameraVFWBackend.ListCameras(AMaxScan: Integer): TStringList;
 begin
   Result := TStringList.Create;
@@ -76,6 +85,7 @@ const
   WM_CAP_DRIVER_CONNECT         = WM_CAP_START + 10;
   WM_CAP_DRIVER_DISCONNECT      = WM_CAP_START + 11;
   WM_CAP_FILE_SAVEDIB           = WM_CAP_START + 25;
+  WM_CAP_FILE_SAVEDIBW          = WM_CAP_START + 125;
   WM_CAP_SET_PREVIEW            = WM_CAP_START + 50;
   WM_CAP_SET_PREVIEWRATE        = WM_CAP_START + 52;
   WM_CAP_GRAB_FRAME             = WM_CAP_START + 60;
@@ -185,7 +195,6 @@ end;
 function TAICameraVFWBackend.CaptureToFile(const AFileName: string): Boolean;
 var
   LWideFileName: WideString;
-  LAnsiFileName: AnsiString;
 begin
   Result := False;
   LastError := '';
@@ -198,12 +207,8 @@ begin
 
   if SendMessage(FCaptureWnd, WM_CAP_GRAB_FRAME, 0, 0) <> 0 then
   begin
-    // For VFW SAVEDIB, if using A version it requires AnsiString.
-    // However, since we want to be safe, let's convert to AnsiString and send it to SAVEDIB.
-    // WM_CAP_FILE_SAVEDIB is an Ansi message in typical avicap32 DLL unless using unicode messages.
-    // Let's use AnsiString to match standard WM_CAP_FILE_SAVEDIB requirements.
-    LAnsiFileName := AnsiString(AFileName);
-    if SendMessage(FCaptureWnd, WM_CAP_FILE_SAVEDIB, 0, LPARAM(PAnsiChar(LAnsiFileName))) <> 0 then
+    LWideFileName := WideString(AFileName);
+    if SendMessage(FCaptureWnd, WM_CAP_FILE_SAVEDIBW, 0, LPARAM(PWideChar(LWideFileName))) <> 0 then
     begin
       if FileExists(AFileName) then
       begin
@@ -214,6 +219,49 @@ begin
     end
     else
       LastError := 'Failed to save DIB image via VFW.';
+  end
+  else
+    LastError := 'Failed to grab frame via VFW.';
+end;
+
+function TAICameraVFWBackend.CaptureToBitmap(out ABmp: Graphics.TBitmap): Boolean;
+var
+  DC: HDC;
+  LCanvas: TCanvas;
+begin
+  Result := False;
+  ABmp := nil;
+  LastError := '';
+
+  if FCaptureWnd = 0 then
+  begin
+    LastError := 'Camera is not open.';
+    Exit;
+  end;
+
+  if SendMessage(FCaptureWnd, WM_CAP_GRAB_FRAME, 0, 0) <> 0 then
+  begin
+    DC := GetDC(FCaptureWnd);
+    if DC <> 0 then
+    begin
+      try
+        ABmp := Graphics.TBitmap.Create;
+        ABmp.Width := FWidth;
+        ABmp.Height := FHeight;
+        LCanvas := TCanvas.Create;
+        try
+          LCanvas.Handle := DC;
+          ABmp.Canvas.CopyRect(Classes.Rect(0, 0, FWidth, FHeight), LCanvas, Classes.Rect(0, 0, FWidth, FHeight));
+          Result := True;
+        finally
+          LCanvas.Free;
+        end;
+      finally
+        ReleaseDC(FCaptureWnd, DC);
+      end;
+    end
+    else
+      LastError := 'Failed to get device context of VfW capture window.';
   end
   else
     LastError := 'Failed to grab frame via VFW.';

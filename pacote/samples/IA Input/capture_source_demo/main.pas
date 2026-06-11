@@ -44,6 +44,8 @@ type
     // ---- Tab 1: Local Camera ----
     FTabCamera:     TTabSheet;
     FEditCamIndex:  TEdit;
+    FListBoxCam:    TListBox;
+    FBtnLoadCams:   TButton;
     FEditCamW:      TEdit;
     FEditCamH:      TEdit;
     FEditCamFPS:    TEdit;
@@ -82,6 +84,8 @@ type
     procedure BtnTestClick(Sender: TObject);
     procedure BtnSourcesClick(Sender: TObject);
     procedure BtnBrowseClick(Sender: TObject);
+    procedure BtnLoadCamsClick(Sender: TObject);
+    procedure ListBoxCamClick(Sender: TObject);
     procedure PageControlChange(Sender: TObject);
 
     procedure OnCaptureFrame(Sender: TObject; const AFrameFile: string);
@@ -165,7 +169,7 @@ begin
 
   // ---------- Capture component ----------
   FCapture := TAICaptureSource.Create(Self);
-  FCapture.OnFrame         := @OnCaptureFrame;
+  FCapture.OnFrame         := nil; // Drawing to TImage directly, no temp files needed
   FCapture.OnError         := @OnCaptureError;
   FCapture.OnStateChange   := @OnCaptureState;
   FCapture.OnMouseMove     := @OnMouseMove;
@@ -178,26 +182,11 @@ begin
   TopSplit.Height := 320;
   TopSplit.BevelOuter := bvNone;
 
-  // ---- Left: config tabs ----
+  // ---- Config tabs ----
   FPageControl := TPageControl.Create(Self);
   FPageControl.Parent := TopSplit;
-  FPageControl.Align  := alLeft;
-  FPageControl.Width  := 400;
+  FPageControl.Align  := alClient;
   FPageControl.OnChange := @PageControlChange;
-
-  // ---- Splitter ----
-  Spl := TSplitter.Create(Self);
-  Spl.Parent := TopSplit;
-  Spl.Align  := alLeft;
-  Spl.Width  := 5;
-
-  // ---- Right: preview image ----
-  FPreviewImg := TImage.Create(Self);
-  FPreviewImg.Parent := TopSplit;
-  FPreviewImg.Align  := alClient;
-  FPreviewImg.Stretch := True;
-  FPreviewImg.Proportional := True;
-  FPreviewImg.Center := True;
 
   // ---------- Bottom panel ----------
   FSharedPanel := TPanel.Create(Self);
@@ -266,11 +255,25 @@ begin
 
   BotLeft := TPanel.Create(Self);
   BotLeft.Parent := FTabCamera;
-  BotLeft.Align  := alClient;
+  BotLeft.Align  := alLeft;
+  BotLeft.Width  := 250;
   BotLeft.BevelOuter := bvNone;
 
   MakeLabel(BotLeft, 'Camera Index:');
   FEditCamIndex := MakeEdit(BotLeft, '0');
+
+  FBtnLoadCams := TButton.Create(Self);
+  FBtnLoadCams.Parent := BotLeft;
+  FBtnLoadCams.Align := alTop;
+  FBtnLoadCams.Caption := 'List/Refresh Cameras';
+  FBtnLoadCams.Height := 28;
+  FBtnLoadCams.OnClick := @BtnLoadCamsClick;
+
+  FListBoxCam := TListBox.Create(Self);
+  FListBoxCam.Parent := BotLeft;
+  FListBoxCam.Align := alTop;
+  FListBoxCam.Height := 80;
+  FListBoxCam.OnClick := @ListBoxCamClick;
 
   MakeLabel(BotLeft, 'Width:');
   FEditCamW := MakeEdit(BotLeft, '640');
@@ -280,6 +283,24 @@ begin
 
   MakeLabel(BotLeft, 'FPS:');
   FEditCamFPS := MakeEdit(BotLeft, '30');
+
+  // Splitter between controls and preview inside Tab 1
+  with TSplitter.Create(Self) do
+  begin
+    Parent := FTabCamera;
+    Align := alLeft;
+    Width := 5;
+  end;
+
+  // Preview Image on the right of Tab 1
+  FPreviewImg := TImage.Create(Self);
+  FPreviewImg.Parent := FTabCamera;
+  FPreviewImg.Align := alClient;
+  FPreviewImg.Stretch := True;
+  FPreviewImg.Proportional := True;
+  FPreviewImg.Center := True;
+
+  FCapture.PreviewImage := FPreviewImg;
 
   // ============================================================
   // TAB 2 — IP Snapshot (cskCameraIPSnapshot)
@@ -389,6 +410,7 @@ begin
 
   // Apply initial config for Tab 1
   ApplyTabConfig;
+  BtnLoadCamsClick(nil);
   Log('Ready. Select a tab, configure and press Start.');
 end;
 
@@ -622,6 +644,51 @@ begin
     end;
   finally
     Dlg.Free;
+  end;
+end;
+
+procedure TfrmCaptureDemo.BtnLoadCamsClick(Sender: TObject);
+var
+  I: Integer;
+begin
+  FListBoxCam.Items.Clear;
+  try
+    for I := 0 to FCapture.AvailableCameras.Count - 1 do
+      FListBoxCam.Items.Add(FCapture.AvailableCameras[I]);
+    if FListBoxCam.Items.Count > 0 then
+    begin
+      FListBoxCam.ItemIndex := 0;
+      ListBoxCamClick(nil);
+    end;
+    Log('Loaded ' + IntToStr(FCapture.AvailableCameras.Count) + ' cameras.');
+  except
+    on E: Exception do
+      Log('Error loading cameras: ' + E.Message);
+  end;
+end;
+
+procedure TfrmCaptureDemo.ListBoxCamClick(Sender: TObject);
+var
+  S, IndexStr: string;
+  P: Integer;
+begin
+  if FListBoxCam.ItemIndex >= 0 then
+  begin
+    S := FListBoxCam.Items[FListBoxCam.ItemIndex];
+    P := Pos(' - ', S);
+    if P > 0 then
+      IndexStr := Copy(S, 1, P - 1)
+    else
+      IndexStr := S;
+    FEditCamIndex.Text := IndexStr;
+    FCapture.CameraIndex := StrToIntDef(IndexStr, 0); // Update component immediately
+    if FCapture.Active then
+    begin
+      FCapture.StopCapture;
+      ApplyTabConfig;
+      FCapture.StartCapture;
+    end;
+    Log('Selected Camera Index: ' + IndexStr);
   end;
 end;
 

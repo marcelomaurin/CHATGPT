@@ -5,7 +5,7 @@ unit aicamera_v4l2;
 interface
 
 uses
-  Classes, SysUtils, aicamera_backend;
+  Classes, SysUtils, aicamera_backend, Graphics;
 
 type
   {$IFDEF LINUX}
@@ -36,6 +36,7 @@ type
     function OpenCamera(const ADevice: string; AIndex, AWidth, AHeight, AFPS: Integer; APreviewHandle: THandle; APreviewEnabled: Boolean): Boolean; override;
     procedure CloseCamera; override;
     function CaptureToFile(const AFileName: string): Boolean; override;
+    function CaptureToBitmap(out ABmp: Graphics.TBitmap): Boolean; override;
     function ListCameras(AMaxScan: Integer): TStringList; override;
   end;
   {$ELSE}
@@ -46,6 +47,7 @@ type
     function OpenCamera(const ADevice: string; AIndex, AWidth, AHeight, AFPS: Integer; APreviewHandle: THandle; APreviewEnabled: Boolean): Boolean; override;
     procedure CloseCamera; override;
     function CaptureToFile(const AFileName: string): Boolean; override;
+    function CaptureToBitmap(out ABmp: Graphics.TBitmap): Boolean; override;
     function ListCameras(AMaxScan: Integer): TStringList; override;
   end;
   {$ENDIF}
@@ -68,6 +70,13 @@ end;
 function TAICameraV4L2Backend.CaptureToFile(const AFileName: string): Boolean;
 begin
   LastError := 'V4L2 backend is only supported on Linux.';
+  Result := False;
+end;
+
+function TAICameraV4L2Backend.CaptureToBitmap(out ABmp: Graphics.TBitmap): Boolean;
+begin
+  LastError := 'V4L2 backend is only supported on Linux.';
+  ABmp := nil;
   Result := False;
 end;
 
@@ -427,6 +436,67 @@ begin
     end;
   finally
     // Re-queue the buffer
+    ioctl(FDeviceFD, VIDIOC_QBUF, @buf);
+  end;
+end;
+
+function TAICameraV4L2Backend.CaptureToBitmap(out ABmp: Graphics.TBitmap): Boolean;
+var
+  buf: v4l2_buffer;
+  LTargetRGB: Pointer;
+  LRow: Integer;
+  LRowSize: Integer;
+  LSourcePtr: PByte;
+begin
+  Result := False;
+  ABmp := nil;
+  LastError := '';
+
+  if FDeviceFD < 0 then
+  begin
+    LastError := 'Camera is not open.';
+    Exit;
+  end;
+
+  FillChar(buf, SizeOf(buf), 0);
+  buf.fmt_type := 1;
+  buf.memory := 1;
+
+  if ioctl(FDeviceFD, VIDIOC_DQBUF, @buf) < 0 then
+  begin
+    LastError := 'Failed to dequeue frame buffer (DQBUF)';
+    Exit;
+  end;
+
+  try
+    GetMem(LTargetRGB, FWidth * FHeight * 3);
+    try
+      YUYVToRGB(FMapBuffers[buf.index].Start, LTargetRGB, FWidth, FHeight);
+      
+      ABmp := TBitmap.Create;
+      ABmp.Width := FWidth;
+      ABmp.Height := FHeight;
+      ABmp.PixelFormat := pf24bit;
+
+      LRowSize := FWidth * 3;
+      LSourcePtr := PByte(LTargetRGB);
+      
+      for LRow := 0 to FHeight - 1 do
+      begin
+        Move(LSourcePtr^, ABmp.RawImage.GetRowStart(LRow)^, LRowSize);
+        Inc(LSourcePtr, LRowSize);
+      end;
+      
+      Result := True;
+    except
+      on E: Exception do
+      begin
+        LastError := 'Failed to convert V4L2 frame to TBitmap: ' + E.Message;
+        FreeAndNil(ABmp);
+      end;
+    end;
+    FreeMem(LTargetRGB);
+  finally
     ioctl(FDeviceFD, VIDIOC_QBUF, @buf);
   end;
 end;

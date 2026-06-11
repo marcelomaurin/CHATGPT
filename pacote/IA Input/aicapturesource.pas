@@ -49,7 +49,7 @@ type
     LastError: string;
     function Start: Boolean; virtual; abstract;
     procedure Stop; virtual; abstract;
-    function CaptureFrame(out ABmp: TBitmap): Boolean; virtual; abstract;
+    function CaptureFrame(out ABmp: Graphics.TBitmap): Boolean; virtual; abstract;
   end;
 
   { ---- Backend: Local Camera ---- }
@@ -71,7 +71,7 @@ type
     destructor Destroy; override;
     function Start: Boolean; override;
     procedure Stop; override;
-    function CaptureFrame(out ABmp: TBitmap): Boolean; override;
+    function CaptureFrame(out ABmp: Graphics.TBitmap): Boolean; override;
     function CaptureToFile(const AFileName: string): Boolean;
     function ListCameras: TStringList;
   end;
@@ -93,7 +93,7 @@ type
       AUseHTTPS: Boolean; ATimeoutMs: Integer);
     function Start: Boolean; override;
     procedure Stop; override;
-    function CaptureFrame(out ABmp: TBitmap): Boolean; override;
+    function CaptureFrame(out ABmp: Graphics.TBitmap): Boolean; override;
   end;
 
   { ---- Backend: RTSP (not implemented) ---- }
@@ -102,7 +102,7 @@ type
   public
     function Start: Boolean; override;
     procedure Stop; override;
-    function CaptureFrame(out ABmp: TBitmap): Boolean; override;
+    function CaptureFrame(out ABmp: Graphics.TBitmap): Boolean; override;
   end;
 
   { ---- Backend: Screen Capture ---- }
@@ -115,7 +115,7 @@ type
     constructor Create(const ACaptureRect: TRect; ACaptureFullScreen: Boolean);
     function Start: Boolean; override;
     procedure Stop; override;
-    function CaptureFrame(out ABmp: TBitmap): Boolean; override;
+    function CaptureFrame(out ABmp: Graphics.TBitmap): Boolean; override;
   end;
 
   { ---- Backend: File Frame ---- }
@@ -127,7 +127,7 @@ type
     constructor Create(const AInputFile: string);
     function Start: Boolean; override;
     procedure Stop; override;
-    function CaptureFrame(out ABmp: TBitmap): Boolean; override;
+    function CaptureFrame(out ABmp: Graphics.TBitmap): Boolean; override;
   end;
 
   { ---- Main component ---- }
@@ -153,6 +153,8 @@ type
     FPreviewHandle: THandle;
     FPreviewEnabled: Boolean;
     FMaxCameraScan: Integer;
+    FPreviewImage: TImage;          // preview target image
+    FAvailableCameras: TStringList; // list of available cameras cache
 
     // --- IP Camera ---
     FIPAddress: string;
@@ -195,6 +197,7 @@ type
     function GetActualTempFolder: string;
     function BuildActiveBackend: TAICaptureBackendBase;
     function SaveBitmapToTemp(ABmp: TBitmap): string;
+    function GetAvailableCameras: TStringList;
 
   public
     constructor Create(AOwner: TComponent); override;
@@ -213,6 +216,7 @@ type
     property Active: Boolean read FActive;
     property LastFrameFile: string read FLastFrameFile;
     property CaptureRect: TRect read FCaptureRect write FCaptureRect; // TRect not publishable
+    property AvailableCameras: TStringList read GetAvailableCameras;
 
   published
     // --- Core ---
@@ -232,6 +236,7 @@ type
     property PreviewHandle: THandle read FPreviewHandle write FPreviewHandle default 0;
     property PreviewEnabled: Boolean read FPreviewEnabled write FPreviewEnabled default True;
     property MaxCameraScan: Integer read FMaxCameraScan write FMaxCameraScan default 5;
+    property PreviewImage: TImage read FPreviewImage write FPreviewImage;
 
     // --- IP Camera ---
     property IPAddress: string read FIPAddress write FIPAddress;
@@ -346,8 +351,6 @@ begin
 end;
 
 function TAILocalCameraBackend.CaptureFrame(out ABmp: TBitmap): Boolean;
-var
-  LTempFile: string;
 begin
   Result := False;
   ABmp := nil;
@@ -357,24 +360,9 @@ begin
     Exit;
   end;
 
-  LTempFile := FTempFolder + 'tai_capture_' + IntToStr(GetTickCount64) + '.bmp';
-  if FNative.CaptureToFile(LTempFile) and FileExists(LTempFile) then
-  begin
-    ABmp := TBitmap.Create;
-    try
-      ABmp.LoadFromFile(LTempFile);
-      Result := True;
-    except
-      on E: Exception do
-      begin
-        LastError := 'Failed to load captured frame: ' + E.Message;
-        FreeAndNil(ABmp);
-      end;
-    end;
-    SysUtils.DeleteFile(LTempFile);
-  end
-  else
-    LastError := 'Backend CaptureToFile failed: ' + FNative.LastError;
+  Result := FNative.CaptureToBitmap(ABmp);
+  if not Result then
+    LastError := 'Backend CaptureToBitmap failed: ' + FNative.LastError;
 end;
 
 function TAILocalCameraBackend.CaptureToFile(const AFileName: string): Boolean;
@@ -737,6 +725,9 @@ begin
   FTimer.OnTimer := @OnTimerTick;
   FInTimerCall := False;
 
+  FPreviewImage := nil;
+  FAvailableCameras := TStringList.Create;
+
   ClearError;
 end;
 
@@ -745,6 +736,7 @@ begin
   StopCapture;
   if FAutoDeleteTempFiles and (FLastFrameFile <> '') and FileExists(FLastFrameFile) then
     try SysUtils.DeleteFile(FLastFrameFile); except end;
+  FAvailableCameras.Free;
   inherited Destroy;
 end;
 
@@ -947,24 +939,35 @@ begin
   end;
 
   try
-    LFile := SaveBitmapToTemp(ABmp);
-    if LFile = '' then
+    if Assigned(FPreviewImage) then
     begin
-      if Assigned(FOnError) then FOnError(Self, FLastError);
-      Exit;
+      try
+        FPreviewImage.Picture.Assign(ABmp);
+      except
+        on E: Exception do
+          SetError('Failed to assign frame to PreviewImage: ' + E.Message);
+      end;
     end;
 
-    // Delete previous temp file
-    if FAutoDeleteTempFiles and (FLastFrameFile <> '') and
-       (FLastFrameFile <> LFile) and FileExists(FLastFrameFile) then
-      try SysUtils.DeleteFile(FLastFrameFile); except end;
+    // Only save to temp file if OnFrame is assigned
+    if Assigned(FOnFrame) then
+    begin
+      LFile := SaveBitmapToTemp(ABmp);
+      if LFile <> '' then
+      begin
+        // Delete previous temp file
+        if FAutoDeleteTempFiles and (FLastFrameFile <> '') and
+           (FLastFrameFile <> LFile) and FileExists(FLastFrameFile) then
+          try SysUtils.DeleteFile(FLastFrameFile); except end;
 
-    FLastFrameFile := LFile;
-    FLastResult := 'Frame captured: ' + LFile;
+        FLastFrameFile := LFile;
+        FOnFrame(Self, FLastFrameFile);
+      end;
+    end;
+
+    FLastResult := 'Frame captured';
     FLastSuccess := True;
     Result := True;
-
-    if Assigned(FOnFrame) then FOnFrame(Self, FLastFrameFile);
   finally
     ABmp.Free;
   end;
@@ -1125,26 +1128,42 @@ end;
 
 function TAICaptureSource.ListAvailableCameras: TStringList;
 var
-  LBackend: TAILocalCameraBackend;
+  LNative: TAICameraNativeBackend;
 begin
-  LBackend := TAILocalCameraBackend.Create(
-    FCameraIndex, FDeviceName, FWidth, FHeight, FFPS,
-    FPreviewHandle, FPreviewEnabled, FMaxCameraScan,
-    GetActualTempFolder);
+  LNative := nil;
+  Result := TStringList.Create;
   try
-    if LBackend.Start then
+    {$IFDEF MSWINDOWS}
+    LNative := TAICameraVFWBackend.Create;
+    {$ELSE}
+      {$IFDEF LINUX}
+      LNative := TAICameraV4L2Backend.Create;
+      {$ENDIF}
+    {$ENDIF}
+    
+    if Assigned(LNative) then
     begin
-      Result := LBackend.ListCameras;
-      LBackend.Stop;
+      Result.Free;
+      Result := LNative.ListCameras(FMaxCameraScan);
     end
     else
     begin
-      Result := TStringList.Create;
-      Result.Add('Error: ' + LBackend.LastError);
+      Result.Add('Native camera backend not supported on this platform.');
     end;
   finally
-    LBackend.Free;
+    if Assigned(LNative) then
+      LNative.Free;
   end;
+end;
+
+function TAICaptureSource.GetAvailableCameras: TStringList;
+var
+  LList: TStringList;
+begin
+  LList := ListAvailableCameras;
+  FAvailableCameras.Assign(LList);
+  LList.Free;
+  Result := FAvailableCameras;
 end;
 
 initialization
