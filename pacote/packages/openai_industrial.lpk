@@ -19,13 +19,11 @@
       <Item>
         <Filename Value="..\IA Industrial\aimodbus.pas"/>
         <HasRegisterProc Value="True"/>
-        <AddToUsesPkgSection Value="False"/>
         <UnitName Value="aimodbus"/>
       </Item>
       <Item>
         <Filename Value="..\IA Industrial\aimqtt.pas"/>
         <HasRegisterProc Value="True"/>
-        <AddToUsesPkgSection Value="False"/>
         <UnitName Value="aimqtt"/>
       </Item>
       <Item>
