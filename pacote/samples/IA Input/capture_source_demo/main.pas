@@ -421,6 +421,8 @@ begin
         FCapture.Width       := StrToIntDef(FEditCamW.Text, 640);
         FCapture.Height      := StrToIntDef(FEditCamH.Text, 480);
         FCapture.FPS         := StrToIntDef(FEditCamFPS.Text, 30);
+        FCapture.PreviewHandle := FPreviewImg.Parent.Handle;
+        FCapture.PreviewEnabled := True;
         Log('Mode: Local Camera (index ' + FEditCamIndex.Text + ')');
       end;
     1: // IP Snapshot
