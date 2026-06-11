@@ -52,7 +52,6 @@ Optional packages include:
 
   pacote/packages/openai_ml.lpk
   pacote/packages/openai_graph.lpk
-  pacote/packages/openai_python.lpk
   pacote/packages/openai_vision.lpk
   pacote/packages/openai_image.lpk
   pacote/packages/openai_voice.lpk

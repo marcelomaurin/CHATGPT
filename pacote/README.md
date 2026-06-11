@@ -37,10 +37,9 @@ pacote/packages/
 
 | Pacote | Finalidade |
 |---|---|
-| `openai_core.lpk` | Base comum, LLM, prompt builder, model registry, wizard, projeto e pipeline |
+| `openai_core.lpk` | Base comum, LLM, prompt builder, model registry, wizard, projeto, pipeline e integração Python (TPythonConnector, TYoloDetect, TFaceDetection, TCNNClassifier, TLSTMPredictor) |
 | `openai_ml.lpk` | Machine learning simples, matrizes e utilitários matemáticos |
 | `openai_graph.lpk` | Grafos, classificação, exportação, análise e relatórios |
-| `openai_python.lpk` | Integração Python, YOLO, face, CNN e LSTM |
 | `openai_vision.lpk` | OpenCV, camera native backends (VFW/V4L2), frame, face tracker and motion tracker |
 | `openai_image.lpk` | Filtros simples de imagem |
 | `openai_voice.lpk` | Voz, áudio e filtros sonoros |
@@ -68,20 +67,19 @@ Para novos projetos, prefira instalar diretamente os pacotes em `pacote/packages
 
 ## Ordem recomendada de instalação
 
-1. `packages/openai_core.lpk`
+1. `packages/openai_core.lpk` (inclui os componentes de integração Python)
 2. `packages/openai_ml.lpk`
 3. `packages/openai_graph.lpk`
 4. `packages/openai_output.lpk`
 5. `packages/openai_input.lpk`
-6. `packages/openai_python.lpk`
-7. `packages/openai_vision.lpk`
-8. `packages/openai_image.lpk`
-9. `packages/openai_voice.lpk`
-10. `packages/openai_industrial.lpk`
-11. `packages/openai_graphic.lpk`
-12. `packages/openai_agent.lpk`
-13. `packages/openai_simulation.lpk`
-14. `packages/openai_full.lpk` *(opcional — agrega todos)*
+6. `packages/openai_vision.lpk`
+7. `packages/openai_image.lpk`
+8. `packages/openai_voice.lpk`
+9. `packages/openai_industrial.lpk`
+10. `packages/openai_graphic.lpk`
+11. `packages/openai_agent.lpk`
+12. `packages/openai_simulation.lpk`
+13. `packages/openai_full.lpk` *(opcional — agrega todos)*
 
 Instale apenas os pacotes necessários ao seu projeto.
 

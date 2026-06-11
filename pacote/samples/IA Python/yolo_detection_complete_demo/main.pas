@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  aibase, yolodetect;
+  aibase, yolodetect, pythonconnector;
 
 type
 
@@ -16,7 +16,6 @@ type
     pnlTop: TPanel;
     lblTitle: TLabel;
     lblStatus: TLabel;
-    chkSimulation: TCheckBox;
     btnRun: TButton;
     btnClearLog: TButton;
     memoLog: TMemo;
@@ -44,6 +43,7 @@ procedure TfrmMain.FormCreate(Sender: TObject);
 begin
   AddLog('Yolo Detection Complete Demo (yolodetect) initialized.');
   FAIYolo := TYOLO.Create(Self);
+  FAIYolo.PythonConnector := TPythonConnector.Create(Self);
   
   FEditInput := TEdit.Create(Self);
   FEditInput.Parent := pnlTop;
@@ -59,43 +59,46 @@ begin
 end;
 
 procedure TfrmMain.btnRunClick(Sender: TObject);
+var
+  ConfidenceThreshold: Double;
+  ModelPath: string;
+  TargetDevice: string;
+  Objects: TYoloObjectArray;
 begin
   lblStatus.Caption := 'Status: Processing...';
   AddLog('--- Starting Execution ---');
   try
-  FAIYolo.ConfidenceThreshold := 0.5;
-  FAIYolo.ModelPath := 'yolov8n.pt';
-  FAIYolo.TargetDevice := 'GPU';
-  
-  AddLog('YOLO Object Detector Properties:');
-  AddLog('  ModelPath: ' + FAIYolo.ModelPath);
-  AddLog('  ConfThreshold: ' + FloatToStr(FAIYolo.ConfidenceThreshold));
-  AddLog('  TargetDevice: ' + FAIYolo.TargetDevice);
-  
-  if chkSimulation.Checked then
-  begin
-    AddLog('Simulating YOLO image scanning...');
-    AddLog('Scanning street_traffic.jpg:');
-    AddLog('  [Object 1]: Class="Person", Box=[120, 340, 200, 480], Score=0.88');
-    AddLog('  [Object 2]: Class="Car", Box=[450, 200, 600, 350], Score=0.92');
-    AddLog('  [Object 3]: Class="Traffic Light", Box=[10, 50, 40, 120], Score=0.74');
-    AddLog('Annotated image street_traffic_yolo.jpg created (Simulated).');
-  end
-  else
-  begin
-    AddLog('Initializing YOLO python environment & weights: ' + FAIYolo.ModelPath);
+    ConfidenceThreshold := 0.5;
+    ModelPath := 'yolov8n.pt';
+    TargetDevice := 'GPU';
+    
+    AddLog('YOLO Object Detector Properties:');
+    AddLog('  ModelPath: ' + ModelPath);
+    AddLog('  ConfThreshold: ' + FloatToStr(ConfidenceThreshold));
+    AddLog('  TargetDevice: ' + TargetDevice);
+    
+    AddLog('Initializing YOLO python environment & weights: ' + ModelPath);
     try
-      if FAIYolo.InitializeModel then
+      if (FAIYolo.PythonConnector <> nil) and not FAIYolo.PythonConnector.Active then
       begin
-        FAIYolo.DetectObjects(FEditInput.Text, 'street_traffic_yolo.jpg');
-        AddLog('Yolo execution finished successfully.');
+        FAIYolo.PythonConnector.DLLPath := 'python3.dll';
+        FAIYolo.PythonConnector.Active := True;
+      end;
+
+      if (FAIYolo.PythonConnector <> nil) and FAIYolo.PythonConnector.IsInitialized then
+      begin
+        if FAIYolo.DetectObjects(FEditInput.Text, Objects) then
+        begin
+          AddLog('Yolo execution finished successfully. Objects detected: ' + IntToStr(Length(Objects)));
+        end
+        else
+          AddLog('Failed to detect objects: ' + FAIYolo.LastError);
       end
       else
-        AddLog('Failed to start YOLO client: ' + FAIYolo.LastError);
+        AddLog('Failed to start YOLO client: Python interpreter not initialized.');
     except
       on E: Exception do AddLog('Exception: ' + E.Message);
     end;
-  end;
     lblStatus.Caption := 'Status: Completed Successfully';
   except
     on E: Exception do

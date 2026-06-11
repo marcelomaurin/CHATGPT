@@ -100,7 +100,6 @@ install_all() {
   install_package "pacote/packages/openai_graph.lpk"
   install_package "pacote/packages/openai_output.lpk"
   install_package "pacote/packages/openai_input.lpk"
-  install_package "pacote/packages/openai_python.lpk"
   install_package "pacote/packages/openai_vision.lpk"
   install_package "pacote/packages/openai_image.lpk"
   install_package "pacote/packages/openai_voice.lpk"

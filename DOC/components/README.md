@@ -49,11 +49,11 @@ Este índice lista os componentes documentados individualmente.
 
 | Componente | Documentação | Unit | Pacote | Status |
 |---|---|---|---|---|
-| `TPythonConnector` | [`TPythonConnector`](TPythonConnector/) | `pythonconnector.pas` | `openai_python` | Experimental/Beta |
-| `TYoloDetect` | [`TYoloDetect`](TYoloDetect/) | `yolodetect.pas` | `openai_python` | Experimental |
-| `TFaceDetection` | [`TFaceDetection`](TFaceDetection/) | `facedetection.pas` | `openai_python` | Experimental |
-| `TCNNClassifier` | [`TCNNClassifier`](TCNNClassifier/) | `cnnclassifier.pas` | `openai_python` | Experimental |
-| `TLSTMPredictor` | [`TLSTMPredictor`](TLSTMPredictor/) | `lstmpredictor.pas` | `openai_python` | Experimental |
+| `TPythonConnector` | [`TPythonConnector`](TPythonConnector/) | `pythonconnector.pas` | `openai_core` | Experimental/Beta |
+| `TYoloDetect` | [`TYoloDetect`](TYoloDetect/) | `yolodetect.pas` | `openai_core` | Experimental |
+| `TFaceDetection` | [`TFaceDetection`](TFaceDetection/) | `facedetection.pas` | `openai_core` | Experimental |
+| `TCNNClassifier` | [`TCNNClassifier`](TCNNClassifier/) | `cnnclassifier.pas` | `openai_core` | Experimental |
+| `TLSTMPredictor` | [`TLSTMPredictor`](TLSTMPredictor/) | `lstmpredictor.pas` | `openai_core` | Experimental |
 
 ---
 

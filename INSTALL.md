@@ -77,7 +77,6 @@ pacote/packages/openai_ml.lpk
 pacote/packages/openai_graph.lpk
 pacote/packages/openai_output.lpk
 pacote/packages/openai_input.lpk
-pacote/packages/openai_python.lpk
 pacote/packages/openai_vision.lpk
 pacote/packages/openai_image.lpk
 pacote/packages/openai_voice.lpk
@@ -94,13 +93,12 @@ Recommended order:
 3. openai_graph.lpk
 4. openai_output.lpk
 5. openai_input.lpk
-6. openai_python.lpk
-7. openai_vision.lpk
-8. openai_image.lpk
-9. openai_voice.lpk
-10. openai_industrial.lpk
-11. openai_graphic.lpk
-12. openai_agent.lpk
+6. openai_vision.lpk
+7. openai_image.lpk
+8. openai_voice.lpk
+9. openai_industrial.lpk
+10. openai_graphic.lpk
+11. openai_agent.lpk
 ```
 
 ---

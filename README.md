@@ -71,10 +71,9 @@ agora é apenas um **wrapper legado/deprecated** para compatibilidade. Para novo
 
 | Pacote | Finalidade | Uso recomendado |
 |---|---|---|
-| `openai_core.lpk` | Componentes centrais, LLM, base comum e utilitários principais | Instalar primeiro |
+| `openai_core.lpk` | Componentes centrais, LLM, base comum, utilitários principais e integração Python (TPythonConnector, TYoloDetect, TFaceDetection, TCNNClassifier, TLSTMPredictor) | Instalar primeiro |
 | `openai_ml.lpk` | Machine learning simples e matemática em Pascal | Opcional |
 | `openai_graph.lpk` | Grafos, classificação por grafo e relatórios de treinamento | Opcional |
-| `openai_python.lpk` | Integração Python, CNN, YOLO, LSTM e recursos externos | Opcional/experimental |
 | `openai_vision.lpk` | OpenCV, câmera, frame, face e movimento | Opcional |
 | `openai_image.lpk` | Filtros simples de imagem sem OpenCV | Opcional |
 | `openai_voice.lpk` | Voz, áudio e filtros sonoros | Opcional |
@@ -109,13 +108,12 @@ pacote/packages/openai_core.lpk
 3. pacote/packages/openai_graph.lpk
 4. pacote/packages/openai_output.lpk
 5. pacote/packages/openai_input.lpk
-6. pacote/packages/openai_python.lpk
-7. pacote/packages/openai_vision.lpk
-8. pacote/packages/openai_image.lpk
-9. pacote/packages/openai_voice.lpk
-10. pacote/packages/openai_industrial.lpk
-11. pacote/packages/openai_graphic.lpk
-12. pacote/packages/openai_agent.lpk
+6. pacote/packages/openai_vision.lpk
+7. pacote/packages/openai_image.lpk
+8. pacote/packages/openai_voice.lpk
+9. pacote/packages/openai_industrial.lpk
+10. pacote/packages/openai_graphic.lpk
+11. pacote/packages/openai_agent.lpk
 ```
 
 ### Pacote legado
@@ -132,10 +130,9 @@ Esse pacote ainda existe, mas deve ser tratado como **legacy wrapper**. Ele não
 
 | Pacote | Dependências comuns |
 |---|---|
-| `openai_core` | Lazarus, FPC, LCL, FCL, OpenSSL para HTTPS |
+| `openai_core` | Lazarus, FPC, LCL, FCL, OpenSSL para HTTPS. Para componentes de integração Python: Python 3, arquitetura compatível e bibliotecas Python conforme componente |
 | `openai_ml` | Sem Python obrigatório; usa Pascal/FPC |
 | `openai_graph` | `openai_core`, `openai_ml` |
-| `openai_python` | Python 3, arquitetura compatível, bibliotecas Python conforme componente |
 | `openai_vision` | Para `TAIOpenCV`: Python 3, `opencv-python`, `numpy`. Componentes nativos usam LCL/FPC; `TAICameraCapture` usa VFW no Windows |
 | `openai_voice` | Windows SAPI ou Linux eSpeak/eSpeak-NG conforme uso |
 | `openai_output` | `fpPDF`/FPC para PDF; Word/Excel podem ser HTML compatível |

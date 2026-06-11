@@ -28,9 +28,6 @@
         <PackageName Value="openai_core"/>
       </Item>
       <Item>
-        <PackageName Value="openai_python"/>
-      </Item>
-      <Item>
         <PackageName Value="LCL"/>
       </Item>
     </RequiredPackages>

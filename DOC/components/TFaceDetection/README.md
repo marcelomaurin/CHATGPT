@@ -13,7 +13,7 @@ pacote/IA/facedetection.pas
 ## Pacote
 
 ```text
-openai_python.lpk
+openai_core.lpk
 ```
 
 ## Status

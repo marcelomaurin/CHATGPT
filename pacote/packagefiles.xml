@@ -1,428 +1,1575 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
-  <UserPkgLinks Version="3" Count="21">
+  <UserPkgLinks Version="3" Count="217">
     <Item1>
-      <Name Value="openai"/>
-      <Filename Value="P:\maurinsoft\CHATGPT\pacote\openai.lpk"/>
-      <LastUsed Value="2026/06/07 06:38:14"/>
+      <Name Value="alternative_castle_window_based_on_lcl"/>
+      <Version Major="6" Minor="4"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\castle-engine-master\packages\alternative_castle_window_based_on_lcl.lpk"/>
+      <LastUsed Value="2026/05/12 13:29:18"/>
     </Item1>
     <Item2>
-      <Name Value="openai_agent"/>
-      <Filename Value="P:\maurinsoft\CHATGPT\pacote\packages\openai_agent.lpk"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
+      <Name Value="amw_ide_tools"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\LAMW\ide_tools\amw_ide_tools.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
     </Item2>
     <Item3>
-      <Name Value="openai_core"/>
-      <Filename Value="P:\maurinsoft\CHATGPT\pacote\packages\openai_core.lpk"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
+      <Name Value="atbinhex_package"/>
+      <Version Major="1" Minor="2" Release="2"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\ATBinHex\atbinhex\atbinhex_package.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
     </Item3>
     <Item4>
-      <Name Value="openai_full"/>
-      <Filename Value="P:\maurinsoft\CHATGPT\pacote\packages\openai_full.lpk"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
+      <Name Value="atextendeddialogs_package"/>
+      <Version Major="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\ATExtendedDialogs-master\atextendeddialogs\atextendeddialogs_package.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
     </Item4>
     <Item5>
-      <Name Value="openai_graph"/>
-      <Filename Value="P:\maurinsoft\CHATGPT\pacote\packages\openai_graph.lpk"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
+      <Name Value="atfilenotif_pkg"/>
+      <Version Major="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\ATFileNotif-Lazarus\src\atfilenotif_pkg.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
     </Item5>
     <Item6>
-      <Name Value="openai_graphic"/>
-      <Filename Value="P:\maurinsoft\CHATGPT\pacote\packages\openai_graphic.lpk"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
+      <Name Value="atflatcontrols_package"/>
+      <Version Major="2" Minor="3"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\ATFlatControls\atflatcontrols\atflatcontrols_package.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
     </Item6>
     <Item7>
-      <Name Value="openai_image"/>
-      <Filename Value="P:\maurinsoft\CHATGPT\pacote\packages\openai_image.lpk"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
+      <Name Value="atsynedit_cmp_package"/>
+      <Version Major="2" Minor="3" Release="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\ATSynEdit_Cmp\atsynedit_cmp\atsynedit_cmp_package.lpk"/>
+      <LastUsed Value="2026/03/18 18:02:04"/>
     </Item7>
     <Item8>
-      <Name Value="openai_industrial"/>
-      <Filename Value="P:\maurinsoft\CHATGPT\pacote\packages\openai_industrial.lpk"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
+      <Name Value="atsynedit_ex_package"/>
+      <Version Major="2" Minor="2" Release="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\ATSynEdit_Ex\atsynedit_ex\atsynedit_ex_package.lpk"/>
+      <LastUsed Value="2026/05/22 18:23:58"/>
     </Item8>
     <Item9>
-      <Name Value="openai_input"/>
-      <Filename Value="P:\maurinsoft\CHATGPT\pacote\packages\openai_input.lpk"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
+      <Name Value="atsynedit_package"/>
+      <Version Major="2" Minor="24"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\ATSynEdit\atsynedit\atsynedit_package.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
     </Item9>
     <Item10>
-      <Name Value="openai_ml"/>
-      <Filename Value="P:\maurinsoft\CHATGPT\pacote\packages\openai_ml.lpk"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
+      <Name Value="BGLControls"/>
+      <Version Major="1" Minor="2"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\BGRABitmap\bglcontrols\bglcontrols.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
     </Item10>
     <Item11>
-      <Name Value="openai_output"/>
-      <Filename Value="P:\maurinsoft\CHATGPT\pacote\packages\openai_output.lpk"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
+      <Name Value="BGRABitmapPack"/>
+      <Version Major="11" Minor="6" Release="6"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\BGRABitmap\bgrabitmap\bgrabitmappack.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
     </Item11>
     <Item12>
-      <Name Value="openai_python"/>
-      <Filename Value="P:\maurinsoft\CHATGPT\pacote\packages\openai_python.lpk"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
+      <Name Value="bgracontrols"/>
+      <Version Major="9" Release="2"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\BGRAControls\bgracontrols.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
     </Item12>
     <Item13>
-      <Name Value="openai_simulation"/>
-      <Filename Value="p:\maurinsoft\CHATGPT\pacote\packages\openai_simulation.lpk"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
+      <Name Value="bgragames"/>
+      <Version Major="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\bgragames-master\bgragames.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
     </Item13>
     <Item14>
-      <Name Value="openai_vision"/>
-      <Filename Value="p:\maurinsoft\CHATGPT\pacote\packages\openai_vision.lpk"/>
-      <LastUsed Value="2026/06/07 06:40:12"/>
+      <Name Value="cadsys"/>
+      <Version Major="4" Minor="3"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\CADSys42\Packages\Lazarus\cadsys.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
     </Item14>
     <Item15>
-      <Name Value="openai_voice"/>
-      <Filename Value="P:\maurinsoft\CHATGPT\pacote\packages\openai_voice.lpk"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
+      <Name Value="captcha_pkg"/>
+      <Version Minor="1" Release="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\captcha\captcha_pkg.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
     </Item15>
     <Item16>
-      <Name Value="zcomponent"/>
-      <Version Major="8"/>
-      <Filename Value="C:\Users\User\AppData\Local\lazarus\onlinepackagemanager\packages\zeosdbo\packages\lazarus\zcomponent.lpk"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
+      <Name Value="castle_base"/>
+      <Version Major="6" Minor="4"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\castle-engine-master\packages\castle_base.lpk"/>
+      <LastUsed Value="2026/05/12 13:26:44"/>
     </Item16>
     <Item17>
-      <Name Value="zcomponentdesign"/>
-      <Version Major="8"/>
-      <Filename Value="C:\Users\User\AppData\Local\lazarus\onlinepackagemanager\packages\zeosdbo\packages\lazarus\zcomponentdesign.lpk"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
+      <Name Value="castle_components"/>
+      <Version Major="6" Minor="4"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\castle-engine-master\packages\castle_components.lpk"/>
+      <LastUsed Value="2026/05/12 13:29:16"/>
     </Item17>
     <Item18>
-      <Name Value="zcore"/>
-      <Version Major="8"/>
-      <Filename Value="C:\Users\User\AppData\Local\lazarus\onlinepackagemanager\packages\zeosdbo\packages\lazarus\zcore.lpk"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
+      <Name Value="castle_window"/>
+      <Version Major="6" Minor="4"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\castle-engine-master\packages\castle_window.lpk"/>
+      <LastUsed Value="2026/05/12 13:29:19"/>
     </Item18>
     <Item19>
-      <Name Value="zdbc"/>
-      <Version Major="8"/>
-      <Filename Value="C:\Users\User\AppData\Local\lazarus\onlinepackagemanager\packages\zeosdbo\packages\lazarus\zdbc.lpk"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
+      <Name Value="CEF4Delphi_Lazarus"/>
+      <Version Major="90" Minor="5" Release="4"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\CEF4Delphi\packages\cef4delphi_lazarus.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
     </Item19>
     <Item20>
-      <Name Value="zparsesql"/>
-      <Version Major="8"/>
-      <Filename Value="C:\Users\User\AppData\Local\lazarus\onlinepackagemanager\packages\zeosdbo\packages\lazarus\zparsesql.lpk"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
+      <Name Value="cgi"/>
+      <Version Major="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\CGI\cgi.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
     </Item20>
     <Item21>
+      <Name Value="cgiide"/>
+      <Version Major="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\CGI\cgiide.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item21>
+    <Item22>
+      <Name Value="cmdbox"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\cmdline\cmdbox.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item22>
+    <Item23>
+      <Name Value="cryptini"/>
+      <Version Minor="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\cryptini\cryptini.lpk"/>
+      <LastUsed Value="2026/03/18 18:04:34"/>
+    </Item23>
+    <Item24>
+      <Name Value="d2bridgeframeworkwizard"/>
+      <Version Major="1" Minor="38"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\D2Bridge Framework\LazIDEplugin\d2bridgeframeworkwizard.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item24>
+    <Item25>
+      <Name Value="DataPortLasarus"/>
+      <Version Major="1" Release="5"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\DataPort\dataportlasarus.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item25>
+    <Item26>
+      <Name Value="DBGridController"/>
+      <Version Major="1" Release="3"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\DBGridController\DBGridController.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item26>
+    <Item27>
+      <Name Value="dcl_rxtools"/>
+      <Version Major="1" Release="2" Build="5"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\Rx\dcl_rxtools.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item27>
+    <Item28>
+      <Name Value="dcl_rx_ctrl"/>
+      <Version Major="3" Minor="3" Release="1" Build="4"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\Rx\dcl_rx_ctrl.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item28>
+    <Item29>
+      <Name Value="dcpcrypt"/>
+      <Version Major="2" Release="4" Build="2"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\DCPcrypt\dcpcrypt.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item29>
+    <Item30>
+      <Name Value="DelphiTwain_pkg"/>
+      <Version Major="2" Minor="3" Release="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\DelphiTwain\delphitwain_pkg.lpk"/>
+      <LastUsed Value="2026/03/18 18:05:43"/>
+    </Item30>
+    <Item31>
+      <Name Value="dmath"/>
+      <Version Major="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\DMath\dmath.lpk"/>
+      <LastUsed Value="2026/03/18 18:04:35"/>
+    </Item31>
+    <Item32>
+      <Name Value="DragDropLazarus"/>
+      <Version Major="5" Minor="2"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\DragDrop\Source\DragDropLazarus.lpk"/>
+      <LastUsed Value="2026/05/12 14:49:51"/>
+    </Item32>
+    <Item33>
+      <Name Value="econtrol_package"/>
+      <Version Major="2" Minor="3" Release="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\EControl\econtrol\econtrol_package.lpk"/>
+      <LastUsed Value="2026/05/22 18:23:58"/>
+    </Item33>
+    <Item34>
+      <Name Value="encconv_package"/>
+      <Version Major="1" Minor="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\EncConv\encconv\encconv_package.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item34>
+    <Item35>
+      <Name Value="etpackage"/>
+      <Version Major="1" Build="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\epiktimer\etpackage.lpk"/>
+      <LastUsed Value="2026/03/19 13:22:02"/>
+    </Item35>
+    <Item36>
+      <Name Value="ExtraHighlighters"/>
+      <Version Major="1" Minor="2" Release="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\extrasyn\extrahighlighters.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item36>
+    <Item37>
+      <Name Value="ExtraHighlighters_Dsgn"/>
+      <Version Major="1" Minor="2" Release="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\extrasyn\extrahighlighters_dsgn.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item37>
+    <Item38>
+      <Name Value="fbintf"/>
+      <Version Major="1" Minor="4" Release="8" Build="1259"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\FBIntf\fbintf.lpk"/>
+      <LastUsed Value="2026/05/11 18:09:01"/>
+    </Item38>
+    <Item39>
+      <Name Value="fclwebwst"/>
+      <Version Minor="8"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\wst\ide\lazarus\wstmodule\fclwebwst.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item39>
+    <Item40>
+      <Name Value="fcl_bridges_pack"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\LAMW\fcl_bridges\fcl_bridges_pack.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item40>
+    <Item41>
+      <Name Value="FileAssociation"/>
+      <Version Major="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\FileAssociation-master\fileassociation.lpk"/>
+      <LastUsed Value="2026/05/12 14:49:51"/>
+    </Item41>
+    <Item42>
+      <Name Value="FitGrids"/>
+      <Version Major="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\fitgrids-master\FitGrids.lpk"/>
+      <LastUsed Value="2026/05/12 14:49:51"/>
+    </Item42>
+    <Item43>
+      <Name Value="fortes324forlaz"/>
+      <Version Major="3" Minor="24" Release="2"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\fortes4lazarus 3.24\fortes324forlaz.lpk"/>
+      <LastUsed Value="2026/05/11 17:51:12"/>
+    </Item43>
+    <Item44>
+      <Name Value="fpowm"/>
+      <Version Major="1" Minor="1" Release="1" Build="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\OpenWeatherMap\fpowm.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item44>
+    <Item45>
+      <Name Value="FrameViewer09"/>
+      <Version Major="11" Minor="8" Release="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\HtmlViewer\package\FrameViewer09.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item45>
+    <Item46>
+      <Name Value="frce"/>
+      <Version Major="4"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\fortesreport-ce4\Packages\frce.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item46>
+    <Item47>
+      <Name Value="GLScene_DesignTime"/>
+      <Version Major="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\GLSceneLCL\Packages\GLScene_DesignTime.lpk"/>
+      <LastUsed Value="2026/05/12 14:49:51"/>
+    </Item47>
+    <Item48>
+      <Name Value="GLScene_RunTime"/>
+      <Version Major="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\GLSceneLCL\Packages\GLScene_RunTime.lpk"/>
+      <LastUsed Value="2026/05/12 14:49:51"/>
+    </Item48>
+    <Item49>
+      <Name Value="Gold_Parser_5"/>
+      <Version Major="5"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\GOLDParser\src\gold_parser_5.lpk"/>
+      <LastUsed Value="2026/05/12 13:29:54"/>
+    </Item49>
+    <Item50>
+      <Name Value="GridPrinterPkg"/>
+      <Version Minor="6"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\GridPrinter\gridprinterpkg.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item50>
+    <Item51>
+      <Name Value="HashLib4PascalPackage"/>
+      <Version Major="4" Minor="2"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\HashLib\HashLib\src\Packages\FPC\HashLib4PascalPackage.lpk"/>
+      <LastUsed Value="2026/05/12 13:29:57"/>
+    </Item51>
+    <Item52>
+      <Name Value="hidapi_pkg"/>
+      <Version Minor="5" Release="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\HIDAPI\src\hidapi_pkg.lpk"/>
+      <LastUsed Value="2026/05/12 13:30:00"/>
+    </Item52>
+    <Item53>
+      <Name Value="HistoryLazarus"/>
+      <Version Major="1" Minor="3"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\HistoryFiles\HistoryLazarus.lpk"/>
+      <LastUsed Value="2026/05/12 14:49:51"/>
+    </Item53>
+    <Item54>
+      <Name Value="ibexpress"/>
+      <Version Major="2" Minor="7" Release="8" Build="1675"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\IBX4Lazarus\ibexpress.lpk"/>
+      <LastUsed Value="2026/05/11 18:09:06"/>
+    </Item54>
+    <Item55>
+      <Name Value="ibnongui"/>
+      <Version Major="2" Minor="7" Release="8" Build="1675"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\IBX4Lazarus\ibnongui.lpk"/>
+      <LastUsed Value="2026/05/11 18:09:04"/>
+    </Item55>
+    <Item56>
+      <Name Value="industrial"/>
+      <Version Minor="6" Release="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\Industrialstuff\industrial.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item56>
+    <Item57>
+      <Name Value="indylaz"/>
+      <Version Major="10" Minor="6" Release="3" Build="11"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\Indy10\indylaz.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item57>
+    <Item58>
+      <Name Value="IndySecOpenSSL"/>
+      <Version Major="1" Build="57"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\IndySecOpenSSL\lazarus-fpc\IndySecOpenSSL.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item58>
+    <Item59>
+      <Name Value="IPEdit_pkg"/>
+      <Version Major="1" Minor="3" Build="7"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\TIPEdit\ipedit_pkg.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item59>
+    <Item60>
+      <Name Value="JvCoreLazD"/>
+      <Version Major="1" Release="8"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\jvcllaz\packages\jvcorelazd.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item60>
+    <Item61>
+      <Name Value="JvCoreLazR"/>
+      <Version Major="1" Release="8"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\jvcllaz\packages\jvcorelazr.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item61>
+    <Item62>
+      <Name Value="JvStdCtrlsLazR"/>
+      <Version Major="1" Release="8"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\jvcllaz\packages\jvstdctrlslazr.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item62>
+    <Item63>
+      <Name Value="JvXPCtrlsLazD"/>
+      <Version Major="1" Release="8"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\jvcllaz\packages\jvxpctrlslazd.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item63>
+    <Item64>
+      <Name Value="JvXPCtrlsLazR"/>
+      <Version Major="1" Release="8"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\jvcllaz\packages\jvxpctrlslazr.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item64>
+    <Item65>
+      <Name Value="lape"/>
+      <Version Minor="2"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\Lape\package\lape.lpk"/>
+      <LastUsed Value="2026/03/18 18:25:20"/>
+    </Item65>
+    <Item66>
+      <Name Value="LazAndroidWizardPack"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\LAMW\android_wizard\lazandroidwizardpack.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item66>
+    <Item67>
+      <Name Value="lazbarcodes"/>
+      <Version Major="2" Release="4"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\LazBarcodes\packages\lazbarcodes.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item67>
+    <Item68>
+      <Name Value="lazbarcodes_runtimeonly"/>
+      <Version Major="2" Release="4"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\LazBarcodes\packages\lazbarcodes_runtimeonly.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item68>
+    <Item69>
+      <Name Value="LazColorPalette"/>
+      <Version Minor="2" Release="2"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\colorpalette\lazcolorpalette.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item69>
+    <Item70>
+      <Name Value="lazextbase"/>
+      <Version Major="1" Minor="9" Build="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\Extended\lazextbase.lpk"/>
+      <LastUsed Value="2026/05/11 18:09:07"/>
+    </Item70>
+    <Item71>
+      <Name Value="lazextbuttons"/>
+      <Version Major="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\Extended\lazextbuttons.lpk"/>
+      <LastUsed Value="2026/05/11 18:09:07"/>
+    </Item71>
+    <Item72>
+      <Name Value="lazextcomponents"/>
+      <Version Major="2" Release="6" Build="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\Extended\lazextcomponents.lpk"/>
+      <LastUsed Value="2026/05/11 18:09:07"/>
+    </Item72>
+    <Item73>
+      <Name Value="lazextcomponentsimg"/>
+      <Version Major="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\Extended\lazextcomponentsimg.lpk"/>
+      <LastUsed Value="2026/05/11 18:09:07"/>
+    </Item73>
+    <Item74>
+      <Name Value="lazextcopy"/>
+      <Version Major="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\Extended\lazextcopy.lpk"/>
+      <LastUsed Value="2026/05/11 18:09:07"/>
+    </Item74>
+    <Item75>
+      <Name Value="lazextcore"/>
+      <Version Major="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\Extended\lazextcore.lpk"/>
+      <LastUsed Value="2026/05/11 18:09:07"/>
+    </Item75>
+    <Item76>
+      <Name Value="lazextinit"/>
+      <Version Major="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\Extended\lazextinit.lpk"/>
+      <LastUsed Value="2026/05/11 18:09:07"/>
+    </Item76>
+    <Item77>
+      <Name Value="lazextnet"/>
+      <Version Major="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\Extended\lazextnet.lpk"/>
+      <LastUsed Value="2026/05/11 17:51:15"/>
+    </Item77>
+    <Item78>
+      <Name Value="lazextnumeric"/>
+      <Version Major="1" Minor="7" Release="3" Build="2"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\Extended\lazextnumeric.lpk"/>
+      <LastUsed Value="2026/05/11 17:51:15"/>
+    </Item78>
+    <Item79>
+      <Name Value="lazextreports"/>
+      <Version Major="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\Extended\lazextreports.lpk"/>
+      <LastUsed Value="2026/05/11 17:51:15"/>
+    </Item79>
+    <Item80>
+      <Name Value="lazMapViewerPkg"/>
+      <Version Major="1" Release="2"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\LazMapViewer\lazmapviewerpkg.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item80>
+    <Item81>
+      <Name Value="lazpasmp"/>
+      <Version Major="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\pasmp\lazpasmp.lpk"/>
+      <LastUsed Value="2026/05/11 18:09:47"/>
+    </Item81>
+    <Item82>
+      <Name Value="LazProfiler"/>
+      <Version Minor="3"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\lazprofiler\LazProfiler.lpk"/>
+      <LastUsed Value="2026/03/19 13:22:02"/>
+    </Item82>
+    <Item83>
+      <Name Value="lazregisterextcomp"/>
+      <Version Major="1" Minor="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\Extended\lazregisterextcomp.lpk"/>
+      <LastUsed Value="2026/05/11 17:51:15"/>
+    </Item83>
+    <Item84>
+      <Name Value="lazregisteribx"/>
+      <Version Major="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\Extended\lazregisteribx.lpk"/>
+      <LastUsed Value="2026/05/11 18:09:07"/>
+    </Item84>
+    <Item85>
+      <Name Value="LazRGBGraphics"/>
+      <Version Major="1" Minor="1" Release="2"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\LazRGBGraphics\lazrgbgraphics.lpk"/>
+      <LastUsed Value="2026/03/18 18:36:29"/>
+    </Item85>
+    <Item86>
+      <Name Value="LazSerialPort"/>
+      <Version Minor="6"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\LazSerial\LazSerialPort.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item86>
+    <Item87>
+      <Name Value="lazupdate"/>
+      <Version Minor="3" Release="10"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\lazautoupdate\lazupdate.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item87>
+    <Item88>
+      <Name Value="laz_acs"/>
+      <Version Major="3" Release="3"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\acs\packages\laz_acs.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item88>
+    <Item89>
+      <Name Value="laz_acs_lib"/>
+      <Version Major="3" Release="3"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\acs\packages\laz_acs_lib.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item89>
+    <Item90>
+      <Name Value="laz_chemtext"/>
+      <Version Minor="1" Release="4"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\chemtext\laz_chemtext.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item90>
+    <Item91>
+      <Name Value="laz_fpspreadsheet"/>
+      <Version Major="2"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\FPSpreadsheet\laz_fpspreadsheet.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item91>
+    <Item92>
+      <Name Value="laz_sortgrid"/>
+      <Version Build="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\sortgrid\laz_sortgrid.lpk"/>
+      <LastUsed Value="2026/05/12 14:49:51"/>
+    </Item92>
+    <Item93>
+      <Name Value="laz_synapse"/>
+      <Version Major="40" Minor="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\synapse40.1\laz_synapse.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item93>
+    <Item94>
+      <Name Value="laz_systools"/>
+      <Version Major="4" Release="4"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\systools\laz_systools.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item94>
+    <Item95>
+      <Name Value="laz_systoolsdb"/>
+      <Version Major="4" Release="4"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\systools\laz_systoolsdb.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item95>
+    <Item96>
+      <Name Value="laz_systoolsdb_design"/>
+      <Version Major="4" Release="4"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\systools\laz_systoolsdb_design.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item96>
+    <Item97>
+      <Name Value="laz_systoolswin"/>
+      <Version Major="4" Release="4"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\systools\laz_systoolswin.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item97>
+    <Item98>
+      <Name Value="laz_systoolswin_design"/>
+      <Version Major="4" Release="4"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\systools\laz_systoolswin_design.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item98>
+    <Item99>
+      <Name Value="laz_systools_design"/>
+      <Version Major="4" Release="4"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\systools\laz_systools_design.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item99>
+    <Item100>
+      <Name Value="laz_uos"/>
+      <Version Major="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\uos\src\laz_uos.lpk"/>
+      <LastUsed Value="2026/05/12 14:19:21"/>
+    </Item100>
+    <Item101>
+      <Name Value="laz_visualplanit"/>
+      <Version Major="1" Minor="8" Release="3"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\tvplanit\laz_visualplanit.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item101>
+    <Item102>
+      <Name Value="laz_visualplanit_design"/>
+      <Version Major="1" Minor="8" Release="3"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\tvplanit\laz_visualplanit_design.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item102>
+    <Item103>
+      <Name Value="laz_visualplanit_zeos"/>
+      <Version Major="1" Minor="8" Release="3"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\tvplanit\laz_visualplanit_zeos.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item103>
+    <Item104>
+      <Name Value="laz_visualplanit_zeos_design"/>
+      <Version Major="1" Minor="8" Release="3"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\tvplanit\laz_visualplanit_zeos_design.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item104>
+    <Item105>
+      <Name Value="LGenerics"/>
+      <Version Minor="5" Release="5"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\LGenerics\lgenerics\lgenerics.lpk"/>
+      <LastUsed Value="2026/03/18 18:04:50"/>
+    </Item105>
+    <Item106>
+      <Name Value="Lists"/>
+      <Version Build="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\Lists\lists.lpk"/>
+      <LastUsed Value="2026/05/12 14:49:51"/>
+    </Item106>
+    <Item107>
+      <Name Value="lnetbase"/>
+      <Version Minor="6" Release="6"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\lnet\lazaruspackage\lnetbase.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item107>
+    <Item108>
+      <Name Value="lnetvisual"/>
+      <Version Minor="6" Release="6"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\lnet\lazaruspackage\lnetvisual.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item108>
+    <Item109>
+      <Name Value="longtimerpackage"/>
+      <Version Release="4"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\longtimer\longtimerpackage.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item109>
+    <Item110>
+      <Name Value="lr_BarcodesEx"/>
+      <Version Minor="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\LrBarcodesEx\lr_barcodesex.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item110>
+    <Item111>
+      <Name Value="mbColorLibLaz"/>
+      <Version Major="2" Minor="2" Release="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\mbColorLib\mbcolorliblaz.lpk"/>
+      <LastUsed Value="2026/05/12 14:49:51"/>
+    </Item111>
+    <Item112>
+      <Name Value="mormot2"/>
+      <Version Major="2" Release="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\mORMot2\packages\lazarus\mormot2.lpk"/>
+      <LastUsed Value="2026/05/12 14:49:51"/>
+    </Item112>
+    <Item113>
+      <Name Value="mormot2ui"/>
+      <Version Major="2" Release="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\mORMot2\packages\lazarus\mormot2ui.lpk"/>
+      <LastUsed Value="2026/05/12 14:49:51"/>
+    </Item113>
+    <Item114>
+      <Name Value="MPlayerControlLaz"/>
+      <Version Minor="1" Release="2"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\mplayer0.1.2\mplayercontrollaz.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item114>
+    <Item115>
+      <Name Value="multiloglaz"/>
+      <Version Minor="7"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\MultiLog\multiloglaz.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item115>
+    <Item116>
+      <Name Value="myexamplepackage"/>
+      <Version Major="1" Minor="2"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\ExamplePackage\myexamplepackage.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item116>
+    <Item117>
+      <Name Value="NiceChartLaz"/>
+      <Version Major="2" Release="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\NiceChart\packages\Lazarus\nicechartlaz.lpk"/>
+      <LastUsed Value="2026/05/12 14:49:51"/>
+    </Item117>
+    <Item118>
+      <Name Value="NiceGridLaz"/>
+      <Version Major="3" Release="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\NiceGrid\packages\Lazarus\NiceGridLaz.lpk"/>
+      <LastUsed Value="2026/05/12 14:49:51"/>
+    </Item118>
+    <Item119>
+      <Name Value="NiceSidebarLaz"/>
+      <Version Major="2" Release="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\nicesidebar\packages\Lazarus\nicesidebarlaz.lpk"/>
+      <LastUsed Value="2026/05/12 14:49:51"/>
+    </Item119>
+    <Item120>
+      <Name Value="NumCPULib4PascalPackage"/>
+      <Version Major="1" Minor="3"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\NumCPULib\src\Packages\FPC\NumCPULib4PascalPackage.lpk"/>
+      <LastUsed Value="2026/05/12 13:30:37"/>
+    </Item120>
+    <Item121>
+      <Name Value="oauth2_laz"/>
+      <Version Major="1" Release="1" Build="26"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\OAuth2Client\oauth2_laz.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item121>
+    <Item122>
+      <Name Value="openai"/>
+      <Filename Value="D:\projetos\maurinsoft\CHATGPT\pacote\openai.lpk"/>
+      <LastUsed Value="2026/06/10 18:28:31"/>
+    </Item122>
+    <Item123>
+      <Name Value="openai_agent"/>
+      <Filename Value="D:\projetos\maurinsoft\CHATGPT\pacote\packages\openai_agent.lpk"/>
+      <LastUsed Value="2026/06/10 18:28:30"/>
+    </Item123>
+    <Item124>
+      <Name Value="openai_core"/>
+      <Filename Value="D:\projetos\maurinsoft\CHATGPT\pacote\packages\openai_core.lpk"/>
+      <LastUsed Value="2026/06/10 18:34:35"/>
+    </Item124>
+    <Item125>
+      <Name Value="openai_full"/>
+      <Filename Value="D:\projetos\maurinsoft\CHATGPT\pacote\packages\openai_full.lpk"/>
+      <LastUsed Value="2026/06/06 16:39:30"/>
+    </Item125>
+    <Item126>
+      <Name Value="openai_graph"/>
+      <Filename Value="D:\projetos\maurinsoft\CHATGPT\pacote\packages\openai_graph.lpk"/>
+      <LastUsed Value="2026/06/10 18:31:23"/>
+    </Item126>
+    <Item127>
+      <Name Value="openai_graphic"/>
+      <Filename Value="D:\projetos\maurinsoft\CHATGPT\pacote\packages\openai_graphic.lpk"/>
+      <LastUsed Value="2026/06/10 18:31:47"/>
+    </Item127>
+    <Item128>
+      <Name Value="openai_image"/>
+      <Filename Value="D:\projetos\maurinsoft\CHATGPT\pacote\packages\openai_image.lpk"/>
+      <LastUsed Value="2026/06/10 18:32:07"/>
+    </Item128>
+    <Item129>
+      <Name Value="openai_industrial"/>
+      <Filename Value="D:\projetos\maurinsoft\CHATGPT\pacote\packages\openai_industrial.lpk"/>
+      <LastUsed Value="2026/06/10 18:32:28"/>
+    </Item129>
+    <Item130>
+      <Name Value="openai_input"/>
+      <Filename Value="D:\projetos\maurinsoft\CHATGPT\pacote\packages\openai_input.lpk"/>
+      <LastUsed Value="2026/06/10 18:32:48"/>
+    </Item130>
+    <Item131>
+      <Name Value="openai_ml"/>
+      <Filename Value="D:\projetos\maurinsoft\CHATGPT\pacote\packages\openai_ml.lpk"/>
+      <LastUsed Value="2026/06/10 18:33:49"/>
+    </Item131>
+    <Item132>
+      <Name Value="openai_output"/>
+      <Filename Value="D:\projetos\maurinsoft\CHATGPT\pacote\packages\openai_output.lpk"/>
+      <LastUsed Value="2026/06/10 18:33:29"/>
+    </Item132>
+    <Item133>
+      <Name Value="openai_python"/>
+      <Filename Value="D:\projetos\maurinsoft\CHATGPT\pacote\packages\openai_python.lpk"/>
+      <LastUsed Value="2026/06/10 18:33:49"/>
+    </Item133>
+    <Item134>
+      <Name Value="openai_simulation"/>
+      <Filename Value="D:\projetos\maurinsoft\CHATGPT\pacote\packages\openai_simulation.lpk"/>
+      <LastUsed Value="2026/06/10 18:34:13"/>
+    </Item134>
+    <Item135>
+      <Name Value="openai_vision"/>
+      <Filename Value="D:\projetos\maurinsoft\CHATGPT\pacote\packages\openai_vision.lpk"/>
+      <LastUsed Value="2026/06/10 18:34:35"/>
+    </Item135>
+    <Item136>
+      <Name Value="openai_voice"/>
+      <Filename Value="D:\projetos\maurinsoft\CHATGPT\pacote\packages\openai_voice.lpk"/>
+      <LastUsed Value="2026/06/10 18:28:30"/>
+    </Item136>
+    <Item137>
+      <Name Value="opengpsx"/>
+      <Version Minor="3" Release="23" Build="1001"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\opengpsx\opengpsx.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item137>
+    <Item138>
+      <Name Value="pascalscada"/>
+      <Version Minor="7" Release="7"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\PascalSCADA\pascalscada.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item138>
+    <Item139>
+      <Name Value="pascalscada_common"/>
+      <Version Minor="7" Release="7"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\PascalSCADA\pascalscada_common.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item139>
+    <Item140>
+      <Name Value="pascalscada_db"/>
+      <Version Minor="7" Release="7"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\PascalSCADA\pascalscada_db.lpk"/>
+      <LastUsed Value="2026/05/11 18:09:38"/>
+    </Item140>
+    <Item141>
+      <Name Value="pascalscada_dsng"/>
+      <Version Minor="7" Release="7"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\PascalSCADA\pascalscada_dsng.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item141>
+    <Item142>
+      <Name Value="pascalscada_full"/>
+      <Version Minor="7" Release="7"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\PascalSCADA\pascalscada_full.lpk"/>
+      <LastUsed Value="2026/05/11 18:09:45"/>
+    </Item142>
+    <Item143>
+      <Name Value="pascalscada_hmi"/>
+      <Version Minor="7" Release="7"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\PascalSCADA\pascalscada_hmi.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item143>
+    <Item144>
+      <Name Value="pckSQLdbConn"/>
+      <Version Major="2" Minor="32"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\UserControl\package\connectors\UCSQLdbConn\pcksqldbconn.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item144>
+    <Item145>
+      <Name Value="pckUCDataConnector"/>
+      <Version Major="2" Minor="32"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\UserControl\package\lazarus\pckUCDataConnector.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item145>
+    <Item146>
+      <Name Value="pckUserControlDesign"/>
+      <Version Major="2" Minor="33"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\UserControl\package\lazarus\pckUserControlDesign.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item146>
+    <Item147>
+      <Name Value="pckUserControlRuntime"/>
+      <Version Major="2" Minor="33"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\UserControl\package\lazarus\pckUserControlRuntime.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item147>
+    <Item148>
+      <Name Value="pckZeosConn"/>
+      <Version Major="2" Minor="32"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\UserControl\package\connectors\UCZeosConn\pckZeosConn.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item148>
+    <Item149>
+      <Name Value="pkg_gifanim"/>
+      <Version Major="1" Minor="4"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\gifanim\pkg_gifanim.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item149>
+    <Item150>
+      <Name Value="pkg_gifanim_dsgn"/>
+      <Version Major="1" Minor="4"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\gifanim\pkg_gifanim_dsgn.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item150>
+    <Item151>
+      <Name Value="pkSalesSwitch"/>
+      <Version Major="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\TSalesSwitch\pksalesswitch.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item151>
+    <Item152>
+      <Name Value="playwavepackage"/>
+      <Version Release="10"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\PlaySoundPackage\latest_stable\playwavepackage.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item152>
+    <Item153>
+      <Name Value="plot"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\plotpanel-lazarus-0.97.1\plot.lpk"/>
+      <LastUsed Value="2026/05/11 18:09:48"/>
+    </Item153>
+    <Item154>
+      <Name Value="pl_OpenGL"/>
+      <Version Major="7" Minor="2" Release="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\ct4laz\pl_components\pl_opengl\pl_opengl.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item154>
+    <Item155>
+      <Name Value="pl_OpenGLES"/>
+      <Version Major="7" Minor="2" Release="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\ct4laz\pl_components\pl_opengles\pl_opengles.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item155>
+    <Item156>
+      <Name Value="pl_SDL2"/>
+      <Version Major="6" Minor="9" Release="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\ct4laz\pl_components\pl_sdl2\pl_sdl2.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item156>
+    <Item157>
+      <Name Value="pl_SynapseVS"/>
+      <Version Major="6" Minor="7" Release="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\ct4laz\pl_components\pl_synapsevs\pl_synapsevs.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item157>
+    <Item158>
+      <Name Value="pl_USB"/>
+      <Version Major="6" Minor="9" Release="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\ct4laz\pl_components\pl_usb\pl_usb.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item158>
+    <Item159>
+      <Name Value="pl_Win_DirectX"/>
+      <Version Major="6" Minor="9" Release="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\ct4laz\pl_components\pl_win_directx\pl_win_directx.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item159>
+    <Item160>
+      <Name Value="pl_Win_DirectX12"/>
+      <Version Major="7" Minor="2" Release="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\ct4laz\pl_components\pl_win_directx12\pl_win_directx12.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item160>
+    <Item161>
+      <Name Value="pl_Win_DirectXUT"/>
+      <Version Major="6" Minor="9" Release="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\ct4laz\pl_components\pl_win_directxut\pl_win_directxut.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item161>
+    <Item162>
+      <Name Value="poweredby"/>
+      <Version Major="1" Release="5"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\poweredby\poweredby.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item162>
+    <Item163>
+      <Name Value="python4lazarus_package"/>
+      <Version Major="1" Minor="4"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\PythonForLazarus\python4lazarus\python4lazarus_package.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item163>
+    <Item164>
+      <Name Value="QRCodeGenLib4PascalPackage"/>
+      <Version Major="1" Minor="9"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\QRCodeGenLib\QRCodeGenLib\src\Packages\FPC\QRCodeGenLib4PascalPackage.lpk"/>
+      <LastUsed Value="2026/05/12 13:30:38"/>
+    </Item164>
+    <Item165>
+      <Name Value="regvirtualdbtreeexlaz"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\virtualdbtreeex\lazarus\regvirtualdbtreeexlaz.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item165>
+    <Item166>
+      <Name Value="restdatawarecomponents"/>
+      <Version Major="2" Release="7"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\RESTDataware\CORE\Packages\Lazarus\restdatawarecomponents.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item166>
+    <Item167>
+      <Name Value="RestDatawareIndySockets"/>
+      <Version Major="2" Release="7"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\RESTDataware\CORE\Packages\Lazarus\Connectors\Indy\RestDatawareIndySockets.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item167>
+    <Item168>
+      <Name Value="RestDatawareShellservices"/>
+      <Version Major="2" Release="7"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\RESTDataware\CORE\Packages\Lazarus\ShellTools\restdatawareshellservices.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item168>
+    <Item169>
+      <Name Value="RESTDWDriverZEOS"/>
+      <Version Major="2" Release="7"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\RESTDataware\CORE\Packages\Lazarus\Drivers\zeos\restdwdriverzeos.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item169>
+    <Item170>
+      <Name Value="RESTDWLazDriver"/>
+      <Version Major="2" Release="7"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\RESTDataware\CORE\Packages\Lazarus\Drivers\lazdriver\restdwlazdriver.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item170>
+    <Item171>
+      <Name Value="rx"/>
+      <Version Major="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\Rx\rx.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item171>
+    <Item172>
+      <Name Value="rxdbgrid_export_spreadsheet"/>
+      <Version Major="1" Release="1" Build="6"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\Rx\rxdbgrid_export_spreadsheet.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item172>
+    <Item173>
+      <Name Value="rxdbgrid_print"/>
+      <Version Major="1" Minor="1" Release="2" Build="2"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\Rx\rxdbgrid_print.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item173>
+    <Item174>
+      <Name Value="rxnew"/>
+      <Version Major="3" Minor="4" Release="1" Build="235"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\Rx\rxnew.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item174>
+    <Item175>
+      <Name Value="rxtools"/>
+      <Version Minor="6" Build="12"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\Rx\rxtools.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item175>
+    <Item176>
+      <Name Value="rx_LazReport"/>
+      <Version Major="1" Release="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\Rx\LazReport\rx_lazreport.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item176>
+    <Item177>
+      <Name Value="rx_sort_sqldb"/>
+      <Version Major="1" Minor="1" Release="2" Build="3"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\Rx\rx_sort_sqldb.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item177>
+    <Item178>
+      <Name Value="rx_sort_zeos"/>
+      <Version Major="1" Minor="1" Release="1" Build="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\Rx\rx_sort_zeos.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item178>
+    <Item179>
+      <Name Value="SdpoDSMLaz"/>
+      <Version Minor="1" Release="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\Sdpo\SdpoDSM\sdpodsmlaz.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item179>
+    <Item180>
+      <Name Value="SdpoDynmatrix"/>
+      <Version Major="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\Sdpo\SdpoDynmatrix\sdpodynmatrix.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item180>
+    <Item181>
+      <Name Value="SdpoFastFormLaz"/>
+      <Version Minor="1" Release="7"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\Sdpo\SdpoFastForm\sdpofastformlaz.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item181>
+    <Item182>
+      <Name Value="SdpoJoystickLaz"/>
+      <Version Minor="1" Release="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\Sdpo\SdpoJoystick\sdpojoysticklaz.lpk"/>
+      <LastUsed Value="2026/05/12 14:49:51"/>
+    </Item182>
+    <Item183>
+      <Name Value="SdpoSerialLaz"/>
+      <Version Minor="1" Release="5"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\Sdpo\SdpoSerial\sdposeriallaz.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item183>
+    <Item184>
+      <Name Value="SpkToolbarPackage"/>
+      <Version Minor="1" Release="8"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\SpkToolBar\spktoolbarpackage.lpk"/>
+      <LastUsed Value="2026/05/12 14:49:51"/>
+    </Item184>
+    <Item185>
+      <Name Value="splashabout"/>
+      <Version Major="1" Minor="4" Release="3" Build="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\splashabout\splashabout.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item185>
+    <Item186>
+      <Name Value="subcomponent"/>
+      <Version Major="1" Minor="2"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\ExamplePackage\subcomponent.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item186>
+    <Item187>
+      <Name Value="synfacilsyn"/>
+      <Version Major="1" Minor="2" Release="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\SynFacilSyn 1.21\synfacilsyn.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item187>
+    <Item188>
+      <Name Value="TDI"/>
+      <Version Minor="2"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\TDINoteBook\tdi.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item188>
+    <Item189>
+      <Name Value="tfpandroidbridge_pack"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\LAMW\android_bridges\tfpandroidbridge_pack.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item189>
+    <Item190>
+      <Name Value="Threading"/>
+      <Version Major="1" Build="8"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\wthread\threading.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item190>
+    <Item191>
+      <Name Value="tponguard"/>
+      <Version Major="1" Minor="20" Release="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\OnGuard\packages\tponguard.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item191>
+    <Item192>
+      <Name Value="tponguard_design"/>
+      <Version Major="1" Minor="20" Release="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\OnGuard\packages\tponguard_design.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item192>
+    <Item193>
+      <Name Value="twilio"/>
+      <Version Minor="4"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\TwilioLib\twilio.lpk"/>
+      <LastUsed Value="2026/03/18 18:05:44"/>
+    </Item193>
+    <Item194>
+      <Name Value="uEControls"/>
+      <Version Major="6" Minor="1" Release="1" Build="315"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\uecontrols-master\uecontrols.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item194>
+    <Item195>
+      <Name Value="uniqueinstance_package"/>
+      <Version Major="1" Minor="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\uniqueinstance\uniqueinstance_package.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item195>
+    <Item196>
+      <Name Value="utf8tools"/>
+      <Version Major="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\UTF8Tools\utf8tools.lpk"/>
+      <LastUsed Value="2026/03/18 18:05:58"/>
+    </Item196>
+    <Item197>
+      <Name Value="VampyreImagingPackage"/>
+      <Version Minor="80"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\VampyreImaging\Packages\VampyreImagingPackage.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item197>
+    <Item198>
+      <Name Value="VampyreImagingPackageExt"/>
+      <Version Minor="80"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\VampyreImaging\Packages\VampyreImagingPackageExt.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item198>
+    <Item199>
+      <Name Value="virtualdbgrid_package"/>
+      <Version Minor="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\virtualdbgrid\virtualdbgrid_package.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item199>
+    <Item200>
+      <Name Value="virtualdbtreeexlaz"/>
+      <Version Major="1" Minor="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\virtualdbtreeex\lazarus\virtualdbtreeexlaz.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item200>
+    <Item201>
+      <Name Value="virtualtreeview_package"/>
+      <Version Major="5" Minor="5" Release="3" Build="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\VirtualTreeViewV5\Source\virtualtreeview_package.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item201>
+    <Item202>
+      <Name Value="WebView4Delphi"/>
+      <Version Major="1" Release="1823" Build="32"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\WebView4Delphi\packages\webview4delphi.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item202>
+    <Item203>
+      <Name Value="WIAPascal_pkg"/>
+      <Version Major="1" Release="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\WIAPascal\WIAPascal_pkg.lpk"/>
+      <LastUsed Value="2026/05/12 15:05:40"/>
+    </Item203>
+    <Item204>
+      <Name Value="wst_core"/>
+      <Version Minor="8"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\wst\ide\lazarus\wst_core.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item204>
+    <Item205>
+      <Name Value="wst_design"/>
+      <Version Minor="8"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\wst\ide\lazarus\wst_design.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item205>
+    <Item206>
+      <Name Value="wst_fcltransport"/>
+      <Version Minor="8"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\wst\ide\lazarus\wst_fcltransport.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item206>
+    <Item207>
+      <Name Value="wst_indy"/>
+      <Version Minor="8"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\wst\ide\lazarus\wst_indy.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item207>
+    <Item208>
+      <Name Value="wst_synapse"/>
+      <Version Minor="8"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\wst\ide\lazarus\wst_synapse.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item208>
+    <Item209>
+      <Name Value="XMailerPkg"/>
+      <Version Major="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\xmailer-master\pkg\xmailerpkg.lpk"/>
+      <LastUsed Value="2026/05/12 15:05:43"/>
+    </Item209>
+    <Item210>
+      <Name Value="xmlstreaming"/>
+      <Version Major="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\XMLStreaming\xmlstreaming.lpk"/>
+      <LastUsed Value="2026/05/12 15:05:44"/>
+    </Item210>
+    <Item211>
+      <Name Value="zcomponent"/>
+      <Version Major="8"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\zeosdbo\packages\lazarus\zcomponent.lpk"/>
+      <LastUsed Value="2026/06/10 18:34:35"/>
+    </Item211>
+    <Item212>
+      <Name Value="zcomponentdesign"/>
+      <Version Major="8"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\zeosdbo\packages\lazarus\zcomponentdesign.lpk"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item212>
+    <Item213>
+      <Name Value="zcore"/>
+      <Version Major="8"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\zeosdbo\packages\lazarus\zcore.lpk"/>
+      <LastUsed Value="2026/06/10 18:34:35"/>
+    </Item213>
+    <Item214>
+      <Name Value="zdbc"/>
+      <Version Major="8"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\zeosdbo\packages\lazarus\zdbc.lpk"/>
+      <LastUsed Value="2026/06/10 18:34:35"/>
+    </Item214>
+    <Item215>
+      <Name Value="zfmsdk"/>
+      <Version Major="1"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\zfmsdk\zfmsdk.lpk"/>
+      <LastUsed Value="2026/05/12 14:24:34"/>
+    </Item215>
+    <Item216>
+      <Name Value="zparsesql"/>
+      <Version Major="8"/>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\zeosdbo\packages\lazarus\zparsesql.lpk"/>
+      <LastUsed Value="2026/06/10 18:34:35"/>
+    </Item216>
+    <Item217>
       <Name Value="zplain"/>
       <Version Major="8"/>
-      <Filename Value="C:\Users\User\AppData\Local\lazarus\onlinepackagemanager\packages\zeosdbo\packages\lazarus\zplain.lpk"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
-    </Item21>
+      <Filename Value="C:\Users\mmaurin\AppData\Local\lazarus\onlinepackagemanager\packages\zeosdbo\packages\lazarus\zplain.lpk"/>
+      <LastUsed Value="2026/06/10 18:34:35"/>
+    </Item217>
   </UserPkgLinks>
-  <GlobalPkgLinks Version="3" Count="64">
+  <GlobalPkgLinks Version="3" Count="59">
     <Item1>
       <Name Value="anchordocking"/>
       <Version Major="1"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
     </Item1>
     <Item2>
-      <Name Value="anchordockingdsgn"/>
-      <Version Major="1"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item2>
-    <Item3>
       <Name Value="buildintf"/>
       <Version Major="1"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
+      <LastUsed Value="2026/06/10 18:34:34"/>
+    </Item2>
+    <Item3>
+      <Name Value="cairocanvas_pkg"/>
+      <LastUsed Value="2026/06/10 18:34:35"/>
     </Item3>
     <Item4>
-      <Name Value="cairocanvas_pkg"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
+      <Name Value="cmdlinedebuggerbase"/>
+      <LastUsed Value="2026/06/10 18:34:35"/>
     </Item4>
     <Item5>
-      <Name Value="charactermappkg"/>
-      <Version Minor="1"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item5>
-    <Item6>
-      <Name Value="charactermap_ide_pkg"/>
-      <Version Minor="1"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item6>
-    <Item7>
-      <Name Value="chmhelppkg"/>
-      <Version Minor="2" Release="1"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item7>
-    <Item8>
-      <Name Value="cmdlinedebuggerbase"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
-    </Item8>
-    <Item9>
       <Name Value="codetools"/>
       <Version Major="1" Release="1"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
-    </Item9>
-    <Item10>
+      <LastUsed Value="2026/06/10 18:34:34"/>
+    </Item5>
+    <Item6>
       <Name Value="datetimectrls"/>
       <Version Major="1" Minor="5" Release="1"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item10>
-    <Item11>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item6>
+    <Item7>
       <Name Value="datetimectrlsdsgn"/>
       <Version Major="1" Minor="5" Release="1"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item11>
-    <Item12>
-      <Name Value="dbflaz"/>
-      <Version Minor="1" Release="1"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item12>
-    <Item13>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item7>
+    <Item8>
       <Name Value="debuggerintf"/>
       <Version Minor="1"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
-    </Item13>
-    <Item14>
-      <Name Value="dockedformeditor"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item14>
-    <Item15>
-      <Name Value="editormacroscript"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item15>
-    <Item16>
-      <Name Value="exampleprojects"/>
-      <Version Minor="8"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item16>
-    <Item17>
-      <Name Value="externhelp"/>
-      <Version Major="1" Minor="3"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item17>
-    <Item18>
+      <LastUsed Value="2026/06/10 18:34:35"/>
+    </Item8>
+    <Item9>
       <Name Value="fcl"/>
       <Version Major="1" Release="1"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
-    </Item18>
-    <Item19>
-      <Name Value="fpcunitide"/>
-      <Version Minor="1"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item19>
-    <Item20>
+      <LastUsed Value="2026/06/10 18:34:34"/>
+    </Item9>
+    <Item10>
       <Name Value="fpdebug"/>
       <Version Major="1"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
-    </Item20>
-    <Item21>
+      <LastUsed Value="2026/06/10 18:34:35"/>
+    </Item10>
+    <Item11>
       <Name Value="freetypelaz"/>
       <Version Major="1"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
-    </Item21>
-    <Item22>
+      <LastUsed Value="2026/06/10 18:34:34"/>
+    </Item11>
+    <Item12>
+      <Name Value="h2paswizard"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item12>
+    <Item13>
       <Name Value="ideconfig"/>
       <Version Major="1"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
-    </Item22>
-    <Item23>
+      <LastUsed Value="2026/06/10 18:34:35"/>
+    </Item13>
+    <Item14>
       <Name Value="idedebugger"/>
       <Version Release="1"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
-    </Item23>
-    <Item24>
+      <LastUsed Value="2026/06/10 18:34:35"/>
+    </Item14>
+    <Item15>
       <Name Value="ideintf"/>
       <Version Major="1"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
-    </Item24>
-    <Item25>
+      <LastUsed Value="2026/06/10 18:34:35"/>
+    </Item15>
+    <Item16>
       <Name Value="idepackager"/>
       <Version Major="1"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
-    </Item25>
-    <Item26>
+      <LastUsed Value="2026/06/10 18:34:35"/>
+    </Item16>
+    <Item17>
       <Name Value="ideproject"/>
       <Version Major="1"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
-    </Item26>
-    <Item27>
+      <LastUsed Value="2026/06/10 18:34:35"/>
+    </Item17>
+    <Item18>
       <Name Value="ideutilspkg"/>
       <Version Major="1"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
-    </Item27>
-    <Item28>
-      <Name Value="instantfpclaz"/>
-      <Version Major="1"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item28>
-    <Item29>
-      <Name Value="jcfbase"/>
-      <Version Major="1"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item29>
-    <Item30>
-      <Name Value="jcfidelazarus"/>
-      <Version Major="2"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item30>
-    <Item31>
+      <LastUsed Value="2026/06/10 18:34:35"/>
+    </Item18>
+    <Item19>
+      <Name Value="imagesforlazarus"/>
+      <Version Major="1" Release="1"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item19>
+    <Item20>
       <Name Value="laz.virtualtreeview_package"/>
       <Version Major="5" Minor="5" Release="3" Build="1"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
-    </Item31>
-    <Item32>
+      <LastUsed Value="2026/06/10 18:34:35"/>
+    </Item20>
+    <Item21>
+      <Name Value="lazactivex"/>
+      <Version Minor="1"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item21>
+    <Item22>
       <Name Value="lazcontroldsgn"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
-    </Item32>
-    <Item33>
+      <LastUsed Value="2026/06/10 18:34:35"/>
+    </Item22>
+    <Item23>
       <Name Value="lazcontrols"/>
       <Version Major="1" Release="1"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
-    </Item33>
-    <Item34>
+      <LastUsed Value="2026/06/10 18:34:35"/>
+    </Item23>
+    <Item24>
+      <Name Value="lazcustforms"/>
+      <Version Major="1"/>
+      <LastUsed Value="2026/05/11 17:51:15"/>
+    </Item24>
+    <Item25>
+      <Name Value="lazdaemon"/>
+      <Version Minor="9" Release="9"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item25>
+    <Item26>
+      <Name Value="lazdatadict"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item26>
+    <Item27>
+      <Name Value="lazdbexport"/>
+      <Version Major="1"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item27>
+    <Item28>
       <Name Value="lazdebuggerfp"/>
       <Version Major="1"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
-    </Item34>
-    <Item35>
+      <LastUsed Value="2026/06/10 18:34:35"/>
+    </Item28>
+    <Item29>
+      <Name Value="lazdebuggerfpgdbmi"/>
+      <Version Minor="1"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item29>
+    <Item30>
       <Name Value="lazdebuggerfplldb"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
-    </Item35>
-    <Item36>
+      <LastUsed Value="2026/06/10 18:34:35"/>
+    </Item30>
+    <Item31>
       <Name Value="lazdebuggergdbmi"/>
       <Version Minor="1"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
-    </Item36>
-    <Item37>
+      <LastUsed Value="2026/06/10 18:34:35"/>
+    </Item31>
+    <Item32>
       <Name Value="lazdebuggerintf"/>
       <Version Release="1"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
-    </Item37>
-    <Item38>
+      <LastUsed Value="2026/06/10 18:34:35"/>
+    </Item32>
+    <Item33>
       <Name Value="lazdebuggerlldb"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
-    </Item38>
-    <Item39>
+      <LastUsed Value="2026/06/10 18:34:35"/>
+    </Item33>
+    <Item34>
       <Name Value="lazedit"/>
       <Version Major="1"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
-    </Item39>
-    <Item40>
+      <LastUsed Value="2026/06/10 18:34:34"/>
+    </Item34>
+    <Item35>
+      <Name Value="lazmouseandkeyinput"/>
+      <Version Minor="9"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item35>
+    <Item36>
+      <Name Value="lazopenglcontext"/>
+      <Version Release="1"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item36>
+    <Item37>
+      <Name Value="lazplotfunction"/>
+      <Version Release="2"/>
+      <LastUsed Value="2026/06/10 18:20:35"/>
+    </Item37>
+    <Item38>
       <Name Value="lazprojectgroups"/>
       <Version Minor="7"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item40>
-    <Item41>
-      <Name Value="laztestinsight"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item41>
-    <Item42>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item38>
+    <Item39>
+      <Name Value="lazreport"/>
+      <Version Major="1"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item39>
+    <Item40>
       <Name Value="lazutils"/>
       <Version Major="1"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
+      <LastUsed Value="2026/06/10 18:34:34"/>
+    </Item40>
+    <Item41>
+      <Name Value="lcl"/>
+      <Version Major="4" Minor="4"/>
+      <LastUsed Value="2026/06/10 18:34:35"/>
+    </Item41>
+    <Item42>
+      <Name Value="lclbase"/>
+      <Version Major="4" Minor="4"/>
+      <LastUsed Value="2026/06/10 18:34:34"/>
     </Item42>
     <Item43>
-      <Name Value="lcl"/>
-      <Version Major="4" Minor="6"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
-    </Item43>
-    <Item44>
-      <Name Value="lclbase"/>
-      <Version Major="4" Minor="6"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
-    </Item44>
-    <Item45>
       <Name Value="lclextensions_package"/>
       <Version Minor="6" Release="1"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
-    </Item45>
-    <Item46>
-      <Name Value="leakview"/>
-      <Version Major="1"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item46>
-    <Item47>
-      <Name Value="lhelpcontrolpkg"/>
-      <Version Minor="2"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item47>
-    <Item48>
+      <LastUsed Value="2026/06/10 18:34:35"/>
+    </Item43>
+    <Item44>
+      <Name Value="lr_dialogdesign"/>
+      <Version Minor="3" Release="1"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item44>
+    <Item45>
       <Name Value="memdslaz"/>
       <Version Major="1" Minor="2" Release="1"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item48>
-    <Item49>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item45>
+    <Item46>
       <Name Value="onlinepackagemanager"/>
       <Version Major="1" Release="1" Build="2"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item49>
-    <Item50>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item46>
+    <Item47>
+      <Name Value="pas2jscomponents"/>
+      <Version Minor="1"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item47>
+    <Item48>
       <Name Value="pas2jsdsgn"/>
       <Version Major="1" Release="2"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item50>
-    <Item51>
-      <Name Value="pascalscript"/>
-      <Version Build="1"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item51>
-    <Item52>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item48>
+    <Item49>
       <Name Value="printer4lazarus"/>
       <Version Minor="5"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
-    </Item52>
-    <Item53>
-      <Name Value="printers4lazide"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item53>
-    <Item54>
-      <Name Value="projtemplates"/>
-      <Version Major="1"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item54>
-    <Item55>
+      <LastUsed Value="2026/06/10 18:34:35"/>
+    </Item49>
+    <Item50>
       <Name Value="runtimetypeinfocontrols"/>
       <Version Minor="1"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item55>
-    <Item56>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item50>
+    <Item51>
       <Name Value="sdflaz"/>
       <Version Minor="1" Release="1"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item56>
-    <Item57>
+      <LastUsed Value="2026/05/12 14:49:51"/>
+    </Item51>
+    <Item52>
       <Name Value="simplewebservergui"/>
       <Version Major="1"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item57>
-    <Item58>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item52>
+    <Item53>
       <Name Value="sqldblaz"/>
       <Version Major="1" Release="2"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item58>
-    <Item59>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item53>
+    <Item54>
       <Name Value="synedit"/>
       <Version Major="1"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
-    </Item59>
-    <Item60>
+      <LastUsed Value="2026/06/10 18:34:35"/>
+    </Item54>
+    <Item55>
       <Name Value="syneditdsgn"/>
       <Version Major="1"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item60>
-    <Item61>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item55>
+    <Item56>
+      <Name Value="synuni"/>
+      <Version Major="1"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item56>
+    <Item57>
       <Name Value="tachartlazaruspkg"/>
       <Version Major="1"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item61>
-    <Item62>
-      <Name Value="todolistlaz"/>
-      <Version Major="1" Release="3"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item62>
-    <Item63>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item57>
+    <Item58>
       <Name Value="turbopoweripro"/>
       <Version Major="1"/>
-      <LastUsed Value="2026/06/07 11:47:31"/>
-    </Item63>
-    <Item64>
-      <Name Value="turbopoweriprodsgn"/>
-      <LastUsed Value="2026/06/07 06:38:13"/>
-    </Item64>
+      <LastUsed Value="2026/06/10 18:34:35"/>
+    </Item58>
+    <Item59>
+      <Name Value="weblaz"/>
+      <Version Major="1" Release="1"/>
+      <LastUsed Value="2026/06/10 18:20:36"/>
+    </Item59>
   </GlobalPkgLinks>
 </CONFIG>

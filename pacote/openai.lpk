@@ -25,9 +25,6 @@
         <PackageName Value="openai_graph"/>
       </Item>
       <Item>
-        <PackageName Value="openai_python"/>
-      </Item>
-      <Item>
         <PackageName Value="openai_image"/>
       </Item>
       <Item>

@@ -25,7 +25,7 @@
     </RunParams>
     <RequiredPackages>
       <Item>
-        <PackageName Value="openai_python"/>
+        <PackageName Value="openai_core"/>
       </Item>
       <Item>
         <PackageName Value="LCL"/>
@@ -56,5 +56,10 @@
       <OtherUnitFiles Value="..\..\..;..\..\..\IA;..\..\..\IA Agent;..\..\..\IA Voice;..\..\..\IA Filtros Sonoros;..\..\..\IA Image;..\..\..\IA Schedulle;..\..\..\IA Math;..\..\..\IA Input;..\..\..\IA Output;..\..\..\IA Graph;..\..\..\AI Graphic;..\..\..\AI Vision;..\..\..\packages"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
+    <Linking>
+      <Debugging>
+        <DebugInfoType Value="dsDwarf3"/>
+      </Debugging>
+    </Linking>
   </CompilerOptions>
 </CONFIG>

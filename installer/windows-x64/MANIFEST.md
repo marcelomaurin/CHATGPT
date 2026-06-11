@@ -10,7 +10,6 @@ Status: supported
 ## Lazarus packages
 
 - openai_core.lpk
-- openai_python.lpk
 - openai_vision.lpk
 - openai_ml.lpk
 

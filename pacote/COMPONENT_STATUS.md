@@ -63,11 +63,11 @@ Use esta classificação para documentação, README de abas, samples e planejam
 
 | Componente | Unit | Pacote | Status | Observação |
 |---|---|---|---|---|
-| `TPythonConnector` | `pythonconnector.pas` | `openai_python` | Experimental/Beta | Preferir modo processo; DLL Python é sensível |
-| `TYoloDetect` | `yolodetect.pas` | `openai_python` | Experimental | Depende de Python/modelos externos |
-| `TFaceDetection` | `facedetection.pas` | `openai_python` | Experimental | Depende de backend externo |
-| `TCNNClassifier` | `cnnclassifier.pas` | `openai_python` | Experimental | Depende de Python/modelo externo |
-| `TLSTMPredictor` | `lstmpredictor.pas` | `openai_python` | Experimental | Depende de Python/modelo externo |
+| `TPythonConnector` | `pythonconnector.pas` | `openai_core` | Experimental/Beta | Preferir modo processo; DLL Python é sensível |
+| `TYoloDetect` | `yolodetect.pas` | `openai_core` | Experimental | Depende de Python/modelos externos |
+| `TFaceDetection` | `facedetection.pas` | `openai_core` | Experimental | Depende de backend externo |
+| `TCNNClassifier` | `cnnclassifier.pas` | `openai_core` | Experimental | Depende de Python/modelo externo |
+| `TLSTMPredictor` | `lstmpredictor.pas` | `openai_core` | Experimental | Depende de Python/modelo externo |
 
 ---
 

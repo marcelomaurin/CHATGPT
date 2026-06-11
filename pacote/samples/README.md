@@ -34,7 +34,7 @@ arquivos de entrada de teste
 |---|---|---|---|---|---|
 | `AI Vision/opencv_filter_demo` | GUI | `openai_vision.lpk` | `TAIOpenCV`, `aiopencvruntime`, `aiplatform` | Python Process + Native DLL com fallback | Funcional/Beta |
 | `AI Vision/opencv_image_real_demo` | GUI | `openai_vision.lpk` | `TAIOpenCV`, `TAIFrameProcessor`, `aiopencvruntime`, `aiplatform` | Native DLL com fallback Python e modo simulação | Funcional/Beta |
-| `IA Python/cnn_classifier_complete_demo` | GUI | `openai_python.lpk` | `TCNNClassifier`, `TPythonConnector`, `pythonconnector` | Python DLL/SO (TensorFlow) | Funcional |
+| `IA Python/cnn_classifier_complete_demo` | GUI | `openai_core.lpk` | `TCNNClassifier`, `TPythonConnector`, `pythonconnector` | Python DLL/SO (TensorFlow) | Funcional |
 
 ---
 

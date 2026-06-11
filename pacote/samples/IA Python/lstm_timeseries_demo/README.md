@@ -1,6 +1,6 @@
 # Lstm Timeseries Demo (lstmpredictor)
 
-This sample project demonstrates the usage of component `lstmpredictor` from the `openai_python` package.
+This sample project demonstrates the usage of component `lstmpredictor` from the `openai_core` package.
 
 ## Features Illustrated
 - Exercises at least 3 component properties.
@@ -9,6 +9,6 @@ This sample project demonstrates the usage of component `lstmpredictor` from the
 
 ## How to Build & Run
 1. Open this project folder in Lazarus.
-2. Verify package `openai_python` is available or referenced.
+2. Verify package `openai_core` is available or referenced.
 3. Build the project (`Ctrl+F9` or run `lazbuild.exe`).
 4. Execute and click "Execute Test".
