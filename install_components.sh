@@ -91,7 +91,6 @@ install_recommended() {
   install_package "pacote/packages/openai_input.lpk"
   install_package "pacote/packages/openai_image.lpk"
   install_package "pacote/packages/openai_simulation.lpk"
-  install_package "pacote/packages/openai_full.lpk"
 }
 
 install_all() {
@@ -107,7 +106,6 @@ install_all() {
   install_package "pacote/packages/openai_graphic.lpk"
   install_package "pacote/packages/openai_agent.lpk"
   install_package "pacote/packages/openai_simulation.lpk"
-  install_package "pacote/packages/openai_full.lpk"
 }
 
 case "$MODE" in
