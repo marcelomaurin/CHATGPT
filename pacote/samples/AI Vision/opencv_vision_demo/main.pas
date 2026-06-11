@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  aiopencv, aicameracapture, aiframeprocessor, aifacetracker, aimotiontracker, aibase,
+  aiopencv, aicapturesource, aiframeprocessor, aifacetracker, aimotiontracker, aibase,
   aiopencvruntime, aiplatform;
 
 type
@@ -54,7 +54,7 @@ type
     procedure ComponentLog(Sender: TObject; ALevel: TAILogLevel; const AMsg: string);
   private
     FOpenCV: TAIOpenCV;
-    FCamera: TAICameraCapture;
+    FCamera: TAICaptureSource;
     FProcessor: TAIFrameProcessor;
     FFaceTracker: TAIFaceTracker;
     FMotionTracker: TAIMotionTracker;
@@ -79,7 +79,7 @@ procedure TfrmOpenCVVisionDemo.FormCreate(Sender: TObject);
 begin
   // 1. Instantiate the new AI Vision components
   FOpenCV := TAIOpenCV.Create(Self);
-  FCamera := TAICameraCapture.Create(Self);
+  FCamera := TAICaptureSource.Create(Self);
   FProcessor := TAIFrameProcessor.Create(Self);
   FFaceTracker := TAIFaceTracker.Create(Self);
   FMotionTracker := TAIMotionTracker.Create(Self);
