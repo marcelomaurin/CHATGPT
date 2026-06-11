@@ -17,13 +17,9 @@ Maps and captures real-world data (keyboard, mouse, cameras, MQTT brokers, socke
 | **TAISocketTCP** | TCP Client/Server sockets. | `Host, Port, Mode, Active` | `Connect, Disconnect, SendText, ReceiveText` | Establish stable low-level network communication streams. |
 | **TAISocketUDP** | UDP connection socket. | `Host, Port, Active` | `SendText, ReceiveText` | Transmit fast, asynchronous sensor telemetry logs. |
 | **TAISerialModem** | Serial Port and GSM SMS Gateway. | `DeviceName, BaudRate, Active` | `OpenPort, SendATCommand, SendSMS` | Send physical cellular SMS alerts and interface legacy hardware. |
-| **TAIPOSPrinter** | Esc/POS thermal receipt printer. | `DevicePath, Active` | `PrintText, PrintBarcode` | Print automated paper logs, barcodes and receipts. |
 | **TAICFTVIP** | CFTV MJPEG IP camera connector. | `IPAddress, Port, Active` | `CaptureStreamFrame` | Acquire video streams from standard security network IP cameras. |
-| **TAIModbusClient** | Industrial Modbus RTU/TCP Client. | `Host, Port, Mode, Active` | `ReadHoldingRegisters, WriteRegister` | Query physical registers from temperature and automated sensors. |
-| **TAIMQTTClient** | IoT MQTT network client. | `Host, Port, Active` | `ConnectBroker, Publish, Subscribe` | Publish JSON sensor data asynchronously to public/private brokers. |
 | **TAIEmailClient** | Native SMTP/POP3 email client. | `HostSMTP, PortSMTP, Username, Password` | `SendEmail, FetchEmails` | Retrieve inbox messages and dispatch email status notifications. |
 | **TAIMessenger** | WhatsApp and SMS REST gateway. | `SMSApiURL, WhatsAppApiURL, WhatsAppToken` | `SendSMS, SendWhatsApp` | Dispatch instant alerts directly to mobile devices. |
-| **TAIIndustrialBridge** | CLP Profinet/Profibus bridge. | `IPAddress, Rack, Slot, Active` | `ConnectBridge, ReadBytes, WriteBytes` | Interface and trigger controls on physical PLC industrial automation links. |
 | **TAIChromiumBrowser** | Embedded Web Browser panel. | `URL, ShowAddressBar` | `Navigate, GoBack, Reload` | Render web UIs and extract raw HTML content for web scraping. |
 | **TAIOSInputCapture** | Global OS desktop event logger. | `TrackMouse, TrackKeyboard, Active` | `CaptureScreen` | Capture screen screenshots and capture global keyboard/mouse deltas. |
 

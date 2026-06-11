@@ -390,13 +390,13 @@ tab_data = {
                 {'name': 'TAISocketTCP', 'desc': 'Conector de Sockets TCP Cliente/Servidor.', 'props': 'Host, Port, Mode, Active', 'methods': 'Connect, Disconnect, SendText, ReceiveText', 'role': 'Estabelecer links e canais de streaming de texto de baixo nível.'},
                 {'name': 'TAISocketUDP', 'desc': 'Conector de Sockets UDP rápido.', 'props': 'Host, Port, Active', 'methods': 'SendText, ReceiveText', 'role': 'Transmitir telemetria de sensores de forma rápida e assíncrona.'},
                 {'name': 'TAISerialModem', 'desc': 'Porta Serial e Gateway de SMS GSM.', 'props': 'DeviceName, BaudRate, Active', 'methods': 'OpenPort, SendATCommand, SendSMS', 'role': 'Enviar mensagens SMS físicas via modems analógicos e microcontroladores.'},
-                {'name': 'TAIPOSPrinter', 'desc': 'Impressora Esc/POS térmica.', 'props': 'DevicePath, Active', 'methods': 'PrintText, PrintBarcode', 'role': 'Emitir relatórios impressos e comprovantes em bobina de papel.'},
+                
                 {'name': 'TAICFTVIP', 'desc': 'Câmera IP MJPEG.', 'props': 'IPAddress, Port, Active', 'methods': 'CaptureStreamFrame', 'role': 'Adquirir vídeo de câmeras de segurança CFTV distribuídas na rede.'},
-                {'name': 'TAIModbusClient', 'desc': 'Cliente Modbus industrial (TCP/RTU).', 'props': 'Host, Port, Mode, Active', 'methods': 'ReadHoldingRegisters, WriteRegister', 'role': 'Leitura de registradores sensores de temperatura, pressão e estado físico.'},
-                {'name': 'TAIMQTTClient', 'desc': 'Cliente de Rede IoT MQTT.', 'props': 'Host, Port, Active', 'methods': 'ConnectBroker, Publish, Subscribe', 'role': 'Sincronizar telemetria IoT com brokers (ex: HiveMQ) sem travar a UI.'},
+                
+                
                 {'name': 'TAIEmailClient', 'desc': 'Cliente SMTP/POP3 nativo.', 'props': 'HostSMTP, PortSMTP, Username, Password', 'methods': 'SendEmail, FetchEmails', 'role': 'Ler caixas de entrada de e-mails em sockets e enviar notificações.'},
                 {'name': 'TAIMessenger', 'desc': 'Gateway WhatsApp e SMS via REST.', 'props': 'SMSApiURL, WhatsAppApiURL, WhatsAppToken', 'methods': 'SendSMS, SendWhatsApp', 'role': 'Disparar alertas em tempo real direto nos celulares dos operadores.'},
-                {'name': 'TAIIndustrialBridge', 'desc': 'Ponte dinâmica Profinet/Profibus CLP.', 'props': 'IPAddress, Rack, Slot, Active', 'methods': 'ConnectBridge, ReadBytes, WriteBytes', 'role': 'Controlar e ler estado físico de pontes automatizadas industriais (S7).'},
+                
                 {'name': 'TAIChromiumBrowser', 'desc': 'Navegador Web incorporado.', 'props': 'URL, ShowAddressBar', 'methods': 'Navigate, GoBack, Reload', 'role': 'Renderizar interfaces web e extrair dados HTML brutos de páginas.'},
                 {'name': 'TAIOSInputCapture', 'desc': 'Capturador de eventos de sistema do SO.', 'props': 'TrackMouse, TrackKeyboard, Active', 'methods': 'CaptureScreen', 'role': 'Screenshot do desktop e interceptar teclado/mouse para telemetria de atividade.'}
             ]
@@ -412,13 +412,13 @@ tab_data = {
                 {'name': 'TAISocketTCP', 'desc': 'TCP Client/Server sockets.', 'props': 'Host, Port, Mode, Active', 'methods': 'Connect, Disconnect, SendText, ReceiveText', 'role': 'Establish stable low-level network communication streams.'},
                 {'name': 'TAISocketUDP', 'desc': 'UDP connection socket.', 'props': 'Host, Port, Active', 'methods': 'SendText, ReceiveText', 'role': 'Transmit fast, asynchronous sensor telemetry logs.'},
                 {'name': 'TAISerialModem', 'desc': 'Serial Port and GSM SMS Gateway.', 'props': 'DeviceName, BaudRate, Active', 'methods': 'OpenPort, SendATCommand, SendSMS', 'role': 'Send physical cellular SMS alerts and interface legacy hardware.'},
-                {'name': 'TAIPOSPrinter', 'desc': 'Esc/POS thermal receipt printer.', 'props': 'DevicePath, Active', 'methods': 'PrintText, PrintBarcode', 'role': 'Print automated paper logs, barcodes and receipts.'},
+                
                 {'name': 'TAICFTVIP', 'desc': 'CFTV MJPEG IP camera connector.', 'props': 'IPAddress, Port, Active', 'methods': 'CaptureStreamFrame', 'role': 'Acquire video streams from standard security network IP cameras.'},
-                {'name': 'TAIModbusClient', 'desc': 'Industrial Modbus RTU/TCP Client.', 'props': 'Host, Port, Mode, Active', 'methods': 'ReadHoldingRegisters, WriteRegister', 'role': 'Query physical registers from temperature and automated sensors.'},
-                {'name': 'TAIMQTTClient', 'desc': 'IoT MQTT network client.', 'props': 'Host, Port, Active', 'methods': 'ConnectBroker, Publish, Subscribe', 'role': 'Publish JSON sensor data asynchronously to public/private brokers.'},
+                
+                
                 {'name': 'TAIEmailClient', 'desc': 'Native SMTP/POP3 email client.', 'props': 'HostSMTP, PortSMTP, Username, Password', 'methods': 'SendEmail, FetchEmails', 'role': 'Retrieve inbox messages and dispatch email status notifications.'},
                 {'name': 'TAIMessenger', 'desc': 'WhatsApp and SMS REST gateway.', 'props': 'SMSApiURL, WhatsAppApiURL, WhatsAppToken', 'methods': 'SendSMS, SendWhatsApp', 'role': 'Dispatch instant alerts directly to mobile devices.'},
-                {'name': 'TAIIndustrialBridge', 'desc': 'CLP Profinet/Profibus bridge.', 'props': 'IPAddress, Rack, Slot, Active', 'methods': 'ConnectBridge, ReadBytes, WriteBytes', 'role': 'Interface and trigger controls on physical PLC industrial automation links.'},
+                
                 {'name': 'TAIChromiumBrowser', 'desc': 'Embedded Web Browser panel.', 'props': 'URL, ShowAddressBar', 'methods': 'Navigate, GoBack, Reload', 'role': 'Render web UIs and extract raw HTML content for web scraping.'},
                 {'name': 'TAIOSInputCapture', 'desc': 'Global OS desktop event logger.', 'props': 'TrackMouse, TrackKeyboard, Active', 'methods': 'CaptureScreen', 'role': 'Capture screen screenshots and capture global keyboard/mouse deltas.'}
             ]
@@ -434,13 +434,13 @@ tab_data = {
                 {'name': 'TAISocketTCP', 'desc': 'Conector de Sockets TCP Cliente/Servidor.', 'props': 'Host, Port, Mode, Active', 'methods': 'Connect, Disconnect, SendText, ReceiveText', 'role': 'Establecer conexiones estables de flujo de red a bajo nivel.'},
                 {'name': 'TAISocketUDP', 'desc': 'Conector rápido de Sockets UDP.', 'props': 'Host, Port, Active', 'methods': 'SendText, ReceiveText', 'role': 'Transmitir telemetría de sensores de forma rápida y asíncrona.'},
                 {'name': 'TAISerialModem', 'desc': 'Puerto Serial y Gateway de SMS GSM.', 'props': 'DeviceName, BaudRate, Active', 'methods': 'OpenPort, SendATCommand, SendSMS', 'role': 'Enviar mensajes SMS físicos a través de módems celulares y microcontroladores.'},
-                {'name': 'TAIPOSPrinter', 'desc': 'Impresora térmica de recibos Esc/POS.', 'props': 'DevicePath, Active', 'methods': 'PrintText, PrintBarcode', 'role': 'Imprimir registros de papel automáticos, códigos de barras y recibos.'},
+                
                 {'name': 'TAICFTVIP', 'desc': 'Conector de cámara IP MJPEG para CFTV.', 'props': 'IPAddress, Port, Active', 'methods': 'CaptureStreamFrame', 'role': 'Adquirir vídeo de cámaras de seguridad CFTV distribuidas en la red.'},
-                {'name': 'TAIModbusClient', 'desc': 'Cliente Modbus industrial (TCP/RTU).', 'props': 'Host, Port, Mode, Active', 'methods': 'ReadHoldingRegisters, WriteRegister', 'role': 'Consultar registros físicos de sensores de temperatura y presión.'},
-                {'name': 'TAIMQTTClient', 'desc': 'Cliente de red IoT MQTT.', 'props': 'Host, Port, Active', 'methods': 'ConnectBroker, Publish, Subscribe', 'role': 'Sincronizar telemetría IoT con brokers (ej. HiveMQ) de forma asíncrona.'},
+                
+                
                 {'name': 'TAIEmailClient', 'desc': 'Cliente SMTP/POP3 nativo.', 'props': 'HostSMTP, PortSMTP, Username, Password', 'methods': 'SendEmail, FetchEmails', 'role': 'Recuperar mensajes de bandeja de entrada e iniciar notificaciones de estado.'},
                 {'name': 'TAIMessenger', 'desc': 'Gateway WhatsApp y SMS via REST.', 'props': 'SMSApiURL, WhatsAppApiURL, WhatsAppToken', 'methods': 'SendSMS, SendWhatsApp', 'role': 'Despejar alertas instantáneas directamente a los teléfonos móviles de los operadores.'},
-                {'name': 'TAIIndustrialBridge', 'desc': 'Puente Profinet/Profibus de PLC.', 'props': 'IPAddress, Rack, Slot, Active', 'methods': 'ConnectBridge, ReadBytes, WriteBytes', 'role': 'Interconectar y leer estados físicos de autómatas industriales.'},
+                
                 {'name': 'TAIChromiumBrowser', 'desc': 'Panel de Navegador Web incorporado.', 'props': 'URL, ShowAddressBar', 'methods': 'Navigate, GoBack, Reload', 'role': 'Renderizar interfaces web y extraer código HTML en bruto.'},
                 {'name': 'TAIOSInputCapture', 'desc': 'Capturador de eventos de sistema del SO.', 'props': 'TrackMouse, TrackKeyboard, Active', 'methods': 'CaptureScreen', 'role': 'Tomar screenshots del escritorio y capturar pulsaciones de teclas globales.'}
             ]
@@ -456,13 +456,13 @@ tab_data = {
                 {'name': 'TAISocketTCP', 'desc': 'Connecteur Sockets TCP Client/Serveur.', 'props': 'Host, Port, Mode, Active', 'methods': 'Connect, Disconnect, SendText, ReceiveText', 'role': 'Établir des flux stables de communication réseau de bas niveau.'},
                 {'name': 'TAISocketUDP', 'desc': 'Connecteur de Sockets UDP rapide.', 'props': 'Host, Port, Active', 'methods': 'SendText, ReceiveText', 'role': 'Transmettre la télémétrie asynchrone des capteurs.'},
                 {'name': 'TAISerialModem', 'desc': 'Port Série et Passerelle SMS GSM.', 'props': 'DeviceName, BaudRate, Active', 'methods': 'OpenPort, SendATCommand, SendSMS', 'role': 'Envoyer des SMS et interfacer le matériel hérité via modems.'},
-                {'name': 'TAIPOSPrinter', 'desc': 'Imprimante de reçus thermique Esc/POS.', 'props': 'DevicePath, Active', 'methods': 'PrintText, PrintBarcode', 'role': 'Imprimer des reçus, des codes-barres et des tickets.'},
+                
                 {'name': 'TAICFTVIP', 'desc': 'Connecteur caméra IP MJPEG pour CFTV.', 'props': 'IPAddress, Port, Active', 'methods': 'CaptureStreamFrame', 'role': 'Acquérir des flux vidéo de caméras IP de sécurité sur le réseau.'},
-                {'name': 'TAIModbusClient', 'desc': 'Client Modbus industriel (TCP/RTU).', 'props': 'Host, Port, Mode, Active', 'methods': 'ReadHoldingRegisters, WriteRegister', 'role': 'Interroger des registres physiques de capteurs thermiques et pressions.'},
-                {'name': 'TAIMQTTClient', 'desc': 'Client réseau IoT MQTT.', 'props': 'Host, Port, Active', 'methods': 'ConnectBroker, Publish, Subscribe', 'role': 'Synchroniser la télémétrie IoT avec des serveurs MQTT de façon asynchrone.'},
+                
+                
                 {'name': 'TAIEmailClient', 'desc': 'Client SMTP/POP3 natif.', 'props': 'HostSMTP, PortSMTP, Username, Password', 'methods': 'SendEmail, FetchEmails', 'role': 'Récupérer des e-mails et envoyer des rapports d\'état.'},
                 {'name': 'TAIMessenger', 'desc': 'Passerelle WhatsApp et SMS via REST.', 'props': 'SMSApiURL, WhatsAppApiURL, WhatsAppToken', 'methods': 'SendSMS, SendWhatsApp', 'role': 'Envoyer des alertes instantanées sur téléphones mobiles.'},
-                {'name': 'TAIIndustrialBridge', 'desc': 'Pont Profinet/Profibus automate PLC.', 'props': 'IPAddress, Rack, Slot, Active', 'methods': 'ConnectBridge, ReadBytes, WriteBytes', 'role': 'Interfacer et déclencher des contrôles sur automates industriels.'},
+                
                 {'name': 'TAIChromiumBrowser', 'desc': 'Panneau de Navigateur Web intégré.', 'props': 'URL, ShowAddressBar', 'methods': 'Navigate, GoBack, Reload', 'role': 'Afficher des UIs web et extraire du contenu HTML brut.'},
                 {'name': 'TAIOSInputCapture', 'desc': 'Enregistreur d\'événements globaux du système.', 'props': 'TrackMouse, TrackKeyboard, Active', 'methods': 'CaptureScreen', 'role': 'Capturer l\'écran entier et intercepter des touches claviers.'}
             ]
@@ -478,13 +478,13 @@ tab_data = {
                 {'name': 'TAISocketTCP', 'desc': 'Connettore Sockets TCP Client/Server.', 'props': 'Host, Port, Mode, Active', 'methods': 'Connect, Disconnect, SendText, ReceiveText', 'role': 'Stabilire flussi di rete stabili a basso livello.'},
                 {'name': 'TAISocketUDP', 'desc': 'Connettore di Sockets UDP veloce.', 'props': 'Host, Port, Active', 'methods': 'SendText, ReceiveText', 'role': 'Trasmettere telemetria asincrona e rapida da sensori.'},
                 {'name': 'TAISerialModem', 'desc': 'Porta Seriale e Gateway SMS GSM.', 'props': 'DeviceName, BaudRate, Active', 'methods': 'OpenPort, SendATCommand, SendSMS', 'role': 'Inviare messaggi SMS ed effettuare connessioni a microcontrollori.'},
-                {'name': 'TAIPOSPrinter', 'desc': 'Stampante termica per ricevute Esc/POS.', 'props': 'DevicePath, Active', 'methods': 'PrintText, PrintBarcode', 'role': 'Stampare report cartacei, codici a barre e ricevute.'},
+                
                 {'name': 'TAICFTVIP', 'desc': 'Connettore telecamera IP MJPEG per CFTV.', 'props': 'IPAddress, Port, Active', 'methods': 'CaptureStreamFrame', 'role': 'Acquisire video in rete da telecamere di sicurezza IP.'},
-                {'name': 'TAIModbusClient', 'desc': 'Client Modbus industriale (TCP/RTU).', 'props': 'Host, Port, Mode, Active', 'methods': 'ReadHoldingRegisters, WriteRegister', 'role': 'Interrogare registri di sensori fisici di temperatura e pressione.'},
-                {'name': 'TAIMQTTClient', 'desc': 'Client di rete IoT MQTT.', 'props': 'Host, Port, Active', 'methods': 'ConnectBroker, Publish, Subscribe', 'role': 'Sincronizzare dati sensoriali con server MQTT in background.'},
+                
+                
                 {'name': 'TAIEmailClient', 'desc': 'Client SMTP/POP3 nativo.', 'props': 'HostSMTP, PortSMTP, Username, Password', 'methods': 'SendEmail, FetchEmails', 'role': 'Recuperare messaggi di posta in arrivo e inviare notifiche.'},
                 {'name': 'TAIMessenger', 'desc': 'Gateway WhatsApp e SMS via REST.', 'props': 'SMSApiURL, WhatsAppApiURL, WhatsAppToken', 'methods': 'SendSMS, SendWhatsApp', 'role': 'Inviare notifiche push istantanee su dispositivi mobili.'},
-                {'name': 'TAIIndustrialBridge', 'desc': 'Ponte Profinet/Profibus per PLC.', 'props': 'IPAddress, Rack, Slot, Active', 'methods': 'ConnectBridge, ReadBytes, WriteBytes', 'role': 'Controllare e leggere stati da controllori PLC industriali.'},
+                
                 {'name': 'TAIChromiumBrowser', 'desc': 'Pannello Browser Web integrato.', 'props': 'URL, ShowAddressBar', 'methods': 'Navigate, GoBack, Reload', 'role': 'Visualizzare pagine web ed estrarre il codice sorgente HTML.'},
                 {'name': 'TAIOSInputCapture', 'desc': 'Acquisitore di eventi globale del sistema operativo.', 'props': 'TrackMouse, TrackKeyboard, Active', 'methods': 'CaptureScreen', 'role': 'Catturare screenshot dello schermo e loggare tasti globali.'}
             ]
@@ -500,15 +500,79 @@ tab_data = {
                 {'name': 'TAISocketTCP', 'desc': 'مقبس اتصالات TCP للعميل والخادم.', 'props': 'Host, Port, Mode, Active', 'methods': 'Connect, Disconnect, SendText, ReceiveText', 'role': 'إنشاء تدفقات اتصالات مستقرة منخفضة المستوى للشبكة.'},
                 {'name': 'TAISocketUDP', 'desc': 'مقبس اتصال UDP سريع.', 'props': 'Host, Port, Active', 'methods': 'SendText, ReceiveText', 'role': 'إرسال ونقل بيانات حساسات القياس بسرعة كبيرة وبشكل غير متزامن.'},
                 {'name': 'TAISerialModem', 'desc': 'منفذ تسلسلي وجسر إرسال SMS الخلوي.', 'props': 'DeviceName, BaudRate, Active', 'methods': 'OpenPort, SendATCommand, SendSMS', 'role': 'إرسال تنبيهات SMS مادية والتفاعل مع الأجهزة والشرائح الدقيقة.'},
-                {'name': 'TAIPOSPrinter', 'desc': 'طابعة إيصالات حرارية متوافقة مع Esc/POS.', 'props': 'DevicePath, Active', 'methods': 'PrintText, PrintBarcode', 'role': 'طباعة سجلات الورق التلقائية والرموز الشريطية والإيصالات.'},
+                
                 {'name': 'TAICFTVIP', 'desc': 'موصل كاميرات IP للمراقبة بشبكة MJPEG.', 'props': 'IPAddress, Port, Active', 'methods': 'CaptureStreamFrame', 'role': 'الحصول على تدفقات الفيديو من كاميرات الأمان الشبكية القياسية.'},
-                {'name': 'TAIModbusClient', 'desc': 'عميل Modbus الصناعي (TCP/RTU).', 'props': 'Host, Port, Mode, Active', 'methods': 'ReadHoldingRegisters, WriteRegister', 'role': 'الاستعلام عن البيانات الحقيقية من حساسات درجات الحرارة والضغط الصناعية.'},
-                {'name': 'TAIMQTTClient', 'desc': 'عميل شبكة اتصالات إنترنت الأشياء MQTT.', 'props': 'Host, Port, Active', 'methods': 'ConnectBroker, Publish, Subscribe', 'role': 'نشر بيانات الحساسات بصيغة JSON بشكل غير متزامن لخواديم MQTT العامة.'},
+                
+                
                 {'name': 'TAIEmailClient', 'desc': 'عميل بريد إلكتروني SMTP/POP3 أصلي.', 'props': 'HostSMTP, PortSMTP, Username, Password', 'methods': 'SendEmail, FetchEmails', 'role': 'استرداد وقراءة الرسائل الواردة وإرسال إشعارات البريد الإلكتروني.'},
                 {'name': 'TAIMessenger', 'desc': 'بوابة إرسال واتساب وSMS عبر REST.', 'props': 'SMSApiURL, WhatsAppApiURL, WhatsAppToken', 'methods': 'SendSMS, SendWhatsApp', 'role': 'إرسال رسائل وتنبيهات فورية مباشرة لهواتف المشغلين والمهندسين.'},
-                {'name': 'TAIIndustrialBridge', 'desc': 'جسر اتصالات Profinet/Profibus للمتحكمات CLPs.', 'props': 'IPAddress, Rack, Slot, Active', 'methods': 'ConnectBridge, ReadBytes, WriteBytes', 'role': 'التفاعل وإصدار أوامر التحكم على روابط التشغيل الآلي للمصانع.'},
+                
                 {'name': 'TAIChromiumBrowser', 'desc': 'لوحة متصفح ويب مدمجة.', 'props': 'URL, ShowAddressBar', 'methods': 'Navigate, GoBack, Reload', 'role': 'عرض واجهات المستخدم على الويب واستخلاص نصوص HTML البرمجية.'},
                 {'name': 'TAIOSInputCapture', 'desc': 'ملتقط أحداث سطح مكتب نظام التشغيل العام.', 'props': 'TrackMouse, TrackKeyboard, Active', 'methods': 'CaptureScreen', 'role': 'التقاط صور كاملة لسطح المكتب واعتراض مدخلات لوحة المفاتيح.'}
+            ]
+        }
+    },
+
+    'IA Industrial': {
+        'icon': '🏭',
+        'pt': {
+            'desc': 'Modbus, MQTT e Componentes de Automação Industrial.',
+            'info': 'Fornece conexões industriais com CLP (Profinet/Profibus), brokers IoT MQTT, comunicação Modbus e controle de impressoras térmicas Esc/POS.',
+            'comps': [
+                {'name': 'TAIPOSPrinter', 'desc': 'Impressora Esc/POS térmica.', 'props': 'DevicePath, Active', 'methods': 'PrintText, PrintBarcode', 'role': 'Emitir relatórios impressos e comprovantes em bobina de papel.'},
+                {'name': 'TAIModbusClient', 'desc': 'Cliente Modbus industrial (TCP/RTU).', 'props': 'Host, Port, Mode, Active', 'methods': 'ReadHoldingRegisters, WriteRegister', 'role': 'Leitura de registradores sensores de temperatura, pressão e estado físico.'},
+                {'name': 'TAIMQTTClient', 'desc': 'Cliente de Rede IoT MQTT.', 'props': 'Host, Port, Active', 'methods': 'ConnectBroker, Publish, Subscribe', 'role': 'Sincronizar telemetria IoT com brokers (ex: HiveMQ) sem travar a UI.'},
+                {'name': 'TAIIndustrialBridge', 'desc': 'Ponte dinâmica Profinet/Profibus CLP.', 'props': 'IPAddress, Rack, Slot, Active', 'methods': 'ConnectBridge, ReadBytes, WriteBytes', 'role': 'Controlar e ler estado físico de pontes automatizadas industriais (S7).'}
+            ]
+        },
+        'en': {
+            'desc': 'Modbus, MQTT and Industrial Automation Components.',
+            'info': 'Provides industrial PLC (Profinet/Profibus) bridges, IoT MQTT clients, Modbus registers monitoring, and Esc/POS thermal printers control.',
+            'comps': [
+                {'name': 'TAIPOSPrinter', 'desc': 'Esc/POS thermal receipt printer.', 'props': 'DevicePath, Active', 'methods': 'PrintText, PrintBarcode', 'role': 'Print automated paper logs, barcodes and receipts.'},
+                {'name': 'TAIModbusClient', 'desc': 'Industrial Modbus RTU/TCP Client.', 'props': 'Host, Port, Mode, Active', 'methods': 'ReadHoldingRegisters, WriteRegister', 'role': 'Query physical registers from temperature and automated sensors.'},
+                {'name': 'TAIMQTTClient', 'desc': 'IoT MQTT network client.', 'props': 'Host, Port, Active', 'methods': 'ConnectBroker, Publish, Subscribe', 'role': 'Publish JSON sensor data asynchronously to public/private brokers.'},
+                {'name': 'TAIIndustrialBridge', 'desc': 'CLP Profinet/Profibus bridge.', 'props': 'IPAddress, Rack, Slot, Active', 'methods': 'ConnectBridge, ReadBytes, WriteBytes', 'role': 'Interface and trigger controls on physical PLC industrial automation links.'}
+            ]
+        },
+        'es': {
+            'desc': 'Componentes de automatización industrial Modbus, MQTT y PLC.',
+            'info': 'Proporciona puentes PLC industriales (Profinet/Profibus), clientes IoT MQTT, monitoreo de registros Modbus y control de impresoras térmicas Esc/POS.',
+            'comps': [
+                {'name': 'TAIPOSPrinter', 'desc': 'Impresora térmica de recibos Esc/POS.', 'props': 'DevicePath, Active', 'methods': 'PrintText, PrintBarcode', 'role': 'Imprimir registros de papel automáticos, códigos de barras y recibos.'},
+                {'name': 'TAIModbusClient', 'desc': 'Cliente Modbus industrial (TCP/RTU).', 'props': 'Host, Port, Mode, Active', 'methods': 'ReadHoldingRegisters, WriteRegister', 'role': 'Consultar registros físicos de sensores de temperatura y presión.'},
+                {'name': 'TAIMQTTClient', 'desc': 'Cliente de red IoT MQTT.', 'props': 'Host, Port, Active', 'methods': 'ConnectBroker, Publish, Subscribe', 'role': 'Sincronizar telemetría IoT con brokers (ej. HiveMQ) de forma asíncrona.'},
+                {'name': 'TAIIndustrialBridge', 'desc': 'Puente Profinet/Profibus de PLC.', 'props': 'IPAddress, Rack, Slot, Active', 'methods': 'ConnectBridge, ReadBytes, WriteBytes', 'role': 'Interconectar y leer estados físicos de autómatas industriales.'}
+            ]
+        },
+        'fr': {
+            'desc': 'Composants d\'automatisation industrielle Modbus, MQTT et PLC.',
+            'info': 'Fournit des ponts PLC industriels (Profinet/Profibus), des clients IoT MQTT, la surveillance des registres Modbus et le contrôle des imprimantes thermiques Esc/POS.',
+            'comps': [
+                {'name': 'TAIPOSPrinter', 'desc': 'Imprimante de reçus thermique Esc/POS.', 'props': 'DevicePath, Active', 'methods': 'PrintText, PrintBarcode', 'role': 'Imprimer des reçus, des codes-barres et des tickets.'},
+                {'name': 'TAIModbusClient', 'desc': 'Client Modbus industriel (TCP/RTU).', 'props': 'Host, Port, Mode, Active', 'methods': 'ReadHoldingRegisters, WriteRegister', 'role': 'Interroger des registres physiques de capteurs thermiques et pressions.'},
+                {'name': 'TAIMQTTClient', 'desc': 'Client réseau IoT MQTT.', 'props': 'Host, Port, Active', 'methods': 'ConnectBroker, Publish, Subscribe', 'role': 'Synchroniser la télémétrie IoT avec des serveurs MQTT de façon asynchrone.'},
+                {'name': 'TAIIndustrialBridge', 'desc': 'Pont Profinet/Profibus automate PLC.', 'props': 'IPAddress, Rack, Slot, Active', 'methods': 'ConnectBridge, ReadBytes, WriteBytes', 'role': 'Interfacer et déclencher des contrôles sur automates industriels.'}
+            ]
+        },
+        'it': {
+            'desc': 'Componenti di automazione industriale Modbus, MQTT e PLC.',
+            'info': 'Fornisce ponti PLC industriali (Profinet/Profibus), client IoT MQTT, monitoraggio dei registri Modbus e controllo delle stampanti termiche Esc/POS.',
+            'comps': [
+                {'name': 'TAIPOSPrinter', 'desc': 'Stampante termica per ricevute Esc/POS.', 'props': 'DevicePath, Active', 'methods': 'PrintText, PrintBarcode', 'role': 'Stampare report cartacei, codici a barre e ricevute.'},
+                {'name': 'TAIModbusClient', 'desc': 'Client Modbus industriale (TCP/RTU).', 'props': 'Host, Port, Mode, Active', 'methods': 'ReadHoldingRegisters, WriteRegister', 'role': 'Interrogare registri di sensori fisici di temperatura e pressione.'},
+                {'name': 'TAIMQTTClient', 'desc': 'Client di rete IoT MQTT.', 'props': 'Host, Port, Active', 'methods': 'ConnectBroker, Publish, Subscribe', 'role': 'Sincronizzare dati sensoriali con server MQTT in background.'},
+                {'name': 'TAIIndustrialBridge', 'desc': 'Ponte Profinet/Profibus per PLC.', 'props': 'IPAddress, Rack, Slot, Active', 'methods': 'ConnectBridge, ReadBytes, WriteBytes', 'role': 'Controllare e leggere stati da controllori PLC industriali.'}
+            ]
+        },
+        'ar': {
+            'desc': 'مكونات الأتمتة الصناعية Modbus و MQTT و PLC.',
+            'info': 'يوفر جسور PLC الصناعية (Profinet/Profibus)، وعملاء IoT MQTT، ومراقبة سجلات Modbus، والتحكم في الطابعات الحرارية Esc/POS.',
+            'comps': [
+                {'name': 'TAIPOSPrinter', 'desc': 'طابعة إيصالات حرارية متوافقة مع Esc/POS.', 'props': 'DevicePath, Active', 'methods': 'PrintText, PrintBarcode', 'role': 'طباعة سجلات الورق التلقائية والرموز الشريطية والإيصالات.'},
+                {'name': 'TAIModbusClient', 'desc': 'عميل Modbus الصناعي (TCP/RTU).', 'props': 'Host, Port, Mode, Active', 'methods': 'ReadHoldingRegisters, WriteRegister', 'role': 'الاستعلام عن البيانات الحقيقية من حساسات درجات الحرارة والضغط الصناعية.'},
+                {'name': 'TAIMQTTClient', 'desc': 'عميل شبكة اتصالات إنترنت الأشياء MQTT.', 'props': 'Host, Port, Active', 'methods': 'ConnectBroker, Publish, Subscribe', 'role': 'نشر بيانات الحساسات بصيغة JSON بشكل غير متزامن لخواديم MQTT العامة.'},
+                {'name': 'TAIIndustrialBridge', 'desc': 'جسر اتصالات Profinet/Profibus للمتحكمات CLPs.', 'props': 'IPAddress, Rack, Slot, Active', 'methods': 'ConnectBridge, ReadBytes, WriteBytes', 'role': 'التفاعل وإصدار أوامر التحكم على روابط التشغيل الآلي للمصانع.'}
             ]
         }
     },

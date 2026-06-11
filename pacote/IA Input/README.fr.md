@@ -17,13 +17,9 @@ Cartographie et capture les données du monde réel (clavier, souris, caméras, 
 | **TAISocketTCP** | Connecteur Sockets TCP Client/Serveur. | `Host, Port, Mode, Active` | `Connect, Disconnect, SendText, ReceiveText` | Établir des flux stables de communication réseau de bas niveau. |
 | **TAISocketUDP** | Connecteur de Sockets UDP rapide. | `Host, Port, Active` | `SendText, ReceiveText` | Transmettre la télémétrie asynchrone des capteurs. |
 | **TAISerialModem** | Port Série et Passerelle SMS GSM. | `DeviceName, BaudRate, Active` | `OpenPort, SendATCommand, SendSMS` | Envoyer des SMS et interfacer le matériel hérité via modems. |
-| **TAIPOSPrinter** | Imprimante de reçus thermique Esc/POS. | `DevicePath, Active` | `PrintText, PrintBarcode` | Imprimer des reçus, des codes-barres et des tickets. |
 | **TAICFTVIP** | Connecteur caméra IP MJPEG pour CFTV. | `IPAddress, Port, Active` | `CaptureStreamFrame` | Acquérir des flux vidéo de caméras IP de sécurité sur le réseau. |
-| **TAIModbusClient** | Client Modbus industriel (TCP/RTU). | `Host, Port, Mode, Active` | `ReadHoldingRegisters, WriteRegister` | Interroger des registres physiques de capteurs thermiques et pressions. |
-| **TAIMQTTClient** | Client réseau IoT MQTT. | `Host, Port, Active` | `ConnectBroker, Publish, Subscribe` | Synchroniser la télémétrie IoT avec des serveurs MQTT de façon asynchrone. |
 | **TAIEmailClient** | Client SMTP/POP3 natif. | `HostSMTP, PortSMTP, Username, Password` | `SendEmail, FetchEmails` | Récupérer des e-mails et envoyer des rapports d'état. |
 | **TAIMessenger** | Passerelle WhatsApp et SMS via REST. | `SMSApiURL, WhatsAppApiURL, WhatsAppToken` | `SendSMS, SendWhatsApp` | Envoyer des alertes instantanées sur téléphones mobiles. |
-| **TAIIndustrialBridge** | Pont Profinet/Profibus automate PLC. | `IPAddress, Rack, Slot, Active` | `ConnectBridge, ReadBytes, WriteBytes` | Interfacer et déclencher des contrôles sur automates industriels. |
 | **TAIChromiumBrowser** | Panneau de Navigateur Web intégré. | `URL, ShowAddressBar` | `Navigate, GoBack, Reload` | Afficher des UIs web et extraire du contenu HTML brut. |
 | **TAIOSInputCapture** | Enregistreur d'événements globaux du système. | `TrackMouse, TrackKeyboard, Active` | `CaptureScreen` | Capturer l'écran entier et intercepter des touches claviers. |
 

@@ -33,6 +33,11 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiposprinter"/>
       </Item>
+      <Item>
+        <Filename Value="..\IA Industrial\aiindustrial.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiindustrial"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>

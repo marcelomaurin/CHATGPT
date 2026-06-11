@@ -101,12 +101,12 @@ Use esta classificação para documentação, README de abas, samples e planejam
 | `TAISocketTCP` | `aisockets.pas` | `openai_input` | Beta | Cliente/servidor TCP |
 | `TAISocketUDP` | `aisockets.pas` | `openai_input` | Beta | Cliente/servidor UDP |
 | `TAISerialModem` | `aiserial.pas` | `openai_input` | Beta | Comunicação serial / modem |
-| `TAIPOSPrinter` | `aiposprinter.pas` | `openai_input` | Beta | Impressora térmica EscPOS |
-| `TAIModbusClient` | `aimodbus.pas` | `openai_input` | Beta | Cliente Modbus TCP/RTU |
-| `TAIMQTTClient` | `aimqtt.pas` | `openai_input` | Beta | Cliente IoT MQTT |
+| `TAIPOSPrinter` | `aiposprinter.pas` | `openai_industrial` | Beta | Impressora térmica EscPOS |
+| `TAIModbusClient` | `aimodbus.pas` | `openai_industrial` | Beta | Cliente Modbus TCP/RTU |
+| `TAIMQTTClient` | `aimqtt.pas` | `openai_industrial` | Beta | Cliente IoT MQTT |
 | `TAIEmailClient` | `aiemail.pas` | `openai_input` | Beta | E-mail SMTP/POP3 |
 | `TAIMessenger` | `aimessenger.pas` | `openai_input` | Beta | WhatsApp e SMS |
-| `TAIIndustrialBridge` | `aiindustrial.pas` | `openai_input` | Beta | Ponte Profinet/Profibus para CLPs |
+| `TAIIndustrialBridge` | `aiindustrial.pas` | `openai_industrial` | Beta | Ponte Profinet/Profibus para CLPs |
 | `TAIChromiumBrowser` | `aichromiumbrowser.pas` | `openai_input` | Beta | Navegador Chromium incorporado |
 
 ---

@@ -8,7 +8,7 @@ unit openai_industrial;
 interface
 
 uses
-  aimodbus, aimqtt, aiposprinter, LazarusPackageIntf;
+  aimodbus, aimqtt, aiposprinter, aiindustrial, LazarusPackageIntf;
 
 implementation
 
@@ -17,6 +17,7 @@ begin
   RegisterUnit('aimodbus', @aimodbus.Register);
   RegisterUnit('aimqtt', @aimqtt.Register);
   RegisterUnit('aiposprinter', @aiposprinter.Register);
+  RegisterUnit('aiindustrial', @aiindustrial.Register);
 end;
 
 initialization

@@ -12,12 +12,8 @@ This package (`openai_input.lpk`) provides input and capture components for the 
 | `TAIWebAPIServer` | `aiwebserver.pas` | Embedded REST/HTTP server |
 | `TAISocketTCP` / `TAISocketUDP` | `aisockets.pas` | TCP and UDP networking |
 | `TAISerialModem` | `aiserial.pas` | Serial port / modem communication |
-| `TAIPOSPrinter` | `aiposprinter.pas` | Thermal POS printer (EscPOS) |
-| `TAIModbusClient` | `aimodbus.pas` | Modbus TCP/RTU client |
-| `TAIMQTTClient` | `aimqtt.pas` | IoT MQTT client |
 | `TAIEmailClient` | `aiemail.pas` | SMTP/POP3 email client |
 | `TAIMessenger` | `aimessenger.pas` | WhatsApp and SMS gateway |
-| `TAIIndustrialBridge` | `aiindustrial.pas` | Profinet/Profibus PLC bridge |
 | `TAIChromiumBrowser` | `aichromiumbrowser.pas` | Embedded Chromium browser |
 
 ## Sample
