@@ -1,12 +1,12 @@
 # 📂 Projets de Démonstration (Samples)
 
 > [!NOTE]
-> Ce dossier contient la suite complète d'exemples développés pour tester tous les composants d'Intelligence Artificielle, d'Apprentissage Automatique, de traitement d'images, de traitement de signaux (DSP), d'automatisation matérielle et de génération de documents du package **openai.lpk**.
+> Ce dossier contient la suite complète d'exemples développés pour tester tous les composants d'Intelligence Artificielle, d'Apprentissage Automatique, de traitement d'images, de traitement de signaux (DSP), d'automatisation matérielle et de génération de documents de la suite Lazarus AI Suite.
 
 ## 🖥️ Démonstrations en Interface Graphique (GUI)
 Les exemples suivants sont des projets visuels prêts à être compilés et exécutés via Lazarus :
 
-| Exemple | Ce qu'il fait | Composants | Comment ça marche |
+| Exemple | Ce qu'il fait | Composant | Comment ça marche |
 |---|---|---|---|
 | **[visual_demo/](IA/visual_demo/)** | Centre unifié de contrôle IA avec onglets. | `TCHATGPT, TNeuralNetwork, TAICodeAssistant, TAIDatasetGenerator` | Allows querying cloud LLMs, auditing Pascal code, exporting fine-tuning datasets, and training XOR networks. |
 | **[voicesynthesizer_demo/](IA Voice/voicesynthesizer_demo/)** | Synthétiseur de voix natif (TTS). | `TAIVoiceSynthesizer` | Lists system narrator voices (SAPI on Windows, eSpeak on Linux) with volume, rate, and non-blocking thread support. |

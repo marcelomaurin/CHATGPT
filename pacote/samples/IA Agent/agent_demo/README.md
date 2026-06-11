@@ -69,7 +69,7 @@ FAIAgentOutput.OnOutputExecuted := @OnAgentOutputExecuted;
 
 ### Pré-requisitos
 * Lazarus IDE instalado com Free Pascal Compiler (FPC) 3.2.2 ou superior.
-* Pacote `openai.lpk` devidamente compilado e instalado no seu ambiente Lazarus.
+* Pacote `openai_core.lpk` devidamente compilado e instalado no seu ambiente Lazarus.
 
 ### Passos de Compilação
 1. Abra o arquivo de projeto `agent_demo.lpi` no Lazarus.

@@ -2,7 +2,7 @@
 
 Esta pasta contém os pacotes, units, scripts auxiliares e samples da suíte **TCHATGPT / Lazarus AI Suite**.
 
-A organização atual é **modular**. O antigo pacote monolítico `openai.lpk` foi mantido apenas como wrapper legado de compatibilidade.
+A organização é **modular** para facilitar a manutenção e permitir instalações parciais.
 
 ---
 
@@ -50,18 +50,6 @@ pacote/packages/
 | `openai_agent.lpk` | Agentes, segurança e executores |
 | `openai_simulation.lpk` | Simulação celular 2D: grade, entidades, regras, movimento, evolução e exportação |
 | `openai_full.lpk` | Wrapper que agrega todos os pacotes acima |
-
----
-
-## Pacote legado
-
-```text
-pacote/openai.lpk
-```
-
-Esse pacote é um **legacy wrapper**. Ele depende dos pacotes modulares e foi mantido para compatibilidade com projetos antigos.
-
-Para novos projetos, prefira instalar diretamente os pacotes em `pacote/packages/`.
 
 ---
 

@@ -1,7 +1,7 @@
-# 🧠 Pacchetto Componenti IA — openai.lpk
+# 🧠 Pacchetto Componenti IA
 
 > [!NOTE]
-> Questa directory contiene l'implementazione del pacchetto ufficiale di componenti IA e automazione per Lazarus/Delphi (**openai.lpk**). Integra Intelligenza Artificiale, Machine Learning, automazione hardware, reti, audio, elaborazione di immagini e documenti in modo nativo e multipiattaforma.
+> Questa directory contiene l'implementazione del pacchetto ufficiale di componenti IA e automazione per Lazarus/Delphi. Integra Intelligenza Artificiale, Machine Learning, automazione hardware, reti, audio, elaborazione di immagini e documenti in modo nativo e multipiattaforma grazie a pacchetti modulari.
 
 ## Riferimento dei Componenti Principali
 

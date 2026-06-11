@@ -4,7 +4,7 @@ import os
 langs = {
     'pt': {
         'title': 'Projetos de Demonstração (Samples)',
-        'intro': 'Este diretório contém a suíte completa de exemplos desenvolvidos para demonstrar e testar todos os componentes de Inteligência Artificial, Aprendizado de Máquina (Machine Learning), Processamento de Imagens, Processamento de Sinais (DSP), Automação de Hardware e Geração de Documentos do pacote **openai.lpk**.',
+        'intro': 'Este diretório contém a suíte completa de exemplos desenvolvidos para demonstrar e testar todos os componentes de Inteligência Artificial, Aprendizado de Máquina (Machine Learning), Processamento de Imagens, Processamento de Sinais (DSP), Automação de Hardware e Geração de Documentos da Lazarus AI Suite.',
         'gui_title': '🖥️ Demonstrações em Interface Gráfica (GUI)',
         'gui_desc': 'Os exemplos a seguir são projetos visuais prontos para compilação e execução interativa através do Lazarus:',
         'console_title': '💻 Demonstrações em Linha de Comando (Console)',
@@ -16,7 +16,7 @@ langs = {
     },
     'en': {
         'title': 'Demonstration Projects (Samples)',
-        'intro': 'This directory contains the complete suite of examples developed to demonstrate and test all Artificial Intelligence, Machine Learning, Image Processing, Digital Signal Processing (DSP), Hardware Automation, and Document Generation components of the **openai.lpk** package.',
+        'intro': 'This directory contains the complete suite of examples developed to demonstrate and test all Artificial Intelligence, Machine Learning, Image Processing, Digital Signal Processing (DSP), Hardware Automation, and Document Generation components of the Lazarus AI Suite.',
         'gui_title': '🖥️ Graphical User Interface (GUI) Demonstrations',
         'gui_desc': 'The following examples are visual projects ready for compilation and interactive execution through Lazarus:',
         'console_title': '💻 Command Line Interface (Console) Demonstrations',
@@ -28,7 +28,7 @@ langs = {
     },
     'es': {
         'title': 'Proyectos de Demostración (Samples)',
-        'intro': 'Este directorio contiene la suite completa de ejemplos desarrollados para demostrar y probar todos los componentes de Inteligencia Artificial, Aprendizaje Automático (Machine Learning), Procesamiento de Imágenes, Procesamiento de Señales (DSP), Automatización de Hardware y Generación de Documentos del paquete **openai.lpk**.',
+        'intro': 'Este directorio contiene la suite completa de ejemplos desarrollados para demostrar y probar todos los componentes de Inteligencia Artificial, Aprendizaje Automático (Machine Learning), Procesamiento de Imágenes, Procesamiento de Señales (DSP), Automatización de Hardware y Generación de Documentos de la suite Lazarus AI Suite.',
         'gui_title': '🖥️ Demostraciones de Interfaz Gráfica (GUI)',
         'gui_desc': 'Los siguientes ejemplos son proyectos visuales listos para compilar y ejecutar interactivamente en Lazarus:',
         'console_title': '💻 Demostraciones de Línea de Comando (Consola)',
@@ -40,19 +40,19 @@ langs = {
     },
     'fr': {
         'title': 'Projets de Démonstration (Samples)',
-        'intro': 'Ce dossier contient la suite complète d\'exemples développés pour tester tous les composants d\'Intelligence Artificielle, d\'Apprentissage Automatique, de traitement d\'images, de traitement de signaux (DSP), d\'automatisation matérielle et de génération de documents du package **openai.lpk**.',
+        'intro': 'Ce dossier contient la suite complète d\'exemples développés pour tester tous les composants d\'Intelligence Artificielle, d\'Apprentissage Automatique, de traitement d\'images, de traitement de signaux (DSP), d\'automatisation matérielle et de génération de documents de la suite Lazarus AI Suite.',
         'gui_title': '🖥️ Démonstrations en Interface Graphique (GUI)',
         'gui_desc': 'Les exemples suivants sont des projets visuels prêts à être compilés et exécutés via Lazarus :',
         'console_title': '💻 Démonstrations en Ligne de Commande (Console)',
         'console_desc': 'Ces exemples illustrent l\'utilisation directe des composants en ligne de commande pour le débogage rapide :',
         'item_title': 'Exemple',
         'item_desc': 'Ce qu\'il fait',
-        'item_comps': 'Composants',
+        'item_comps': 'Composant',
         'item_how': 'Comment ça marche'
     },
     'it': {
         'title': 'Progetti di Dimostrazione (Samples)',
-        'intro': 'Questa directory contiene la suite completa di esempi sviluppati per dimostrare e testare tutti i componenti di Intelligenza Artificiale, Machine Learning, Elaborazione Immagini, Elaborazione Segnali (DSP), Automazione Hardware e Generazione Documenti del pacchetto **openai.lpk**.',
+        'intro': 'Questa directory contiene la suite completa di esempi sviluppati per dimostrare e testare tutti i componenti di Intelligenza Artificiale, Machine Learning, Elaborazione Immagini, Elaborazione Segnali (DSP), Automazione Hardware e Generazione Documenti della suite Lazarus AI Suite.',
         'gui_title': '🖥️ Demo ad Interfaccia Grafica (GUI)',
         'gui_desc': 'I seguenti esempi sono progetti visuali pronti per la compilazione e l\'esecuzione interattiva tramite Lazarus:',
         'console_title': '💻 Demo a Riga di Comando (Console)',
@@ -64,7 +64,7 @@ langs = {
     },
     'ar': {
         'title': 'مشاريع توضيحية (Samples)',
-        'intro': 'يحتوي هذا المجلد على مجموعة كاملة من الأمثلة والمشاريع المطورة لتوضيح واختبار جميع مكونات الذكاء الاصطناعي، تعلم الآلة، معالجة الصور، معالجة الإشارات الرقمية (DSP)، أتمتة الأجهزة، وتوليد المستندات لحزمة **openai.lpk**.',
+        'intro': 'يحتوي هذا المجلد على مجموعة كاملة من الأمثلة والمشاريع المطورة لتوضيح واختبار جميع مكونات الذكاء الاصطناعي، تعلم الآلة، معالجة الصور، معالجة الإشارات الرقمية (DSP)، أتمتة الأجهزة، وتوليد المستندات لحزمة Lazarus AI Suite.',
         'gui_title': '🖥️ مشاريع توضيحية لواجهات المستخدم الرسومية (GUI)',
         'gui_desc': 'الأمثلة التالية عبارة عن مشاريع مرئية جاهزة للتجميع والتشغيل التفاعلي عبر لازاروس:',
         'console_title': '💻 مشاريع توضيحية لسطر الأوامر (Console)',

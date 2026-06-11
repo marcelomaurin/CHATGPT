@@ -12,7 +12,7 @@ Este exemplo é uma demonstração visual unificada criada para ilustrar o uso d
 
 ### 1. Requisitos
 * Lazarus IDE (versão 3.x recomendada).
-* Pacote `openai.lpk` instalado ou compilado na IDE.
+* Pacote `openai_core.lpk` instalado ou compilado na IDE.
 
 ### 2. Compilação via Linha de Comando (lazbuild)
 Você pode compilar o executável diretamente a partir deste diretório utilizando a ferramenta `lazbuild` do Lazarus:

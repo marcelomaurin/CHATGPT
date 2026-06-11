@@ -535,7 +535,7 @@ OFDM-компонент с использованием FFT/IFFT.
 
 1. Откройте Lazarus.
 2. Перейдите в **Package > Open Package File (.lpk)**.
-3. Выберите файл `pacote/openai.lpk`.
+3. Выберите файл `pacote/packages/openai_core.lpk`.
 4. Нажмите **Compile**.
 5. Затем нажмите **Use > Install**.
 6. Lazarus попросит пересобрать IDE.
@@ -565,7 +565,7 @@ OFDM-компонент с использованием FFT/IFFT.
 * Lazarus 3.x или выше;
 * совместимая версия Free Pascal;
 * Windows или Linux;
-* пакет `openai.lpk`;
+* пакет `openai_core.lpk`;
 * интернет-соединение для внешних провайдеров;
 * локальный сервер, настроенный при использовании offline-моделей.
 

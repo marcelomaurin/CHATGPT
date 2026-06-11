@@ -1,7 +1,7 @@
-# 🧠 Package de Suite de Composants d'IA — openai.lpk
+# 🧠 Package de Suite de Composants d'IA
 
 > [!NOTE]
-> Ce dossier contient l'implémentation de la suite officielle de composants d'IA et d'automatisation pour Lazarus/Delphi (**openai.lpk**). Ce package intègre l'Intelligence Artificielle, l'Apprentissage Automatique, l'automatisation matérielle, les réseaux, l'audio, l'imagerie et le traitement de documents de façon native et multiplateforme.
+> Ce dossier contient l'implémentation de la suite officielle de composants d'IA et d'automatisation pour Lazarus/Delphi. Ce package intègre l'Intelligence Artificielle, l'Apprentissage Automatique, l'automatisation matérielle, les réseaux, l'audio, l'imagerie et le traitement de documents de façon native et multiplateforme via des packages modulaires.
 
 ## Référence des Composants Principaux
 
@@ -43,4 +43,4 @@ end;
 Le dossier `samples/` propose des projets de démonstration visuels et console pour chaque composant.
 
 ### ⚡ Prompts d'Agents et Connectivité
-Chaque composant intègre une propriété published `Prompt` décrivant de manière transparente son API interne pour guider les agents d'IA (`TAIAgent`) de façon autonome.
+Chaque composant intègre une propriedade published `Prompt` décrivant de manière transparente son API interne pour guider les agents d'IA (`TAIAgent`) de façon autonome.

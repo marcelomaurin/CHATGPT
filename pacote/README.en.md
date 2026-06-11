@@ -1,7 +1,7 @@
-# 🧠 AI Component Suite Package — openai.lpk
+# 🧠 AI Component Suite Package
 
 > [!NOTE]
-> This directory contains the implementation of the official AI & Automation component suite for Lazarus/Delphi (**openai.lpk**). This package integrates Artificial Intelligence, Machine Learning, hardware automation, networking, audio, imaging, and document processing natively and cross-platform.
+> This directory contains the implementation of the official AI & Automation component suite for Lazarus/Delphi. This suite integrates Artificial Intelligence, Machine Learning, hardware automation, networking, audio, imaging, and document processing natively and cross-platform through modular packages.
 
 ## Core Component Reference
 

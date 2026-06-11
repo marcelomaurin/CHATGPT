@@ -1,7 +1,7 @@
 # 📂 Proyectos de Demostración (Samples)
 
 > [!NOTE]
-> Este directorio contiene la suite completa de ejemplos desarrollados para demostrar y probar todos los componentes de Inteligencia Artificial, Aprendizaje Automático (Machine Learning), Procesamiento de Imágenes, Procesamiento de Señales (DSP), Automatización de Hardware y Generación de Documentos del paquete **openai.lpk**.
+> Este directorio contiene la suite completa de ejemplos desarrollados para demostrar y probar todos los componentes de Inteligencia Artificial, Aprendizaje Automático (Machine Learning), Procesamiento de Imágenes, Procesamiento de Señales (DSP), Automatización de Hardware y Generación de Documentos de la suite Lazarus AI Suite.
 
 ## 🖥️ Demostraciones de Interfaz Gráfica (GUI)
 Los siguientes ejemplos son proyectos visuales listos para compilar y ejecutar interactivamente en Lazarus:

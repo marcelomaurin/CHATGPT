@@ -533,7 +533,7 @@ Objectif :
 
 1. Ouvrez Lazarus.
 2. Accédez à **Package > Open Package File (.lpk)**.
-3. Sélectionnez le fichier `pacote/openai.lpk`.
+3. Sélectionnez le fichier `pacote/packages/openai_core.lpk`.
 4. Cliquez sur **Compile**.
 5. Cliquez ensuite sur **Use > Install**.
 6. Lazarus demandera de reconstruire l’IDE.
@@ -563,7 +563,7 @@ Objectif :
 * Lazarus 3.x ou supérieur ;
 * version compatible de Free Pascal ;
 * Windows ou Linux ;
-* paquet `openai.lpk` ;
+* paquet `openai_core.lpk` ;
 * connexion internet pour les fournisseurs externes ;
 * serveur local configuré lorsque des modèles hors ligne sont utilisés.
 

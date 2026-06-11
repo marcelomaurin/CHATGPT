@@ -3,8 +3,8 @@ import os
 
 langs = {
     'pt': {
-        'title': 'Pacote de Componentes de IA — openai.lpk',
-        'intro': 'Este diretório contém a implementação do pacote oficial de componentes de IA e Automação para Lazarus/Delphi (**openai.lpk**). Este pacote integra Inteligência Artificial, Aprendizado de Máquina, processamento de hardware, redes, áudio, imagem e documentos de forma nativa e multiplataforma.',
+        'title': 'Pacote de Componentes de IA',
+        'intro': 'Este diretório contém a implementação da suíte oficial de componentes de IA e Automação para Lazarus/Delphi. Esta suíte integra Inteligência Artificial, Aprendizado de Máquina, processamento de hardware, redes, áudio, imagem e documentos de forma nativa e multiplataforma através de pacotes modulares.',
         'details': 'Referência dos Componentes Principais',
         'comp': 'Componente',
         'desc': 'Descrição',
@@ -18,8 +18,8 @@ langs = {
         'unified_text': 'Todos os componentes deste pacote possuem a propriedade published `Prompt` predefinida. Ela fornece as diretivas necessárias para que Agentes de IA autônomos (`TAIAgent`) compreendam a finalidade do hardware ou documento e injetem parâmetros dinamicamente via reflexão RTTI.'
     },
     'en': {
-        'title': 'AI Component Suite Package — openai.lpk',
-        'intro': 'This directory contains the implementation of the official AI & Automation component suite for Lazarus/Delphi (**openai.lpk**). This package integrates Artificial Intelligence, Machine Learning, hardware automation, networking, audio, imaging, and document processing natively and cross-platform.',
+        'title': 'AI Component Suite Package',
+        'intro': 'This directory contains the implementation of the official AI & Automation component suite for Lazarus/Delphi. This suite integrates Artificial Intelligence, Machine Learning, hardware automation, networking, audio, imaging, and document processing natively and cross-platform through modular packages.',
         'details': 'Core Component Reference',
         'comp': 'Component',
         'desc': 'Description',
@@ -33,8 +33,8 @@ langs = {
         'unified_text': 'All components in this suite feature a published `Prompt` property. This transparently informs autonomous AI Agents (`TAIAgent`) about the device or document API, enabling dynamic property injection via RTTI reflection.'
     },
     'es': {
-        'title': 'Paquete de Componentes de IA — openai.lpk',
-        'intro': 'Este directorio contiene la implementación de la suite oficial de componentes de IA y automatización para Lazarus/Delphi (**openai.lpk**). Este paquete integra Inteligencia Artificial, Aprendizaje Automático, automatización de hardware, redes, audio, procesamiento de imágenes y documentos de forma nativa y multiplataforma.',
+        'title': 'Paquete de Componentes de IA',
+        'intro': 'Este directorio contiene la implementación de la suite oficial de componentes de IA y automatización para Lazarus/Delphi. Este paquete integra Inteligencia Artificial, Aprendizaje Automático, automatización de hardware, redes, audio, procesamiento de imágenes y documentos de forma nativa y multiplataforma mediante paquetes modulares.',
         'details': 'Referencia de Componentes Principales',
         'comp': 'Componente',
         'desc': 'Descripción',
@@ -48,8 +48,8 @@ langs = {
         'unified_text': 'Todos los componentes del paquete cuentan con una propiedad published `Prompt` que documenta de forma transparente su API interna para guiar a Agentes de IA (`TAIAgent`) de manera autónoma.'
     },
     'fr': {
-        'title': 'Package de Suite de Composants d\'IA — openai.lpk',
-        'intro': 'Ce dossier contient l\'implémentation de la suite officielle de composants d\'IA et d\'automatisation pour Lazarus/Delphi (**openai.lpk**). Ce package intègre l\'Intelligence Artificielle, l\'Apprentissage Automatique, l\'automatisation matérielle, les réseaux, l\'audio, l\'imagerie et le traitement de documents de façon native et multiplateforme.',
+        'title': 'Package de Suite de Composants d\'IA',
+        'intro': 'Ce dossier contient l\'implémentation de la suite officielle de composants d\'IA et d\'automatisation pour Lazarus/Delphi. Ce package intègre l\'Intelligence Artificielle, l\'Apprentissage Automatique, l\'automatisation matérielle, les réseaux, l\'audio, l\'imagerie et le traitement de documents de façon native et multiplateforme via des packages modulaires.',
         'details': 'Référence des Composants Principaux',
         'comp': 'Composant',
         'desc': 'Description',
@@ -60,11 +60,11 @@ langs = {
         'samples_title': '📂 Répertoire d\'Exemples (Samples)',
         'samples_desc': 'Le dossier `samples/` propose des projets de démonstration visuels et console pour chaque composant.',
         'unified': 'Prompts d\'Agents et Connectivité',
-        'unified_text': 'Chaque composant intègre une propriété published `Prompt` décrivant de manière transparente son API interne pour guider les agents d\'IA (`TAIAgent`) de façon autonome.'
+        'unified_text': 'Chaque composant intègre une propriedade published `Prompt` décrivant de manière transparente son API interne pour guider les agents d\'IA (`TAIAgent`) de façon autonome.'
     },
     'it': {
-        'title': 'Pacchetto Componenti IA — openai.lpk',
-        'intro': 'Questa directory contiene l\'implementazione del pacchetto ufficiale di componenti IA e automazione per Lazarus/Delphi (**openai.lpk**). Integra Intelligenza Artificiale, Machine Learning, automazione hardware, reti, audio, elaborazione di immagini e documenti in modo nativo e multipiattaforma.',
+        'title': 'Pacchetto Componenti IA',
+        'intro': 'Questa directory contiene l\'implementazione del pacchetto ufficiale di componenti IA e automazione per Lazarus/Delphi. Integra Intelligenza Artificiale, Machine Learning, automazione hardware, reti, audio, elaborazione di immagini e documenti in modo nativo e multipiattaforma grazie a pacchetti modulari.',
         'details': 'Riferimento dei Componenti Principali',
         'comp': 'Componente',
         'desc': 'Descrizione',
@@ -78,8 +78,8 @@ langs = {
         'unified_text': 'Ciascuno di questi componenti include una proprietà published `Prompt` che documenta in modo trasparente le proprie API per guidare gli Agenti IA (`TAIAgent`) autonomamente.'
     },
     'ar': {
-        'title': 'حزمة مكونات الذكاء الاصطناعي — openai.lpk',
-        'intro': 'يحتوي هذا المجلد على حزمة المكونات الرسمية للذكاء الاصطناعي والأتمتة في لازاروس ودلفي (**openai.lpk**). تدمج هذه الحزمة الذكاء الاصطناعي، تعلم الآلة، أتمتة الأجهزة، الشبكات، معالجة الصوت والصور والمستندات بشكل أصلي ومتعدد المنصات.',
+        'title': 'حزمة مكونات الذكاء الاصطناعي',
+        'intro': 'يحتوي هذا المجلد على حزمة المكونات الرسمية للذكاء الاصطناعي والأتمتة في لازاروس ودلفي. تدمج هذه الحزمة الذكاء الاصطناعي، تعلم الآلة، أتمتة الأجهزة، الشبكات، معالجة الصوت والصور والمستندات بشكل أصلي ومتعدد المنصات عبر حزم برمجية مجزأة.',
         'details': 'مرجع المكونات الأساسية',
         'comp': 'المكون',
         'desc': 'الوصف',

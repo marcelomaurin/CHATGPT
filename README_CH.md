@@ -534,7 +534,7 @@ Text-to-Speech 组件。
 
 1. 打开 Lazarus。
 2. 进入 **Package > Open Package File (.lpk)**。
-3. 选择文件 `pacote/openai.lpk`。
+3. 选择文件 `pacote/packages/openai_core.lpk`。
 4. 点击 **Compile**。
 5. 然后点击 **Use > Install**。
 6. Lazarus 将要求重新构建 IDE。
@@ -564,7 +564,7 @@ Text-to-Speech 组件。
 * Lazarus 3.x 或更高版本；
 * 兼容版本的 Free Pascal；
 * Windows 或 Linux；
-* `openai.lpk` 包；
+* `openai_core.lpk` 包；
 * 使用外部服务商时需要互联网连接；
 * 使用离线模型时需要配置本地服务器。
 

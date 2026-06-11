@@ -2,8 +2,6 @@
 
 This document describes the recommended installation process for the **TCHATGPT** component suite in **Lazarus / Free Pascal**.
 
-> Recommended for new projects: install the modular packages from `pacote/packages/` instead of using the legacy wrapper `pacote/openai.lpk`.
-
 ---
 
 ## 1. Requirements
@@ -99,24 +97,6 @@ Recommended order:
 9. openai_industrial.lpk
 10. openai_graphic.lpk
 11. openai_agent.lpk
-```
-
----
-
-## 4. Legacy installation
-
-The old package still exists:
-
-```text
-pacote/openai.lpk
-```
-
-Use it only for compatibility with older projects.
-
-For new applications, use the modular packages under:
-
-```text
-pacote/packages/
 ```
 
 ---

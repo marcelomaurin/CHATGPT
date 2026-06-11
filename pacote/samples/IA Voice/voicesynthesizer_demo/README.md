@@ -29,6 +29,6 @@ O componente gerencia inteligentemente o escopo e o tempo de vida do objeto COM 
 ## 💻 Como Compilar e Executar
 
 1. Abra o arquivo **`voicesynthesizer_demo.lpi`** no Lazarus IDE.
-2. Certifique-se de que o pacote `openai.lpk` está instalado na sua IDE.
+2. Certifique-se de que o pacote `openai_core.lpk` está instalado na sua IDE.
 3. No menu principal, clique em **Run > Run** (ou pressione `F9`).
 4. **Linux**: Certifique-se de ter o `libespeak-ng.so` ou `libespeak.so` instalado (`sudo apt install libespeak-ng1`).

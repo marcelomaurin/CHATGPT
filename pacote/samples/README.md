@@ -2,7 +2,7 @@
 
 Esta pasta contém projetos de demonstração para validar componentes da **Lazarus AI Suite**.
 
-Os samples devem ser documentados por **pacote modular**, não apenas pelo antigo pacote monolítico `openai.lpk`.
+Os samples devem ser documentados por **pacote modular**, não apenas pelo antigo pacote monolítico `openai_core.lpk`.
 
 ---
 

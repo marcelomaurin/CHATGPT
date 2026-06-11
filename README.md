@@ -55,19 +55,13 @@ Classificação usada:
 
 ## Arquitetura modular dos pacotes
 
-A suíte foi separada em pacotes menores dentro de:
+A suíte é organizada em pacotes modulares dentro de:
 
 ```text
 pacote/packages/
 ```
 
-O antigo:
-
-```text
-pacote/openai.lpk
-```
-
-agora é apenas um **wrapper legado/deprecated** para compatibilidade. Para novos projetos, use os pacotes modulares.
+Para novos projetos, use diretamente os pacotes modulares.
 
 | Pacote | Finalidade | Uso recomendado |
 |---|---|---|
@@ -82,7 +76,6 @@ agora é apenas um **wrapper legado/deprecated** para compatibilidade. Para novo
 | `openai_industrial.lpk` | Modbus, MQTT e automação industrial | Experimental |
 | `openai_graphic.lpk` | Visualização 3D, STL/OBJ, avatar e Tripo3D | Experimental |
 | `openai_agent.lpk` | Agentes, segurança, ações e executores | Experimental |
-| `openai.lpk` | Wrapper legado que depende dos pacotes modulares | Compatibilidade |
 
 ---
 
@@ -115,14 +108,6 @@ pacote/packages/openai_core.lpk
 10. pacote/packages/openai_graphic.lpk
 11. pacote/packages/openai_agent.lpk
 ```
-
-### Pacote legado
-
-```text
-pacote/openai.lpk
-```
-
-Esse pacote ainda existe, mas deve ser tratado como **legacy wrapper**. Ele não é mais o caminho recomendado para novos projetos.
 
 ---
 

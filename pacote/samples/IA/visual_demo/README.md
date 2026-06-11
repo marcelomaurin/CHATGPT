@@ -24,6 +24,6 @@ Toda a suíte de componentes da paleta **IA** do Lazarus é instanciada e vincul
 ## 💻 Como Compilar e Executar
 
 1. Abra o arquivo **`visual_demo.lpi`** no Lazarus IDE.
-2. Certifique-se de ter compilado e instalado o pacote `openai.lpk` na paleta de componentes.
+2. Certifique-se de ter compilado e instalado o pacote `openai_core.lpk` na paleta de componentes.
 3. No menu principal, clique em **Run > Run** (ou pressione `F9`).
 4. **Nota (HTTPS Windows)**: Copie as DLLs OpenSSL de `pacote/lib/` para a mesma pasta do executável para habilitar conexões de rede SSL/TLS.

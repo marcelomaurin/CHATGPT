@@ -539,7 +539,7 @@ AI、シミュレーション、可視化に関連するグラフィックおよ
 
 1. Lazarus を開きます。
 2. **Package > Open Package File (.lpk)** を選択します。
-3. `pacote/openai.lpk` を選択します。
+3. `pacote/packages/openai_core.lpk` を選択します。
 4. **Compile** をクリックします。
 5. 次に **Use > Install** をクリックします。
 6. Lazarus は IDE の再構築を要求します。
@@ -569,7 +569,7 @@ AI、シミュレーション、可視化に関連するグラフィックおよ
 * Lazarus 3.x 以上；
 * 互換性のある Free Pascal バージョン；
 * Windows または Linux；
-* `openai.lpk` パッケージ；
+* `openai_core.lpk` パッケージ；
 * 外部プロバイダー利用時のインターネット接続；
 * オフラインモデル利用時のローカルサーバー設定。
 

@@ -61,15 +61,6 @@ Optional packages include:
   pacote/packages/openai_graphic.lpk
   pacote/packages/openai_agent.lpk
 
-Legacy package
---------------
-The old package still exists for compatibility:
-
-  pacote/openai.lpk
-
-For new projects, prefer the modular packages from pacote/packages/.
-The legacy package should be treated only as a compatibility wrapper.
-
 Installation
 ------------
 See the installation guide:
