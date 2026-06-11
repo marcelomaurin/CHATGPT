@@ -80,19 +80,19 @@ const
   WM_CAP_SET_PREVIEWRATE        = WM_CAP_START + 52;
   WM_CAP_GRAB_FRAME             = WM_CAP_START + 60;
 
-function capCreateCaptureWindowA(
-  lpszWindowName: PChar;
+function capCreateCaptureWindowW(
+  lpszWindowName: PWideChar;
   dwStyle: DWORD;
   x, y, nWidth, nHeight: Integer;
   hwndParent: HWND;
   nID: Integer
 ): HWND; stdcall; external 'avicap32.dll';
 
-function capGetDriverDescriptionA(
+function capGetDriverDescriptionW(
   wDriverIndex: Word;
-  lpszName: PChar;
+  lpszName: PWideChar;
   cbName: Integer;
-  lpszVer: PChar;
+  lpszVer: PWideChar;
   cbVer: Integer
 ): BOOL; stdcall; external 'avicap32.dll';
 
@@ -134,7 +134,7 @@ begin
   FWidth := AWidth;
   FHeight := AHeight;
 
-  FCaptureWnd := capCreateCaptureWindowA(
+  FCaptureWnd := capCreateCaptureWindowW(
     'TAICameraVFWCaptureWnd',
     WS_CHILD or WS_VISIBLE,
     0, 0, FWidth, FHeight,
@@ -183,6 +183,9 @@ begin
 end;
 
 function TAICameraVFWBackend.CaptureToFile(const AFileName: string): Boolean;
+var
+  LWideFileName: WideString;
+  LAnsiFileName: AnsiString;
 begin
   Result := False;
   LastError := '';
@@ -195,8 +198,12 @@ begin
 
   if SendMessage(FCaptureWnd, WM_CAP_GRAB_FRAME, 0, 0) <> 0 then
   begin
-    // Convert AFileName (which might be Unicode) to Windows compatible LPARAM string pointer
-    if SendMessage(FCaptureWnd, WM_CAP_FILE_SAVEDIB, 0, LPARAM(PtrUInt(PChar(AFileName)))) <> 0 then
+    // For VFW SAVEDIB, if using A version it requires AnsiString.
+    // However, since we want to be safe, let's convert to AnsiString and send it to SAVEDIB.
+    // WM_CAP_FILE_SAVEDIB is an Ansi message in typical avicap32 DLL unless using unicode messages.
+    // Let's use AnsiString to match standard WM_CAP_FILE_SAVEDIB requirements.
+    LAnsiFileName := AnsiString(AFileName);
+    if SendMessage(FCaptureWnd, WM_CAP_FILE_SAVEDIB, 0, LPARAM(PAnsiChar(LAnsiFileName))) <> 0 then
     begin
       if FileExists(AFileName) then
       begin
@@ -215,15 +222,15 @@ end;
 function TAICameraVFWBackend.ListCameras(AMaxScan: Integer): TStringList;
 var
   I: Integer;
-  LName: array[0..255] of Char;
-  LVer: array[0..255] of Char;
+  LName: array[0..255] of WideChar;
+  LVer: array[0..255] of WideChar;
 begin
   Result := TStringList.Create;
   for I := 0 to AMaxScan - 1 do
   begin
     FillChar(LName, SizeOf(LName), 0);
     FillChar(LVer, SizeOf(LVer), 0);
-    if capGetDriverDescriptionA(I, LName, SizeOf(LName), LVer, SizeOf(LVer)) then
+    if capGetDriverDescriptionW(I, LName, 255, LVer, 255) then
     begin
       Result.Add(IntToStr(I) + ' - ' + string(LName));
     end;
