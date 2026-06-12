@@ -1,0 +1,19 @@
+{
+  "name": "mediapipe-pose-runtime",
+  "strategy": "bundled-first-version-pinned",
+  "preferred": {
+    "windows": {
+      "x86": "ai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_win32.dll",
+      "x64": "ai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_win64.dll"
+    },
+    "linux": {
+      "x86": "libai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_linux32.so",
+      "x64": "libai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_linux64.so"
+    }
+  },
+  "models": {
+    "lite": "models/pose_landmarker_lite.task",
+    "full": "models/pose_landmarker_full.task",
+    "heavy": "models/pose_landmarker_heavy.task"
+  }
+}

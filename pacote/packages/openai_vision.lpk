@@ -73,6 +73,19 @@
         <UnitName Value="aiframediff"/>
       </Item>
       <Item>
+        <Filename Value="..\AI Vision\aihumanpose_types.pas"/>
+        <UnitName Value="aihumanpose_types"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Vision\aihumanposedetector.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aihumanposedetector"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Vision\aihumanposedetector_icon.lrs"/>
+        <Type Value="LRS"/>
+      </Item>
+      <Item>
         <Filename Value="..\AI Vision\aiimageinfo_icon.lrs"/>
         <Type Value="LRS"/>
       </Item>

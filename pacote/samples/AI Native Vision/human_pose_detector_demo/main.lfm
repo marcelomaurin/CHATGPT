@@ -1,0 +1,183 @@
+object frmPoseDemo: TfrmPoseDemo
+  Left = 200
+  Height = 650
+  Top = 120
+  Width = 1000
+  Caption = 'Google MediaPipe Human Pose Detector - Lazarus Demo'
+  ClientHeight = 650
+  ClientWidth = 1000
+  OnCreate = FormCreate
+  LCLVersion = '3.0.0.3'
+  object pnlLeft: TPanel
+    Left = 10
+    Height = 630
+    Top = 10
+    Width = 240
+    Align = alLeft
+    BorderSpacing.Around = 10
+    ClientHeight = 630
+    ClientWidth = 240
+    TabOrder = 0
+    object btnLoadImage: TButton
+      Left = 15
+      Height = 35
+      Top = 15
+      Width = 210
+      Caption = 'Carregar Imagem'
+      OnClick = btnLoadImageClick
+      TabOrder = 0
+    end
+    object lblModelVariant: TLabel
+      Left = 15
+      Height = 15
+      Top = 70
+      Width = 150
+      Caption = 'Variante do Modelo:'
+      ParentColor = False
+    end
+    object cbModelVariant: TComboBox
+      Left = 15
+      Height = 23
+      Top = 90
+      Width = 210
+      ItemHeight = 15
+      ItemIndex = 1
+      Items.Strings = (
+        'Lite'
+        'Full'
+        'Heavy'
+      )
+      Style = csDropDownList
+      TabOrder = 1
+      Text = 'Full'
+    end
+    object chkSkeleton: TCheckBox
+      Left = 15
+      Height = 19
+      Top = 135
+      Width = 210
+      Caption = 'Desenhar Esqueleto (Rig)'
+      OnChange = chkDrawOptionsChange
+      TabOrder = 2
+    end
+    object chkPoints: TCheckBox
+      Left = 15
+      Height = 19
+      Top = 165
+      Width = 210
+      Caption = 'Desenhar Landmarks (Pontos)'
+      OnChange = chkDrawOptionsChange
+      TabOrder = 3
+    end
+    object chkNames: TCheckBox
+      Left = 15
+      Height = 19
+      Top = 195
+      Width = 210
+      Caption = 'Exibir Nomes/Índices'
+      OnChange = chkDrawOptionsChange
+      TabOrder = 4
+    end
+    object btnDetect: TButton
+      Left = 15
+      Height = 40
+      Top = 240
+      Width = 210
+      Caption = 'Detectar Pose'
+      Font.Style = [fsBold]
+      OnClick = btnDetectClick
+      ParentFont = False
+      TabOrder = 5
+    end
+    object lblScore: TLabel
+      Left = 15
+      Height = 20
+      Top = 310
+      Width = 210
+      Alignment = taCenter
+      Caption = 'Confiança: N/A'
+      Font.Height = -13
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object lblStatus: TLabel
+      Left = 15
+      Height = 15
+      Top = 340
+      Width = 210
+      Alignment = taCenter
+      Caption = 'Estado: Não Iniciado'
+      ParentColor = False
+    end
+  end
+  object pnlClient: TPanel
+    Left = 260
+    Height = 450
+    Top = 10
+    Width = 730
+    Align = alClient
+    BorderSpacing.Top = 10
+    BorderSpacing.Right = 10
+    BorderSpacing.Bottom = 10
+    ClientHeight = 450
+    ClientWidth = 730
+    TabOrder = 1
+    object pnlImage: TPanel
+      Left = 1
+      Height = 448
+      Top = 1
+      Width = 728
+      Align = alClient
+      ClientHeight = 448
+      ClientWidth = 728
+      TabOrder = 0
+      object imgPose: TImage
+        Left = 1
+        Height = 446
+        Top = 1
+        Width = 726
+        Align = alClient
+        Center = True
+        Proportional = True
+        Stretch = True
+      end
+      object pbCanvas: TPaintBox
+        Left = 1
+        Height = 446
+        Top = 1
+        Width = 726
+        Align = alClient
+        OnPaint = pbCanvasPaint
+      end
+    end
+  end
+  object pnlBottom: TPanel
+    Left = 260
+    Height = 170
+    Top = 470
+    Width = 730
+    Align = alBottom
+    BorderSpacing.Right = 10
+    BorderSpacing.Bottom = 10
+    ClientHeight = 170
+    ClientWidth = 730
+    TabOrder = 2
+    object memLog: TMemo
+      Left = 1
+      Height = 168
+      Top = 1
+      Width = 728
+      Align = alClient
+      ReadOnly = True
+      ScrollBars = ssAutoVertical
+      TabOrder = 0
+    end
+  end
+  object OpenDialog1: TOpenDialog
+    Title = 'Carregar Imagem para Detecção'
+    Filter = 'Imagens Suportadas (*.png;*.jpg;*.jpeg;*.bmp)|*.png;*.jpg;*.jpeg;*.bmp|Todos Arquivos (*.*)|*.*'
+    Left = 300
+    Top = 80
+  end
+end

@@ -10,7 +10,8 @@ interface
 uses
   aiopencvruntime, aiopencv, aicamera_backend, aicamera_vfw, aicamera_v4l2, 
   aiframeprocessor, aifacetracker, aimotiontracker, aiimageinfo, 
-  aiframebuffer, ainativeimagefilter, aiframediff, LazarusPackageIntf;
+  aiframebuffer, ainativeimagefilter, aiframediff, aihumanpose_types, 
+  aihumanposedetector, LazarusPackageIntf;
 
 implementation
 
@@ -24,6 +25,7 @@ begin
   RegisterUnit('aiframebuffer', @aiframebuffer.Register);
   RegisterUnit('ainativeimagefilter', @ainativeimagefilter.Register);
   RegisterUnit('aiframediff', @aiframediff.Register);
+  RegisterUnit('aihumanposedetector', @aihumanposedetector.Register);
 end;
 
 initialization
