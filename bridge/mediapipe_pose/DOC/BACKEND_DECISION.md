@@ -31,7 +31,7 @@ To compile and execute the proof of concept under Linux:
 ```bash
 # Configure Bazel repository dependencies
 cd bridge/mediapipe_pose
-bazel build :libmp_pose_bridge.so --define MP_BRIDGE_BACKEND=REAL
+bazel build :libai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_linux_x86_64.so --define MP_BRIDGE_BACKEND=REAL
 
 # Run smoke test linking to the generated PoC
 cd tests

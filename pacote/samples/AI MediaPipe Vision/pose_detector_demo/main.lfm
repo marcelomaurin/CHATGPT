@@ -7,6 +7,7 @@ object frmPoseDemo: TfrmPoseDemo
   ClientHeight = 650
   ClientWidth = 1000
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   LCLVersion = '3.0.0.3'
   object pnlLeft: TPanel
     Left = 10
@@ -95,8 +96,19 @@ object frmPoseDemo: TfrmPoseDemo
       Top = 310
       Width = 210
       Alignment = taCenter
-      Caption = 'Confiança: N/A'
+      Caption = 'Landmarks: N/A'
       Font.Height = -13
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object lblBackend: TLabel
+      Left = 15
+      Height = 15
+      Top = 340
+      Width = 210
+      Alignment = taCenter
+      Caption = 'Backend: N/A'
       Font.Style = [fsBold]
       ParentColor = False
       ParentFont = False
@@ -104,7 +116,7 @@ object frmPoseDemo: TfrmPoseDemo
     object lblStatus: TLabel
       Left = 15
       Height = 15
-      Top = 340
+      Top = 370
       Width = 210
       Alignment = taCenter
       Caption = 'Estado: Não Iniciado'

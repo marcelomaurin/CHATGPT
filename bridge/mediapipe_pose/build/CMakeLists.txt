@@ -47,6 +47,9 @@ if(WIN32)
     
     # Export definition file
     target_link_options(mp_pose_bridge PRIVATE "/DEF:${CMAKE_CURRENT_SOURCE_DIR}/mp_pose_bridge.def")
+    set_target_properties(mp_pose_bridge PROPERTIES
+        OUTPUT_NAME "ai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_win64"
+    )
 else()
     # Linux-specific static linkages to prevent dynamic runtime dependency issues
     target_link_options(mp_pose_bridge PRIVATE 
@@ -54,5 +57,8 @@ else()
         "-static-libgcc"
         "-Wl,--exclude-libs,ALL"
         "-Wl,--version-script,${CMAKE_CURRENT_SOURCE_DIR}/mp_pose_bridge.map"
+    )
+    set_target_properties(mp_pose_bridge PROPERTIES
+        OUTPUT_NAME "ai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_linux_x86_64"
     )
 endif()

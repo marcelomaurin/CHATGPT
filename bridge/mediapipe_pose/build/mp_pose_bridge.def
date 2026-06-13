@@ -1,4 +1,4 @@
-LIBRARY mp_pose_bridge
+LIBRARY ai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_win64
 EXPORTS
     mp_pose_get_info
     mp_pose_create

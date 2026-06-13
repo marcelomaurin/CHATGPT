@@ -4,7 +4,7 @@
   "bridge_version": "1.0.0",
   "bridge_abi_version": 1,
   "compatible_mediapipe_version": "0.10.35",
-  "binary": "mp_pose_bridge.dll",
+  "binary": "ai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_win64.dll",
   "task": "PoseLandmarker",
   "models": {
     "lite": "models/pose_landmarker_lite.task",

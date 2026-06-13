@@ -1,5 +1,5 @@
 cc_binary(
-    name = "libmp_pose_bridge.so",
+    name = "libai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_linux_x86_64.so",
     srcs = [
         "src/mp_pose_info.cpp",
         "src/mp_pose_bridge.cpp",

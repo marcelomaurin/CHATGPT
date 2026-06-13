@@ -120,11 +120,13 @@ procedure UnloadMpPoseBridge;
 function MpPoseBridgeAvailable: Boolean;
 function GetExpectedBridgeLibName: string;
 function GetLegacyBridgeLibName: string;
+function GetLastBridgeLoadError: string;
 
 implementation
 
 var
   LibHandle: TLibHandle = NilHandle;
+  LastBridgeLoadError: string = '';
 
 function GetExpectedBridgeLibName: string;
 begin
@@ -144,6 +146,11 @@ begin
   {$ELSE}
     Result := 'libmp_pose_bridge.so';
   {$ENDIF}
+end;
+
+function GetLastBridgeLoadError: string;
+begin
+  Result := LastBridgeLoadError;
 end;
 
 {$IFDEF MSWINDOWS}
@@ -187,13 +194,20 @@ function LoadMpPoseBridge(const APathOrDir: string): Boolean;
 var
   LPath: string;
   LDir: string;
+  LMissingExports: string;
 begin
   Result := False;
+  LastBridgeLoadError := '';
   UnloadMpPoseBridge;
 
   LPath := ResolveBridgeLoadPath(APathOrDir);
   if (LPath = '') or not FileExists(LPath) then
+  begin
+    LastBridgeLoadError := 'Bridge DLL não encontrada. '
+      + 'Esperada: ' + GetExpectedBridgeLibName
+      + ' (fallback legado: ' + GetLegacyBridgeLibName + ').';
     Exit;
+  end;
 
   LDir := ExtractFilePath(LPath);
 
@@ -209,6 +223,13 @@ begin
     SetDllDirectoryA(nil);
   {$ENDIF}
 
+  if LibHandle = NilHandle then
+  begin
+    LastBridgeLoadError := 'Falha ao carregar a bridge MediaPipe Pose: '
+      + LPath + ' | ' + SysErrorMessage(GetLastOSError);
+    Exit;
+  end;
+
   if LibHandle <> NilHandle then
   begin
     mp_pose_get_info := TFunc_mp_pose_get_info(GetProcAddress(LibHandle, 'mp_pose_get_info'));
@@ -218,18 +239,28 @@ begin
     mp_pose_free_result := TFunc_mp_pose_free_result(GetProcAddress(LibHandle, 'mp_pose_free_result'));
     mp_pose_last_error := TFunc_mp_pose_last_error(GetProcAddress(LibHandle, 'mp_pose_last_error'));
 
-    if Assigned(mp_pose_get_info) and
-       Assigned(mp_pose_create) and
-       Assigned(mp_pose_destroy) and
-       Assigned(mp_pose_detect) and
-       Assigned(mp_pose_free_result) and
-       Assigned(mp_pose_last_error) then
+    LMissingExports := '';
+    if not Assigned(mp_pose_get_info) then
+      LMissingExports := LMissingExports + ' mp_pose_get_info';
+    if not Assigned(mp_pose_create) then
+      LMissingExports := LMissingExports + ' mp_pose_create';
+    if not Assigned(mp_pose_destroy) then
+      LMissingExports := LMissingExports + ' mp_pose_destroy';
+    if not Assigned(mp_pose_detect) then
+      LMissingExports := LMissingExports + ' mp_pose_detect';
+    if not Assigned(mp_pose_free_result) then
+      LMissingExports := LMissingExports + ' mp_pose_free_result';
+    if not Assigned(mp_pose_last_error) then
+      LMissingExports := LMissingExports + ' mp_pose_last_error';
+
+    if LMissingExports = '' then
     begin
       Result := True;
     end
     else
     begin
       UnloadMpPoseBridge;
+      LastBridgeLoadError := 'Exports ausentes na bridge:' + LMissingExports;
     end;
   end;
 end;

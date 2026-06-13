@@ -18,7 +18,7 @@ var
   LResult: Pmp_pose_result;
 begin
   // Load DLL/SO dynamically
-  if not LoadMpPoseBridge('caminho/para/pasta/contendo/dll') then
+  if not LoadMpPoseBridge('caminho/para/arquivo_ou_pasta') then
   begin
     WriteLn('Failed to load library.');
     Exit;
@@ -95,9 +95,12 @@ begin
 end;
 ```
 
-## 3. ABI Version Check and Available Property
-The component exposes an `Available` boolean property. This property does the following checks automatically:
-1. Verifies that the platform is 64-bit (`CPU64` directive).
-2. Attempts to load the dynamic library bridge.
-3. Invokes `mp_pose_get_info` to assert that `abi_version == MP_POSE_ABI_VERSION` (currently `1`) and the architecture matches `x86_64`.
-If any of these validations fail, `Available` returns `False`, permitting the application to degrade gracefully (e.g. disable pose detection features) without crashing the Lazarus IDE or target application.
+## 3. Initialization and Availability
+The component exposes an `Initialized` boolean property that reports whether the internal detector handle exists. This is the clearest way to know if the detector is ready for `DetectBitmap` or `DetectImageFile`.
+
+The component also keeps the `Available` property for compatibility. `Available` checks:
+1. The platform is 64-bit (`CPU64` directive).
+2. The dynamic library bridge can be loaded.
+3. `mp_pose_get_info` reports `abi_version == MP_POSE_ABI_VERSION` (currently `1`) and the architecture matches `x86_64`.
+
+If any of these validations fail, `Available` returns `False`, allowing the application to degrade gracefully without crashing the Lazarus IDE or target application.

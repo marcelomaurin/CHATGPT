@@ -96,6 +96,7 @@ type
     procedure DoDiagnosticLog(const AMessage: string);
     function  GetLazarusArchitecture: string;
     function  GetBridgeArchitecture: string;
+    function  GetInitialized: Boolean;
     function  GetAvailable: Boolean;
     procedure ConvertLazIntfImageToRGB(LIntfImg: TLazIntfImage;
                 out ARGBData: Pointer; out AStride: Integer);
@@ -134,6 +135,7 @@ type
     property BridgeVersionText: string read FBridgeVersionText;
     property BridgeAbiVersion: Integer read FBridgeAbiVersion;
     property BridgeBackend: string read FBridgeBackend;
+    property Initialized: Boolean read GetInitialized;
     property LazarusArchitecture: string read GetLazarusArchitecture;
     property BridgeArchitecture: string read GetBridgeArchitecture;
     property DiagnosticLog: TStringList read FDiagnosticLog;
@@ -310,6 +312,15 @@ begin
 end;
 
 { FASE5-04 — Available usa a mesma lógica de carregamento }
+function TAIHumanPoseDetector.GetInitialized: Boolean;
+begin
+  {$IFDEF CPU64}
+  Result := (FDetectorHandle <> nil);
+  {$ELSE}
+  Result := False;
+  {$ENDIF}
+end;
+
 function TAIHumanPoseDetector.GetAvailable: Boolean;
 {$IFDEF CPU64}
 var
@@ -342,7 +353,8 @@ end;
   ============================================================ }
 function TAIHumanPoseDetector.LoadBridgeDLL: Boolean;
 var
-  LDLLName, LPlatformFolder, LBase, LCandidateDir, LPath: string;
+  LVersionedDLLName, LLegacyDLLName, LPlatformFolder, LBase, LCandidateDir,
+  LPath: string;
   I: Integer;
 begin
   Result := False;
@@ -350,10 +362,12 @@ begin
   UnloadBridgeDLL;
 
   {$IFDEF MSWINDOWS}
-  LDLLName       := 'mp_pose_bridge.dll';
+  LVersionedDLLName := GetExpectedBridgeLibName;
+  LLegacyDLLName := GetLegacyBridgeLibName;
   LPlatformFolder := 'windows-x86_64' + DirectorySeparator;
   {$ELSE}
-  LDLLName       := 'libmp_pose_bridge.so';
+  LVersionedDLLName := GetExpectedBridgeLibName;
+  LLegacyDLLName := GetLegacyBridgeLibName;
   LPlatformFolder := 'linux-x86_64' + DirectorySeparator;
   {$ENDIF}
 
@@ -363,7 +377,11 @@ begin
     if FileExists(FBridgeDLLPath) then
       LPath := FBridgeDLLPath
     else
-      LPath := AICombinePath(FBridgeDLLPath, LDLLName);
+    begin
+      LPath := AICombinePath(FBridgeDLLPath, LVersionedDLLName);
+      if not FileExists(LPath) then
+        LPath := AICombinePath(FBridgeDLLPath, LLegacyDLLName);
+    end;
   end
   else
   begin
@@ -374,10 +392,16 @@ begin
     begin
       LCandidateDir := AICombinePath(FRuntimePath, LPlatformFolder);
       if DirectoryExists(LCandidateDir) then
-        LPath := AICombinePath(LCandidateDir, LDLLName);
+      begin
+        LPath := AICombinePath(LCandidateDir, LVersionedDLLName);
+        if not FileExists(LPath) then
+          LPath := AICombinePath(LCandidateDir, LLegacyDLLName);
+      end;
       if (LPath = '') or not FileExists(LPath) then
       begin
-        LPath := AICombinePath(FRuntimePath, LDLLName);
+        LPath := AICombinePath(FRuntimePath, LVersionedDLLName);
+        if not FileExists(LPath) then
+          LPath := AICombinePath(FRuntimePath, LLegacyDLLName);
         if not FileExists(LPath) then LPath := '';
       end;
     end;
@@ -395,7 +419,9 @@ begin
           DirectorySeparator + LPlatformFolder);
         if DirectoryExists(LCandidateDir) then
         begin
-          LPath := AICombinePath(LCandidateDir, LDLLName);
+          LPath := AICombinePath(LCandidateDir, LVersionedDLLName);
+          if not FileExists(LPath) then
+            LPath := AICombinePath(LCandidateDir, LLegacyDLLName);
           if FileExists(LPath) then Break;
           LPath := '';
         end;
@@ -405,11 +431,11 @@ begin
 
     { 4. Pasta do executável }
     if (LPath = '') or not FileExists(LPath) then
-      LPath := AICombinePath(ExtractFilePath(ParamStr(0)), LDLLName);
-
-    { 5. Loader do SO (passa nome sem caminho) }
-    if (LPath <> '') and not FileExists(LPath) then
-      LPath := LDLLName;
+    begin
+      LPath := AICombinePath(ExtractFilePath(ParamStr(0)), LVersionedDLLName);
+      if not FileExists(LPath) then
+        LPath := AICombinePath(ExtractFilePath(ParamStr(0)), LLegacyDLLName);
+    end;
   end;
 
   DoDiagnosticLog('Resolving MediaPipe bridge: ' + LPath);
@@ -418,13 +444,14 @@ begin
   begin
     FLastError := 'Bridge DLL não encontrada. '
                 + 'Verifique BridgeDLLPath ou RuntimePath. '
-                + 'Esperada: ' + LDLLName
+                + 'Esperada: ' + LVersionedDLLName
+                + ' (fallback legado: ' + LLegacyDLLName + ')'
                 + ' | Último caminho testado: ' + LPath;
     DoDiagnosticLog(FLastError);
     Exit(False);
   end;
 
-  if LoadMpPoseBridge(ExtractFilePath(LPath)) then
+  if LoadMpPoseBridge(LPath) then
   begin
     FLoadedBridgeDLLPath := LPath;
     DoDiagnosticLog('Bridge carregada: ' + LPath);
@@ -433,6 +460,8 @@ begin
   else
   begin
     FLastError := 'Falha ao carregar a bridge MediaPipe Pose: ' + LPath;
+    if GetLastBridgeLoadError <> '' then
+      FLastError := FLastError + ' | ' + GetLastBridgeLoadError;
     DoDiagnosticLog(FLastError);
   end;
   {$ELSE}
@@ -446,6 +475,12 @@ begin
   UnloadMpPoseBridge;
   {$ENDIF}
   FLoadedBridgeDLLPath := '';
+  FLoadedModelFile := '';
+  FBridgeVersionText := '';
+  FBridgeAbiVersion := 0;
+  FBridgeBackend := 'UNKNOWN';
+  FRequiredMediaPipeVersionRead := '';
+  FActive := False;
 end;
 
 { ============================================================
@@ -455,12 +490,59 @@ function TAIHumanPoseDetector.ResolveModelPath: string;
 var
   LBase, LRuntimeRoot, LCandidate: string;
   I: Integer;
+
+  function BuildModelPath(const ABaseDir: string): string;
+  begin
+    case FModelVariant of
+      hpmLite:
+        if SameText(FBridgeBackend, 'REAL') then
+          Result := IncludeTrailingPathDelimiter(ABaseDir) + 'models' + DirectorySeparator + 'pose_landmarker_full.task'
+        else
+          Result := IncludeTrailingPathDelimiter(ABaseDir) + 'models' + DirectorySeparator + 'pose_landmarker_lite.task';
+      hpmHeavy:
+        if SameText(FBridgeBackend, 'REAL') then
+          Result := IncludeTrailingPathDelimiter(ABaseDir) + 'models' + DirectorySeparator + 'pose_landmarker_full.task'
+        else
+          Result := IncludeTrailingPathDelimiter(ABaseDir) + 'models' + DirectorySeparator + 'pose_landmarker_heavy.task';
+    else
+      Result := IncludeTrailingPathDelimiter(ABaseDir) + 'models' + DirectorySeparator + 'pose_landmarker_full.task';
+    end;
+  end;
+
+  function TryRuntimeBase(const ABaseDir: string): string;
+  begin
+    Result := '';
+    if ABaseDir = '' then Exit;
+    Result := BuildModelPath(ABaseDir);
+    if not FileExists(Result) then
+      Result := '';
+  end;
 begin
   Result := '';
 
   if FModelFile <> '' then
   begin
     if FileExists(FModelFile) then Exit(FModelFile);
+  end;
+
+  if FLoadedBridgeDLLPath <> '' then
+  begin
+    Result := TryRuntimeBase(ExtractFilePath(FLoadedBridgeDLLPath));
+    if Result <> '' then Exit;
+  end;
+
+  if FRuntimePath <> '' then
+  begin
+    {$IFDEF MSWINDOWS}
+    Result := TryRuntimeBase(AICombinePath(FRuntimePath, 'windows-x86_64' + DirectorySeparator));
+    if Result <> '' then Exit;
+    {$ELSE}
+    Result := TryRuntimeBase(AICombinePath(FRuntimePath, 'linux-x86_64' + DirectorySeparator));
+    if Result <> '' then Exit;
+    {$ENDIF}
+
+    Result := TryRuntimeBase(FRuntimePath);
+    if Result <> '' then Exit;
   end;
 
   LBase        := ExtractFilePath(ParamStr(0));
@@ -488,11 +570,7 @@ begin
   LCandidate := LCandidate + 'linux-x86_64' + DirectorySeparator;
   {$ENDIF}
 
-  case FModelVariant of
-    hpmLite:  Result := LCandidate + 'models' + DirectorySeparator + 'pose_landmarker_lite.task';
-    hpmHeavy: Result := LCandidate + 'models' + DirectorySeparator + 'pose_landmarker_heavy.task';
-  else        Result := LCandidate + 'models' + DirectorySeparator + 'pose_landmarker_full.task';
-  end;
+  Result := BuildModelPath(LCandidate);
 end;
 
 { ============================================================
@@ -512,6 +590,7 @@ var
 begin
   FLastError := '';
   Result := False;
+  FActive := False;
   DoDiagnosticLog('Initializing TAIHumanPoseDetector...');
 
   {$IFNDEF CPU64}
@@ -574,12 +653,14 @@ begin
 
   if FBridgeBackend = 'REAL' then
   begin
+    if FModelVariant <> hpmFull then
+      DoDiagnosticLog('Backend REAL ativo: pose_landmarker_full.task será usado independentemente da variante selecionada.');
     LModel := ResolveModelPath;
     DoDiagnosticLog('Model task file: ' + LModel);
     if (LModel = '') or not FileExists(LModel) then
     begin
       FLastError := 'Modelo MediaPipe Pose Landmarker não encontrado '
-                  + '(backend REAL exige arquivo .task).';
+                  + '(backend REAL exige pose_landmarker_full.task).';
       DoDiagnosticLog(FLastError);
       if Assigned(FOnPoseError) then
         FOnPoseError(Self, HUMAN_POSE_ERR_MODEL_LOAD, FLastError);
@@ -612,6 +693,7 @@ begin
   begin
     DoDiagnosticLog('Handle do detector criado com sucesso.');
     Result := True;
+    FActive := True;
   end
   else
   begin
@@ -621,6 +703,7 @@ begin
       FLastError := Format('Falha ao criar detector. Código: %d', [Res]);
     DoDiagnosticLog(FLastError);
     FDetectorHandle := nil;
+    FActive := False;
     if Assigned(FOnPoseError) then
       FOnPoseError(Self, Res, FLastError);
   end;

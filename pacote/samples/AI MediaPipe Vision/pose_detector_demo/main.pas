@@ -30,6 +30,7 @@ type
     cbModelVariant: TComboBox;
     
     lblScore: TLabel;
+    lblBackend: TLabel;
     lblStatus: TLabel;
     
     imgPose: TImage;
@@ -39,6 +40,7 @@ type
     OpenDialog1: TOpenDialog;
 
     procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
     procedure btnLoadImageClick(Sender: TObject);
     procedure btnDetectClick(Sender: TObject);
     procedure pbCanvasPaint(Sender: TObject);
@@ -55,6 +57,8 @@ type
     btnReinit: TButton;
     
     procedure LogMsg(const AMsg: string);
+    procedure SyncBackendStatus;
+    procedure LogDetectorSummary;
     function GetImageDestRect: TRect;
     procedure btnBrowseRuntimeClick(Sender: TObject);
     procedure btnReinitClick(Sender: TObject);
@@ -144,10 +148,17 @@ begin
   chkPoints.Checked := True;
   chkNames.Checked := False;
   
-  lblScore.Caption := 'Confiança: N/A';
+  lblScore.Caption := 'Landmarks: N/A';
+  lblBackend.Caption := 'Backend: N/A';
   lblStatus.Caption := 'Estado: Não Iniciado';
   
   LogMsg('FormCreate: Human Pose Detector MediaPipe Demo Initialized. (Click "Carregar / Re-inicializar" to load library)');
+end;
+
+procedure TfrmPoseDemo.FormDestroy(Sender: TObject);
+begin
+  FreeAndNil(FBmp);
+  FreeAndNil(FDetector);
 end;
 
 procedure TfrmPoseDemo.btnLoadImageClick(Sender: TObject);
@@ -190,18 +201,20 @@ begin
         
         LogMsg('btnLoadImageClick: Clearing old detection points...');
         FDetector.ClearResult;
+        lblScore.Caption := 'Landmarks: N/A';
         
         LogMsg('btnLoadImageClick: Requesting repaint on canvas overlay...');
         pbCanvas.Invalidate;
         
         LogMsg(Format('btnLoadImageClick: Loaded successfully (%dx%d)', [FBmp.Width, FBmp.Height]));
-      except
-        on E: Exception do
-        begin
-          LogMsg('btnLoadImageClick: Exception caught during loading: ' + E.Message);
-          ShowMessage('Failed to load image: ' + E.Message);
+        except
+          on E: Exception do
+          begin
+            LogMsg('btnLoadImageClick: Exception caught during loading: ' + E.Message);
+            lblScore.Caption := 'Landmarks: N/A';
+            ShowMessage('Failed to load image: ' + E.Message);
+          end;
         end;
-      end;
     finally
       LPicture.Free;
       LogMsg('btnLoadImageClick: Reader object instance freed.');
@@ -221,31 +234,40 @@ var
   I: Integer;
 begin
   LogMsg('btnDetectClick: Verification steps started.');
-  
-  LogMsg('btnDetectClick: Clearing old points...');
-  FDetector.ClearResult;
-  pbCanvas.Invalidate;
-  
+
   if FBmp.Width = 0 then
   begin
     LogMsg('btnDetectClick: Error - No image loaded in active buffer.');
+    lblScore.Caption := 'Landmarks: N/A';
     ShowMessage('Please load an image first.');
     Exit;
   end;
 
-  if not FDetector.Available then
+  if not FDetector.Initialized then
   begin
     LogMsg('btnDetectClick: Detector dynamic library not loaded. Attempting initialization...');
     if not FDetector.Initialize then
     begin
-      LogMsg('btnDetectClick: Error - MediaPipe dynamic library could not be loaded: ' + FDetector.LastError);
-      ShowMessage('Error: MediaPipe dynamic library could not be loaded. Please ensure the DLL is placed in the runtime directory.' + sLineBreak + 'Details: ' + FDetector.LastError);
+      LogMsg('btnDetectClick: Error - Detector initialization failed: ' + FDetector.LastError);
+      lblStatus.Caption := 'Estado: Erro na inicialização';
+      lblScore.Caption := 'Landmarks: N/A';
+      SyncBackendStatus;
+      ShowMessage('Error: detector initialization failed.' + sLineBreak + 'Details: ' + FDetector.LastError);
       Exit;
     end;
     LogMsg('btnDetectClick: DLL loaded successfully at runtime!');
-    LogMsg('btnDetectClick: DLL found at: ' + FDetector.LoadedBridgeDLLPath);
-    LogMsg('btnDetectClick: DLL version: ' + FDetector.BridgeVersionText);
+    LogDetectorSummary;
+    if SameText(FDetector.BridgeBackend, 'REAL') then
+      cbModelVariant.ItemIndex := 1;
+    lblStatus.Caption := 'Estado: Inicializado';
+    SyncBackendStatus;
   end;
+
+  LogMsg('btnDetectClick: Clearing old points...');
+  FDetector.ClearResult;
+  pbCanvas.Invalidate;
+
+  SyncBackendStatus;
 
   LogMsg('btnDetectClick: Initializing detector configuration options...');
   
@@ -288,9 +310,10 @@ begin
       
     if Success and (FDetector.GetPoseCount > 0) then
     begin
-      lblScore.Caption := 'Confiança: N/A';
+      lblScore.Caption := Format('Landmarks: %d', [FDetector.LastResultData.Poses[0].LandmarkCount]);
       lblStatus.Caption := 'Estado: Pose Detectada';
       LogMsg('btnDetectClick: Pose detected.');
+      LogMsg(Format('Landmarks: %d', [FDetector.LastResultData.Poses[0].LandmarkCount]));
       
       LogMsg('=== PONTOS IDENTIFICADOS ===');
       for I := 0 to 32 do
@@ -316,13 +339,14 @@ begin
       LogMsg('27..28: Tornozelos');
       LogMsg('29..32: Calcanhares e Pés');
       LogMsg('==========================');
+      LogMsg(Format('Tempo: %.2f ms', [ElapsedMs]));
       
       LogMsg('btnDetectClick: Requesting repaint on canvas overlay...');
       pbCanvas.Invalidate;
     end
     else
     begin
-      lblScore.Caption := 'Confiança: N/A';
+      lblScore.Caption := 'Landmarks: 0';
       lblStatus.Caption := 'Estado: Nenhuma Pose Detectada';
       LogMsg('btnDetectClick: No pose found in the processed bitmap.');
     end;
@@ -330,6 +354,8 @@ begin
     on E: Exception do
     begin
       LogMsg('btnDetectClick: Exception caught during processing: ' + E.Message);
+      lblStatus.Caption := 'Estado: Erro na detecção';
+      lblScore.Caption := 'Landmarks: N/A';
       ShowMessage('Error: ' + E.Message);
     end;
   end;
@@ -341,11 +367,35 @@ var
 begin
   if Assigned(FDetector) and (FDetector.GetPoseCount > 0) then
   begin
-    LogMsg('pbCanvasPaint: Painting pose bones and landmarks overlay...');
     LRect := GetImageDestRect;
-    LogMsg(Format('pbCanvasPaint: Drawing within destination bounds: Left=%d, Top=%d, Width=%d, Height=%d',
-      [LRect.Left, LRect.Top, LRect.Right - LRect.Left, LRect.Bottom - LRect.Top]));
     FDetector.DrawResult(pbCanvas.Canvas, LRect);
+  end;
+end;
+
+procedure TfrmPoseDemo.SyncBackendStatus;
+begin
+  if Assigned(FDetector) and FDetector.Initialized then
+    lblBackend.Caption := 'Backend: ' + FDetector.BridgeBackend
+  else
+    lblBackend.Caption := 'Backend: N/A';
+end;
+
+procedure TfrmPoseDemo.LogDetectorSummary;
+begin
+  if not Assigned(FDetector) then
+    Exit;
+
+  LogMsg('DLL carregada: ' + FDetector.LoadedBridgeDLLPath);
+  LogMsg('Bridge version: ' + FDetector.BridgeVersionText);
+  LogMsg('MediaPipe version: ' + FDetector.RequiredMediaPipeVersion);
+  LogMsg('Backend: ' + FDetector.BridgeBackend);
+
+  if SameText(FDetector.BridgeBackend, 'SIM') then
+    LogMsg('ATENÇÃO: backend SIM gera landmarks simulados. Ele não reconhece a imagem real.')
+  else if SameText(FDetector.BridgeBackend, 'REAL') then
+  begin
+    LogMsg('Backend REAL ativo.');
+    LogMsg('Modelo carregado: ' + FDetector.LoadedModelFile);
   end;
 end;
 
@@ -487,17 +537,22 @@ begin
   if FDetector.Initialize then
   begin
     LogMsg('btnReinitClick: Detector re-initialized successfully!');
-    LogMsg('btnReinitClick: DLL loaded from: ' + FDetector.LoadedBridgeDLLPath);
-    LogMsg('btnReinitClick: DLL version: ' + FDetector.BridgeVersionText);
-    lblStatus.Caption := 'Estado: DLL Carregada';
+    LogDetectorSummary;
+    if SameText(FDetector.BridgeBackend, 'REAL') then
+      cbModelVariant.ItemIndex := 1;
+    lblStatus.Caption := 'Estado: Inicializado';
+    lblScore.Caption := 'Landmarks: N/A';
+    SyncBackendStatus;
     edRuntimePath.Text := FDetector.LoadedBridgeDLLPath;
     ShowMessage('Detector re-inicializado com sucesso!' + sLineBreak + 'DLL: ' + FDetector.LoadedBridgeDLLPath);
   end
   else
   begin
-    LogMsg('btnReinitClick: ERROR re-initializing: ' + FDetector.LastError);
-    lblStatus.Caption := 'Estado: Erro na DLL';
-    ShowMessage('Falha ao re-inicializar DLL: ' + FDetector.LastError);
+    LogMsg('btnReinitClick: ERROR re-initializing detector: ' + FDetector.LastError);
+    lblStatus.Caption := 'Estado: Erro na inicialização';
+    lblScore.Caption := 'Landmarks: N/A';
+    SyncBackendStatus;
+    ShowMessage('Falha ao re-inicializar o detector: ' + FDetector.LastError);
   end;
 end;
 

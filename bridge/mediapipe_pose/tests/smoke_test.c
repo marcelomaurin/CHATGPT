@@ -8,14 +8,14 @@
   #define LoadLib(path) LoadLibraryA(path)
   #define GetSym(handle, name) GetProcAddress(handle, name)
   #define CloseLib(handle) FreeLibrary(handle)
-  #define LIB_NAME "mp_pose_bridge.dll"
+  #define LIB_NAME "ai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_win64.dll"
 #else
   #include <dlfcn.h>
   typedef void* LibHandle;
   #define LoadLib(path) dlopen(path, RTLD_LAZY)
   #define GetSym(handle, name) dlsym(handle, name)
   #define CloseLib(handle) dlclose(handle)
-  #define LIB_NAME "./libmp_pose_bridge.so"
+  #define LIB_NAME "./libai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_linux_x86_64.so"
 #endif
 
 typedef int32_t (MP_POSE_CALL *TFunc_mp_pose_get_info)(mp_pose_info* out_info);
