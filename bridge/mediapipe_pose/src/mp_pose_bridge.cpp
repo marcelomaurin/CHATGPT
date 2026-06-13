@@ -137,7 +137,7 @@ int32_t MP_POSE_CALL mp_pose_detect(mp_pose_handle h, const mp_image_raw* img, m
   res->world_landmarks = (mp_world_landmark*)calloc(res->pose_count * MP_POSE_LANDMARK_COUNT, sizeof(mp_world_landmark));
 
   if (!res->landmarks || !res->world_landmarks) {
-    mp_pose_free_result(res);
+    mp_pose_free_result(&res);
     ctx->last_error = "Failed to allocate memory for result landmarks arrays.";
     return MP_ERR_OUT_OF_MEMORY;
   }
@@ -163,7 +163,7 @@ int32_t MP_POSE_CALL mp_pose_detect(mp_pose_handle h, const mp_image_raw* img, m
   }
 
   if (status != 0) {
-    mp_pose_free_result(res);
+    mp_pose_free_result(&res);
     ctx->last_error = error_msg ? error_msg : "MediaPipe native inference failed.";
     if (error_msg) free(error_msg);
     return MP_ERR_INFERENCE;

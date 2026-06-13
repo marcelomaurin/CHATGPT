@@ -13,6 +13,18 @@ uses
   {$ENDIF}
   ;
 
+const
+  HUMAN_POSE_ABI_VERSION = 1;
+  HUMAN_POSE_OK                  = 0;
+  HUMAN_POSE_ERR_ABI_MISMATCH    = 1;
+  HUMAN_POSE_ERR_BAD_ARG         = 2;
+  HUMAN_POSE_ERR_MODEL_LOAD      = 3;
+  HUMAN_POSE_ERR_NOT_INITIALIZED = 4;
+  HUMAN_POSE_ERR_INFERENCE       = 5;
+  HUMAN_POSE_ERR_UNSUPPORTED     = 6;
+  HUMAN_POSE_ERR_OUT_OF_MEMORY   = 7;
+  HUMAN_POSE_ERR_BACKEND         = 8;
+
 type
   TAIHumanPoseDetectedEvent = procedure(Sender: TObject; const AResult: TAIHumanPoseResult) of object;
   TAIHumanPoseErrorEvent = procedure(Sender: TObject; ACode: Integer; const AMsg: string) of object;
@@ -270,8 +282,10 @@ begin
 end;
 
 function TAIHumanPoseDetector.GetBridgeArchitecture: string;
+{$IFDEF CPU64}
 var
   LInfo: tmp_pose_info;
+{$ENDIF}
 begin
   Result := 'Unknown';
   {$IFDEF CPU64}
@@ -279,15 +293,17 @@ begin
   begin
     FillChar(LInfo, SizeOf(LInfo), 0);
     LInfo.struct_size := SizeOf(LInfo);
-    if mp_pose_get_info(@LInfo) = MP_OK then
+    if mp_pose_get_info(@LInfo) = HUMAN_POSE_OK then
       Result := string(LInfo.arch);
   end;
   {$ENDIF}
 end;
 
 function TAIHumanPoseDetector.GetAvailable: Boolean;
+{$IFDEF CPU64}
 var
   LInfo: tmp_pose_info;
+{$ENDIF}
 begin
   Result := False;
   {$IFDEF CPU64}
@@ -300,9 +316,9 @@ begin
 
   FillChar(LInfo, SizeOf(LInfo), 0);
   LInfo.struct_size := SizeOf(LInfo);
-  if mp_pose_get_info(@LInfo) = MP_OK then
+  if mp_pose_get_info(@LInfo) = HUMAN_POSE_OK then
   begin
-    Result := (LInfo.abi_version = MP_POSE_ABI_VERSION) and
+    Result := (LInfo.abi_version = HUMAN_POSE_ABI_VERSION) and
               (string(LInfo.arch) = 'x86_64');
   end;
   {$ENDIF}
@@ -468,7 +484,7 @@ begin
   FLastError := 'Plataforma 32-bit não suportada (somente x86_64).';
   DoDiagnosticLog(FLastError);
   if Assigned(FOnPoseError) then
-    FOnPoseError(Self, MP_ERR_UNSUPPORTED, FLastError);
+    FOnPoseError(Self, HUMAN_POSE_ERR_UNSUPPORTED, FLastError);
   Exit;
   {$ELSE}
 
@@ -485,7 +501,7 @@ begin
   FillChar(LInfo, SizeOf(LInfo), 0);
   LInfo.struct_size := SizeOf(LInfo);
   Res := mp_pose_get_info(@LInfo);
-  if Res <> MP_OK then
+  if Res <> HUMAN_POSE_OK then
   begin
     FLastError := 'Falha ao obter metadados da bridge.';
     DoDiagnosticLog(FLastError);
@@ -494,12 +510,12 @@ begin
     Exit;
   end;
 
-  if LInfo.abi_version <> MP_POSE_ABI_VERSION then
+  if LInfo.abi_version <> HUMAN_POSE_ABI_VERSION then
   begin
-    FLastError := Format('Incompatibilidade de ABI. Esperada: %d, Obtida: %d', [MP_POSE_ABI_VERSION, LInfo.abi_version]);
+    FLastError := Format('Incompatibilidade de ABI. Esperada: %d, Obtida: %d', [HUMAN_POSE_ABI_VERSION, LInfo.abi_version]);
     DoDiagnosticLog(FLastError);
     if Assigned(FOnPoseError) then
-      FOnPoseError(Self, MP_ERR_ABI_MISMATCH, FLastError);
+      FOnPoseError(Self, HUMAN_POSE_ERR_ABI_MISMATCH, FLastError);
     Exit;
   end;
 
@@ -530,8 +546,8 @@ begin
     LCfg.output_segmentation_mask := Integer(FOutputSegmentationMasks);
     LCfg.num_threads := 0; // auto
 
-    Res := mp_pose_create(@LCfg, @FDetectorHandle);
-    if (Res = MP_OK) and (FDetectorHandle <> nil) then
+     Res := mp_pose_create(@LCfg, @FDetectorHandle);
+    if (Res = HUMAN_POSE_OK) and (FDetectorHandle <> nil) then
     begin
       DoDiagnosticLog('Successfully created MediaPipe pose detector handle.');
       Result := True;
@@ -549,7 +565,7 @@ begin
       FLastError := 'Failed to initialize MediaPipe Native: ' + E.Message;
       DoDiagnosticLog(FLastError);
       if Assigned(FOnPoseError) then
-        FOnPoseError(Self, MP_ERR_BACKEND, FLastError);
+        FOnPoseError(Self, HUMAN_POSE_ERR_BACKEND, FLastError);
     end;
   end;
   {$ENDIF}
@@ -699,9 +715,9 @@ begin
     LImg.stride := AStride;
     LImg.timestamp_ms := 0; // Monotonic frame timestamp
 
-    LLastResultPtr := nil;
+     LLastResultPtr := nil;
     Res := mp_pose_detect(FDetectorHandle, @LImg, @LLastResultPtr);
-    if (Res = MP_OK) and (LLastResultPtr <> nil) then
+    if (Res = HUMAN_POSE_OK) and (LLastResultPtr <> nil) then
     begin
       // Map C struct results to Lazarus record structure
       FLastResultData.PoseCount := LLastResultPtr^.pose_count;
@@ -748,7 +764,7 @@ begin
     begin
       FLastError := 'Erro ao executar detecção de buffer: ' + E.Message;
       if Assigned(FOnPoseError) then
-        FOnPoseError(Self, MP_ERR_INFERENCE, FLastError);
+        FOnPoseError(Self, HUMAN_POSE_ERR_INFERENCE, FLastError);
     end;
   end;
   {$ELSE}
@@ -856,5 +872,16 @@ end;
 
 initialization
   {$I aihumanposedetector_icon.lrs}
+  {$IFDEF CPU64}
+  Assert(HUMAN_POSE_OK = MP_OK);
+  Assert(HUMAN_POSE_ERR_ABI_MISMATCH = MP_ERR_ABI_MISMATCH);
+  Assert(HUMAN_POSE_ERR_BAD_ARG = MP_ERR_BAD_ARG);
+  Assert(HUMAN_POSE_ERR_MODEL_LOAD = MP_ERR_MODEL_LOAD);
+  Assert(HUMAN_POSE_ERR_NOT_INITIALIZED = MP_ERR_NOT_INITIALIZED);
+  Assert(HUMAN_POSE_ERR_INFERENCE = MP_ERR_INFERENCE);
+  Assert(HUMAN_POSE_ERR_UNSUPPORTED = MP_ERR_UNSUPPORTED);
+  Assert(HUMAN_POSE_ERR_OUT_OF_MEMORY = MP_ERR_OUT_OF_MEMORY);
+  Assert(HUMAN_POSE_ERR_BACKEND = MP_ERR_BACKEND);
+  {$ENDIF}
 
 end.

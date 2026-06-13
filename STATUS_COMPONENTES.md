@@ -2,6 +2,9 @@
 
 Este documento descreve o estado atual de maturidade, a categoria operacional e observações cruciais sobre os componentes da suíte de Inteligência Artificial do Lazarus.
 
+> [!WARNING]
+> **Restrição de Arquitetura (64-bit Only)**: O processamento de Visão Computacional (especialmente a bridge do MediaPipe em `TAIHumanPoseDetector`) suporta exclusivamente plataformas de **64-bit** (Windows 64-bit e Linux 64-bit). Em plataformas de 32-bit, o componente é compilado com sucesso mas reporta-se indisponível (`Available = False`) em tempo de execução para evitar quebras no build da suíte.
+
 | Componente | Categoria | Status | Observação / Compatibilidade |
 | :--- | :--- | :--- | :--- |
 | **TCHATGPT** | `ccModel` | Beta/Estável | Conector principal para APIs compatíveis com OpenAI. Estável para envio de mensagens e integração de modelos. |
@@ -20,7 +23,7 @@ Este documento descreve o estado atual de maturidade, a categoria operacional e 
 | **TAIMQTTClient** | `ccInput` | Experimental | Cliente leve IoT baseada em MQTT para publicação e recebimento de tópicos em tempo real com thread dedicada. |
 | **TAIIndustrialBridge**| `ccInput`| Experimental | Ponte de baixo nível para integração com PLCs Siemens/Profinet/Profibus. |
 | **TAIVoiceSynthesizer**| `ccOutput`| Experimental | Sintetizador de voz de texto para fala (usando APIs nativas do SO). |
-| **TAIHumanPoseDetector**| `ccVision`| Placeholder/Experimental | Detecção de pose humana via MediaPipe Bridge DLL/SO. Atualmente em desenvolvimento, operando com backend de simulação (mock) para desenvolvimento e testes. |
+| **TAIHumanPoseDetector**| `ccVision`| Placeholder/Experimental | Bridge com backend simulado (mock); inferência MediaPipe real pendente. Disponível apenas em 64-bit (em 32-bit fica indisponível sem quebrar o build). |
 
 ## Compatibilidade de Formatos Documentais
 

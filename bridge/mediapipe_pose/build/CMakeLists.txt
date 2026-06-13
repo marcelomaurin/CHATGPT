@@ -15,10 +15,25 @@ target_include_directories(mp_pose_bridge PRIVATE
     ../include
 )
 
+# Backend selection: SIM (simulated) or REAL (MediaPipe integration)
+set(MP_BRIDGE_BACKEND "SIM" CACHE STRING "Execution backend: SIM or REAL")
+set_property(CACHE MP_BRIDGE_BACKEND PROPERTY STRINGS "SIM" "REAL")
+
+if(NOT MP_BRIDGE_BACKEND STREQUAL "SIM" AND NOT MP_BRIDGE_BACKEND STREQUAL "REAL")
+    message(FATAL_ERROR "Invalid MP_BRIDGE_BACKEND value: '${MP_BRIDGE_BACKEND}'. Must be SIM or REAL.")
+endif()
+
 # Compile definitions
 target_compile_definitions(mp_pose_bridge PRIVATE
     MP_POSE_BUILD
 )
+
+if(MP_BRIDGE_BACKEND STREQUAL "REAL")
+    message(WARNING "REAL MediaPipe backend selected. Bazel / MediaPipe C API configuration is required for compilation.")
+    target_compile_definitions(mp_pose_bridge PRIVATE MP_BRIDGE_BACKEND_REAL)
+else()
+    target_compile_definitions(mp_pose_bridge PRIVATE MP_BRIDGE_BACKEND_SIM)
+endif()
 
 # Configure output directories
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)

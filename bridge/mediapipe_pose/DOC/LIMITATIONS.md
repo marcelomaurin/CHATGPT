@@ -2,6 +2,11 @@
 
 This document lists the scope limitations and architectural constraints of the `mp_pose_bridge` version 1.0.
 
+> [!WARNING]
+> **Active Simulated (SIM) Backend**: The default build backend of this library is `SIM` (Simulated Mock). It returns deterministic simulated coordinates instead of running real neural network inference. The `REAL` MediaPipe inference backend is currently postponed behind gate `A0` (see `BACKEND_DECISION.md`).
+> 
+> **64-bit Architecture Gate**: Dynamic loading of the bridge library is strictly restricted to **64-bit** platforms (`x86_64` Windows and Linux). While 32-bit compilation is allowed in Lazarus to avoid breaking the compilation of the `openai_vision.lpk` suite, the component will report `Available = False` and fail gracefully on initialization without running any bridge logic.
+
 ## 1. 64-bit Target Only
 - **Constraint:** The library only targets `windows-x86_64` and `linux-x86_64`.
 - **Reasoning:** MediaPipe's underlying TensorFlow Lite engine relies on SIMD instructions (AVX, SSE) and x86-64 assembly extensions. No official support or build targets exist for 32-bit (i386/x86) desktop architectures. Attempting to build or load the library on 32-bit platforms will result in linkage errors or compilation crashes.

@@ -2,6 +2,9 @@
 
 This document registers the gating design decisions and evaluation of the dynamic wrapper backend for the MediaPipe Pose Bridge.
 
+> [!IMPORTANT]
+> **GATE A0 (Gate de Bloqueio)**: Este documento é o Gate de Entrada para qualquer trabalho de integração do backend REAL (MediaPipe Tasks C API / Bazel / linkage real). Nenhum desenvolvimento, link, ou importação de dependências reais do SDK MediaPipe deve ser iniciado antes da aprovação explícita e assinatura deste gate (A0). Até lá, apenas o backend SIM (Simulado) é compilado e testado.
+
 ## 1. Selected API & Justification
 
 - **Primary Choice:** **Tasks C API** (`mediapipe/tasks/c/vision/pose_landmarker/pose_landmarker_c_api.h`).

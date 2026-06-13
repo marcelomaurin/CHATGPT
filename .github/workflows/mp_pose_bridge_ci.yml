@@ -33,13 +33,13 @@ jobs:
     - name: Set up Bazel (Bazelisk)
       uses: bazelbuild/setup-bazelisk@v2
 
-    - name: Configure CMake
+    - name: Configure CMake (SIM Backend)
       run: |
         mkdir -p bridge/mediapipe_pose/build/out
         cd bridge/mediapipe_pose/build/out
-        cmake -DMP_POSE_BUILD=ON ..
+        cmake -DMP_POSE_BUILD=ON -DMP_BRIDGE_BACKEND=SIM ..
 
-    - name: Build Bridge Library
+    - name: Build Bridge Library (SIM Backend)
       run: |
         cd bridge/mediapipe_pose/build/out
         cmake --build . --config Release

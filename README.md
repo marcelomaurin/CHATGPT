@@ -19,6 +19,11 @@
 [![Free Pascal](https://img.shields.io/badge/Free%20Pascal-FPC-blue.svg)](https://www.freepascal.org/)
 [![Status](https://img.shields.io/badge/status-in%20development-yellow.svg)]()
 
+> [!WARNING]
+> **Aviso Importante de Arquitetura e Integração**:
+> 1. A suíte suporta o componente de detecção de pose humana (`TAIHumanPoseDetector`) **exclusivamente em plataformas de 64-bit (x86_64)** no Windows e no Linux. Em sistemas de 32-bit o componente compila normalmente mas reporta-se indisponível em runtime.
+> 2. O backend do MediaPipe Pose (`TAIHumanPoseDetector`) encontra-se no marco **SIM (Simulado/Mock)**. A ponte de baixo nível retorna pontos simulados determinísticos. A inferência real com o SDK do MediaPipe está em desenvolvimento e é condicionada a decisões futuras de backend.
+
 ---
 
 ## Visão geral

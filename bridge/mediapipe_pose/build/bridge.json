@@ -13,9 +13,7 @@
   },
   "default_model": "full",
   "landmark_count": 33,
-  "link_mode": "sidecar",
-  "dependencies": [
-    "libtensorflowlite_c.dll",
-    "libopencv_world.dll"
-  ]
+  "backend": "SIM",
+  "link_mode": "static",
+  "dependencies": []
 }

@@ -2,6 +2,9 @@
 
 Esta matriz registra o estado atual dos principais componentes da **Lazarus AI Suite**.
 
+> [!WARNING]
+> **Restrição de Arquitetura (64-bit Only)**: Componentes baseados em pontes nativas complexas de Machine Learning, como o `TAIHumanPoseDetector` (MediaPipe), rodam exclusivamente em plataformas de **64-bit**. Em compilações de 32-bit, estes componentes reportam indisponibilidade sem interromper a compilação do pacote.
+
 Use esta classificação para documentação, README de abas, samples e planejamento de releases.
 
 ---
@@ -87,7 +90,7 @@ Use esta classificação para documentação, README de abas, samples e planejam
 | `TAIFrameBuffer` | `aiframebuffer.pas` | `openai_vision` | Experimental | Buffer de frames circular em memória para processamento de vídeo |
 | `TAINativeImageFilter` | `ainativeimagefilter.pas` | `openai_vision` | Experimental | Filtros rápidos de pixel (Cinza, Limiar, Inverter, Resize, Blur) 100% nativos |
 | `TAIFrameDiff` | `aiframediff.pas` | `openai_vision` | Experimental | Geração nativa de diferença absoluta de pixels entre frames |
-| `TAIHumanPoseDetector` | `aihumanposedetector.pas` | `openai_vision` | Placeholder/Experimental | Estrutura da API definida, mas inferência real está em desenvolvimento. Atualmente usa backend simulado. |
+| `TAIHumanPoseDetector` | `aihumanposedetector.pas` | `openai_vision` | Placeholder/Experimental | Bridge com backend simulado (mock); inferência real pendente. Exclusivo 64-bit (indisponível em 32-bit). |
 
 ---
 

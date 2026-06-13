@@ -63,11 +63,12 @@ To make the library auto-contained and avoid dependencies on C/C++ runtimes:
 ## 5. Backend Configuration Flag (MP_BRIDGE_BACKEND)
 
 When generating build files with CMake, you can configure the backend target:
-- `-DMP_BRIDGE_BACKEND=SIM` (default): builds the bridge using simulation mock logic, resolving compilation without Bazel.
-- `-DMP_BRIDGE_BACKEND=REAL`: links and integrates with the MediaPipe Tasks C API framework.
+- `-DMP_BRIDGE_BACKEND=SIM` (default): builds the bridge using simulation mock logic, resolving compilation without Bazel. **Compilável e testável agora em qualquer ambiente.**
+- `-DMP_BRIDGE_BACKEND=REAL`: links and integrates with the MediaPipe Tasks C API framework. **Em integração / Não validado (Placeholder/Experimental).**
 
 Example configuration command:
 ```bash
-cmake -DMP_BRIDGE_BACKEND=REAL -DMP_POSE_BUILD=ON ..
+cmake -DMP_BRIDGE_BACKEND=SIM -DMP_POSE_BUILD=ON ..
 ```
+
 
