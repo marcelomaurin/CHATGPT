@@ -28,3 +28,6 @@
 
 ![Voicesynthesizer](voicesynthesizer.jpg)
 
+## Pose Detector Demo
+
+![Pose Detector Demo](pose_detector_demo.jpg)
