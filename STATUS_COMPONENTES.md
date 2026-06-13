@@ -20,7 +20,7 @@ Este documento descreve o estado atual de maturidade, a categoria operacional e 
 | **TAIMQTTClient** | `ccInput` | Experimental | Cliente leve IoT baseada em MQTT para publicação e recebimento de tópicos em tempo real com thread dedicada. |
 | **TAIIndustrialBridge**| `ccInput`| Experimental | Ponte de baixo nível para integração com PLCs Siemens/Profinet/Profibus. |
 | **TAIVoiceSynthesizer**| `ccOutput`| Experimental | Sintetizador de voz de texto para fala (usando APIs nativas do SO). |
-| **TAIHumanPoseDetector**| `ccVision`| Beta | Detecção de pose humana usando MediaPipe local com runtime versionado (33 landmarks). Suporta desenho de esqueleto nativo e simulação automática de fallback se a DLL de ponte estiver ausente. |
+| **TAIHumanPoseDetector**| `ccVision`| Placeholder/Experimental | Detecção de pose humana via MediaPipe Bridge DLL/SO. Atualmente em desenvolvimento, operando com backend de simulação (mock) para desenvolvimento e testes. |
 
 ## Compatibilidade de Formatos Documentais
 

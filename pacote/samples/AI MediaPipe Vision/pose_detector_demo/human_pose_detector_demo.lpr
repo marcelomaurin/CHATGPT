@@ -2,10 +2,6 @@ program human_pose_detector_demo;
 
 {$mode objfpc}{$H+}
 
-{$IFNDEF CPU64}
-  {$ERROR human_pose_detector_demo supports only 64-bit targets.}
-{$ENDIF}
-
 uses
   {$IFDEF UNIX}
   cthreads,
@@ -14,8 +10,11 @@ uses
   athreads,
   {$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, main
-  { you can add units after this };
+  Forms, Dialogs
+  {$IFDEF CPU64}
+  , main
+  {$ENDIF}
+  ;
 
 {$R *.res}
 
@@ -23,6 +22,10 @@ begin
   RequireDerivedFormResource:=True;
   Application.Scaled:=True;
   Application.Initialize;
+  {$IFDEF CPU64}
   Application.CreateForm(TfrmPoseDemo, frmPoseDemo);
   Application.Run;
+  {$ELSE}
+  ShowMessage('Esta demonstração está disponível apenas em sistemas de 64-bit (x86_64).');
+  {$ENDIF}
 end.

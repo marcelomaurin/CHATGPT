@@ -2,6 +2,11 @@
 
 Este componente foi projetado para integrar a detecção de pose humana usando o MediaPipe Runtime Versionado à Lazarus AI Suite. Ele utiliza uma biblioteca dinâmica (DLL/SO) intermediária para carregar o modelo de maneira eficiente e segura, sem dependência direta de scripts Python.
 
+> [!NOTE]
+> **Status de Maturidade:** **Placeholder / Experimental**
+> Atualmente, a inferência real via biblioteca MediaPipe está em fase de integração. O componente está configurado para operar por padrão com um backend de simulação (`MP_BRIDGE_BACKEND = SIM`) para garantir que os testes e compilações em Lazarus funcionem sem a necessidade de um ambiente Bazel/C++ completo localmente.
+
+
 ## 1. Finalidade
 
 Detecção de 33 landmarks corporais (incluindo face, tronco, braços e pernas) em imagens estáticas, frames de vídeo e buffers RGB brutos.

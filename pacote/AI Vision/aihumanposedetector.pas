@@ -2,16 +2,16 @@ unit aihumanposedetector;
 
 {$mode objfpc}{$H+}
 
-{$IFNDEF CPU64}
-  {$ERROR TAIHumanPoseDetector is only supported on 64-bit systems.}
-{$ENDIF}
-
 interface
 
 uses
   Classes, SysUtils, aibase, Graphics, fpjson, jsonparser, FileUtil,
   aiplatform, airuntimepaths, aihumanpose_types, Math, LResources,
-  IntfGraphics, GraphType, mp_pose_bridge;
+  IntfGraphics, GraphType
+  {$IFDEF CPU64}
+  , mp_pose_bridge
+  {$ENDIF}
+  ;
 
 type
   TAIHumanPoseDetectedEvent = procedure(Sender: TObject; const AResult: TAIHumanPoseResult) of object;
@@ -60,7 +60,11 @@ type
     FOnPoseError: TAIHumanPoseErrorEvent;
 
     // Internal DLL stuff
+    {$IFDEF CPU64}
     FDetectorHandle: mp_pose_handle;
+    {$ELSE}
+    FDetectorHandle: Pointer;
+    {$ENDIF}
     FLastResultData: TAIHumanPoseResult;
 
     procedure SetActive(const AValue: Boolean);
@@ -269,17 +273,16 @@ function TAIHumanPoseDetector.GetBridgeArchitecture: string;
 var
   LInfo: tmp_pose_info;
 begin
+  Result := 'Unknown';
+  {$IFDEF CPU64}
   if MpPoseBridgeAvailable then
   begin
     FillChar(LInfo, SizeOf(LInfo), 0);
     LInfo.struct_size := SizeOf(LInfo);
     if mp_pose_get_info(@LInfo) = MP_OK then
-      Result := string(LInfo.arch)
-    else
-      Result := 'Unknown';
-  end
-  else
-    Result := 'Unknown';
+      Result := string(LInfo.arch);
+  end;
+  {$ENDIF}
 end;
 
 function TAIHumanPoseDetector.GetAvailable: Boolean;
@@ -287,10 +290,7 @@ var
   LInfo: tmp_pose_info;
 begin
   Result := False;
-  {$IFNDEF CPU64}
-  Exit;
-  {$ENDIF}
-
+  {$IFDEF CPU64}
   if not MpPoseBridgeAvailable then
   begin
     // Attempt auto-load
@@ -305,6 +305,7 @@ begin
     Result := (LInfo.abi_version = MP_POSE_ABI_VERSION) and
               (string(LInfo.arch) = 'x86_64');
   end;
+  {$ENDIF}
 end;
 
 procedure TAIHumanPoseDetector.SetActive(const AValue: Boolean);
@@ -373,6 +374,7 @@ var
   I: Integer;
 begin
   Result := False;
+  {$IFDEF CPU64}
   UnloadBridgeDLL;
 
   // Resolve DLL name and folder structure dynamically based on OS (only 64-bit is supported)
@@ -436,32 +438,39 @@ begin
     FLastError := 'Erro ao carregar a biblioteca de ligação do MediaPipe Pose Bridge.';
     DoDiagnosticLog(FLastError);
   end;
+  {$ELSE}
+  FLastError := 'Plataforma 32-bit não suportada (somente x86_64).';
+  {$ENDIF}
 end;
 
 procedure TAIHumanPoseDetector.UnloadBridgeDLL;
 begin
+  {$IFDEF CPU64}
   UnloadMpPoseBridge;
+  {$ENDIF}
   FLoadedBridgeDLLPath := '';
 end;
 
 function TAIHumanPoseDetector.Initialize: Boolean;
+{$IFDEF CPU64}
 var
   LModel: string;
   LCfg: tmp_pose_config;
   LInfo: tmp_pose_info;
   Res: Integer;
+{$ENDIF}
 begin
   FLastError := '';
   Result := False;
   DoDiagnosticLog('Initializing TAIHumanPoseDetector...');
   
   {$IFNDEF CPU64}
-  FLastError := 'Plataforma 32-bit não suportada.';
+  FLastError := 'Plataforma 32-bit não suportada (somente x86_64).';
   DoDiagnosticLog(FLastError);
   if Assigned(FOnPoseError) then
     FOnPoseError(Self, MP_ERR_UNSUPPORTED, FLastError);
   Exit;
-  {$ENDIF}
+  {$ELSE}
 
   if not MpPoseBridgeAvailable then
   begin
@@ -543,10 +552,12 @@ begin
         FOnPoseError(Self, MP_ERR_BACKEND, FLastError);
     end;
   end;
+  {$ENDIF}
 end;
 
 procedure TAIHumanPoseDetector.FinalizeDetector;
 begin
+  {$IFDEF CPU64}
   if FDetectorHandle <> nil then
   begin
     try
@@ -556,6 +567,7 @@ begin
     end;
     FDetectorHandle := nil;
   end;
+  {$ENDIF}
   UnloadBridgeDLL;
 end;
 
@@ -564,6 +576,7 @@ var
   LBitmap: TBitmap;
 begin
   Result := False;
+  {$IFDEF CPU64}
   FLastError := '';
   if AFileName = '' then
   begin
@@ -583,6 +596,9 @@ begin
   finally
     LBitmap.Free;
   end;
+  {$ELSE}
+  FLastError := 'Plataforma 32-bit não suportada (somente x86_64).';
+  {$ENDIF}
 end;
 
 procedure TAIHumanPoseDetector.ConvertLazIntfImageToRGB(LIntfImg: TLazIntfImage; out ARGBData: Pointer; out AStride: Integer);
@@ -614,6 +630,7 @@ var
   LStride: Integer;
 begin
   Result := False;
+  {$IFDEF CPU64}
   FLastError := '';
   ClearResult;
 
@@ -641,16 +658,22 @@ begin
       FreeMem(RGBData);
     LIntfImg.Free;
   end;
+  {$ELSE}
+  FLastError := 'Plataforma 32-bit não suportada (somente x86_64).';
+  {$ENDIF}
 end;
 
 function TAIHumanPoseDetector.DetectRGBBuffer(AData: Pointer; AWidth, AHeight, AStride: Integer): Boolean;
+{$IFDEF CPU64}
 var
   LImg: tmp_image_raw;
   LLastResultPtr: Pmp_pose_result;
   Res: Integer;
   I, J, LIdx: Integer;
+{$ENDIF}
 begin
   Result := False;
+  {$IFDEF CPU64}
   FLastError := '';
   ClearResult;
 
@@ -728,6 +751,9 @@ begin
         FOnPoseError(Self, MP_ERR_INFERENCE, FLastError);
     end;
   end;
+  {$ELSE}
+  FLastError := 'Plataforma 32-bit não suportada (somente x86_64).';
+  {$ENDIF}
 end;
 
 function TAIHumanPoseDetector.GetPoseCount: Integer;

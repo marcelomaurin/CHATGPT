@@ -62,13 +62,13 @@ typedef struct {
  * Note: Data MUST be in packed RGB format (3 or 4 channels). Stride must satisfy: stride >= width * channels.
  */
 typedef struct {
+  int32_t        struct_size;          /* sizeof(mp_image_raw) first for consistency */
   const uint8_t* data;
   int32_t        width;
   int32_t        height;
   int32_t        channels;             /* 3 for RGB, 4 for RGBA */
   int32_t        stride;               /* Row width in bytes */
   int64_t        timestamp_ms;         /* Used in VIDEO mode, monotonically increasing */
-  int32_t        struct_size;          /* sizeof(mp_image_raw) at the end for compatibility */
 } mp_image_raw;
 
 /* 

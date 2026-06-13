@@ -59,3 +59,15 @@ To make the library auto-contained and avoid dependencies on C/C++ runtimes:
   ```cmake
   target_link_options(mp_pose_bridge PRIVATE -static-libstdc++ -static-libgcc -Wl,--exclude-libs,ALL)
   ```
+
+## 5. Backend Configuration Flag (MP_BRIDGE_BACKEND)
+
+When generating build files with CMake, you can configure the backend target:
+- `-DMP_BRIDGE_BACKEND=SIM` (default): builds the bridge using simulation mock logic, resolving compilation without Bazel.
+- `-DMP_BRIDGE_BACKEND=REAL`: links and integrates with the MediaPipe Tasks C API framework.
+
+Example configuration command:
+```bash
+cmake -DMP_BRIDGE_BACKEND=REAL -DMP_POSE_BUILD=ON ..
+```
+

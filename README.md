@@ -179,7 +179,7 @@ Componentes que realizam chamadas ou utilizam scripts Python externos para execu
 
 | Componente | Pacote | Backend | Função | Status |
 |---|---|---|---|---|
-| `TAIHumanPoseDetector` | `openai_vision.lpk` | MediaPipe Bridge DLL/SO | Detecta pose humana, retorna 33 landmarks corporais, world landmarks 3D e máscara opcional | Experimental |
+| `TAIHumanPoseDetector` | `openai_vision.lpk` | MediaPipe Bridge DLL/SO | Detecta pose humana, retorna 33 landmarks corporais, world landmarks 3D (atualmente em simulação) | Placeholder/Experimental |
 
 ##### Runtime MediaPipe
 

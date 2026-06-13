@@ -16,3 +16,9 @@ The initial release only supports synchronous modes:
 Because the library wraps TensorFlow Lite and MediaPipe, the host machine must have basic operating system packages installed:
 - Windows: **VC++ Redistributable Runtime** (if the bridge was not compiled with `/MT`).
 - Linux: **glibc 2.29+** and standard thread libraries.
+
+## 4. Compile-time Backend Switch (MP_BRIDGE_BACKEND)
+To facilitate development, debugging, and cross-platform verification, the bridge supports two execution backends defined at compile time:
+- **`SIM` (Simulated/Mock):** Returns synthetic/pre-calculated pose landmarks. Useful for validating ABI bindings, memory allocation flow, and Lazarus integration without requiring Bazel/TFLite installations on the host system.
+- **`REAL` (MediaPipe Tasks C API):** Links directly against the Google MediaPipe framework to perform live ML model inference.
+

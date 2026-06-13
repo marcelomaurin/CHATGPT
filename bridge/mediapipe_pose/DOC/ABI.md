@@ -46,3 +46,10 @@ Contains packed raw image buffer:
 | `6` | `MP_ERR_UNSUPPORTED` | Feature or target platform is not supported. |
 | `7` | `MP_ERR_OUT_OF_MEMORY` | Memory allocation failure. |
 | `8` | `MP_ERR_BACKEND` | Internal MediaPipe backend error. |
+
+## 6. Simulated Backend Behavior (MP_BRIDGE_BACKEND = SIM)
+When compiled with the `SIM` backend, the API functions behave as follows:
+- `mp_pose_create`: Always succeeds and returns a mock pointer handle (`(void*)0xDEADBEEF`). Does not validate or open the `.task` file.
+- `mp_pose_detect_rgb_buffer` / `mp_pose_detect_image_file`: Populate `mp_pose_result` with 1 detected pose containing 33 mock landmarks forming a static circle/skeleton, validating the struct size and pointer propagation.
+- `mp_pose_free_result`: Safely deallocates the mock pose result memory from the heap context.
+

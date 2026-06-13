@@ -65,7 +65,7 @@ Este índice lista os componentes documentados individualmente.
 | `TAIFrameProcessor` | [`TAIFrameProcessor`](TAIFrameProcessor/) | `aiframeprocessor.pas` | `openai_vision` | Experimental |
 | `TAIFaceTracker` | [`TAIFaceTracker`](TAIFaceTracker/) | `aifacetracker.pas` | `openai_vision` | Placeholder |
 | `TAIMotionTracker` | [`TAIMotionTracker`](TAIMotionTracker/) | `aimotiontracker.pas` | `openai_vision` | Placeholder |
-| `TAIHumanPoseDetector` | [`TAIHumanPoseDetector`](TAIHumanPoseDetector/) | `aihumanposedetector.pas` | `openai_vision` | Beta |
+| `TAIHumanPoseDetector` | [`TAIHumanPoseDetector`](TAIHumanPoseDetector/) | `aihumanposedetector.pas` | `openai_vision` | Placeholder/Experimental |
 
 ---
 

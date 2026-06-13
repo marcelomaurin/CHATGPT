@@ -52,13 +52,13 @@ type
 
   Pmp_image_raw = ^tmp_image_raw;
   tmp_image_raw = record
+    struct_size: cint32;
     data: PByte;
     width: cint32;
     height: cint32;
     channels: cint32;
     stride: cint32;
     timestamp_ms: int64;
-    struct_size: cint32;
   end;
 
   Pmp_landmark = ^tmp_landmark;
