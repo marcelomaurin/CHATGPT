@@ -79,21 +79,31 @@ object frmPoseDemo: TfrmPoseDemo
       OnChange = chkDrawOptionsChange
       TabOrder = 4
     end
+    object chkRequireReal: TCheckBox
+      Left = 15
+      Height = 19
+      Top = 222
+      Width = 210
+      Caption = 'Exigir backend REAL p/ detectar'
+      Checked = True
+      State = cbChecked
+      TabOrder = 5
+    end
     object btnDetect: TButton
       Left = 15
       Height = 40
-      Top = 240
+      Top = 255
       Width = 210
       Caption = 'Detectar Pose'
       Font.Style = [fsBold]
       OnClick = btnDetectClick
       ParentFont = False
-      TabOrder = 5
+      TabOrder = 6
     end
     object lblScore: TLabel
       Left = 15
       Height = 20
-      Top = 310
+      Top = 325
       Width = 210
       Alignment = taCenter
       Caption = 'Landmarks: N/A'
@@ -105,7 +115,7 @@ object frmPoseDemo: TfrmPoseDemo
     object lblBackend: TLabel
       Left = 15
       Height = 15
-      Top = 340
+      Top = 355
       Width = 210
       Alignment = taCenter
       Caption = 'Backend: N/A'
@@ -116,7 +126,7 @@ object frmPoseDemo: TfrmPoseDemo
     object lblStatus: TLabel
       Left = 15
       Height = 15
-      Top = 370
+      Top = 382
       Width = 210
       Alignment = taCenter
       Caption = 'Estado: Não Iniciado'

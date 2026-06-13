@@ -23,7 +23,7 @@ Este documento descreve o estado atual de maturidade, a categoria operacional e 
 | **TAIMQTTClient** | `ccInput` | Experimental | Cliente leve IoT baseada em MQTT para publicação e recebimento de tópicos em tempo real com thread dedicada. |
 | **TAIIndustrialBridge**| `ccInput`| Experimental | Ponte de baixo nível para integração com PLCs Siemens/Profinet/Profibus. |
 | **TAIVoiceSynthesizer**| `ccOutput`| Experimental | Sintetizador de voz de texto para fala (usando APIs nativas do SO). |
-| **TAIHumanPoseDetector**| `ccVision`| Placeholder/Experimental | Bridge com backend simulado (mock); inferência MediaPipe real pendente. Disponível apenas em 64-bit (em 32-bit fica indisponível sem quebrar o build). |
+| **TAIHumanPoseDetector**| `ccVision`| Experimental | Pipeline completo Lazarus → DLL → handle → landmarks → draw → release validado com backend SIM (FASE5). Backend REAL (MediaPipe 0.10.35) requer DLL compilada com `MP_BRIDGE_BACKEND=REAL` e modelo `.task`. Somente 64-bit; em 32-bit compila mas `Initialize` retorna `False`. |
 
 ## Compatibilidade de Formatos Documentais
 

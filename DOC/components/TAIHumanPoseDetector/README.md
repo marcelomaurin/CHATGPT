@@ -1,157 +1,196 @@
-# TAIHumanPoseDetector - Componente com MediaPipe Runtime Versionado
+# TAIHumanPoseDetector
 
-Este componente foi projetado para integrar a detecção de pose humana usando o MediaPipe Runtime Versionado à Lazarus AI Suite. Ele utiliza uma biblioteca dinâmica (DLL/SO) intermediária para carregar o modelo de maneira eficiente e segura, sem dependência direta de scripts Python.
+## Finalidade
 
-> [!NOTE]
-> **Status de Maturidade:** **Placeholder / Experimental**
-> Atualmente, a inferência real via biblioteca MediaPipe está em fase de integração. O componente está configurado para operar por padrão com um backend de simulação (`MP_BRIDGE_BACKEND = SIM`) para garantir que os testes e compilações em Lazarus funcionem sem a necessidade de um ambiente Bazel/C++ completo localmente.
+`TAIHumanPoseDetector` detecta a posição do corpo humano (pose) em imagens usando a bridge nativa do Google MediaPipe Pose Landmarker via carregamento dinâmico de DLL/SO.
 
+O componente suporta dois backends:
 
-## 1. Finalidade
+- **SIM** — landmarks simulados, sem dependência de modelo. Usado para validar o pipeline de integração (Lazarus → DLL → handle → landmarks → draw → release) sem instalar o MediaPipe real.
+- **REAL** — reconhecimento real via MediaPipe 0.10.35. Exige a DLL compilada com `MP_BRIDGE_BACKEND=REAL` e um arquivo modelo `.task`.
 
-Detecção de 33 landmarks corporais (incluindo face, tronco, braços e pernas) em imagens estáticas, frames de vídeo e buffers RGB brutos.
-
-## 2. Unit e Pacote Planejados
-
-- **Unit:** `pacote/IA/aihumanposedetector.pas` (Tipos em `pacote/IA/aihumanpose_types.pas`)
-- **Pacote:** `openai_vision.lpk`
-- **Aba na IDE:** `AI Vision`
-
-## 3. Arquitetura
+## Unit
 
 ```text
-TAIHumanPoseDetector.pas (Lazarus/FPC)
-        ↓
-AI MediaPipe Pose Bridge ABI v1
-        ↓
-ai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_win64.dll (ou .so)
-        ↓
+pacote/AI Vision/aihumanposedetector.pas
+Tipos: pacote/AI Vision/aihumanpose_types.pas
+```
+
+## Pacote
+
+```text
+openai_vision.lpk  —  aba "AI Vision" na IDE
+```
+
+## Status
+
+```text
+Experimental — somente 64-bit (x86_64)
+```
+
+Em sistemas 32-bit o componente compila mas `Initialize` retorna `False` imediatamente.
+
+## Arquitetura
+
+```
+TAIHumanPoseDetector (Pascal / Lazarus)
+        ↓  carregamento dinâmico (DynLibs)
+AI MediaPipe Pose Bridge  (C ABI, ABI v1)
+        ↓  ai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_win64.dll
 MediaPipe v0.10.35
         ↓
-pose_landmarker.task
+pose_landmarker_full.task
 ```
 
-### Versões da DLL/SO recomendadas:
-- Windows x64: `ai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_win64.dll`
-- Linux x64: `libai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_linux64.so`
-- Linux ARM64: `libai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_arm64.so`
+## Propriedades publicadas
 
-## 4. Estrutura de Diretórios do Runtime
+| Propriedade | Tipo | Padrão | Descrição |
+|---|---|---|---|
+| `BridgeDLLPath` | string | `''` | Caminho/nome da DLL (modo `mplmManualPath`) |
+| `RuntimePath` | string | `''` | Diretório do runtime (resolve DLL + modelo automaticamente) |
+| `ModelFile` | string | `''` | Nome do arquivo `.task` dentro de `models/` |
+| `LoadMode` | TAIHumanPoseLoadMode | `mplmAuto` | Estratégia de busca da DLL |
+| `Active` | Boolean | `False` | Não inicia automaticamente — use `Initialize` |
+| `NumPoses` | Integer | `1` | Número máximo de poses a detectar |
+| `ModelVariant` | TAIHumanPoseModelVariant | `hpmFull` | `hpmLite`, `hpmFull`, `hpmHeavy` |
+| `MinPoseDetectionConfidence` | Single | — | Limiar de detecção (REAL) |
+| `MinPosePresenceConfidence` | Single | — | Limiar de presença (REAL) |
+| `MinTrackingConfidence` | Single | — | Limiar de rastreamento (REAL) |
+| `DrawSkeleton` | Boolean | `True` | Desenha linhas do esqueleto |
+| `DrawLandmarkPoints` | Boolean | `True` | Desenha círculos nos landmarks |
+| `DrawLandmarkNames` | Boolean | `False` | Exibe nomes/índices dos landmarks |
 
-O runtime deve estar estruturado na seguinte árvore de diretórios para localização automática:
+## Propriedades somente leitura (public)
 
-```text
-runtime/
-  mediapipe/
-    pose/
-      mp_0_10_35/
-        windows/
-          x64/
-            ai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_win64.dll
-            bridge_manifest.json
-            README_RUNTIME.md
-            models/
-              pose_landmarker_lite.task
-              pose_landmarker_full.task
-              pose_landmarker_heavy.task
-            deps/
-              *.dll
-        linux/
-          x64/
-            libai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_linux64.so
-            bridge_manifest.json
-            ...
-```
+| Propriedade | Tipo | Descrição |
+|---|---|---|
+| `Available` | Boolean | `True` se a DLL pode ser carregada |
+| `Initialized` | Boolean | `True` após `Initialize` bem-sucedido |
+| `BridgeBackend` | string | `"SIM"`, `"REAL"` ou `"UNKNOWN"` |
+| `BridgeVersionText` | string | Versão da bridge (ex: `"1.0.0"`) |
+| `BridgeAbiVersion` | Integer | Versão ABI da bridge (deve ser 1) |
+| `LoadedBridgeDLLPath` | string | Caminho completo da DLL carregada |
+| `LoadedModelFile` | string | Caminho do modelo carregado (backend REAL) |
+| `LastError` | string | Último erro |
+| `DiagnosticLog` | TStringList | Log de diagnóstico interno |
+| `LastResultData` | TAIHumanPoseResult | Último resultado de detecção |
 
-### Manifesto (`bridge_manifest.json`)
-Cada diretório de runtime deve conter um manifesto JSON validando:
-```json
-{
-  "name": "AI MediaPipe Pose Bridge",
-  "component": "TAIHumanPoseDetector",
-  "bridge_version": "1.0.0",
-  "bridge_abi_version": 1,
-  "compatible_mediapipe_version": "0.10.35",
-  "binary": "ai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_win64.dll",
-  "task": "PoseLandmarker",
-  "models": {
-    "lite": "models/pose_landmarker_lite.task",
-    "full": "models/pose_landmarker_full.task",
-    "heavy": "models/pose_landmarker_heavy.task"
-  },
-  "default_model": "full",
-  "landmark_count": 33
-}
-```
+## Métodos principais
 
-## 5. Propriedades Planejadas
+| Método | Retorno | Descrição |
+|---|---|---|
+| `Initialize` | Boolean | Carrega DLL, cria handle, preenche metadados |
+| `FinalizeDetector` | — | Libera handle e descarrega DLL |
+| `DetectBitmap(ABitmap)` | Boolean | Detecta em TBitmap |
+| `DetectImageFile(AFileName)` | Boolean | Detecta em arquivo de imagem |
+| `DetectRGBBuffer(AData, W, H, Stride)` | Boolean | Detecta em buffer RGB bruto |
+| `GetPoseCount` | Integer | Número de poses no último resultado |
+| `GetLandmark(PoseIdx, LandmarkId, out ALandmark)` | Boolean | Lê landmark por enum |
+| `DrawResult(ACanvas, ADestRect)` | — | Desenha esqueleto/landmarks sobre canvas |
+| `ClearResult` | — | Limpa o último resultado |
 
-### Publicadas (Published)
-- `BridgeDLLPath`: Caminho manual da DLL da bridge.
-- `RuntimePath`: Caminho manual da pasta do runtime.
-- `ModelFile`: Caminho manual do modelo `.task`.
-- `Active`: Ativa/Desativa o detector.
-- `LoadMode`: Método de busca (`mplmAuto`, `mplmManualPath`, etc.).
-- `ExecutionMode`: Modo de execução (`mpemDLL` ou `mpemProcess`).
-- `RequiredBridgeAbiVersion`: Versão mínima de ABI (Padrão: 1).
-- `RequiredMediaPipeVersion`: Versão compatível necessária do MediaPipe (Ex: '0.10.35').
-- `RunningMode`: Modo de processamento (`hprImage`, `hprVideo`, `hprLiveStream`).
-- `NumPoses`: Quantidade máxima de poses a detectar.
-- `MinPoseDetectionConfidence`: Limiar mínimo de detecção.
-- `MinPosePresenceConfidence`: Limiar mínimo de presença.
-- `MinTrackingConfidence`: Limiar mínimo de rastreamento.
-- `OutputSegmentationMasks`: Habilitar máscara de segmentação de silhueta.
-- `ModelVariant`: Variante de modelo (`hpmLite`, `hpmFull`, `hpmHeavy`, `hpmCustom`).
-- `InputColorFormat`: Formato de cor de entrada (`hpcRGB`, `hpcBGR`, `hpcRGBA`, `hpcBGRA`).
-- `DetectAllLandmarks`: Quando ativo, coleta todos os 33 landmarks.
-- `EnabledBodyPartGroups`: Filtro de grupos corporais ativos (`hpgFace`, `hpgShoulders`, `hpgLeftArm`, etc.).
-- `MinLandmarkVisibility` / `MinLandmarkPresence`: Filtros de confiança por ponto anatômico.
-- `IgnoreInvisibleLandmarks`: Ignora landmarks com pouca visibilidade.
-- `DrawSkeleton` / `DrawLandmarkPoints` / `DrawLandmarkNames`: Configurações de desenho.
-
-### Públicas de Diagnóstico (Public - Read-Only)
-- `LastError`: Mensagem do último erro ocorrido.
-- `LastOutput`: Diagnóstico da última saída do detector.
-- `LoadedBridgeDLLPath`: Caminho absoluto da DLL carregada de fato.
-- `BridgeVersionText` / `BridgeAbiVersion`: Informações detalhadas da biblioteca.
-- `LazarusArchitecture` / `BridgeArchitecture`: Verificação de compatibilidade de arquitetura (x64/x86/ARM64).
-- `RequiredMethodsOK`: Flag indicando que todos os entrypoints foram resolvidos.
-- `DiagnosticLog`: Histórico de passos executados na carga.
-
-## 6. Mapeamento de Landmarks (Na Ordem)
-
-```text
-0  - Nose             11 - LeftShoulder    22 - RightThumb
-1  - LeftEyeInner     12 - RightShoulder   23 - LeftHip
-2  - LeftEye          13 - LeftElbow       24 - RightHip
-3  - LeftEyeOuter     14 - RightElbow      25 - LeftKnee
-4  - RightEyeInner    15 - LeftWrist       26 - RightKnee
-5  - RightEye         16 - RightWrist      27 - LeftAnkle
-6  - RightEyeOuter    17 - LeftPinky       28 - RightAnkle
-7  - LeftEar          18 - RightPinky      29 - LeftHeel
-8  - RightEar         19 - LeftIndex       30 - RightHeel
-9  - MouthLeft        20 - RightIndex      31 - LeftFootIndex
-10 - MouthRight       21 - LeftThumb       32 - RightFootIndex
-```
-
-## 7. Exemplo de Uso Planejado
+## Exemplo — backend SIM (validação de pipeline)
 
 ```pascal
-var
-  LShoulder: TAIHumanPoseLandmark;
-begin
-  AIHumanPoseDetector1.LoadMode := mplmAuto;
-  AIHumanPoseDetector1.ModelVariant := hpmFull;
+FDetector := TAIHumanPoseDetector.Create(Self);
+FDetector.LoadMode      := mplmManualPath;
+FDetector.BridgeDLLPath := 'ai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_win64.dll';
 
-  if AIHumanPoseDetector1.Initialize then
-  begin
-    if AIHumanPoseDetector1.DetectImageFile('sample.jpg') then
-    begin
-      if AIHumanPoseDetector1.GetLandmark(0, hplLeftShoulder, LShoulder) then
-      begin
-        ShowMessage(Format('Ombro Esquerdo: X=%f Y=%f', [LShoulder.X, LShoulder.Y]));
-      end;
-    end;
-  end;
+if not FDetector.Initialize then
+begin
+  ShowMessage('Erro: ' + FDetector.LastError);
+  Exit;
 end;
+
+WriteLn('Backend: ', FDetector.BridgeBackend);  // "SIM"
+
+if FDetector.DetectBitmap(MeuBitmap) and (FDetector.GetPoseCount > 0) then
+  FDetector.DrawResult(Canvas, ClientRect);
+
+FDetector.FinalizeDetector;
+FDetector.Free;
 ```
+
+## Exemplo — backend REAL com RuntimePath
+
+```pascal
+FDetector := TAIHumanPoseDetector.Create(Self);
+FDetector.LoadMode    := mplmAuto;
+FDetector.RuntimePath := 'runtime/mediapipe/pose/mp_0_10_35/windows-x86_64';
+
+if not FDetector.Initialize then
+begin
+  ShowMessage('Erro: ' + FDetector.LastError);
+  Exit;
+end;
+
+WriteLn('Backend: ', FDetector.BridgeBackend);  // "REAL"
+WriteLn('Modelo:  ', FDetector.LoadedModelFile);
+```
+
+## Compilar a DLL SIM (bridge)
+
+Requisitos: CMake 3.16+, compilador C++17 (MSVC ou GCC).
+
+```bash
+cd bridge/mediapipe_pose
+mkdir build && cd build
+cmake ..                        # MP_BRIDGE_BACKEND=SIM por padrão
+cmake --build . --config Release
+```
+
+A DLL gerada é copiada para `runtime/mediapipe/pose/mp_0_10_35/windows-x86_64/`.
+
+## Baixar modelos (backend REAL)
+
+```powershell
+# Windows
+.\bridge\mediapipe_pose\tools\fetch_model.ps1
+```
+
+```bash
+# Linux
+./bridge/mediapipe_pose/tools/fetch_model.sh
+```
+
+Os modelos são gravados em `runtime/mediapipe/pose/mp_0_10_35/<platform>/models/`.
+
+## Diferença SIM × REAL
+
+| Aspecto | SIM | REAL |
+|---|---|---|
+| `MP_BRIDGE_BACKEND` ao compilar | `SIM` (padrão) | `REAL` |
+| Modelo `.task` necessário | Não | Sim |
+| Landmarks gerados | Simulados | Reconhecimento real |
+| `BridgeBackend` | `"SIM"` | `"REAL"` |
+| Uso | Validação de pipeline | Produção |
+
+## Mapeamento de landmarks (33 pontos)
+
+```text
+ 0  Nose              11  LeftShoulder      22  RightThumb
+ 1  LeftEyeInner      12  RightShoulder     23  LeftHip
+ 2  LeftEye           13  LeftElbow         24  RightHip
+ 3  LeftEyeOuter      14  RightElbow        25  LeftKnee
+ 4  RightEyeInner     15  LeftWrist         26  RightKnee
+ 5  RightEye          16  RightWrist        27  LeftAnkle
+ 6  RightEyeOuter     17  LeftPinky         28  RightAnkle
+ 7  LeftEar           18  RightPinky        29  LeftHeel
+ 8  RightEar          19  LeftIndex         30  RightHeel
+ 9  MouthLeft         20  RightIndex        31  LeftFootIndex
+10  MouthRight        21  LeftThumb         32  RightFootIndex
+```
+
+## Limitação de 64-bit
+
+Todo o código de carregamento de DLL está protegido por `{$IFDEF CPU64}`. Em 32-bit `Initialize` retorna `False` com a mensagem `"Componente disponível apenas em 64-bit"`.
+
+## Erros comuns
+
+| Mensagem | Causa | Solução |
+|---|---|---|
+| `Bridge DLL não encontrada` | DLL ausente | Configurar `BridgeDLLPath` ou `RuntimePath` |
+| `Exports ausentes na bridge` | DLL incorreta/corrompida | Verificar se é a bridge correta |
+| `ABI mismatch` | DLL com ABI diferente | Recompilar a bridge |
+| `mp_pose_create falhou` | Erro na bridge | Ver `LastError` e `DiagnosticLog` |
+| `model_path obrigatório` | Backend REAL sem modelo | Baixar modelos com `fetch_model.*` |

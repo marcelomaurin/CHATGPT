@@ -1,43 +1,102 @@
-# Lazarus Component Integration with Pose Bridge
+# Integração Lazarus — TAIHumanPoseDetector
 
-This document describes the interface layout and integration between the dynamic bridge library and the Lazarus `TAIHumanPoseDetector` component.
+Este documento descreve como o componente Lazarus `TAIHumanPoseDetector` se integra com a bridge `mp_pose_bridge`.
 
-## Architecture
+## Arquitetura
 
-```text
-[Lazarus Application]
-       |
-       v
-[TAIHumanPoseDetector]  <-- mp_pose_bridge.pas (Lazarus Binding)
-       |
-       v (Dynamic cdecl API calls)
-[ai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_win64.dll / libai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_linux_x86_64.so]
-       |
-       +--> SIM backend: sinusoid mock generator
-       +--> REAL backend: MediaPipe C API
+```
+[Aplicação Lazarus]
+        ↓
+[TAIHumanPoseDetector]  ←→  mp_pose_bridge.pas (binding Pascal)
+        ↓  DynLibs — carregamento dinâmico em tempo de execução
+[ai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_win64.dll]
+        ├─ SIM backend: landmarks simulados (sem MediaPipe)
+        └─ REAL backend: MediaPipe C API + modelo .task
 ```
 
-## ABI Functions
+## Funções ABI
 
-The Pascal binding is defined in `mp_pose_bridge.pas`. It exports:
+O binding Pascal está em `pacote/AI Vision/mp_pose_bridge.pas`.
 
-1. `mp_pose_get_info`: retrieves struct info and current backend (`SIM` or `REAL`).
-2. `mp_pose_create`: creates the internal landmarker instance.
-3. `mp_pose_destroy`: releases context memory.
-4. `mp_pose_detect`: detects landmarks from a raw RGB buffer.
-5. `mp_pose_free_result`: safely releases result structures.
-6. `mp_pose_last_error`: returns the last error message.
+| Função C | Tipo Pascal | Descrição |
+|---|---|---|
+| `mp_pose_get_info` | `TFunc_mp_pose_get_info` | Metadados da bridge (versão, backend, ABI) |
+| `mp_pose_create` | `TFunc_mp_pose_create` | Cria handle + contexto interno |
+| `mp_pose_destroy` | `TFunc_mp_pose_destroy` | Libera handle (chama `delete ctx`) |
+| `mp_pose_detect` | `TFunc_mp_pose_detect` | Detecta landmarks em buffer RGB |
+| `mp_pose_free_result` | `TFunc_mp_pose_free_result` | Libera resultado (`var` — zera o ponteiro) |
+| `mp_pose_last_error` | `TFunc_mp_pose_last_error` | Lê último erro do contexto |
 
-## Memory Safety
+## Structs Pascal (`{$PACKRECORDS C}`)
 
-- Context is managed in C++ using `new` and `delete` so constructors and destructors run correctly.
-- Results are plain data structs allocated with `calloc` and released through `mp_pose_free_result`, which nullifies the caller pointer.
-- No C++ exceptions are propagated through the C ABI boundary.
+```pascal
+tmp_pose_info = record
+  struct_size: cint32;
+  abi_version: cint32;
+  bridge_version: array[0..31] of AnsiChar;
+  mediapipe_version: array[0..31] of AnsiChar;
+  platform: array[0..15] of AnsiChar;
+  arch: array[0..15] of AnsiChar;
+  model_name: array[0..127] of AnsiChar;
+  backend: array[0..15] of AnsiChar;   { "SIM" | "REAL" }
+end;
+```
 
-## Component Readiness
+O campo `backend` é escrito pela bridge apenas se o caller alocou struct suficientemente grande (guard `offsetof`). Callers antigos que não conhecem o campo recebem a struct zerada nessa posição e não sofrem overflow.
 
-The Lazarus component exposes an `Initialized` property. Use it to tell whether the detector handle exists, instead of treating `Available` as "ready to detect".
+## Ciclo de vida do componente
 
-## Legacy Compatibility
+```
+FormCreate
+  └─ TAIHumanPoseDetector.Create   → aloca FDetector, FDiagnosticLog
+                                      NÃO carrega DLL
 
-The loader still accepts `mp_pose_bridge.dll` and `libmp_pose_bridge.so` as fallback names for older local builds, but the versioned filenames above are the official ones.
+Botão "Carregar / Re-inicializar"
+  └─ FDetector.Initialize
+       ├─ DestroyDetectorHandleOnly  (libera handle, mantém DLL se já carregada)
+       ├─ LoadBridgeDLL              (carrega/re-carrega se necessário)
+       ├─ mp_pose_get_info           (preenche BridgeBackend, BridgeVersionText)
+       └─ mp_pose_create             (cria handle, preenche FDetectorHandle)
+
+DetectBitmap / DetectRGBBuffer
+  └─ mp_pose_detect                 (devolve Pmp_pose_result via double-pointer)
+       └─ mp_pose_free_result        (libera resultado via var-parameter)
+
+FormDestroy
+  └─ FDetector.Free
+       └─ FinalizeDetector
+            ├─ DestroyDetectorHandleOnly  (mp_pose_destroy)
+            └─ UnloadBridgeDLL
+```
+
+`DestroyDetectorHandleOnly` foi introduzido na FASE5 para separar a destruição do handle da descarga da DLL. Isso evita que `Initialize` chame `FinalizeDetector` (que descarregaria a DLL e tornaria inválidos os ponteiros de função antes de `mp_pose_create`).
+
+## Gerenciamento de memória
+
+- `mp_pose_context` é alocado com `new (std::nothrow) mp_pose_context()` e liberado com `delete`. Isso garante que construtores/destrutores de `std::string` rodem corretamente.
+- `mp_pose_result` é POD puro (`calloc`/`free`). Liberado via `mp_pose_free_result(var LResult)` que zera o ponteiro do caller automaticamente.
+- Exceções C++ não cruzam o boundary da ABI. Erros são reportados via `int32_t` de retorno + `mp_pose_last_error`.
+
+## Dois canais de erro
+
+| Canal | Quando usar |
+|---|---|
+| `mp_pose_last_error(nil)` | Erros antes de ter um handle válido (falha em `mp_pose_create`) |
+| `mp_pose_last_error(handle)` | Erros durante `mp_pose_detect` |
+
+O componente Pascal usa o canal correto automaticamente em `Initialize` e `DetectRGBBuffer`.
+
+## Campo `BridgeBackend`
+
+Após `Initialize`, `FDetector.BridgeBackend` contém `"SIM"`, `"REAL"` ou `"UNKNOWN"`. O demo exibe esse campo e pode bloquear a detecção se o usuário exigir backend `REAL` via checkbox.
+
+## Compatibilidade com nomes legados
+
+O loader `LoadMpPoseBridge` aceita como fallback:
+- `mp_pose_bridge.dll` / `libmp_pose_bridge.so`
+
+O nome oficial versionado tem prioridade. Builds locais mais antigos podem usar o nome legado enquanto o pipeline não é ajustado.
+
+## Limitação de 64-bit
+
+Todo o código de interop com a DLL está dentro de `{$IFDEF CPU64}`. O componente compila em 32-bit, mas `Initialize` retorna `False` imediatamente.

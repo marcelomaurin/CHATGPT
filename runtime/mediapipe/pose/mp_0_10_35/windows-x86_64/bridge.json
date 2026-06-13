@@ -5,15 +5,23 @@
   "bridge_abi_version": 1,
   "compatible_mediapipe_version": "0.10.35",
   "binary": "ai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_win64.dll",
+  "binary_legacy": "mp_pose_bridge.dll",
   "task": "PoseLandmarker",
+  "models_dir": "models",
   "models": {
-    "lite": "models/pose_landmarker_lite.task",
-    "full": "models/pose_landmarker_full.task",
+    "lite":  "models/pose_landmarker_lite.task",
+    "full":  "models/pose_landmarker_full.task",
     "heavy": "models/pose_landmarker_heavy.task"
   },
   "default_model": "full",
   "landmark_count": 33,
-  "backend": "SIM",
+  "backend": "REAL",
   "link_mode": "static",
-  "dependencies": []
+  "dependencies": [],
+  "notes": [
+    "Place the compiled DLL alongside this file.",
+    "SIM backend: models/ directory is optional (no real model needed).",
+    "REAL backend: set backend to REAL and place at least pose_landmarker_full.task in models/.",
+    "Run bridge/mediapipe_pose/tools/fetch_model.ps1 (Windows) or fetch_model.sh (Linux) to download models."
+  ]
 }

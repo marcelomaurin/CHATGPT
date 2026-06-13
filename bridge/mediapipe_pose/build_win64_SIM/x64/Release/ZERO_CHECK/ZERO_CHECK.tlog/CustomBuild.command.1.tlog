@@ -1,0 +1,10 @@
+^D:\PROJETOS\MAURINSOFT\CHATGPT\BRIDGE\MEDIAPIPE_POSE\BUILD_WIN64_SIM\CMAKEFILES\B8565EF42921BFD8241DE017E138DF05\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SD:/projetos/maurinsoft/CHATGPT/bridge/mediapipe_pose/build -BD:/projetos/maurinsoft/CHATGPT/bridge/mediapipe_pose/build_win64_SIM --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file D:/projetos/maurinsoft/CHATGPT/bridge/mediapipe_pose/build_win64_SIM/mp_pose_bridge.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

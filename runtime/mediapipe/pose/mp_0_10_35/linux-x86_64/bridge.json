@@ -1,0 +1,27 @@
+{
+  "name": "AI MediaPipe Pose Bridge",
+  "component": "TAIHumanPoseDetector",
+  "bridge_version": "1.0.0",
+  "bridge_abi_version": 1,
+  "compatible_mediapipe_version": "0.10.35",
+  "binary": "libai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_linux_x86_64.so",
+  "binary_legacy": "libmp_pose_bridge.so",
+  "task": "PoseLandmarker",
+  "models_dir": "models",
+  "models": {
+    "lite":  "models/pose_landmarker_lite.task",
+    "full":  "models/pose_landmarker_full.task",
+    "heavy": "models/pose_landmarker_heavy.task"
+  },
+  "default_model": "full",
+  "landmark_count": 33,
+  "backend": "SIM",
+  "link_mode": "static",
+  "dependencies": [],
+  "notes": [
+    "Place the compiled .so alongside this file.",
+    "SIM backend: models/ directory is optional (no real model needed).",
+    "REAL backend: set backend to REAL and place at least pose_landmarker_full.task in models/.",
+    "Run bridge/mediapipe_pose/tools/fetch_model.sh to download models."
+  ]
+}

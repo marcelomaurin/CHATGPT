@@ -16,26 +16,26 @@ type
     pnlLeft: TPanel;
     pnlClient: TPanel;
     pnlBottom: TPanel;
-    
+
     pnlImage: TPanel;
-    pnlDraw: TPanel;
-    
+
     btnLoadImage: TButton;
     btnDetect: TButton;
     chkSkeleton: TCheckBox;
     chkPoints: TCheckBox;
     chkNames: TCheckBox;
-    
+    chkRequireReal: TCheckBox;
+
     lblModelVariant: TLabel;
     cbModelVariant: TComboBox;
-    
+
     lblScore: TLabel;
     lblBackend: TLabel;
     lblStatus: TLabel;
-    
+
     imgPose: TImage;
     pbCanvas: TPaintBox;
-    
+
     memLog: TMemo;
     OpenDialog1: TOpenDialog;
 
@@ -55,11 +55,11 @@ type
     edRuntimePath: TEdit;
     btnBrowseRuntime: TButton;
     btnReinit: TButton;
-    
+
     procedure LogMsg(const AMsg: string);
     procedure SyncBackendStatus;
     procedure LogDetectorSummary;
-    function GetImageDestRect: TRect;
+    function  GetImageDestRect: TRect;
     procedure btnBrowseRuntimeClick(Sender: TObject);
     procedure btnReinitClick(Sender: TObject);
   public
@@ -80,79 +80,77 @@ var
   LPanelSetupTop: TPanel;
 begin
   FDetector := TAIHumanPoseDetector.Create(Self);
-  FBmp := TBitmap.Create;
-  
-  // Create PageControl at root level
-  FPageControl := TPageControl.Create(Self);
-  FPageControl.Parent := Self;
-  FPageControl.Align := alClient;
-  
-  // Tab Detect
-  FTabDetect := TTabSheet.Create(FPageControl);
-  FTabDetect.PageControl := FPageControl;
-  FTabDetect.Caption := 'Detecção';
-  
-  // Move main display panels inside FTabDetect
-  pnlLeft.Parent := FTabDetect;
+  FBmp      := TBitmap.Create;
+
+  { ---- PageControl ---- }
+  FPageControl            := TPageControl.Create(Self);
+  FPageControl.Parent     := Self;
+  FPageControl.Align      := alClient;
+
+  { Tab Detecção }
+  FTabDetect              := TTabSheet.Create(FPageControl);
+  FTabDetect.PageControl  := FPageControl;
+  FTabDetect.Caption      := 'Detecção';
+
+  pnlLeft.Parent   := FTabDetect;
   pnlBottom.Parent := FTabDetect;
   pnlClient.Parent := FTabDetect;
-  
-  // Tab Setup
-  FTabSetup := TTabSheet.Create(FPageControl);
+
+  { Tab Setup }
+  FTabSetup             := TTabSheet.Create(FPageControl);
   FTabSetup.PageControl := FPageControl;
-  FTabSetup.Caption := 'Setup';
-  
-  // Create Setup Top Panel (occupies the entire upper area)
-  LPanelSetupTop := TPanel.Create(Self);
-  LPanelSetupTop.Parent := FTabSetup;
-  LPanelSetupTop.Align := alTop;
-  LPanelSetupTop.Height := 180;
-  LPanelSetupTop.BevelOuter := bvNone;
-  
-  // Create Setup Tab Controls inside LPanelSetupTop
-  lblRuntimePath := TLabel.Create(Self);
-  lblRuntimePath.Parent := LPanelSetupTop;
-  lblRuntimePath.Left := 20;
-  lblRuntimePath.Top := 20;
-  lblRuntimePath.Caption := 'Caminho da Biblioteca Bridge (DLL/SO):';
-  lblRuntimePath.Font.Style := [fsBold];
-  
-  edRuntimePath := TEdit.Create(Self);
-  edRuntimePath.Parent := LPanelSetupTop;
-  edRuntimePath.Left := 20;
-  edRuntimePath.Top := 45;
-  edRuntimePath.Width := 700;
-  
-  btnBrowseRuntime := TButton.Create(Self);
-  btnBrowseRuntime.Parent := LPanelSetupTop;
-  btnBrowseRuntime.Left := 730;
-  btnBrowseRuntime.Top := 42;
-  btnBrowseRuntime.Width := 200;
-  btnBrowseRuntime.Height := 30;
-  btnBrowseRuntime.Caption := 'Procurar DLL/SO...';
-  btnBrowseRuntime.OnClick := @btnBrowseRuntimeClick;
-  
-  btnReinit := TButton.Create(Self);
-  btnReinit.Parent := LPanelSetupTop;
-  btnReinit.Left := 20;
-  btnReinit.Top := 95;
-  btnReinit.Width := 200;
-  btnReinit.Height := 40;
-  btnReinit.Caption := 'Carregar / Re-inicializar';
-  btnReinit.Font.Style := [fsBold];
-  btnReinit.OnClick := @btnReinitClick;
-  
-  cbModelVariant.ItemIndex := 1; // Default: hpmFull
-  
-  chkSkeleton.Checked := True;
-  chkPoints.Checked := True;
-  chkNames.Checked := False;
-  
-  lblScore.Caption := 'Landmarks: N/A';
+  FTabSetup.Caption     := 'Setup / Runtime';
+
+  LPanelSetupTop              := TPanel.Create(Self);
+  LPanelSetupTop.Parent       := FTabSetup;
+  LPanelSetupTop.Align        := alTop;
+  LPanelSetupTop.Height       := 160;
+  LPanelSetupTop.BevelOuter   := bvNone;
+
+  lblRuntimePath              := TLabel.Create(Self);
+  lblRuntimePath.Parent       := LPanelSetupTop;
+  lblRuntimePath.Left         := 20;
+  lblRuntimePath.Top          := 20;
+  lblRuntimePath.Caption      := 'Biblioteca Bridge (DLL/SO):';
+  lblRuntimePath.Font.Style   := [fsBold];
+
+  edRuntimePath               := TEdit.Create(Self);
+  edRuntimePath.Parent        := LPanelSetupTop;
+  edRuntimePath.Left          := 20;
+  edRuntimePath.Top           := 42;
+  edRuntimePath.Width         := 700;
+
+  btnBrowseRuntime            := TButton.Create(Self);
+  btnBrowseRuntime.Parent     := LPanelSetupTop;
+  btnBrowseRuntime.Left       := 730;
+  btnBrowseRuntime.Top        := 39;
+  btnBrowseRuntime.Width      := 200;
+  btnBrowseRuntime.Height     := 30;
+  btnBrowseRuntime.Caption    := 'Procurar DLL/SO...';
+  btnBrowseRuntime.OnClick    := @btnBrowseRuntimeClick;
+
+  btnReinit                   := TButton.Create(Self);
+  btnReinit.Parent            := LPanelSetupTop;
+  btnReinit.Left              := 20;
+  btnReinit.Top               := 90;
+  btnReinit.Width             := 220;
+  btnReinit.Height            := 42;
+  btnReinit.Caption           := 'Carregar / Re-inicializar';
+  btnReinit.Font.Style        := [fsBold];
+  btnReinit.OnClick           := @btnReinitClick;
+
+  { ---- defaults de UI ---- }
+  cbModelVariant.ItemIndex  := 1;   { Full }
+  chkSkeleton.Checked       := True;
+  chkPoints.Checked         := True;
+  chkNames.Checked          := False;
+  chkRequireReal.Checked    := False;
+
+  lblScore.Caption   := 'Landmarks: N/A';
   lblBackend.Caption := 'Backend: N/A';
-  lblStatus.Caption := 'Estado: Não Iniciado';
-  
-  LogMsg('FormCreate: Human Pose Detector MediaPipe Demo Initialized. (Click "Carregar / Re-inicializar" to load library)');
+  lblStatus.Caption  := 'Estado: Não Iniciado';
+
+  LogMsg('Demo iniciado. Clique em "Setup / Runtime" → "Carregar / Re-inicializar" para carregar a bridge.');
 end;
 
 procedure TfrmPoseDemo.FormDestroy(Sender: TObject);
@@ -161,71 +159,49 @@ begin
   FreeAndNil(FDetector);
 end;
 
+{ ------------------------------------------------------------------ }
+{ Carregar imagem                                                     }
+{ ------------------------------------------------------------------ }
 procedure TfrmPoseDemo.btnLoadImageClick(Sender: TObject);
 var
   LInitialDir: string;
   LPicture: TPicture;
 begin
-  LogMsg('btnLoadImageClick: Resolving initial path...');
   LInitialDir := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))) + 'images';
   if DirectoryExists(LInitialDir) then
-  begin
-    OpenDialog1.InitialDir := LInitialDir;
-    LogMsg('btnLoadImageClick: Target images directory exists: ' + LInitialDir);
-  end
+    OpenDialog1.InitialDir := LInitialDir
   else
-  begin
     OpenDialog1.InitialDir := ExtractFilePath(ParamStr(0));
-    LogMsg('btnLoadImageClick: Target images directory missing. Fallback path set to: ' + OpenDialog1.InitialDir);
-  end;
 
-  LogMsg('btnLoadImageClick: Opening file select dialog...');
-  if OpenDialog1.Execute then
-  begin
-    LogMsg('btnLoadImageClick: File selected: ' + OpenDialog1.FileName);
-    LPicture := TPicture.Create;
+  if not OpenDialog1.Execute then
+    Exit;
+
+  LogMsg('Carregando: ' + OpenDialog1.FileName);
+  LPicture := TPicture.Create;
+  try
     try
-      try
-        LogMsg('btnLoadImageClick: Instantiating graphic reader...');
-        LPicture.LoadFromFile(OpenDialog1.FileName);
-        LogMsg(Format('btnLoadImageClick: Decoded graphic type: %s', [LPicture.Graphic.ClassName]));
-        
-        LogMsg(Format('btnLoadImageClick: Setting canvas buffer size to %dx%d...', [LPicture.Width, LPicture.Height]));
-        FBmp.SetSize(LPicture.Width, LPicture.Height);
-        
-        LogMsg('btnLoadImageClick: Rendering graphic onto bitmap canvas...');
-        FBmp.Canvas.Draw(0, 0, LPicture.Graphic);
-        
-        LogMsg('btnLoadImageClick: Assigning bitmap to UI TImage component...');
-        imgPose.Picture.Assign(FBmp);
-        
-        LogMsg('btnLoadImageClick: Clearing old detection points...');
-        FDetector.ClearResult;
-        lblScore.Caption := 'Landmarks: N/A';
-        
-        LogMsg('btnLoadImageClick: Requesting repaint on canvas overlay...');
-        pbCanvas.Invalidate;
-        
-        LogMsg(Format('btnLoadImageClick: Loaded successfully (%dx%d)', [FBmp.Width, FBmp.Height]));
-        except
-          on E: Exception do
-          begin
-            LogMsg('btnLoadImageClick: Exception caught during loading: ' + E.Message);
-            lblScore.Caption := 'Landmarks: N/A';
-            ShowMessage('Failed to load image: ' + E.Message);
-          end;
-        end;
-    finally
-      LPicture.Free;
-      LogMsg('btnLoadImageClick: Reader object instance freed.');
+      LPicture.LoadFromFile(OpenDialog1.FileName);
+      FBmp.SetSize(LPicture.Width, LPicture.Height);
+      FBmp.Canvas.Draw(0, 0, LPicture.Graphic);
+      FDetector.ClearResult;
+      lblScore.Caption := 'Landmarks: N/A';
+      pbCanvas.Invalidate;
+      LogMsg(Format('Imagem carregada: %dx%d', [FBmp.Width, FBmp.Height]));
+    except
+      on E: Exception do
+      begin
+        LogMsg('Erro ao carregar imagem: ' + E.Message);
+        ShowMessage('Falha ao carregar imagem: ' + E.Message);
+      end;
     end;
-  end
-  else
-  begin
-    LogMsg('btnLoadImageClick: User cancelled file selection dialog.');
+  finally
+    LPicture.Free;
   end;
 end;
 
+{ ------------------------------------------------------------------ }
+{ Detectar pose                                                       }
+{ ------------------------------------------------------------------ }
 procedure TfrmPoseDemo.btnDetectClick(Sender: TObject);
 var
   TStart, TEnd: TDateTime;
@@ -233,145 +209,177 @@ var
   Success: Boolean;
   I: Integer;
 begin
-  LogMsg('btnDetectClick: Verification steps started.');
-
+  { Verificar imagem }
   if FBmp.Width = 0 then
   begin
-    LogMsg('btnDetectClick: Error - No image loaded in active buffer.');
-    lblScore.Caption := 'Landmarks: N/A';
-    ShowMessage('Please load an image first.');
+    ShowMessage('Carregue uma imagem primeiro.');
     Exit;
   end;
 
+  { Verificar / inicializar detector }
   if not FDetector.Initialized then
   begin
-    LogMsg('btnDetectClick: Detector dynamic library not loaded. Attempting initialization...');
+    LogMsg('Detector não inicializado — tentando inicializar...');
     if not FDetector.Initialize then
     begin
-      LogMsg('btnDetectClick: Error - Detector initialization failed: ' + FDetector.LastError);
+      LogMsg('Falha na inicialização: ' + FDetector.LastError);
       lblStatus.Caption := 'Estado: Erro na inicialização';
-      lblScore.Caption := 'Landmarks: N/A';
       SyncBackendStatus;
-      ShowMessage('Error: detector initialization failed.' + sLineBreak + 'Details: ' + FDetector.LastError);
+      ShowMessage('Inicialização falhou:' + sLineBreak + FDetector.LastError);
       Exit;
     end;
-    LogMsg('btnDetectClick: DLL loaded successfully at runtime!');
+    LogMsg('Detector inicializado em tempo de execução.');
     LogDetectorSummary;
-    if SameText(FDetector.BridgeBackend, 'REAL') then
-      cbModelVariant.ItemIndex := 1;
     lblStatus.Caption := 'Estado: Inicializado';
     SyncBackendStatus;
   end;
 
-  LogMsg('btnDetectClick: Clearing old points...');
+  { Validação de backend REAL }
+  if chkRequireReal.Checked and not SameText(FDetector.BridgeBackend, 'REAL') then
+  begin
+    LogMsg('Detecção bloqueada — backend atual: ' + FDetector.BridgeBackend);
+    ShowMessage(
+      'Esta DLL não reconhece a imagem de verdade.' + sLineBreak +
+      'Backend atual: ' + FDetector.BridgeBackend + sLineBreak + sLineBreak +
+      'Para obter pontos reais, carregue uma DLL compilada com' + sLineBreak +
+      'MP_BRIDGE_BACKEND=REAL e informe o modelo .task.' + sLineBreak + sLineBreak +
+      'Desmarque "Exigir backend REAL" para ver pontos simulados (SIM).');
+    Exit;
+  end;
+
+  { Configurar opções }
+  case cbModelVariant.ItemIndex of
+    0: FDetector.ModelVariant := hpmLite;
+    2: FDetector.ModelVariant := hpmHeavy;
+    else FDetector.ModelVariant := hpmFull;
+  end;
+  FDetector.DrawSkeleton        := chkSkeleton.Checked;
+  FDetector.DrawLandmarkPoints  := chkPoints.Checked;
+  FDetector.DrawLandmarkNames   := chkNames.Checked;
+
   FDetector.ClearResult;
   pbCanvas.Invalidate;
 
+  { Detectar }
+  LogMsg('Iniciando detecção...');
+  TStart  := Now;
+  Success := FDetector.DetectBitmap(FBmp);
+  TEnd    := Now;
+  ElapsedMs := (TEnd - TStart) * 86400000.0;
+
+  LogMsg(Format('Detecção concluída em %.2f ms. Sucesso: %s', [ElapsedMs, BoolToStr(Success, 'True', 'False')]));
+
+  if Success and (FDetector.GetPoseCount > 0) then
+  begin
+    lblScore.Caption  := Format('Landmarks: %d', [FDetector.LastResultData.Poses[0].LandmarkCount]);
+    lblStatus.Caption := 'Estado: Pose Detectada';
+
+    LogMsg('=== PONTOS DETECTADOS ===');
+    for I := 0 to 32 do
+      LogMsg(Format('  #%2d %-24s  X=%.4f  Y=%.4f  Z=%.4f  Vis=%.2f  Pres=%.2f',
+        [I, LANDMARK_NAMES[I],
+         FDetector.LastResultData.Poses[0].Landmarks[I].X,
+         FDetector.LastResultData.Poses[0].Landmarks[I].Y,
+         FDetector.LastResultData.Poses[0].Landmarks[I].Z,
+         FDetector.LastResultData.Poses[0].Landmarks[I].Visibility,
+         FDetector.LastResultData.Poses[0].Landmarks[I].Presence]));
+    LogMsg(Format('Tempo: %.2f ms', [ElapsedMs]));
+
+    if SameText(FDetector.BridgeBackend, 'SIM') then
+      LogMsg('ATENÇÃO: backend SIM — pontos simulados, não reconhecimento real.');
+
+    pbCanvas.Invalidate;
+  end
+  else
+  begin
+    lblScore.Caption  := 'Landmarks: 0';
+    lblStatus.Caption := 'Estado: Nenhuma Pose Detectada';
+    if not Success then
+      LogMsg('Erro na detecção: ' + FDetector.LastError);
+  end;
+
   SyncBackendStatus;
-
-  LogMsg('btnDetectClick: Initializing detector configuration options...');
-  
-  // Set configuration
-  case cbModelVariant.ItemIndex of
-    0:
-      begin
-        FDetector.ModelVariant := hpmLite;
-        LogMsg('btnDetectClick: Configuration set: ModelVariant = hpmLite');
-      end;
-    2:
-      begin
-        FDetector.ModelVariant := hpmHeavy;
-        LogMsg('btnDetectClick: Configuration set: ModelVariant = hpmHeavy');
-      end;
-    else
-      begin
-        FDetector.ModelVariant := hpmFull;
-        LogMsg('btnDetectClick: Configuration set: ModelVariant = hpmFull');
-      end;
-  end;
-
-  FDetector.DrawSkeleton := chkSkeleton.Checked;
-  FDetector.DrawLandmarkPoints := chkPoints.Checked;
-  FDetector.DrawLandmarkNames := chkNames.Checked;
-  LogMsg(Format('btnDetectClick: Options - Skeleton=%s, Points=%s, Names=%s',
-    [BoolToStr(FDetector.DrawSkeleton, 'True', 'False'),
-     BoolToStr(FDetector.DrawLandmarkPoints, 'True', 'False'),
-     BoolToStr(FDetector.DrawLandmarkNames, 'True', 'False')]));
-
-  LogMsg('btnDetectClick: Initiating MediaPipe detection sequence...');
-  TStart := Now;
-  try
-    Success := FDetector.DetectBitmap(FBmp);
-    TEnd := Now;
-    ElapsedMs := (TEnd - TStart) * 24.0 * 60.0 * 60.0 * 1000.0;
-    
-    LogMsg(Format('btnDetectClick: Detection call finished in %.2f ms. Success flag: %s',
-      [ElapsedMs, BoolToStr(Success, 'True', 'False')]));
-      
-    if Success and (FDetector.GetPoseCount > 0) then
-    begin
-      lblScore.Caption := Format('Landmarks: %d', [FDetector.LastResultData.Poses[0].LandmarkCount]);
-      lblStatus.Caption := 'Estado: Pose Detectada';
-      LogMsg('btnDetectClick: Pose detected.');
-      LogMsg(Format('Landmarks: %d', [FDetector.LastResultData.Poses[0].LandmarkCount]));
-      
-      LogMsg('=== PONTOS IDENTIFICADOS ===');
-      for I := 0 to 32 do
-      begin
-        LogMsg(Format('Ponto #%d [%s]: (X: %.4f, Y: %.4f, Z: %.4f, Visibilidade: %.2f, Presença: %.2f)',
-          [I,
-           LANDMARK_NAMES[I],
-           FDetector.LastResultData.Poses[0].Landmarks[I].X,
-           FDetector.LastResultData.Poses[0].Landmarks[I].Y,
-           FDetector.LastResultData.Poses[0].Landmarks[I].Z,
-           FDetector.LastResultData.Poses[0].Landmarks[I].Visibility,
-           FDetector.LastResultData.Poses[0].Landmarks[I].Presence]));
-      end;
-      LogMsg('============================');
-      
-      LogMsg('=== LEGENDA DOS PONTOS ===');
-      LogMsg('0..10: Cabeça/Rosto (Nariz, Olhos, Orelhas, Boca)');
-      LogMsg('11..12: Ombros');
-      LogMsg('13..16: Braços e Pulsos (Cotovelos, Pulsos)');
-      LogMsg('17..22: Mãos e Dedos (Mindinho, Indicador, Polegar)');
-      LogMsg('23..24: Quadris');
-      LogMsg('25..26: Joelhos');
-      LogMsg('27..28: Tornozelos');
-      LogMsg('29..32: Calcanhares e Pés');
-      LogMsg('==========================');
-      LogMsg(Format('Tempo: %.2f ms', [ElapsedMs]));
-      
-      LogMsg('btnDetectClick: Requesting repaint on canvas overlay...');
-      pbCanvas.Invalidate;
-    end
-    else
-    begin
-      lblScore.Caption := 'Landmarks: 0';
-      lblStatus.Caption := 'Estado: Nenhuma Pose Detectada';
-      LogMsg('btnDetectClick: No pose found in the processed bitmap.');
-    end;
-  except
-    on E: Exception do
-    begin
-      LogMsg('btnDetectClick: Exception caught during processing: ' + E.Message);
-      lblStatus.Caption := 'Estado: Erro na detecção';
-      lblScore.Caption := 'Landmarks: N/A';
-      ShowMessage('Error: ' + E.Message);
-    end;
-  end;
 end;
 
+{ ------------------------------------------------------------------ }
+{ Pintura do canvas (imagem + overlay de landmarks)                  }
+{ ------------------------------------------------------------------ }
 procedure TfrmPoseDemo.pbCanvasPaint(Sender: TObject);
 var
   LRect: TRect;
 begin
+  { Fundo }
+  pbCanvas.Canvas.Brush.Color := clBlack;
+  pbCanvas.Canvas.FillRect(Rect(0, 0, pbCanvas.Width, pbCanvas.Height));
+
+  if (FBmp = nil) or (FBmp.Width = 0) then
+    Exit;
+
+  LRect := GetImageDestRect;
+
+  { 1. Imagem }
+  pbCanvas.Canvas.StretchDraw(LRect, FBmp);
+
+  { 2. Landmarks por cima }
   if Assigned(FDetector) and (FDetector.GetPoseCount > 0) then
-  begin
-    LRect := GetImageDestRect;
     FDetector.DrawResult(pbCanvas.Canvas, LRect);
+end;
+
+{ ------------------------------------------------------------------ }
+{ Rect de destino — proporcional e centralizado dentro do pbCanvas   }
+{ ------------------------------------------------------------------ }
+function TfrmPoseDemo.GetImageDestRect: TRect;
+var
+  ImgW, ImgH, BoxW, BoxH: Integer;
+  AspImg, AspBox: Double;
+  TW, TH, TX, TY: Integer;
+begin
+  Result := Rect(0, 0, pbCanvas.Width, pbCanvas.Height);
+  if (FBmp = nil) or (FBmp.Width = 0) or (FBmp.Height = 0) then
+    Exit;
+
+  ImgW := FBmp.Width;
+  ImgH := FBmp.Height;
+  BoxW := pbCanvas.Width;
+  BoxH := pbCanvas.Height;
+
+  AspImg := ImgW / ImgH;
+  AspBox := BoxW / BoxH;
+
+  if AspImg > AspBox then
+  begin
+    TW := BoxW;
+    TH := Round(BoxW / AspImg);
+  end
+  else
+  begin
+    TH := BoxH;
+    TW := Round(BoxH * AspImg);
+  end;
+
+  TX := (BoxW - TW) div 2;
+  TY := (BoxH - TH) div 2;
+
+  Result := Rect(TX, TY, TX + TW, TY + TH);
+end;
+
+{ ------------------------------------------------------------------ }
+{ Opções de desenho                                                   }
+{ ------------------------------------------------------------------ }
+procedure TfrmPoseDemo.chkDrawOptionsChange(Sender: TObject);
+begin
+  if Assigned(FDetector) then
+  begin
+    FDetector.DrawSkeleton       := chkSkeleton.Checked;
+    FDetector.DrawLandmarkPoints := chkPoints.Checked;
+    FDetector.DrawLandmarkNames  := chkNames.Checked;
+    pbCanvas.Invalidate;
   end;
 end;
 
+{ ------------------------------------------------------------------ }
+{ Sincronizar label backend                                           }
+{ ------------------------------------------------------------------ }
 procedure TfrmPoseDemo.SyncBackendStatus;
 begin
   if Assigned(FDetector) and FDetector.Initialized then
@@ -380,179 +388,114 @@ begin
     lblBackend.Caption := 'Backend: N/A';
 end;
 
+{ ------------------------------------------------------------------ }
+{ Resumo do detector no log                                           }
+{ ------------------------------------------------------------------ }
 procedure TfrmPoseDemo.LogDetectorSummary;
 begin
-  if not Assigned(FDetector) then
-    Exit;
+  if not Assigned(FDetector) then Exit;
 
-  LogMsg('DLL carregada: ' + FDetector.LoadedBridgeDLLPath);
-  LogMsg('Bridge version: ' + FDetector.BridgeVersionText);
-  LogMsg('MediaPipe version: ' + FDetector.RequiredMediaPipeVersion);
-  LogMsg('Backend: ' + FDetector.BridgeBackend);
-
+  LogMsg('--- Bridge carregada ---');
+  LogMsg('DLL:      ' + FDetector.LoadedBridgeDLLPath);
+  LogMsg('Bridge:   ' + FDetector.BridgeVersionText);
+  LogMsg('Backend:  ' + FDetector.BridgeBackend);
+  LogMsg('ABI:      ' + IntToStr(FDetector.BridgeAbiVersion));
+  LogMsg('Arch:     ' + FDetector.BridgeArchitecture);
   if SameText(FDetector.BridgeBackend, 'SIM') then
-    LogMsg('ATENÇÃO: backend SIM gera landmarks simulados. Ele não reconhece a imagem real.')
+    LogMsg('ATENÇÃO: backend SIM — landmarks simulados.')
   else if SameText(FDetector.BridgeBackend, 'REAL') then
-  begin
-    LogMsg('Backend REAL ativo.');
-    LogMsg('Modelo carregado: ' + FDetector.LoadedModelFile);
-  end;
+    LogMsg('Modelo:   ' + FDetector.LoadedModelFile);
+  LogMsg('------------------------');
 end;
 
-function TfrmPoseDemo.GetImageDestRect: TRect;
-var
-  ImgW, ImgH: Integer;
-  BoxW, BoxH: Integer;
-  AspectImg, AspectBox: Double;
-  TargetW, TargetH: Integer;
-  TargetX, TargetY: Integer;
-begin
-  Result := Rect(0, 0, pbCanvas.Width, pbCanvas.Height);
-  if (imgPose.Picture = nil) or (imgPose.Picture.Width = 0) or (imgPose.Picture.Height = 0) then
-    Exit;
-
-  ImgW := imgPose.Picture.Width;
-  ImgH := imgPose.Picture.Height;
-  BoxW := pbCanvas.Width;
-  BoxH := pbCanvas.Height;
-
-  if imgPose.Proportional then
-  begin
-    AspectImg := ImgW / ImgH;
-    AspectBox := BoxW / BoxH;
-
-    if AspectImg > AspectBox then
-    begin
-      TargetW := BoxW;
-      TargetH := Round(BoxW / AspectImg);
-    end
-    else
-    begin
-      TargetH := BoxH;
-      TargetW := Round(BoxH * AspectImg);
-    end;
-  end
-  else if imgPose.Stretch then
-  begin
-    TargetW := BoxW;
-    TargetH := BoxH;
-  end
-  else
-  begin
-    TargetW := ImgW;
-    TargetH := ImgH;
-  end;
-
-  if imgPose.Center then
-  begin
-    TargetX := (BoxW - TargetW) div 2;
-    TargetY := (BoxH - TargetH) div 2;
-  end
-  else
-  begin
-    TargetX := 0;
-    TargetY := 0;
-  end;
-
-  Result := Rect(TargetX, TargetY, TargetX + TargetW, TargetY + TargetH);
-end;
-
-procedure TfrmPoseDemo.chkDrawOptionsChange(Sender: TObject);
-begin
-  if Assigned(FDetector) then
-  begin
-    FDetector.DrawSkeleton := chkSkeleton.Checked;
-    FDetector.DrawLandmarkPoints := chkPoints.Checked;
-    FDetector.DrawLandmarkNames := chkNames.Checked;
-    LogMsg('chkDrawOptionsChange: Drawing parameters updated. Refreshing overlay...');
-    pbCanvas.Invalidate;
-  end;
-end;
-
+{ ------------------------------------------------------------------ }
+{ Log                                                                 }
+{ ------------------------------------------------------------------ }
 procedure TfrmPoseDemo.LogMsg(const AMsg: string);
 var
   LFormatted: string;
   LFilePath: string;
-  LFileStream: TStringList;
+  LFile: TextFile;
 begin
-  LFormatted := FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now) + ' - ' + AMsg;
+  LFormatted := FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now) + ' | ' + AMsg;
   memLog.Lines.Add(LFormatted);
-  
-  // Append message to persistent log file next to executable
+
   LFilePath := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))) + 'detector_execution.log';
-  LFileStream := TStringList.Create;
+  AssignFile(LFile, LFilePath);
   try
     if FileExists(LFilePath) then
-      LFileStream.LoadFromFile(LFilePath);
-    LFileStream.Add(LFormatted);
-    LFileStream.SaveToFile(LFilePath);
-  finally
-    LFileStream.Free;
+      Append(LFile)
+    else
+      Rewrite(LFile);
+    WriteLn(LFile, LFormatted);
+    CloseFile(LFile);
+  except
+    { ignora erros de log em disco }
   end;
 end;
 
+{ ------------------------------------------------------------------ }
+{ Procurar DLL                                                        }
+{ ------------------------------------------------------------------ }
 procedure TfrmPoseDemo.btnBrowseRuntimeClick(Sender: TObject);
 var
-  LOpenDlg: TOpenDialog;
+  LDlg: TOpenDialog;
 begin
-  LOpenDlg := TOpenDialog.Create(Self);
+  LDlg := TOpenDialog.Create(Self);
   try
-    LOpenDlg.Title := 'Selecionar Biblioteca Pose Bridge (DLL/SO)';
+    LDlg.Title := 'Selecionar Biblioteca Pose Bridge (DLL/SO)';
     {$IFDEF MSWINDOWS}
-    LOpenDlg.Filter := 'Bibliotecas Dynamic Link (*.dll)|*.dll|Todos Arquivos (*.*)|*.*';
+    LDlg.Filter := 'Bibliotecas (*.dll)|*.dll|Todos (*.*)|*.*';
     {$ELSE}
-    LOpenDlg.Filter := 'Bibliotecas Shared Object (*.so)|*.so|Todos Arquivos (*.*)|*.*';
+    LDlg.Filter := 'Bibliotecas (*.so)|*.so|Todos (*.*)|*.*';
     {$ENDIF}
     if edRuntimePath.Text <> '' then
-      LOpenDlg.InitialDir := ExtractFilePath(edRuntimePath.Text)
+      LDlg.InitialDir := ExtractFilePath(edRuntimePath.Text)
     else
-      LOpenDlg.InitialDir := ExtractFilePath(ParamStr(0));
-      
-    if LOpenDlg.Execute then
+      LDlg.InitialDir := ExtractFilePath(ParamStr(0));
+
+    if LDlg.Execute then
     begin
-      edRuntimePath.Text := LOpenDlg.FileName;
-      LogMsg('btnBrowseRuntimeClick: Selected bridge library: ' + LOpenDlg.FileName);
+      edRuntimePath.Text := LDlg.FileName;
+      LogMsg('Bridge selecionada: ' + LDlg.FileName);
     end;
   finally
-    LOpenDlg.Free;
+    LDlg.Free;
   end;
 end;
 
+{ ------------------------------------------------------------------ }
+{ Carregar / Re-inicializar                                           }
+{ ------------------------------------------------------------------ }
 procedure TfrmPoseDemo.btnReinitClick(Sender: TObject);
 begin
-  LogMsg('btnReinitClick: Updating bridge DLL path to: ' + edRuntimePath.Text);
-  // Unload first
   FDetector.Active := False;
-  
-  // Set DLL path and load mode
+
   if edRuntimePath.Text <> '' then
   begin
-    FDetector.LoadMode := mplmManualPath;
+    FDetector.LoadMode    := mplmManualPath;
     FDetector.BridgeDLLPath := edRuntimePath.Text;
   end
   else
     FDetector.LoadMode := mplmAuto;
 
-  LogMsg('btnReinitClick: Initializing detector...');
+  LogMsg('Re-inicializando detector...');
+
   if FDetector.Initialize then
   begin
-    LogMsg('btnReinitClick: Detector re-initialized successfully!');
     LogDetectorSummary;
-    if SameText(FDetector.BridgeBackend, 'REAL') then
-      cbModelVariant.ItemIndex := 1;
     lblStatus.Caption := 'Estado: Inicializado';
-    lblScore.Caption := 'Landmarks: N/A';
+    lblScore.Caption  := 'Landmarks: N/A';
     SyncBackendStatus;
     edRuntimePath.Text := FDetector.LoadedBridgeDLLPath;
-    ShowMessage('Detector re-inicializado com sucesso!' + sLineBreak + 'DLL: ' + FDetector.LoadedBridgeDLLPath);
+    LogMsg('Detector re-inicializado.');
   end
   else
   begin
-    LogMsg('btnReinitClick: ERROR re-initializing detector: ' + FDetector.LastError);
+    LogMsg('Falha: ' + FDetector.LastError);
     lblStatus.Caption := 'Estado: Erro na inicialização';
-    lblScore.Caption := 'Landmarks: N/A';
     SyncBackendStatus;
-    ShowMessage('Falha ao re-inicializar o detector: ' + FDetector.LastError);
+    ShowMessage('Falha ao inicializar:' + sLineBreak + FDetector.LastError);
   end;
 end;
 

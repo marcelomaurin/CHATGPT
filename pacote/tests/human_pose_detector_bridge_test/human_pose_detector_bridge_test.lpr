@@ -44,6 +44,7 @@ type
 var
   Detector: TAIHumanPoseDetector;
   Bmp: TBitmap;
+  DLLPath: string;
 
 function ResolveProjectFile(const ARelative: string): string;
 begin

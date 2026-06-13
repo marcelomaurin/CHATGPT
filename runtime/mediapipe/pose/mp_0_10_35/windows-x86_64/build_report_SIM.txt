@@ -1,0 +1,13 @@
+Build date        : 2026-06-13 16:15:26
+Backend           : SIM
+Bridge version    : 1.0.0
+MediaPipe version : 0.10.35
+Official DLL      : ai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_win64.dll
+Built DLL         : bridge\mediapipe_pose\build_win64_SIM\Release\ai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_win64.dll
+Runtime DLL       : D:\projetos\maurinsoft\CHATGPT\runtime\mediapipe\pose\mp_0_10_35\windows-x86_64\ai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_win64.dll
+Demo DLL          : D:\projetos\maurinsoft\CHATGPT\pacote\samples\AI MediaPipe Vision\pose_detector_demo\ai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_win64.dll
+DLL size          : 122880 bytes
+SHA256            : 4DEAAA1CBEDF955755BA01694FB7D4961380E346DE4C8E252ADF14D63B2F3BAE
+Exports check     : OK
+Manifest          : D:\projetos\maurinsoft\CHATGPT\runtime\mediapipe\pose\mp_0_10_35\windows-x86_64\bridge_manifest.json
+Legacy DLLs removed: ver saida do script

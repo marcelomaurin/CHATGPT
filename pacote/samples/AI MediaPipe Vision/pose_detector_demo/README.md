@@ -1,25 +1,73 @@
-# AI MediaPipe Vision - Pose Detector Demo
+# Pose Detector Demo — TAIHumanPoseDetector
 
-This sample application demonstrates the `TAIHumanPoseDetector` component with the SIM bridge backend. It logs the loaded DLL, the bridge version, the MediaPipe version, and the backend (`SIM` or `REAL`) so the user does not confuse "DLL loaded" with "real image recognition".
+Demo GUI que demonstra o componente `TAIHumanPoseDetector` com a bridge SIM (e opcionalmente REAL).
 
-## How to Run the Demo
+## Pré-requisitos
 
-1. Build the bridge in `SIM` mode.
-2. Place the official binary in the runtime search path:
-   - Windows: `runtime/mediapipe/pose/mp_0_10_35/windows-x86_64/ai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_win64.dll`
-   - Linux: `runtime/mediapipe/pose/mp_0_10_35/linux-x86_64/libai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_linux_x86_64.so`
-3. Compile and launch `human_pose_detector_demo` in Lazarus for `x86_64`.
-4. In the app:
-   - Open the **Setup** tab and click **Carregar / Re-inicializar** to load the library.
-   - Open the **Detecao** tab, click **Carregar Imagem** to choose a picture.
-   - Click **Detectar** to initialize the detector if needed and run inference.
+- Lazarus compilado como **64-bit (x86_64)**. O componente não funciona em 32-bit.
+- A DLL da bridge compilada (veja "Compilar a bridge" abaixo).
 
-## Backend Notes
+## Como rodar
 
-- `SIM` backend: generates deterministic mock landmarks. It does not recognize the real image.
-- `REAL` backend: requires `models/pose_landmarker_full.task` in the same runtime tree as the loaded DLL and is the only path that should be treated as real pose recognition.
-- The demo log now prints `Backend`, `Bridge version`, `MediaPipe version`, `Landmarks` and `Tempo` so the user can tell the difference between "DLL loaded" and "real inference".
+1. Compile a bridge SIM:
+   ```bash
+   cd bridge/mediapipe_pose
+   mkdir build && cd build
+   cmake ..        # MP_BRIDGE_BACKEND=SIM por padrão
+   cmake --build . --config Release
+   ```
+   Coloque a DLL gerada ao lado do executável do demo ou no diretório de runtime:
+   ```
+   runtime/mediapipe/pose/mp_0_10_35/windows-x86_64/
+     ai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_win64.dll
+   ```
 
-## Legacy Compatibility
+2. Abra `human_pose_detector_demo.lpi` no Lazarus e compile para **x86_64**.
 
-Older local builds may still contain `mp_pose_bridge.dll` or `libmp_pose_bridge.so`, but those names are compatibility fallbacks only. The official runtime filenames are versioned.
+3. Execute o demo:
+   - Aba **Setup / Runtime** → campo "Biblioteca Bridge" → **Procurar DLL/SO...** → selecione a DLL.
+   - Clique **Carregar / Re-inicializar**.
+   - Confira o label **Backend**: deve mostrar `SIM` ou `REAL`.
+   - Aba **Detecção** → **Carregar Imagem** → escolha uma das 10 imagens em `images/`.
+   - Clique **Detectar Pose**.
+
+## Imagens de exemplo
+
+A pasta `images/` contém 10 imagens de teste pré-carregadas:
+
+| Arquivo | Conteúdo |
+|---|---|
+| pose_1_full_body_standing | Corpo inteiro, em pé |
+| pose_2_walking_side_view | Caminhada, vista lateral |
+| pose_3_sitting_chair | Sentado na cadeira |
+| pose_4_running_front_view | Corrida, vista frontal |
+| pose_5_head_close_up | Close de cabeça |
+| pose_6_hand_open_palm | Mão aberta, palma |
+| pose_7_hand_fist | Mão fechada |
+| pose_8_squatting_pose | Agachamento |
+| pose_9_jumping_jack | Jumping jack |
+| pose_10_yoga_tree_pose | Yoga tree pose |
+
+## Backend SIM × REAL
+
+| Situação | O que acontece |
+|---|---|
+| DLL SIM + checkbox "Exigir backend REAL" marcado | Demo bloqueia a detecção e avisa |
+| DLL SIM + checkbox desmarcado | Detecta com landmarks simulados (log avisa) |
+| DLL REAL + modelo `.task` | Detecta landmarks reais do corpo |
+
+Para backend REAL, baixe os modelos:
+```powershell
+# Windows
+.\bridge\mediapipe_pose\tools\fetch_model.ps1
+```
+
+Os modelos ficam em `runtime/mediapipe/pose/mp_0_10_35/windows-x86_64/models/`.
+
+## Log de diagnóstico
+
+O demo grava um log em `detector_execution.log` ao lado do executável. Cada linha tem timestamp e mensagem. Útil para depurar problemas de DLL ou detecção.
+
+## Limitação
+
+Somente **64-bit**. Abrir o demo compilado em 32-bit mostra a mensagem e encerra.
