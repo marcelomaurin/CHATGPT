@@ -150,3 +150,10 @@ begin
   end;
 end;
 ```
+
+## 8. Demonstração de Teste Real
+
+Abaixo está o screenshot do teste prático utilizando a bridge em modo REAL integrada no Lazarus com o modelo do MediaPipe detectando os 33 landmarks corporais:
+
+![MediaPipe Pose Detection Demo](../../screenshots/pose_detector_demo.jpg)
+

@@ -132,3 +132,10 @@ end;
 - **Wrong bridge filename:** Do not rename the official DLL to hide its MediaPipe version. Use the versioned file name.
 - **32-bit compilation attempt:** Ensure Lazarus builds for Target CPU `x86_64`.
 - **Dependency load failure:** If the DLL exists but loading still fails, check missing dependent DLLs, C++ runtime, wrong architecture, or missing exported functions.
+
+## Demo Screenshot
+
+Below is the demo application running and detecting landmarks on a standing person:
+
+![MediaPipe Pose Detection Demo](../screenshots/pose_detector_demo.jpg)
+

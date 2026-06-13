@@ -194,3 +194,10 @@ Todo o código de carregamento de DLL está protegido por `{$IFDEF CPU64}`. Em 3
 | `ABI mismatch` | DLL com ABI diferente | Recompilar a bridge |
 | `mp_pose_create falhou` | Erro na bridge | Ver `LastError` e `DiagnosticLog` |
 | `model_path obrigatório` | Backend REAL sem modelo | Baixar modelos com `fetch_model.*` |
+
+## Demonstração de Teste Real
+
+Abaixo está o screenshot do teste prático utilizando a bridge em modo REAL integrada no Lazarus com o modelo do MediaPipe detectando os 33 landmarks corporais:
+
+![MediaPipe Pose Detection Demo](../../../screenshots/pose_detector_demo.jpg)
+
