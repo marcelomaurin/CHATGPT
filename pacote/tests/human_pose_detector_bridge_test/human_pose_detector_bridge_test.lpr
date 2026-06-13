@@ -14,9 +14,9 @@ begin
   WriteLn('Starting Human Pose Detector Bridge Test...');
   
   // Resolve DLL path (where we just copied it)
-  DLLPath := ExpandFileName('../../../runtime/mediapipe/pose/mp_0_10_35/windows-x86_64/mp_pose_bridge.dll');
+  DLLPath := ExpandFileName('../../../runtime/mediapipe/pose/mp_0_10_35/windows-x86_64/ai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_win64.dll');
   {$IFNDEF MSWINDOWS}
-  DLLPath := ExpandFileName('../../../runtime/mediapipe/pose/mp_0_10_35/linux-x86_64/libmp_pose_bridge.so');
+  DLLPath := ExpandFileName('../../../runtime/mediapipe/pose/mp_0_10_35/linux-x86_64/libai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_linux64.so');
   {$ENDIF}
   
   WriteLn('Testing with DLL: ', DLLPath);
