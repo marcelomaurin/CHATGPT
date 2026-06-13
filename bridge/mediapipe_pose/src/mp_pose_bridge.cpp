@@ -4,6 +4,10 @@
 #include <math.h>
 #include <string>
 
+#ifdef MP_BRIDGE_BACKEND_REAL
+#include "mediapipe/tasks/c/vision/pose_landmarker/pose_landmarker_c_api.h"
+#endif
+
 // Thread-local error buffer to hold error messages for null handles
 #ifdef _MSC_VER
 #define THREAD_LOCAL __declspec(thread)
@@ -16,7 +20,7 @@ static THREAD_LOCAL std::string g_last_error_msg = "";
 struct mp_pose_context {
   mp_pose_config config;
   std::string last_error;
-  void* landmarker_instance; // Placeholder for actual MediaPipe C API instance
+  void* landmarker_instance; // Actual MediaPipe C API instance when MP_BRIDGE_BACKEND_REAL is defined
 };
 
 extern "C" {
@@ -46,26 +50,26 @@ int32_t MP_POSE_CALL mp_pose_create(const mp_pose_config* cfg, mp_pose_handle* o
   memcpy(&ctx->config, cfg, sizeof(mp_pose_config));
   ctx->landmarker_instance = nullptr;
 
-  /* 
-   * Real MediaPipe Integration logic (compiled when building with SDK):
-   * 
-   * auto options = MpPoseLandmarkerOptionsCreate();
-   * options.base_options.model_asset_path = cfg->model_path;
-   * options.running_mode = (cfg->running_mode == 1) ? MpRunningModeVideo : MpRunningModeImage;
-   * options.num_poses = cfg->num_poses;
-   * options.min_pose_detection_confidence = cfg->min_pose_detection_confidence;
-   * options.min_pose_presence_confidence = cfg->min_pose_presence_confidence;
-   * options.min_tracking_confidence = cfg->min_tracking_confidence;
-   * options.output_segmentation_masks = cfg->output_segmentation_mask;
-   * 
-   * auto landmarker = MpPoseLandmarkerCreate(&options);
-   * if (!landmarker) {
-   *   free(ctx);
-   *   g_last_error_msg = "Failed to create MediaPipe landmarker instance.";
-   *   return MP_ERR_BACKEND;
-   * }
-   * ctx->landmarker_instance = landmarker;
-   */
+#ifdef MP_BRIDGE_BACKEND_REAL
+  PoseLandmarkerOptions options = {};
+  options.base_options.model_asset_path = cfg->model_path;
+  options.running_mode = (cfg->running_mode == 1) ? RunningMode::VIDEO : RunningMode::IMAGE;
+  options.num_poses = cfg->num_poses;
+  options.min_pose_detection_confidence = cfg->min_pose_detection_confidence;
+  options.min_pose_presence_confidence = cfg->min_pose_presence_confidence;
+  options.min_tracking_confidence = cfg->min_tracking_confidence;
+  options.output_segmentation_masks = cfg->output_segmentation_mask != 0;
+
+  char* error_msg = nullptr;
+  void* landmarker = PoseLandmarkerCreate(&options, &error_msg);
+  if (!landmarker) {
+    g_last_error_msg = error_msg ? error_msg : "Failed to create MediaPipe landmarker instance.";
+    if (error_msg) free(error_msg);
+    free(ctx);
+    return MP_ERR_BACKEND;
+  }
+  ctx->landmarker_instance = landmarker;
+#endif
 
   *out_handle = (mp_pose_handle)ctx;
   return MP_OK;
@@ -75,12 +79,11 @@ void MP_POSE_CALL mp_pose_destroy(mp_pose_handle h) {
   if (!h) return;
   mp_pose_context* ctx = (mp_pose_context*)h;
 
-  /*
-   * Real MediaPipe cleanup:
-   * if (ctx->landmarker_instance) {
-   *   MpPoseLandmarkerClose(ctx->landmarker_instance);
-   * }
-   */
+#ifdef MP_BRIDGE_BACKEND_REAL
+  if (ctx->landmarker_instance) {
+    PoseLandmarkerClose(ctx->landmarker_instance, nullptr);
+  }
+#endif
 
   free(ctx);
 }
@@ -139,33 +142,66 @@ int32_t MP_POSE_CALL mp_pose_detect(mp_pose_handle h, const mp_image_raw* img, m
     return MP_ERR_OUT_OF_MEMORY;
   }
 
-  /*
-   * Real MediaPipe Inference logic:
-   * 
-   * MpImage mp_img;
-   * mp_img.format = (img->channels == 3) ? MpImageFormatRgb : MpImageFormatRgba;
-   * mp_img.width = img->width;
-   * mp_img.height = img->height;
-   * mp_img.data = img->data;
-   * mp_img.stride = img->stride;
-   * 
-   * MpPoseLandmarkerResult mp_res;
-   * int32_t status;
-   * if (ctx->config.running_mode == 1) {
-   *   status = MpPoseLandmarkerDetectVideo(ctx->landmarker_instance, &mp_img, img->timestamp_ms, &mp_res);
-   * } else {
-   *   status = MpPoseLandmarkerDetectImage(ctx->landmarker_instance, &mp_img, &mp_res);
-   * }
-   * 
-   * if (status != 0) {
-   *   mp_pose_free_result(res);
-   *   ctx->last_error = "MediaPipe native inference failed.";
-   *   return MP_ERR_INFERENCE;
-   * }
-   * 
-   * // Map results to out_result...
-   */
+#ifdef MP_BRIDGE_BACKEND_REAL
+  MpImage mp_img = {};
+  mp_img.type = MpImageFormatRgb; // default format
+  if (img->channels == 4) {
+    mp_img.type = MpImageFormatRgba;
+  }
+  mp_img.width = img->width;
+  mp_img.height = img->height;
+  mp_img.data = img->data;
 
+  PoseLandmarkerResult mp_res = {};
+  char* error_msg = nullptr;
+  int32_t status;
+
+  if (ctx->config.running_mode == 1) {
+    status = PoseLandmarkerDetectVideo(ctx->landmarker_instance, &mp_img, img->timestamp_ms, &mp_res, &error_msg);
+  } else {
+    status = PoseLandmarkerDetect(ctx->landmarker_instance, &mp_img, &mp_res, &error_msg);
+  }
+
+  if (status != 0) {
+    mp_pose_free_result(res);
+    ctx->last_error = error_msg ? error_msg : "MediaPipe native inference failed.";
+    if (error_msg) free(error_msg);
+    return MP_ERR_INFERENCE;
+  }
+
+  res->pose_count = mp_res.pose_landmarks_count;
+  // Map coordinates
+  for (int p = 0; p < res->pose_count; ++p) {
+    for (int i = 0; i < MP_POSE_LANDMARK_COUNT; ++i) {
+      int idx = p * MP_POSE_LANDMARK_COUNT + i;
+      res->landmarks[idx].x = mp_res.pose_landmarks[p].landmarks[i].x;
+      res->landmarks[idx].y = mp_res.pose_landmarks[p].landmarks[i].y;
+      res->landmarks[idx].z = mp_res.pose_landmarks[p].landmarks[i].z;
+      res->landmarks[idx].visibility = mp_res.pose_landmarks[p].landmarks[i].visibility;
+      res->landmarks[idx].presence = mp_res.pose_landmarks[p].landmarks[i].presence;
+
+      res->world_landmarks[idx].x = mp_res.pose_world_landmarks[p].landmarks[i].x;
+      res->world_landmarks[idx].y = mp_res.pose_world_landmarks[p].landmarks[i].y;
+      res->world_landmarks[idx].z = mp_res.pose_world_landmarks[p].landmarks[i].z;
+    }
+  }
+
+  if (ctx->config.output_segmentation_mask && mp_res.segmentation_masks_count > 0) {
+    res->mask_present = 1;
+    res->mask_width = img->width;
+    res->mask_height = img->height;
+    res->mask = (uint8_t*)malloc(img->width * img->height);
+    if (res->mask) {
+      // Copy real segmentation mask data if available
+      memcpy(res->mask, mp_res.segmentation_masks[0].data, img->width * img->height);
+    }
+  } else {
+    res->mask_present = 0;
+    res->mask = nullptr;
+  }
+
+  PoseLandmarkerResultFree(&mp_res);
+#else
   // Mockup Stub Simulation (moving wave for verification without SDK)
   for (int p = 0; p < res->pose_count; ++p) {
     for (int i = 0; i < MP_POSE_LANDMARK_COUNT; ++i) {
@@ -197,6 +233,7 @@ int32_t MP_POSE_CALL mp_pose_detect(mp_pose_handle h, const mp_image_raw* img, m
     res->mask_present = 0;
     res->mask = nullptr;
   }
+#endif
 
   *out_result = res;
   return MP_OK;
@@ -226,3 +263,4 @@ const char* MP_POSE_CALL mp_pose_last_error(mp_pose_handle h) {
 }
 
 }
+
