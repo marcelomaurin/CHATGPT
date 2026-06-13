@@ -22,7 +22,7 @@
 > [!WARNING]
 > **Aviso Importante de Arquitetura e Integração**:
 > 1. A suíte suporta o componente de detecção de pose humana (`TAIHumanPoseDetector`) **exclusivamente em plataformas de 64-bit (x86_64)** no Windows e no Linux. Em sistemas de 32-bit o componente compila normalmente mas reporta-se indisponível em runtime.
-> 2. O backend do MediaPipe Pose (`TAIHumanPoseDetector`) encontra-se no marco **SIM (Simulado/Mock)**. A ponte de baixo nível retorna pontos simulados determinísticos. A inferência real com o SDK do MediaPipe está em desenvolvimento e é condicionada a decisões futuras de backend.
+> 2. O backend do MediaPipe Pose (`TAIHumanPoseDetector`) oferece suporte completo a execução **SIM (Simulada/Mock)** e **REAL (com detecção de verdade através de um worker em Python)**. Ambas as abordagens estão validadas e funcionais em 64-bit.
 
 ---
 
@@ -184,7 +184,7 @@ Componentes que realizam chamadas ou utilizam scripts Python externos para execu
 
 | Componente | Pacote | Backend | Função | Status |
 |---|---|---|---|---|
-| `TAIHumanPoseDetector` | `openai_vision.lpk` | MediaPipe Bridge DLL/SO | Detecta pose humana, retorna 33 landmarks corporais, world landmarks 3D (atualmente em simulação) | Placeholder/Experimental |
+| `TAIHumanPoseDetector` | `openai_vision.lpk` | MediaPipe Bridge DLL/SO | Detecta pose humana, retorna 33 landmarks corporais reais e simulação integrada | Estável (64-bit) |
 
 ##### Runtime MediaPipe
 

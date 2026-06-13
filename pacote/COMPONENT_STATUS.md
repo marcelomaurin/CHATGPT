@@ -90,7 +90,7 @@ Use esta classificação para documentação, README de abas, samples e planejam
 | `TAIFrameBuffer` | `aiframebuffer.pas` | `openai_vision` | Experimental | Buffer de frames circular em memória para processamento de vídeo |
 | `TAINativeImageFilter` | `ainativeimagefilter.pas` | `openai_vision` | Experimental | Filtros rápidos de pixel (Cinza, Limiar, Inverter, Resize, Blur) 100% nativos |
 | `TAIFrameDiff` | `aiframediff.pas` | `openai_vision` | Experimental | Geração nativa de diferença absoluta de pixels entre frames |
-| `TAIHumanPoseDetector` | `aihumanposedetector.pas` | `openai_vision` | Placeholder/Experimental | Bridge com backend simulado (mock); inferência real pendente. Exclusivo 64-bit (indisponível em 32-bit). |
+| `TAIHumanPoseDetector` | `aihumanposedetector.pas` | `openai_vision` | Stable | Detector de pose real integrado (MediaPipe 0.10.35). Pipeline (Lazarus → DLL → Python Worker) completo e validado, com 33 landmarks reais, simulação e livre de vazamento de memória. Exclusivo 64-bit (indisponível em 32-bit). |
 
 ---
 
