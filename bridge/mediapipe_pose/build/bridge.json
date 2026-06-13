@@ -1,0 +1,16 @@
+{
+  "name": "AI MediaPipe Pose Bridge",
+  "component": "TAIHumanPoseDetector",
+  "bridge_version": "1.0.0",
+  "bridge_abi_version": 1,
+  "compatible_mediapipe_version": "0.10.35",
+  "binary": "mp_pose_bridge.dll",
+  "task": "PoseLandmarker",
+  "models": {
+    "lite": "models/pose_landmarker_lite.task",
+    "full": "models/pose_landmarker_full.task",
+    "heavy": "models/pose_landmarker_heavy.task"
+  },
+  "default_model": "full",
+  "landmark_count": 33
+}

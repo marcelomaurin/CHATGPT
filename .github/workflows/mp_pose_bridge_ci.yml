@@ -1,0 +1,76 @@
+name: MediaPipe Pose Bridge CI
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'bridge/mediapipe_pose/**'
+      - '.github/workflows/mp_pose_bridge_ci.yml'
+  pull_request:
+    branches: [ main, master ]
+    paths:
+      - 'bridge/mediapipe_pose/**'
+
+jobs:
+  build:
+    name: Build & Test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - name: Set up CMake
+      uses: jwlawrence/actions-setup-cmake@v1
+      with:
+        cmake-version: '3.16.x'
+
+    - name: Set up Bazel (Bazelisk)
+      uses: bazelbuild/setup-bazelisk@v2
+
+    - name: Configure CMake
+      run: |
+        mkdir -p bridge/mediapipe_pose/build/out
+        cd bridge/mediapipe_pose/build/out
+        cmake -DMP_POSE_BUILD=ON ..
+
+    - name: Build Bridge Library
+      run: |
+        cd bridge/mediapipe_pose/build/out
+        cmake --build . --config Release
+
+    - name: Compile C Smoke Test
+      run: |
+        cd bridge/mediapipe_pose/tests
+        if [ "${{ matrix.os }}" = "windows-latest" ]; then
+          cl.exe smoke_test.c /I../include /link /OUT:smoke_test.exe
+        else
+          gcc smoke_test.c -I../include -ldl -o smoke_test
+        fi
+      shell: bash
+
+    - name: Run Smoke Test
+      run: |
+        if [ "${{ matrix.os }}" = "windows-latest" ]; then
+          cp ../build/out/bin/Release/mp_pose_bridge.dll .
+          ./smoke_test.exe
+        else
+          cp ../build/out/lib/libmp_pose_bridge.so .
+          ./smoke_test
+        fi
+      working-directory: bridge/mediapipe_pose/tests
+      shell: bash
+
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: mp-pose-bridge-${{ matrix.os }}
+        path: |
+          bridge/mediapipe_pose/build/out/bin/Release/mp_pose_bridge.dll
+          bridge/mediapipe_pose/build/out/lib/libmp_pose_bridge.so
+        if-no-files-found: ignore

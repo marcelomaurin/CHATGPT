@@ -77,6 +77,10 @@
         <UnitName Value="aihumanpose_types"/>
       </Item>
       <Item>
+        <Filename Value="..\AI Vision\mp_pose_bridge.pas"/>
+        <UnitName Value="mp_pose_bridge"/>
+      </Item>
+      <Item>
         <Filename Value="..\AI Vision\aihumanposedetector.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aihumanposedetector"/>

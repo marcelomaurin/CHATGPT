@@ -2,35 +2,20 @@ unit aihumanposedetector;
 
 {$mode objfpc}{$H+}
 
+{$IFNDEF CPU64}
+  {$ERROR TAIHumanPoseDetector is only supported on 64-bit systems.}
+{$ENDIF}
+
 interface
 
 uses
-  Classes, SysUtils, aibase, Graphics, DynLibs, fpjson, jsonparser, FileUtil,
+  Classes, SysUtils, aibase, Graphics, fpjson, jsonparser, FileUtil,
   aiplatform, airuntimepaths, aihumanpose_types, Math, LResources,
-  IntfGraphics, GraphType;
+  IntfGraphics, GraphType, mp_pose_bridge;
 
 type
-  { MediaPipe Bridge DLL function prototypes }
-  TInitMPPoseFunc = function(
-    const AModelPath: PAnsiChar;
-    AMaxPoses: Integer;
-    AMinDetectConfidence: Single;
-    AMinPresenceConfidence: Single;
-    AMinTrackingConfidence: Single;
-    AOutputMasks: Byte
-  ): Integer; cdecl;
-
-  TDetectMPPoseFrameFunc = function(
-    APixels: Pointer;
-    AWidth: Integer;
-    AHeight: Integer;
-    AFormat: Integer;
-    var AOutScore: Single;
-    AOutLandmarks: Pointer; // Expects pointer to 33 * 5 Singles (X, Y, Z, Vis, Pres)
-    AOutMaskPixels: Pointer // Output buffer for segmentation mask if requested
-  ): Integer; cdecl;
-
-  TCloseMPPoseFunc = procedure; cdecl;
+  TAIHumanPoseDetectedEvent = procedure(Sender: TObject; const AResult: TAIHumanPoseResult) of object;
+  TAIHumanPoseErrorEvent = procedure(Sender: TObject; ACode: Integer; const AMsg: string) of object;
 
   { TAIHumanPoseDetector }
 
@@ -40,95 +25,119 @@ type
     FRuntimePath: string;
     FModelFile: string;
     FActive: Boolean;
-    FLoadMode: TMPLoadMode;
-    FExecutionMode: TMPExecutionMode;
+    FLoadMode: TAIHumanPoseLoadMode;
+    FExecutionMode: TAIHumanPoseExecutionMode;
     FRequiredBridgeAbiVersion: Integer;
     FRequiredMediaPipeVersion: string;
-    FRunningMode: TMPRunningMode;
+    FRunningMode: TAIHumanPoseRunningMode;
     FNumPoses: Integer;
     FMinPoseDetectionConfidence: Single;
     FMinPosePresenceConfidence: Single;
     FMinTrackingConfidence: Single;
     FOutputSegmentationMasks: Boolean;
-    FModelVariant: TMPModelVariant;
-    FInputColorFormat: TMPInputColorFormat;
+    FModelVariant: TAIHumanPoseModelVariant;
+    FInputColorFormat: TAIHumanPoseColorFormat;
     FDetectAllLandmarks: Boolean;
-    FEnabledBodyPartGroups: TAIHumanBodyPartGroups;
     FMinLandmarkVisibility: Single;
     FMinLandmarkPresence: Single;
     FIgnoreInvisibleLandmarks: Boolean;
 
-    // Visualization
     FDrawSkeleton: Boolean;
     FDrawLandmarkPoints: Boolean;
     FDrawLandmarkNames: Boolean;
 
-    // DLL details
+    // Diagnostics & Outputs
+    FLastError: string;
+    FLastOutput: string;
     FLoadedBridgeDLLPath: string;
+    FLoadedModelFile: string;
     FBridgeVersionText: string;
     FBridgeAbiVersion: Integer;
-    FRequiredMethodsOK: Boolean;
     FDiagnosticLog: TStringList;
-    FLibHandle: TLibHandle;
 
-    // Detected results
-    FLastResultData: TAIHumanPoseDetectionResult;
+    // Events
+    FOnPoseDetected: TAIHumanPoseDetectedEvent;
+    FOnPoseError: TAIHumanPoseErrorEvent;
 
-    // DLL functions pointers
-    FInitMPPose: TInitMPPoseFunc;
-    FDetectMPPoseFrame: TDetectMPPoseFrameFunc;
-    FCloseMPPose: TCloseMPPoseFunc;
+    // Internal DLL stuff
+    FDetectorHandle: mp_pose_handle;
+    FLastResultData: TAIHumanPoseResult;
 
     procedure SetActive(const AValue: Boolean);
     function LoadBridgeDLL: Boolean;
     procedure UnloadBridgeDLL;
     function ResolveModelPath: string;
     procedure DoDiagnosticLog(const AMessage: string);
+    function GetLazarusArchitecture: string;
+    function GetBridgeArchitecture: string;
+    function GetAvailable: Boolean;
+    procedure ConvertLazIntfImageToRGB(LIntfImg: TLazIntfImage; out ARGBData: Pointer; out AStride: Integer);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
     function Initialize: Boolean;
+    procedure FinalizeDetector;
+
     function DetectImageFile(const AFileName: string): Boolean;
     function DetectBitmap(ABitmap: TBitmap): Boolean;
-    procedure ClearResult;
-    function GetLandmark(APoseIndex: Integer; ALandmark: TAIHumanPoseLandmarkIndex; out AOutLandmark: TAIHumanPoseLandmark): Boolean;
-    procedure DrawOnCanvas(ACanvas: TCanvas; AWidth, AHeight: Integer);
-    procedure DrawOnCanvasRect(ACanvas: TCanvas; const ARect: TRect);
+    function DetectRGBBuffer(AData: Pointer; AWidth, AHeight, AStride: Integer): Boolean;
 
+    function GetPoseCount: Integer;
+    function GetLandmark(
+      const APoseIndex: Integer;
+      const ALandmarkId: TAIHumanPoseLandmarkId;
+      out ALandmark: TAIHumanPoseLandmark
+    ): Boolean;
+
+    function GetLandmarkByIndex(
+      const APoseIndex: Integer;
+      const ALandmarkIndex: Integer;
+      out ALandmark: TAIHumanPoseLandmark
+    ): Boolean;
+
+    procedure DrawResult(ACanvas: TCanvas; const ADestRect: TRect);
+    procedure ClearResult;
+
+    property Available: Boolean read GetAvailable;
+    property LastError: string read FLastError;
+    property LastOutput: string read FLastOutput;
     property LoadedBridgeDLLPath: string read FLoadedBridgeDLLPath;
+    property LoadedModelFile: string read FLoadedModelFile;
     property BridgeVersionText: string read FBridgeVersionText;
     property BridgeAbiVersion: Integer read FBridgeAbiVersion;
-    property RequiredMethodsOK: Boolean read FRequiredMethodsOK;
+    property LazarusArchitecture: string read GetLazarusArchitecture;
+    property BridgeArchitecture: string read GetBridgeArchitecture;
     property DiagnosticLog: TStringList read FDiagnosticLog;
-    property LastResultData: TAIHumanPoseDetectionResult read FLastResultData;
+    property LastResultData: TAIHumanPoseResult read FLastResultData;
   published
     property BridgeDLLPath: string read FBridgeDLLPath write FBridgeDLLPath;
     property RuntimePath: string read FRuntimePath write FRuntimePath;
     property ModelFile: string read FModelFile write FModelFile;
     property Active: Boolean read FActive write SetActive default False;
-    property LoadMode: TMPLoadMode read FLoadMode write FLoadMode default mplmAuto;
-    property ExecutionMode: TMPExecutionMode read FExecutionMode write FExecutionMode default mpemDLL;
+    property LoadMode: TAIHumanPoseLoadMode read FLoadMode write FLoadMode default mplmAuto;
+    property ExecutionMode: TAIHumanPoseExecutionMode read FExecutionMode write FExecutionMode default mpemDLL;
     property RequiredBridgeAbiVersion: Integer read FRequiredBridgeAbiVersion write FRequiredBridgeAbiVersion default 1;
     property RequiredMediaPipeVersion: string read FRequiredMediaPipeVersion write FRequiredMediaPipeVersion;
-    property RunningMode: TMPRunningMode read FRunningMode write FRunningMode default hprImage;
+    property RunningMode: TAIHumanPoseRunningMode read FRunningMode write FRunningMode default hprImage;
     property NumPoses: Integer read FNumPoses write FNumPoses default 1;
     property MinPoseDetectionConfidence: Single read FMinPoseDetectionConfidence write FMinPoseDetectionConfidence;
     property MinPosePresenceConfidence: Single read FMinPosePresenceConfidence write FMinPosePresenceConfidence;
     property MinTrackingConfidence: Single read FMinTrackingConfidence write FMinTrackingConfidence;
     property OutputSegmentationMasks: Boolean read FOutputSegmentationMasks write FOutputSegmentationMasks default False;
-    property ModelVariant: TMPModelVariant read FModelVariant write FModelVariant default hpmFull;
-    property InputColorFormat: TMPInputColorFormat read FInputColorFormat write FInputColorFormat default hpcRGB;
+    property ModelVariant: TAIHumanPoseModelVariant read FModelVariant write FModelVariant default hpmFull;
+    property InputColorFormat: TAIHumanPoseColorFormat read FInputColorFormat write FInputColorFormat default hpcRGB;
     property DetectAllLandmarks: Boolean read FDetectAllLandmarks write FDetectAllLandmarks default True;
-    property EnabledBodyPartGroups: TAIHumanBodyPartGroups read FEnabledBodyPartGroups write FEnabledBodyPartGroups;
     property MinLandmarkVisibility: Single read FMinLandmarkVisibility write FMinLandmarkVisibility;
     property MinLandmarkPresence: Single read FMinLandmarkPresence write FMinLandmarkPresence;
     property IgnoreInvisibleLandmarks: Boolean read FIgnoreInvisibleLandmarks write FIgnoreInvisibleLandmarks default True;
-
-    // Visualization
     property DrawSkeleton: Boolean read FDrawSkeleton write FDrawSkeleton default True;
     property DrawLandmarkPoints: Boolean read FDrawLandmarkPoints write FDrawLandmarkPoints default True;
     property DrawLandmarkNames: Boolean read FDrawLandmarkNames write FDrawLandmarkNames default False;
+
+    // Events
+    property OnPoseDetected: TAIHumanPoseDetectedEvent read FOnPoseDetected write FOnPoseDetected;
+    property OnError: TAIHumanPoseErrorEvent read FOnPoseError write FOnPoseError;
   end;
 
 procedure Register;
@@ -148,8 +157,48 @@ const
     'Left Foot Index', 'Right Foot Index'
   );
 
-procedure Register;
+  HUMAN_POSE_CONNECTIONS: array[0..34] of record
+    A: Integer;
+    B: Integer;
+  end = (
+    (A: 11; B: 12), // shoulders
+    (A: 11; B: 13),
+    (A: 13; B: 15),
+    (A: 12; B: 14),
+    (A: 14; B: 16),
+    (A: 11; B: 23),
+    (A: 12; B: 24),
+    (A: 23; B: 24),
+    (A: 23; B: 25),
+    (A: 25; B: 27),
+    (A: 27; B: 29),
+    (A: 29; B: 31),
+    (A: 24; B: 26),
+    (A: 26; B: 28),
+    (A: 28; B: 30),
+    (A: 30; B: 32),
+    (A: 15; B: 17),
+    (A: 15; B: 19),
+    (A: 15; B: 21),
+    (A: 16; B: 18),
+    (A: 16; B: 20),
+    (A: 16; B: 22),
+    (A: 0; B: 1),
+    (A: 1; B: 2),
+    (A: 2; B: 3),
+    (A: 0; B: 4),
+    (A: 4; B: 5),
+    (A: 5; B: 6),
+    (A: 3; B: 7),
+    (A: 6; B: 8),
+    (A: 9; B: 10),
+    (A: 0; B: 9),
+    (A: 0; B: 10),
+    (A: 7; B: 11),
+    (A: 8; B: 12)
+  );
 
+procedure Register;
 begin
   RegisterComponents('AI Vision', [TAIHumanPoseDetector]);
 end;
@@ -179,7 +228,6 @@ begin
   FModelVariant := hpmFull;
   FInputColorFormat := hpcRGB;
   FDetectAllLandmarks := True;
-  FEnabledBodyPartGroups := [hpgFace, hpgShoulders, hpgLeftArm, hpgRightArm, hpgTorso, hpgLeftLeg, hpgRightLeg];
   FMinLandmarkVisibility := 0.5;
   FMinLandmarkPresence := 0.5;
   FIgnoreInvisibleLandmarks := True;
@@ -188,16 +236,16 @@ begin
   FDrawLandmarkPoints := True;
   FDrawLandmarkNames := False;
 
-  FLibHandle := NilHandle;
+  FDetectorHandle := nil;
   FDiagnosticLog := TStringList.Create;
   
   FillChar(FLastResultData, SizeOf(FLastResultData), 0);
-  ClearError;
+  ClearResult;
 end;
 
 destructor TAIHumanPoseDetector.Destroy;
 begin
-  UnloadBridgeDLL;
+  FinalizeDetector;
   FDiagnosticLog.Free;
   inherited Destroy;
 end;
@@ -206,6 +254,57 @@ procedure TAIHumanPoseDetector.DoDiagnosticLog(const AMessage: string);
 begin
   FDiagnosticLog.Add(FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz: ', Now) + AMessage);
   Log(llDebug, AMessage);
+end;
+
+function TAIHumanPoseDetector.GetLazarusArchitecture: string;
+begin
+  {$IFDEF CPU64}
+  Result := '64-bit';
+  {$ELSE}
+  Result := '32-bit';
+  {$ENDIF}
+end;
+
+function TAIHumanPoseDetector.GetBridgeArchitecture: string;
+var
+  LInfo: tmp_pose_info;
+begin
+  if MpPoseBridgeAvailable then
+  begin
+    FillChar(LInfo, SizeOf(LInfo), 0);
+    LInfo.struct_size := SizeOf(LInfo);
+    if mp_pose_get_info(@LInfo) = MP_OK then
+      Result := string(LInfo.arch)
+    else
+      Result := 'Unknown';
+  end
+  else
+    Result := 'Unknown';
+end;
+
+function TAIHumanPoseDetector.GetAvailable: Boolean;
+var
+  LInfo: tmp_pose_info;
+begin
+  Result := False;
+  {$IFNDEF CPU64}
+  Exit;
+  {$ENDIF}
+
+  if not MpPoseBridgeAvailable then
+  begin
+    // Attempt auto-load
+    if not LoadMpPoseBridge(ExtractFilePath(ParamStr(0))) then
+      Exit;
+  end;
+
+  FillChar(LInfo, SizeOf(LInfo), 0);
+  LInfo.struct_size := SizeOf(LInfo);
+  if mp_pose_get_info(@LInfo) = MP_OK then
+  begin
+    Result := (LInfo.abi_version = MP_POSE_ABI_VERSION) and
+              (string(LInfo.arch) = 'x86_64');
+  end;
 end;
 
 procedure TAIHumanPoseDetector.SetActive(const AValue: Boolean);
@@ -218,7 +317,7 @@ begin
   end
   else
   begin
-    UnloadBridgeDLL;
+    FinalizeDetector;
     FActive := False;
   end;
 end;
@@ -249,13 +348,13 @@ begin
 
   if LRuntimeRoot <> '' then
   begin
-    // Structure: runtime/mediapipe/pose/mp_0_10_35/windows/x64/models/pose_landmarker_xxx.task
+    // Structure: runtime/mediapipe/pose/mp_0_10_35/windows-x86_64/models/pose_landmarker_xxx.task
     LCandidate := LRuntimeRoot + 'pose' + DirectorySeparator + 'mp_' + StringReplace(FRequiredMediaPipeVersion, '.', '_', [rfReplaceAll]) +
                   DirectorySeparator;
     {$IFDEF MSWINDOWS}
-    LCandidate := LCandidate + 'windows' + DirectorySeparator + 'x64' + DirectorySeparator;
+      LCandidate := LCandidate + 'windows-x86_64' + DirectorySeparator;
     {$ELSE}
-    LCandidate := LCandidate + 'linux' + DirectorySeparator + 'x64' + DirectorySeparator;
+      LCandidate := LCandidate + 'linux-x86_64' + DirectorySeparator;
     {$ENDIF}
 
     case FModelVariant of
@@ -276,23 +375,13 @@ begin
   Result := False;
   UnloadBridgeDLL;
 
-  // Resolve DLL name and folder structure dynamically based on OS and architecture
+  // Resolve DLL name and folder structure dynamically based on OS (only 64-bit is supported)
   {$IFDEF MSWINDOWS}
-    {$IFDEF CPU64}
-      LDLLName := 'ai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_win64.dll';
-      LPlatformFolder := 'windows' + DirectorySeparator + 'x64' + DirectorySeparator;
-    {$ELSE}
-      LDLLName := 'ai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_win32.dll';
-      LPlatformFolder := 'windows' + DirectorySeparator + 'x86' + DirectorySeparator;
-    {$ENDIF}
+    LDLLName := 'mp_pose_bridge.dll';
+    LPlatformFolder := 'windows-x86_64' + DirectorySeparator;
   {$ELSE}
-    {$IFDEF CPU64}
-      LDLLName := 'libai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_linux64.so';
-      LPlatformFolder := 'linux' + DirectorySeparator + 'x64' + DirectorySeparator;
-    {$ELSE}
-      LDLLName := 'libai_mediapipe_pose_bridge_v1_0_0_mp0_10_35_linux32.so';
-      LPlatformFolder := 'linux' + DirectorySeparator + 'x86' + DirectorySeparator;
-    {$ENDIF}
+    LDLLName := 'libmp_pose_bridge.so';
+    LPlatformFolder := 'linux-x86_64' + DirectorySeparator;
   {$ENDIF}
 
   if (FLoadMode = mplmManualPath) and (FBridgeDLLPath <> '') then
@@ -309,23 +398,7 @@ begin
     LPath := '';
     for I := 0 to 5 do
     begin
-      // Try posebridge folder structure: runtime/mediapipe/posebridge/
-      LCandidateDir := AICombinePath(LBase, 'runtime' + DirectorySeparator + 'mediapipe' + DirectorySeparator + 'posebridge' + DirectorySeparator);
-      if DirectoryExists(LCandidateDir) then
-      begin
-        LPath := AICombinePath(LCandidateDir, LDLLName);
-        if FileExists(LPath) then Break;
-      end;
-
-      // Try simple OpenCV-like runtime structure first: runtime/mediapipe/windows/x64/
-      LCandidateDir := AICombinePath(LBase, 'runtime' + DirectorySeparator + 'mediapipe' + DirectorySeparator + LPlatformFolder);
-      if DirectoryExists(LCandidateDir) then
-      begin
-        LPath := AICombinePath(LCandidateDir, LDLLName);
-        if FileExists(LPath) then Break;
-      end;
-
-      // Try nested versioned structure: runtime/mediapipe/pose/mp_0_10_35/windows/x64/
+      // Try pose folder structure: runtime/mediapipe/pose/mp_0_10_35/windows-x86_64/
       LCandidateDir := AICombinePath(LBase, 'runtime' + DirectorySeparator + 'mediapipe' + DirectorySeparator +
                         'pose' + DirectorySeparator + 'mp_' + StringReplace(FRequiredMediaPipeVersion, '.', '_', [rfReplaceAll]) +
                         DirectorySeparator + LPlatformFolder);
@@ -348,264 +421,364 @@ begin
   DoDiagnosticLog('Resolving MediaPipe bridge path: ' + LPath);
   if not FileExists(LPath) then
   begin
-    DoDiagnosticLog('MediaPipe Bridge DLL/SO not found: ' + LPath);
-    FLoadedBridgeDLLPath := '';
-    FRequiredMethodsOK := False;
-    FBridgeVersionText := '';
-    FBridgeAbiVersion := 0;
+    FLastError := 'MediaPipe Pose Bridge DLL não encontrada. Verifique BridgeDLLPath ou RuntimePath. DLL esperada: ' + LDLLName;
+    DoDiagnosticLog(FLastError);
     Exit(False);
   end;
 
-  try
-    FLibHandle := SafeLoadLibrary(LPath);
-    if FLibHandle <> NilHandle then
-    begin
-      FLoadedBridgeDLLPath := LPath;
-      FInitMPPose := TInitMPPoseFunc(GetProcAddress(FLibHandle, 'InitMPPose'));
-      FDetectMPPoseFrame := TDetectMPPoseFrameFunc(GetProcAddress(FLibHandle, 'DetectMPPoseFrame'));
-      FCloseMPPose := TCloseMPPoseFunc(GetProcAddress(FLibHandle, 'CloseMPPose'));
-
-      FRequiredMethodsOK := Assigned(FInitMPPose) and Assigned(FDetectMPPoseFrame) and Assigned(FCloseMPPose);
-      if FRequiredMethodsOK then
-      begin
-        FBridgeVersionText := '1.0.0 (Native)';
-        FBridgeAbiVersion := 1;
-        DoDiagnosticLog('MediaPipe bridge DLL loaded successfully. All entry points verified.');
-        Result := True;
-      end;
-    end;
-  except
-    on E: Exception do
-      DoDiagnosticLog('Exception while loading bridge: ' + E.Message);
+  if LoadMpPoseBridge(ExtractFilePath(LPath)) then
+  begin
+    FLoadedBridgeDLLPath := LPath;
+    Result := True;
+  end
+  else
+  begin
+    FLastError := 'Erro ao carregar a biblioteca de ligação do MediaPipe Pose Bridge.';
+    DoDiagnosticLog(FLastError);
   end;
 end;
 
 procedure TAIHumanPoseDetector.UnloadBridgeDLL;
 begin
-  if FLibHandle <> NilHandle then
-  begin
-    if FRequiredMethodsOK and Assigned(FCloseMPPose) then
-    begin
-      try
-        FCloseMPPose();
-      except
-        // ignore
-      end;
-    end;
-    UnloadLibrary(FLibHandle);
-    FLibHandle := NilHandle;
-  end;
-  FRequiredMethodsOK := False;
-  FInitMPPose := nil;
-  FDetectMPPoseFrame := nil;
-  FCloseMPPose := nil;
+  UnloadMpPoseBridge;
+  FLoadedBridgeDLLPath := '';
 end;
 
 function TAIHumanPoseDetector.Initialize: Boolean;
 var
   LModel: string;
+  LCfg: tmp_pose_config;
+  LInfo: tmp_pose_info;
+  Res: Integer;
 begin
-  ClearError;
+  FLastError := '';
   Result := False;
   DoDiagnosticLog('Initializing TAIHumanPoseDetector...');
   
-  if not LoadBridgeDLL then
+  {$IFNDEF CPU64}
+  FLastError := 'Plataforma 32-bit não suportada.';
+  DoDiagnosticLog(FLastError);
+  if Assigned(FOnPoseError) then
+    FOnPoseError(Self, MP_ERR_UNSUPPORTED, FLastError);
+  Exit;
+  {$ENDIF}
+
+  if not MpPoseBridgeAvailable then
   begin
-    SetError('Failed to load MediaPipe bridge DLL.');
+    if not LoadBridgeDLL then
+    begin
+      if Assigned(FOnPoseError) then
+        FOnPoseError(Self, MP_ERR_NOT_INITIALIZED, FLastError);
+      Exit;
+    end;
+  end;
+
+  FillChar(LInfo, SizeOf(LInfo), 0);
+  LInfo.struct_size := SizeOf(LInfo);
+  Res := mp_pose_get_info(@LInfo);
+  if Res <> MP_OK then
+  begin
+    FLastError := 'Falha ao obter metadados da bridge.';
+    DoDiagnosticLog(FLastError);
+    if Assigned(FOnPoseError) then
+      FOnPoseError(Self, Res, FLastError);
+    Exit;
+  end;
+
+  if LInfo.abi_version <> MP_POSE_ABI_VERSION then
+  begin
+    FLastError := Format('Incompatibilidade de ABI. Esperada: %d, Obtida: %d', [MP_POSE_ABI_VERSION, LInfo.abi_version]);
+    DoDiagnosticLog(FLastError);
+    if Assigned(FOnPoseError) then
+      FOnPoseError(Self, MP_ERR_ABI_MISMATCH, FLastError);
     Exit;
   end;
 
   LModel := ResolveModelPath;
   DoDiagnosticLog('Model task file path: ' + LModel);
-
-  if FRequiredMethodsOK then
+  if (LModel = '') or (not FileExists(LModel)) then
   begin
-    if LModel = '' then
-    begin
-      SetError('MediaPipe model task path cannot be resolved.');
-      Exit;
-    end;
+    FLastError := 'Modelo MediaPipe Pose Landmarker não encontrado.';
+    DoDiagnosticLog(FLastError);
+    if Assigned(FOnPoseError) then
+      FOnPoseError(Self, MP_ERR_MODEL_LOAD, FLastError);
+    Exit;
+  end;
 
-    try
-      // Return value: 0 is success
-      if FInitMPPose(PAnsiChar(LModel), FNumPoses, FMinPoseDetectionConfidence,
-                     FMinPosePresenceConfidence, FMinTrackingConfidence, Byte(FOutputSegmentationMasks)) = 0 then
-      begin
-        DoDiagnosticLog('Successfully initialized MediaPipe engine.');
-        FLastSuccess := True;
-        Result := True;
-      end
-      else
-        SetError('InitMPPose returned failure initialization code.');
-    except
-      on E: Exception do
-        SetError('Failed to initialize MediaPipe Native: ' + E.Message);
+  FLoadedModelFile := LModel;
+
+  try
+    FinalizeDetector;
+
+    FillChar(LCfg, SizeOf(LCfg), 0);
+    LCfg.struct_size := SizeOf(LCfg);
+    LCfg.model_path := PAnsiChar(LModel);
+    LCfg.running_mode := Integer(FRunningMode);
+    LCfg.num_poses := FNumPoses;
+    LCfg.min_pose_detection_confidence := FMinPoseDetectionConfidence;
+    LCfg.min_pose_presence_confidence := FMinPosePresenceConfidence;
+    LCfg.min_tracking_confidence := FMinTrackingConfidence;
+    LCfg.output_segmentation_mask := Integer(FOutputSegmentationMasks);
+    LCfg.num_threads := 0; // auto
+
+    Res := mp_pose_create(@LCfg, @FDetectorHandle);
+    if (Res = MP_OK) and (FDetectorHandle <> nil) then
+    begin
+      DoDiagnosticLog('Successfully created MediaPipe pose detector handle.');
+      Result := True;
+    end
+    else
+    begin
+      FLastError := 'Failed to create detector instance: ' + string(mp_pose_last_error(FDetectorHandle));
+      DoDiagnosticLog(FLastError);
+      if Assigned(FOnPoseError) then
+        FOnPoseError(Self, Res, FLastError);
+    end;
+  except
+    on E: Exception do
+    begin
+      FLastError := 'Failed to initialize MediaPipe Native: ' + E.Message;
+      DoDiagnosticLog(FLastError);
+      if Assigned(FOnPoseError) then
+        FOnPoseError(Self, MP_ERR_BACKEND, FLastError);
     end;
   end;
+end;
+
+procedure TAIHumanPoseDetector.FinalizeDetector;
+begin
+  if FDetectorHandle <> nil then
+  begin
+    try
+      mp_pose_destroy(FDetectorHandle);
+    except
+      // ignore
+    end;
+    FDetectorHandle := nil;
+  end;
+  UnloadBridgeDLL;
 end;
 
 function TAIHumanPoseDetector.DetectImageFile(const AFileName: string): Boolean;
 var
-  LPic: TPicture;
+  LBitmap: TBitmap;
 begin
   Result := False;
-  ClearError;
-  
+  FLastError := '';
   if AFileName = '' then
   begin
-    SetError('File name is empty.');
+    FLastError := 'Imagem não encontrada.';
     Exit;
   end;
-  
   if not FileExists(AFileName) then
   begin
-    SetError('Image file does not exist: ' + AFileName);
+    FLastError := 'Imagem não encontrada: ' + AFileName;
     Exit;
   end;
 
-  LPic := TPicture.Create;
+  LBitmap := TBitmap.Create;
   try
-    try
-      LPic.LoadFromFile(AFileName);
-      if Assigned(LPic.Bitmap) then
-      begin
-        Result := DetectBitmap(LPic.Bitmap);
-      end
-      else
-        SetError('Loaded picture does not contain a valid bitmap.');
-    except
-      on E: Exception do
-        SetError('Failed to process image file: ' + E.Message);
-    end;
+    LBitmap.LoadFromFile(AFileName);
+    Result := DetectBitmap(LBitmap);
   finally
-    LPic.Free;
+    LBitmap.Free;
+  end;
+end;
+
+procedure TAIHumanPoseDetector.ConvertLazIntfImageToRGB(LIntfImg: TLazIntfImage; out ARGBData: Pointer; out AStride: Integer);
+var
+  X, Y: Integer;
+  POut: PByte;
+  Col: TFPColor;
+begin
+  AStride := LIntfImg.Width * 3;
+  GetMem(ARGBData, AStride * LIntfImg.Height);
+  POut := PByte(ARGBData);
+  for Y := 0 to LIntfImg.Height - 1 do
+  begin
+    for X := 0 to LIntfImg.Width - 1 do
+    begin
+      Col := LIntfImg.Colors[X, Y];
+      POut[0] := Col.red shr 8;   // R
+      POut[1] := Col.green shr 8; // G
+      POut[2] := Col.blue shr 8;  // B
+      Inc(POut, 3);
+    end;
   end;
 end;
 
 function TAIHumanPoseDetector.DetectBitmap(ABitmap: TBitmap): Boolean;
-type
-  TSingleArray = array[0..33*5-1] of Single;
 var
-  RawData: TSingleArray;
-  Score: Single;
-  I: Integer;
-  Res: Integer;
   LIntfImg: TLazIntfImage;
-  LFormat: Integer;
+  RGBData: Pointer;
+  LStride: Integer;
 begin
   Result := False;
-  ClearError;
-  FillChar(FLastResultData, SizeOf(FLastResultData), 0);
+  FLastError := '';
+  ClearResult;
 
   if not Assigned(ABitmap) or (ABitmap.Width <= 0) or (ABitmap.Height <= 0) then
   begin
-    SetError('Invalid bitmap parameter.');
+    FLastError := 'Imagem não encontrada ou inválida.';
     Exit;
   end;
 
-  if not FRequiredMethodsOK then
+  if (FDetectorHandle = nil) or (not MpPoseBridgeAvailable) then
   begin
-    SetError('MediaPipe bridge DLL is not loaded or missing entry points.');
+    FLastError := 'Detector não inicializado.';
     Exit;
   end;
 
   LIntfImg := TLazIntfImage.Create(0, 0);
+  RGBData := nil;
   try
-    try
-      LIntfImg.LoadFromBitmap(ABitmap.Handle, ABitmap.MaskHandle);
-      
-      // Determine color format of raw pixels
-      LFormat := 3; // Default to BGRA
-      if LIntfImg.DataDescription.BitsPerPixel = 32 then
-      begin
-        if LIntfImg.DataDescription.RedShift < LIntfImg.DataDescription.BlueShift then
-          LFormat := 2 // RGBA
-        else
-          LFormat := 3; // BGRA
-      end
-      else if LIntfImg.DataDescription.BitsPerPixel = 24 then
-      begin
-        if LIntfImg.DataDescription.RedShift < LIntfImg.DataDescription.BlueShift then
-          LFormat := 0 // RGB
-        else
-          LFormat := 1; // BGR
-      end;
-
-      Score := 0;
-      FillChar(RawData, SizeOf(RawData), 0);
-
-      DoDiagnosticLog(Format('DetectBitmap: Invoking DLL DetectMPPoseFrame (%dx%d, Format=%d)...',
-        [LIntfImg.Width, LIntfImg.Height, LFormat]));
-
-      Res := FDetectMPPoseFrame(LIntfImg.GetDataLineStart(0), LIntfImg.Width, LIntfImg.Height, LFormat, Score, @RawData[0], nil);
-
-      if Res = 0 then
-      begin
-        FLastResultData.HasPose := True;
-        FLastResultData.Score := Score;
-        for I := 0 to 32 do
-        begin
-          FLastResultData.Landmarks[I].Index := I;
-          FLastResultData.Landmarks[I].X := RawData[I * 5 + 0];
-          FLastResultData.Landmarks[I].Y := RawData[I * 5 + 1];
-          FLastResultData.Landmarks[I].Z := RawData[I * 5 + 2];
-          FLastResultData.Landmarks[I].Visibility := RawData[I * 5 + 3];
-          FLastResultData.Landmarks[I].Presence := RawData[I * 5 + 4];
-          FLastResultData.Landmarks[I].Name := LANDMARK_NAMES[I];
-        end;
-        FLastResult := 'Body pose estimation succeeded.';
-        FLastSuccess := True;
-        Result := True;
-      end
-      else
-      begin
-        SetError('DetectMPPoseFrame returned failure code: ' + IntToStr(Res));
-      end;
-    except
-      on E: Exception do
-        SetError('Error during frame detection: ' + E.Message);
-    end;
+    LIntfImg.LoadFromBitmap(ABitmap.Handle, ABitmap.MaskHandle);
+    ConvertLazIntfImageToRGB(LIntfImg, RGBData, LStride);
+    
+    Result := DetectRGBBuffer(RGBData, LIntfImg.Width, LIntfImg.Height, LStride);
   finally
+    if Assigned(RGBData) then
+      FreeMem(RGBData);
     LIntfImg.Free;
   end;
 end;
 
-procedure TAIHumanPoseDetector.ClearResult;
-begin
-  FillChar(FLastResultData, SizeOf(FLastResultData), 0);
-  FLastResultData.HasPose := False;
-end;
-
-function TAIHumanPoseDetector.GetLandmark(APoseIndex: Integer; ALandmark: TAIHumanPoseLandmarkIndex; out AOutLandmark: TAIHumanPoseLandmark): Boolean;
+function TAIHumanPoseDetector.DetectRGBBuffer(AData: Pointer; AWidth, AHeight, AStride: Integer): Boolean;
 var
-  Idx: Integer;
+  LImg: tmp_image_raw;
+  LLastResultPtr: Pmp_pose_result;
+  Res: Integer;
+  I, J, LIdx: Integer;
 begin
   Result := False;
-  Idx := Integer(ALandmark);
-  if (Idx >= 0) and (Idx <= 32) and FLastResultData.HasPose then
+  FLastError := '';
+  ClearResult;
+
+  if not Assigned(AData) then
   begin
-    AOutLandmark := FLastResultData.Landmarks[Idx];
-    Result := True;
+    FLastError := 'Buffer de dados inválido.';
+    Exit;
+  end;
+
+  if (FDetectorHandle = nil) or (not MpPoseBridgeAvailable) then
+  begin
+    FLastError := 'Detector não inicializado.';
+    Exit;
+  end;
+
+  try
+    FillChar(LImg, SizeOf(LImg), 0);
+    LImg.struct_size := SizeOf(LImg);
+    LImg.data := PByte(AData);
+    LImg.width := AWidth;
+    LImg.height := AHeight;
+    LImg.channels := 3; // RGB packed
+    LImg.stride := AStride;
+    LImg.timestamp_ms := 0; // Monotonic frame timestamp
+
+    LLastResultPtr := nil;
+    Res := mp_pose_detect(FDetectorHandle, @LImg, @LLastResultPtr);
+    if (Res = MP_OK) and (LLastResultPtr <> nil) then
+    begin
+      // Map C struct results to Lazarus record structure
+      FLastResultData.PoseCount := LLastResultPtr^.pose_count;
+      if FLastResultData.PoseCount > AI_HUMAN_POSE_MAX_POSES then
+        FLastResultData.PoseCount := AI_HUMAN_POSE_MAX_POSES;
+
+      for I := 0 to FLastResultData.PoseCount - 1 do
+      begin
+        FLastResultData.Poses[I].LandmarkCount := LLastResultPtr^.landmarks_per_pose;
+        for J := 0 to LLastResultPtr^.landmarks_per_pose - 1 do
+        begin
+          if J < AI_HUMAN_POSE_LANDMARK_COUNT then
+          begin
+            LIdx := I * LLastResultPtr^.landmarks_per_pose + J;
+            FLastResultData.Poses[I].Landmarks[J].X := LLastResultPtr^.landmarks[LIdx].x;
+            FLastResultData.Poses[I].Landmarks[J].Y := LLastResultPtr^.landmarks[LIdx].y;
+            FLastResultData.Poses[I].Landmarks[J].Z := LLastResultPtr^.landmarks[LIdx].z;
+            FLastResultData.Poses[I].Landmarks[J].Visibility := LLastResultPtr^.landmarks[LIdx].visibility;
+            FLastResultData.Poses[I].Landmarks[J].Presence := LLastResultPtr^.landmarks[LIdx].presence;
+
+            FLastResultData.Poses[I].WorldLandmarks[J].X := LLastResultPtr^.world_landmarks[LIdx].x;
+            FLastResultData.Poses[I].WorldLandmarks[J].Y := LLastResultPtr^.world_landmarks[LIdx].y;
+            FLastResultData.Poses[I].WorldLandmarks[J].Z := LLastResultPtr^.world_landmarks[LIdx].z;
+            FLastResultData.Poses[I].WorldLandmarks[J].Visibility := 0.0;
+            FLastResultData.Poses[I].WorldLandmarks[J].Presence := 0.0;
+          end;
+        end;
+      end;
+
+      mp_pose_free_result(LLastResultPtr);
+
+      if FLastResultData.PoseCount > 0 then
+      begin
+        FLastOutput := Format('DetectRGBBuffer succeeded. Poses found: %d', [FLastResultData.PoseCount]);
+        if Assigned(FOnPoseDetected) then
+          FOnPoseDetected(Self, FLastResultData);
+        Result := True;
+      end
+      else
+        FLastError := 'Nenhuma pose humana foi detectada.';
+    end;
+  except
+    on E: Exception do
+    begin
+      FLastError := 'Erro ao executar detecção de buffer: ' + E.Message;
+      if Assigned(FOnPoseError) then
+        FOnPoseError(Self, MP_ERR_INFERENCE, FLastError);
+    end;
   end;
 end;
 
-procedure TAIHumanPoseDetector.DrawOnCanvas(ACanvas: TCanvas; AWidth, AHeight: Integer);
+function TAIHumanPoseDetector.GetPoseCount: Integer;
 begin
-  DrawOnCanvasRect(ACanvas, Rect(0, 0, AWidth, AHeight));
+  Result := FLastResultData.PoseCount;
 end;
 
-procedure TAIHumanPoseDetector.DrawOnCanvasRect(ACanvas: TCanvas; const ARect: TRect);
+function TAIHumanPoseDetector.GetLandmark(
+  const APoseIndex: Integer;
+  const ALandmarkId: TAIHumanPoseLandmarkId;
+  out ALandmark: TAIHumanPoseLandmark
+): Boolean;
+begin
+  Result := GetLandmarkByIndex(APoseIndex, Integer(ALandmarkId), ALandmark);
+end;
+
+function TAIHumanPoseDetector.GetLandmarkByIndex(
+  const APoseIndex: Integer;
+  const ALandmarkIndex: Integer;
+  out ALandmark: TAIHumanPoseLandmark
+): Boolean;
+begin
+  Result := False;
+  if (APoseIndex < 0) or (APoseIndex >= FLastResultData.PoseCount) then
+  begin
+    FLastError := 'PoseIndex inválido.';
+    Exit;
+  end;
+
+  if (ALandmarkIndex < 0) or (ALandmarkIndex >= AI_HUMAN_POSE_LANDMARK_COUNT) then
+  begin
+    FLastError := 'Landmark fora do intervalo.';
+    Exit;
+  end;
+
+  ALandmark := FLastResultData.Poses[APoseIndex].Landmarks[ALandmarkIndex];
+  Result := True;
+end;
+
+procedure TAIHumanPoseDetector.DrawResult(ACanvas: TCanvas; const ADestRect: TRect);
   procedure DrawLine(Idx1, Idx2: Integer);
   var
     P1, P2: TPoint;
     LWidth, LHeight: Integer;
   begin
-    LWidth := ARect.Right - ARect.Left;
-    LHeight := ARect.Bottom - ARect.Top;
-    P1.X := ARect.Left + Round(FLastResultData.Landmarks[Idx1].X * LWidth);
-    P1.Y := ARect.Top + Round(FLastResultData.Landmarks[Idx1].Y * LHeight);
-    P2.X := ARect.Left + Round(FLastResultData.Landmarks[Idx2].X * LWidth);
-    P2.Y := ARect.Top + Round(FLastResultData.Landmarks[Idx2].Y * LHeight);
+    LWidth := ADestRect.Right - ADestRect.Left;
+    LHeight := ADestRect.Bottom - ADestRect.Top;
+    P1.X := ADestRect.Left + Round(FLastResultData.Poses[0].Landmarks[Idx1].X * LWidth);
+    P1.Y := ADestRect.Top + Round(FLastResultData.Poses[0].Landmarks[Idx1].Y * LHeight);
+    P2.X := ADestRect.Left + Round(FLastResultData.Poses[0].Landmarks[Idx2].X * LWidth);
+    P2.Y := ADestRect.Top + Round(FLastResultData.Poses[0].Landmarks[Idx2].Y * LHeight);
     ACanvas.Line(P1, P2);
   end;
 
@@ -614,21 +787,21 @@ procedure TAIHumanPoseDetector.DrawOnCanvasRect(ACanvas: TCanvas; const ARect: T
     P: TPoint;
     LWidth, LHeight: Integer;
   begin
-    LWidth := ARect.Right - ARect.Left;
-    LHeight := ARect.Bottom - ARect.Top;
-    P.X := ARect.Left + Round(FLastResultData.Landmarks[Idx].X * LWidth);
-    P.Y := ARect.Top + Round(FLastResultData.Landmarks[Idx].Y * LHeight);
+    LWidth := ADestRect.Right - ADestRect.Left;
+    LHeight := ADestRect.Bottom - ADestRect.Top;
+    P.X := ADestRect.Left + Round(FLastResultData.Poses[0].Landmarks[Idx].X * LWidth);
+    P.Y := ADestRect.Top + Round(FLastResultData.Poses[0].Landmarks[Idx].Y * LHeight);
     ACanvas.Ellipse(P.X - 4, P.Y - 4, P.X + 4, P.Y + 4);
     if FDrawLandmarkNames then
     begin
-      ACanvas.TextOut(P.X + 6, P.Y - 6, IntToStr(Idx));
+      ACanvas.TextOut(P.X + 6, P.Y - 6, LANDMARK_NAMES[Idx]);
     end;
   end;
 
 var
   I: Integer;
 begin
-  if not FLastResultData.HasPose then Exit;
+  if FLastResultData.PoseCount <= 0 then Exit;
 
   ACanvas.Pen.Color := clGreen;
   ACanvas.Pen.Width := 2;
@@ -636,27 +809,10 @@ begin
 
   if FDrawSkeleton then
   begin
-    // Shoulders & Torso
-    DrawLine(11, 12);
-    DrawLine(11, 23);
-    DrawLine(12, 24);
-    DrawLine(23, 24);
-
-    // Left Arm
-    DrawLine(11, 13);
-    DrawLine(13, 15);
-
-    // Right Arm
-    DrawLine(12, 14);
-    DrawLine(14, 16);
-
-    // Left Leg
-    DrawLine(23, 25);
-    DrawLine(25, 27);
-
-    // Right Leg
-    DrawLine(24, 26);
-    DrawLine(26, 28);
+    for I := Low(HUMAN_POSE_CONNECTIONS) to High(HUMAN_POSE_CONNECTIONS) do
+    begin
+      DrawLine(HUMAN_POSE_CONNECTIONS[I].A, HUMAN_POSE_CONNECTIONS[I].B);
+    end;
   end;
 
   if FDrawLandmarkPoints then
@@ -664,6 +820,12 @@ begin
     for I := 0 to 32 do
       DrawPoint(I);
   end;
+end;
+
+procedure TAIHumanPoseDetector.ClearResult;
+begin
+  FillChar(FLastResultData, SizeOf(FLastResultData), 0);
+  FLastResultData.PoseCount := 0;
 end;
 
 initialization

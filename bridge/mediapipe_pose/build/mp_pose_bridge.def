@@ -1,0 +1,8 @@
+LIBRARY mp_pose_bridge
+EXPORTS
+    mp_pose_get_info
+    mp_pose_create
+    mp_pose_destroy
+    mp_pose_detect
+    mp_pose_free_result
+    mp_pose_last_error

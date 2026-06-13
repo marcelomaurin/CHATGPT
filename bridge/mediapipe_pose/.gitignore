@@ -1,0 +1,36 @@
+# CMake
+CMakeCache.txt
+CMakeFiles
+CMakeLists.txt.user
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+
+# Bazel
+bazel-*
+
+# Visual Studio / MSVC
+.vs/
+*.sln
+*.vcxproj
+*.filters
+*.user
+*.suo
+*.db
+*.ipch
+
+# Build outputs
+bin/
+lib/
+obj/
+out/
+dist/
+build_output/
+
+# Temporary / OS files
+.DS_Store
+Thumbs.db
+*.tmp
+*.log

@@ -8,7 +8,37 @@ uses
   Classes, SysUtils;
 
 type
-  TAIHumanPoseLandmarkIndex = (
+  TAIHumanPoseRunningMode = (
+    hprImage,
+    hprVideo,
+    hprLiveStream
+  );
+
+  TAIHumanPoseModelVariant = (
+    hpmLite,
+    hpmFull,
+    hpmHeavy,
+    hpmCustom
+  );
+
+  TAIHumanPoseColorFormat = (
+    hpcRGB,
+    hpcBGR,
+    hpcRGBA,
+    hpcBGRA
+  );
+
+  TAIHumanPoseLoadMode = (
+    mplmAuto,
+    mplmManualPath
+  );
+
+  TAIHumanPoseExecutionMode = (
+    mpemDLL,
+    mpemProcess
+  );
+
+  TAIHumanPoseLandmarkId = (
     hplNose = 0,
     hplLeftEyeInner = 1,
     hplLeftEye = 2,
@@ -45,39 +75,27 @@ type
   );
 
   TAIHumanPoseLandmark = record
-    Index: Integer;
     X: Single;
     Y: Single;
     Z: Single;
     Visibility: Single;
     Presence: Single;
-    Name: string;
   end;
 
-  TAIHumanPoseLandmarks = array[0..32] of TAIHumanPoseLandmark;
-
-  TAIHumanPoseDetectionResult = record
-    Landmarks: TAIHumanPoseLandmarks;
-    HasPose: Boolean;
-    Score: Single;
+  TAIHumanPose = record
+    LandmarkCount: Integer;
+    Landmarks: array[0..32] of TAIHumanPoseLandmark;
+    WorldLandmarks: array[0..32] of TAIHumanPoseLandmark;
   end;
 
-  TMPLoadMode = (mplmAuto, mplmManualPath);
-  TMPExecutionMode = (mpemDLL, mpemProcess);
-  TMPRunningMode = (hprImage, hprVideo, hprLiveStream);
-  TMPModelVariant = (hpmLite, hpmFull, hpmHeavy, hpmCustom);
-  TMPInputColorFormat = (hpcRGB, hpcBGR, hpcRGBA, hpcBGRA);
+  TAIHumanPoseResult = record
+    PoseCount: Integer;
+    Poses: array[0..3] of TAIHumanPose;
+  end;
 
-  TAIHumanBodyPartGroup = (
-    hpgFace,
-    hpgShoulders,
-    hpgLeftArm,
-    hpgRightArm,
-    hpgTorso,
-    hpgLeftLeg,
-    hpgRightLeg
-  );
-  TAIHumanBodyPartGroups = set of TAIHumanBodyPartGroup;
+const
+  AI_HUMAN_POSE_LANDMARK_COUNT = 33;
+  AI_HUMAN_POSE_MAX_POSES = 4;
 
 implementation
 

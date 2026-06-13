@@ -11,7 +11,7 @@ uses
   aiopencvruntime, aiopencv, aicamera_backend, aicamera_vfw, aicamera_v4l2, 
   aiframeprocessor, aifacetracker, aimotiontracker, aiimageinfo, 
   aiframebuffer, ainativeimagefilter, aiframediff, aihumanpose_types, 
-  aihumanposedetector, LazarusPackageIntf;
+  mp_pose_bridge, aihumanposedetector, LazarusPackageIntf;
 
 implementation
 
