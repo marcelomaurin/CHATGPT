@@ -12,6 +12,13 @@ const
   MP_POSE_ABI_VERSION = 1;
   MP_POSE_LANDMARK_COUNT = 33;
 
+  { Filename identity used by the Lazarus binding.
+    The native bridge file name intentionally contains the bridge ABI/release
+    and the MediaPipe version it was built against. This prevents accidental
+    loading of a DLL/SO compiled for a different MediaPipe runtime. }
+  MP_POSE_BRIDGE_VERSION_FILENAME = 'v1_0_0';
+  MP_POSE_MEDIAPIPE_VERSION_FILENAME = 'mp0_10_35';
+
   { Error Codes }
   MP_OK                  = 0;
   MP_ERR_ABI_MISMATCH    = 1;
@@ -108,10 +115,11 @@ var
   mp_pose_free_result: TFunc_mp_pose_free_result = nil;
   mp_pose_last_error: TFunc_mp_pose_last_error = nil;
 
-function LoadMpPoseBridge(const ADir: string): Boolean;
+function LoadMpPoseBridge(const APathOrDir: string): Boolean;
 procedure UnloadMpPoseBridge;
 function MpPoseBridgeAvailable: Boolean;
 function GetExpectedBridgeLibName: string;
+function GetLegacyBridgeLibName: string;
 
 implementation
 
@@ -119,6 +127,17 @@ var
   LibHandle: TLibHandle = NilHandle;
 
 function GetExpectedBridgeLibName: string;
+begin
+  {$IFDEF MSWINDOWS}
+    Result := 'ai_mediapipe_pose_bridge_' + MP_POSE_BRIDGE_VERSION_FILENAME + '_' +
+              MP_POSE_MEDIAPIPE_VERSION_FILENAME + '_win64.dll';
+  {$ELSE}
+    Result := 'libai_mediapipe_pose_bridge_' + MP_POSE_BRIDGE_VERSION_FILENAME + '_' +
+              MP_POSE_MEDIAPIPE_VERSION_FILENAME + '_linux_x86_64.so';
+  {$ENDIF}
+end;
+
+function GetLegacyBridgeLibName: string;
 begin
   {$IFDEF MSWINDOWS}
     Result := 'mp_pose_bridge.dll';
@@ -131,30 +150,62 @@ end;
 function SetDllDirectoryA(lpPathName: PAnsiChar): LongBool; stdcall; external 'kernel32.dll';
 {$ENDIF}
 
-function LoadMpPoseBridge(const ADir: string): Boolean;
+function ResolveBridgeLoadPath(const APathOrDir: string): string;
+var
+  LDir: string;
+begin
+  Result := '';
+
+  { 1. Exact file path supplied by component/demo. }
+  if (APathOrDir <> '') and FileExists(APathOrDir) then
+    Exit(APathOrDir);
+
+  { 2. Directory supplied: prefer the official versioned bridge name. }
+  if APathOrDir <> '' then
+  begin
+    LDir := IncludeTrailingPathDelimiter(APathOrDir);
+    Result := LDir + GetExpectedBridgeLibName;
+    if FileExists(Result) then Exit;
+
+    { 3. Legacy fallback for older local builds only. }
+    Result := LDir + GetLegacyBridgeLibName;
+    if FileExists(Result) then Exit;
+
+    Result := '';
+    Exit;
+  end;
+
+  { 4. Loader fallback: versioned name first, legacy second. }
+  Result := GetExpectedBridgeLibName;
+  if FileExists(Result) then Exit;
+
+  Result := GetLegacyBridgeLibName;
+  if FileExists(Result) then Exit;
+end;
+
+function LoadMpPoseBridge(const APathOrDir: string): Boolean;
 var
   LPath: string;
+  LDir: string;
 begin
   Result := False;
   UnloadMpPoseBridge;
 
-  if ADir <> '' then
-    LPath := IncludeTrailingPathDelimiter(ADir) + GetExpectedBridgeLibName
-  else
-    LPath := GetExpectedBridgeLibName;
-
-  if not FileExists(LPath) then
+  LPath := ResolveBridgeLoadPath(APathOrDir);
+  if (LPath = '') or not FileExists(LPath) then
     Exit;
 
+  LDir := ExtractFilePath(LPath);
+
   {$IFDEF MSWINDOWS}
-  if ADir <> '' then
-    SetDllDirectoryA(PAnsiChar(AnsiString(ADir)));
+  if LDir <> '' then
+    SetDllDirectoryA(PAnsiChar(AnsiString(LDir)));
   {$ENDIF}
 
   LibHandle := SafeLoadLibrary(LPath);
-  
+
   {$IFDEF MSWINDOWS}
-  if ADir <> '' then
+  if LDir <> '' then
     SetDllDirectoryA(nil);
   {$ENDIF}
 
@@ -200,7 +251,7 @@ end;
 
 function MpPoseBridgeAvailable: Boolean;
 begin
-  Result := (LibHandle <> NilHandle) and 
+  Result := (LibHandle <> NilHandle) and
             Assigned(mp_pose_get_info) and
             Assigned(mp_pose_create) and
             Assigned(mp_pose_destroy) and
