@@ -35,6 +35,7 @@ type
     platform: array[0..15] of AnsiChar;
     arch: array[0..15] of AnsiChar;
     model_name: array[0..127] of AnsiChar;
+    backend: array[0..15] of AnsiChar;  { "SIM" | "REAL" — appended in v1 pre-release }
   end;
 
   Pmp_pose_config = ^tmp_pose_config;

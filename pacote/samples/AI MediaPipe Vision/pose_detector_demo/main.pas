@@ -147,22 +147,7 @@ begin
   lblScore.Caption := 'Confiança: N/A';
   lblStatus.Caption := 'Estado: Não Iniciado';
   
-  LogMsg('FormCreate: Human Pose Detector MediaPipe Demo Initialized.');
-  
-  LogMsg('FormCreate: Initializing detector and loading dynamic library...');
-  if FDetector.Initialize then
-  begin
-    LogMsg('FormCreate: DLL loaded successfully!');
-    LogMsg('FormCreate: DLL found at: ' + FDetector.LoadedBridgeDLLPath);
-    LogMsg('FormCreate: DLL version: ' + FDetector.BridgeVersionText);
-    lblStatus.Caption := 'Estado: DLL Carregada';
-    edRuntimePath.Text := FDetector.LoadedBridgeDLLPath;
-  end
-  else
-  begin
-    LogMsg('FormCreate: Failed to load DLL: ' + FDetector.LastError);
-    lblStatus.Caption := 'Estado: Sem DLL';
-  end;
+  LogMsg('FormCreate: Human Pose Detector MediaPipe Demo Initialized. (Click "Carregar / Re-inicializar" to load library)');
 end;
 
 procedure TfrmPoseDemo.btnLoadImageClick(Sender: TObject);
@@ -505,6 +490,7 @@ begin
     LogMsg('btnReinitClick: DLL loaded from: ' + FDetector.LoadedBridgeDLLPath);
     LogMsg('btnReinitClick: DLL version: ' + FDetector.BridgeVersionText);
     lblStatus.Caption := 'Estado: DLL Carregada';
+    edRuntimePath.Text := FDetector.LoadedBridgeDLLPath;
     ShowMessage('Detector re-inicializado com sucesso!' + sLineBreak + 'DLL: ' + FDetector.LoadedBridgeDLLPath);
   end
   else
