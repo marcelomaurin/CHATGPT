@@ -12,5 +12,10 @@
     "heavy": "models/pose_landmarker_heavy.task"
   },
   "default_model": "full",
-  "landmark_count": 33
+  "landmark_count": 33,
+  "link_mode": "sidecar",
+  "dependencies": [
+    "libtensorflowlite_c.dll",
+    "libopencv_world.dll"
+  ]
 }

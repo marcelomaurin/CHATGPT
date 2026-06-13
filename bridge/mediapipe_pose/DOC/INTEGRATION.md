@@ -52,7 +52,8 @@ begin
     begin
       WriteLn('Detected poses: ', LResult^.pose_count);
       
-      // ALWAYS free result structures inside the DLL heap context
+      // ALWAYS free result structures inside the DLL heap context.
+      // In Pascal, this is passed by reference (var) and sets LResult to nil.
       mp_pose_free_result(LResult);
     end;
 

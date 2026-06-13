@@ -96,7 +96,7 @@ type
   TFunc_mp_pose_create = function(const cfg: Pmp_pose_config; out_handle: PPointer): cint32; cdecl;
   TFunc_mp_pose_destroy = procedure(h: mp_pose_handle); cdecl;
   TFunc_mp_pose_detect = function(h: mp_pose_handle; const img: Pmp_image_raw; out_result: Pmp_pose_result_ptr): cint32; cdecl;
-  TFunc_mp_pose_free_result = procedure(result: Pmp_pose_result); cdecl;
+  TFunc_mp_pose_free_result = procedure(var result: Pmp_pose_result); cdecl;
   TFunc_mp_pose_last_error = function(h: mp_pose_handle): PAnsiChar; cdecl;
 
 var
@@ -126,6 +126,10 @@ begin
   {$ENDIF}
 end;
 
+{$IFDEF MSWINDOWS}
+function SetDllDirectoryA(lpPathName: PAnsiChar): LongBool; stdcall; external 'kernel32.dll';
+{$ENDIF}
+
 function LoadMpPoseBridge(const ADir: string): Boolean;
 var
   LPath: string;
@@ -141,7 +145,18 @@ begin
   if not FileExists(LPath) then
     Exit;
 
+  {$IFDEF MSWINDOWS}
+  if ADir <> '' then
+    SetDllDirectoryA(PAnsiChar(AnsiString(ADir)));
+  {$ENDIF}
+
   LibHandle := SafeLoadLibrary(LPath);
+  
+  {$IFDEF MSWINDOWS}
+  if ADir <> '' then
+    SetDllDirectoryA(nil);
+  {$ENDIF}
+
   if LibHandle <> NilHandle then
   begin
     mp_pose_get_info := TFunc_mp_pose_get_info(GetProcAddress(LibHandle, 'mp_pose_get_info'));

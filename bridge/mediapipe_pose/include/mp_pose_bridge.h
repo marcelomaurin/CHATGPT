@@ -116,7 +116,7 @@ MP_POSE_API void    MP_POSE_CALL mp_pose_destroy(mp_pose_handle h);
 
 /* Inference: RGB/RGBA packed image; result is allocated by the DLL */
 MP_POSE_API int32_t MP_POSE_CALL mp_pose_detect(mp_pose_handle h, const mp_image_raw* img, mp_pose_result** out_result);
-MP_POSE_API void    MP_POSE_CALL mp_pose_free_result(mp_pose_result* result);
+MP_POSE_API void    MP_POSE_CALL mp_pose_free_result(mp_pose_result** result);
 
 /* Retrieve UTF-8 encoded last error string for the handle (pass NULL for global/initialization errors) */
 MP_POSE_API const char* MP_POSE_CALL mp_pose_last_error(mp_pose_handle h);

@@ -31,7 +31,9 @@ Contains packed raw image buffer:
 
 ## 4. Memory Ownership
 - **Allocation:** Output structures (`mp_pose_result`) are allocated inside the DLL/SO heap context.
-- **Deallocation:** The client application **MUST NOT** free or release memory using host malloc/free/Dispose. Memory allocated by the library must be released exclusively through the `mp_pose_free_result` call.
+- **Deallocation:** The client application **MUST NOT** free or release memory using host malloc/free/Dispose. Memory allocated by the library must be released exclusively through the `mp_pose_free_result` call, which takes a double pointer (e.g. `mp_pose_free_result(&result)`).
+- **Pointer Nullification:** The function will free all internal buffers and the struct itself, and will set the passed result pointer to `NULL`. Passing `*result == NULL` is a safe no-op. Passing a stale non-null pointer (already freed) is undefined behavior.
+
 
 ## 5. Error Codes Table
 

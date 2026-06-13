@@ -239,19 +239,22 @@ int32_t MP_POSE_CALL mp_pose_detect(mp_pose_handle h, const mp_image_raw* img, m
   return MP_OK;
 }
 
-void MP_POSE_CALL mp_pose_free_result(mp_pose_result* result) {
-  if (!result) return;
+void MP_POSE_CALL mp_pose_free_result(mp_pose_result** result) {
+  if (!result || !*result) return;
 
-  if (result->landmarks) {
-    free(result->landmarks);
+  mp_pose_result* res = *result;
+
+  if (res->landmarks) {
+    free(res->landmarks);
   }
-  if (result->world_landmarks) {
-    free(result->world_landmarks);
+  if (res->world_landmarks) {
+    free(res->world_landmarks);
   }
-  if (result->mask) {
-    free((void*)result->mask);
+  if (res->mask) {
+    free((void*)res->mask);
   }
-  free(result);
+  free(res);
+  *result = nullptr;
 }
 
 const char* MP_POSE_CALL mp_pose_last_error(mp_pose_handle h) {

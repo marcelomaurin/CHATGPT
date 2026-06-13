@@ -47,8 +47,14 @@ Every platform directory contains a `bridge.json` file. This is checked by the L
 }
 ```
 
-## 3. Dynamic Loading Policy
-The Lazarus component resolves pathing automatically:
-1. It searches up to 5 parent directories starting from the executable's directory.
-2. It looks for the folder matching `runtime/mediapipe/pose/mp_<version>/<platform>-x86_64/`.
-3. If not found, it falls back to looking for the bridge library right next to the application binary.
+## 3. Dynamic Loading and Link Modes
+
+The runtime bridge supports two link modes recorded in `bridge.json`:
+- **`static`**: The bridge is compiled completely statically. No secondary libraries are required.
+- **`sidecar`**: The bridge relies on external sidecar libraries (like `libtensorflowlite_c.dll`/`.so` and `libopencv_world.dll`/`.so`) which reside in the **same directory** as the bridge binary.
+
+### Loader Resolution Requirements (Sidecar mode)
+To prevent polluting global variable paths (like `PATH` or `LD_LIBRARY_PATH`), the client loader must resolve dependencies locally:
+1. **Windows**: The loader calls `SetDllDirectory` or `AddDllDirectory` targeting the directory containing the sidecar DLLs before loading the bridge library.
+2. **Linux**: The bridge dynamic library is built with the rpath set to `$ORIGIN` (e.g. `-Wl,-rpath,'$$ORIGIN'`), forcing the loader to resolve sidecar `.so` dependencies from the same directory.
+

@@ -22,7 +22,7 @@ typedef int32_t (MP_POSE_CALL *TFunc_mp_pose_get_info)(mp_pose_info* out_info);
 typedef int32_t (MP_POSE_CALL *TFunc_mp_pose_create)(const mp_pose_config* cfg, mp_pose_handle* out_handle);
 typedef void    (MP_POSE_CALL *TFunc_mp_pose_destroy)(mp_pose_handle h);
 typedef int32_t (MP_POSE_CALL *TFunc_mp_pose_detect)(mp_pose_handle h, const mp_image_raw* img, mp_pose_result** out_result);
-typedef void    (MP_POSE_CALL *TFunc_mp_pose_free_result)(mp_pose_result* result);
+typedef void    (MP_POSE_CALL *TFunc_mp_pose_free_result)(mp_pose_result** result);
 typedef const char* (MP_POSE_CALL *TFunc_mp_pose_last_error)(mp_pose_handle h);
 
 int main() {
@@ -122,7 +122,7 @@ int main() {
     }
 
     // Clean up
-    p_mp_pose_free_result(result);
+    p_mp_pose_free_result(&result);
     p_mp_pose_destroy(handle);
     CloseLib(lib);
 
