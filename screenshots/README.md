@@ -35,3 +35,8 @@
 ## TAIFrameProcessor Demo
 
 ![TAIFrameProcessor Demo](TAIFrameProcessor%20Demo.jpg)
+
+## TAIImageInfo Demo
+
+![TAIImageInfo Demo](image_info_demo.jpg)
+
