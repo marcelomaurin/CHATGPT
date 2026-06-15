@@ -1,28 +1,28 @@
 object frmMain: TfrmMain
-  Left = 300
-  Height = 600
-  Top = 150
-  Width = 800
+  Left = 200
+  Height = 720
+  Top = 100
+  Width = 960
   Caption = 'Opencv Image Real Demo (aiopencv)'
-  ClientHeight = 600
-  ClientWidth = 800
+  ClientHeight = 720
+  ClientWidth = 960
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   LCLVersion = '3.0.0.3'
   object pnlTop: TPanel
     Left = 10
-    Height = 150
+    Height = 110
     Top = 10
-    Width = 780
+    Width = 940
     Align = alTop
     BorderSpacing.Around = 10
-    ClientHeight = 150
-    ClientWidth = 780
+    ClientHeight = 110
+    ClientWidth = 940
     TabOrder = 0
     object lblTitle: TLabel
       Left = 15
       Height = 25
-      Top = 15
+      Top = 10
       Width = 500
       Caption = 'Opencv Image Real Demo (aiopencv)'
       Font.Height = -18
@@ -33,7 +33,7 @@ object frmMain: TfrmMain
     object lblStatus: TLabel
       Left = 15
       Height = 15
-      Top = 50
+      Top = 40
       Width = 400
       Caption = 'Status: Ready'
       ParentColor = False
@@ -41,7 +41,7 @@ object frmMain: TfrmMain
     object chkSimulation: TCheckBox
       Left = 15
       Height = 19
-      Top = 80
+      Top = 65
       Width = 150
       Caption = 'Simulation Mode'
       Checked = True
@@ -51,7 +51,7 @@ object frmMain: TfrmMain
     object btnRun: TButton
       Left = 200
       Height = 30
-      Top = 75
+      Top = 60
       Width = 150
       Caption = 'Execute Test'
       OnClick = btnRunClick
@@ -60,21 +60,229 @@ object frmMain: TfrmMain
     object btnClearLog: TButton
       Left = 360
       Height = 30
-      Top = 75
+      Top = 60
       Width = 120
       Caption = 'Clear Log'
       OnClick = btnClearLogClick
       TabOrder = 2
     end
   end
+  object pnlRGB: TPanel
+    Left = 10
+    Height = 240
+    Top = 130
+    Width = 940
+    Align = alTop
+    BorderSpacing.Around = 10
+    Caption = 'Canais RGB'
+    ClientHeight = 240
+    ClientWidth = 940
+    TabOrder = 1
+    object lblRGBMode: TLabel
+      Left = 15
+      Height = 15
+      Top = 20
+      Width = 100
+      Caption = 'Modo de Canal:'
+      ParentColor = False
+    end
+    object cbRGBChannelMode: TComboBox
+      Left = 120
+      Height = 23
+      Top = 15
+      Width = 160
+      ItemHeight = 15
+      ItemIndex = 0
+      Items.Strings = (
+        'None'
+        'ExtractRed'
+        'ExtractGreen'
+        'ExtractBlue'
+        'KeepRedOnly'
+        'KeepGreenOnly'
+        'KeepBlueOnly'
+        'RemoveRed'
+        'RemoveGreen'
+        'RemoveBlue'
+        'SwapRB'
+        'SwapRG'
+        'SwapGB'
+        'RGBToBGR'
+        'InvertRGB'
+        'Custom'
+      )
+      Style = csDropDownList
+      TabOrder = 0
+      Text = 'None'
+    end
+    object chkRedEnabled: TCheckBox
+      Left = 300
+      Height = 19
+      Top = 18
+      Width = 90
+      Caption = 'Red Enabled'
+      Checked = True
+      State = cbChecked
+      TabOrder = 1
+    end
+    object chkGreenEnabled: TCheckBox
+      Left = 400
+      Height = 19
+      Top = 18
+      Width = 100
+      Caption = 'Green Enabled'
+      Checked = True
+      State = cbChecked
+      TabOrder = 2
+    end
+    object chkBlueEnabled: TCheckBox
+      Left = 510
+      Height = 19
+      Top = 18
+      Width = 90
+      Caption = 'Blue Enabled'
+      Checked = True
+      State = cbChecked
+      TabOrder = 3
+    end
+    object chkInvertRed: TCheckBox
+      Left = 610
+      Height = 19
+      Top = 18
+      Width = 80
+      Caption = 'Invert Red'
+      TabOrder = 4
+    end
+    object chkInvertGreen: TCheckBox
+      Left = 700
+      Height = 19
+      Top = 18
+      Width = 90
+      Caption = 'Invert Green'
+      TabOrder = 5
+    end
+    object chkInvertBlue: TCheckBox
+      Left = 800
+      Height = 19
+      Top = 18
+      Width = 80
+      Caption = 'Invert Blue'
+      TabOrder = 6
+    end
+    object lblRedGain: TLabel
+      Left = 15
+      Height = 15
+      Top = 60
+      Width = 100
+      Caption = 'Red Gain (100%):'
+      ParentColor = False
+    end
+    object tbRedGain: TTrackBar
+      Left = 120
+      Height = 25
+      Top = 55
+      Width = 300
+      Max = 200
+      Position = 100
+      TabOrder = 7
+    end
+    object lblRedOffset: TLabel
+      Left = 450
+      Height = 15
+      Top = 60
+      Width = 100
+      Caption = 'Red Offset (0):'
+      ParentColor = False
+    end
+    object tbRedOffset: TTrackBar
+      Left = 560
+      Height = 25
+      Top = 55
+      Width = 300
+      Max = 255
+      Min = -255
+      Position = 0
+      TabOrder = 8
+    end
+    object lblGreenGain: TLabel
+      Left = 15
+      Height = 15
+      Top = 100
+      Width = 110
+      Caption = 'Green Gain (100%):'
+      ParentColor = False
+    end
+    object tbGreenGain: TTrackBar
+      Left = 120
+      Height = 25
+      Top = 95
+      Width = 300
+      Max = 200
+      Position = 100
+      TabOrder = 9
+    end
+    object lblGreenOffset: TLabel
+      Left = 450
+      Height = 15
+      Top = 100
+      Width = 110
+      Caption = 'Green Offset (0):'
+      ParentColor = False
+    end
+    object tbGreenOffset: TTrackBar
+      Left = 560
+      Height = 25
+      Top = 95
+      Width = 300
+      Max = 255
+      Min = -255
+      Position = 0
+      TabOrder = 10
+    end
+    object lblBlueGain: TLabel
+      Left = 15
+      Height = 15
+      Top = 140
+      Width = 100
+      Caption = 'Blue Gain (100%):'
+      ParentColor = False
+    end
+    object tbBlueGain: TTrackBar
+      Left = 120
+      Height = 25
+      Top = 135
+      Width = 300
+      Max = 200
+      Position = 100
+      TabOrder = 11
+    end
+    object lblBlueOffset: TLabel
+      Left = 450
+      Height = 15
+      Top = 140
+      Width = 100
+      Caption = 'Blue Offset (0):'
+      ParentColor = False
+    end
+    object tbBlueOffset: TTrackBar
+      Left = 560
+      Height = 25
+      Top = 135
+      Width = 300
+      Max = 255
+      Min = -255
+      Position = 0
+      TabOrder = 12
+    end
+  end
   object memoLog: TMemo
     Left = 10
-    Height = 410
-    Top = 180
-    Width = 780
+    Height = 320
+    Top = 390
+    Width = 940
     Align = alClient
     BorderSpacing.Around = 10
     ScrollBars = ssAutoBoth
-    TabOrder = 1
+    TabOrder = 2
   end
 end

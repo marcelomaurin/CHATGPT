@@ -26,6 +26,44 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="aioutput_docs"/>
       </Item>
+      <Item>
+        <Filename Value="..\IA Output\aiwordtypes.pas"/>
+        <UnitName Value="aiwordtypes"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA Output\aiwordunits.pas"/>
+        <UnitName Value="aiwordunits"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA Output\aiwordpackage.pas"/>
+        <UnitName Value="aiwordpackage"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA Output\aiwordxml.pas"/>
+        <UnitName Value="aiwordxml"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA Output\aiwordrelationships.pas"/>
+        <UnitName Value="aiwordrelationships"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA Output\aiwordstyles.pas"/>
+        <UnitName Value="aiwordstyles"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA Output\aiwordobjects.pas"/>
+        <UnitName Value="aiwordobjects"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA Output\aiworddocument.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiworddocument"/>
+      </Item>
+      <Item>
+        <Filename Value="..\IA Output\aiwordviewer.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiwordviewer"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>

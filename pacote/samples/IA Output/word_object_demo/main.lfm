@@ -1,0 +1,515 @@
+object frmMain: TfrmMain
+  Left = 250
+  Height = 620
+  Top = 150
+  Width = 950
+  Caption = 'Lazarus AI Suite - TAIWordDocument Demo (OpenXML)'
+  ClientHeight = 620
+  ClientWidth = 950
+  OnCreate = FormCreate
+  LCLVersion = '4.4'
+  object pgControl: TPageControl
+    Left = 0
+    Height = 620
+    Top = 0
+    Width = 950
+    ActivePage = tabPrincipal
+    Align = alClient
+    TabIndex = 0
+    TabOrder = 0
+    object tabPrincipal: TTabSheet
+      Caption = 'Principal'
+      ClientHeight = 592
+      ClientWidth = 942
+      object pnlLeft: TPanel
+        Left = 0
+        Height = 592
+        Top = 0
+        Width = 200
+        Align = alLeft
+        BevelOuter = bvNone
+        ClientHeight = 592
+        ClientWidth = 200
+        TabOrder = 0
+        object btnNew: TButton
+          Left = 10
+          Height = 35
+          Top = 10
+          Width = 180
+          Caption = 'Novo Documento'
+          TabOrder = 0
+          OnClick = btnNewClick
+        end
+        object btnLoad: TButton
+          Left = 10
+          Height = 35
+          Top = 55
+          Width = 180
+          Caption = 'Carregar DOCX'
+          TabOrder = 1
+          OnClick = btnLoadClick
+        end
+        object btnSave: TButton
+          Left = 10
+          Height = 35
+          Top = 100
+          Width = 180
+          Caption = 'Salvar DOCX'
+          TabOrder = 2
+          OnClick = btnSaveClick
+        end
+        object btnGenerate: TButton
+          Left = 10
+          Height = 35
+          Top = 145
+          Width = 180
+          Caption = 'Gerar 3 Páginas Exemplo'
+          TabOrder = 3
+          OnClick = btnGenerateClick
+        end
+        object btnClearLog: TButton
+          Left = 10
+          Height = 35
+          Top = 545
+          Width = 180
+          Anchors = [akLeft, akBottom]
+          Caption = 'Limpar Log'
+          TabOrder = 4
+          OnClick = btnClearLogClick
+        end
+      end
+      object memLog: TMemo
+        Left = 200
+        Height = 592
+        Top = 0
+        Width = 742
+        Align = alClient
+        ReadOnly = True
+        ScrollBars = ssAutoBoth
+        TabOrder = 1
+      end
+    end
+    object tabComandos: TTabSheet
+      Caption = 'Comandos do Documento'
+      ClientHeight = 592
+      ClientWidth = 942
+      object pnlCmdLeft: TPanel
+        Left = 0
+        Height = 592
+        Top = 0
+        Width = 460
+        Align = alLeft
+        BevelOuter = bvNone
+        ClientHeight = 592
+        ClientWidth = 460
+        TabOrder = 0
+        object grpTexto: TGroupBox
+          Left = 10
+          Height = 160
+          Top = 10
+          Width = 440
+          Caption = 'Inserir Linha (Run) ou Parágrafo'
+          ClientHeight = 140
+          ClientWidth = 436
+          TabOrder = 0
+          object lblTexto: TLabel
+            Left = 10
+            Height = 15
+            Top = 10
+            Width = 32
+            Caption = 'Texto:'
+            ParentColor = False
+          end
+          object edtTexto: TEdit
+            Left = 10
+            Height = 23
+            Top = 30
+            Width = 415
+            TabOrder = 0
+            Text = 'Texto de exemplo para inserção'
+          end
+          object btnAddRun: TButton
+            Left = 10
+            Height = 30
+            Top = 65
+            Width = 130
+            Caption = 'Incluir Linha'
+            TabOrder = 1
+            OnClick = btnAddRunClick
+          end
+          object btnAddParagraph: TButton
+            Left = 150
+            Height = 30
+            Top = 65
+            Width = 130
+            Caption = 'Incluir Parágrafo'
+            TabOrder = 2
+            OnClick = btnAddParagraphClick
+          end
+          object btnAddHeading: TButton
+            Left = 290
+            Height = 30
+            Top = 65
+            Width = 135
+            Caption = 'Incluir Título'
+            TabOrder = 3
+            OnClick = btnAddHeadingClick
+          end
+          object lblHeadingLevel: TLabel
+            Left = 10
+            Height = 15
+            Top = 110
+            Width = 83
+            Caption = 'Nível do Título:'
+            ParentColor = False
+          end
+          object cbHeadingLevel: TComboBox
+            Left = 100
+            Height = 23
+            Top = 105
+            Width = 100
+            ItemHeight = 15
+            ItemIndex = 0
+            Items.Strings = (
+              '1'
+              '2'
+              '3'
+            )
+            Style = csDropDownList
+            TabOrder = 4
+            Text = '1'
+          end
+        end
+        object grpFonte: TGroupBox
+          Left = 10
+          Height = 180
+          Top = 180
+          Width = 440
+          Caption = 'Formatação de Fonte'
+          ClientHeight = 160
+          ClientWidth = 436
+          TabOrder = 1
+          object lblFonte: TLabel
+            Left = 10
+            Height = 15
+            Top = 15
+            Width = 33
+            Caption = 'Fonte:'
+            ParentColor = False
+          end
+          object cbFontName: TComboBox
+            Left = 60
+            Height = 23
+            Top = 10
+            Width = 150
+            ItemHeight = 15
+            ItemIndex = 0
+            Items.Strings = (
+              'Arial'
+              'Times New Roman'
+              'Calibri'
+              'Courier New'
+            )
+            Style = csDropDownList
+            TabOrder = 0
+            Text = 'Arial'
+          end
+          object lblTamanho: TLabel
+            Left = 230
+            Height = 15
+            Top = 15
+            Width = 52
+            Caption = 'Tamanho:'
+            ParentColor = False
+          end
+          object cbFontSize: TComboBox
+            Left = 290
+            Height = 23
+            Top = 10
+            Width = 80
+            ItemHeight = 15
+            ItemIndex = 2
+            Items.Strings = (
+              '8'
+              '10'
+              '12'
+              '14'
+              '16'
+              '20'
+              '24'
+            )
+            Style = csDropDownList
+            TabOrder = 1
+            Text = '12'
+          end
+          object chkBold: TCheckBox
+            Left = 10
+            Height = 19
+            Top = 50
+            Width = 58
+            Caption = 'Negrito'
+            TabOrder = 2
+          end
+          object chkItalic: TCheckBox
+            Left = 80
+            Height = 19
+            Top = 50
+            Width = 51
+            Caption = 'Itálico'
+            TabOrder = 3
+          end
+          object chkUnderline: TCheckBox
+            Left = 150
+            Height = 19
+            Top = 50
+            Width = 75
+            Caption = 'Sublinhado'
+            TabOrder = 4
+          end
+          object btnChooseColor: TButton
+            Left = 10
+            Height = 25
+            Top = 85
+            Width = 135
+            Caption = 'Cor da Letra...'
+            TabOrder = 5
+            OnClick = btnChooseColorClick
+          end
+          object btnChooseBgColor: TButton
+            Left = 155
+            Height = 25
+            Top = 85
+            Width = 135
+            Caption = 'Cor de Fundo...'
+            TabOrder = 6
+            OnClick = btnChooseBgColorClick
+          end
+          object btnFormatLine: TButton
+            Left = 10
+            Height = 30
+            Top = 120
+            Width = 415
+            Caption = 'Aplicar Formatação no Último Parágrafo'
+            TabOrder = 7
+            OnClick = btnFormatLineClick
+          end
+        end
+        object grpAlinhamento: TGroupBox
+          Left = 10
+          Height = 85
+          Top = 370
+          Width = 440
+          Caption = 'Alinhamento'
+          ClientHeight = 65
+          ClientWidth = 436
+          TabOrder = 2
+          object btnAlignLeft: TButton
+            Left = 10
+            Height = 30
+            Top = 15
+            Width = 95
+            Caption = 'Esquerda'
+            TabOrder = 0
+            OnClick = btnAlignLeftClick
+          end
+          object btnAlignCenter: TButton
+            Left = 115
+            Height = 30
+            Top = 15
+            Width = 95
+            Caption = 'Centro'
+            TabOrder = 1
+            OnClick = btnAlignCenterClick
+          end
+          object btnAlignRight: TButton
+            Left = 220
+            Height = 30
+            Top = 15
+            Width = 95
+            Caption = 'Direita'
+            TabOrder = 2
+            OnClick = btnAlignRightClick
+          end
+          object btnAlignJustify: TButton
+            Left = 325
+            Height = 30
+            Top = 15
+            Width = 95
+            Caption = 'Justificado'
+            TabOrder = 3
+            OnClick = btnAlignJustifyClick
+          end
+        end
+        object btnCmdPageBreak: TButton
+          Left = 10
+          Height = 30
+          Top = 465
+          Width = 440
+          Caption = 'Inserir Quebra de Página'
+          TabOrder = 3
+          OnClick = btnCmdPageBreakClick
+        end
+      end
+      object pnlCmdRight: TPanel
+        Left = 460
+        Height = 592
+        Top = 0
+        Width = 482
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 592
+        ClientWidth = 482
+        TabOrder = 1
+        object grpTabela: TGroupBox
+          Left = 10
+          Height = 220
+          Top = 10
+          Width = 460
+          Caption = 'Inserir Tabela Personalizada'
+          ClientHeight = 200
+          ClientWidth = 456
+          TabOrder = 0
+          object lblLinhas: TLabel
+            Left = 10
+            Height = 15
+            Top = 15
+            Width = 37
+            Caption = 'Linhas:'
+            ParentColor = False
+          end
+          object cbRows: TComboBox
+            Left = 60
+            Height = 23
+            Top = 10
+            Width = 80
+            ItemHeight = 15
+            ItemIndex = 2
+            Items.Strings = (
+              '1'
+              '2'
+              '3'
+              '4'
+              '5'
+              '10'
+            )
+            Style = csDropDownList
+            TabOrder = 0
+            Text = '3'
+          end
+          object lblColunas: TLabel
+            Left = 160
+            Height = 15
+            Top = 15
+            Width = 48
+            Caption = 'Colunas:'
+            ParentColor = False
+          end
+          object cbCols: TComboBox
+            Left = 220
+            Height = 23
+            Top = 10
+            Width = 80
+            ItemHeight = 15
+            ItemIndex = 2
+            Items.Strings = (
+              '1'
+              '2'
+              '3'
+              '4'
+              '5'
+            )
+            Style = csDropDownList
+            TabOrder = 1
+            Text = '3'
+          end
+          object chkHeader: TCheckBox
+            Left = 10
+            Height = 19
+            Top = 50
+            Width = 230
+            Caption = 'Primeira linha é Cabeçalho (Fundo Azul)'
+            Checked = True
+            State = cbChecked
+            TabOrder = 2
+          end
+          object lblCellText: TLabel
+            Left = 10
+            Height = 15
+            Top = 85
+            Width = 145
+            Caption = 'Texto Padrão das Células:'
+            ParentColor = False
+          end
+          object edtCellText: TEdit
+            Left = 10
+            Height = 23
+            Top = 105
+            Width = 430
+            TabOrder = 3
+            Text = 'Item'
+          end
+          object btnAddCustomTable: TButton
+            Left = 10
+            Height = 35
+            Top = 145
+            Width = 430
+            Caption = 'Gerar e Inserir Tabela'
+            TabOrder = 4
+            OnClick = btnAddCustomTableClick
+          end
+        end
+        object grpImagem: TGroupBox
+          Left = 10
+          Height = 130
+          Top = 240
+          Width = 460
+          Caption = 'Inserir Imagem'
+          ClientHeight = 110
+          ClientWidth = 456
+          TabOrder = 1
+          object lblImgInfo: TLabel
+            Left = 10
+            Height = 15
+            Top = 15
+            Width = 250
+            Caption = 'Selecione uma imagem para incluir no documento'
+            ParentColor = False
+          end
+          object btnAddCustomImage: TButton
+            Left = 10
+            Height = 35
+            Top = 50
+            Width = 430
+            Caption = 'Buscar e Inserir Imagem...'
+            TabOrder = 0
+            OnClick = btnAddCustomImageClick
+          end
+        end
+      end
+    end
+    object tabPreview: TTabSheet
+      Caption = 'Visualização'
+      ClientHeight = 592
+      ClientWidth = 942
+      object pnPreview: TPanel
+        Left = 0
+        Height = 592
+        Top = 0
+        Width = 942
+        Align = alClient
+        BevelOuter = bvNone
+        TabOrder = 0
+      end
+    end
+  end
+  object WordDoc: TAIWordDocument
+    Category = ccOutput
+    Left = 520
+    Top = 460
+  end
+  object WordViewer: TAIWordViewer
+    Category = ccOutput
+    Left = 580
+    Top = 460
+  end
+end

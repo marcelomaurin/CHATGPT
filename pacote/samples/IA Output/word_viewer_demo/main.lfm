@@ -1,0 +1,156 @@
+object frmMain: TfrmMain
+  Left = 350
+  Height = 600
+  Top = 150
+  Width = 850
+  Caption = 'Lazarus AI Suite - TAIWordViewer Demo (OpenXML)'
+  ClientHeight = 600
+  ClientWidth = 850
+  OnCreate = FormCreate
+  LCLVersion = '4.4'
+  object pnlLeft: TPanel
+    Left = 0
+    Height = 600
+    Top = 0
+    Width = 180
+    Align = alLeft
+    BevelOuter = bvNone
+    ClientHeight = 600
+    ClientWidth = 180
+    TabOrder = 0
+    object btnLoad: TButton
+      Left = 10
+      Height = 35
+      Top = 10
+      Width = 160
+      Caption = 'Carregar DOCX'
+      TabOrder = 0
+      OnClick = btnLoadClick
+    end
+    object btnGenerate: TButton
+      Left = 10
+      Height = 35
+      Top = 50
+      Width = 160
+      Caption = 'Gerar DOCX de Teste'
+      TabOrder = 1
+      OnClick = btnGenerateClick
+    end
+    object btnZoomIn: TButton
+      Left = 10
+      Height = 35
+      Top = 90
+      Width = 160
+      Caption = 'Zoom +'
+      TabOrder = 2
+      OnClick = btnZoomInClick
+    end
+    object btnZoomOut: TButton
+      Left = 10
+      Height = 35
+      Top = 130
+      Width = 160
+      Caption = 'Zoom -'
+      TabOrder = 3
+      OnClick = btnZoomOutClick
+    end
+    object btnFitWidth: TButton
+      Left = 10
+      Height = 35
+      Top = 170
+      Width = 160
+      Caption = 'Ajustar Largura'
+      TabOrder = 4
+      OnClick = btnFitWidthClick
+    end
+    object btnFirst: TButton
+      Left = 10
+      Height = 35
+      Top = 210
+      Width = 160
+      Caption = 'Primeira Página'
+      TabOrder = 5
+      OnClick = btnFirstClick
+    end
+    object btnPrev: TButton
+      Left = 10
+      Height = 35
+      Top = 250
+      Width = 160
+      Caption = 'Página Anterior'
+      TabOrder = 6
+      OnClick = btnPrevClick
+    end
+    object btnNext: TButton
+      Left = 10
+      Height = 35
+      Top = 290
+      Width = 160
+      Caption = 'Próxima Página'
+      TabOrder = 7
+      OnClick = btnNextClick
+    end
+    object btnLast: TButton
+      Left = 10
+      Height = 35
+      Top = 330
+      Width = 160
+      Caption = 'Última Página'
+      TabOrder = 8
+      OnClick = btnLastClick
+    end
+    object btnClear: TButton
+      Left = 10
+      Height = 35
+      Top = 370
+      Width = 160
+      Caption = 'Limpar'
+      TabOrder = 9
+      OnClick = btnClearClick
+    end
+    object btnClearLog: TButton
+      Left = 10
+      Height = 35
+      Top = 550
+      Width = 160
+      Anchors = [akLeft, akBottom]
+      Caption = 'Limpar Log'
+      TabOrder = 10
+      OnClick = btnClearLogClick
+    end
+  end
+  object memLog: TMemo
+    Left = 180
+    Height = 120
+    Top = 480
+    Width = 670
+    Align = alBottom
+    ReadOnly = True
+    ScrollBars = ssAutoBoth
+    TabOrder = 1
+  end
+  object pnPreview: TPanel
+    Left = 180
+    Height = 480
+    Top = 0
+    Width = 670
+    Align = alClient
+    BevelOuter = bvNone
+    TabOrder = 2
+  end
+  object OpenDialog1: TOpenDialog
+    Filter = 'Documento Word (*.docx)|*.docx'
+    Left = 240
+    Top = 40
+  end
+  object WordDoc1: TAIWordDocument
+    Category = ccOutput
+    Left = 320
+    Top = 40
+  end
+  object WordViewer1: TAIWordViewer
+    Category = ccOutput
+    Left = 400
+    Top = 40
+  end
+end

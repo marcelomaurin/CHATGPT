@@ -5,7 +5,7 @@ unit main;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls, ComCtrls,
   aibase, aiopencv, aiframeprocessor, aiopencvruntime, aiplatform;
 
 type
@@ -19,7 +19,34 @@ type
     chkSimulation: TCheckBox;
     btnRun: TButton;
     btnClearLog: TButton;
+
+    pnlRGB: TPanel;
+    lblRGBMode: TLabel;
+    cbRGBChannelMode: TComboBox;
+    chkRedEnabled: TCheckBox;
+    chkGreenEnabled: TCheckBox;
+    chkBlueEnabled: TCheckBox;
+    chkInvertRed: TCheckBox;
+    chkInvertGreen: TCheckBox;
+    chkInvertBlue: TCheckBox;
+
+    lblRedGain: TLabel;
+    tbRedGain: TTrackBar;
+    lblRedOffset: TLabel;
+    tbRedOffset: TTrackBar;
+
+    lblGreenGain: TLabel;
+    tbGreenGain: TTrackBar;
+    lblGreenOffset: TLabel;
+    tbGreenOffset: TTrackBar;
+
+    lblBlueGain: TLabel;
+    tbBlueGain: TTrackBar;
+    lblBlueOffset: TLabel;
+    tbBlueOffset: TTrackBar;
+
     memoLog: TMemo;
+
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnRunClick(Sender: TObject);
@@ -49,8 +76,8 @@ begin
   
   FEditFile := TEdit.Create(Self);
   FEditFile.Parent := pnlTop;
-  FEditFile.Left := 15;
-  FEditFile.Top := 115;
+  FEditFile.Left := 500;
+  FEditFile.Top := 60;
   FEditFile.Width := 300;
   FEditFile.Text := 'sample.jpg';
 
@@ -70,8 +97,26 @@ begin
   lblStatus.Caption := 'Status: Processing...';
   AddLog('--- Starting Execution ---');
   try
-    FFrameProc.Grayscale := True;
+    FFrameProc.Grayscale := False; // Do not grayscale so we see RGB channel changes clearly
     FFrameProc.ScaleFactor := 1.0;
+
+    // Apply RGB channel properties from GUI
+    FFrameProc.RGBChannelMode := TAIRGBChannelMode(cbRGBChannelMode.ItemIndex);
+    FFrameProc.RedEnabled := chkRedEnabled.Checked;
+    FFrameProc.GreenEnabled := chkGreenEnabled.Checked;
+    FFrameProc.BlueEnabled := chkBlueEnabled.Checked;
+    
+    FFrameProc.RedGain := tbRedGain.Position / 100.0;
+    FFrameProc.GreenGain := tbGreenGain.Position / 100.0;
+    FFrameProc.BlueGain := tbBlueGain.Position / 100.0;
+    
+    FFrameProc.RedOffset := tbRedOffset.Position;
+    FFrameProc.GreenOffset := tbGreenOffset.Position;
+    FFrameProc.BlueOffset := tbBlueOffset.Position;
+
+    FFrameProc.InvertRed := chkInvertRed.Checked;
+    FFrameProc.InvertGreen := chkInvertGreen.Checked;
+    FFrameProc.InvertBlue := chkInvertBlue.Checked;
     
     // Check native library availability using the helper
     LNativeAvailable := AIFindOpenCVNativeLibrary('', '', True, LResolvedPath, LError, LLog);
@@ -81,15 +126,18 @@ begin
       AddLog('  Resolved LibraryPath: ' + LResolvedPath)
     else
       AddLog('  Resolved LibraryPath: Not Found');
-    AddLog('  Grayscale: ' + BoolToStr(FFrameProc.Grayscale, True));
-    AddLog('  ScaleFactor: ' + FloatToStr(FFrameProc.ScaleFactor));
+    AddLog('  RGBChannelMode: ' + cbRGBChannelMode.Text);
+    AddLog('  RedEnabled: ' + BoolToStr(FFrameProc.RedEnabled, True));
+    AddLog('  GreenEnabled: ' + BoolToStr(FFrameProc.GreenEnabled, True));
+    AddLog('  BlueEnabled: ' + BoolToStr(FFrameProc.BlueEnabled, True));
+    AddLog('  Gains (R,G,B): ' + FloatToStr(FFrameProc.RedGain) + ', ' + FloatToStr(FFrameProc.GreenGain) + ', ' + FloatToStr(FFrameProc.BlueGain));
+    AddLog('  Offsets (R,G,B): ' + IntToStr(FFrameProc.RedOffset) + ', ' + IntToStr(FFrameProc.GreenOffset) + ', ' + IntToStr(FFrameProc.BlueOffset));
     
     if chkSimulation.Checked then
     begin
-      AddLog('Simulating OpenCV script matrix operations...');
+      AddLog('Simulating OpenCV script matrix operations with RGB Channel alterations...');
       AddLog('Loaded: ' + FEditFile.Text);
-      AddLog('Applied Grayscale conversion filter.');
-      AddLog('Resized frame matrix to 640x480 pixels.');
+      AddLog('Applied TAIFrameProcessor RGBChannelMode: ' + cbRGBChannelMode.Text);
       AddLog('Saved processed frame: sample_processed.jpg');
       AddLog('Process complete (Simulated).');
     end

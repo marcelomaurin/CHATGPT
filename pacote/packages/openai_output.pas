@@ -8,7 +8,9 @@ unit openai_output;
 interface
 
 uses
-  aioutput, aioutput_docs, LazarusPackageIntf;
+  aioutput, aioutput_docs, aiwordtypes, aiwordunits, aiwordpackage, aiwordxml, 
+  aiwordrelationships, aiwordstyles, aiwordobjects, aiworddocument, aiwordviewer, 
+  LazarusPackageIntf;
 
 implementation
 
@@ -16,6 +18,8 @@ procedure Register;
 begin
   RegisterUnit('aioutput', @aioutput.Register);
   RegisterUnit('aioutput_docs', @aioutput_docs.Register);
+  RegisterUnit('aiworddocument', @aiworddocument.Register);
+  RegisterUnit('aiwordviewer', @aiwordviewer.Register);
 end;
 
 initialization
