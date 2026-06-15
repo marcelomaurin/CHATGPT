@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="5">
+    <PathDelim Value="\"/>
+    <Name Value="ai_files"/>
+    <Type Value="RunAndDesignTime"/>
+    <Author Value="Marcelo Maurin Martins"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <PathDelim Value="\"/>
+      <SearchPaths>
+        <OtherUnitFiles Value="..\..\IA;..\..\IA Input;..\..\packages;..\.."/>
+        <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+      </SearchPaths>
+    </CompilerOptions>
+    <Description Value="AI Disk Tree Scanner: navigate, list, research and index files and folders."/>
+    <License Value="GPL3"/>
+    <Files>
+      <Item>
+        <Filename Value="aidiskitem.pas"/>
+        <UnitName Value="aidiskitem"/>
+      </Item>
+      <Item>
+        <Filename Value="aidisktreescanner.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aidisktreescanner"/>
+      </Item>
+    </Files>
+    <RequiredPkgs>
+      <Item>
+        <PackageName Value="openai_core"/>
+      </Item>
+      <Item>
+        <PackageName Value="LCL"/>
+      </Item>
+      <Item>
+        <PackageName Value="FCL"/>
+      </Item>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+      <UseFileFilters Value="True"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>

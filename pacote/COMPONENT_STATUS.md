@@ -115,6 +115,14 @@ Use esta classificação para documentação, README de abas, samples e planejam
 
 ---
 
+## Files / Datasets
+
+| Componente | Unit | Pacote | Status | Observação |
+|---|---|---|---|---|
+| `TAIDiskTreeScanner` | `aidisktreescanner.pas` | `ai_files` | Beta | Componente assíncrono para navegar, pesquisar e indexar arquivos e diretórios, com suporte a inventário de datasets para IA |
+
+---
+
 ## Output
 
 | Componente | Unit | Pacote | Status | Observação |
