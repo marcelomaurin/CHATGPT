@@ -83,7 +83,7 @@ Use esta classificação para documentação, README de abas, samples e planejam
 | `aicamera_backend` | `aicamera_backend.pas` | `openai_vision` | Stable | Interface base para backends de câmera nativa (usada por `TAICaptureSource`) |
 | `aicamera_vfw` | `aicamera_vfw.pas` | `openai_vision` | Beta | Backend Windows VFW para câmera local (usado internamente por `TAICaptureSource`) |
 | `aicamera_v4l2` | `aicamera_v4l2.pas` | `openai_vision` | Beta | Backend Linux V4L2 para câmera local (usado internamente por `TAICaptureSource`) |
-| `TAIFrameProcessor` | `aiframeprocessor.pas` | `openai_vision` | Experimental | Processamento de frames em evolução |
+| `TAIFrameProcessor` | `aiframeprocessor.pas` | `openai_vision` | Beta | Pré-processador nativo de imagens para Lazarus/FPC, capaz de redimensionar, converter para grayscale e manipular canais RGB |
 | `TAIFaceTracker` | `aifacetracker.pas` | `openai_vision` | Experimental | Rastreamento por template matching (SAD) 100% nativo |
 | `TAIMotionTracker` | `aimotiontracker.pas` | `openai_vision` | Experimental | Detecção de movimento por variação de luminância 100% nativa |
 | `TAIImageInfo` | `aiimageinfo.pas` | `openai_vision` | Experimental | Extração nativa de metadados e contagem de pixels de imagem |
