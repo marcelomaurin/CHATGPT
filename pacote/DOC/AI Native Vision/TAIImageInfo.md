@@ -1,6 +1,6 @@
 # TAIImageInfo Documentation
 
-The `TAIImageInfo` component provides non-destructive metadata extraction for images in Lazarus. It analyzes files or bitmap headers to fetch resolution details, pixel counts, and formats without keeping heavy graphic data in memory.
+The `TAIImageInfo` component provides non-destructive metadata extraction for images in Lazarus. It analyzes files or bitmap headers to fetch resolution details, pixel counts, format characteristics, and embedded text metadata (like EXIF, XMP, IPTC, and PNG text chunks) without keeping heavy graphic data in memory.
 
 ## Class Hierarchy
 - `TComponent`
@@ -24,14 +24,18 @@ The `TAIImageInfo` component provides non-destructive metadata extraction for im
 | `Orientation` | `TAIImageOrientation` | `ioUnknown` | Orientation: `ioSquare`, `ioLandscape`, `ioPortrait`. |
 | `IsLoaded` | `Boolean` | `False` | True if a source has been successfully loaded. |
 | `SourceKind` | `TAIImageInfoSourceKind` | `iskNone` | The kind of loaded source: `iskNone`, `iskFile`, `iskBitmap`, `iskPicture`. |
+| `HasMetadata` | `Boolean` | `False` | True if structural metadata is present. |
+| `Title`, `Author`, `Artist`, `Creator`, `Copyright`, `Description`, `Comment`, `Software` | `string` | `''` | Extracted and parsed metadata fields. |
+| `HasWatermarkInfo` | `Boolean` | `False` | True if watermark or copyright strings are detected in metadata. |
+| `WatermarkText` | `string` | `''` | Content of the copyright watermark. |
 
 ## Key Methods
 
 - **`procedure ClearInfo`**
-  Resets all technical properties to defaults (0, empty string, etc.) and clears any previous error.
+  Resets all technical and metadata properties to defaults and clears any previous error.
 
 - **`function LoadInfoFromFile(const AFileName: string): Boolean`**
-  Reads the image file from disk and parses its header metadata.
+  Reads the image file from disk and parses its header metadata, including EXIF, XMP, IPTC, and COM chunks.
 
 - **`function LoadInfoFromBitmap(ABitmap: TBitmap): Boolean`**
   Queries the dimensions of the provided `TBitmap` and populates properties.
@@ -39,20 +43,17 @@ The `TAIImageInfo` component provides non-destructive metadata extraction for im
 - **`function LoadInfoFromPicture(APicture: TPicture): Boolean`**
   Queries the dimensions of the provided `TPicture` and populates properties.
 
+- **`function LoadMetadataFromFile(const AFileName: string): Boolean`**
+  Parses metadata exclusively from the file.
+
 - **`function AsText: string`**
-  Returns a clean, formatted text report of the image properties.
+  Returns a clean, formatted text report of the image properties and metadata.
 
 - **`function AsJSON: string`**
   Returns a valid JSON representation of all properties.
 
 - **`function GetDiagnosticReport: string`**
   Alias for `AsText`.
-
-- **`function OrientationAsString: string`**
-  Returns orientation as a string ('Square', 'Landscape', 'Portrait', 'Unknown').
-
-- **`function SourceKindAsString: string`**
-  Returns source kind as a string ('File', 'Bitmap', 'Picture', 'None').
 
 ## Example Usage
 
@@ -66,10 +67,9 @@ begin
     begin
       WriteLn('Loaded: ', Info.FileName);
       WriteLn('Dimensions: ', Info.Width, 'x', Info.Height);
-      WriteLn('Total Pixels: ', Info.PixelCount);
-      WriteLn('MegaPixels: ', Info.MegaPixels:0:2, ' MP');
-      WriteLn('Orientation: ', Info.OrientationAsString);
-      WriteLn('JSON Report: ', Info.AsJSON);
+      if Info.HasWatermarkInfo then
+        WriteLn('Copyright Notice: ', Info.WatermarkText);
+      WriteLn('Full Details: ', Info.AsText);
     end
     else
       WriteLn('Metadata read failed: ', Info.LastError);

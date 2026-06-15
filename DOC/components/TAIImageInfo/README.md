@@ -2,7 +2,7 @@
 
 ## Finalidade
 
-`TAIImageInfo` extrai informações técnicas e metadados de imagens de forma nativa em Lazarus/Free Pascal, sem depender de Python, OpenCV ou DLLs externas.
+`TAIImageInfo` extrai informações técnicas, metadados e marcas d'água em metadados a partir de imagens de forma nativa em Lazarus/Free Pascal, sem depender de Python, OpenCV ou DLLs externas.
 
 ## Unit
 
@@ -45,20 +45,23 @@ Beta
 | `Orientation` | Orientação da imagem (`ioSquare`, `ioLandscape`, `ioPortrait`) |
 | `IsLoaded` | Indica se as informações foram carregadas com sucesso |
 | `SourceKind` | Tipo de origem carregada (`iskNone`, `iskFile`, `iskBitmap`, `iskPicture`) |
+| `HasMetadata` | Indica se a imagem contém metadados associados |
+| `Title`, `Author`, `Artist`, `Creator`, `Copyright`, `Description`, `Comment`, `Software` | Campos de metadados interpretados automaticamente |
+| `HasWatermarkInfo` | Indica se há informações de marca d'água ou direitos nos metadados |
+| `WatermarkText` | Conteúdo da marca d'água encontrada |
 
 ## Métodos principais
 
 | Método | Descrição |
 |---|---|
 | `ClearInfo` | Limpa todas as informações e erros do componente |
-| `LoadInfoFromFile` | Carrega e analisa metadados a partir de um arquivo físico |
-| `LoadInfoFromBitmap` | Extrai informações a partir de um objeto `TBitmap` |
-| `LoadInfoFromPicture` | Extrai informações a partir de um objeto `TPicture` |
-| `AsText` | Retorna um relatório textual formatado |
+| `LoadInfoFromFile` | Carrega e analisa metadados a partir de um arquivo físico, incluindo EXIF, XMP, IPTC e comentários |
+| `LoadInfoFromBitmap` | Extrai informações básicas a partir de um objeto `TBitmap` |
+| `LoadInfoFromPicture` | Extrai informações básicas a partir de um objeto `TPicture` |
+| `LoadMetadataFromFile` | Executa a extração exclusiva de metadados estruturais |
+| `AsText` | Retorna um relatório textual formatado detalhado |
 | `AsJSON` | Retorna as propriedades serializadas em JSON válido |
 | `GetDiagnosticReport` | Retorna o relatório textual de diagnóstico |
-| `OrientationAsString` | Retorna a orientação como string |
-| `SourceKindAsString` | Retorna a origem como string |
 
 ## Exemplo
 
@@ -68,7 +71,8 @@ begin
   if AIImageInfo1.LoadInfoFromFile('imagem.png') then
   begin
     Memo1.Lines.Text := AIImageInfo1.AsText;
-    ShowMessage('JSON: ' + AIImageInfo1.AsJSON);
+    if AIImageInfo1.HasWatermarkInfo then
+      ShowMessage('Marca d''água: ' + AIImageInfo1.WatermarkText);
   end
   else
     ShowMessage(AIImageInfo1.LastError);
@@ -78,4 +82,4 @@ end;
 ## Limitações
 
 * Focado em metadados técnicos estruturais rápidos.
-* Não processa pixels ou altera a imagem.
+* Detecção de marca d'água em metadados (Copyright, Autor, Comentário, etc.). Não realiza análise de pixel (marca d'água visual).

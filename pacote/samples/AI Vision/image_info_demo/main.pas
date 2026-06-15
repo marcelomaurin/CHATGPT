@@ -89,7 +89,7 @@ end;
 procedure TfrmMain.btnReadInfoClick(Sender: TObject);
 begin
   memoLog.Clear;
-  AddLog('--- Reading Image Info ---');
+  AddLog('--- Reading Image Info & Metadata ---');
 
   if Trim(edFileName.Text) = '' then
   begin
@@ -101,7 +101,10 @@ begin
   if FAIImageInfo.LoadInfoFromFile(edFileName.Text) then
   begin
     AddLog(FAIImageInfo.AsText);
-    UpdateStatus('Image info loaded successfully');
+    if FAIImageInfo.HasWatermarkInfo then
+      UpdateStatus('Image loaded successfully (Watermark metadata found)')
+    else
+      UpdateStatus('Image loaded successfully (No watermark metadata found)');
   end
   else
   begin

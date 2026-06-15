@@ -1,41 +1,29 @@
 # TAIImageInfo Demo
 
-This demo shows how to use `TAIImageInfo` to read basic image information natively in Lazarus/FPC.
+This demo reads basic image information and metadata from image files natively in Lazarus/FPC.
 
 ## Features
 
-- Load image file
-- Preview image
-- Read width and height
-- Count pixels
-- Detect format by extension
-- Show file size
-- Show aspect ratio
-- Show orientation
-- Generate text report
+- Read image width and height
+- Calculate pixel count
+- Detect file format by extension
+- Read file size
+- Read PNG text metadata (tEXt, iTXt, zTXt detection)
+- Read JPEG comment, EXIF/XMP/IPTC raw metadata
+- Detect possible watermark information in metadata
+- Show full diagnostic report
 
-## Component
+## Supported metadata in this version
 
-Unit:
+| Format | Metadata |
+|---|---|
+| PNG | tEXt, iTXt, zTXt detection |
+| JPEG | APP1 EXIF/XMP, APP13 IPTC, COM comment |
 
-```pascal
-aiimageinfo
-```
+## Important
 
-Main class:
-
-```pascal
-TAIImageInfo
-```
-
-## Usage
-
-```pascal
-if AIImageInfo1.LoadInfoFromFile('sample.png') then
-  Memo1.Lines.Text := AIImageInfo1.AsText
-else
-  Memo1.Lines.Text := AIImageInfo1.LastError;
-```
+This component detects watermark information stored in metadata.
+It does not detect visual watermarks drawn into image pixels (which belongs to a future `TAIWatermarkDetector` component).
 
 ## Requirements
 
