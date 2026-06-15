@@ -89,39 +89,57 @@ begin
 end;
 
 procedure TfrmMotionDemo.btnLoadAClick(Sender: TObject);
+var
+  LPic: TPicture;
 begin
   if OpenDialog1.Execute then
   begin
     LogMsg('Loading Frame A from: ' + OpenDialog1.FileName);
+    LPic := TPicture.Create;
     try
-      BmpA.LoadFromFile(OpenDialog1.FileName);
-      imgFrameA.Picture.Assign(BmpA);
-      lblInfoA.Caption := Format('Frame A: %dx%d', [BmpA.Width, BmpA.Height]);
-    except
-      on E: Exception do
-      begin
-        LogMsg('Error loading Frame A: ' + E.Message);
-        ShowMessage('Failed to load Frame A: ' + E.Message);
+      try
+        LPic.LoadFromFile(OpenDialog1.FileName);
+        BmpA.SetSize(LPic.Width, LPic.Height);
+        BmpA.Canvas.Draw(0, 0, LPic.Graphic);
+        imgFrameA.Picture.Assign(BmpA);
+        lblInfoA.Caption := Format('Frame A: %dx%d', [BmpA.Width, BmpA.Height]);
+      except
+        on E: Exception do
+        begin
+          LogMsg('Error loading Frame A: ' + E.Message);
+          ShowMessage('Failed to load Frame A: ' + E.Message);
+        end;
       end;
+    finally
+      LPic.Free;
     end;
   end;
 end;
 
 procedure TfrmMotionDemo.btnLoadBClick(Sender: TObject);
+var
+  LPic: TPicture;
 begin
   if OpenDialog1.Execute then
   begin
     LogMsg('Loading Frame B from: ' + OpenDialog1.FileName);
+    LPic := TPicture.Create;
     try
-      BmpB.LoadFromFile(OpenDialog1.FileName);
-      imgFrameB.Picture.Assign(BmpB);
-      lblInfoB.Caption := Format('Frame B: %dx%d', [BmpB.Width, BmpB.Height]);
-    except
-      on E: Exception do
-      begin
-        LogMsg('Error loading Frame B: ' + E.Message);
-        ShowMessage('Failed to load Frame B: ' + E.Message);
+      try
+        LPic.LoadFromFile(OpenDialog1.FileName);
+        BmpB.SetSize(LPic.Width, LPic.Height);
+        BmpB.Canvas.Draw(0, 0, LPic.Graphic);
+        imgFrameB.Picture.Assign(BmpB);
+        lblInfoB.Caption := Format('Frame B: %dx%d', [BmpB.Width, BmpB.Height]);
+      except
+        on E: Exception do
+        begin
+          LogMsg('Error loading Frame B: ' + E.Message);
+          ShowMessage('Failed to load Frame B: ' + E.Message);
+        end;
       end;
+    finally
+      LPic.Free;
     end;
   end;
 end;
