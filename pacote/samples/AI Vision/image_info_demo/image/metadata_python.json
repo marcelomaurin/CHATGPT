@@ -1,0 +1,10 @@
+{
+  "watermark": true,
+  "type": "visual",
+  "text": "MAURINSOFT TEST WATERMARK",
+  "author": "Marcelo Martins",
+  "copyright": "MaurinSoft",
+  "purpose": "TAIImageInfo watermark metadata test",
+  "language": "python",
+  "python_code": "def detect_watermark_metadata(metadata):\n    text = str(metadata).lower()\n    keywords = ['watermark', 'copyright', 'maurinsoft', 'protected', 'sample']\n    return any(k in text for k in keywords)\n\nprint('TAIImageInfo watermark metadata test')"
+}
