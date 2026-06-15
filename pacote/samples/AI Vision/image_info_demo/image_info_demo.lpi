@@ -28,6 +28,9 @@
         <PackageName Value="openai_vision"/>
       </Item>
       <Item>
+        <PackageName Value="ImagesForLazarus"/>
+      </Item>
+      <Item>
         <PackageName Value="LCL"/>
       </Item>
     </RequiredPackages>
