@@ -5,7 +5,7 @@ unit aiframeprocessor;
 interface
 
 uses
-  Classes, SysUtils, aibase, LResources, Graphics, GraphType, IntfGraphics, FPimage;
+  Classes, SysUtils, aibase, LResources, Graphics, GraphType, IntfGraphics, FPimage, LCLIntf, TypInfo;
 
 type
   TAIColorChannel = (
@@ -39,8 +39,10 @@ type
   private
     FScaleFactor: Double;
     FGrayscale: Boolean;
+    FModifyInput: Boolean;
 
     FRGBChannelMode: TAIRGBChannelMode;
+    FEnableChannelAdjustments: Boolean;
 
     FRedEnabled: Boolean;
     FGreenEnabled: Boolean;
@@ -58,7 +60,11 @@ type
     FInvertGreen: Boolean;
     FInvertBlue: Boolean;
 
-    FNormalizeChannels: Boolean;
+    FLastInputWidth: Integer;
+    FLastInputHeight: Integer;
+    FLastOutputWidth: Integer;
+    FLastOutputHeight: Integer;
+    FLastProcessingTimeMs: Int64;
 
     function ClampByte(AValue: Integer): Byte;
     procedure ConvertToGray(IntfImg: TLazIntfImage);
@@ -67,13 +73,22 @@ type
     function ApplyRGBChannels(ABitmap: TBitmap): TBitmap;
   public
     constructor Create(AOwner: TComponent); override;
-    function ProcessFrame(AFrame: TObject): TObject;
+
+    procedure ResetDefaults;
+
     function ProcessBitmap(ABitmap: TBitmap): TBitmap;
+    function ProcessFrame(AFrame: TObject): TObject;
+
+    function SaveBitmapToFile(ABitmap: TBitmap; const AFileName: string): Boolean;
+    function GetDiagnosticReport: string;
+
   published
     property ScaleFactor: Double read FScaleFactor write FScaleFactor;
-    property Grayscale: Boolean read FGrayscale write FGrayscale default True;
+    property Grayscale: Boolean read FGrayscale write FGrayscale default False;
+    property ModifyInput: Boolean read FModifyInput write FModifyInput default False;
 
     property RGBChannelMode: TAIRGBChannelMode read FRGBChannelMode write FRGBChannelMode default cmNone;
+    property EnableChannelAdjustments: Boolean read FEnableChannelAdjustments write FEnableChannelAdjustments default False;
 
     property RedEnabled: Boolean read FRedEnabled write FRedEnabled default True;
     property GreenEnabled: Boolean read FGreenEnabled write FGreenEnabled default True;
@@ -91,7 +106,11 @@ type
     property InvertGreen: Boolean read FInvertGreen write FInvertGreen default False;
     property InvertBlue: Boolean read FInvertBlue write FInvertBlue default False;
 
-    property NormalizeChannels: Boolean read FNormalizeChannels write FNormalizeChannels default False;
+    property LastInputWidth: Integer read FLastInputWidth;
+    property LastInputHeight: Integer read FLastInputHeight;
+    property LastOutputWidth: Integer read FLastOutputWidth;
+    property LastOutputHeight: Integer read FLastOutputHeight;
+    property LastProcessingTimeMs: Int64 read FLastProcessingTimeMs;
   end;
 
 procedure Register;
@@ -108,12 +127,20 @@ end;
 constructor TAIFrameProcessor.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  ResetDefaults;
+end;
+
+procedure TAIFrameProcessor.ResetDefaults;
+begin
   FCategory := ccOther;
-  FPrompt := 'Component TAIFrameProcessor resizes, processes RGB channels, and filters image frames natively.';
+  FPrompt := 'Component TAIFrameProcessor preprocesses image frames natively. Supports resize, grayscale, RGB channel operations, channel gain, channel offset and RGB/BGR conversion.';
+
   FScaleFactor := 1.0;
   FGrayscale := False;
+  FModifyInput := False;
 
   FRGBChannelMode := cmNone;
+  FEnableChannelAdjustments := False;
 
   FRedEnabled := True;
   FGreenEnabled := True;
@@ -131,7 +158,11 @@ begin
   FInvertGreen := False;
   FInvertBlue := False;
 
-  FNormalizeChannels := False;
+  FLastInputWidth := 0;
+  FLastInputHeight := 0;
+  FLastOutputWidth := 0;
+  FLastOutputHeight := 0;
+  FLastProcessingTimeMs := 0;
 
   ClearError;
 end;
@@ -157,6 +188,7 @@ begin
     for x := 0 to IntfImg.Width - 1 do
     begin
       C := IntfImg.Colors[x, y];
+      // Weighted grayscale integer equation
       Gray := (C.Red * 299 + C.Green * 587 + C.Blue * 114) div 1000;
       C.Red := Gray;
       C.Green := Gray;
@@ -194,9 +226,6 @@ begin
   if not Assigned(Result) then
     Exit;
 
-  if FRGBChannelMode = cmNone then
-    Exit;
-
   for Y := 0 to Result.Height - 1 do
   begin
     for X := 0 to Result.Width - 1 do
@@ -207,6 +236,7 @@ begin
       G := Green(C);
       B := Blue(C);
 
+      // 1. Apply mode structural changes
       case FRGBChannelMode of
         cmExtractRed:
           begin
@@ -281,21 +311,24 @@ begin
             G := 255 - G;
             B := 255 - B;
           end;
+        
+        cmCustom, cmNone: ;
+      end;
 
-        cmCustom:
-          begin
-            if not FRedEnabled then R := 0;
-            if not FGreenEnabled then G := 0;
-            if not FBlueEnabled then B := 0;
+      // 2. Apply individual channel parameter modifications if custom mode OR enabled
+      if FEnableChannelAdjustments or (FRGBChannelMode = cmCustom) then
+      begin
+        if not FRedEnabled then R := 0;
+        if not FGreenEnabled then G := 0;
+        if not FBlueEnabled then B := 0;
 
-            R := ClampByte(Round((R * FRedGain) + FRedOffset));
-            G := ClampByte(Round((G * FGreenGain) + FGreenOffset));
-            B := ClampByte(Round((B * FBlueGain) + FBlueOffset));
+        R := ClampByte(Round((R * FRedGain) + FRedOffset));
+        G := ClampByte(Round((G * FGreenGain) + FGreenOffset));
+        B := ClampByte(Round((B * FBlueGain) + FBlueOffset));
 
-            if FInvertRed then R := 255 - R;
-            if FInvertGreen then G := 255 - G;
-            if FInvertBlue then B := 255 - B;
-          end;
+        if FInvertRed then R := 255 - R;
+        if FInvertGreen then G := 255 - G;
+        if FInvertBlue then B := 255 - B;
       end;
 
       Result.Canvas.Pixels[X, Y] := RGBToColor(R, G, B);
@@ -309,47 +342,104 @@ var
   IntfImg, DestIntf: TLazIntfImage;
   Desc: TRawImageDescription;
   NewW, NewH: Integer;
+  StartTime: QWord;
 begin
-  Result := ABitmap;
+  ClearError;
+  FLastProcessingTimeMs := 0;
+
   if not Assigned(ABitmap) then
-    Exit;
+  begin
+    SetError('Bitmap não informado.');
+    Exit(nil);
+  end;
 
-  LWorkBitmap := ABitmap;
+  if (ABitmap.Width <= 0) or (ABitmap.Height <= 0) then
+  begin
+    SetError('Bitmap com tamanho inválido.');
+    Exit(nil);
+  end;
 
-  // 1. Crop (if implemented, not yet)
-  // 2. Resize
-  if (FScaleFactor <> 1.0) and (FScaleFactor > 0.0) then
+  if FScaleFactor <= 0.0 then
+  begin
+    SetError('ScaleFactor inválido.');
+    Exit(nil);
+  end;
+
+  StartTime := GetTickCount64;
+  FLastInputWidth := ABitmap.Width;
+  FLastInputHeight := ABitmap.Height;
+
+  // Clone handling
+  if not FModifyInput then
+  begin
+    LWorkBitmap := TBitmap.Create;
+    try
+      LWorkBitmap.Assign(ABitmap);
+    except
+      on E: Exception do
+      begin
+        LWorkBitmap.Free;
+        SetError('Erro ao clonar bitmap: ' + E.Message);
+        Exit(nil);
+      end;
+    end;
+  end
+  else
+    LWorkBitmap := ABitmap;
+
+  // Resize
+  if FScaleFactor <> 1.0 then
   begin
     NewW := Round(LWorkBitmap.Width * FScaleFactor);
     NewH := Round(LWorkBitmap.Height * FScaleFactor);
-    if (NewW > 0) and (NewH > 0) then
+    if (NewW <= 0) or (NewH <= 0) then
     begin
-      IntfImg := TLazIntfImage.Create(0, 0);
-      DestIntf := TLazIntfImage.Create(0, 0);
-      try
-        IntfImg.LoadFromBitmap(LWorkBitmap.Handle, LWorkBitmap.MaskHandle);
-        Desc := IntfImg.DataDescription;
-        Desc.Width := NewW;
-        Desc.Height := NewH;
-        DestIntf.DataDescription := Desc;
+      if not FModifyInput then LWorkBitmap.Free;
+      SetError('Erro ao redimensionar imagem: dimensões resultantes inválidas.');
+      Exit(nil);
+    end;
 
-        ResizeBitmap(IntfImg, DestIntf, NewW, NewH);
+    IntfImg := TLazIntfImage.Create(0, 0);
+    DestIntf := TLazIntfImage.Create(0, 0);
+    try
+      IntfImg.LoadFromBitmap(LWorkBitmap.Handle, LWorkBitmap.MaskHandle);
+      Desc := IntfImg.DataDescription;
+      Desc.Width := NewW;
+      Desc.Height := NewH;
+      DestIntf.DataDescription := Desc;
 
-        LWorkBitmap.Width := NewW;
-        LWorkBitmap.Height := NewH;
-        LWorkBitmap.LoadFromIntfImage(DestIntf);
-      finally
+      ResizeBitmap(IntfImg, DestIntf, NewW, NewH);
+
+      LWorkBitmap.Width := NewW;
+      LWorkBitmap.Height := NewH;
+      LWorkBitmap.LoadFromIntfImage(DestIntf);
+    except
+      on E: Exception do
+      begin
         IntfImg.Free;
         DestIntf.Free;
+        if not FModifyInput then LWorkBitmap.Free;
+        SetError('Erro ao redimensionar imagem: ' + E.Message);
+        Exit(nil);
       end;
+    end;
+    IntfImg.Free;
+    DestIntf.Free;
+  end;
+
+  // RGB Channels
+  try
+    LWorkBitmap := ApplyRGBChannels(LWorkBitmap);
+  except
+    on E: Exception do
+    begin
+      if not FModifyInput then LWorkBitmap.Free;
+      SetError('Erro ao aplicar canais RGB: ' + E.Message);
+      Exit(nil);
     end;
   end;
 
-  // 3. RGB Channels (MUST run before Grayscale)
-  if FRGBChannelMode <> cmNone then
-    LWorkBitmap := ApplyRGBChannels(LWorkBitmap);
-
-  // 4. Grayscale
+  // Grayscale
   if FGrayscale then
   begin
     IntfImg := TLazIntfImage.Create(0, 0);
@@ -357,26 +447,76 @@ begin
       IntfImg.LoadFromBitmap(LWorkBitmap.Handle, LWorkBitmap.MaskHandle);
       ConvertToGray(IntfImg);
       LWorkBitmap.LoadFromIntfImage(IntfImg);
-    finally
-      IntfImg.Free;
+    except
+      on E: Exception do
+      begin
+        IntfImg.Free;
+        if not FModifyInput then LWorkBitmap.Free;
+        SetError('Erro ao converter para grayscale: ' + E.Message);
+        Exit(nil);
+      end;
     end;
+    IntfImg.Free;
   end;
+
+  FLastOutputWidth := LWorkBitmap.Width;
+  FLastOutputHeight := LWorkBitmap.Height;
+  FLastProcessingTimeMs := GetTickCount64 - StartTime;
+  FLastSuccess := True;
 
   Result := LWorkBitmap;
 end;
 
 function TAIFrameProcessor.ProcessFrame(AFrame: TObject): TObject;
 begin
-  Result := AFrame;
+  ClearError;
   if Assigned(AFrame) and (AFrame is TBitmap) then
   begin
     Result := ProcessBitmap(TBitmap(AFrame));
-    Log(llDebug, 'Processed frame bitmap.');
   end
   else
   begin
-    Log(llDebug, 'AFrame is not a TBitmap, returning unaltered.');
+    SetError('Tipo de frame não suportado.');
+    Result := nil;
   end;
+end;
+
+function TAIFrameProcessor.SaveBitmapToFile(ABitmap: TBitmap; const AFileName: string): Boolean;
+begin
+  Result := False;
+  ClearError;
+  if not Assigned(ABitmap) then
+  begin
+    SetError('Bitmap nulo ao tentar salvar.');
+    Exit;
+  end;
+
+  try
+    ABitmap.SaveToFile(AFileName);
+    Result := True;
+  except
+    on E: Exception do
+      SetError('Erro ao salvar arquivo: ' + E.Message);
+  end;
+end;
+
+function TAIFrameProcessor.GetDiagnosticReport: string;
+begin
+  Result := 'TAIFrameProcessor Diagnostic Report' + sLineBreak +
+            'Input Size: ' + IntToStr(FLastInputWidth) + 'x' + IntToStr(FLastInputHeight) + sLineBreak +
+            'Output Size: ' + IntToStr(FLastOutputWidth) + 'x' + IntToStr(FLastOutputHeight) + sLineBreak +
+            'ScaleFactor: ' + FloatToStr(FScaleFactor) + sLineBreak +
+            'Grayscale: ' + BoolToStr(FGrayscale, True) + sLineBreak +
+            'RGBChannelMode: ' + GetEnumName(TypeInfo(TAIRGBChannelMode), Integer(FRGBChannelMode)) + sLineBreak +
+            'EnableChannelAdjustments: ' + BoolToStr(FEnableChannelAdjustments, True) + sLineBreak +
+            'RedGain: ' + FloatToStr(FRedGain) + sLineBreak +
+            'GreenGain: ' + FloatToStr(FGreenGain) + sLineBreak +
+            'BlueGain: ' + FloatToStr(FBlueGain) + sLineBreak +
+            'RedOffset: ' + IntToStr(FRedOffset) + sLineBreak +
+            'GreenOffset: ' + IntToStr(FGreenOffset) + sLineBreak +
+            'BlueOffset: ' + IntToStr(FBlueOffset) + sLineBreak +
+            'Processing Time: ' + IntToStr(FLastProcessingTimeMs) + ' ms' + sLineBreak +
+            'LastError: ' + FLastError;
 end;
 
 initialization

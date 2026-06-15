@@ -1,0 +1,413 @@
+object frmMain: TfrmMain
+  Left = 150
+  Height = 650
+  Top = 100
+  Width = 980
+  Caption = 'TAIFrameProcessor Demo - Lazarus Native'
+  ClientHeight = 650
+  ClientWidth = 980
+  OnCreate = FormCreate
+  LCLVersion = '3.0.0.3'
+  object pnlLeft: TPanel
+    Left = 0
+    Height = 650
+    Top = 0
+    Width = 420
+    Align = alLeft
+    BevelOuter = bvNone
+    ClientHeight = 650
+    ClientWidth = 420
+    TabOrder = 0
+    object btnLoad: TButton
+      Left = 10
+      Height = 30
+      Top = 10
+      Width = 120
+      Caption = 'Carregar Imagem'
+      TabOrder = 0
+      OnClick = btnLoadClick
+    end
+    object btnProcess: TButton
+      Left = 140
+      Height = 30
+      Top = 10
+      Width = 120
+      Caption = 'Processar Frame'
+      TabOrder = 1
+      OnClick = btnProcessClick
+    end
+    object btnSave: TButton
+      Left = 270
+      Height = 30
+      Top = 10
+      Width = 120
+      Caption = 'Salvar Resultado'
+      TabOrder = 2
+      OnClick = btnSaveClick
+    end
+    object grpParameters: TGroupBox
+      Left = 10
+      Height = 150
+      Top = 50
+      Width = 400
+      Caption = 'Ajustes de Escala / Grayscale'
+      ClientHeight = 130
+      ClientWidth = 396
+      TabOrder = 3
+      object lblScale: TLabel
+        Left = 10
+        Height = 15
+        Top = 10
+        Width = 100
+        Caption = 'ScaleFactor:'
+        ParentColor = False
+      end
+      object tbScaleFactor: TTrackBar
+        Left = 120
+        Height = 25
+        Top = 5
+        Width = 200
+        Max = 20
+        Min = 1
+        Position = 10
+        TabOrder = 0
+        OnChange = tbScaleFactorChange
+      end
+      object lblScaleVal: TLabel
+        Left = 330
+        Height = 15
+        Top = 10
+        Width = 20
+        Caption = '1.0'
+        ParentColor = False
+      end
+      object chkGrayscale: TCheckBox
+        Left = 10
+        Height = 19
+        Top = 45
+        Width = 120
+        Caption = 'Grayscale (Cinza)'
+        TabOrder = 1
+      end
+      object chkModifyInput: TCheckBox
+        Left = 160
+        Height = 19
+        Top = 45
+        Width = 120
+        Caption = 'ModifyInput'
+        TabOrder = 2
+      end
+      object chkEnableChannelAdjustments: TCheckBox
+        Left = 10
+        Height = 19
+        Top = 70
+        Width = 220
+        Caption = 'Habilitar Ajustes de Canais (EnableChannelAdjustments)'
+        TabOrder = 3
+      end
+      object lblMode: TLabel
+        Left = 10
+        Height = 15
+        Top = 102
+        Width = 110
+        Caption = 'RGBChannelMode:'
+        ParentColor = False
+      end
+      object cbRGBChannelMode: TComboBox
+        Left = 130
+        Height = 23
+        Top = 98
+        Width = 150
+        ItemHeight = 15
+        ItemIndex = 0
+        Items.Strings = (
+          'None'
+          'ExtractRed'
+          'ExtractGreen'
+          'ExtractBlue'
+          'KeepRedOnly'
+          'KeepGreenOnly'
+          'KeepBlueOnly'
+          'RemoveRed'
+          'RemoveGreen'
+          'RemoveBlue'
+          'SwapRB'
+          'SwapRG'
+          'SwapGB'
+          'RGBToBGR'
+          'InvertRGB'
+          'Custom'
+        )
+        Style = csDropDownList
+        TabOrder = 4
+        Text = 'None'
+      end
+    end
+    object grpChannels: TGroupBox
+      Left = 10
+      Height = 350
+      Top = 210
+      Width = 400
+      Caption = 'Operações Customizadas de Canal (RGB / Custom)'
+      ClientHeight = 330
+      ClientWidth = 396
+      TabOrder = 4
+      object chkRedEnabled: TCheckBox
+        Left = 10
+        Height = 19
+        Top = 10
+        Width = 100
+        Caption = 'Red Enabled'
+        Checked = True
+        State = cbChecked
+        TabOrder = 0
+      end
+      object chkGreenEnabled: TCheckBox
+        Left = 140
+        Height = 19
+        Top = 10
+        Width = 110
+        Caption = 'Green Enabled'
+        Checked = True
+        State = cbChecked
+        TabOrder = 1
+      end
+      object chkBlueEnabled: TCheckBox
+        Left = 270
+        Height = 19
+        Top = 10
+        Width = 100
+        Caption = 'Blue Enabled'
+        Checked = True
+        State = cbChecked
+        TabOrder = 2
+      end
+      object lblRedGain: TLabel
+        Left = 10
+        Height = 15
+        Top = 45
+        Width = 60
+        Caption = 'Red Gain:'
+        ParentColor = False
+      end
+      object tbRedGain: TTrackBar
+        Left = 110
+        Height = 25
+        Top = 40
+        Width = 260
+        Max = 200
+        Position = 100
+        TabOrder = 3
+      end
+      object lblGreenGain: TLabel
+        Left = 10
+        Height = 15
+        Top = 75
+        Width = 70
+        Caption = 'Green Gain:'
+        ParentColor = False
+      end
+      object tbGreenGain: TTrackBar
+        Left = 110
+        Height = 25
+        Top = 70
+        Width = 260
+        Max = 200
+        Position = 100
+        TabOrder = 4
+      end
+      object lblBlueGain: TLabel
+        Left = 10
+        Height = 15
+        Top = 105
+        Width = 60
+        Caption = 'Blue Gain:'
+        ParentColor = False
+      end
+      object tbBlueGain: TTrackBar
+        Left = 110
+        Height = 25
+        Top = 100
+        Width = 260
+        Max = 200
+        Position = 100
+        TabOrder = 5
+      end
+      object lblRedOffset: TLabel
+        Left = 10
+        Height = 15
+        Top = 145
+        Width = 70
+        Caption = 'Red Offset:'
+        ParentColor = False
+      end
+      object tbRedOffset: TTrackBar
+        Left = 110
+        Height = 25
+        Top = 140
+        Width = 260
+        Max = 255
+        Min = -255
+        Position = 0
+        TabOrder = 6
+      end
+      object lblGreenOffset: TLabel
+        Left = 10
+        Height = 15
+        Top = 175
+        Width = 80
+        Caption = 'Green Offset:'
+        ParentColor = False
+      end
+      object tbGreenOffset: TTrackBar
+        Left = 110
+        Height = 25
+        Top = 170
+        Width = 260
+        Max = 255
+        Min = -255
+        Position = 0
+        TabOrder = 7
+      end
+      object lblBlueOffset: TLabel
+        Left = 10
+        Height = 15
+        Top = 205
+        Width = 70
+        Caption = 'Blue Offset:'
+        ParentColor = False
+      end
+      object tbBlueOffset: TTrackBar
+        Left = 110
+        Height = 25
+        Top = 200
+        Width = 260
+        Max = 255
+        Min = -255
+        Position = 0
+        TabOrder = 8
+      end
+      object chkInvertRed: TCheckBox
+        Left = 10
+        Height = 19
+        Top = 240
+        Width = 90
+        Caption = 'Inverter Red'
+        TabOrder = 9
+      end
+      object chkInvertGreen: TCheckBox
+        Left = 130
+        Height = 19
+        Top = 240
+        Width = 100
+        Caption = 'Inverter Green'
+        TabOrder = 10
+      end
+      object chkInvertBlue: TCheckBox
+        Left = 250
+        Height = 19
+        Top = 240
+        Width = 90
+        Caption = 'Inverter Blue'
+        TabOrder = 11
+      end
+      object ResetBtn: TButton
+        Left = 10
+        Height = 30
+        Top = 280
+        Width = 360
+        Caption = 'Resetar Valores Padrão (ResetDefaults)'
+        TabOrder = 12
+        OnClick = ResetBtnClick
+      end
+    end
+  end
+  object pnlClient: TPanel
+    Left = 420
+    Height = 650
+    Top = 0
+    Width = 560
+    Align = alClient
+    BevelOuter = bvNone
+    ClientHeight = 650
+    ClientWidth = 560
+    TabOrder = 1
+    object pnlImages: TPanel
+      Left = 0
+      Height = 400
+      Top = 0
+      Width = 560
+      Align = alTop
+      BevelOuter = bvNone
+      ClientHeight = 400
+      ClientWidth = 560
+      TabOrder = 0
+      object imgOriginal: TImage
+        Left = 10
+        Height = 340
+        Top = 30
+        Width = 260
+        Proportional = True
+        Stretch = True
+      end
+      object imgProcessed: TImage
+        Left = 290
+        Height = 340
+        Top = 30
+        Width = 260
+        Proportional = True
+        Stretch = True
+      end
+      object lblOriginal: TLabel
+        Left = 10
+        Height = 15
+        Top = 10
+        Width = 100
+        Caption = 'Imagem Original:'
+        Font.Style = [fsBold]
+        ParentColor = False
+      end
+      object lblProcessed: TLabel
+        Left = 290
+        Height = 15
+        Top = 10
+        Width = 120
+        Caption = 'Imagem Processada:'
+        Font.Style = [fsBold]
+        ParentColor = False
+      end
+    end
+    object pnlBottom: TPanel
+      Left = 0
+      Height = 250
+      Top = 400
+      Width = 560
+      Align = alClient
+      BevelOuter = bvNone
+      ClientHeight = 250
+      ClientWidth = 560
+      TabOrder = 1
+      object memoLog: TMemo
+        Left = 10
+        Height = 230
+        Top = 10
+        Width = 540
+        Align = alClient
+        BorderSpacing.Around = 10
+        ReadOnly = True
+        ScrollBars = ssAutoBoth
+        TabOrder = 0
+      end
+    end
+  end
+  object OpenDialog1: TOpenDialog
+    Filter = 'Imagens (*.png;*.jpg;*.jpeg;*.bmp)|*.png;*.jpg;*.jpeg;*.bmp'
+    Left = 450
+    Top = 200
+  end
+  object SaveDialog1: TSaveDialog
+    Filter = 'JPEG (*.jpg)|*.jpg|PNG (*.png)|*.png|BMP (*.bmp)|*.bmp'
+    Left = 520
+    Top = 200
+  end
+end
