@@ -36,7 +36,7 @@ AI Native Vision
 | Componente | Unit | Status | Descrição |
 |---|---|---|---|
 | `TAIOpenCV` | `aiopencv.pas` | Beta | Processamento básico via backend Python e carregamento parcial de runtime nativo OpenCV |
-| `TAIFrameProcessor` | `aiframeprocessor.pas` | Experimental | Estrutura de processamento de frames em evolução |
+| `TAIFrameProcessor` | `aiframeprocessor.pas` | Beta | Pré-processador nativo de imagens para Lazarus/FPC, capaz de redimensionar, converter para grayscale e manipular canais RGB |
 | `TAIFaceTracker` | `aifacetracker.pas` | Experimental | Rastreamento por template matching/SAD em `TBitmap`; não é detector facial semântico |
 | `TAIMotionTracker` | `aimotiontracker.pas` | Experimental | Detecção de movimento por variação de luminância entre bitmaps |
 | `TAIImageInfo` | `aiimageinfo.pas` | Experimental | Extração nativa de metadados e contagem de pixels de imagem |
@@ -272,6 +272,7 @@ pacote/samples/AI Vision/opencv_image_real_demo/
 Samples previstos/documentados no README principal:
 
 ```text
+pacote/samples/AI Vision/aiframeprocessor_demo/
 pacote/samples/AI Native Vision/camera_capture_demo/
 pacote/samples/AI Native Vision/native_image_filter_demo/
 pacote/samples/AI Native Vision/motion_tracker_demo/
