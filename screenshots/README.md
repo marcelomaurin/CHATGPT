@@ -31,3 +31,7 @@
 ## Pose Detector Demo
 
 ![Pose Detector Demo](pose_detector_demo.jpg)
+
+## TAIFrameProcessor Demo
+
+![TAIFrameProcessor Demo](TAIFrameProcessor%20Demo.jpg)
