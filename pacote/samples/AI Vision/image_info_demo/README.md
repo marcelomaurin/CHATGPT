@@ -1,14 +1,46 @@
-# Image Info Demo (aiimageinfo)
+# TAIImageInfo Demo
 
-This sample project demonstrates the usage of component `aiimageinfo` from the `openai_vision` package.
+This demo shows how to use `TAIImageInfo` to read basic image information natively in Lazarus/FPC.
 
-## Features Illustrated
-- Exercises at least 3 component properties.
-- Calls at least 2 methods.
-- Supports **Simulation Mode** (enabled by default) to allow immediate verification of components without hardware, brokers, API credentials, or local Python installations.
+## Features
 
-## How to Build & Run
-1. Open this project folder in Lazarus.
-2. Verify package `openai_vision` is available or referenced.
-3. Build the project (`Ctrl+F9` or run `lazbuild.exe`).
-4. Execute and click "Execute Test".
+- Load image file
+- Preview image
+- Read width and height
+- Count pixels
+- Detect format by extension
+- Show file size
+- Show aspect ratio
+- Show orientation
+- Generate text report
+
+## Component
+
+Unit:
+
+```pascal
+aiimageinfo
+```
+
+Main class:
+
+```pascal
+TAIImageInfo
+```
+
+## Usage
+
+```pascal
+if AIImageInfo1.LoadInfoFromFile('sample.png') then
+  Memo1.Lines.Text := AIImageInfo1.AsText
+else
+  Memo1.Lines.Text := AIImageInfo1.LastError;
+```
+
+## Requirements
+
+* Lazarus
+* Free Pascal
+* No Python
+* No OpenCV
+* No external DLL

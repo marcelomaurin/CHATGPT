@@ -2,7 +2,7 @@
 
 ## Finalidade
 
-`TAIImageInfo` extrai informações básicas de imagens de forma nativa em Lazarus/Free Pascal.
+`TAIImageInfo` extrai informações técnicas e metadados de imagens de forma nativa em Lazarus/Free Pascal, sem depender de Python, OpenCV ou DLLs externas.
 
 ## Unit
 
@@ -32,28 +32,44 @@ Beta
 
 | Propriedade | Descrição |
 |---|---|
-| `FileName` | Arquivo de imagem analisado, quando aplicável |
-| `Width` | Largura da imagem |
-| `Height` | Altura da imagem |
-| `PixelCount` | Total de pixels |
-| `LastError` | Último erro registrado |
-| `LastResult` | Resultado textual da análise |
+| `Width` | Largura da imagem em pixels |
+| `Height` | Altura da imagem em pixels |
+| `PixelCount` | Quantidade total de pixels (`Width * Height`) |
+| `FileName` | Nome do arquivo de imagem carregado |
+| `FileExists` | Indica se o arquivo correspondente existe no disco |
+| `FileSizeBytes` | Tamanho do arquivo em bytes |
+| `Extension` | Extensão do arquivo de imagem (ex: `.png`) |
+| `FormatName` | Formato da imagem detectado (ex: `PNG`, `JPEG`, `BMP`) |
+| `AspectRatio` | Proporção da imagem (`Width / Height`) |
+| `MegaPixels` | Resolução da imagem em Megapixels |
+| `Orientation` | Orientação da imagem (`ioSquare`, `ioLandscape`, `ioPortrait`) |
+| `IsLoaded` | Indica se as informações foram carregadas com sucesso |
+| `SourceKind` | Tipo de origem carregada (`iskNone`, `iskFile`, `iskBitmap`, `iskPicture`) |
 
 ## Métodos principais
 
 | Método | Descrição |
 |---|---|
-| `LoadFromFile` | Carrega e analisa arquivo de imagem |
-| `AnalyzeBitmap` | Analisa um `TBitmap`, quando disponível |
-| `Clear` | Limpa estado interno, quando disponível |
+| `ClearInfo` | Limpa todas as informações e erros do componente |
+| `LoadInfoFromFile` | Carrega e analisa metadados a partir de um arquivo físico |
+| `LoadInfoFromBitmap` | Extrai informações a partir de um objeto `TBitmap` |
+| `LoadInfoFromPicture` | Extrai informações a partir de um objeto `TPicture` |
+| `AsText` | Retorna um relatório textual formatado |
+| `AsJSON` | Retorna as propriedades serializadas em JSON válido |
+| `GetDiagnosticReport` | Retorna o relatório textual de diagnóstico |
+| `OrientationAsString` | Retorna a orientação como string |
+| `SourceKindAsString` | Retorna a origem como string |
 
 ## Exemplo
 
 ```pascal
 procedure TForm1.Button1Click(Sender: TObject);
 begin
-  if AIImageInfo1.LoadFromFile('imagem.bmp') then
-    ShowMessage(Format('%dx%d', [AIImageInfo1.Width, AIImageInfo1.Height]))
+  if AIImageInfo1.LoadInfoFromFile('imagem.png') then
+  begin
+    Memo1.Lines.Text := AIImageInfo1.AsText;
+    ShowMessage('JSON: ' + AIImageInfo1.AsJSON);
+  end
   else
     ShowMessage(AIImageInfo1.LastError);
 end;
@@ -61,5 +77,5 @@ end;
 
 ## Limitações
 
-* Focado em metadados simples.
-* Não substitui análise avançada de imagem.
+* Focado em metadados técnicos estruturais rápidos.
+* Não processa pixels ou altera a imagem.

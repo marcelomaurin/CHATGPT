@@ -39,7 +39,7 @@ AI Native Vision
 | `TAIFrameProcessor` | `aiframeprocessor.pas` | Beta | Pré-processador nativo de imagens para Lazarus/FPC, capaz de redimensionar, converter para grayscale e manipular canais RGB |
 | `TAIFaceTracker` | `aifacetracker.pas` | Experimental | Rastreamento por template matching/SAD em `TBitmap`; não é detector facial semântico |
 | `TAIMotionTracker` | `aimotiontracker.pas` | Experimental | Detecção de movimento por variação de luminância entre bitmaps |
-| `TAIImageInfo` | `aiimageinfo.pas` | Experimental | Extração nativa de metadados e contagem de pixels de imagem |
+| `TAIImageInfo` | `aiimageinfo.pas` | Beta | Extração nativa de metadados e contagem de pixels de imagem |
 | `TAIFrameBuffer` | `aiframebuffer.pas` | Experimental | Buffer circular de frames em memória para processamento de vídeo |
 | `TAINativeImageFilter` | `ainativeimagefilter.pas` | Experimental | Filtros nativos: cinza, threshold, inverter, resize e blur box |
 | `TAIFrameDiff` | `aiframediff.pas` | Experimental | Geração nativa de diferença absoluta entre frames |
