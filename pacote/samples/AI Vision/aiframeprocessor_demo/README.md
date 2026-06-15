@@ -14,3 +14,6 @@ This sample project demonstrates the usage of component `TAIFrameProcessor` from
 1. Open `aiframeprocessor_demo.lpi` in Lazarus.
 2. Build the project (`Ctrl+F9` or run `lazbuild.exe`).
 3. Launch, load any local image, select desired channel parameters, and click "Processar Frame".
+
+## Interface
+![TAIFrameProcessor Demo](../../../../screenshots/TAIFrameProcessor%20Demo.jpg)
