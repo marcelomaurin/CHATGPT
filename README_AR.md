@@ -630,6 +630,12 @@
 
 عرض لتحويل النص إلى كلام.
 
+### Disk Tree AI Dataset Demo
+
+![Disk Tree AI Dataset Demo](screenshots/disk_tree_ai_dataset_demo.jpg)
+
+مسح غير متزامن لنظام الملفات وإعداد مخزون مجموعة بيانات الذكاء الاصطناعي.
+
 ---
 
 ## القيود المعروفة

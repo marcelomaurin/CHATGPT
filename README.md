@@ -252,6 +252,58 @@ Samples nativos em validação/documentação:
 
 ---
 
+
+---
+
+## Screenshots
+
+> As imagens abaixo demonstram recursos já testados ou atualmente em desenvolvimento.
+> Componentes novos podem não ter ainda demonstrações visuais completas.
+
+### CNN Demo
+
+![CNN Demo](screenshots/cnn_demo.jpg)
+
+Demonstração de classificação de imagens.
+
+### Math Input / Output Demo
+
+![Math Input Output Demo](screenshots/math_input_output_demo.jpg)
+
+Demonstração de componentes matemáticos.
+
+### Python Connector Demo
+
+![Python Demo](screenshots/python_demo.jpg)
+
+Demonstração de integração com Python.
+
+### SOM Demo
+
+![SOM Demo](screenshots/som_demo.jpg)
+
+Demonstração de mapa auto-organizado.
+
+### Sound Filters Demo
+
+![Sound Filters](screenshots/sound_filters.jpg)
+
+Demonstração de filtros de som.
+
+### Voice Synthesizer Demo
+
+![Voice Synthesizer](screenshots/voicesynthesizer.jpg)
+
+Demonstração de síntese de voz.
+
+### Disk Tree AI Dataset Demo
+
+![Disk Tree AI Dataset Demo](screenshots/disk_tree_ai_dataset_demo.jpg)
+
+Varredura assíncrona do sistema de arquivos e preparação do inventário de datasets de IA.
+
+---
+
 ## Limitações conhecidas
 
 * O projeto ainda está em desenvolvimento.

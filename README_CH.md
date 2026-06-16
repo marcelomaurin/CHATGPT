@@ -631,6 +631,12 @@ Python 集成演示。
 
 语音合成演示。
 
+### Disk Tree AI Dataset Demo
+
+![Disk Tree AI Dataset Demo](screenshots/disk_tree_ai_dataset_demo.jpg)
+
+异步文件系统扫描和 AI 数据集清单准备。
+
 ---
 
 ## 已知限制

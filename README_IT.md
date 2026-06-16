@@ -630,6 +630,12 @@ Dimostrazione dei filtri audio.
 
 Dimostrazione della sintesi vocale.
 
+### Disk Tree AI Dataset Demo
+
+![Disk Tree AI Dataset Demo](screenshots/disk_tree_ai_dataset_demo.jpg)
+
+Scansione asincrona del file system e preparazione dell'inventario del dataset IA.
+
 ---
 
 ## Limitazioni note

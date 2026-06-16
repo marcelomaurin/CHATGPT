@@ -636,6 +636,12 @@ Python 統合デモ。
 
 音声合成デモ。
 
+### Disk Tree AI Dataset Demo
+
+![Disk Tree AI Dataset Demo](screenshots/disk_tree_ai_dataset_demo.jpg)
+
+非同期ファイルシステムスキャンとAIデータセットインベントリの準備。
+
 ---
 
 ## 既知の制限

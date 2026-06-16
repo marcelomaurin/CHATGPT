@@ -630,6 +630,12 @@ Sound filter demonstration.
 
 Text-to-speech synthesis demonstration.
 
+### Disk Tree AI Dataset Demo
+
+![Disk Tree AI Dataset Demo](screenshots/disk_tree_ai_dataset_demo.jpg)
+
+Asynchronous filesystem scanning and AI dataset inventory preparation.
+
 ---
 
 ## Known Limitations

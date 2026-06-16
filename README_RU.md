@@ -632,6 +632,12 @@ OFDM-компонент с использованием FFT/IFFT.
 
 Демонстрация синтеза речи.
 
+### Disk Tree AI Dataset Demo
+
+![Disk Tree AI Dataset Demo](screenshots/disk_tree_ai_dataset_demo.jpg)
+
+Асинхронное сканирование файловой системы и подготовка инвентаря набора данных ИИ.
+
 ---
 
 ## Известные ограничения
