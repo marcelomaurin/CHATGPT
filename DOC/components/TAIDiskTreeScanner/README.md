@@ -19,7 +19,7 @@ ai_files.lpk
 ## Aba na IDE
 
 ```text
-AI Native Vision
+AI Utilities
 ```
 
 ## Status
