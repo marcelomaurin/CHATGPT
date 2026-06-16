@@ -1,0 +1,250 @@
+object frmDocFilesManagerDemo: TfrmDocFilesManagerDemo
+  Left = 320
+  Height = 600
+  Top = 150
+  Width = 850
+  Caption = 'AI_DOCFILESMANAGER Demo'
+  ClientHeight = 600
+  ClientWidth = 850
+  OnCreate = FormCreate
+  LCLVersion = '3.0.0.0'
+  object lblStoragePath: TLabel
+    Left = 16
+    Height = 15
+    Top = 16
+    Width = 71
+    Caption = 'Storage Path:'
+    ParentColor = False
+  end
+  object edtStoragePath: TEdit
+    Left = 16
+    Height = 23
+    Top = 35
+    Width = 450
+    TabOrder = 0
+  end
+  object btnSelectPath: TButton
+    Left = 475
+    Height = 25
+    Top = 34
+    Width = 75
+    Caption = 'Select...'
+    OnClick = btnSelectPathClick
+    TabOrder = 1
+  end
+  object btnInitialize: TButton
+    Left = 560
+    Height = 25
+    Top = 34
+    Width = 100
+    Caption = 'Initialize'
+    OnClick = btnInitializeClick
+    TabOrder = 2
+  end
+  object lblGrupo: TLabel
+    Left = 16
+    Height = 15
+    Top = 75
+    Width = 36
+    Caption = 'Grupo:'
+    ParentColor = False
+  end
+  object edtGrupo: TEdit
+    Left = 16
+    Height = 23
+    Top = 95
+    Width = 150
+    TabOrder = 3
+  end
+  object btnAddGrupo: TButton
+    Left = 175
+    Height = 25
+    Top = 94
+    Width = 40
+    Caption = '+'
+    OnClick = btnAddGrupoClick
+    TabOrder = 4
+  end
+  object btnDelGrupo: TButton
+    Left = 220
+    Height = 25
+    Top = 94
+    Width = 40
+    Caption = '-'
+    OnClick = btnDelGrupoClick
+    TabOrder = 5
+  end
+  object btnListGrupos: TButton
+    Left = 265
+    Height = 25
+    Top = 94
+    Width = 60
+    Caption = 'List'
+    OnClick = btnListGruposClick
+    TabOrder = 6
+  end
+  object lstGrupos: TListBox
+    Left = 16
+    Height = 150
+    Top = 130
+    Width = 309
+    ItemHeight = 0
+    OnSelectionChange = lstGruposSelectionChange
+    TabOrder = 7
+  end
+  object lblSubGrupo: TLabel
+    Left = 340
+    Height = 15
+    Top = 75
+    Width = 56
+    Caption = 'SubGrupo:'
+    ParentColor = False
+  end
+  object edtSubGrupo: TEdit
+    Left = 340
+    Height = 23
+    Top = 95
+    Width = 150
+    TabOrder = 8
+  end
+  object btnAddSubGrupo: TButton
+    Left = 500
+    Height = 25
+    Top = 94
+    Width = 40
+    Caption = '+'
+    OnClick = btnAddSubGrupoClick
+    TabOrder = 9
+  end
+  object btnDelSubGrupo: TButton
+    Left = 545
+    Height = 25
+    Top = 94
+    Width = 40
+    Caption = '-'
+    OnClick = btnDelSubGrupoClick
+    TabOrder = 10
+  end
+  object btnListSubGrupos: TButton
+    Left = 590
+    Height = 25
+    Top = 94
+    Width = 60
+    Caption = 'List'
+    OnClick = btnListSubGruposClick
+    TabOrder = 11
+  end
+  object lstSubGrupos: TListBox
+    Left = 340
+    Height = 150
+    Top = 130
+    Width = 310
+    ItemHeight = 0
+    OnSelectionChange = lstSubGruposSelectionChange
+    TabOrder = 12
+  end
+  object lblArquivos: TLabel
+    Left = 665
+    Height = 15
+    Top = 75
+    Width = 49
+    Caption = 'Arquivos:'
+    ParentColor = False
+  end
+  object btnUploadFile: TButton
+    Left = 665
+    Height = 25
+    Top = 94
+    Width = 80
+    Caption = 'Upload File'
+    OnClick = btnUploadFileClick
+    TabOrder = 13
+  end
+  object btnListFiles: TButton
+    Left = 750
+    Height = 25
+    Top = 94
+    Width = 80
+    Caption = 'List Files'
+    OnClick = btnListFilesClick
+    TabOrder = 14
+  end
+  object lstFiles: TListBox
+    Left = 665
+    Height = 150
+    Top = 130
+    Width = 165
+    ItemHeight = 0
+    TabOrder = 15
+  end
+  object btnDeleteFile: TButton
+    Left = 665
+    Height = 25
+    Top = 290
+    Width = 80
+    Caption = 'Delete File'
+    OnClick = btnDeleteFileClick
+    TabOrder = 16
+  end
+  object btnGetDocument: TButton
+    Left = 16
+    Height = 25
+    Top = 290
+    Width = 120
+    Caption = 'Get Document'
+    OnClick = btnGetDocumentClick
+    TabOrder = 17
+  end
+  object btnGetFullDocument: TButton
+    Left = 145
+    Height = 25
+    Top = 290
+    Width = 150
+    Caption = 'Get Full Document'
+    OnClick = btnGetFullDocumentClick
+    TabOrder = 18
+  end
+  object lblLog: TLabel
+    Left = 16
+    Height = 15
+    Top = 330
+    Width = 23
+    Caption = 'Log:'
+    ParentColor = False
+  end
+  object memoLog: TMemo
+    Left = 16
+    Height = 200
+    Top = 350
+    Width = 814
+    ReadOnly = True
+    ScrollBars = ssAutoBoth
+    TabOrder = 19
+  end
+  object btnClearLog: TButton
+    Left = 16
+    Height = 25
+    Top = 560
+    Width = 100
+    Caption = 'Clear Log'
+    OnClick = btnClearLogClick
+    TabOrder = 20
+  end
+  object OpenDialog1: TOpenDialog
+    Title = 'Selecionar arquivo para upload'
+    left = 720
+    top = 16
+  end
+  object SelectDirectoryDialog1: TSelectDirectoryDialog
+    Title = 'Selecionar diretório de storage'
+    left = 770
+    top = 16
+  end
+  object AI_DOCFILESMANAGER1: TAI_DOCFILESMANAGER
+    AutoCreateDirs = True
+    AllowOverwrite = False
+    MaxGroupNameLength = 18
+    left = 670
+    top = 16
+  end
+end

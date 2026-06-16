@@ -8,13 +8,14 @@ unit ai_files;
 interface
 
 uses
-  aidiskitem, aidisktreescanner, LazarusPackageIntf;
+  aidiskitem, aidisktreescanner, ai_docfilesmanager, LazarusPackageIntf;
 
 implementation
 
 procedure Register;
 begin
   RegisterUnit('aidisktreescanner', @aidisktreescanner.Register);
+  RegisterUnit('ai_docfilesmanager', @ai_docfilesmanager.Register);
 end;
 
 initialization

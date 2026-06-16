@@ -25,6 +25,11 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="aidisktreescanner"/>
       </Item>
+      <Item>
+        <Filename Value="ai_docfilesmanager.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="ai_docfilesmanager"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>
