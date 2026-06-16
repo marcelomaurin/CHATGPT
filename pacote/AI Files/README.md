@@ -1,7 +1,7 @@
-# 🧠 Lazarus AI Suite — Tab: `AI`
+# 📁 Lazarus AI Suite — Tab: `AI Files`
 
 > [!NOTE]
-> Core Artificial Intelligence & Neural Connectivity components.
+> Directory scanning and structured document management for RAG and AI dataset preparation.
 
 Please select your preferred language for the component reference manual:
 

@@ -1,7 +1,7 @@
-# 🧠 Documentation for IA Tab
+# 🧠 Documentation for AI Tab
 
 > [!NOTE]
-> This folder contains the Lazarus components suite under the **IA** tab.
+> This folder contains the Lazarus components suite under the **AI** tab.
 
 ## Artificial Intelligence Core and Neural Connectivity.
 Provides connectivity to language models (OpenAI) and implements pure Pascal MLP neural networks.

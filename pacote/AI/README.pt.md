@@ -1,7 +1,7 @@
-# 🧠 Documentação da Aba IA
+# 🧠 Documentação da Aba AI
 
 > [!NOTE]
-> Esta pasta contém a suíte de componentes do Lazarus sob a aba **IA**.
+> Esta pasta contém a suíte de componentes do Lazarus sob a aba **AI**.
 
 ## Núcleo de Inteligência Artificial e Conectividade Neural.
 Fornece conexões a modelos de linguagem (OpenAI) e implementa redes neurais MLP de Pascal puro.

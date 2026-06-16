@@ -2,7 +2,7 @@
 import os
 
 tabs = {
-    'IA': {'icon': '🧠', 'desc': 'Core Artificial Intelligence & Neural Connectivity components.'},
+    'AI': {'icon': '🧠', 'desc': 'Core Artificial Intelligence & Neural Connectivity components.'},
     'AI Graph': {'icon': '📊', 'desc': 'Explainable weighted graph text classification models.'},
     'AI Agent': {'icon': '🤖', 'desc': 'Autonomous cognitive execution models and hardware pipelines.'},
     'AI Filtros Sonoros': {'icon': '🎵', 'desc': 'Linear wave filtering and noise-reduction signal processors.'},
@@ -11,7 +11,8 @@ tabs = {
     'AI Input': {'icon': '🔌', 'desc': 'Sensors, cameras, Modbus, MQTT, CLP gateways, and OS-level inputs.'},
     'AI Output': {'icon': '📄', 'desc': 'Automated formal PDF, Word, Excel, and TXT document generators.'},
     'AI Schedule': {'icon': '📅', 'desc': 'Advanced cron-based periodic task engines.'},
-    'AI Voice': {'icon': '🗣️', 'desc': 'Native multi-timbre Text-To-Speech (TTS) synthesizers.'}
+    'AI Voice': {'icon': '🗣️', 'desc': 'Native multi-timbre Text-To-Speech (TTS) synthesizers.'},
+    'AI Files': {'icon': '📁', 'desc': 'Directory scanning and structured document management for RAG and AI dataset preparation.'}
 }
 
 def generate_tab_indices():

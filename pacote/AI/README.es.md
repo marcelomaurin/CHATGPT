@@ -1,7 +1,7 @@
-# 🧠 Documentación de la Pestaña IA
+# 🧠 Documentación de la Pestaña AI
 
 > [!NOTE]
-> Esta carpeta contiene la suite de componentes de Lazarus bajo la pestaña **IA**.
+> Esta carpeta contiene la suite de componentes de Lazarus bajo la pestaña **AI**.
 
 ## Núcleo de Inteligencia Artificial y Conectividad Neural.
 Proporciona conexiones a modelos de lenguaje (OpenAI) e implementa redes neurais MLP nativas en Pascal.

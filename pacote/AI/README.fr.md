@@ -1,7 +1,7 @@
-# 🧠 Documentation de l'onglet IA
+# 🧠 Documentation de l'onglet AI
 
 > [!NOTE]
-> Ce dossier contient la suite de composants Lazarus sous l'onglet **IA**.
+> Ce dossier contient la suite de composants Lazarus sous l'onglet **AI**.
 
 ## Noyau d'Intelligence Artificielle et Connectivité Neurone.
 Fournit une connectivité aux modèles de langage (OpenAI) e implémente des réseaux de neurones MLP en pur Pascal.

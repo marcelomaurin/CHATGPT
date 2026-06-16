@@ -83,7 +83,7 @@ langs = {
 }
 
 tab_data = {
-    'IA': {
+    'AI': {
         'icon': '🧠',
         'pt': {
             'desc': 'Núcleo de Inteligência Artificial e Conectividade Neural.',
@@ -738,6 +738,57 @@ tab_data = {
             'info': 'محركات أصلية لتحويل النصوص إلى كلام منطوق (TTS) بنبرات صوتية متعددة.',
             'comps': [
                 {'name': 'TAIVoiceSynthesizer', 'desc': 'مخلق الصوت والنصوص المنطوقة.', 'props': 'Pitch, Rate, Volume', 'methods': 'Speak(const AText: string): Boolean', 'role': 'تخليق كلام منطوق طبيعي من نصوص التحليلات المنتجة بواسطة الوكيل.'}
+            ]
+        }
+    },
+    'AI Files': {
+        'icon': '📁',
+        'pt': {
+            'desc': 'Escaneamento de Arquivos e Gerenciamento de Documentação.',
+            'info': 'Componentes para varredura de diretórios locais e gerenciamento estruturado de documentos (Groups/Subgroups) para indexação e RAG.',
+            'comps': [
+                {'name': 'TAIDiskTreeScanner', 'desc': 'Escaneador de árvore de arquivos local.', 'props': 'TargetFolder, ShowProgress, IncludeSubfolders', 'methods': 'Scan, StopScan', 'role': 'Varrer diretórios locais e indexar arquivos para preparação de datasets de IA.'},
+                {'name': 'TAI_DOCFILESMANAGER', 'desc': 'Gerenciador físico de arquivos e documentações.', 'props': 'StoragePath, Groups, AutoCreateDirs, AllowOverwrite, MaxGroupNameLength', 'methods': 'Initialize, AddGrupo, AddSubGrupo, UploadSubGrupo, GetDocument, GetFullDocument', 'role': 'Organizar arquivos de documentação locais para uso com RAG e treinamento.'}
+            ]
+        },
+        'en': {
+            'desc': 'File Scanning and Documentation Management.',
+            'info': 'Components for local directory scanning and structured document management (Groups/Subgroups) for indexing and RAG.',
+            'comps': [
+                {'name': 'TAIDiskTreeScanner', 'desc': 'Local file tree scanner.', 'props': 'TargetFolder, ShowProgress, IncludeSubfolders', 'methods': 'Scan, StopScan', 'role': 'Scan local directories and index files to prepare AI datasets.'},
+                {'name': 'TAI_DOCFILESMANAGER', 'desc': 'Physical document and file manager.', 'props': 'StoragePath, Groups, AutoCreateDirs, AllowOverwrite, MaxGroupNameLength', 'methods': 'Initialize, AddGrupo, AddSubGrupo, UploadSubGrupo, GetDocument, GetFullDocument', 'role': 'Organize local documentation files for RAG and training.'}
+            ]
+        },
+        'es': {
+            'desc': 'Escaneo de Archivos y Gestión de Documentación.',
+            'info': 'Componentes para el escaneo de directorios locales y la gestión estructurada de documentos (Groups/Subgroups) para indexación y RAG.',
+            'comps': [
+                {'name': 'TAIDiskTreeScanner', 'desc': 'Escáner de árbol de archivos local.', 'props': 'TargetFolder, ShowProgress, IncludeSubfolders', 'methods': 'Scan, StopScan', 'role': 'Escanear directorios locales e indexar archivos para preparar datasets de IA.'},
+                {'name': 'TAI_DOCFILESMANAGER', 'desc': 'Gestor físico de archivos y documentaciones.', 'props': 'StoragePath, Groups, AutoCreateDirs, AllowOverwrite, MaxGroupNameLength', 'methods': 'Initialize, AddGrupo, AddSubGrupo, UploadSubGrupo, GetDocument, GetFullDocument', 'role': 'Organizar archivos de documentación locales para su uso con RAG y entrenamiento.'}
+            ]
+        },
+        'fr': {
+            'desc': 'Scan de Fichiers et Gestion Documentaire.',
+            'info': 'Composants pour l\'analyse de répertoires locaux et la gestion structurée des documents (Groups/Subgroups) pour l\'indexation et le RAG.',
+            'comps': [
+                {'name': 'TAIDiskTreeScanner', 'desc': 'Scanner local d\'arborescence de fichiers.', 'props': 'TargetFolder, ShowProgress, IncludeSubfolders', 'methods': 'Scan, StopScan', 'role': 'Scanner les répertoires locaux et indexer les fichiers pour préparer les jeux de données IA.'},
+                {'name': 'TAI_DOCFILESMANAGER', 'desc': 'Gestionnaire physique de fichiers et de documents.', 'props': 'StoragePath, Groups, AutoCreateDirs, AllowOverwrite, MaxGroupNameLength', 'methods': 'Initialize, AddGrupo, AddSubGrupo, UploadSubGrupo, GetDocument, GetFullDocument', 'role': 'Organiser les fichiers de documentation locaux pour le RAG et l\'entraînement.'}
+            ]
+        },
+        'it': {
+            'desc': 'Scansione File e Gestione Documentale.',
+            'info': 'Componenti per la scansione di directory locali e la gestione strutturata dei documenti (Groups/Subgroups) per indicizzazione e RAG.',
+            'comps': [
+                {'name': 'TAIDiskTreeScanner', 'desc': 'Scansionatore locale dell\'albero dei file.', 'props': 'TargetFolder, ShowProgress, IncludeSubfolders', 'methods': 'Scan, StopScan', 'role': 'Scansionare le directory locali e indicizzare i file per preparare i dataset di IA.'},
+                {'name': 'TAI_DOCFILESMANAGER', 'desc': 'Gestore fisico di file e documenti.', 'props': 'StoragePath, Groups, AutoCreateDirs, AllowOverwrite, MaxGroupNameLength', 'methods': 'Initialize, AddGrupo, AddSubGrupo, UploadSubGrupo, GetDocument, GetFullDocument', 'role': 'Organizzare i file di documentazione locali per l\'uso con RAG e addestramento.'}
+            ]
+        },
+        'ar': {
+            'desc': 'مسح الملفات وإدارة المستندات.',
+            'info': 'مكونات لمسح المجلدات المحلية وإدارة المستندات المنظمة (المجموعات والمجموعات الفرعية) للفهرسة وRAG.',
+            'comps': [
+                {'name': 'TAIDiskTreeScanner', 'desc': 'ماسح شجرة الملفات المحلية.', 'props': 'TargetFolder, ShowProgress, IncludeSubfolders', 'methods': 'Scan, StopScan', 'role': 'مسح المجلدات المحلية وفهرسة الملفات لإعداد مجموعات بيانات الذكاء الاصطناعي.'},
+                {'name': 'TAI_DOCFILESMANAGER', 'desc': 'مدير الملفات والمستندات المادية.', 'props': 'StoragePath, Groups, AutoCreateDirs, AllowOverwrite, MaxGroupNameLength', 'methods': 'Initialize, AddGrupo, AddSubGrupo, UploadSubGrupo, GetDocument, GetFullDocument', 'role': 'تنظيم ملفات التوثيق المحلية للاستخدام مع RAG والتدريب.'}
             ]
         }
     }

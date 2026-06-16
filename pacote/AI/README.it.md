@@ -1,7 +1,7 @@
-# 🧠 Documentazione della Scheda IA
+# 🧠 Documentazione della Scheda AI
 
 > [!NOTE]
-> Questa cartella contiene la suite di componenti Lazarus sotto la scheda **IA**.
+> Questa cartella contiene la suite di componenti Lazarus sotto la scheda **AI**.
 
 ## Nucleo di Intelligenza Artificiale e Connettività Neurale.
 Fornisce connettività ai modelli linguistici (OpenAI) e implementa reti neurali MLP in puro Pascal.
