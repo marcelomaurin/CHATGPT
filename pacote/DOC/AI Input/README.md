@@ -18,7 +18,7 @@ This package (`openai_input.lpk`) provides input and capture components for the 
 
 ## Sample
 
-`samples/IA Input/capture_source_demo/` — demonstrates all `TAICaptureSource` modes.
+`samples/AI Input/capture_source_demo/` — demonstrates all `TAICaptureSource` modes.
 
 ## Migration from v1.8.x
 

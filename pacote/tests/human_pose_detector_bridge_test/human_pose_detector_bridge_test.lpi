@@ -44,7 +44,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\..\AI Vision;..\..;..\..\IA;..\..\AI Graphic"/>
+      <OtherUnitFiles Value="..\..\AI Vision;..\..;..\..\AI;..\..\AI Graphic"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>

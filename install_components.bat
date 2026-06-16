@@ -88,6 +88,7 @@ call :install_package "pacote\packages\openai_output.lpk"
 call :install_package "pacote\packages\openai_input.lpk"
 call :install_package "pacote\packages\openai_image.lpk"
 call :install_package "pacote\packages\openai_simulation.lpk"
+call :install_package "pacote\componentes\ai_files\ai_files.lpk"
 goto :eof
 
 :install_all
@@ -103,6 +104,7 @@ call :install_package "pacote\packages\openai_industrial.lpk"
 call :install_package "pacote\packages\openai_graphic.lpk"
 call :install_package "pacote\packages\openai_agent.lpk"
 call :install_package "pacote\packages\openai_simulation.lpk"
+call :install_package "pacote\componentes\ai_files\ai_files.lpk"
 goto :eof
 
 :install_package

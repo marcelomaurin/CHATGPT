@@ -53,7 +53,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\..\..;..\..\..\IA;..\..\..\AI Graphic;..\..\..\AI Vision"/>
+      <OtherUnitFiles Value="..\..\..;..\..\..\AI;..\..\..\AI Graphic;..\..\..\AI Vision"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
   </CompilerOptions>

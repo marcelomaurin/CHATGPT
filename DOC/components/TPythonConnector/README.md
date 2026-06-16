@@ -9,7 +9,7 @@ Pode operar por processo externo ou por DLL/SO Python, dependendo da configuraç
 ## Unit
 
 ```pascal
-pacote/IA/pythonconnector.pas
+pacote/AI/pythonconnector.pas
 ```
 
 ## Pacote

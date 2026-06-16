@@ -7,7 +7,7 @@
 ## Unit
 
 ```pascal
-pacote/IA/neuralnetwork.pas
+pacote/AI/neuralnetwork.pas
 ```
 
 ## Pacote

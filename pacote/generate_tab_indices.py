@@ -3,15 +3,15 @@ import os
 
 tabs = {
     'IA': {'icon': '🧠', 'desc': 'Core Artificial Intelligence & Neural Connectivity components.'},
-    'IA Graph': {'icon': '📊', 'desc': 'Explainable weighted graph text classification models.'},
-    'IA Agent': {'icon': '🤖', 'desc': 'Autonomous cognitive execution models and hardware pipelines.'},
-    'IA Filtros Sonoros': {'icon': '🎵', 'desc': 'Linear wave filtering and noise-reduction signal processors.'},
-    'IA Image': {'icon': '🖼️', 'desc': 'High-performance computer vision matrix filters.'},
-    'IA Math': {'icon': '📐', 'desc': 'High-speed multi-threaded tensor algebra.'},
-    'IA Input': {'icon': '🔌', 'desc': 'Sensors, cameras, Modbus, MQTT, CLP gateways, and OS-level inputs.'},
-    'IA Output': {'icon': '📄', 'desc': 'Automated formal PDF, Word, Excel, and TXT document generators.'},
-    'IA Schedulle': {'icon': '📅', 'desc': 'Advanced cron-based periodic task engines.'},
-    'IA Voice': {'icon': '🗣️', 'desc': 'Native multi-timbre Text-To-Speech (TTS) synthesizers.'}
+    'AI Graph': {'icon': '📊', 'desc': 'Explainable weighted graph text classification models.'},
+    'AI Agent': {'icon': '🤖', 'desc': 'Autonomous cognitive execution models and hardware pipelines.'},
+    'AI Filtros Sonoros': {'icon': '🎵', 'desc': 'Linear wave filtering and noise-reduction signal processors.'},
+    'AI Image': {'icon': '🖼️', 'desc': 'High-performance computer vision matrix filters.'},
+    'AI Math': {'icon': '📐', 'desc': 'High-speed multi-threaded tensor algebra.'},
+    'AI Input': {'icon': '🔌', 'desc': 'Sensors, cameras, Modbus, MQTT, CLP gateways, and OS-level inputs.'},
+    'AI Output': {'icon': '📄', 'desc': 'Automated formal PDF, Word, Excel, and TXT document generators.'},
+    'AI Schedule': {'icon': '📅', 'desc': 'Advanced cron-based periodic task engines.'},
+    'AI Voice': {'icon': '🗣️', 'desc': 'Native multi-timbre Text-To-Speech (TTS) synthesizers.'}
 }
 
 def generate_tab_indices():

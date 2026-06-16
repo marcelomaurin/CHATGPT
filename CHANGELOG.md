@@ -27,17 +27,17 @@ Todas as alterações relevantes para a suíte de componentes Lazarus AI Suite s
   - `cskScreen` — captura de desktop com rastreamento opcional de mouse e teclado
   - `cskFile` — carregamento de frame a partir de arquivo de imagem (BMP, JPEG, PNG)
 - **`aicapturesource_icon.lrs`**: ícone de paleta para `TAICaptureSource` (sigla `CS`, cor verde `C_INPUT`)
-- **`capture_source_demo`** (`samples/IA Input/capture_source_demo/`): sample unificado demonstrando todos os 5 modos com preview compartilhado, log e 6 botões de ação
+- **`capture_source_demo`** (`samples/AI Input/capture_source_demo/`): sample unificado demonstrando todos os 5 modos com preview compartilhado, log e 6 botões de ação
 - **`DOC/AI Input/README.md`** e **`DOC/AI Input/TAICaptureSource.md`**: documentação completa do novo componente
 - **`CHANGELOG.md`** (`pacote/`): histórico de versões do pacote criado
 
 ### Removido
-- `IA Input/aicamera.pas` + ícone (`TAICameraInput`)
-- `IA Input/aicftvip.pas` + ícone (`TAICFTVIP`)
-- `IA Input/aioscapture.pas` + ícone (`TAIOSInputCapture`)
+- `AI Input/aicamera.pas` + ícone (`TAICameraInput`)
+- `AI Input/aicftvip.pas` + ícone (`TAICFTVIP`)
+- `AI Input/aioscapture.pas` + ícone (`TAIOSInputCapture`)
 - `samples/AI Vision/camera_capture_linux_demo/`
 - `samples/AI Native Vision/camera_capture_demo/`
-- `samples/IA Input/os_capture_demo/`
+- `samples/AI Input/os_capture_demo/`
 
 ### Modificado
 - **`openai_input.lpk`**: `aicapturesource` adicionado; `aicamera`, `aicftvip`, `aioscapture` removidos

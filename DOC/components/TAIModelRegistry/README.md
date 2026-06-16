@@ -9,7 +9,7 @@ Use quando a aplicação precisar manter uma lista central de modelos disponíve
 ## Unit
 
 ```pascal
-pacote/IA/aimodelregistry.pas
+pacote/AI/aimodelregistry.pas
 ```
 
 ## Pacote

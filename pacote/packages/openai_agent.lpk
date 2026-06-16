@@ -9,7 +9,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\IA;..\IA Agent;..\IA Voice;..\IA Filtros Sonoros;..\IA Image;..\IA Schedulle;..\IA Math;..\IA Input;..\IA Output;..\IA Graph;..\AI Graphic;..\AI Vision;.."/>
+        <OtherUnitFiles Value="..\AI;..\AI Agent;..\AI Voice;..\AI Filtros Sonoros;..\AI Image;..\AI Schedule;..\AI Math;..\AI Input;..\AI Output;..\AI Graph;..\AI Graphic;..\AI Vision;.."/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
@@ -17,17 +17,17 @@
     <License Value="OPEN SOURCE GPL3"/>
     <Files>
       <Item>
-        <Filename Value="..\IA Agent\aiagent.pas"/>
+        <Filename Value="..\AI Agent\aiagent.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiagent"/>
       </Item>
       <Item>
-        <Filename Value="..\IA Agent\aiagentsafety.pas"/>
+        <Filename Value="..\AI Agent\aiagentsafety.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiagentsafety"/>
       </Item>
       <Item>
-        <Filename Value="..\IA Agent\aiagent_executors.pas"/>
+        <Filename Value="..\AI Agent\aiagent_executors.pas"/>
         <UnitName Value="aiagent_executors"/>
       </Item>
     </Files>

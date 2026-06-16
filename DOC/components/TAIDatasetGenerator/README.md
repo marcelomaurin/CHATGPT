@@ -7,7 +7,7 @@
 ## Unit
 
 ```pascal
-pacote/IA/aidatasetgenerator.pas
+pacote/AI/aidatasetgenerator.pas
 ```
 
 ## Pacote

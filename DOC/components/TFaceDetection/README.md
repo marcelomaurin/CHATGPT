@@ -7,7 +7,7 @@
 ## Unit
 
 ```pascal
-pacote/IA/facedetection.pas
+pacote/AI/facedetection.pas
 ```
 
 ## Pacote

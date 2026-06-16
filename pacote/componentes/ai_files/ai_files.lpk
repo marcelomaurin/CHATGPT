@@ -9,7 +9,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\..\IA;..\..\IA Input;..\..\packages;..\.."/>
+        <OtherUnitFiles Value="..\..\AI;..\..\AI Input;..\..\packages;..\.."/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>

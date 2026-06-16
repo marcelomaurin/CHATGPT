@@ -7,7 +7,7 @@
 ## Unit
 
 ```pascal
-pacote/IA/aicodeassistant.pas
+pacote/AI/aicodeassistant.pas
 ```
 
 ## Pacote

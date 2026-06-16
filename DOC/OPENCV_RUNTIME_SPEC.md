@@ -276,7 +276,7 @@ Linux:
 Criar uma unit compartilhada, por exemplo:
 
 ```text
-pacote/IA/aiopencvruntime.pas
+pacote/AI/aiopencvruntime.pas
 ```
 
 Funções mínimas:

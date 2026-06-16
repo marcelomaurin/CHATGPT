@@ -9,7 +9,7 @@ Use em classificações simples, pré-processamento textual e demonstrações di
 ## Unit
 
 ```pascal
-pacote/IA/tokenizer.pas
+pacote/AI/tokenizer.pas
 ```
 
 ## Pacote

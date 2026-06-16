@@ -9,7 +9,7 @@ Use quando precisar organizar contexto, instruções, formato de resposta e cont
 ## Unit
 
 ```pascal
-pacote/IA/aipromptbuilder.pas
+pacote/AI/aipromptbuilder.pas
 ```
 
 ## Pacote

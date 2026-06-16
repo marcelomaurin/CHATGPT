@@ -9,7 +9,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\IA;..\IA Agent;..\IA Voice;..\IA Filtros Sonoros;..\IA Image;..\IA Schedulle;..\IA Math;..\IA Input;..\IA Output;..\IA Graph;..\AI Graphic;..\AI Vision;..\IA Industrial;..\IA Project;..\AI Simulation;..;..\python"/>
+        <OtherUnitFiles Value="..\AI;..\AI Agent;..\AI Voice;..\AI Filtros Sonoros;..\AI Image;..\AI Schedule;..\AI Math;..\AI Input;..\AI Output;..\AI Graph;..\AI Graphic;..\AI Vision;..\AI Industrial;..\AI Project;..\AI Simulation;..;..\python"/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
@@ -21,106 +21,106 @@
         <UnitName Value="funcoes"/>
       </Item>
       <Item>
-        <Filename Value="..\IA\aibase.pas"/>
+        <Filename Value="..\AI\aibase.pas"/>
         <UnitName Value="aibase"/>
       </Item>
       <Item>
-        <Filename Value="..\IA\aiplatform.pas"/>
+        <Filename Value="..\AI\aiplatform.pas"/>
         <UnitName Value="aiplatform"/>
       </Item>
       <Item>
-        <Filename Value="..\IA\airuntimepaths.pas"/>
+        <Filename Value="..\AI\airuntimepaths.pas"/>
         <UnitName Value="airuntimepaths"/>
       </Item>
       <Item>
-        <Filename Value="..\IA\ailibraryloader.pas"/>
+        <Filename Value="..\AI\ailibraryloader.pas"/>
         <UnitName Value="ailibraryloader"/>
       </Item>
       <Item>
-        <Filename Value="..\IA\aiprocessrunner.pas"/>
+        <Filename Value="..\AI\aiprocessrunner.pas"/>
         <UnitName Value="aiprocessrunner"/>
       </Item>
       <Item>
-        <Filename Value="..\IA\chatgpt.pas"/>
+        <Filename Value="..\AI\chatgpt.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="chatgpt"/>
       </Item>
       <Item>
-        <Filename Value="..\IA\tokenizer.pas"/>
+        <Filename Value="..\AI\tokenizer.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="tokenizer"/>
       </Item>
       <Item>
-        <Filename Value="..\IA\aicodeassistant.pas"/>
+        <Filename Value="..\AI\aicodeassistant.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aicodeassistant"/>
       </Item>
       <Item>
-        <Filename Value="..\IA\aipromptbuilder.pas"/>
+        <Filename Value="..\AI\aipromptbuilder.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aipromptbuilder"/>
       </Item>
       <Item>
-        <Filename Value="..\IA\aimodelregistry.pas"/>
+        <Filename Value="..\AI\aimodelregistry.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aimodelregistry"/>
       </Item>
       <Item>
-        <Filename Value="..\IA\aiwizardconfig.pas"/>
+        <Filename Value="..\AI\aiwizardconfig.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiwizardconfig"/>
       </Item>
       <Item>
-        <Filename Value="..\IA\frm_aiwizardconfig.pas"/>
+        <Filename Value="..\AI\frm_aiwizardconfig.pas"/>
         <UnitName Value="frm_aiwizardconfig"/>
       </Item>
       <Item>
-        <Filename Value="..\IA\dbtokenlist.pas"/>
+        <Filename Value="..\AI\dbtokenlist.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="dbtokenlist"/>
       </Item>
       <Item>
-        <Filename Value="..\IA\groupresponse.pas"/>
+        <Filename Value="..\AI\groupresponse.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="groupresponse"/>
       </Item>
       <Item>
-        <Filename Value="..\IA Schedulle\iaschedule.pas"/>
+        <Filename Value="..\AI Schedule\iaschedule.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="iaschedule"/>
       </Item>
       <Item>
-        <Filename Value="..\IA\aiproject.pas"/>
+        <Filename Value="..\AI\aiproject.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiproject"/>
       </Item>
       <Item>
-        <Filename Value="..\IA\aipipeline.pas"/>
+        <Filename Value="..\AI\aipipeline.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aipipeline"/>
       </Item>
       <Item>
-        <Filename Value="..\IA\pythonconnector.pas"/>
+        <Filename Value="..\AI\pythonconnector.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="pythonconnector"/>
       </Item>
       <Item>
-        <Filename Value="..\IA\facedetection.pas"/>
+        <Filename Value="..\AI\facedetection.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="facedetection"/>
       </Item>
       <Item>
-        <Filename Value="..\IA\yolodetect.pas"/>
+        <Filename Value="..\AI\yolodetect.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="yolodetect"/>
       </Item>
       <Item>
-        <Filename Value="..\IA\cnnclassifier.pas"/>
+        <Filename Value="..\AI\cnnclassifier.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="cnnclassifier"/>
       </Item>
       <Item>
-        <Filename Value="..\IA\lstmpredictor.pas"/>
+        <Filename Value="..\AI\lstmpredictor.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="lstmpredictor"/>
       </Item>

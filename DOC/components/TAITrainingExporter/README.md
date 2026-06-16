@@ -7,7 +7,7 @@
 ## Unit
 
 ```pascal
-pacote/IA Graph/aitrainingexporter.pas
+pacote/AI Graph/aitrainingexporter.pas
 ```
 
 ## Pacote

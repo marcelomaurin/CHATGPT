@@ -8,7 +8,7 @@ Detecção de 33 landmarks corporais (incluindo face, tronco, braços e pernas) 
 
 ## 2. Unit e Pacote Planejados
 
-- **Unit:** `pacote/IA/aihumanposedetector.pas` (Tipos em `pacote/IA/aihumanpose_types.pas`)
+- **Unit:** `pacote/AI/aihumanposedetector.pas` (Tipos em `pacote/AI/aihumanpose_types.pas`)
 - **Pacote:** `openai_vision.lpk`
 - **Aba na IDE:** `AI Vision`
 

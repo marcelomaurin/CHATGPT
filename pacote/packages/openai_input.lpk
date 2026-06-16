@@ -9,7 +9,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\IA;..\IA Agent;..\IA Voice;..\IA Filtros Sonoros;..\IA Image;..\IA Schedulle;..\IA Math;..\IA Input;..\IA Output;..\IA Graph;..\AI Graphic;..\AI Vision;.."/>
+        <OtherUnitFiles Value="..\AI;..\AI Agent;..\AI Voice;..\AI Filtros Sonoros;..\AI Image;..\AI Schedule;..\AI Math;..\AI Input;..\AI Output;..\AI Graph;..\AI Graphic;..\AI Vision;.."/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
@@ -17,46 +17,46 @@
     <License Value="OPEN SOURCE GPL3"/>
     <Files>
       <Item>
-        <Filename Value="..\IA Input\aiinput.pas"/>
+        <Filename Value="..\AI Input\aiinput.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiinput"/>
       </Item>
       <Item>
-        <Filename Value="..\IA Input\aicapturesource.pas"/>
+        <Filename Value="..\AI Input\aicapturesource.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aicapturesource"/>
       </Item>
       <Item>
-        <Filename Value="..\IA Input\aicapturesource_icon.lrs"/>
+        <Filename Value="..\AI Input\aicapturesource_icon.lrs"/>
         <Type Value="LRS"/>
       </Item>
       <Item>
-        <Filename Value="..\IA Input\aiwebserver.pas"/>
+        <Filename Value="..\AI Input\aiwebserver.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiwebserver"/>
       </Item>
       <Item>
-        <Filename Value="..\IA Input\aisockets.pas"/>
+        <Filename Value="..\AI Input\aisockets.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aisockets"/>
       </Item>
       <Item>
-        <Filename Value="..\IA Input\aiserial.pas"/>
+        <Filename Value="..\AI Input\aiserial.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiserial"/>
       </Item>
       <Item>
-        <Filename Value="..\IA Input\aiemail.pas"/>
+        <Filename Value="..\AI Input\aiemail.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiemail"/>
       </Item>
       <Item>
-        <Filename Value="..\IA Input\aimessenger.pas"/>
+        <Filename Value="..\AI Input\aimessenger.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aimessenger"/>
       </Item>
       <Item>
-        <Filename Value="..\IA Input\aichromiumbrowser.pas"/>
+        <Filename Value="..\AI Input\aichromiumbrowser.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aichromiumbrowser"/>
       </Item>

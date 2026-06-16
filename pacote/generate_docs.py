@@ -140,7 +140,7 @@ tab_data = {
             ]
         }
     },
-    'IA Graph': {
+    'AI Graph': {
         'icon': '📊',
         'pt': {
             'desc': 'Classificação de Texto por Mapas de Grafos Ponderados.',
@@ -185,7 +185,7 @@ tab_data = {
             ]
         }
     },
-    'IA Agent': {
+    'AI Agent': {
         'icon': '🤖',
         'pt': {
             'desc': 'Agentes Inteligentes Autônomos e Tomada de Decisão.',
@@ -242,7 +242,7 @@ tab_data = {
             ]
         }
     },
-    'IA Filtros Sonoros': {
+    'AI Filtros Sonoros': {
         'icon': '🎵',
         'pt': {
             'desc': 'Processamento de Sinais de Áudio e Filtros Digitais.',
@@ -287,7 +287,7 @@ tab_data = {
             ]
         }
     },
-    'IA Image': {
+    'AI Image': {
         'icon': '🖼️',
         'pt': {
             'desc': 'Visão Computacional e Filtros Digitais de Imagem.',
@@ -332,7 +332,7 @@ tab_data = {
             ]
         }
     },
-    'IA Math': {
+    'AI Math': {
         'icon': '📐',
         'pt': {
             'desc': 'Álgebra Vetorial e Matricial de Alta Velocidade.',
@@ -377,7 +377,7 @@ tab_data = {
             ]
         }
     },
-    'IA Input': {
+    'AI Input': {
         'icon': '🔌',
         'pt': {
             'desc': 'Captura Avançada de Dispositivos de Entrada, Sensores e Redes.',
@@ -513,7 +513,7 @@ tab_data = {
         }
     },
 
-    'IA Industrial': {
+    'AI Industrial': {
         'icon': '🏭',
         'pt': {
             'desc': 'Modbus, MQTT e Componentes de Automação Industrial.',
@@ -576,7 +576,7 @@ tab_data = {
             ]
         }
     },
-    'IA Output': {
+    'AI Output': {
         'icon': '📄',
         'pt': {
             'desc': 'Saída Estruturada de Resultados, Decisões e Geração de Documentos.',
@@ -651,7 +651,7 @@ tab_data = {
             ]
         }
     },
-    'IA Schedulle': {
+    'AI Schedule': {
         'icon': '📅',
         'pt': {
             'desc': 'Agendamento Automatizado e Linha de Tempo Neural.',
@@ -696,7 +696,7 @@ tab_data = {
             ]
         }
     },
-    'IA Voice': {
+    'AI Voice': {
         'icon': '🗣️',
         'pt': {
             'desc': 'Síntese de Voz e Sinais Vocais.',

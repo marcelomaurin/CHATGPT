@@ -7,7 +7,7 @@
 ## Unit
 
 ```pascal
-pacote/IA/sommap.pas
+pacote/AI/sommap.pas
 ```
 
 ## Pacote

@@ -39,7 +39,7 @@ Este projeto cria um novo componente, separado do antigo, com suporte real a DOC
 Criar a unit:
 
 ```text
-pacote/IA Output/aiworddocument.pas
+pacote/AI Output/aiworddocument.pas
 ```
 
 Criar o componente principal:
@@ -601,7 +601,7 @@ Se `Zipper` não for suficiente para preservar corretamente o pacote DOCX, criar
 Criar novo sample:
 
 ```text
-pacote/samples/IA Output/word_object_demo/
+pacote/samples/AI Output/word_object_demo/
 ```
 
 Arquivos:

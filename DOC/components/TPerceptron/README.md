@@ -9,7 +9,7 @@ Use para estudos de classificação linear, exemplos didáticos e demonstraçõe
 ## Unit
 
 ```pascal
-pacote/IA/perceptron.pas
+pacote/AI/perceptron.pas
 ```
 
 ## Pacote

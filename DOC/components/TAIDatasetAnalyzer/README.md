@@ -7,7 +7,7 @@
 ## Unit
 
 ```pascal
-pacote/IA Graph/aidatasetanalyzer.pas
+pacote/AI Graph/aidatasetanalyzer.pas
 ```
 
 ## Pacote

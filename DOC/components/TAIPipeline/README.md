@@ -9,7 +9,7 @@ Use quando precisar montar um fluxo como: entrada → processamento → modelo/I
 ## Unit
 
 ```pascal
-pacote/IA/aipipeline.pas
+pacote/AI/aipipeline.pas
 ```
 
 ## Pacote

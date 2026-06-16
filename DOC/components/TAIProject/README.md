@@ -9,7 +9,7 @@ Use para organizar nome, descrição, componentes relacionados e metadados de um
 ## Unit
 
 ```pascal
-pacote/IA/aiproject.pas
+pacote/AI/aiproject.pas
 ```
 
 ## Pacote

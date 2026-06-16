@@ -9,7 +9,7 @@ Pode ser usado para gerar relatórios, respostas formatadas, registros de análi
 ## Unit
 
 ```pascal
-pacote/IA Output/aioutput_docs.pas
+pacote/AI Output/aioutput_docs.pas
 ```
 
 ## Pacote

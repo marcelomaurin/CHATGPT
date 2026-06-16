@@ -5,7 +5,7 @@ unit aipythonruntime;
 interface
 
 uses
-  Classes, SysUtils, aibase, aiplatform, airuntimepaths, aiprocessrunner;
+  Classes, SysUtils, aibase, aiplatform, airuntimepaths, aiprocessrunner, LResources;
 
 type
   { TAIPythonRuntime }
@@ -224,5 +224,8 @@ begin
   if not Result then
     SetError('Library not found: ' + LibFile);
 end;
+
+initialization
+  {$I aipythonruntime_icon.lrs}
 
 end.

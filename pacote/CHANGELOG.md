@@ -16,19 +16,19 @@
   - `cskScreen` — desktop capture + optional mouse/keyboard tracking
   - `cskFile` — static image file frame
 - **`aicapturesource_icon.lrs`** — palette icon for `TAICaptureSource` (sigla `CS`, cor `C_INPUT`)
-- **`capture_source_demo`** sample (`samples/IA Input/capture_source_demo/`) demonstrating all 5 modes
+- **`capture_source_demo`** sample (`samples/AI Input/capture_source_demo/`) demonstrating all 5 modes
 
 ### 🗑️ Removed
 
 | File | Reason |
 |------|--------|
-| `IA Input/aicamera.pas` + icon | Replaced by `TAICaptureSource` |
-| `IA Input/aicftvip.pas` + icon | Replaced by `TAICaptureSource` |
-| `IA Input/aioscapture.pas` + icon | Replaced by `TAICaptureSource` |
+| `AI Input/aicamera.pas` + icon | Replaced by `TAICaptureSource` |
+| `AI Input/aicftvip.pas` + icon | Replaced by `TAICaptureSource` |
+| `AI Input/aioscapture.pas` + icon | Replaced by `TAICaptureSource` |
 | `AI Vision/aicameracapture.pas` + icon | Replaced by `TAICaptureSource` |
 | `samples/AI Vision/camera_capture_linux_demo/` | Replaced by `capture_source_demo` |
 | `samples/AI Native Vision/camera_capture_demo/` | Replaced by `capture_source_demo` |
-| `samples/IA Input/os_capture_demo/` | Replaced by `capture_source_demo` |
+| `samples/AI Input/os_capture_demo/` | Replaced by `capture_source_demo` |
 
 ### 🔧 Modified
 

@@ -3,8 +3,8 @@ import os
 
 langs = {
     'pt': {
-        'title': 'Documenta\u00e7\u00e3o da Aba IA Project',
-        'intro': 'Esta pasta cont\u00e9m a paleta de componentes do Lazarus sob a aba **IA Project**.',
+        'title': 'Documenta\u00e7\u00e3o da Aba AI Project',
+        'intro': 'Esta pasta cont\u00e9m a paleta de componentes do Lazarus sob a aba **AI Project**.',
         'details': 'Refer\u00eancia Detalhada dos Componentes',
         'comp': 'Componente',
         'desc': 'Descri\u00e7\u00e3o',
@@ -16,8 +16,8 @@ langs = {
         'unified': 'Ponte de IA e Hardware'
     },
     'en': {
-        'title': 'Documentation for IA Project Tab',
-        'intro': 'This folder contains the Lazarus components suite under the **IA Project** tab.',
+        'title': 'Documentation for AI Project Tab',
+        'intro': 'This folder contains the Lazarus components suite under the **AI Project** tab.',
         'details': 'Detailed Component Reference',
         'comp': 'Component',
         'desc': 'Description',
@@ -29,8 +29,8 @@ langs = {
         'unified': 'AI and Hardware Bridge'
     },
     'es': {
-        'title': 'Documentaci\u00f3n de la Pesta\u00f1a IA Project',
-        'intro': 'Esta carpeta contiene la suite de componentes de Lazarus bajo la pesta\u00f1a **IA Project**.',
+        'title': 'Documentaci\u00f3n de la Pesta\u00f1a AI Project',
+        'intro': 'Esta carpeta contiene la suite de componentes de Lazarus bajo la pesta\u00f1a **AI Project**.',
         'details': 'Referencia Detallada de Componentes',
         'comp': 'Componente',
         'desc': 'Descripci\u00f3n',
@@ -42,8 +42,8 @@ langs = {
         'unified': 'Puente de IA y Hardware'
     },
     'fr': {
-        'title': 'Documentation de l\'onglet IA Project',
-        'intro': 'Ce dossier contient la suite de composants Lazarus sous l\'onglet **IA Project**.',
+        'title': 'Documentation de l\'onglet AI Project',
+        'intro': 'Ce dossier contient la suite de composants Lazarus sous l\'onglet **AI Project**.',
         'details': 'R\u00e9f\u00e9rence D\u00e9taill\u00e9e des Composants',
         'comp': 'Composant',
         'desc': 'Description',
@@ -55,8 +55,8 @@ langs = {
         'unified': 'Pont d\'IA et de Mat\u00e9riel'
     },
     'it': {
-        'title': 'Documentazione della Scheda IA Project',
-        'intro': 'Questa cartella contiene la suite di componenti Lazarus sotto la scheda **IA Project**.',
+        'title': 'Documentazione della Scheda AI Project',
+        'intro': 'Questa cartella contiene la suite di componenti Lazarus sotto la scheda **AI Project**.',
         'details': 'Riferimento Dettagliato dei Componenti',
         'comp': 'Componente',
         'desc': 'Descrizione',
@@ -68,8 +68,8 @@ langs = {
         'unified': 'Ponte di IA e Hardware'
     },
     'ar': {
-        'title': '\u062a\u0648\u062b\u064a\u0642 \u0639\u0644\u0627\u0645\u0629 \u0627\u0644\u062a\u0628\u0648\u064a\u0628 IA Project',
-        'intro': '\u064a\u062d\u062a\u0648\u064a \u0647\u0630\u0627 \u0627\u0644\u0645\u062c\u0645\u0648\u0639\u0629 \u0645\u0643\u0648\u0646\u0627\u062a \u0644\u0627\u0632\u0627\u0631\u0648\u0633 \u0636\u0645\u0646 \u0639\u0644\u0627\u0645\u0629 \u0627\u0644\u062a\u0628\u0648\u064a\u0628 **IA Project**.',
+        'title': '\u062a\u0648\u062b\u064a\u0642 \u0639\u0644\u0627\u0645\u0629 \u0627\u0644\u062a\u0628\u0648\u064a\u0628 AI Project',
+        'intro': '\u064a\u062d\u062a\u0648\u064a \u0647\u0630\u0627 \u0627\u0644\u0645\u062c\u0645\u0648\u0639\u0629 \u0645\u0643\u0648\u0646\u0627\u062a \u0644\u0627\u0632\u0627\u0631\u0648\u0633 \u0636\u0645\u0646 \u0639\u0644\u0627\u0645\u0629 \u0627\u0644\u062a\u0628\u0648\u064a\u0628 **AI Project**.',
         'details': '\u0645\u0631\u062c\u0639 \u0627\u0644\u0645\u0643\u0648\u0646\u0627\u062a \u0627\u0644\u062a\u0641\u0635\u064a\u0644\u064a',
         'comp': '\u0627\u0644\u0645\u0643\u0648\u0646',
         'desc': '\u0627\u0644\u0648\u0635\u0641',
@@ -171,7 +171,7 @@ end;
 
 def generate():
     package_root = r"D:\projetos\maurinsoft\CHATGPT\pacote"
-    folder_path = os.path.join(package_root, "IA Project")
+    folder_path = os.path.join(package_root, "AI Project")
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
         
@@ -232,7 +232,7 @@ def generate():
 
     # Also generate the main landing README.md for the folder
     readme_path = os.path.join(folder_path, "README.md")
-    readme_content = """# [IA] Lazarus AI Suite - Tab: `IA Project`
+    readme_content = """# [IA] Lazarus AI Suite - Tab: `AI Project`
 
 > [!NOTE]
 > Advanced AI Project Coordination and Execution Pipelines.

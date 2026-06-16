@@ -9,7 +9,7 @@ No estado atual, deve ser tratado como componente experimental dependente de Pyt
 ## Unit
 
 ```pascal
-pacote/IA/cnnclassifier.pas
+pacote/AI/cnnclassifier.pas
 ```
 
 ## Pacote

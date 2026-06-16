@@ -5,7 +5,7 @@ unit aidisktreescanner;
 interface
 
 uses
-  Classes, SysUtils, Contnrs, aidiskitem, Masks;
+  Classes, SysUtils, Contnrs, aidiskitem, Masks, LResources;
 
 type
   TAIDiskTaskState = (
@@ -258,7 +258,7 @@ uses
 
 procedure Register;
 begin
-  RegisterComponents('AI Native Vision', [TAIDiskTreeScanner]);
+  RegisterComponents('AI Utilities', [TAIDiskTreeScanner]);
 end;
 
 { TAIDiskScanThread }
@@ -1037,5 +1037,8 @@ begin
   Ext := LowerCase(ExtractFileExt(AFileName));
   Result := (Ext = '.csv') or (Ext = '.json') or (Ext = '.xml') or (Ext = '.sqlite') or (Ext = '.db');
 end;
+
+initialization
+  {$I aidisktreescanner_icon.lrs}
 
 end.

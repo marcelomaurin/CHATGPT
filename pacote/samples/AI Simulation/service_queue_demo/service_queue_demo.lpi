@@ -56,7 +56,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\..\..;..\..\..\IA;..\..\..\AI Simulation;..\..\..\packages"/>
+      <OtherUnitFiles Value="..\..\..;..\..\..\AI;..\..\..\AI Simulation;..\..\..\packages"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>

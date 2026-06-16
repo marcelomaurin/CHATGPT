@@ -12,13 +12,13 @@ A organização é **modular** para facilitar a manutenção e permitir instala�
 pacote/
   packages/          # Pacotes Lazarus modulares recomendados
   IA/                # Componentes centrais, LLM, ML simples e utilitários
-  IA Agent/          # Agentes, ações, segurança e executores
-  IA Graph/          # Grafos, datasets, classificação e relatórios
-  IA Image/          # Filtros simples de imagem
-  IA Input/          # Entrada, sensores, comunicação e integrações
-  IA Math/           # Matemática, matrizes e estatística
-  IA Output/         # Saídas, documentos e relatórios
-  IA Voice/          # Voz, áudio e filtros sonoros
+  AI Agent/          # Agentes, ações, segurança e executores
+  AI Graph/          # Grafos, datasets, classificação e relatórios
+  AI Image/          # Filtros simples de imagem
+  AI Input/          # Entrada, sensores, comunicação e integrações
+  AI Math/           # Matemática, matrizes e estatística
+  AI Output/         # Saídas, documentos e relatórios
+  AI Voice/          # Voz, áudio e filtros sonoros
   AI Vision/         # OpenCV e visão computacional
   AI Graphic/        # Visualização 3D, avatar e modelos
   python/            # Workers/scripts Python usados por componentes
@@ -122,8 +122,8 @@ Samples funcionais:
 
 ```text
 samples/AI Vision/opencv_filter_demo/
-samples/IA Input/capture_source_demo/    ← TAICaptureSource (todos os 5 modos)
-samples/IA Input/hardware_net_demo/
+samples/AI Input/capture_source_demo/    ← TAICaptureSource (todos os 5 modos)
+samples/AI Input/hardware_net_demo/
 ```
 
 ---

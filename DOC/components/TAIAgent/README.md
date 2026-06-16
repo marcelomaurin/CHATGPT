@@ -9,7 +9,7 @@ Deve ser usado com cuidado porque agentes podem acionar recursos externos.
 ## Unit
 
 ```pascal
-pacote/IA Agent/aiagent.pas
+pacote/AI Agent/aiagent.pas
 ```
 
 ## Pacote

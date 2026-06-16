@@ -9,7 +9,7 @@ Use para orientar configuração inicial de provedor, modelo, endpoint, chave de
 ## Unit
 
 ```pascal
-pacote/IA/aiwizardconfig.pas
+pacote/AI/aiwizardconfig.pas
 ```
 
 ## Pacote

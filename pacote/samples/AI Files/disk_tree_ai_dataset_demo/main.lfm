@@ -1,225 +1,95 @@
 object frmMain: TfrmMain
-  Left = 200
-  Height = 700
-  Top = 120
-  Width = 1100
+  Left = 250
+  Height = 600
+  Top = 150
+  Width = 950
   Caption = 'Disk Tree AI Dataset Demo'
-  ClientHeight = 700
-  ClientWidth = 1100
+  ClientHeight = 600
+  ClientWidth = 950
+  LCLVersion = '4.4.0.0'
   OnCreate = FormCreate
-  LCLVersion = '3.0.0.3'
   object pnlTop: TPanel
     Left = 0
-    Height = 65
+    Height = 55
     Top = 0
-    Width = 1100
+    Width = 950
     Align = alTop
-    ClientHeight = 65
-    ClientWidth = 1100
+    ClientHeight = 55
+    ClientWidth = 950
     TabOrder = 0
-    object btnLoadVolumes: TButton
+    object lblTarget: TLabel
       Left = 10
-      Height = 35
-      Top = 15
-      Width = 100
-      Caption = 'Load Volumes'
-      OnClick = btnLoadVolumesClick
+      Height = 15
+      Top = 20
+      Width = 35
+      Caption = 'Target:'
+      ParentColor = False
+    end
+    object deTarget: TDirectoryEdit
+      Left = 55
+      Height = 23
+      Top = 16
+      Width = 450
+      ShowHidden = False
+      ButtonWidth = 23
+      NumGlyphs = 1
+      MaxLength = 0
       TabOrder = 0
     end
-    object btnScanSelected: TButton
-      Left = 115
-      Height = 35
-      Top = 15
-      Width = 105
-      Caption = 'Scan Branch'
-      OnClick = btnScanSelectedClick
-      TabOrder = 1
-    end
-    object btnScanRecursive: TButton
-      Left = 225
-      Height = 35
-      Top = 15
-      Width = 110
-      Caption = 'Scan Recursive'
-      OnClick = btnScanRecursiveClick
-      TabOrder = 2
-    end
-    object btnFindFile: TButton
-      Left = 560
+    object btnScan: TButton
+      Left = 520
       Height = 30
-      Top = 5
-      Width = 80
-      Caption = 'Find File'
-      OnClick = btnFindFileClick
-      TabOrder = 3
-    end
-    object btnFindDir: TButton
-      Left = 560
-      Height = 30
-      Top = 32
-      Width = 80
-      Caption = 'Find Dir'
-      OnClick = btnFindDirClick
-      TabOrder = 4
-    end
-    object edtFind: TEdit
-      Left = 345
-      Height = 25
-      Top = 20
-      Width = 205
-      TabOrder = 5
-      Text = 'dataset'
-    end
-    object cbExtensions: TComboBox
-      Left = 655
-      Height = 25
-      Top = 20
-      Width = 85
-      ItemHeight = 15
-      TabOrder = 6
-    end
-    object btnFindExt: TButton
-      Left = 745
-      Height = 35
-      Top = 15
-      Width = 80
-      Caption = 'Find Ext'
-      OnClick = btnFindExtClick
-      TabOrder = 7
-    end
-    object btnBuildInventory: TButton
-      Left = 835
-      Height = 35
-      Top = 15
-      Width = 105
-      Caption = 'Build Inventory'
-      OnClick = btnBuildInventoryClick
-      TabOrder = 8
-    end
-    object btnExportJSON: TButton
-      Left = 945
-      Height = 35
-      Top = 15
+      Top = 12
       Width = 90
-      Caption = 'Export Data'
-      OnClick = btnExportJSONClick
-      TabOrder = 9
+      Caption = 'Scan'
+      TabOrder = 1
+      OnClick = btnScanClick
     end
-    object btnCancel: TButton
-      Left = 1040
-      Height = 35
-      Top = 15
-      Width = 50
-      Caption = 'Cancel'
-      OnClick = btnCancelClick
-      TabOrder = 10
+    object btnStop: TButton
+      Left = 620
+      Height = 30
+      Top = 12
+      Width = 90
+      Caption = 'Stop'
+      TabOrder = 2
+      OnClick = btnStopClick
     end
   end
-  object pnlLeft: TPanel
+  object sgFiles: TStringGrid
     Left = 0
-    Height = 455
-    Top = 65
-    Width = 260
-    Align = alLeft
-    ClientHeight = 455
-    ClientWidth = 260
-    TabOrder = 1
-    object tvDisk: TTreeView
-      Left = 1
-      Height = 453
-      Top = 1
-      Width = 258
-      Align = alClient
-      ReadOnly = True
-      TabOrder = 0
-    end
-  end
-  object splitterLeft: TSplitter
-    Left = 260
-    Height = 455
-    Top = 65
-    Width = 5
-  end
-  object pnlClient: TPanel
-    Left = 265
-    Height = 455
-    Top = 65
-    Width = 835
+    Height = 515
+    Top = 55
+    Width = 950
     Align = alClient
-    ClientHeight = 455
-    ClientWidth = 835
-    TabOrder = 3
-    object lvFiles: TListView
-      Left = 1
-      Height = 453
-      Top = 1
-      Width = 833
-      Align = alClient
-      Columns = <      
-        item
-          Caption = 'Name'
-          Width = 200
-        end      
-        item
-          Caption = 'Full Path'
-          Width = 320
-        end      
-        item
-          Caption = 'Type'
-          Width = 90
-        end      
-        item
-          Caption = 'Size'
-          Width = 100
-        end      
-        item
-          Caption = 'Extension'
-          Width = 80
-        end      
-        item
-          Caption = 'Class Suggested'
-          Width = 120
-        end>
-      GridLines = True
-      ReadOnly = True
-      RowSelect = True
-      ViewStyle = vsReport
-      TabOrder = 0
-    end
+    ColCount = 7
+    FixedCols = 0
+    Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goRowSelect]
+    RowCount = 1
+    TabOrder = 1
   end
-  object pnlBottom: TPanel
+  object pnlStatus: TPanel
     Left = 0
-    Height = 180
-    Top = 520
-    Width = 1100
+    Height = 30
+    Top = 570
+    Width = 950
     Align = alBottom
-    ClientHeight = 180
-    ClientWidth = 1100
-    TabOrder = 4
-    object memoLog: TMemo
-      Left = 1
-      Height = 128
-      Top = 27
-      Width = 1098
-      Align = alClient
-      ReadOnly = True
-      ScrollBars = ssAutoVertical
-      TabOrder = 0
-    end
+    ClientHeight = 30
+    ClientWidth = 950
+    TabOrder = 2
     object lblStatus: TLabel
       Left = 10
       Height = 15
-      Top = 6
+      Top = 7
       Width = 32
       Caption = 'Status'
       ParentColor = False
     end
     object ProgressBar1: TProgressBar
-      Left = 840
-      Height = 15
-      Top = 6
+      Left = 690
+      Height = 16
+      Top = 7
       Width = 250
-      TabOrder = 1
+      TabOrder = 0
     end
   end
 end

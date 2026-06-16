@@ -34,7 +34,7 @@ arquivos de entrada de teste
 |---|---|---|---|---|---|
 | `AI Vision/opencv_filter_demo` | GUI | `openai_vision.lpk` | `TAIOpenCV`, `aiopencvruntime`, `aiplatform` | Python Process + Native DLL com fallback | Funcional/Beta |
 | `AI Vision/opencv_image_real_demo` | GUI | `openai_vision.lpk` | `TAIOpenCV`, `TAIFrameProcessor`, `aiopencvruntime`, `aiplatform` | Native DLL com fallback Python e modo simulação | Funcional/Beta |
-| `IA Python/cnn_classifier_complete_demo` | GUI | `openai_core.lpk` | `TCNNClassifier`, `TPythonConnector`, `pythonconnector` | Python DLL/SO (TensorFlow) | Funcional |
+| `AI Python/cnn_classifier_complete_demo` | GUI | `openai_core.lpk` | `TCNNClassifier`, `TPythonConnector`, `pythonconnector` | Python DLL/SO (TensorFlow) | Funcional |
 
 ---
 
@@ -43,7 +43,7 @@ arquivos de entrada de teste
 Caminho:
 
 ```text
-pacote/samples/IA Python/cnn_classifier_complete_demo/
+pacote/samples/AI Python/cnn_classifier_complete_demo/
 ```
 
 Esse sample demonstra o componente `TCNNClassifier` e `TPythonConnector` em uma interface gráfica Lazarus para classificar imagens usando redes neurais convolucionais (CNN).

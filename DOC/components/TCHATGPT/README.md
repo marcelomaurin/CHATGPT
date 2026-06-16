@@ -9,7 +9,7 @@ Use este componente para enviar perguntas, receber respostas e integrar IA gener
 ## Unit
 
 ```pascal
-pacote/IA/chatgpt.pas
+pacote/AI/chatgpt.pas
 ```
 
 ## Pacote

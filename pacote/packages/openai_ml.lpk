@@ -9,7 +9,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\IA;..\IA Agent;..\IA Voice;..\IA Filtros Sonoros;..\IA Image;..\IA Schedulle;..\IA Math;..\IA Input;..\IA Output;..\IA Graph;..\AI Graphic;..\AI Vision;.."/>
+        <OtherUnitFiles Value="..\AI;..\AI Agent;..\AI Voice;..\AI Filtros Sonoros;..\AI Image;..\AI Schedule;..\AI Math;..\AI Input;..\AI Output;..\AI Graph;..\AI Graphic;..\AI Vision;.."/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
@@ -17,32 +17,32 @@
     <License Value="OPEN SOURCE GPL3"/>
     <Files>
       <Item>
-        <Filename Value="..\IA\neuralnetwork.pas"/>
+        <Filename Value="..\AI\neuralnetwork.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="neuralnetwork"/>
       </Item>
       <Item>
-        <Filename Value="..\IA\perceptron.pas"/>
+        <Filename Value="..\AI\perceptron.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="perceptron"/>
       </Item>
       <Item>
-        <Filename Value="..\IA\sommap.pas"/>
+        <Filename Value="..\AI\sommap.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="sommap"/>
       </Item>
       <Item>
-        <Filename Value="..\IA\aidatasetgenerator.pas"/>
+        <Filename Value="..\AI\aidatasetgenerator.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aidatasetgenerator"/>
       </Item>
       <Item>
-        <Filename Value="..\IA\matrizcomponent.pas"/>
+        <Filename Value="..\AI\matrizcomponent.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="matrizcomponent"/>
       </Item>
       <Item>
-        <Filename Value="..\IA Math\numps.pas"/>
+        <Filename Value="..\AI Math\numps.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="numps"/>
       </Item>

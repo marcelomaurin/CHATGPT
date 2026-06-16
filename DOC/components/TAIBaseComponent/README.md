@@ -9,7 +9,7 @@ Use esta classe como base para novos componentes que precisam de `Prompt`, log, 
 ## Unit
 
 ```pascal
-pacote/IA/aibase.pas
+pacote/AI/aibase.pas
 ```
 
 ## Pacote

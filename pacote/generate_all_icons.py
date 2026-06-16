@@ -112,70 +112,70 @@ C_ML = [255, 128, 0]
 C_SIMULATION = [20, 140, 120]
 
 icons_config = {
-    # IA Agent
-    'IA Agent/aiagent_icon.lrs': [
+    # AI Agent
+    'AI Agent/aiagent_icon.lrs': [
         ('taiagent', C_AGENT, 'AG'),
         ('taiagentoptions', C_AGENT, 'OP'),
         ('taiagentaction', C_AGENT, 'AC'),
         ('taiagentresource', C_AGENT, 'RS'),
         ('taiagentoutput', C_AGENT, 'AO'),
     ],
-    'IA Agent/aiagentsafety_icon.lrs': [
+    'AI Agent/aiagentsafety_icon.lrs': [
         ('taiagentsafety', C_AGENT, 'SF'),
     ],
     
-    # IA Math
-    'IA Math/numps_icon.lrs': [
+    # AI Math
+    'AI Math/numps_icon.lrs': [
         ('tnumps', C_MATH, 'MA'),
     ],
     
-    # IA Input
-    'IA Input/aiinput_icon.lrs': [
+    # AI Input
+    'AI Input/aiinput_icon.lrs': [
         ('taiinputdata', C_INPUT, 'IN'),
     ],
-    'IA Input/aicapturesource_icon.lrs': [
+    'AI Input/aicapturesource_icon.lrs': [
         ('taicapturesource', C_INPUT, 'CS'),
     ],
-    'IA Input/aiaudio_icon.lrs': [
+    'AI Input/aiaudio_icon.lrs': [
         ('taiaudioinput', C_INPUT, 'AD'),
     ],
-    'IA Input/aiwebserver_icon.lrs': [
+    'AI Input/aiwebserver_icon.lrs': [
         ('taiwebapiserver', C_INPUT, 'WS'),
     ],
-    'IA Input/aisockets_icon.lrs': [
+    'AI Input/aisockets_icon.lrs': [
         ('taisockettcp', C_INPUT, 'TC'),
         ('taisocketudp', C_INPUT, 'UD'),
     ],
-    'IA Input/aiserial_icon.lrs': [
+    'AI Input/aiserial_icon.lrs': [
         ('taiserialmodem', C_INPUT, 'SR'),
     ],
-    'IA Input/aiposprinter_icon.lrs': [
+    'AI Input/aiposprinter_icon.lrs': [
         ('taiposprinter', C_INPUT, 'PR'),
     ],
-    'IA Input/aimodbus_icon.lrs': [
+    'AI Input/aimodbus_icon.lrs': [
         ('taimodbusclient', C_INPUT, 'MB'),
     ],
-    'IA Input/aimqtt_icon.lrs': [
+    'AI Input/aimqtt_icon.lrs': [
         ('taimqttclient', C_INPUT, 'MQ'),
     ],
-    'IA Input/aiemail_icon.lrs': [
+    'AI Input/aiemail_icon.lrs': [
         ('taiemailclient', C_INPUT, 'EM'),
     ],
-    'IA Input/aimessenger_icon.lrs': [
+    'AI Input/aimessenger_icon.lrs': [
         ('taimessenger', C_INPUT, 'MS'),
     ],
-    'IA Input/aiindustrial_icon.lrs': [
+    'AI Input/aiindustrial_icon.lrs': [
         ('taiindustrialbridge', C_INPUT, 'ID'),
     ],
-    'IA Input/aichromiumbrowser_icon.lrs': [
+    'AI Input/aichromiumbrowser_icon.lrs': [
         ('taichromiumbrowser', C_INPUT, 'CR'),
     ],
     
-    # IA Output
-    'IA Output/aioutput_icon.lrs': [
+    # AI Output
+    'AI Output/aioutput_icon.lrs': [
         ('taioutputdata', C_OUTPUT, 'OT'),
     ],
-    'IA Output/aioutput_docs_icon.lrs': [
+    'AI Output/aioutput_docs_icon.lrs': [
         ('taipdfoutput', C_OUTPUT, 'PD'),
         ('taiwordoutput', C_OUTPUT, 'WD'),
         ('taiexceloutput', C_OUTPUT, 'XL'),
@@ -183,45 +183,45 @@ icons_config = {
         ('taioutputdocs', C_OUTPUT, 'DO'),
     ],
     
-    # IA Voice
-    'IA Voice/aivoicesynthesizer_icon.lrs': [
+    # AI Voice
+    'AI Voice/aivoicesynthesizer_icon.lrs': [
         ('taivoicesynthesizer', C_VOICE, 'VS'),
     ],
     
-    # IA Project
-    'IA/aiproject_icon.lrs': [
+    # AI Project
+    'AI/aiproject_icon.lrs': [
         ('taiproject', C_PROJECT, 'PJ'),
     ],
-    'IA/aipipeline_icon.lrs': [
+    'AI/aipipeline_icon.lrs': [
         ('taipipeline', C_PROJECT, 'PL'),
     ],
-    'IA/aipromptbuilder_icon.lrs': [
+    'AI/aipromptbuilder_icon.lrs': [
         ('taipromptbuilder', C_PROJECT, 'PB'),
     ],
     
-    # IA Graph / Models
-    'IA Graph/aigraphmap_icon.lrs': [
+    # AI Graph / Models
+    'AI Graph/aigraphmap_icon.lrs': [
         ('taigraphmap', C_GRAPH, 'GM'),
     ],
-    'IA Graph/aitrainingexporter_icon.lrs': [
+    'AI Graph/aitrainingexporter_icon.lrs': [
         ('taitrainingexporter', C_GRAPH, 'TE'),
     ],
-    'IA Graph/aidatasetanalyzer_icon.lrs': [
+    'AI Graph/aidatasetanalyzer_icon.lrs': [
         ('taidatasetanalyzer', C_GRAPH, 'DA'),
     ],
-    'IA Graph/aitrainingreport_icon.lrs': [
+    'AI Graph/aitrainingreport_icon.lrs': [
         ('taitrainingreport', C_GRAPH, 'TR'),
     ],
-    'IA Graph/aigraphvisualizer_icon.lrs': [
+    'AI Graph/aigraphvisualizer_icon.lrs': [
         ('taigraphvisualizer', C_GRAPH, 'GV'),
     ],
-    'IA/aimodelregistry_icon.lrs': [
+    'AI/aimodelregistry_icon.lrs': [
         ('taimodelregistry', C_PROJECT, 'MR'),
     ],
-    'IA/aiwizardconfig_icon.lrs': [
+    'AI/aiwizardconfig_icon.lrs': [
         ('taiwizardconfig', C_PROJECT, 'WC'),
     ],
-    'IA/matrizcomponent_icon.lrs': [
+    'AI/matrizcomponent_icon.lrs': [
         ('tamatrizcomponent', C_ML, 'MC'),
     ],
 
@@ -332,6 +332,13 @@ icons_config = {
     'AI Simulation/aisimulationexporter_icon.lrs': [
         ('taisimulationexporter', C_SIMULATION, 'EX'),
     ],
+    # AI Utilities / Core additions
+    'python/aipythonruntime_icon.lrs': [
+        ('taipythonruntime', C_MATH, 'PR'),
+    ],
+    'componentes/ai_files/aidisktreescanner_icon.lrs': [
+        ('taidisktreescanner', C_MATH, 'TS'),
+    ],
 }
 
 def patch_pas_file(file_path, lrs_filename):
@@ -404,36 +411,38 @@ def main():
         
     # 2. Patch Pascal source files
     patches = [
-        ('IA Agent/aiagent.pas', 'aiagent_icon.lrs'),
-        ('IA Agent/aiagentsafety.pas', 'aiagentsafety_icon.lrs'),
-        ('IA Math/numps.pas', 'numps_icon.lrs'),
-        ('IA Input/aiinput.pas', 'aiinput_icon.lrs'),
-        ('IA Input/aicapturesource.pas', 'aicapturesource_icon.lrs'),
-        ('IA Input/aiaudio.pas', 'aiaudio_icon.lrs'),
-        ('IA Input/aiwebserver.pas', 'aiwebserver_icon.lrs'),
-        ('IA Input/aisockets.pas', 'aisockets_icon.lrs'),
-        ('IA Input/aiserial.pas', 'aiserial_icon.lrs'),
-        ('IA Input/aiposprinter.pas', 'aiposprinter_icon.lrs'),
-        ('IA Input/aimodbus.pas', 'aimodbus_icon.lrs'),
-        ('IA Input/aimqtt.pas', 'aimqtt_icon.lrs'),
-        ('IA Input/aiemail.pas', 'aiemail_icon.lrs'),
-        ('IA Input/aimessenger.pas', 'aimessenger_icon.lrs'),
-        ('IA Input/aiindustrial.pas', 'aiindustrial_icon.lrs'),
-        ('IA Input/aichromiumbrowser.pas', 'aichromiumbrowser_icon.lrs'),
-        ('IA Output/aioutput.pas', 'aioutput_icon.lrs'),
-        ('IA Output/aioutput_docs.pas', 'aioutput_docs_icon.lrs'),
-        ('IA Voice/aivoicesynthesizer.pas', 'aivoicesynthesizer_icon.lrs'),
-        ('IA/aiproject.pas', 'aiproject_icon.lrs'),
-        ('IA/aipipeline.pas', 'aipipeline_icon.lrs'),
-        ('IA/aipromptbuilder.pas', 'aipromptbuilder_icon.lrs'),
-        ('IA Graph/aigraphmap.pas', 'aigraphmap_icon.lrs'),
-        ('IA Graph/aitrainingexporter.pas', 'aitrainingexporter_icon.lrs'),
-        ('IA Graph/aidatasetanalyzer.pas', 'aidatasetanalyzer_icon.lrs'),
-        ('IA Graph/aitrainingreport.pas', 'aitrainingreport_icon.lrs'),
-        ('IA Graph/aigraphvisualizer.pas', 'aigraphvisualizer_icon.lrs'),
-        ('IA/aimodelregistry.pas', 'aimodelregistry_icon.lrs'),
-        ('IA/aiwizardconfig.pas', 'aiwizardconfig_icon.lrs'),
-        ('IA/matrizcomponent.pas', 'matrizcomponent_icon.lrs'),
+        ('AI Agent/aiagent.pas', 'aiagent_icon.lrs'),
+        ('AI Agent/aiagentsafety.pas', 'aiagentsafety_icon.lrs'),
+        ('AI Math/numps.pas', 'numps_icon.lrs'),
+        ('AI Input/aiinput.pas', 'aiinput_icon.lrs'),
+        ('AI Input/aicapturesource.pas', 'aicapturesource_icon.lrs'),
+        ('AI Input/aiaudio.pas', 'aiaudio_icon.lrs'),
+        ('AI Input/aiwebserver.pas', 'aiwebserver_icon.lrs'),
+        ('AI Input/aisockets.pas', 'aisockets_icon.lrs'),
+        ('AI Input/aiserial.pas', 'aiserial_icon.lrs'),
+        ('AI Input/aiposprinter.pas', 'aiposprinter_icon.lrs'),
+        ('AI Input/aimodbus.pas', 'aimodbus_icon.lrs'),
+        ('AI Input/aimqtt.pas', 'aimqtt_icon.lrs'),
+        ('AI Input/aiemail.pas', 'aiemail_icon.lrs'),
+        ('AI Input/aimessenger.pas', 'aimessenger_icon.lrs'),
+        ('AI Input/aiindustrial.pas', 'aiindustrial_icon.lrs'),
+        ('AI Input/aichromiumbrowser.pas', 'aichromiumbrowser_icon.lrs'),
+        ('AI Output/aioutput.pas', 'aioutput_icon.lrs'),
+        ('AI Output/aioutput_docs.pas', 'aioutput_docs_icon.lrs'),
+        ('AI Voice/aivoicesynthesizer.pas', 'aivoicesynthesizer_icon.lrs'),
+        ('AI/aiproject.pas', 'aiproject_icon.lrs'),
+        ('AI/aipipeline.pas', 'aipipeline_icon.lrs'),
+        ('AI/aipromptbuilder.pas', 'aipromptbuilder_icon.lrs'),
+        ('AI Graph/aigraphmap.pas', 'aigraphmap_icon.lrs'),
+        ('AI Graph/aitrainingexporter.pas', 'aitrainingexporter_icon.lrs'),
+        ('AI Graph/aidatasetanalyzer.pas', 'aidatasetanalyzer_icon.lrs'),
+        ('AI Graph/aitrainingreport.pas', 'aitrainingreport_icon.lrs'),
+        ('AI Graph/aigraphvisualizer.pas', 'aigraphvisualizer_icon.lrs'),
+        ('AI/aimodelregistry.pas', 'aimodelregistry_icon.lrs'),
+        ('AI/aiwizardconfig.pas', 'aiwizardconfig_icon.lrs'),
+        ('AI/matrizcomponent.pas', 'matrizcomponent_icon.lrs'),
+        ('python/aipythonruntime.pas', 'aipythonruntime_icon.lrs'),
+        ('componentes/ai_files/aidisktreescanner.pas', 'aidisktreescanner_icon.lrs'),
         ('AI Graphic/aiscene2d3d.pas', 'aiscene2d3d_icon.lrs'),
         ('AI Graphic/aitrainingenvironment.pas', 'aitrainingenvironment_icon.lrs'),
         ('AI Graphic/aiphysicssimulator.pas', 'aiphysicssimulator_icon.lrs'),

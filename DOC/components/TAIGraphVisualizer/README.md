@@ -7,7 +7,7 @@
 ## Unit
 
 ```pascal
-pacote/IA Graph/aigraphvisualizer.pas
+pacote/AI Graph/aigraphvisualizer.pas
 ```
 
 ## Pacote

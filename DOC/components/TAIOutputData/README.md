@@ -9,7 +9,7 @@ Use para centralizar texto, JSON, listas ou dados processados antes de enviar pa
 ## Unit
 
 ```pascal
-pacote/IA Output/aioutput.pas
+pacote/AI Output/aioutput.pas
 ```
 
 ## Pacote

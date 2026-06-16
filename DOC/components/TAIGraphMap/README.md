@@ -9,7 +9,7 @@ Ele pode ser usado em aplicações Lazarus quando o programador precisa de uma c
 ## Unit
 
 ```pascal
-pacote/IA Graph/aigraphmap.pas
+pacote/AI Graph/aigraphmap.pas
 ```
 
 ## Pacote
