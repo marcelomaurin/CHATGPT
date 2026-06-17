@@ -2,14 +2,14 @@
 <CONFIG>
   <Package Version="5">
     <PathDelim Value="\"/>
-    <Name Value="ai_files"/>
+    <Name Value="openai_files"/>
     <Type Value="RunAndDesignTime"/>
     <Author Value="Marcelo Maurin Martins"/>
     <CompilerOptions>
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\..\AI;..\..\AI Input;..\..\packages;..\.."/>
+        <OtherUnitFiles Value="..\AI;..\AI Input;..\AI Files;.."/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
@@ -17,16 +17,16 @@
     <License Value="GPL3"/>
     <Files>
       <Item>
-        <Filename Value="aidiskitem.pas"/>
+        <Filename Value="..\AI Files\aidiskitem.pas"/>
         <UnitName Value="aidiskitem"/>
       </Item>
       <Item>
-        <Filename Value="aidisktreescanner.pas"/>
+        <Filename Value="..\AI Files\aidisktreescanner.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aidisktreescanner"/>
       </Item>
       <Item>
-        <Filename Value="ai_docfilesmanager.pas"/>
+        <Filename Value="..\AI Files\ai_docfilesmanager.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="ai_docfilesmanager"/>
       </Item>

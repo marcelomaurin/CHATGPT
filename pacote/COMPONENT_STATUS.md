@@ -119,8 +119,8 @@ Use esta classificação para documentação, README de abas, samples e planejam
 
 | Componente | Unit | Pacote | Status | Observação |
 |---|---|---|---|---|
-| `TAIDiskTreeScanner` | `aidisktreescanner.pas` | `ai_files` | Beta | Componente assíncrono para navegar, pesquisar e indexar arquivos e diretórios, com suporte a inventário de datasets para IA |
-| `TAI_DOCFILESMANAGER` | `ai_docfilesmanager.pas` | `ai_files` | Beta | Gerenciador físico de arquivos e documentações locais |
+| `TAIDiskTreeScanner` | `aidisktreescanner.pas` | `openai_files` | Beta | Componente assíncrono para navegar, pesquisar e indexar arquivos e diretórios, com suporte a inventário de datasets para IA |
+| `TAI_DOCFILESMANAGER` | `ai_docfilesmanager.pas` | `openai_files` | Beta | Gerenciador físico de arquivos e documentações locais |
 
 ---
 

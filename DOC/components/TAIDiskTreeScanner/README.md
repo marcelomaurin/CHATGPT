@@ -7,13 +7,13 @@
 ## Unit
 
 ```pascal
-pacote/componentes/ai_files/aidisktreescanner.pas
+pacote/AI Files/aidisktreescanner.pas
 ```
 
 ## Pacote
 
 ```text
-ai_files.lpk
+openai_files.lpk
 ```
 
 ## Aba na IDE

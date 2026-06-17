@@ -25,7 +25,7 @@
     </RunParams>
     <RequiredPackages>
       <Item>
-        <PackageName Value="ai_files"/>
+        <PackageName Value="openai_files"/>
       </Item>
       <Item>
         <PackageName Value="LCL"/>
@@ -53,7 +53,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\..\..\AI;..\..\..\componentes\ai_files"/>
+      <OtherUnitFiles Value="..\..\..\AI;..\..\..\AI Files"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>

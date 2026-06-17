@@ -336,7 +336,7 @@ icons_config = {
     'python/aipythonruntime_icon.lrs': [
         ('taipythonruntime', C_MATH, 'PR'),
     ],
-    'componentes/ai_files/aidisktreescanner_icon.lrs': [
+    'AI Files/aidisktreescanner_icon.lrs': [
         ('taidisktreescanner', C_MATH, 'TS'),
     ],
 }
@@ -390,7 +390,7 @@ def patch_pas_file(file_path, lrs_filename):
         print(f"Saved changes to {file_path}")
     else:
         print(f"No changes needed for {file_path}")
-
+ 
 def main():
     package_root = os.path.dirname(os.path.abspath(__file__))
     
@@ -442,7 +442,7 @@ def main():
         ('AI/aiwizardconfig.pas', 'aiwizardconfig_icon.lrs'),
         ('AI/matrizcomponent.pas', 'matrizcomponent_icon.lrs'),
         ('python/aipythonruntime.pas', 'aipythonruntime_icon.lrs'),
-        ('componentes/ai_files/aidisktreescanner.pas', 'aidisktreescanner_icon.lrs'),
+        ('AI Files/aidisktreescanner.pas', 'aidisktreescanner_icon.lrs'),
         ('AI Graphic/aiscene2d3d.pas', 'aiscene2d3d_icon.lrs'),
         ('AI Graphic/aitrainingenvironment.pas', 'aitrainingenvironment_icon.lrs'),
         ('AI Graphic/aiphysicssimulator.pas', 'aiphysicssimulator_icon.lrs'),
