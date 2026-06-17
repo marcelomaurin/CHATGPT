@@ -19,6 +19,8 @@
 | **TCNNClassifier** | MobileNetV2 deep convolutional image classifier. | `PythonConnector` | `InstallDependencies, ClassifyImage` | Analyze and tag images or real-time camera frames. |
 | **TLSTMPredictor** | LSTM recurrent network for sequence and time-series forecasting. | `PythonConnector` | `InstallDependencies, TrainLSTM, PredictNext` | Predict future values from sequential sensor telemetry. |
 | **TAIVoiceSynthesizer** | Cross-platform native Speech Synthesis engine (TTS). | `Volume, Rate, VoiceName, Asynchronous` | `Say, GetAvailableVoices` | Synthesize real-time audio speech alerts from AI outputs. |
+| **TAIDiskTreeScanner** | Asynchronous local file tree scanner. | `TargetFolder, ShowProgress, IncludeSubfolders` | `Scan, StopScan` | Scan local directories and index files to prepare datasets. |
+| **TAI_DOCFILESMANAGER** | Physical document and file manager. | `StoragePath, Groups, AutoCreateDirs, AllowOverwrite, MaxGroupNameLength` | `Initialize, AddGrupo, AddSubGrupo, UploadSubGrupo, GetDocument, GetFullDocument` | Organize documentation files for RAG and model training. |
 
 ### 💻 General Instantiation Template
 

@@ -18,7 +18,9 @@
 | **TSOMMap** | Red de Auto-Organización de Kohonen para agrupamiento de datos. | `GridWidth, GridHeight, InputDim` | `Initialize, FindBMU, TrainStep, Train` | Agrupar datos complejos en rejillas bidimensionales. |
 | **TCNNClassifier** | Clasificador convolucional profundo MobileNetV2 para imágenes. | `PythonConnector` | `InstallDependencies, ClassifyImage` | Analizar e identificar fotos u fotogramas de cámaras. |
 | **TLSTMPredictor** | Previsor de series temporales usando redes recurrentes LSTM. | `PythonConnector` | `InstallDependencies, TrainLSTM, PredictNext` | Predecir tendencias futuras a partir de datos secuenciales. |
-| **TAIVoiceSynthesizer** | Motor de síntesis de voz (TTS) nativo Windows y Linux. | `Volume, Rate, VoiceName, Asynchronous` | `Say, GetAvailableVoices` | Hablar reportes o alertas generadas por la IA a través del hardware. |
+| **TAIVoiceSynthesizer** | Motor de síntesis de voz (TTS) nativo Windows e Linux. | `Volume, Rate, VoiceName, Asynchronous` | `Say, GetAvailableVoices` | Hablar reportes o alertas generadas por la IA a través do hardware. |
+| **TAIDiskTreeScanner** | Escaneador asíncrono de árbol de arquivos local. | `TargetFolder, ShowProgress, IncludeSubfolders` | `Scan, StopScan` | Escanear directorios locales e indexar archivos para datasets. |
+| **TAI_DOCFILESMANAGER** | Gestor físico de documentos y archivos. | `StoragePath, Groups, AutoCreateDirs, AllowOverwrite, MaxGroupNameLength` | `Initialize, AddGrupo, AddSubGrupo, UploadSubGrupo, GetDocument, GetFullDocument` | Organizar archivos de documentación para uso com RAG e entrenamiento. |
 
 ### 💻 Ejemplo General de Instanciación
 

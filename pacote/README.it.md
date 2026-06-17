@@ -19,6 +19,8 @@
 | **TCNNClassifier** | Classificatore convoluzionale profondo MobileNetV2 per immagini. | `PythonConnector` | `InstallDependencies, ClassifyImage` | Analizzare ed etichettare immagini o fotogrammi video. |
 | **TLSTMPredictor** | Previsore di serie temporali tramite rete ricorrente LSTM. | `PythonConnector` | `InstallDependencies, TrainLSTM, PredictNext` | Prevedere l'andamento futuro di dati sensoriali sequenziali. |
 | **TAIVoiceSynthesizer** | Motore di sintesi vocale (TTS) nativo Windows e Linux. | `Volume, Rate, VoiceName, Asynchronous` | `Say, GetAvailableVoices` | Generare messaggi vocali e allarmi IA tramite altoparlanti. |
+| **TAIDiskTreeScanner** | Scansionatore asincrono dell'albero dei file locali. | `TargetFolder, ShowProgress, IncludeSubfolders` | `Scan, StopScan` | Scansionare directory locali e indicizzare file per dataset. |
+| **TAI_DOCFILESMANAGER** | Gestore fisico di documenti e file. | `StoragePath, Groups, AutoCreateDirs, AllowOverwrite, MaxGroupNameLength` | `Initialize, AddGrupo, AddSubGrupo, UploadSubGrupo, GetDocument, GetFullDocument` | Organizzare i file di documentazione per RAG e addestramento. |
 
 ### 💻 Modello Generale di Istanziazione
 

@@ -19,6 +19,8 @@
 | **TCNNClassifier** | مكون تصنيف الصور Convolucional العميقة MobileNetV2. | `PythonConnector` | `InstallDependencies, ClassifyImage` | تحليل وتصنيف الصور أو إطارات الفيديو المباشرة. |
 | **TLSTMPredictor** | متنبئ السلاسل الزمنية باستخدام الشبكات التكرارية LSTM. | `PythonConnector` | `InstallDependencies, TrainLSTM, PredictNext` | التنبؤ بالقيم المستقبلية لبيانات الحساسات المتسلسلة. |
 | **TAIVoiceSynthesizer** | محرك أصلي متعدد المنصات لتخليق وتحويل النصوص لكلام مسموع. | `Volume, Rate, VoiceName, Asynchronous` | `Say, GetAvailableVoices` | تخليق إشعارات صوتية مسموعة من مخرجات الذكاء الاصطناعي. |
+| **TAIDiskTreeScanner** | ماسح شجرة الملفات المحلية غير المتزامن. | `TargetFolder, ShowProgress, IncludeSubfolders` | `Scan, StopScan` | مسح المجلدات المحلية وفهرسة الملفات لإعداد مجموعات البيانات. |
+| **TAI_DOCFILESMANAGER** | مدير المستندات والملفات المادي. | `StoragePath, Groups, AutoCreateDirs, AllowOverwrite, MaxGroupNameLength` | `Initialize, AddGrupo, AddSubGrupo, UploadSubGrupo, GetDocument, GetFullDocument` | تنظيم ملفات المستندات للاستخدام مع RAG والتدريب. |
 
 ### 💻 نموذج عام لإنشاء وتجهيز المكون
 
