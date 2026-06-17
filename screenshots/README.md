@@ -44,3 +44,6 @@
 
 ![Disk Tree AI Dataset Demo](disk_tree_ai_dataset_demo.jpg)
 
+## DocFilesManager Demo
+
+![DocFilesManager Demo](docfilesmanager_demo.jpg)

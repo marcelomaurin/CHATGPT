@@ -1,5 +1,7 @@
 # AI_DOCFILESMANAGER Demo
 
+![AI_DOCFILESMANAGER Demo Screenshot](../../../../screenshots/docfilesmanager_demo.jpg)
+
 Este exemplo demonstra o uso do componente `AI_DOCFILESMANAGER` no pacote **CHATGPT**.
 
 ## Objetivo
