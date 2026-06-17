@@ -81,6 +81,8 @@ pacote/packages/openai_voice.lpk
 pacote/packages/openai_industrial.lpk
 pacote/packages/openai_graphic.lpk
 pacote/packages/openai_agent.lpk
+pacote/packages/openai_simulation.lpk
+pacote/componentes/ai_files/ai_files.lpk
 ```
 
 Recommended order:
@@ -97,6 +99,8 @@ Recommended order:
 9. openai_industrial.lpk
 10. openai_graphic.lpk
 11. openai_agent.lpk
+12. openai_simulation.lpk
+13. ai_files.lpk
 ```
 
 ---

@@ -18,6 +18,7 @@ pacote/
   AI Input/          # Entrada, sensores, comunicação e integrações
   AI Math/           # Matemática, matrizes e estatística
   AI Output/         # Saídas, documentos e relatórios
+  AI Files/          # Escaneamento, indexação de diretórios e gerenciamento de arquivos
   AI Voice/          # Voz, áudio e filtros sonoros
   AI Vision/         # OpenCV e visão computacional
   AI Graphic/        # Visualização 3D, avatar e modelos
@@ -49,6 +50,7 @@ pacote/packages/
 | `openai_graphic.lpk` | 3D, viewer, avatar, cena e Tripo3D |
 | `openai_agent.lpk` | Agentes, segurança e executores |
 | `openai_simulation.lpk` | Simulação celular 2D: grade, entidades, regras, movimento, evolução e exportação |
+| `componentes/ai_files/ai_files.lpk` | Escaneamento de diretórios, Disk Tree Scanner e gerenciamento físico de arquivos |
 
 ---
 
@@ -66,6 +68,7 @@ pacote/packages/
 10. `packages/openai_graphic.lpk`
 11. `packages/openai_agent.lpk`
 12. `packages/openai_simulation.lpk`
+13. `componentes/ai_files/ai_files.lpk`
 
 Instale apenas os pacotes necessários ao seu projeto.
 

@@ -100,7 +100,7 @@ Use esta classificação para documentação, README de abas, samples e planejam
 |---|---|---|---|---|
 | `TAICaptureSource` | `aicapturesource.pas` | `openai_input` | Beta | Fonte de captura unificada: câmera local, IP snapshot, tela, arquivo; substitui os 4 componentes legados |
 | `TAIInputData` | `aiinput.pas` | `openai_input` | Beta | Entrada e normalização de dados numéricos |
-| `TAIAudioInput` | `aiaudio.pas` | `openai_input` | Beta | Captura de áudio via microfone (WAV/MP3) |
+| `TAIAudioInput` | `aiaudio.pas` | `openai_voice` | Beta | Captura de áudio via microfone (WAV/MP3) |
 | `TAIWebAPIServer` | `aiwebserver.pas` | `openai_input` | Beta | Servidor REST/HTTP embutido |
 | `TAISocketTCP` | `aisockets.pas` | `openai_input` | Beta | Cliente/servidor TCP |
 | `TAISocketUDP` | `aisockets.pas` | `openai_input` | Beta | Cliente/servidor UDP |
@@ -115,11 +115,27 @@ Use esta classificação para documentação, README de abas, samples e planejam
 
 ---
 
-## Files / Datasets
+## Files
 
 | Componente | Unit | Pacote | Status | Observação |
 |---|---|---|---|---|
 | `TAIDiskTreeScanner` | `aidisktreescanner.pas` | `ai_files` | Beta | Componente assíncrono para navegar, pesquisar e indexar arquivos e diretórios, com suporte a inventário de datasets para IA |
+| `TAI_DOCFILESMANAGER` | `ai_docfilesmanager.pas` | `ai_files` | Beta | Gerenciador físico de arquivos e documentações locais |
+
+---
+
+## Image Filters
+
+| Componente | Unit | Pacote | Status | Observação |
+|---|---|---|---|---|
+| `TGrayscaleFilter` | `imagefilters.pas` | `openai_image` | Stable | Filtro nativo para escala de cinza |
+| `TNegativeFilter` | `imagefilters.pas` | `openai_image` | Stable | Filtro nativo de inversão de cores |
+| `TBrightnessContrastFilter` | `imagefilters.pas` | `openai_image` | Stable | Filtro nativo para brilho e contraste |
+| `TBinarizationFilter` | `imagefilters.pas` | `openai_image` | Stable | Filtro nativo de binarização (limiarização) |
+| `TBlurFilter` | `imagefilters.pas` | `openai_image` | Stable | Filtro nativo de desfoque (blur) |
+| `TSharpenFilter` | `imagefilters.pas` | `openai_image` | Stable | Filtro nativo de nitidez |
+| `TSobelFilter` | `imagefilters.pas` | `openai_image` | Stable | Filtro nativo de detecção de bordas Sobel |
+| `TErosionDilationFilter` | `imagefilters.pas` | `openai_image` | Stable | Filtros nativos morfológicos de erosão e dilatação |
 
 ---
 

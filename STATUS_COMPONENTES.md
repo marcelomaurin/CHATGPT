@@ -24,6 +24,16 @@ Este documento descreve o estado atual de maturidade, a categoria operacional e 
 | **TAIIndustrialBridge**| `ccInput`| Experimental | Ponte de baixo nível para integração com PLCs Siemens/Profinet/Profibus. |
 | **TAIVoiceSynthesizer**| `ccOutput`| Experimental | Sintetizador de voz de texto para fala (usando APIs nativas do SO). |
 | **TAIHumanPoseDetector**| `ccVision`| Estável (64-bit) | Detector de pose corporal real integrado (MediaPipe 0.10.35). Pipeline nativo (Lazarus → DLL → Python Worker) completo e validado, com 33 landmarks corporais reais e simulação integrada. Totalmente funcional com zero vazamento de memória. Disponível apenas em 64-bit. |
+| **TAIDiskTreeScanner** | `ccFiles` | Beta | Escaneador assíncrono de árvore de diretórios local para datasets. |
+| **TAI_DOCFILESMANAGER** | `ccFiles` | Beta | Gerenciador físico de arquivos e documentações locais (AI Files). |
+| **TGrayscaleFilter** | `ccImage` | Estável | Filtro de imagem nativo para escala de cinza. |
+| **TNegativeFilter** | `ccImage` | Estável | Filtro de imagem nativo para inversão de cores. |
+| **TBrightnessContrastFilter**| `ccImage` | Estável | Filtro de imagem nativo para ajuste de brilho e contraste. |
+| **TBinarizationFilter**| `ccImage` | Estável | Filtro de imagem nativo para binarização/limiarização. |
+| **TBlurFilter** | `ccImage` | Estável | Filtro de imagem nativo para desfoque. |
+| **TSharpenFilter** | `ccImage` | Estável | Filtro de imagem nativo para nitidez. |
+| **TSobelFilter** | `ccImage` | Estável | Filtro de imagem nativo para detecção de bordas Sobel. |
+| **TErosionDilationFilter**| `ccImage` | Estável | Filtros morfológicos nativos de erosão e dilatação. |
 
 ## Compatibilidade de Formatos Documentais
 
