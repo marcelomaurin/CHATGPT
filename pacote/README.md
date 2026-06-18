@@ -36,41 +36,46 @@ Os pacotes principais ficam em:
 pacote/packages/
 ```
 
-| Pacote | Finalidade |
-|---|---|
-| `openai_core.lpk` | Base comum, LLM, prompt builder, model registry, wizard, projeto, pipeline e integração Python (TPythonConnector, TYoloDetect, TFaceDetection, TCNNClassifier, TLSTMPredictor) |
-| `openai_ml.lpk` | Machine learning simples, matrizes e utilitários matemáticos |
-| `openai_graph.lpk` | Grafos, classificação, exportação, análise e relatórios |
-| `openai_vision.lpk` | OpenCV, camera native backends (VFW/V4L2), frame, face tracker and motion tracker |
-| `openai_image.lpk` | Filtros simples de imagem |
-| `openai_voice.lpk` | Voz, áudio e filtros sonoros |
-| `openai_input.lpk` | Entrada de dados: **TAICaptureSource** (captura unificada), comunicação, sensores e protocolos |
-| `openai_output.lpk` | Saída de dados, documentos e impressoras |
-| `openai_industrial.lpk` | Modbus, MQTT e componentes industriais |
-| `openai_graphic.lpk` | 3D, viewer, avatar, cena e Tripo3D |
-| `openai_agent.lpk` | Agentes, segurança e executores |
-| `openai_simulation.lpk` | Simulação celular 2D: grade, entidades, regras, movimento, evolução e exportação |
-| `packages/openai_files.lpk` | Escaneamento de diretórios, Disk Tree Scanner e gerenciamento físico de arquivos |
+| Pacote | Finalidade | Status |
+|---|---|---|
+| `openai_core.lpk` | Base comum, LLM, prompt builder, model registry, wizard, projeto e pipeline | **Essencial** |
+| `openai_python.lpk` | Conectores Python e executores de modelos (TPythonConnector, TYoloDetect, TFaceDetection, TCNNClassifier, TLSTMPredictor, TAIPythonRuntime) | **Opcional** |
+| `openai_ml.lpk` | Machine learning simples, matrizes e utilitários matemáticos | **Opcional** |
+| `openai_graph.lpk` | Grafos, classificação, exportação, análise e relatórios | **Opcional** |
+| `openai_files.lpk` | Escaneamento de diretórios, Disk Tree Scanner e gerenciamento físico de arquivos | **Opcional** |
+| `openai_output.lpk` | Saída de dados, documentos e relatórios | **Opcional** |
+| `openai_input.lpk` | Entrada de dados, captura unificada (TAICaptureSource), e-mail, sockets e serial | **Opcional** |
+| `openai_vision.lpk` | OpenCV, backends nativos de câmera (VFW/V4L2), face e motion tracker, pose detector (MediaPipe) | **Opcional** |
+| `openai_image.lpk` | Filtros simples de imagem nativos | **Opcional** |
+| `openai_voice.lpk` | Voz, áudio e filtros sonoros | **Opcional** |
+| `openai_simulation.lpk` | Simulação celular 2D: grade, entidades, regras, movimento e evolução | **Opcional** |
+| `openai_industrial.lpk` | Modbus, MQTT e componentes industriais | **Experimental** |
+| `openai_graphic.lpk` | 3D, viewer, avatar, cena e Tripo3D | **Experimental** |
+| `openai_agent.lpk` | Agentes, segurança e executores | **Experimental** |
+
+> **Nota sobre o Pacote Legado**: O pacote antigo `openai.lpk` foi totalmente removido. Utilize os pacotes modulares da lista acima.
 
 ---
 
 ## Ordem recomendada de instalação
 
-1. `packages/openai_core.lpk` (inclui os componentes de integração Python)
-2. `packages/openai_ml.lpk`
-3. `packages/openai_graph.lpk`
-4. `packages/openai_output.lpk`
-5. `packages/openai_input.lpk`
-6. `packages/openai_vision.lpk`
-7. `packages/openai_image.lpk`
-8. `packages/openai_voice.lpk`
-9. `packages/openai_industrial.lpk`
-10. `packages/openai_graphic.lpk`
-11. `packages/openai_agent.lpk`
-12. `packages/openai_simulation.lpk`
-13. `packages/openai_files.lpk`
+1. `packages/openai_core.lpk` (Essencial)
+2. `packages/openai_python.lpk` (Opcional - Conectores Python)
+3. `packages/openai_ml.lpk`
+4. `packages/openai_graph.lpk`
+5. `packages/openai_files.lpk`
+6. `packages/openai_output.lpk`
+7. `packages/openai_input.lpk`
+8. `packages/openai_vision.lpk`
+9. `packages/openai_image.lpk`
+10. `packages/openai_voice.lpk`
+11. `packages/openai_simulation.lpk`
+12. `packages/openai_industrial.lpk`
+13. `packages/openai_graphic.lpk`
+14. `packages/openai_agent.lpk`
 
 Instale apenas os pacotes necessários ao seu projeto.
+Recompile a IDE quando solicitado.
 
 ---
 

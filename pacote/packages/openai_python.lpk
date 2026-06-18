@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="5">
+    <PathDelim Value="\"/>
+    <Name Value="openai_python"/>
+    <Type Value="RunAndDesignTime"/>
+    <Author Value="Marcelo Maurin Martins"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <PathDelim Value="\"/>
+      <SearchPaths>
+        <OtherUnitFiles Value="..\AI;..\python"/>
+        <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+      </SearchPaths>
+    </CompilerOptions>
+    <Description Value="Lazarus AI Suite: Python connectors, YOLO, CNN, LSTM and ML python runtimes."/>
+    <License Value="OPEN SOURCE GPL3"/>
+    <Files>
+      <Item>
+        <Filename Value="..\AI\pythonconnector.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="pythonconnector"/>
+      </Item>
+      <Item>
+        <Filename Value="..\python\aipythonruntime.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aipythonruntime"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI\facedetection.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="facedetection"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI\yolodetect.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="yolodetect"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI\cnnclassifier.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="cnnclassifier"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI\lstmpredictor.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="lstmpredictor"/>
+      </Item>
+    </Files>
+    <RequiredPkgs>
+      <Item>
+        <PackageName Value="openai_core"/>
+      </Item>
+      <Item>
+        <PackageName Value="LCL"/>
+      </Item>
+      <Item>
+        <PackageName Value="FCL"/>
+      </Item>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+      <UseFileFilters Value="True"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>

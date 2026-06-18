@@ -11,8 +11,7 @@ uses
   funcoes, aibase, aiplatform, airuntimepaths, ailibraryloader, 
   aiprocessrunner, chatgpt, tokenizer, aicodeassistant, aipromptbuilder, 
   aimodelregistry, aiwizardconfig, frm_aiwizardconfig, DBTokenList, 
-  GroupResponse, iaschedule, aiproject, aipipeline, pythonconnector, 
-  facedetection, yolodetect, cnnclassifier, lstmpredictor, aipythonruntime, 
+  GroupResponse, iaschedule, aiproject, aipipeline, 
   LazarusPackageIntf;
 
 implementation
@@ -30,12 +29,6 @@ begin
   RegisterUnit('iaschedule', @iaschedule.Register);
   RegisterUnit('aiproject', @aiproject.Register);
   RegisterUnit('aipipeline', @aipipeline.Register);
-  RegisterUnit('pythonconnector', @pythonconnector.Register);
-  RegisterUnit('facedetection', @facedetection.Register);
-  RegisterUnit('yolodetect', @yolodetect.Register);
-  RegisterUnit('cnnclassifier', @cnnclassifier.Register);
-  RegisterUnit('lstmpredictor', @lstmpredictor.Register);
-  RegisterUnit('aipythonruntime', @aipythonruntime.Register);
 end;
 
 initialization

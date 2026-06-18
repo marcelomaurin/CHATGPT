@@ -68,19 +68,24 @@ pacote/packages/
 
 Para novos projetos, use diretamente os pacotes modulares.
 
-| Pacote | Finalidade | Uso recomendado |
-|---|---|---|
-| `openai_core.lpk` | Componentes centrais, LLM, base comum, utilitários principais e integração Python (TPythonConnector, TYoloDetect, TFaceDetection, TCNNClassifier, TLSTMPredictor) | Instalar primeiro |
-| `openai_ml.lpk` | Machine learning simples e matemática em Pascal | Opcional |
-| `openai_graph.lpk` | Grafos, classificação por grafo e relatórios de treinamento | Opcional |
-| `openai_vision.lpk` | OpenCV, câmera, frame, face e movimento | Opcional |
-| `openai_image.lpk` | Filtros simples de imagem sem OpenCV | Opcional |
-| `openai_voice.lpk` | Voz, áudio e filtros sonoros | Opcional |
-| `openai_input.lpk` | Entrada, sensores, sockets, serial, e-mail, browser e protocolos | Opcional |
-| `openai_output.lpk` | Saídas, documentos, PDF, TXT e relatórios | Opcional |
-| `openai_industrial.lpk` | Modbus, MQTT e automação industrial | Experimental |
-| `openai_graphic.lpk` | Visualização 3D, STL/OBJ, avatar e Tripo3D | Experimental |
-| `openai_agent.lpk` | Agentes, segurança, ações e executores | Experimental |
+| Pacote | Finalidade | Uso recomendado | Status |
+|---|---|---|---|
+| `openai_core.lpk` | Componentes centrais, LLM, base comum, utilitários principais e suporte a projetos | Instalar primeiro | **Essencial** |
+| `openai_python.lpk` | Conectores Python e executores de modelos (TPythonConnector, TYoloDetect, TFaceDetection, TCNNClassifier, TLSTMPredictor, TAIPythonRuntime) | Opcional | **Opcional** |
+| `openai_ml.lpk` | Machine learning simples e matemática em Pascal (Rede Neural, Perceptron, SOM) | Opcional | **Opcional** |
+| `openai_graph.lpk` | Grafos, classificação por grafo, exportação e relatórios | Opcional | **Opcional** |
+| `openai_files.lpk` | Varredura de diretórios, Disk Tree Scanner e gerenciamento físico de arquivos | Opcional | **Opcional** |
+| `openai_output.lpk` | Saídas, relatórios, PDF, TXT, geração de arquivos Word/Excel compatíveis | Opcional | **Opcional** |
+| `openai_input.lpk` | Entrada, captura unificada (TAICaptureSource), e-mail, sockets, serial, MQTT, Modbus, Profinet | Opcional | **Opcional** |
+| `openai_vision.lpk` | OpenCV, backends nativos de câmera (VFW/V4L2), face e motion tracker, pose detector (MediaPipe 64-bit) | Opcional | **Opcional** |
+| `openai_image.lpk` | Filtros rápidos de pixel 100% nativos (Grayscale, Negative, Blur, Sobel, etc.) | Opcional | **Opcional** |
+| `openai_voice.lpk` | Voz, áudio, sintetizador de texto para fala e filtros sonoros | Opcional | **Opcional** |
+| `openai_simulation.lpk` | Simulações em grade 2D, motor de regras, comportamento e movimentação | Opcional | **Opcional** |
+| `openai_industrial.lpk` | Modbus, MQTT e pontes PLC industriais | Experimental | **Experimental** |
+| `openai_graphic.lpk` | Visualização 3D, STL/OBJ, avatar e integração Tripo3D | Experimental | **Experimental** |
+| `openai_agent.lpk` | Agentes autônomos, regras de segurança estrita e executores de ação | Experimental | **Experimental** |
+
+> **Nota sobre o Pacote Legado**: O pacote antigo e monolítico `openai.lpk` foi completamente descontinuado e removido. Utilize a estrutura modular acima.
 
 ---
 
@@ -88,30 +93,34 @@ Para novos projetos, use diretamente os pacotes modulares.
 
 1. Abra o Lazarus.
 2. Acesse **Package > Open Package File (.lpk)**.
-3. Instale primeiro:
+3. Instale primeiro o pacote essencial:
 
 ```text
 pacote/packages/openai_core.lpk
 ```
 
 4. Compile e instale.
-5. Instale apenas os pacotes adicionais necessários ao seu projeto.
-6. Recompile a IDE quando o Lazarus solicitar.
+5. Instale o pacote `openai_python.lpk` caso deseje utilizar recursos de integração com scripts Python.
+6. Instale apenas os pacotes adicionais necessários ao seu projeto.
+7. Recompile a IDE quando o Lazarus solicitar.
 
-### Ordem recomendada
+### Ordem recomendada de instalação
 
 ```text
-1. pacote/packages/openai_core.lpk
-2. pacote/packages/openai_ml.lpk
-3. pacote/packages/openai_graph.lpk
-4. pacote/packages/openai_output.lpk
-5. pacote/packages/openai_input.lpk
-6. pacote/packages/openai_vision.lpk
-7. pacote/packages/openai_image.lpk
-8. pacote/packages/openai_voice.lpk
-9. pacote/packages/openai_industrial.lpk
-10. pacote/packages/openai_graphic.lpk
-11. pacote/packages/openai_agent.lpk
+1.  pacote/packages/openai_core.lpk       (Essencial)
+2.  pacote/packages/openai_python.lpk     (Opcional - Python Connectors)
+3.  pacote/packages/openai_ml.lpk         (Opcional)
+4.  pacote/packages/openai_graph.lpk      (Opcional)
+5.  pacote/packages/openai_files.lpk      (Opcional)
+6.  pacote/packages/openai_output.lpk     (Opcional)
+7.  pacote/packages/openai_input.lpk      (Opcional)
+8.  pacote/packages/openai_vision.lpk     (Opcional)
+9.  pacote/packages/openai_image.lpk      (Opcional)
+10. pacote/packages/openai_voice.lpk      (Opcional)
+11. pacote/packages/openai_simulation.lpk (Opcional)
+12. pacote/packages/openai_industrial.lpk (Experimental)
+13. pacote/packages/openai_graphic.lpk    (Experimental)
+14. pacote/packages/openai_agent.lpk       (Experimental)
 ```
 
 ---

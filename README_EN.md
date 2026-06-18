@@ -531,13 +531,52 @@ Goal:
 
 ## Package Installation in Lazarus
 
+The suite is organized in modular packages:
+
+| Package | Purpose | Installation | Status |
+|---|---|---|---|
+| `openai_core.lpk` | Core components, LLM connection, prompt builder, model registry, project and pipeline | First | **Essential** |
+| `openai_python.lpk` | Python connectors and external models runtimes (TPythonConnector, TYoloDetect, TFaceDetection, TCNNClassifier, TLSTMPredictor, TAIPythonRuntime) | Optional | **Optional** |
+| `openai_ml.lpk` | Simple machine learning and mathematics in Pascal (Neural Network, Perceptron, SOM) | Optional | **Optional** |
+| `openai_graph.lpk` | Graphs, token-based classification, export and reports | Optional | **Optional** |
+| `openai_files.lpk` | Directory scanning, Disk Tree Scanner and physical file management | Optional | **Optional** |
+| `openai_output.lpk` | Outputs, reports, PDF, TXT, Excel/Word compatible files generation | Optional | **Optional** |
+| `openai_input.lpk` | Inputs, unified capture (TAICaptureSource), email, sockets, serial, MQTT, Modbus, Profinet | Optional | **Optional** |
+| `openai_vision.lpk` | OpenCV, camera native backends (VFW/V4L2), face and motion tracker, pose detector (MediaPipe 64-bit) | Optional | **Optional** |
+| `openai_image.lpk` | Fast 100% native pixel filters (Grayscale, Negative, Blur, Sobel, etc.) | Optional | **Optional** |
+| `openai_voice.lpk` | Voice, audio, text-to-speech synthesis and sound filters | Optional | **Optional** |
+| `openai_simulation.lpk` | 2D grid simulations, rule engine, behavior and movement | Optional | **Optional** |
+| `openai_industrial.lpk` | Modbus, MQTT and industrial PLC bridges | Experimental | **Experimental** |
+| `openai_graphic.lpk` | 3D rendering, STL/OBJ, avatar and Tripo3D integration | Experimental | **Experimental** |
+| `openai_agent.lpk` | Autonomous agents, strict safety rules and action executors | Experimental | **Experimental** |
+
+> **Legacy Package Note**: The old monolithic `openai.lpk` package is fully deprecated and removed. Please use the modular packages listed above.
+
+### Recommended Installation Order
+
 1. Open Lazarus.
 2. Go to **Package > Open Package File (.lpk)**.
-3. Select the file `pacote/packages/openai_core.lpk`.
-4. Click **Compile**.
-5. Then click **Use > Install**.
-6. Lazarus will ask to rebuild the IDE.
-7. After restarting, the components will appear in the component palette.
+3. Select the file `pacote/packages/openai_core.lpk` and click **Compile**, then **Use > Install**.
+4. If you want to use Python scripts, open and install `pacote/packages/openai_python.lpk`.
+5. Install any other optional or experimental package as needed by your project.
+6. Rebuild the IDE when prompted.
+
+```text
+1.  pacote/packages/openai_core.lpk       (Essential)
+2.  pacote/packages/openai_python.lpk     (Optional - Python Connectors)
+3.  pacote/packages/openai_ml.lpk         (Optional)
+4.  pacote/packages/openai_graph.lpk      (Optional)
+5.  pacote/packages/openai_files.lpk      (Optional)
+6.  pacote/packages/openai_output.lpk     (Optional)
+7.  pacote/packages/openai_input.lpk      (Optional)
+8.  pacote/packages/openai_vision.lpk     (Optional)
+9.  pacote/packages/openai_image.lpk      (Optional)
+10. pacote/packages/openai_voice.lpk      (Optional)
+11. pacote/packages/openai_simulation.lpk (Optional)
+12. pacote/packages/openai_industrial.lpk (Experimental)
+13. pacote/packages/openai_graphic.lpk    (Experimental)
+14. pacote/packages/openai_agent.lpk       (Experimental)
+```
 
 ---
 

@@ -9,7 +9,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\AI;..\AI Agent;..\AI Voice;..\AI Filtros Sonoros;..\AI Image;..\AI Schedule;..\AI Math;..\AI Input;..\AI Output;..\AI Graph;..\AI Graphic;..\AI Vision;..\AI Industrial;..\AI Project;..\AI Simulation;..;..\python"/>
+        <OtherUnitFiles Value="..\AI;..\AI Schedule;.."/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
@@ -98,36 +98,6 @@
         <Filename Value="..\AI\aipipeline.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aipipeline"/>
-      </Item>
-      <Item>
-        <Filename Value="..\AI\pythonconnector.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="pythonconnector"/>
-      </Item>
-      <Item>
-        <Filename Value="..\AI\facedetection.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="facedetection"/>
-      </Item>
-      <Item>
-        <Filename Value="..\AI\yolodetect.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="yolodetect"/>
-      </Item>
-      <Item>
-        <Filename Value="..\AI\cnnclassifier.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="cnnclassifier"/>
-      </Item>
-      <Item>
-        <Filename Value="..\AI\lstmpredictor.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="lstmpredictor"/>
-      </Item>
-      <Item>
-        <Filename Value="..\python\aipythonruntime.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="aipythonruntime"/>
       </Item>
     </Files>
     <RequiredPkgs>
