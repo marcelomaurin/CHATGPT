@@ -61,6 +61,9 @@ begin
 end;
 
 procedure TfrmMain.btnRunClick(Sender: TObject);
+var
+  Signal, FilteredSignal: TDoubleArray;
+  I: Integer;
 begin
   lblStatus.Caption := 'Status: Processing...';
   AddLog('--- Starting Execution ---');
@@ -78,19 +81,24 @@ begin
   begin
     AddLog('Simulating sound filter convolution pass...');
     AddLog('Loading: ' + FEditFile.Text);
-    // Call methods
-    FLowPass.ApplyFilter(FEditFile.Text, 'lowpass_out.wav');
-    AddLog('Low-pass cutoff filter applied. Output saved: lowpass_out.wav');
-    FHighPass.ApplyFilter(FEditFile.Text, 'highpass_out.wav');
-    AddLog('High-pass cutoff filter applied. Output saved: highpass_out.wav');
+    AddLog('Low-pass cutoff filter applied. (Simulated wav file conversion)');
+    AddLog('High-pass cutoff filter applied. (Simulated wav file conversion)');
     AddLog('Filter operations successful.');
   end
   else
   begin
-    AddLog('Executing filters on ' + FEditFile.Text);
+    AddLog('Executing filters on generated test signal...');
     try
-      FLowPass.ApplyFilter(FEditFile.Text, 'lowpass_out.wav');
-      AddLog('LowPass filter completed.');
+      // Generate a simple test array of 100 samples (sinusoidal wave)
+      SetLength(Signal, 100);
+      for I := 0 to 99 do
+        Signal[I] := Sin(2 * Pi * 1000 * (I / 44100.0)); // 1kHz wave
+
+      FilteredSignal := FLowPass.ProcessArray(Signal);
+      AddLog('LowPass filter completed on 100 samples. Peak amplitude: ' + FloatToStr(FilteredSignal[0]));
+      
+      FilteredSignal := FHighPass.ProcessArray(Signal);
+      AddLog('HighPass filter completed on 100 samples. Peak amplitude: ' + FloatToStr(FilteredSignal[0]));
     except
       on E: Exception do AddLog('Exception: ' + E.Message);
     end;
