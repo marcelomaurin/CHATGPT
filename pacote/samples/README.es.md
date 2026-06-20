@@ -8,247 +8,227 @@ Los siguientes ejemplos son proyectos visuales listos para compilar y ejecutar i
 
 ### 📦 AI
 
-| Ejemplo / Ruta | Descripción | Paquete Requerido | Componentes Usados |
-|---|---|---|---|
-| **[CNN Image Classification Demo (cnn_demo)](AI/cnn_demo/)** <br> <sub>[📷 Screenshot](../../screenshots/cnn_demo.jpg)</sub> | Este exemplo demonstra o uso do componente **`TCNNClassifier`** integrado ao conector Python para realizar classificação de imagens profunda em tempo real com o modelo **MobileNetV2** (pré-treinado no ImageNet). | `openai`, `ImagesForLazarus` | `TCNNClassifier`, `TPythonConnector` |
-| **[Kohonen Self-Organizing Maps RGB Demo (som_demo)](AI/som_demo/)** <br> <sub>[📷 Screenshot](../../screenshots/som_demo.jpg)</sub> | Este exemplo demonstra o uso do componente **`TSOMMap`**, uma Rede de Auto-Organização de Kohonen (Self-Organizing Map) escrita em **Pascal puro**, para mapear e agrupar vetores tridimensionais de cores RGB em uma grade bidimensional interativa de neurônios. | `openai` | `TSOMMap` |
-| **[LSTM Trend Prediction Demo (lstm_demo)](AI/lstm_demo/)** | Este exemplo demonstra o uso do componente recorrente **`TLSTMPredictor`** integrado ao conector Python para prever tendências futuras em séries temporais (Rolling Forecast) usando redes neurais recorrentes do tipo **LSTM (Long Short-Term Memory)**. | `openai`, `ImagesForLazarus` | `TLSTMPredictor`, `TPythonConnector` |
-| **[Neural Network XOR Playground (neural_network_demo)](AI/neural_network_demo/)** | Este exemplo demonstra o uso do componente **`TNeuralNetwork`**, uma rede neural artificial multicamadas (MLP - Multilayer Perceptron) escrita em **Pascal puro**, para aprender a lógica XOR (Ou Exclusivo) de forma totalmente local e offline. | `openai` | `TNeuralNetwork` |
-| **[OpenCV Face Detection Demo (face_detection_demo)](AI/face_detection_demo/)** | Este exemplo demonstra o uso do componente **`TFaceDetection`** integrado ao conector Python para realizar detecção facial em tempo real com **OpenCV** e desenhar retângulos delimitadores vermelhos ao redor de faces humanas. | `openai`, `ImagesForLazarus` | `TFaceDetection`, `TPythonConnector` |
-| **[Perceptron Logic Gates Playground (perceptron_demo)](AI/perceptron_demo/)** | Este exemplo demonstra o uso do componente **`TPerceptron`**, uma rede neural artificial clássica de camada única escrita em **Pascal puro**, para aprender portas lógicas linearmente separáveis (como AND, OR, NAND, NOR) de forma totalmente offline. | `openai` | `TPerceptron` |
-| **[Python Connector Demo (python_demo)](AI/python_demo/)** <br> <sub>[📷 Screenshot](../../screenshots/python_demo.jpg)</sub> | Este exemplo demonstra como utilizar o componente **`TPythonConnector`** para carregar interpretadores Python dinamicamente e executar códigos, avaliar expressões matemáticas e interagir com variáveis globais diretamente de aplicações Lazarus/Delphi de forma multiplataforma. | `openai` | `TPythonConnector` |
-| **[String Tokenizer Utility Demo (tokenizer_demo)](AI/tokenizer_demo/)** | Este exemplo demonstra o uso do componente **`TTokenList`**, um utilitário escrito em **Pascal puro** projetado para segmentação (tokenização), contagem e indexação estruturada de termos e palavras em strings de texto. | `openai` | `TTokenList` |
-| **[TAIGraphMap Demo — Classificação Textual por Grafo Ponderado](AI/graphmap_demo/)** | Este projeto demonstra visualmente o funcionamento do componente `TAIGraphMap`. | `openai` | `TAIGraphMap` |
-| **[Unified AI Components Playground (visual_demo)](AI/visual_demo/)** | Este é o showcase unificado e a central de testes em interface gráfica para as quatro ferramentas fundamentais da suíte de IA: **`TCHATGPT`**, **`TNeuralNetwork`**, **`TAICodeAssistant`** e **`TAIDatasetGenerator`**. | `openai` | `TCHATGPT`, `TNeuralNetwork` |
-| **[YOLOv8 Object Detection Demo (yolo_demo)](AI/yolo_demo/)** | Este exemplo demonstra o uso do componente **`TYOLO`** integrado ao conector Python para realizar detecção de objetos profunda em tempo real com o modelo **YOLOv8** (You Only Look Once) e desenhar retângulos delimitadores diretamente em imagens na tela do Lazarus. | `openai`, `ImagesForLazarus` | `TPythonConnector`, `TYOLO` |
+| Ejemplo / Ruta | Descripción |
+|---|---|
+| **[AI\cnn_demo](AI/cnn_demo/)** | Clasificación de imágenes mediante redes convolucionales con TensorFlow y Python. |
+| **[AI\face_detection_demo](AI/face_detection_demo/)** | Detección y seguimiento facial en tiempo real con OpenCV. |
+| **[AI\graphmap_demo](AI/graphmap_demo/)** | Clasificación de texto y enrutamiento usando mapas de grafos de tokens ponderados. |
+| **[AI\lstm_demo](AI/lstm_demo/)** | Predicción gráfica de tendencias de series temporales con modelos LSTM a través de Python. |
+| **[AI\neural_network_demo](AI/neural_network_demo/)** | Entrenamiento y visualización local de redes neuronales perceptrón multicapa (MLP). |
+| **[AI\perceptron_demo](AI/perceptron_demo/)** | Visualizador interactivo del entrenamiento de un perceptrón simple de una sola capa. |
+| **[AI\python_demo](AI/python_demo/)** | Consola interactiva para ejecutar y probar scripts de Python. |
+| **[AI\som_demo](AI/som_demo/)** | Agrupación topológica visual de colores utilizando mapas autoorganizados (SOM). |
+| **[AI\tokenizer_demo](AI/tokenizer_demo/)** | Demostración de utilidades de procesamiento, segmentación y tokenización de textos. |
+| **[AI\visual_demo](AI/visual_demo/)** | Área de juegos unificada que reúne varias demostraciones visuales y pestañas de prueba. |
+| **[AI\yolo_demo](AI/yolo_demo/)** | Detección profunda de objetos con YOLOv8 a través de la integración de Python. |
 
 ### 📦 AI Agent
 
-| Ejemplo / Ruta | Descripción | Paquete Requerido | Componentes Usados |
-|---|---|---|---|
-| **[Playground de Agente Autônomo e Tomada de Decisão (TAIAgent)](AI Agent/agent_demo/)** | Este projeto demonstra a utilização prática do novo conjunto de componentes autônomos sob a aba **AI Agent** do Lazarus IDE. A aplicação exemplifica como configurar agentes inteligentes capazes de receber instruções, analisar contextos do mundo real e escolher a melhor ação a ser executada externamente por meio de recursos físicos com retorno estruturado via JSON nativo. | `openai` | `TAIAgent`, `TAIAgentAction`, `TAIAgentOptions`, `TAIAgentOutput`, `TAIAgentResource`, `TCHATGPT` |
+| Ejemplo / Ruta | Descripción |
+|---|---|
+| **[AI Agent\agent_demo](AI Agent/agent_demo/)** | Simulación de agentes autónomos inteligentes para la toma de decisiones. |
 
 ### 📦 AI Core
 
-| Ejemplo / Ruta | Descripción | Paquete Requerido | Componentes Usados |
-|---|---|---|---|
-| **[Codeassistant Demo (aicodeassistant)](AI Core/codeassistant_demo/)** | This sample project demonstrates the usage of component `aicodeassistant` from the `openai_core` package. | `openai_core` | - |
-| **[Modelregistry Demo (aimodelregistry)](AI Core/modelregistry_demo/)** | This sample project demonstrates the usage of component `aimodelregistry, chatgpt` from the `openai_core` package. | `openai_core` | `TCHATGPT` |
-| **[Pipeline Full Demo (aipipeline)](AI Core/pipeline_full_demo/)** | This sample project demonstrates the usage of component `aipipeline, chatgpt, aioutput, aioutput_docs` from the `openai_core` package. | `openai_core` | `TCHATGPT` |
-| **[Promptbuilder Demo (aipromptbuilder)](AI Core/promptbuilder_demo/)** | This sample project demonstrates the usage of component `aipromptbuilder` from the `openai_core` package. | `openai_core` | - |
-| **[Wizard Config Demo (aiwizardconfig)](AI Core/wizard_config_demo/)** | This sample project demonstrates the usage of component `aiwizardconfig, aiproject, chatgpt, aipipeline` from the `openai_core` package. | `openai_core` | `TCHATGPT` |
+| Ejemplo / Ruta | Descripción |
+|---|---|
+| **[AI Core\codeassistant_demo](AI Core/codeassistant_demo/)** | Asistente de código interactivo para refactorización y documentación automática en Pascal. |
+| **[AI Core\modelregistry_demo](AI Core/modelregistry_demo/)** | Gestión y registro centralizado de modelos de lenguaje de IA. |
+| **[AI Core\pipeline_full_demo](AI Core/pipeline_full_demo/)** | Creación y ejecución de pipelines complejos para el procesamiento secuencial de texto. |
+| **[AI Core\promptbuilder_demo](AI Core/promptbuilder_demo/)** | Herramienta visual para construir, modelar y optimizar prompts de IA. |
+| **[AI Core\wizard_config_demo](AI Core/wizard_config_demo/)** | Asistente interactivo paso a paso para la configuración inicial de proyectos de IA. |
 
 ### 📦 AI DBase
 
-| Ejemplo / Ruta | Descripción | Paquete Requerido | Componentes Usados |
-|---|---|---|---|
-| **[AI SQLite Query Assistant Demo](AI DBase/ai_sqlite_query_assistant_demo/)** <br> <sub>[📷 Screenshot](../../screenshots/ai_sqlite_query_assistant_demo.jpg)</sub> | This demo shows how to combine ChatGPT with the AI DBase Dictionary component to generate SQLite SELECT queries from natural language. | `openai_aidbase`, `openai_core`, `zcomponent` | `TAISQLiteDictionary`, `TCHATGPT` |
-| **[db_dictionary_demo](AI DBase/db_dictionary_demo/)** <br> <sub>[📷 Screenshot](../../screenshots/db_dicitionary_demo.jpg)</sub> | Sin descripción disponible. | `zcomponent`, `openai_core`, `openai_aidbase` | `TAIPostgreSQLDictionary`, `TAISQLiteDictionary` |
+| Ejemplo / Ruta | Descripción |
+|---|---|
+| **[AI DBase\ai_sqlite_query_assistant_demo](AI DBase/ai_sqlite_query_assistant_demo/)** | Asistente de consultas SQL en lenguaje natural con ChatGPT y SQLite. |
+| **[AI DBase\db_dictionary_demo](AI DBase/db_dictionary_demo/)** | Extractor visual de diccionarios de datos y metadatos para SQLite/PostgreSQL. |
 
 ### 📦 AI Files
 
-| Ejemplo / Ruta | Descripción | Paquete Requerido | Componentes Usados |
-|---|---|---|---|
-| **[AI_DOCFILESMANAGER Demo](AI Files/docfilesmanager_demo/)** <br> <sub>[📷 Screenshot](../../screenshots/docfilesmanager_demo.jpg)</sub> | ![AI_DOCFILESMANAGER Demo Screenshot](../../../../screenshots/docfilesmanager_demo.jpg) | `openai_files` | - |
-| **[Disk Tree AI Dataset Demo](AI Files/disk_tree_ai_dataset_demo/)** <br> <sub>[📷 Screenshot](../../screenshots/disk_tree_ai_dataset_demo.jpg)</sub> | Este demo demonstra o uso do componente `TAIDiskTreeScanner` para navegação, varredura, pesquisa e preparação de datasets para inteligência artificial de forma assíncrona. | `openai_files` | - |
+| Ejemplo / Ruta | Descripción |
+|---|---|
+| **[AI Files\disk_tree_ai_dataset_demo](AI Files/disk_tree_ai_dataset_demo/)** | Escaneo de carpetas en disco para compilar conjuntos de datos de entrenamiento. |
+| **[AI Files\docfilesmanager_demo](AI Files/docfilesmanager_demo/)** | Gestor estructurado para la documentación y archivos de texto del proyecto. |
 
 ### 📦 AI Filtros Sonoros
 
-| Ejemplo / Ruta | Descripción | Paquete Requerido | Componentes Usados |
-|---|---|---|---|
-| **[Audio Sound Filters Demo (sound_filters_demo)](AI Filtros Sonoros/sound_filters_demo/)** <br> <sub>[📷 Screenshot](../../screenshots/sound_filters.jpg)</sub> | Este exemplo demonstra o uso dos filtros de processamento de sinais analógicos e multiplexadores de RF incluídos na aba **`AI Filtros Sonoros`** da paleta de componentes do Lazarus, implementados em **Pascal puro** de alta performance. | `openai` | - |
+| Ejemplo / Ruta | Descripción |
+|---|---|
+| **[AI Filtros Sonoros\sound_filters_demo](AI Filtros Sonoros/sound_filters_demo/)** | Simulación interactiva de filtros de audio y multiplexación de señales DSP. |
 
 ### 📦 AI Graph
 
-| Ejemplo / Ruta | Descripción | Paquete Requerido | Componentes Usados |
-|---|---|---|---|
-| **[Dataset Analyzer Demo (aidatasetanalyzer)](AI Graph/dataset_analyzer_demo/)** | This sample project demonstrates the usage of component `aidatasetanalyzer` from the `openai_graph` package. | `openai_graph` | - |
-| **[Graph Visualizer Demo (aigraphvisualizer)](AI Graph/graph_visualizer_demo/)** | This sample project demonstrates the usage of component `aigraphvisualizer, aigraphmap` from the `openai_graph` package. | `openai_graph` | `TAIGraphMap` |
-| **[Training Exporter Demo (aitrainingexporter)](AI Graph/training_exporter_demo/)** | This sample project demonstrates the usage of component `aitrainingexporter, aigraphmap` from the `openai_graph` package. | `openai_graph` | `TAIGraphMap` |
-| **[Training Report Demo (aitrainingreport)](AI Graph/training_report_demo/)** | This sample project demonstrates the usage of component `aitrainingreport, aigraphmap` from the `openai_graph` package. | `openai_graph` | `TAIGraphMap` |
-| **[graphmap_basic](AI Graph/graphmap_basic/)** | Sin descripción disponible. | `openai` | `TAIGraphMap` |
+| Ejemplo / Ruta | Descripción |
+|---|---|
+| **[AI Graph\dataset_analyzer_demo](AI Graph/dataset_analyzer_demo/)** | Herramienta gráfica de análisis estatístico de conjuntos de datos de entrenamiento. |
+| **[AI Graph\graph_visualizer_demo](AI Graph/graph_visualizer_demo/)** | Visualizador interactivo para grafos y nodos relacionales de términos. |
+| **[AI Graph\graphmap_basic](AI Graph/graphmap_basic/)** | Versión básica de línea de comandos para la clasificación mediante mapas de grafos. |
+| **[AI Graph\training_exporter_demo](AI Graph/training_exporter_demo/)** | Exportador estructurado para datos de entrenamiento en mapas de relaciones. |
+| **[AI Graph\training_report_demo](AI Graph/training_report_demo/)** | Generador de informes visuales sobre el estado del aprendizaje en grafos. |
 
 ### 📦 AI Graphic
 
-| Ejemplo / Ruta | Descripción | Paquete Requerido | Componentes Usados |
-|---|---|---|---|
-| **[Avatar 3D Animation Demo - Lazarus AI Suite](AI Graphic/avatar_demo/)** | Este demonstrativo apresenta a exibição e animação de avatares 3D utilizando esqueletos e malhas deformáveis. | `openai` | - |
-| **[Model3D Viewer Demo (ai3dmodelviewer)](AI Graphic/model3d_viewer_demo/)** | This sample project demonstrates the usage of component `ai3dmodelviewer, aimodel3d` from the `openai_graphic` package. | `openai_graphic` | `TAI3DModelViewer`, `TAIModel3D` |
-| **[Physics Training Demo (aiphysicssimulator)](AI Graphic/physics_training_demo/)** | This sample project demonstrates the usage of component `aiphysicssimulator, aitrainingenvironment` from the `openai_graphic` package. | `openai_graphic` | - |
-| **[Pose Animation Demo (aiposelibrary)](AI Graphic/pose_animation_demo/)** | This sample project demonstrates the usage of component `aiposelibrary, aianimationsequence, aiskeletonrig` from the `openai_graphic` package. | `openai_graphic` | - |
-| **[Scene3D Demo (aiscene2d3d)](AI Graphic/scene3d_demo/)** | This sample project demonstrates the usage of component `aiscene2d3d` from the `openai_graphic` package. | `openai_graphic` | `TAIScene2D3D` |
-| **[Skeleton Rig Demo (aiskeletonrig)](AI Graphic/skeleton_rig_demo/)** | This sample project demonstrates the usage of component `aiskeletonrig` from the `openai_graphic` package. | `openai_graphic` | - |
-| **[Tripo3D Demo (aitripo3dclient)](AI Graphic/tripo3d_demo/)** | This sample project demonstrates the usage of component `aitripo3dclient` from the `openai_graphic` package. | `openai_graphic` | `TAITripo3dClient` |
-| **[opengl_graphic_demo](AI Graphic/opengl_graphic_demo/)** | Sin descripción disponible. | `openai` | `TAI3DModelViewer`, `TAIModel3D`, `TAIScene2D3D` |
+| Ejemplo / Ruta | Descripción |
+|---|---|
+| **[AI Graphic\avatar_demo](AI Graphic/avatar_demo/)** | Panel visual de avatares con control de esqueleto y mallas deformables. |
+| **[AI Graphic\model3d_viewer_demo](AI Graphic/model3d_viewer_demo/)** | Visualizador interactivo de modelos 3D con control de cámara. |
+| **[AI Graphic\opengl_graphic_demo](AI Graphic/opengl_graphic_demo/)** | Renderizado gráfico interactivo 3D con rejillas, luces y OpenGL nativo. |
+| **[AI Graphic\physics_training_demo](AI Graphic/physics_training_demo/)** | Simulación física básica para el entrenamiento del comportamiento en tiempo real. |
+| **[AI Graphic\pose_animation_demo](AI Graphic/pose_animation_demo/)** | Biblioteca de poses corporales y secuenciador interactivo para modelos 3D. |
+| **[AI Graphic\scene3d_demo](AI Graphic/scene3d_demo/)** | Visualizador de escenas 3D y control de múltiples cámaras con OpenGL. |
+| **[AI Graphic\skeleton_rig_demo](AI Graphic/skeleton_rig_demo/)** | Control de esqueleto en mallas y deformación de vértices en gráficos 3D. |
+| **[AI Graphic\tripo3d_demo](AI Graphic/tripo3d_demo/)** | Generación de malla 3D a partir de texto o imágenes mediante la API Tripo3D. |
 
 ### 📦 AI Image
 
-| Ejemplo / Ruta | Descripción | Paquete Requerido | Componentes Usados |
-|---|---|---|---|
-| **[LCL Image Filters Demo (image_filters_demo)](AI Image/image_filters_demo/)** | Este exemplo demonstra o uso dos filtros de processamento de imagens matriciais inclusos na aba **`AI Image`** da paleta de componentes do Lazarus, implementados em **Pascal puro** de alta performance. | `openai` | - |
+| Ejemplo / Ruta | Descripción |
+|---|---|
+| **[AI Image\image_filters_demo](AI Image/image_filters_demo/)** | Procesamiento matricial de filtros de imagen nativos en canvas de Pascal. |
 
 ### 📦 AI Industrial
 
-| Ejemplo / Ruta | Descripción | Paquete Requerido | Componentes Usados |
-|---|---|---|---|
-| **[Industrial Bridge Demo (aiindustrial)](AI Industrial/industrial_bridge_demo/)** | This sample project demonstrates the usage of component `aiindustrial` from the `openai_industrial` package. | `openai_industrial` | `TAIIndustrialBridge` |
-| **[Modbus Demo (aimodbus)](AI Industrial/modbus_demo/)** | This sample project demonstrates the usage of component `aimodbus` from the `openai_industrial` package. | `openai_industrial` | - |
-| **[Mqtt Demo (aimqtt)](AI Industrial/mqtt_demo/)** | This sample project demonstrates the usage of component `aimqtt` from the `openai_industrial` package. | `openai_industrial` | `TAIMQTTClient` |
+| Ejemplo / Ruta | Descripción |
+|---|---|
+| **[AI Industrial\industrial_bridge_demo](AI Industrial/industrial_bridge_demo/)** | Puente de comunicación industrial que conecta brokers de IoT y PLC. |
+| **[AI Industrial\modbus_demo](AI Industrial/modbus_demo/)** | Lectura y escritura en el protocolo industrial Modbus. |
+| **[AI Industrial\mqtt_demo](AI Industrial/mqtt_demo/)** | Conexión y publicación de eventos en brokers MQTT. |
 
 ### 📦 AI Input
 
-| Ejemplo / Ruta | Descripción | Paquete Requerido | Componentes Usados |
-|---|---|---|---|
-| **[Chromium Capture Demo (aichromiumbrowser)](AI Input/chromium_capture_demo/)** | This sample project demonstrates the usage of component `aichromiumbrowser` from the `openai_input` package. | `openai_input` | `TAIChromiumBrowser` |
-| **[Email Classifier Demo (aiemail)](AI Input/email_classifier_demo/)** | This sample project demonstrates the usage of component `aiemail` from the `openai_input` package. | `openai_input` | `TAIEmailClient` |
-| **[Serial Demo (aiserial)](AI Input/serial_demo/)** | This sample project demonstrates the usage of component `aiserial` from the `openai_input` package. | `openai_input` | - |
-| **[Socket Server Client Demo (aisockets)](AI Input/socket_server_client_demo/)** | This sample project demonstrates the usage of component `aisockets` from the `openai_input` package. | `openai_input` | - |
-| **[Webserver Demo (aiwebserver)](AI Input/webserver_demo/)** | This sample project demonstrates the usage of component `aiwebserver` from the `openai_input` package. | `openai_input` | - |
-| **[capture_source_demo](AI Input/capture_source_demo/)** | Sample demonstrating **TAICaptureSource** — the unified capture component of the Lazarus AI Suite. | `openai_input`, `openai_vision` | - |
-| **[hardware_net_demo](AI Input/hardware_net_demo/)** | Sin descripción disponible. | `openai` | `TAIChromiumBrowser`, `TAIEmailClient`, `TAIIndustrialBridge`, `TAIMQTTClient`, `TAIMessenger` |
+| Ejemplo / Ruta | Descripción |
+|---|---|
+| **[AI Input\capture_source_demo](AI Input/capture_source_demo/)** | Captura de fotogramas desde múltiples fuentes físicas y cámaras. |
+| **[AI Input\chromium_capture_demo](AI Input/chromium_capture_demo/)** | Captura visual programada de navegadores Chromium integrados (CEF). |
+| **[AI Input\email_classifier_demo](AI Input/email_classifier_demo/)** | Clasificación inteligente y filtrado automático de correos electrónicos. |
+| **[AI Input\hardware_net_demo](AI Input/hardware_net_demo/)** | Integración de cámaras, brokers MQTT, correos electrónicos y puentes PLC. |
+| **[AI Input\serial_demo](AI Input/serial_demo/)** | Comunicación directa bidireccional con puertos serie y placas Arduino. |
+| **[AI Input\socket_server_client_demo](AI Input/socket_server_client_demo/)** | Servidor y cliente nativo TCP/UDP para el intercambio rápido de datos. |
+| **[AI Input\webserver_demo](AI Input/webserver_demo/)** | Servidor HTTP ligero nativo para exponer microservicios locales. |
 
 ### 📦 AI ML
 
-| Ejemplo / Ruta | Descripción | Paquete Requerido | Componentes Usados |
-|---|---|---|---|
-| **[Dataset Generator Visual Demo (aidatasetgenerator)](AI ML/dataset_generator_visual_demo/)** | This sample project demonstrates the usage of component `aidatasetgenerator` from the `openai_ml` package. | `openai_ml` | - |
-| **[Matrix Component Demo (matrizcomponent)](AI ML/matrix_component_demo/)** | This sample project demonstrates the usage of component `matrizcomponent` from the `openai_ml` package. | `openai_ml` | - |
-| **[Numps Demo (numps)](AI ML/numps_demo/)** | This sample project demonstrates the usage of component `numps` from the `openai_ml` package. | `openai_ml` | - |
+| Ejemplo / Ruta | Descripción |
+|---|---|
+| **[AI ML\dataset_generator_visual_demo](AI ML/dataset_generator_visual_demo/)** | Interfaz visual de Lazarus para construir y exportar conjuntos de datos. |
+| **[AI ML\matrix_component_demo](AI ML/matrix_component_demo/)** | Operaciones avanzadas con matrices matemáticas escritas en Pascal puro. |
+| **[AI ML\numps_demo](AI ML/numps_demo/)** | Integración visual de Lazarus para computación científica con NUMPS. |
 
 ### 📦 AI Math
 
-| Ejemplo / Ruta | Descripción | Paquete Requerido | Componentes Usados |
-|---|---|---|---|
-| **[Demonstração Visual: AI Math, AI Input e AI Output](AI Math/math_input_output_demo/)** <br> <sub>[📷 Screenshot](../../screenshots/math_input_output_demo.jpg)</sub> | Este exemplo é uma demonstração visual unificada criada para ilustrar o uso dos três novos componentes da suíte de componentes de IA para Lazarus: | `openai` | - |
+| Ejemplo / Ruta | Descripción |
+|---|---|
+| **[AI Math\math_input_output_demo](AI Math/math_input_output_demo/)** | Visualizador y procesador de variables de entrada y salida matemáticas. |
 
 ### 📦 AI MediaPipe Vision
 
-| Ejemplo / Ruta | Descripción | Paquete Requerido | Componentes Usados |
-|---|---|---|---|
-| **[Pose Detector Demo — TAIHumanPoseDetector](AI MediaPipe Vision/pose_detector_demo/)** <br> <sub>[📷 Screenshot](../../screenshots/pose_detector_demo.jpg)</sub> | Demo GUI que demonstra o componente `TAIHumanPoseDetector` com a bridge SIM (e opcionalmente REAL). | `ImagesForLazarus`, `openai_vision` | - |
+| Ejemplo / Ruta | Descripción |
+|---|---|
+| **[AI MediaPipe Vision\pose_detector_demo](AI MediaPipe Vision/pose_detector_demo/)** | Sin descripción disponible. |
 
 ### 📦 AI Native Vision
 
-| Ejemplo / Ruta | Descripción | Paquete Requerido | Componentes Usados |
-|---|---|---|---|
-| **[motion_tracker_demo](AI Native Vision/motion_tracker_demo/)** | Sin descripción disponible. | `openai_vision` | `TAIMotionTracker` |
-| **[native_image_filter_demo](AI Native Vision/native_image_filter_demo/)** | Sin descripción disponible. | `openai_vision` | - |
+| Ejemplo / Ruta | Descripción |
+|---|---|
+| **[AI Native Vision\motion_tracker_demo](AI Native Vision/motion_tracker_demo/)** | Identificación y seguimiento óptico del movimiento en tiempo real. |
+| **[AI Native Vision\native_image_filter_demo](AI Native Vision/native_image_filter_demo/)** | Filtros gráficos nativos de alto rendimiento basados en CPU. |
 
 ### 📦 AI Output
 
-| Ejemplo / Ruta | Descripción | Paquete Requerido | Componentes Usados |
-|---|---|---|---|
-| **[Output Docs Demo (aioutput_docs)](AI Output/output_docs_demo/)** | This sample project demonstrates the usage of component `aioutput_docs` from the `openai_output` package. | `openai_output` | - |
-| **[Output Text Json Demo (aioutput)](AI Output/output_text_json_demo/)** | This sample project demonstrates the usage of component `aioutput, aiinput` from the `openai_output` package. | `openai_output` | - |
-| **[Pdf Word Excel Demo (aioutput_docs)](AI Output/pdf_word_excel_demo/)** | This sample project demonstrates the usage of component `aioutput_docs` from the `openai_output` package. | `openai_output` | - |
-| **[Posprinter Demo (aiposprinter)](AI Output/posprinter_demo/)** | This sample project demonstrates the usage of component `aiposprinter` from the `openai_output` package. | `openai_output` | - |
-| **[TAIWordDocument Demo — Manipulação Real de DOCX via OpenXML](AI Output/word_object_demo/)** | Este sample demonstra a geração, carregamento, edição e salvamento real de arquivos `.docx` usando a especificação OpenXML / WordprocessingML. | `openai_output` | - |
-| **[TAIWordViewer Demo — Visualização de DOCX em TPanel](AI Output/word_viewer_demo/)** | Este sample demonstra a visualização e renderização nativa de arquivos `.docx` reais dentro de um painel `TPanel` da LCL (Lazarus). | `openai_output` | - |
+| Ejemplo / Ruta | Descripción |
+|---|---|
+| **[AI Output\output_docs_demo](AI Output/output_docs_demo/)** | Motor de exportación estructurada para múltiples formatos de archivo. |
+| **[AI Output\output_text_json_demo](AI Output/output_text_json_demo/)** | Generación de cadenas de texto formateadas y objetos JSON. |
+| **[AI Output\pdf_word_excel_demo](AI Output/pdf_word_excel_demo/)** | Exportación nativa en Pascal a PDF, hojas Excel y archivos de Word. |
+| **[AI Output\posprinter_demo](AI Output/posprinter_demo/)** | Utilidad de formateo ESC/POS para impresoras térmicas de recibos. |
+| **[AI Output\word_object_demo](AI Output/word_object_demo/)** | Edición y manipulación estructurada de archivos DOCX con OpenXML. |
+| **[AI Output\word_viewer_demo](AI Output/word_viewer_demo/)** | Visualizador y renderizador nativo de documentos DOCX en formularios Lazarus. |
 
 ### 📦 AI Project
 
-| Ejemplo / Ruta | Descripción | Paquete Requerido | Componentes Usados |
-|---|---|---|---|
-| **[pipeline_project_demo](AI Project/)** | Sin descripción disponible. | `openai` | `TCHATGPT`, `TNeuralNetwork` |
+| Ejemplo / Ruta | Descripción |
+|---|---|
+| **[AI Project](AI Project/)** | Sin descripción disponible. |
 
 ### 📦 AI Python
 
-| Ejemplo / Ruta | Descripción | Paquete Requerido | Componentes Usados |
-|---|---|---|---|
-| **[Cnn Classifier Complete Demo (cnnclassifier)](AI Python/cnn_classifier_complete_demo/)** <br> <sub>[📷 Screenshot](../../screenshots/cnn_classifier_complete_demo.jpg)</sub> | Este projeto é um **demo completo de classificação de imagem com CNN no Lazarus**, usando um componente visual `TCNNClassifier` ligado a um `TPythonConnector`. A ideia principal é permitir que uma aplicação Lazarus carregue uma imagem, inicialize um runtime Python por DLL/SO, carregue um modelo TensorFlow e devolva o rótulo identificado com a classificação. A tela principal já nasce com os dois componentes conectados: `CNNClassifier1.PythonConnector := PythonConnector1`, com preferência por execução direta via DLL/SO, sem chamar `python.exe` externo. | `openai_core` | `TCNNClassifier`, `TPythonConnector` |
-| **[Lstm Timeseries Demo (lstmpredictor)](AI Python/lstm_timeseries_demo/)** | This sample project demonstrates the usage of component `lstmpredictor` from the `openai_core` package. | `openai_core` | `TLSTMPredictor` |
-| **[Python Runtime Check Demo (aipythonruntime)](AI Python/python_runtime_check_demo/)** <br> <sub>[📷 Screenshot](../../screenshots/python_runtime_check_demo.jpg)</sub> | This sample project demonstrates the usage of component `aipythonruntime, pythonconnector` from the `openai_core` package. | `openai_core` | `TPythonConnector` |
-| **[Yolo Detection Complete Demo (yolodetect)](AI Python/yolo_detection_complete_demo/)** | This sample project demonstrates the usage of component `yolodetect` from the `openai_core` package. | `openai_core` | `TPythonConnector`, `TYOLO` |
+| Ejemplo / Ruta | Descripción |
+|---|---|
+| **[AI Python\cnn_classifier_complete_demo](AI Python/cnn_classifier_complete_demo/)** | Demostración de clasificación visual con redes neuronales convolucionales (CNN). |
+| **[AI Python\lstm_timeseries_demo](AI Python/lstm_timeseries_demo/)** | Predicción de tendencias de series temporales utilizando modelos LSTM. |
+| **[AI Python\python_runtime_check_demo](AI Python/python_runtime_check_demo/)** | Utilidad de diagnóstico y prueba para los runtimes de Python instalados. |
+| **[AI Python\yolo_detection_complete_demo](AI Python/yolo_detection_complete_demo/)** | Demostración visual completa de detección de objetos con YOLOv8. |
 
 ### 📦 AI Schedule
 
-| Ejemplo / Ruta | Descripción | Paquete Requerido | Componentes Usados |
-|---|---|---|---|
-| **[IA Tasks Schedule Demo (schedule_demo)](AI Schedule/schedule_demo/)** | Este exemplo demonstra o uso dos componentes **`TIASchedule`** e **`TJSONGroupStorage`**, projetados para gerenciamento persistente, hierarquia de tarefas encadeadas e resolução inteligente de dependências em tempo real. | `openai` | `TIASchedule` |
+| Ejemplo / Ruta | Descripción |
+|---|---|
+| **[AI Schedule\schedule_demo](AI Schedule/schedule_demo/)** | Gestión estructurada de cronogramas y tareas basadas en cron. |
 
 ### 📦 AI Simulation
 
-| Ejemplo / Ruta | Descripción | Paquete Requerido | Componentes Usados |
-|---|---|---|---|
-| **[Contamination Simulation Demo - Lazarus AI Suite](AI Simulation/contamination_demo/)** | Este demonstrativo apresenta uma simulação didática de proximidade e propagação de estados entre entidades em movimento, simulando uma contaminação e posterior recuperação, utilizando a suíte **AI Simulation**. | `openai_core`, `openai_simulation` | - |
-| **[Robot Grid Simulation Demo - Lazarus AI Suite](AI Simulation/robot_grid_demo/)** | Este demonstrativo apresenta uma simulação visual 2D na qual robôs móveis buscam estações de recarga de forma autônoma utilizando a suíte de componentes **AI Simulation**. | `openai_core`, `openai_simulation` | - |
-| **[Service Queue Simulation Demo - Lazarus AI Suite](AI Simulation/service_queue_demo/)** | Este demonstrativo apresenta uma simulação visual de uma fila de atendimento (administração, comercial ou hospitalar) utilizando a suíte de componentes **AI Simulation**. | `openai_core`, `openai_simulation` | - |
-| **[Warehouse Logistics Simulation Demo - Lazarus AI Suite](AI Simulation/warehouse_agents_demo/)** | Este demonstrativo apresenta uma simulação visual de logística interna de armazém utilizando a suíte de componentes **AI Simulation**. | `openai_core`, `openai_simulation` | - |
+| Ejemplo / Ruta | Descripción |
+|---|---|
+| **[AI Simulation\contamination_demo](AI Simulation/contamination_demo/)** | Simulación visual de la propagación de estados de proximidad en 2D. |
+| **[AI Simulation\robot_grid_demo](AI Simulation/robot_grid_demo/)** | Simulación interactiva de robots móviles autónomos buscando recargas. |
+| **[AI Simulation\service_queue_demo](AI Simulation/service_queue_demo/)** | Simulación visual de colas de servicio dinámicas para clientes y hospitales. |
+| **[AI Simulation\warehouse_agents_demo](AI Simulation/warehouse_agents_demo/)** | Simulación de logística interna de almacenes utilizando agentes autónomos. |
 
 ### 📦 AI Vision
 
-| Ejemplo / Ruta | Descripción | Paquete Requerido | Componentes Usados |
-|---|---|---|---|
-| **[Camera Capture Windows Demo (aicameracapture)](AI Vision/camera_capture_windows_demo/)** | This sample project demonstrates the usage of component `aicameracapture` from the `openai_vision` package. | `openai_vision` | - |
-| **[Frame Diff Demo (aiframediff)](AI Vision/frame_diff_demo/)** | This sample project demonstrates the usage of component `aiframediff, aimotiontracker` from the `openai_vision` package. | `openai_vision` | `TAIMotionTracker` |
-| **[OpenCV Vision Demo](AI Vision/opencv_vision_demo/)** | This sample demonstrates the combined usage of visual tracking and processing components (`TAIOpenCV` `TAIFrameProcessor`, `TAIFaceTracker`, and `TAIMotionTracker`) from the `openai_vision` package. | `openai` | `TAIFaceTracker`, `TAIFrameProcessor`, `TAIMotionTracker`, `TAIOpenCV` |
-| **[Opencv Image Real Demo (aiopencv)](AI Vision/opencv_image_real_demo/)** | This sample project demonstrates the usage of component `aiopencv, aiframeprocessor` from the `openai_vision` package. | `openai_vision` | `TAIFrameProcessor`, `TAIOpenCV` |
-| **[TAIFrameProcessor Demo (Native Lazarus)](AI Vision/aiframeprocessor_demo/)** <br> <sub>[📷 Screenshot](../../screenshots/TAIFrameProcessor Demo.jpg)</sub> | This sample project demonstrates the usage of component `TAIFrameProcessor` from the `openai_vision` package without OpenCV or Python dependencies. | `openai_vision` | `TAIFrameProcessor` |
-| **[TAIImageInfo Demo](AI Vision/image_info_demo/)** <br> <sub>[📷 Screenshot](../../screenshots/image_info_demo.jpg)</sub> | This demo reads basic image information and metadata from image files natively in Lazarus/FPC. | `openai_vision`, `ImagesForLazarus` | - |
-| **[TAIOpenCV Filter Demo](AI Vision/opencv_filter_demo/)** | This sample demonstrates how to use the `TAIOpenCV` component in a Lazarus graphical application. | `openai` | `TAIOpenCV` |
+| Ejemplo / Ruta | Descripción |
+|---|---|
+| **[AI Vision\aiframeprocessor_demo](AI Vision/aiframeprocessor_demo/)** | Procesador nativo de fotogramas y búferes de píxeles sin OpenCV. |
+| **[AI Vision\camera_capture_windows_demo](AI Vision/camera_capture_windows_demo/)** | Utilidad de captura de video de cámara en Windows para USB. |
+| **[AI Vision\frame_diff_demo](AI Vision/frame_diff_demo/)** | Detección de movimiento mediante diferencias entre fotogramas consecutivos. |
+| **[AI Vision\image_info_demo](AI Vision/image_info_demo/)** | Lectura y visualización de metadatos de archivos e imágenes. |
+| **[AI Vision\opencv_filter_demo](AI Vision/opencv_filter_demo/)** | Filtros de imagen básicos en OpenCV usando formularios LCL. |
+| **[AI Vision\opencv_image_real_demo](AI Vision/opencv_image_real_demo/)** | Demostración de la integración en tiempo real de OpenCV y LCL. |
+| **[AI Vision\opencv_vision_demo](AI Vision/opencv_vision_demo/)** | Panel visual de control de cámara, filtros y seguimiento facial OpenCV. |
 
 ### 📦 AI Voice
 
-| Ejemplo / Ruta | Descripción | Paquete Requerido | Componentes Usados |
-|---|---|---|---|
-| **[Audio Capture Demo (aiaudio)](AI Voice/audio_capture_demo/)** | This sample project demonstrates the usage of component `aiaudio` from the `openai_voice` package. | `openai_voice` | - |
-| **[Sound Filters Visual Demo (soundfilters)](AI Voice/sound_filters_visual_demo/)** | This sample project demonstrates the usage of component `soundfilters` from the `openai_voice` package. | `openai_voice` | - |
-| **[Voice Synthesizer Complete Demo (aivoicesynthesizer)](AI Voice/voice_synthesizer_complete_demo/)** | This sample project demonstrates the usage of component `aivoicesynthesizer` from the `openai_voice` package. | `openai_voice` | `TAIVoiceSynthesizer` |
-| **[Voice Synthesizer Demo (voicesynthesizer_demo)](AI Voice/voicesynthesizer_demo/)** <br> <sub>[📷 Screenshot](../../screenshots/voicesynthesizer.jpg)</sub> | Este exemplo demonstra o uso do componente **`TAIVoiceSynthesizer`**, um sintetizador de voz nativo, puro e multiplataforma de alta performance para Lazarus/Delphi. | `openai` | `TAIVoiceSynthesizer` |
+| Ejemplo / Ruta | Descripción |
+|---|---|
+| **[AI Voice\audio_capture_demo](AI Voice/audio_capture_demo/)** | Grabador y analizador de audio de dispositivos de entrada física. |
+| **[AI Voice\sound_filters_visual_demo](AI Voice/sound_filters_visual_demo/)** | Ecualizador y panel visual de filtros de sonido en tiempo real. |
+| **[AI Voice\voice_synthesizer_complete_demo](AI Voice/voice_synthesizer_complete_demo/)** | Muestra completa de síntesis de voz con narración síncrona y asíncrona. |
+| **[AI Voice\voicesynthesizer_demo](AI Voice/voicesynthesizer_demo/)** | Demostración de síntesis de voz (Text-to-Speech) nativa y multiplataforma. |
 
 ## 💻 Demostraciones de Línea de Comando (Consola)
 Estos ejemplos demuestran la invocación directa de componentes a través de la línea de comandos para depuración rápida o automatización:
 
 ### ⌨️ AI
 
-| Ejemplo / Ruta | Descripción | Componentes Usados |
-|---|---|---|
-| **[aicodeassistant_sample.lpr](AI/aicodeassistant_sample.lpr)** | Console-based assistant to optimize and automatically document Delphi/Pascal code. | `TCHATGPT` |
-| **[aidatasetgenerator_sample.lpr](AI/aidatasetgenerator_sample.lpr)** | Automated dataset generation loop exporting data to JSONL format. | - |
-| **[chatgpt_sample.lpr](AI/chatgpt_sample.lpr)** | Query invocation and raw JSON payload audit for OpenAI, Claude, and Gemini. | `TCHATGPT` |
-| **[neuralnetwork_sample.lpr](AI/neuralnetwork_sample.lpr)** | Classic Multilayer Perceptron training simulator for XOR logic gates. | `TNeuralNetwork` |
+| Ejemplo / Ruta | Descripción |
+|---|---|
+| **[aicodeassistant_sample.lpr](AI/aicodeassistant_sample.lpr)** | Asistente de consola para optimizar y documentar automáticamente código Pascal. |
+| **[aidatasetgenerator_sample.lpr](AI/aidatasetgenerator_sample.lpr)** | Bucle automatizado de generación de conjuntos de datos exportados a JSONL. |
+| **[chatgpt_sample.lpr](AI/chatgpt_sample.lpr)** | Consultas y auditoría de respuestas en OpenAI, Claude y Gemini. |
+| **[neuralnetwork_sample.lpr](AI/neuralnetwork_sample.lpr)** | Simulador de entrenamiento de perceptrón multicapa clásico para puertas lógicas XOR. |
 
 ### ⌨️ AI Input
 
-| Ejemplo / Ruta | Descripción | Componentes Usados |
-|---|---|---|
-| **[aiinput_sample.lpr](AI Input/aiinput_sample.lpr)** | Command-line demonstration of data input/output handling using AI Input components. | - |
+| Ejemplo / Ruta | Descripción |
+|---|---|
+| **[aiinput_sample.lpr](AI Input/aiinput_sample.lpr)** | Demostración de línea de comandos de entrada y salida de datos con los componentes de AI Input. |
 
 ### ⌨️ AI Math
 
-| Ejemplo / Ruta | Descripción | Componentes Usados |
-|---|---|---|
-| **[numps_sample.lpr](AI Math/numps_sample.lpr)** | Simple console application performing vector and matrix mathematical operations using NUMPS. | - |
+| Ejemplo / Ruta | Descripción |
+|---|---|
+| **[numps_sample.lpr](AI Math/numps_sample.lpr)** | Aplicación de consola para realizar operaciones matemáticas de matrices y vectores con NUMPS. |
 
 ### ⌨️ AI Output
 
-| Ejemplo / Ruta | Descripción | Componentes Usados |
-|---|---|---|
-| **[aioutput_sample.lpr](AI Output/aioutput_sample.lpr)** | Console test for structured JSON and plaintext output generation components. | - |
-| **[math_output_docs_demo.lpr](AI Output/math_output_docs_demo.lpr)** | Simplified mathematical document and spreadsheet generator via command line. | - |
+| Ejemplo / Ruta | Descripción |
+|---|---|
+| **[aioutput_sample.lpr](AI Output/aioutput_sample.lpr)** | Prueba de consola para componentes de generación de salida en JSON estructurado y texto plano. |
+| **[math_output_docs_demo.lpr](AI Output/math_output_docs_demo.lpr)** | Generador simplificado de hojas de cálculo y documentos matemáticos por línea de comandos. |
 
 ### ⌨️ AI Voice
 
-| Ejemplo / Ruta | Descripción | Componentes Usados |
-|---|---|---|
-| **[aivoicesynthesizer_sample.lpr](AI Voice/aivoicesynthesizer_sample.lpr)** | Direct console invocation of synchronous/asynchronous voice synthesis (TTS). | `TAIVoiceSynthesizer` |
-
-## 🖼️ Galería de Capturas de Pantalla (Screenshots)
-
-<p align="center">
-  <img src="../../screenshots/ai_sqlite_query_assistant_demo.jpg" width="45%" alt="AI SQLite Query Assistant Demo" title="AI SQLite Query Assistant Demo" style="margin: 5px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
-  <img src="../../screenshots/cnn_classifier_complete_demo.jpg" width="45%" alt="CNN Classifier Complete Demo" title="CNN Classifier Complete Demo" style="margin: 5px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
-  <img src="../../screenshots/cnn_demo.jpg" width="45%" alt="CNN Demo" title="CNN Demo" style="margin: 5px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
-  <img src="../../screenshots/db_dicitionary_demo.jpg" width="45%" alt="Database Dictionary Demo" title="Database Dictionary Demo" style="margin: 5px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
-  <img src="../../screenshots/disk_tree_ai_dataset_demo.jpg" width="45%" alt="Disk Tree AI Dataset Demo" title="Disk Tree AI Dataset Demo" style="margin: 5px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
-  <img src="../../screenshots/docfilesmanager_demo.jpg" width="45%" alt="Doc Files Manager Demo" title="Doc Files Manager Demo" style="margin: 5px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
-  <img src="../../screenshots/image_info_demo.jpg" width="45%" alt="Image Info Demo" title="Image Info Demo" style="margin: 5px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
-  <img src="../../screenshots/math_input_output_demo.jpg" width="45%" alt="Math Input Output Demo" title="Math Input Output Demo" style="margin: 5px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
-  <img src="../../screenshots/pose_detector_demo.jpg" width="45%" alt="Pose Detector Demo" title="Pose Detector Demo" style="margin: 5px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
-  <img src="../../screenshots/python_demo.jpg" width="45%" alt="Python Playground Demo" title="Python Playground Demo" style="margin: 5px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
-  <img src="../../screenshots/python_runtime_check_demo.jpg" width="45%" alt="Python Runtime Check Demo" title="Python Runtime Check Demo" style="margin: 5px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
-  <img src="../../screenshots/som_demo.jpg" width="45%" alt="SOM Map Demo" title="SOM Map Demo" style="margin: 5px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
-  <img src="../../screenshots/sound_filters.jpg" width="45%" alt="Sound Filters Demo" title="Sound Filters Demo" style="margin: 5px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
-  <img src="../../screenshots/TAIFrameProcessor Demo.jpg" width="45%" alt="TAIFrameProcessor Demo" title="TAIFrameProcessor Demo" style="margin: 5px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
-  <img src="../../screenshots/voicesynthesizer.jpg" width="45%" alt="Voice Synthesizer Demo" title="Voice Synthesizer Demo" style="margin: 5px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
-</p>
+| Ejemplo / Ruta | Descripción |
+|---|---|
+| **[aivoicesynthesizer_sample.lpr](AI Voice/aivoicesynthesizer_sample.lpr)** | Invocación directa en consola de la síntesis de voz síncrona y asíncrona (TTS). |
