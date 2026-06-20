@@ -61,7 +61,7 @@ begin
     Result := True;
   except
     on E: Exception do
-      SetError('Erro ao carregar tabelas PostgreSQL: ' + E.Message);
+      SetError('Error loading PostgreSQL tables: ' + E.Message);
   end;
   Query.Free;
 end;
@@ -116,7 +116,7 @@ begin
     Result := True;
   except
     on E: Exception do
-      SetError('Erro ao carregar colunas PostgreSQL: ' + E.Message);
+      SetError('Error loading PostgreSQL columns: ' + E.Message);
   end;
   Query.Free;
 end;
@@ -167,7 +167,7 @@ begin
     Result := True;
   except
     on E: Exception do
-      SetError('Erro ao carregar chaves primárias PostgreSQL: ' + E.Message);
+      SetError('Error loading PostgreSQL primary keys: ' + E.Message);
   end;
   Query.Free;
 end;
@@ -234,7 +234,7 @@ begin
     Result := True;
   except
     on E: Exception do
-      SetError('Erro ao carregar chaves estrangeiras PostgreSQL: ' + E.Message);
+      SetError('Error loading PostgreSQL foreign keys: ' + E.Message);
   end;
   Query.Free;
 end;
@@ -280,7 +280,7 @@ begin
     Result := True;
   except
     on E: Exception do
-      SetError('Erro ao carregar índices PostgreSQL: ' + E.Message);
+      SetError('Error loading PostgreSQL indexes: ' + E.Message);
   end;
   Query.Free;
 end;
@@ -315,7 +315,7 @@ begin
     Result := True;
   except
     on E: Exception do
-      SetError('Erro ao carregar views PostgreSQL: ' + E.Message);
+      SetError('Error loading PostgreSQL views: ' + E.Message);
   end;
   Query.Free;
 end;
@@ -353,7 +353,7 @@ begin
     Result := True;
   except
     on E: Exception do
-      SetError('Erro ao carregar triggers PostgreSQL: ' + E.Message);
+      SetError('Error loading PostgreSQL triggers: ' + E.Message);
   end;
   Query.Free;
 end;
@@ -389,7 +389,7 @@ begin
     Result := True;
   except
     on E: Exception do
-      SetError('Erro ao carregar sequences PostgreSQL: ' + E.Message);
+      SetError('Error loading PostgreSQL sequences: ' + E.Message);
   end;
   Query.Free;
 end;
@@ -425,7 +425,7 @@ begin
     Result := True;
   except
     on E: Exception do
-      SetError('Erro ao carregar routines PostgreSQL: ' + E.Message);
+      SetError('Error loading PostgreSQL routines: ' + E.Message);
   end;
   Query.Free;
 end;

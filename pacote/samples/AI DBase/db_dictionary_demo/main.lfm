@@ -3,7 +3,7 @@ object frmMain: TfrmMain
   Height = 600
   Top = 150
   Width = 800
-  Caption = 'Gerador de Dicionário de Dados - AI DBase'
+  Caption = 'Data Dictionary Generator - AI DBase'
   ClientHeight = 600
   ClientWidth = 800
   OnCreate = FormCreate
@@ -23,7 +23,7 @@ object frmMain: TfrmMain
       Height = 15
       Top = 16
       Width = 36
-      Caption = 'Banco:'
+      Caption = 'Database:'
       ParentColor = False
     end
     object cbBanco: TComboBox
@@ -63,7 +63,7 @@ object frmMain: TfrmMain
       Height = 15
       Top = 48
       Width = 31
-      Caption = 'Porta:'
+      Caption = 'Port:'
       ParentColor = False
     end
     object edtPort: TEdit
@@ -79,7 +79,7 @@ object frmMain: TfrmMain
       Height = 15
       Top = 80
       Width = 84
-      Caption = 'Banco/Arquivo:'
+      Caption = 'Database/File:'
       ParentColor = False
     end
     object edtDatabase: TEdit
@@ -95,7 +95,7 @@ object frmMain: TfrmMain
       Height = 15
       Top = 112
       Width = 43
-      Caption = 'Usuário:'
+      Caption = 'User:'
       ParentColor = False
     end
     object edtUser: TEdit
@@ -111,7 +111,7 @@ object frmMain: TfrmMain
       Height = 15
       Top = 112
       Width = 35
-      Caption = 'Senha:'
+      Caption = 'Password:'
       ParentColor = False
     end
     object edtPassword: TEdit
@@ -145,7 +145,7 @@ object frmMain: TfrmMain
       Height = 30
       Top = 40
       Width = 120
-      Caption = 'Conectar'
+      Caption = 'Connect'
       OnClick = btnConectarClick
       TabOrder = 7
     end
@@ -154,7 +154,7 @@ object frmMain: TfrmMain
       Height = 30
       Top = 76
       Width = 120
-      Caption = 'Gerar Dicionário'
+      Caption = 'Generate Dictionary'
       OnClick = btnGerarClick
       TabOrder = 8
     end
@@ -163,7 +163,7 @@ object frmMain: TfrmMain
       Height = 30
       Top = 76
       Width = 130
-      Caption = 'Salvar Markdown'
+      Caption = 'Save Markdown'
       OnClick = btnSalvarMarkdownClick
       TabOrder = 9
     end
@@ -172,7 +172,7 @@ object frmMain: TfrmMain
       Height = 30
       Top = 112
       Width = 130
-      Caption = 'Salvar JSON'
+      Caption = 'Save JSON'
       OnClick = btnSalvarJSONClick
       TabOrder = 10
     end

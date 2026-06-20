@@ -86,7 +86,7 @@ begin
     edtUser.Enabled := False;
     edtPassword.Enabled := False;
     edtSchema.Enabled := False;
-    lblDatabase.Caption := 'Arquivo SQLite (.db):';
+    lblDatabase.Caption := 'SQLite File (.db):';
     if (edtDatabase.Text = 'postgres') or (edtDatabase.Text = 'database.db') then
       edtDatabase.Text := 'database\etiqueta.db';
   end
@@ -97,7 +97,7 @@ begin
     edtUser.Enabled := True;
     edtPassword.Enabled := True;
     edtSchema.Enabled := True;
-    lblDatabase.Caption := 'Nome do Banco:';
+    lblDatabase.Caption := 'Database Name:';
     if (edtDatabase.Text = 'database.db') or (edtDatabase.Text = 'database\etiqueta.db') then
       edtDatabase.Text := 'postgres';
   end;
@@ -124,13 +124,13 @@ begin
     end;
 
     FZConnection.Connected := True;
-    StatusBar1.Panels[0].Text := 'Conectado com sucesso!';
-    ShowMessage('Conectado com sucesso!');
+    StatusBar1.Panels[0].Text := 'Connected successfully!';
+    ShowMessage('Connected successfully!');
   except
     on E: Exception do
     begin
-      StatusBar1.Panels[0].Text := 'Erro: ' + E.Message;
-      ShowMessage('Falha ao conectar: ' + E.Message);
+      StatusBar1.Panels[0].Text := 'Error: ' + E.Message;
+      ShowMessage('Failed to connect: ' + E.Message);
     end;
   end;
 end;
@@ -145,14 +145,14 @@ end;
 
 procedure TfrmMain.DoError(Sender: TObject; const AMessage: string);
 begin
-  StatusBar1.Panels[0].Text := 'Erro: ' + AMessage;
+  StatusBar1.Panels[0].Text := 'Error: ' + AMessage;
 end;
 
 procedure TfrmMain.btnGerarClick(Sender: TObject);
 begin
   if not FZConnection.Connected then
   begin
-    ShowMessage('Por favor, conecte-se ao banco de dados primeiro.');
+    ShowMessage('Please connect to the database first.');
     Exit;
   end;
 
@@ -184,7 +184,7 @@ begin
     if FDictionary.Generate then
     begin
       MemoResultado.Text := FDictionary.AsMarkdown;
-      ShowMessage('Dicionário de dados gerado com sucesso!');
+      ShowMessage('Data dictionary generated successfully!');
     end;
   end;
 end;
@@ -193,7 +193,7 @@ procedure TfrmMain.btnSalvarMarkdownClick(Sender: TObject);
 begin
   if not Assigned(FDictionary) or (FDictionary.DataDictionary.TableCount = 0) then
   begin
-    ShowMessage('Por favor, gere o dicionário primeiro.');
+    ShowMessage('Please generate the dictionary first.');
     Exit;
   end;
 
@@ -202,9 +202,9 @@ begin
   if SaveDialog1.Execute then
   begin
     if FDictionary.SaveToMarkdown(SaveDialog1.FileName) then
-      ShowMessage('Salvo com sucesso!')
+      ShowMessage('Saved successfully!')
     else
-      ShowMessage('Erro ao salvar: ' + FDictionary.LastError);
+      ShowMessage('Error saving: ' + FDictionary.LastError);
   end;
 end;
 
@@ -212,7 +212,7 @@ procedure TfrmMain.btnSalvarJSONClick(Sender: TObject);
 begin
   if not Assigned(FDictionary) or (FDictionary.DataDictionary.TableCount = 0) then
   begin
-    ShowMessage('Por favor, gere o dicionário primeiro.');
+    ShowMessage('Please generate the dictionary first.');
     Exit;
   end;
 
@@ -221,9 +221,9 @@ begin
   if SaveDialog1.Execute then
   begin
     if FDictionary.SaveToJSON(SaveDialog1.FileName) then
-      ShowMessage('Salvo com sucesso!')
+      ShowMessage('Saved successfully!')
     else
-      ShowMessage('Erro ao salvar: ' + FDictionary.LastError);
+      ShowMessage('Error saving: ' + FDictionary.LastError);
   end;
 end;
 

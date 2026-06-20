@@ -60,7 +60,7 @@ begin
     Result := True;
   except
     on E: Exception do
-      SetError('Erro ao carregar tabelas SQLite: ' + E.Message);
+      SetError('Error loading SQLite tables: ' + E.Message);
   end;
   Query.Free;
 end;
@@ -108,7 +108,7 @@ begin
     Result := True;
   except
     on E: Exception do
-      SetError('Erro ao carregar colunas SQLite: ' + E.Message);
+      SetError('Error loading SQLite columns: ' + E.Message);
   end;
   Query.Free;
 end;
@@ -165,7 +165,7 @@ begin
     Result := True;
   except
     on E: Exception do
-      SetError('Erro ao carregar chaves estrangeiras SQLite: ' + E.Message);
+      SetError('Error loading SQLite foreign keys: ' + E.Message);
   end;
   Query.Free;
 end;
@@ -216,7 +216,7 @@ begin
     Result := True;
   except
     on E: Exception do
-      SetError('Erro ao carregar índices SQLite: ' + E.Message);
+      SetError('Error loading SQLite indexes: ' + E.Message);
   end;
   Query.Free;
   InfoQuery.Free;
@@ -251,7 +251,7 @@ begin
     Result := True;
   except
     on E: Exception do
-      SetError('Erro ao carregar views SQLite: ' + E.Message);
+      SetError('Error loading SQLite views: ' + E.Message);
   end;
   Query.Free;
 end;
@@ -286,7 +286,7 @@ begin
     Result := True;
   except
     on E: Exception do
-      SetError('Erro ao carregar triggers SQLite: ' + E.Message);
+      SetError('Error loading SQLite triggers: ' + E.Message);
   end;
   Query.Free;
 end;

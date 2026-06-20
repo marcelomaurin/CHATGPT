@@ -191,7 +191,7 @@ begin
 
   if not Assigned(FConnection) then
   begin
-    SetError('Conexão com o banco de dados (Connection) não foi informada.');
+    SetError('Database connection (Connection) is not specified.');
     Exit;
   end;
 
@@ -202,7 +202,7 @@ begin
         FConnection.Connect
       else
       begin
-        SetError('A conexão com o banco de dados está fechada.');
+        SetError('Database connection is closed.');
         Exit;
       end;
     end;
@@ -216,60 +216,60 @@ begin
     if Assigned(FOnBeforeGenerate) then
       FOnBeforeGenerate(Self);
 
-    DoProgress('Iniciando leitura de metadados...', 0, 100);
+    DoProgress('Starting metadata retrieval...', 0, 100);
 
     if FIncludeTables then
     begin
-      DoProgress('Carregando tabelas...', 10, 100);
+      DoProgress('Loading tables...', 10, 100);
       if not LoadTables then Exit;
 
-      DoProgress('Carregando colunas...', 30, 100);
+      DoProgress('Loading columns...', 30, 100);
       if not LoadColumns then Exit;
     end;
 
     if FIncludePrimaryKeys then
     begin
-      DoProgress('Carregando chaves primárias...', 50, 100);
+      DoProgress('Loading primary keys...', 50, 100);
       if not LoadPrimaryKeys then Exit;
     end;
 
     if FIncludeForeignKeys then
     begin
-      DoProgress('Carregando chaves estrangeiras...', 60, 100);
+      DoProgress('Loading foreign keys...', 60, 100);
       if not LoadForeignKeys then Exit;
     end;
 
     if FIncludeIndexes then
     begin
-      DoProgress('Carregando índices...', 70, 100);
+      DoProgress('Loading indexes...', 70, 100);
       if not LoadIndexes then Exit;
     end;
 
     if FIncludeViews then
     begin
-      DoProgress('Carregando views...', 80, 100);
+      DoProgress('Loading views...', 80, 100);
       if not LoadViews then Exit;
     end;
 
     if FIncludeTriggers then
     begin
-      DoProgress('Carregando triggers...', 85, 100);
+      DoProgress('Loading triggers...', 85, 100);
       if not LoadTriggers then Exit;
     end;
 
     if FIncludeSequences then
     begin
-      DoProgress('Carregando sequences...', 90, 100);
+      DoProgress('Loading sequences...', 90, 100);
       if not LoadSequences then Exit;
     end;
 
     if FIncludeRoutines then
     begin
-      DoProgress('Carregando routines...', 95, 100);
+      DoProgress('Loading routines...', 95, 100);
       if not LoadRoutines then Exit;
     end;
 
-    DoProgress('Finalizando geração do dicionário...', 100, 100);
+    DoProgress('Finalizing dictionary generation...', 100, 100);
 
     // Populate LastResult based on FOutputFormat
     case FOutputFormat of
@@ -289,7 +289,7 @@ begin
   except
     on E: Exception do
     begin
-      SetError('Erro ao gerar dicionário: ' + E.Message);
+      SetError('Error generating dictionary: ' + E.Message);
       Result := False;
     end;
   end;
@@ -311,7 +311,7 @@ begin
     end;
   except
     on E: Exception do
-      SetError('Erro ao salvar em arquivo: ' + E.Message);
+      SetError('Error saving to file: ' + E.Message);
   end;
 end;
 
@@ -331,7 +331,7 @@ begin
     end;
   except
     on E: Exception do
-      SetError('Erro ao salvar JSON: ' + E.Message);
+      SetError('Error saving JSON: ' + E.Message);
   end;
 end;
 
@@ -351,7 +351,7 @@ begin
     end;
   except
     on E: Exception do
-      SetError('Erro ao salvar Markdown: ' + E.Message);
+      SetError('Error saving Markdown: ' + E.Message);
   end;
 end;
 
@@ -371,7 +371,7 @@ begin
     end;
   except
     on E: Exception do
-      SetError('Erro ao salvar Texto: ' + E.Message);
+      SetError('Error saving Text: ' + E.Message);
   end;
 end;
 
@@ -407,7 +407,7 @@ begin
   Result := False;
   if not Assigned(FConnection) then
   begin
-    SetError('Conexão não especificada.');
+    SetError('Connection not specified.');
     Exit;
   end;
 
@@ -417,7 +417,7 @@ begin
     Result := FConnection.Connected;
   except
     on E: Exception do
-      SetError('Falha no teste de conexão: ' + E.Message);
+      SetError('Connection test failed: ' + E.Message);
   end;
 end;
 

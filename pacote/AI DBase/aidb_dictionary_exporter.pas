@@ -189,37 +189,37 @@ var
 begin
   sb := TStringList.Create;
   try
-    sb.Add('# Dicionário de Dados');
+    sb.Add('# Data Dictionary');
     sb.Add('');
-    sb.Add('## Banco de Dados');
+    sb.Add('## Database');
     sb.Add('');
     sb.Add('- **Engine**: ' + EngineToString(ADictionary.Engine));
     if ADictionary.DatabaseName <> '' then
-      sb.Add('- **Banco**: ' + ADictionary.DatabaseName);
+      sb.Add('- **Database**: ' + ADictionary.DatabaseName);
     if ADictionary.SchemaName <> '' then
       sb.Add('- **Schema**: ' + ADictionary.SchemaName);
-    sb.Add('- **Gerado em**: ' + DateTimeToStr(ADictionary.GeneratedAt));
+    sb.Add('- **Generated at**: ' + DateTimeToStr(ADictionary.GeneratedAt));
     sb.Add('');
 
-    sb.Add('## Tabelas');
+    sb.Add('## Tables');
     sb.Add('');
     for i := 0 to ADictionary.Tables.Count - 1 do
     begin
       t := ADictionary.Tables[i];
-      sb.Add('### Tabela: ' + t.TableName);
+      sb.Add('### Table: ' + t.TableName);
       sb.Add('');
       if t.Description <> '' then
       begin
-        sb.Add('**Descrição**: ' + t.Description);
+        sb.Add('**Description**: ' + t.Description);
         sb.Add('');
       end;
       if t.RowCount > 0 then
       begin
-        sb.Add(Format('**Registros**: %d', [t.RowCount]));
+        sb.Add(Format('**Rows**: %d', [t.RowCount]));
         sb.Add('');
       end;
 
-      sb.Add('| Campo | Tipo | Tamanho | Nulo | PK | FK | Padrão | Descrição |');
+      sb.Add('| Column | Type | Size | Nullable | PK | FK | Default | Description |');
       sb.Add('|---|---|---:|---|---|---|---|---|');
       for j := 0 to t.Columns.Count - 1 do
       begin
@@ -227,18 +227,18 @@ begin
         sb.Add(Format('| %s | %s | %s | %s | %s | %s | %s | %s |', [
           c.ColumnName, c.DataType,
           IfThen(c.Size > 0, IntToStr(c.Size), ''),
-          BoolToStr(c.Nullable, 'Sim', 'Não'),
-          BoolToStr(c.IsPrimaryKey, 'Sim', 'Não'),
-          BoolToStr(c.IsForeignKey, 'Sim', 'Não'),
+          BoolToStr(c.Nullable, 'Yes', 'No'),
+          BoolToStr(c.IsPrimaryKey, 'Yes', 'No'),
+          BoolToStr(c.IsForeignKey, 'Yes', 'No'),
           c.DefaultValue, c.Description
         ]));
       end;
       sb.Add('');
 
       // FKs of this table
-      sb.Add('#### Chaves Estrangeiras');
+      sb.Add('#### Foreign Keys');
       sb.Add('');
-      sb.Add('| Nome | Campo | Referência | Regras |');
+      sb.Add('| Name | Column | Reference | Rules |');
       sb.Add('|---|---|---|---|');
       k := 0;
       for j := 0 to ADictionary.ForeignKeys.Count - 1 do
@@ -254,13 +254,13 @@ begin
         end;
       end;
       if k = 0 then
-        sb.Add('| - | - | Nenhuma chave estrangeira | - |');
+        sb.Add('| - | - | No foreign keys | - |');
       sb.Add('');
 
       // Indices of this table
-      sb.Add('#### Índices');
+      sb.Add('#### Indexes');
       sb.Add('');
-      sb.Add('| Nome | Campos | Único | Tipo |');
+      sb.Add('| Name | Columns | Unique | Type |');
       sb.Add('|---|---|---|---|');
       k := 0;
       for j := 0 to ADictionary.Indexes.Count - 1 do
@@ -270,14 +270,14 @@ begin
         begin
           sb.Add(Format('| %s | %s | %s | %s |', [
             idx.IndexName, idx.ColumnName,
-            BoolToStr(idx.IsUnique, 'Sim', 'Não'),
+            BoolToStr(idx.IsUnique, 'Yes', 'No'),
             idx.IndexType
           ]));
           Inc(k);
         end;
       end;
       if k = 0 then
-        sb.Add('| - | - | Nenhum índice | - |');
+        sb.Add('| - | - | No indexes | - |');
       sb.Add('');
     end;
 
@@ -291,7 +291,7 @@ begin
         sb.Add('### View: ' + v.ViewName);
         sb.Add('');
         if v.Description <> '' then
-          sb.Add('*Descrição*: ' + v.Description + sLineBreak);
+          sb.Add('*Description*: ' + v.Description + sLineBreak);
         sb.Add('```sql');
         sb.Add(v.SQLDefinition);
         sb.Add('```');
@@ -306,7 +306,7 @@ begin
       for i := 0 to ADictionary.Triggers.Count - 1 do
       begin
         trig := ADictionary.Triggers[i];
-        sb.Add(Format('### Trigger: %s (Tabela: %s, Evento: %s, Momento: %s)', [
+        sb.Add(Format('### Trigger: %s (Table: %s, Event: %s, Timing: %s)', [
           trig.TriggerName, trig.TableName, trig.EventName, trig.Timing
         ]));
         sb.Add('');
@@ -321,7 +321,7 @@ begin
     begin
       sb.Add('## Sequences');
       sb.Add('');
-      sb.Add('| Nome | Schema | Valor Atual | Incremento |');
+      sb.Add('| Name | Schema | Current Value | Increment |');
       sb.Add('|---|---|---|---|');
       for i := 0 to ADictionary.Sequences.Count - 1 do
       begin
@@ -340,7 +340,7 @@ begin
       for i := 0 to ADictionary.Routines.Count - 1 do
       begin
         rt := ADictionary.Routines[i];
-        sb.Add(Format('### %s: %s (Retorno: %s)', [
+        sb.Add(Format('### %s: %s (Returns: %s)', [
           rt.RoutineType, rt.RoutineName, rt.ReturnType
         ]));
         sb.Add('');
@@ -520,22 +520,22 @@ var
 begin
   sb := TStringList.Create;
   try
-    sb.Add(Format('Você está analisando um banco de dados %s.', [EngineToString(ADictionary.Engine)]));
+    sb.Add(Format('You are analyzing a %s database.', [EngineToString(ADictionary.Engine)]));
     sb.Add('');
 
     for i := 0 to ADictionary.Tables.Count - 1 do
     begin
       t := ADictionary.Tables[i];
-      sb.Add(Format('Tabela %s:', [t.TableName]));
+      sb.Add(Format('Table %s:', [t.TableName]));
       if t.Description <> '' then
-        sb.Add('  - Descrição: ' + t.Description);
+        sb.Add('  - Description: ' + t.Description);
       for j := 0 to t.Columns.Count - 1 do
       begin
         c := t.Columns[j];
         sb.Add(Format('  - %s: %s%s%s%s', [
           c.ColumnName, c.DataType,
           IfThen(c.IsPrimaryKey, ', PK', ''),
-          IfThen(not c.Nullable, ', obrigatório', ', opcional'),
+          IfThen(not c.Nullable, ', required', ', optional'),
           IfThen(c.IsForeignKey, ', FK', '')
         ]));
       end;
@@ -544,7 +544,7 @@ begin
 
     if ADictionary.ForeignKeys.Count > 0 then
     begin
-      sb.Add('Relacionamentos:');
+      sb.Add('Relationships:');
       for i := 0 to ADictionary.ForeignKeys.Count - 1 do
       begin
         fk := ADictionary.ForeignKeys[i];
@@ -555,7 +555,7 @@ begin
       sb.Add('');
     end;
 
-    sb.Add('Use este dicionário para responder perguntas, gerar SQL, criar relatórios e explicar a estrutura do sistema.');
+    sb.Add('Use this dictionary to answer questions, generate SQL, create reports and explain the structure of the system.');
     Result := sb.Text;
   finally
     sb.Free;
