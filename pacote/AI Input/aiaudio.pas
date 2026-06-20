@@ -35,6 +35,7 @@ type
     function MixAudio(const AFileA, AFileB, AOutFile: string): Boolean;
   published
     property Prompt: string read FPrompt write FPrompt;
+    property Recording: Boolean read FRecording;
     property InputSource: TAIAudioSource read FInputSource write FInputSource default asMic;
     property SampleRate: Integer read FSampleRate write FSampleRate default 44100;
     property Channels: Integer read FChannels write FChannels default 2;

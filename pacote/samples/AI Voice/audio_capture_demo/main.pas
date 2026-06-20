@@ -65,31 +65,30 @@ begin
   try
   FAIAudio.SampleRate := 16000;
   FAIAudio.Channels := 1;
-  FAIAudio.OutputFile := FEditFile.Text;
   
   AddLog('Audio Capture Properties:');
   AddLog('  SampleRate: ' + IntToStr(FAIAudio.SampleRate));
   AddLog('  Channels: ' + IntToStr(FAIAudio.Channels));
-  AddLog('  OutputFile: ' + FAIAudio.OutputFile);
+  AddLog('  OutputFile: ' + FEditFile.Text);
   
   if chkSimulation.Checked then
   begin
     AddLog('Simulating audio mic recording...');
-    FAIAudio.StartRecording;
+    FAIAudio.StartRecord(FEditFile.Text);
     AddLog('Audio recording active. Ingesting stream...');
     Sleep(500);
-    FAIAudio.StopRecording;
+    FAIAudio.StopRecord;
     AddLog('Audio recording finished. Saved WAV file to ' + FEditFile.Text + ' (Simulated).');
   end
   else
   begin
     AddLog('Opening real audio capture handle...');
     try
-      FAIAudio.StartRecording;
+      FAIAudio.StartRecord(FEditFile.Text);
       if FAIAudio.Recording then
       begin
         Sleep(500);
-        FAIAudio.StopRecording;
+        FAIAudio.StopRecord;
         AddLog('Recording complete.');
       end
       else
