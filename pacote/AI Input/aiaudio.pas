@@ -26,6 +26,9 @@ type
     FRecording: Boolean;
     FProcess: TProcess;
     FLastError: string;
+    FOutputWavFile: string;
+    
+    function CommandExists(const ACommand: string): Boolean;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -33,6 +36,9 @@ type
     function StartRecord(const AOutputWavFile: string): Boolean;
     procedure StopRecord;
     function MixAudio(const AFileA, AFileB, AOutFile: string): Boolean;
+    function ValidateWavFile(const AFileName: string; out AError: string): Boolean;
+    
+    property OutputWavFile: string read FOutputWavFile;
   published
     property Prompt: string read FPrompt write FPrompt;
     property Recording: Boolean read FRecording;
@@ -65,6 +71,7 @@ begin
   FRecording := False;
   FProcess := nil;
   FLastError := '';
+  FOutputWavFile := '';
 end;
 
 destructor TAIAudioInput.Destroy;
@@ -73,17 +80,34 @@ begin
   inherited Destroy;
 end;
 
+function TAIAudioInput.CommandExists(const ACommand: string): Boolean;
+begin
+  Result := (FileSearch(ACommand, GetEnvironmentVariable('PATH')) <> '') or FileExists(ACommand);
+end;
+
 function TAIAudioInput.StartRecord(const AOutputWavFile: string): Boolean;
 {$IFDEF MSWINDOWS}
 var
   MciCommand: string;
   MciError: Cardinal;
   Buffer: array[0..255] of Char;
+  BlockAlign: Integer;
+  BytesPerSec: Integer;
 {$ENDIF}
 begin
   Result := False;
   FLastError := '';
   if FRecording then Exit;
+
+  FOutputWavFile := Trim(AOutputWavFile);
+  if FOutputWavFile = '' then
+  begin
+    FLastError := 'Output WAV file is required.';
+    Exit(False);
+  end;
+
+  if ExtractFilePath(FOutputWavFile) <> '' then
+    ForceDirectories(ExtractFilePath(FOutputWavFile));
 
   {$IFDEF MSWINDOWS}
   // Windows: Native MCI Recording
@@ -100,8 +124,10 @@ begin
   end;
   
   // 3. Set SampleRate and Channels
-  MciCommand := Format('set mydevice bitspersample 16 samplespersec %d channels %d bytespersec %d alignment 4',
-                       [FSampleRate, FChannels, FSampleRate * FChannels * 2]);
+  BlockAlign := FChannels * 2;
+  BytesPerSec := FSampleRate * BlockAlign;
+  MciCommand := Format('set mydevice bitspersample 16 samplespersec %d channels %d bytespersec %d alignment %d',
+                       [FSampleRate, FChannels, BytesPerSec, BlockAlign]);
   mciSendString(PChar(MciCommand), nil, 0, 0);
   
   // 4. Start recording
@@ -118,16 +144,27 @@ begin
   Result := True;
   {$ELSE}
   // Linux: Execute arecord utilizing ALSA
+  if not CommandExists('arecord') then
+  begin
+    FLastError := 'ALSA arecord was not found. Install alsa-utils.';
+    Exit(False);
+  end;
+
   FProcess := TProcess.Create(nil);
   try
     FProcess.Executable := 'arecord';
     FProcess.Parameters.Add('-f');
-    FProcess.Parameters.Add('cd'); // cd quality (16-bit stereo 44.1kHz)
+    FProcess.Parameters.Add('S16_LE');
     FProcess.Parameters.Add('-r');
     FProcess.Parameters.Add(IntToStr(FSampleRate));
     FProcess.Parameters.Add('-c');
     FProcess.Parameters.Add(IntToStr(FChannels));
-    FProcess.Parameters.Add(AOutputWavFile);
+    if FDurationLimit > 0 then
+    begin
+      FProcess.Parameters.Add('-d');
+      FProcess.Parameters.Add(IntToStr(FDurationLimit));
+    end;
+    FProcess.Parameters.Add(FOutputWavFile);
     FProcess.Options := [poUsePipes];
     
     FProcess.Execute;
@@ -149,6 +186,7 @@ procedure TAIAudioInput.StopRecord;
 var
   MciError: Cardinal;
   Buffer: array[0..255] of Char;
+  MciCommand: string;
 {$ENDIF}
 begin
   if not FRecording then Exit;
@@ -156,7 +194,8 @@ begin
   {$IFDEF MSWINDOWS}
   // Windows: Stop and Save MCI Recording
   mciSendString('stop mydevice', nil, 0, 0);
-  MciError := mciSendString('save mydevice "output.wav"', nil, 0, 0);
+  MciCommand := 'save mydevice "' + FOutputWavFile + '"';
+  MciError := mciSendString(PChar(MciCommand), nil, 0, 0);
   if MciError <> 0 then
   begin
     mciGetErrorString(MciError, Buffer, SizeOf(Buffer));
@@ -233,6 +272,54 @@ begin
     begin
       FLastError := 'Mix WAV Audio Failed: ' + E.Message;
       Result := False;
+    end;
+  end;
+end;
+
+function TAIAudioInput.ValidateWavFile(const AFileName: string; out AError: string): Boolean;
+var
+  FS: TFileStream;
+  Header: array[0..11] of AnsiChar;
+begin
+  Result := False;
+  AError := '';
+  if not FileExists(AFileName) then
+  begin
+    AError := 'WAV file does not exist.';
+    Exit;
+  end;
+  
+  try
+    FS := TFileStream.Create(AFileName, fmOpenRead or fmShareDenyNone);
+    try
+      if FS.Size < 44 then
+      begin
+        AError := 'WAV file is too small.';
+        Exit;
+      end;
+      
+      FS.Read(Header, 12);
+      
+      if (Header[0] <> 'R') or (Header[1] <> 'I') or (Header[2] <> 'F') or (Header[3] <> 'F') then
+      begin
+        AError := 'Invalid WAV header: RIFF not found.';
+        Exit;
+      end;
+      
+      if (Header[8] <> 'W') or (Header[9] <> 'A') or (Header[10] <> 'V') or (Header[11] <> 'E') then
+      begin
+        AError := 'Invalid WAV header: WAVE not found.';
+        Exit;
+      end;
+      
+      Result := True;
+    finally
+      FS.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      AError := 'Error reading WAV file: ' + E.Message;
     end;
   end;
 end;

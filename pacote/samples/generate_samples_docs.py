@@ -704,12 +704,12 @@ SAMPLE_DESCRIPTIONS = {
         'ar': 'عرض توضيحي لتكامل OpenCV و LCL في الوقت الفعلي للكاميرا.'
     },
     'audio_capture_demo': {
-        'pt': 'Gravador e analisador de frequências de áudio de dispositivos de entrada física.',
-        'en': 'Audio capture and input device signal recording utility.',
-        'es': 'Grabador y analizador de audio de dispositivos de entrada física.',
-        'fr': 'Enregistreur et analyseur audio à partir de périphériques d\'entrée.',
-        'it': 'Registratore e analizzatore audio da dispositivi di input fisici.',
-        'ar': 'أداة التقاط الصوت وتسجيل الإشارات من أجهزة الإدخال.'
+        'pt': 'Demo gráfico para captura real de áudio do microfone, salvando em WAV, sem modo simulado.',
+        'en': 'GUI demo for real microphone audio capture, saving to WAV, with no simulation mode.',
+        'es': 'Demostración gráfica para captura real de audio del micrófono, guardando en WAV, sin modo simulado.',
+        'fr': 'Démo graphique pour la capture audio réelle du microphone, sauvegarde en WAV, sans modo de simulation.',
+        'it': 'Demo grafica per l\'acquisizione reale dell\'audio dal microfono, salvataggio in WAV, senza modalità simulata.',
+        'ar': 'عرض رسومي لالتقاط الصوت الحقيقي من الميكروفون وحفظه بصيغة WAV، بدون وضع المحاكاة.'
     },
     'sound_filters_visual_demo': {
         'pt': 'Equalizador e painel visual de filtros sonoros aplicados em tempo real.',
