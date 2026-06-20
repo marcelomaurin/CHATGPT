@@ -793,6 +793,24 @@ SAMPLE_DESCRIPTIONS = {
     }
 }
 
+SCREENSHOT_MAPPING = {
+    'aiframeprocessor_demo': 'TAIFrameProcessor Demo.jpg',
+    'ai_sqlite_query_assistant_demo': 'ai_sqlite_query_assistant_demo.jpg',
+    'cnn_classifier_complete_demo': 'cnn_classifier_complete_demo.jpg',
+    'cnn_demo': 'cnn_demo.jpg',
+    'db_dictionary_demo': 'db_dicitionary_demo.jpg',
+    'disk_tree_ai_dataset_demo': 'disk_tree_ai_dataset_demo.jpg',
+    'docfilesmanager_demo': 'docfilesmanager_demo.jpg',
+    'image_info_demo': 'image_info_demo.jpg',
+    'math_input_output_demo': 'math_input_output_demo.jpg',
+    'pose_detector_demo': 'pose_detector_demo.jpg',
+    'python_demo': 'python_demo.jpg',
+    'python_runtime_check_demo': 'python_runtime_check_demo.jpg',
+    'som_demo': 'som_demo.jpg',
+    'sound_filters_demo': 'sound_filters.jpg',
+    'voicesynthesizer_demo': 'voicesynthesizer_demo.jpg'
+}
+
 def scan_samples(samples_root, lang_code, trans):
     gui_samples = {}
     console_samples = {}
@@ -895,7 +913,21 @@ def generate():
                 
                 for item in sorted(gui[category], key=lambda x: x['title']):
                     repo_path = f"pacote/samples/{item['rel_path']}"
-                    content.append(f"| **[{item['title']}]({item['rel_path']}/)** | `{repo_path}` | {item['desc']} |")
+                    
+                    # Check if there is a screenshot mapping
+                    proj_name = item['name']
+                    folder_name = item['rel_path'].split('/')[-1]
+                    screenshot_file = None
+                    for key, sc_file in SCREENSHOT_MAPPING.items():
+                        if key == proj_name or key == folder_name:
+                            screenshot_file = sc_file
+                            break
+                            
+                    image_str = ""
+                    if screenshot_file:
+                        image_str = f"<br><br>![{item['title']}](../../screenshots/{screenshot_file})"
+                        
+                    content.append(f"| **[{item['title']}]({item['rel_path']}/)**{image_str} | `{repo_path}` | {item['desc']} |")
                 content.append("")
                 
             if console:

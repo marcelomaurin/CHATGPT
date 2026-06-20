@@ -10,14 +10,14 @@ Les exemples suivants sont des projets visuels prêts à être compilés et exé
 
 | Exemple | Chemin | Description |
 |---|---|---|
-| **[cnn_demo](AI/cnn_demo/)** | `pacote/samples/AI/cnn_demo` | Classification d'images par réseaux convolutifs avec TensorFlow et Python. |
+| **[cnn_demo](AI/cnn_demo/)**<br><br>![cnn_demo](../../screenshots/cnn_demo.jpg) | `pacote/samples/AI/cnn_demo` | Classification d'images par réseaux convolutifs avec TensorFlow et Python. |
 | **[face_detection_demo](AI/face_detection_demo/)** | `pacote/samples/AI/face_detection_demo` | Détection et suivi facial en temps réel avec OpenCV. |
 | **[graphmap_demo](AI/graphmap_demo/)** | `pacote/samples/AI/graphmap_demo` | Classification et routage de texte à l'aide de cartes de graphes de jetons pondérés. |
 | **[lstm_demo](AI/lstm_demo/)** | `pacote/samples/AI/lstm_demo` | Prévision graphique des tendances de séries temporelles avec des modèles LSTM via Python. |
 | **[neural_network_demo](AI/neural_network_demo/)** | `pacote/samples/AI/neural_network_demo` | Entraînement local et visualisation de réseaux de neurones perceptron multicouche (MLP). |
 | **[perceptron_demo](AI/perceptron_demo/)** | `pacote/samples/AI/perceptron_demo` | Visualisateur interactif de l'entraînement d'un perceptron simple à couche unique. |
-| **[python_demo](AI/python_demo/)** | `pacote/samples/AI/python_demo` | Espace de travail interactif pour exécuter et tester des scripts Python. |
-| **[som_demo](AI/som_demo/)** | `pacote/samples/AI/som_demo` | Classification topologique visuelle des couleurs à l'aide de cartes auto-organisées (SOM). |
+| **[python_demo](AI/python_demo/)**<br><br>![python_demo](../../screenshots/python_demo.jpg) | `pacote/samples/AI/python_demo` | Espace de travail interactif pour exécuter et tester des scripts Python. |
+| **[som_demo](AI/som_demo/)**<br><br>![som_demo](../../screenshots/som_demo.jpg) | `pacote/samples/AI/som_demo` | Classification topologique visuelle des couleurs à l'aide de cartes auto-organisées (SOM). |
 | **[tokenizer_demo](AI/tokenizer_demo/)** | `pacote/samples/AI/tokenizer_demo` | Démonstration d'utilitaires de traitement, segmentation et tokenisation de texte. |
 | **[visual_demo](AI/visual_demo/)** | `pacote/samples/AI/visual_demo` | Espace d'essai unifié regroupant plusieurs démos visuelles et onglets de test. |
 | **[yolo_demo](AI/yolo_demo/)** | `pacote/samples/AI/yolo_demo` | Détection d'objets approfondie avec YOLOv8 via l'intégration Python. |
@@ -42,21 +42,21 @@ Les exemples suivants sont des projets visuels prêts à être compilés et exé
 
 | Exemple | Chemin | Description |
 |---|---|---|
-| **[ai_sqlite_query_assistant_demo](AI DBase/ai_sqlite_query_assistant_demo/)** | `pacote/samples/AI DBase/ai_sqlite_query_assistant_demo` | Assistant de requêtes SQL en langage naturel alimenté par ChatGPT et SQLite. |
-| **[db_dictionary_demo](AI DBase/db_dictionary_demo/)** | `pacote/samples/AI DBase/db_dictionary_demo` | Extracteur visuel de dictionnaire de données et métadonnées SQLite/PostgreSQL. |
+| **[ai_sqlite_query_assistant_demo](AI DBase/ai_sqlite_query_assistant_demo/)**<br><br>![ai_sqlite_query_assistant_demo](../../screenshots/ai_sqlite_query_assistant_demo.jpg) | `pacote/samples/AI DBase/ai_sqlite_query_assistant_demo` | Assistant de requêtes SQL en langage naturel alimenté par ChatGPT et SQLite. |
+| **[db_dictionary_demo](AI DBase/db_dictionary_demo/)**<br><br>![db_dictionary_demo](../../screenshots/db_dicitionary_demo.jpg) | `pacote/samples/AI DBase/db_dictionary_demo` | Extracteur visuel de dictionnaire de données et métadonnées SQLite/PostgreSQL. |
 
 ### 📦 AI Files
 
 | Exemple | Chemin | Description |
 |---|---|---|
-| **[disk_tree_ai_dataset_demo](AI Files/disk_tree_ai_dataset_demo/)** | `pacote/samples/AI Files/disk_tree_ai_dataset_demo` | Analyse de dossiers sur disque pour assembler des ensembles de données d'entraînement. |
-| **[docfilesmanager_demo](AI Files/docfilesmanager_demo/)** | `pacote/samples/AI Files/docfilesmanager_demo` | Gestionnaire structuré pour la documentation et les fichiers texte du projet. |
+| **[disk_tree_ai_dataset_demo](AI Files/disk_tree_ai_dataset_demo/)**<br><br>![disk_tree_ai_dataset_demo](../../screenshots/disk_tree_ai_dataset_demo.jpg) | `pacote/samples/AI Files/disk_tree_ai_dataset_demo` | Analyse de dossiers sur disque pour assembler des ensembles de données d'entraînement. |
+| **[docfilesmanager_demo](AI Files/docfilesmanager_demo/)**<br><br>![docfilesmanager_demo](../../screenshots/docfilesmanager_demo.jpg) | `pacote/samples/AI Files/docfilesmanager_demo` | Gestionnaire structuré pour la documentation et les fichiers texte du projet. |
 
 ### 📦 AI Filtros Sonoros
 
 | Exemple | Chemin | Description |
 |---|---|---|
-| **[sound_filters_demo](AI Filtros Sonoros/sound_filters_demo/)** | `pacote/samples/AI Filtros Sonoros/sound_filters_demo` | Simulation interactive de filtres audio et multiplexage de signaux DSP. |
+| **[sound_filters_demo](AI Filtros Sonoros/sound_filters_demo/)**<br><br>![sound_filters_demo](../../screenshots/sound_filters.jpg) | `pacote/samples/AI Filtros Sonoros/sound_filters_demo` | Simulation interactive de filtres audio et multiplexage de signaux DSP. |
 
 ### 📦 AI Graph
 
@@ -119,13 +119,13 @@ Les exemples suivants sont des projets visuels prêts à être compilés et exé
 
 | Exemple | Chemin | Description |
 |---|---|---|
-| **[math_input_output_demo](AI Math/math_input_output_demo/)** | `pacote/samples/AI Math/math_input_output_demo` | Visualisateur et processeur de variables d'entrée/sortie mathématiques. |
+| **[math_input_output_demo](AI Math/math_input_output_demo/)**<br><br>![math_input_output_demo](../../screenshots/math_input_output_demo.jpg) | `pacote/samples/AI Math/math_input_output_demo` | Visualisateur et processeur de variables d'entrée/sortie mathématiques. |
 
 ### 📦 AI MediaPipe Vision
 
 | Exemple | Chemin | Description |
 |---|---|---|
-| **[pose_detector_demo](AI MediaPipe Vision/pose_detector_demo/)** | `pacote/samples/AI MediaPipe Vision/pose_detector_demo` | Suivi des poses corporelles et articulations en temps réel avec MediaPipe. |
+| **[pose_detector_demo](AI MediaPipe Vision/pose_detector_demo/)**<br><br>![pose_detector_demo](../../screenshots/pose_detector_demo.jpg) | `pacote/samples/AI MediaPipe Vision/pose_detector_demo` | Suivi des poses corporelles et articulations en temps réel avec MediaPipe. |
 
 ### 📦 AI Native Vision
 
@@ -155,9 +155,9 @@ Les exemples suivants sont des projets visuels prêts à être compilés et exé
 
 | Exemple | Chemin | Description |
 |---|---|---|
-| **[cnn_classifier_complete_demo](AI Python/cnn_classifier_complete_demo/)** | `pacote/samples/AI Python/cnn_classifier_complete_demo` | Démonstration complète de classification visuelle par réseaux convolutifs (CNN). |
+| **[cnn_classifier_complete_demo](AI Python/cnn_classifier_complete_demo/)**<br><br>![cnn_classifier_complete_demo](../../screenshots/cnn_classifier_complete_demo.jpg) | `pacote/samples/AI Python/cnn_classifier_complete_demo` | Démonstration complète de classification visuelle par réseaux convolutifs (CNN). |
 | **[lstm_timeseries_demo](AI Python/lstm_timeseries_demo/)** | `pacote/samples/AI Python/lstm_timeseries_demo` | Prévision et analyse statistique de séries temporelles avec des modèles LSTM. |
-| **[python_runtime_check_demo](AI Python/python_runtime_check_demo/)** | `pacote/samples/AI Python/python_runtime_check_demo` | Outil de diagnostic et de test pour les environnements Python installés. |
+| **[python_runtime_check_demo](AI Python/python_runtime_check_demo/)**<br><br>![python_runtime_check_demo](../../screenshots/python_runtime_check_demo.jpg) | `pacote/samples/AI Python/python_runtime_check_demo` | Outil de diagnostic et de test pour les environnements Python installés. |
 | **[yolo_detection_complete_demo](AI Python/yolo_detection_complete_demo/)** | `pacote/samples/AI Python/yolo_detection_complete_demo` | Démonstration visuelle complète de détection d'objets avec YOLOv8. |
 
 ### 📦 AI Schedule
@@ -179,10 +179,10 @@ Les exemples suivants sont des projets visuels prêts à être compilés et exé
 
 | Exemple | Chemin | Description |
 |---|---|---|
-| **[aiframeprocessor_demo](AI Vision/aiframeprocessor_demo/)** | `pacote/samples/AI Vision/aiframeprocessor_demo` | Processeur de trames et pixels natif sans dépendances externes OpenCV. |
+| **[aiframeprocessor_demo](AI Vision/aiframeprocessor_demo/)**<br><br>![aiframeprocessor_demo](../../screenshots/TAIFrameProcessor Demo.jpg) | `pacote/samples/AI Vision/aiframeprocessor_demo` | Processeur de trames et pixels natif sans dépendances externes OpenCV. |
 | **[camera_capture_windows_demo](AI Vision/camera_capture_windows_demo/)** | `pacote/samples/AI Vision/camera_capture_windows_demo` | Utilitaire de capture vidéo sous Windows pour périphériques USB. |
 | **[frame_diff_demo](AI Vision/frame_diff_demo/)** | `pacote/samples/AI Vision/frame_diff_demo` | Détection de mouvement par différence entre trames consécutives. |
-| **[image_info_demo](AI Vision/image_info_demo/)** | `pacote/samples/AI Vision/image_info_demo` | Lecture et affichage des métadonnées et en-têtes d'images. |
+| **[image_info_demo](AI Vision/image_info_demo/)**<br><br>![image_info_demo](../../screenshots/image_info_demo.jpg) | `pacote/samples/AI Vision/image_info_demo` | Lecture et affichage des métadonnées et en-têtes d'images. |
 | **[opencv_filter_demo](AI Vision/opencv_filter_demo/)** | `pacote/samples/AI Vision/opencv_filter_demo` | Filtres d'image basiques avec OpenCV dans des formulaires LCL. |
 | **[opencv_image_real_demo](AI Vision/opencv_image_real_demo/)** | `pacote/samples/AI Vision/opencv_image_real_demo` | Démonstration d'intégration en temps réel OpenCV et LCL. |
 | **[opencv_vision_demo](AI Vision/opencv_vision_demo/)** | `pacote/samples/AI Vision/opencv_vision_demo` | Espace d'essai visuel pour le contrôle de caméra, filtres et suivi facial OpenCV. |
@@ -194,7 +194,7 @@ Les exemples suivants sont des projets visuels prêts à être compilés et exé
 | **[audio_capture_demo](AI Voice/audio_capture_demo/)** | `pacote/samples/AI Voice/audio_capture_demo` | Enregistreur et analyseur audio à partir de périphériques d'entrée. |
 | **[sound_filters_visual_demo](AI Voice/sound_filters_visual_demo/)** | `pacote/samples/AI Voice/sound_filters_visual_demo` | Égaliseur et panneau de contrôle des filtres audio en temps réel. |
 | **[voice_synthesizer_complete_demo](AI Voice/voice_synthesizer_complete_demo/)** | `pacote/samples/AI Voice/voice_synthesizer_complete_demo` | Démonstration complète de synthèse vocale synchrone et asynchrone. |
-| **[voicesynthesizer_demo](AI Voice/voicesynthesizer_demo/)** | `pacote/samples/AI Voice/voicesynthesizer_demo` | Démonstration de synthèse vocale (Text-to-Speech) native et multiplateforme. |
+| **[voicesynthesizer_demo](AI Voice/voicesynthesizer_demo/)**<br><br>![voicesynthesizer_demo](../../screenshots/voicesynthesizer_demo.jpg) | `pacote/samples/AI Voice/voicesynthesizer_demo` | Démonstration de synthèse vocale (Text-to-Speech) native et multiplateforme. |
 
 ## 💻 Démonstrations en Ligne de Commande (Console)
 Ces exemples illustrent l'utilisation directe des composants en ligne de commande pour le débogage rapide :

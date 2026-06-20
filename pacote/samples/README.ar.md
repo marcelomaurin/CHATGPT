@@ -10,14 +10,14 @@
 
 | المشروع | المسار | الوصف |
 |---|---|---|
-| **[cnn_demo](AI/cnn_demo/)** | `pacote/samples/AI/cnn_demo` | تصنيف الصور باستخدام الشبكات التلافيفية مع TensorFlow وبايثون. |
+| **[cnn_demo](AI/cnn_demo/)**<br><br>![cnn_demo](../../screenshots/cnn_demo.jpg) | `pacote/samples/AI/cnn_demo` | تصنيف الصور باستخدام الشبكات التلافيفية مع TensorFlow وبايثون. |
 | **[face_detection_demo](AI/face_detection_demo/)** | `pacote/samples/AI/face_detection_demo` | رصد وتتبع الوجه في الوقت الفعلي باستخدام OpenCV. |
 | **[graphmap_demo](AI/graphmap_demo/)** | `pacote/samples/AI/graphmap_demo` | تصنيف النصوص وتوجيهها باستخدام خرائط الرسوم البيانية الموزونة للرموز. |
 | **[lstm_demo](AI/lstm_demo/)** | `pacote/samples/AI/lstm_demo` | التنبؤ البياني باتجاهات السلاسل الزمنية باستخدام نماذج LSTM عبر بايثون. |
 | **[neural_network_demo](AI/neural_network_demo/)** | `pacote/samples/AI/neural_network_demo` | التدريب المحلي والعرض المرئي للشبكات العصبية متعددة الطبقات (MLP). |
 | **[perceptron_demo](AI/perceptron_demo/)** | `pacote/samples/AI/perceptron_demo` | مستعرض تفاعلي لتدريب البيرسبترون أحادي الطبقة على البوابات المنطقية. |
-| **[python_demo](AI/python_demo/)** | `pacote/samples/AI/python_demo` | مساحة trabalho تفاعلية لتشغيل واxtبار نصوص بايثون. |
-| **[som_demo](AI/som_demo/)** | `pacote/samples/AI/som_demo` | التجميع الطوبولوجي المرئي للألوان باستخدام الخرائط ذاتية التنظيم (SOM). |
+| **[python_demo](AI/python_demo/)**<br><br>![python_demo](../../screenshots/python_demo.jpg) | `pacote/samples/AI/python_demo` | مساحة trabalho تفاعلية لتشغيل واxtبار نصوص بايثون. |
+| **[som_demo](AI/som_demo/)**<br><br>![som_demo](../../screenshots/som_demo.jpg) | `pacote/samples/AI/som_demo` | التجميع الطوبولوجي المرئي للألوان باستخدام الخرائط ذاتية التنظيم (SOM). |
 | **[tokenizer_demo](AI/tokenizer_demo/)** | `pacote/samples/AI/tokenizer_demo` | عرض توضيحي لأدوات معالجة النصوص وتقسيمها وتحليل الكلمات. |
 | **[visual_demo](AI/visual_demo/)** | `pacote/samples/AI/visual_demo` | منطقة تجريبية موحدة تجمع بين عروض مرئية متعددة وتبويبات اختبار. |
 | **[yolo_demo](AI/yolo_demo/)** | `pacote/samples/AI/yolo_demo` | الكشف العميق عن الكائنات باستخدام YOLOv8 عبر تكامل بايثون. |
@@ -42,21 +42,21 @@
 
 | المشروع | المسار | الوصف |
 |---|---|---|
-| **[ai_sqlite_query_assistant_demo](AI DBase/ai_sqlite_query_assistant_demo/)** | `pacote/samples/AI DBase/ai_sqlite_query_assistant_demo` | مساعد استعلام SQL باللغة الطبيعية مدعوم من ChatGPT و SQLite. |
-| **[db_dictionary_demo](AI DBase/db_dictionary_demo/)** | `pacote/samples/AI DBase/db_dictionary_demo` | مستخرج مرئي لقاموس البيانات والبيانات التعريفية لقواعد بيانات SQLite/PostgreSQL. |
+| **[ai_sqlite_query_assistant_demo](AI DBase/ai_sqlite_query_assistant_demo/)**<br><br>![ai_sqlite_query_assistant_demo](../../screenshots/ai_sqlite_query_assistant_demo.jpg) | `pacote/samples/AI DBase/ai_sqlite_query_assistant_demo` | مساعد استعلام SQL باللغة الطبيعية مدعوم من ChatGPT و SQLite. |
+| **[db_dictionary_demo](AI DBase/db_dictionary_demo/)**<br><br>![db_dictionary_demo](../../screenshots/db_dicitionary_demo.jpg) | `pacote/samples/AI DBase/db_dictionary_demo` | مستخرج مرئي لقاموس البيانات والبيانات التعريفية لقواعد بيانات SQLite/PostgreSQL. |
 
 ### 📦 AI Files
 
 | المشروع | المسار | الوصف |
 |---|---|---|
-| **[disk_tree_ai_dataset_demo](AI Files/disk_tree_ai_dataset_demo/)** | `pacote/samples/AI Files/disk_tree_ai_dataset_demo` | فحص مجلدات القرص وجمع البيانات لتركيب مجموعات بيانات التدريب للذكاء الاصطناعي. |
-| **[docfilesmanager_demo](AI Files/docfilesmanager_demo/)** | `pacote/samples/AI Files/docfilesmanager_demo` | مدير منظم لملفات الوثائق والنصوص الخاصة بالمشروع. |
+| **[disk_tree_ai_dataset_demo](AI Files/disk_tree_ai_dataset_demo/)**<br><br>![disk_tree_ai_dataset_demo](../../screenshots/disk_tree_ai_dataset_demo.jpg) | `pacote/samples/AI Files/disk_tree_ai_dataset_demo` | فحص مجلدات القرص وجمع البيانات لتركيب مجموعات بيانات التدريب للذكاء الاصطناعي. |
+| **[docfilesmanager_demo](AI Files/docfilesmanager_demo/)**<br><br>![docfilesmanager_demo](../../screenshots/docfilesmanager_demo.jpg) | `pacote/samples/AI Files/docfilesmanager_demo` | مدير منظم لملفات الوثائق والنصوص الخاصة بالمشروع. |
 
 ### 📦 AI Filtros Sonoros
 
 | المشروع | المسار | الوصف |
 |---|---|---|
-| **[sound_filters_demo](AI Filtros Sonoros/sound_filters_demo/)** | `pacote/samples/AI Filtros Sonoros/sound_filters_demo` | محاكاة تفاعلية لفلاتر الصوت وتعدد إرسال إشارات معالجة الإشارة الرقمية. |
+| **[sound_filters_demo](AI Filtros Sonoros/sound_filters_demo/)**<br><br>![sound_filters_demo](../../screenshots/sound_filters.jpg) | `pacote/samples/AI Filtros Sonoros/sound_filters_demo` | محاكاة تفاعلية لفلاتر الصوت وتعدد إرسال إشارات معالجة الإشارة الرقمية. |
 
 ### 📦 AI Graph
 
@@ -119,13 +119,13 @@
 
 | المشروع | المسار | الوصف |
 |---|---|---|
-| **[math_input_output_demo](AI Math/math_input_output_demo/)** | `pacote/samples/AI Math/math_input_output_demo` | مستعرض ومعالج لمتغيرات المدخلات والمخرجات الرياضية. |
+| **[math_input_output_demo](AI Math/math_input_output_demo/)**<br><br>![math_input_output_demo](../../screenshots/math_input_output_demo.jpg) | `pacote/samples/AI Math/math_input_output_demo` | مستعرض ومعالج لمتغيرات المدخلات والمخرجات الرياضية. |
 
 ### 📦 AI MediaPipe Vision
 
 | المشروع | المسار | الوصف |
 |---|---|---|
-| **[pose_detector_demo](AI MediaPipe Vision/pose_detector_demo/)** | `pacote/samples/AI MediaPipe Vision/pose_detector_demo` | تتبع وضعيات الجسم البشري والمفاصل في الوقت الفعلي باستخدام MediaPipe. |
+| **[pose_detector_demo](AI MediaPipe Vision/pose_detector_demo/)**<br><br>![pose_detector_demo](../../screenshots/pose_detector_demo.jpg) | `pacote/samples/AI MediaPipe Vision/pose_detector_demo` | تتبع وضعيات الجسم البشري والمفاصل في الوقت الفعلي باستخدام MediaPipe. |
 
 ### 📦 AI Native Vision
 
@@ -155,9 +155,9 @@
 
 | المشروع | المسار | الوصف |
 |---|---|---|
-| **[cnn_classifier_complete_demo](AI Python/cnn_classifier_complete_demo/)** | `pacote/samples/AI Python/cnn_classifier_complete_demo` | عرض توضيحي كامل للتصنيف المرئي باستخدام الشبكات التلافيفية (CNN). |
+| **[cnn_classifier_complete_demo](AI Python/cnn_classifier_complete_demo/)**<br><br>![cnn_classifier_complete_demo](../../screenshots/cnn_classifier_complete_demo.jpg) | `pacote/samples/AI Python/cnn_classifier_complete_demo` | عرض توضيحي كامل للتصنيف المرئي باستخدام الشبكات التلافيفية (CNN). |
 | **[lstm_timeseries_demo](AI Python/lstm_timeseries_demo/)** | `pacote/samples/AI Python/lstm_timeseries_demo` | التنبؤ بالسلاسل الزمنية والتحليل الإحصائي باستخدام نماذج LSTM. |
-| **[python_runtime_check_demo](AI Python/python_runtime_check_demo/)** | `pacote/samples/AI Python/python_runtime_check_demo` | أداة تشخيص واختبار لبيئات تشغيل بايثون المحلية المثبتة. |
+| **[python_runtime_check_demo](AI Python/python_runtime_check_demo/)**<br><br>![python_runtime_check_demo](../../screenshots/python_runtime_check_demo.jpg) | `pacote/samples/AI Python/python_runtime_check_demo` | أداة تشخيص واختبار لبيئات تشغيل بايثون المحلية المثبتة. |
 | **[yolo_detection_complete_demo](AI Python/yolo_detection_complete_demo/)** | `pacote/samples/AI Python/yolo_detection_complete_demo` | عرض توضيحي مرئي كامل لرصد الكائنات باستخدام YOLOv8. |
 
 ### 📦 AI Schedule
@@ -179,10 +179,10 @@
 
 | المشروع | المسار | الوصف |
 |---|---|---|
-| **[aiframeprocessor_demo](AI Vision/aiframeprocessor_demo/)** | `pacote/samples/AI Vision/aiframeprocessor_demo` | معالج إطارات وبكسلات أصلي بدون متطلبات تشغيل OpenCV خارجية. |
+| **[aiframeprocessor_demo](AI Vision/aiframeprocessor_demo/)**<br><br>![aiframeprocessor_demo](../../screenshots/TAIFrameProcessor Demo.jpg) | `pacote/samples/AI Vision/aiframeprocessor_demo` | معالج إطارات وبكسلات أصلي بدون متطلبات تشغيل OpenCV خارجية. |
 | **[camera_capture_windows_demo](AI Vision/camera_capture_windows_demo/)** | `pacote/samples/AI Vision/camera_capture_windows_demo` | أداة التقاط فيديو الكاميرا في نظام ويندوز للأجهزة المتصلة بـ USB. |
 | **[frame_diff_demo](AI Vision/frame_diff_demo/)** | `pacote/samples/AI Vision/frame_diff_demo` | رصد الحركة باستخدام الفروقات بين الإطارات المتتالية. |
-| **[image_info_demo](AI Vision/image_info_demo/)** | `pacote/samples/AI Vision/image_info_demo` | قراءة وعرض البيانات التعريفية ورؤوس ملفات الصور. |
+| **[image_info_demo](AI Vision/image_info_demo/)**<br><br>![image_info_demo](../../screenshots/image_info_demo.jpg) | `pacote/samples/AI Vision/image_info_demo` | قراءة وعرض البيانات التعريفية ورؤوس ملفات الصور. |
 | **[opencv_filter_demo](AI Vision/opencv_filter_demo/)** | `pacote/samples/AI Vision/opencv_filter_demo` | فلاتر صور أساسية باستخدام OpenCV ونماذج LCL. |
 | **[opencv_image_real_demo](AI Vision/opencv_image_real_demo/)** | `pacote/samples/AI Vision/opencv_image_real_demo` | عرض توضيحي لتكامل OpenCV و LCL في الوقت الفعلي للكاميرا. |
 | **[opencv_vision_demo](AI Vision/opencv_vision_demo/)** | `pacote/samples/AI Vision/opencv_vision_demo` | بيئة تجريبية مرئية للتحكم في الكاميرا، والفلاتر، وتتبع الوجه باستخدام OpenCV. |
@@ -194,7 +194,7 @@
 | **[audio_capture_demo](AI Voice/audio_capture_demo/)** | `pacote/samples/AI Voice/audio_capture_demo` | أداة التقاط الصوت وتسجيل الإشارات من أجهزة الإدخال. |
 | **[sound_filters_visual_demo](AI Voice/sound_filters_visual_demo/)** | `pacote/samples/AI Voice/sound_filters_visual_demo` | لوحة تحكم فلاتر الصوت المرئية وموازن الصوت في الوقت الفعلي. |
 | **[voice_synthesizer_complete_demo](AI Voice/voice_synthesizer_complete_demo/)** | `pacote/samples/AI Voice/voice_synthesizer_complete_demo` | عرض توضيحي كامل لتوليد الكلام يدعم القراءة المتزامنة وغير المتزامنة. |
-| **[voicesynthesizer_demo](AI Voice/voicesynthesizer_demo/)** | `pacote/samples/AI Voice/voicesynthesizer_demo` | عرض توضيحي لتوليد الكلام (Text-to-Speech) بشكل أصلي ومتعدد المنصات. |
+| **[voicesynthesizer_demo](AI Voice/voicesynthesizer_demo/)**<br><br>![voicesynthesizer_demo](../../screenshots/voicesynthesizer_demo.jpg) | `pacote/samples/AI Voice/voicesynthesizer_demo` | عرض توضيحي لتوليد الكلام (Text-to-Speech) بشكل أصلي ومتعدد المنصات. |
 
 ## 💻 مشاريع توضيحية لسطر الأوامر (Console)
 توضح هذه الأمثلة الاستدعاء المباشر للمكونات عبر سطر الأوامر لسيناريوهات تصحيح الأخطاء السريعة وأتمتة العمليات الدورية:

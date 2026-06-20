@@ -10,14 +10,14 @@ The following examples are visual projects ready for compilation and interactive
 
 | Sample | Path | Description |
 |---|---|---|
-| **[cnn_demo](AI/cnn_demo/)** | `pacote/samples/AI/cnn_demo` | Image classification using convolutional neural networks with TensorFlow and Python. |
+| **[cnn_demo](AI/cnn_demo/)**<br><br>![cnn_demo](../../screenshots/cnn_demo.jpg) | `pacote/samples/AI/cnn_demo` | Image classification using convolutional neural networks with TensorFlow and Python. |
 | **[face_detection_demo](AI/face_detection_demo/)** | `pacote/samples/AI/face_detection_demo` | Real-time face detection and tracking using OpenCV. |
 | **[graphmap_demo](AI/graphmap_demo/)** | `pacote/samples/AI/graphmap_demo` | Text classification and routing using weighted token graph maps. |
 | **[lstm_demo](AI/lstm_demo/)** | `pacote/samples/AI/lstm_demo` | Graphical time-series trend forecasting with LSTM models via Python. |
 | **[neural_network_demo](AI/neural_network_demo/)** | `pacote/samples/AI/neural_network_demo` | Local training and visualization of multilayer perceptron (MLP) neural networks. |
 | **[perceptron_demo](AI/perceptron_demo/)** | `pacote/samples/AI/perceptron_demo` | Interactive visualizer for single-layer perceptron training on logic gates. |
-| **[python_demo](AI/python_demo/)** | `pacote/samples/AI/python_demo` | Interactive workspace for running and testing Python scripts. |
-| **[som_demo](AI/som_demo/)** | `pacote/samples/AI/som_demo` | Visual topological clustering of colors using Self-Organizing Maps. |
+| **[python_demo](AI/python_demo/)**<br><br>![python_demo](../../screenshots/python_demo.jpg) | `pacote/samples/AI/python_demo` | Interactive workspace for running and testing Python scripts. |
+| **[som_demo](AI/som_demo/)**<br><br>![som_demo](../../screenshots/som_demo.jpg) | `pacote/samples/AI/som_demo` | Visual topological clustering of colors using Self-Organizing Maps. |
 | **[tokenizer_demo](AI/tokenizer_demo/)** | `pacote/samples/AI/tokenizer_demo` | Text processing, segmentation, and tokenization utility demo. |
 | **[visual_demo](AI/visual_demo/)** | `pacote/samples/AI/visual_demo` | Unified control playground combining multiple visual demos and testing tabs. |
 | **[yolo_demo](AI/yolo_demo/)** | `pacote/samples/AI/yolo_demo` | Deep object detection using YOLOv8 via Python integration. |
@@ -42,21 +42,21 @@ The following examples are visual projects ready for compilation and interactive
 
 | Sample | Path | Description |
 |---|---|---|
-| **[ai_sqlite_query_assistant_demo](AI DBase/ai_sqlite_query_assistant_demo/)** | `pacote/samples/AI DBase/ai_sqlite_query_assistant_demo` | Natural language SQL query assistant powered by ChatGPT and SQLite. |
-| **[db_dictionary_demo](AI DBase/db_dictionary_demo/)** | `pacote/samples/AI DBase/db_dictionary_demo` | Visual data dictionary and metadata extractor for SQLite/PostgreSQL databases. |
+| **[ai_sqlite_query_assistant_demo](AI DBase/ai_sqlite_query_assistant_demo/)**<br><br>![ai_sqlite_query_assistant_demo](../../screenshots/ai_sqlite_query_assistant_demo.jpg) | `pacote/samples/AI DBase/ai_sqlite_query_assistant_demo` | Natural language SQL query assistant powered by ChatGPT and SQLite. |
+| **[db_dictionary_demo](AI DBase/db_dictionary_demo/)**<br><br>![db_dictionary_demo](../../screenshots/db_dicitionary_demo.jpg) | `pacote/samples/AI DBase/db_dictionary_demo` | Visual data dictionary and metadata extractor for SQLite/PostgreSQL databases. |
 
 ### 📦 AI Files
 
 | Sample | Path | Description |
 |---|---|---|
-| **[disk_tree_ai_dataset_demo](AI Files/disk_tree_ai_dataset_demo/)** | `pacote/samples/AI Files/disk_tree_ai_dataset_demo` | Disk folder scanning and querying to assemble custom AI training datasets. |
-| **[docfilesmanager_demo](AI Files/docfilesmanager_demo/)** | `pacote/samples/AI Files/docfilesmanager_demo` | Structured manager for project documentation and text files. |
+| **[disk_tree_ai_dataset_demo](AI Files/disk_tree_ai_dataset_demo/)**<br><br>![disk_tree_ai_dataset_demo](../../screenshots/disk_tree_ai_dataset_demo.jpg) | `pacote/samples/AI Files/disk_tree_ai_dataset_demo` | Disk folder scanning and querying to assemble custom AI training datasets. |
+| **[docfilesmanager_demo](AI Files/docfilesmanager_demo/)**<br><br>![docfilesmanager_demo](../../screenshots/docfilesmanager_demo.jpg) | `pacote/samples/AI Files/docfilesmanager_demo` | Structured manager for project documentation and text files. |
 
 ### 📦 AI Filtros Sonoros
 
 | Sample | Path | Description |
 |---|---|---|
-| **[sound_filters_demo](AI Filtros Sonoros/sound_filters_demo/)** | `pacote/samples/AI Filtros Sonoros/sound_filters_demo` | Interactive simulation of audio filters and DSP signal multiplexing. |
+| **[sound_filters_demo](AI Filtros Sonoros/sound_filters_demo/)**<br><br>![sound_filters_demo](../../screenshots/sound_filters.jpg) | `pacote/samples/AI Filtros Sonoros/sound_filters_demo` | Interactive simulation of audio filters and DSP signal multiplexing. |
 
 ### 📦 AI Graph
 
@@ -119,13 +119,13 @@ The following examples are visual projects ready for compilation and interactive
 
 | Sample | Path | Description |
 |---|---|---|
-| **[math_input_output_demo](AI Math/math_input_output_demo/)** | `pacote/samples/AI Math/math_input_output_demo` | Visualizer and processor for math input and output variables. |
+| **[math_input_output_demo](AI Math/math_input_output_demo/)**<br><br>![math_input_output_demo](../../screenshots/math_input_output_demo.jpg) | `pacote/samples/AI Math/math_input_output_demo` | Visualizer and processor for math input and output variables. |
 
 ### 📦 AI MediaPipe Vision
 
 | Sample | Path | Description |
 |---|---|---|
-| **[pose_detector_demo](AI MediaPipe Vision/pose_detector_demo/)** | `pacote/samples/AI MediaPipe Vision/pose_detector_demo` | Real-time human body pose tracking and rig mapping with MediaPipe. |
+| **[pose_detector_demo](AI MediaPipe Vision/pose_detector_demo/)**<br><br>![pose_detector_demo](../../screenshots/pose_detector_demo.jpg) | `pacote/samples/AI MediaPipe Vision/pose_detector_demo` | Real-time human body pose tracking and rig mapping with MediaPipe. |
 
 ### 📦 AI Native Vision
 
@@ -155,9 +155,9 @@ The following examples are visual projects ready for compilation and interactive
 
 | Sample | Path | Description |
 |---|---|---|
-| **[cnn_classifier_complete_demo](AI Python/cnn_classifier_complete_demo/)** | `pacote/samples/AI Python/cnn_classifier_complete_demo` | Complete visual classification demo utilizing Convolutional Neural Networks (CNN). |
+| **[cnn_classifier_complete_demo](AI Python/cnn_classifier_complete_demo/)**<br><br>![cnn_classifier_complete_demo](../../screenshots/cnn_classifier_complete_demo.jpg) | `pacote/samples/AI Python/cnn_classifier_complete_demo` | Complete visual classification demo utilizing Convolutional Neural Networks (CNN). |
 | **[lstm_timeseries_demo](AI Python/lstm_timeseries_demo/)** | `pacote/samples/AI Python/lstm_timeseries_demo` | Time-series forecasting and statistical analysis utilizing LSTM models. |
-| **[python_runtime_check_demo](AI Python/python_runtime_check_demo/)** | `pacote/samples/AI Python/python_runtime_check_demo` | Diagnostics and testing utility for installed local Python runtimes. |
+| **[python_runtime_check_demo](AI Python/python_runtime_check_demo/)**<br><br>![python_runtime_check_demo](../../screenshots/python_runtime_check_demo.jpg) | `pacote/samples/AI Python/python_runtime_check_demo` | Diagnostics and testing utility for installed local Python runtimes. |
 | **[yolo_detection_complete_demo](AI Python/yolo_detection_complete_demo/)** | `pacote/samples/AI Python/yolo_detection_complete_demo` | Complete visual object detection demonstration utilizing YOLOv8. |
 
 ### 📦 AI Schedule
@@ -179,10 +179,10 @@ The following examples are visual projects ready for compilation and interactive
 
 | Sample | Path | Description |
 |---|---|---|
-| **[aiframeprocessor_demo](AI Vision/aiframeprocessor_demo/)** | `pacote/samples/AI Vision/aiframeprocessor_demo` | Native frame and pixel buffer processor without external OpenCV dependencies. |
+| **[aiframeprocessor_demo](AI Vision/aiframeprocessor_demo/)**<br><br>![aiframeprocessor_demo](../../screenshots/TAIFrameProcessor Demo.jpg) | `pacote/samples/AI Vision/aiframeprocessor_demo` | Native frame and pixel buffer processor without external OpenCV dependencies. |
 | **[camera_capture_windows_demo](AI Vision/camera_capture_windows_demo/)** | `pacote/samples/AI Vision/camera_capture_windows_demo` | Windows camera video capturing utility for USB devices. |
 | **[frame_diff_demo](AI Vision/frame_diff_demo/)** | `pacote/samples/AI Vision/frame_diff_demo` | Movement detection using consecutive frame differences. |
-| **[image_info_demo](AI Vision/image_info_demo/)** | `pacote/samples/AI Vision/image_info_demo` | Reading and displaying image metadata and file headers. |
+| **[image_info_demo](AI Vision/image_info_demo/)**<br><br>![image_info_demo](../../screenshots/image_info_demo.jpg) | `pacote/samples/AI Vision/image_info_demo` | Reading and displaying image metadata and file headers. |
 | **[opencv_filter_demo](AI Vision/opencv_filter_demo/)** | `pacote/samples/AI Vision/opencv_filter_demo` | Basic OpenCV image filtering using LCL forms. |
 | **[opencv_image_real_demo](AI Vision/opencv_image_real_demo/)** | `pacote/samples/AI Vision/opencv_image_real_demo` | Real-time OpenCV and LCL camera integration demonstration. |
 | **[opencv_vision_demo](AI Vision/opencv_vision_demo/)** | `pacote/samples/AI Vision/opencv_vision_demo` | Visual playground for camera control, filters, and OpenCV face tracking. |
@@ -194,7 +194,7 @@ The following examples are visual projects ready for compilation and interactive
 | **[audio_capture_demo](AI Voice/audio_capture_demo/)** | `pacote/samples/AI Voice/audio_capture_demo` | Audio capture and input device signal recording utility. |
 | **[sound_filters_visual_demo](AI Voice/sound_filters_visual_demo/)** | `pacote/samples/AI Voice/sound_filters_visual_demo` | Visual sound filters control board and real-time audio equalizer. |
 | **[voice_synthesizer_complete_demo](AI Voice/voice_synthesizer_complete_demo/)** | `pacote/samples/AI Voice/voice_synthesizer_complete_demo` | Complete speech synthesis showcase supporting sync and async narrations. |
-| **[voicesynthesizer_demo](AI Voice/voicesynthesizer_demo/)** | `pacote/samples/AI Voice/voicesynthesizer_demo` | Text-to-Speech synthesis demonstration, native and cross-platform. |
+| **[voicesynthesizer_demo](AI Voice/voicesynthesizer_demo/)**<br><br>![voicesynthesizer_demo](../../screenshots/voicesynthesizer_demo.jpg) | `pacote/samples/AI Voice/voicesynthesizer_demo` | Text-to-Speech synthesis demonstration, native and cross-platform. |
 
 ## 💻 Command Line Interface (Console) Demonstrations
 These examples demonstrate direct component invocation via command line for rapid debugging or automation scenarios:
