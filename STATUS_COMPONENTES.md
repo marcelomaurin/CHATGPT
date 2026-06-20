@@ -34,6 +34,8 @@ Este documento descreve o estado atual de maturidade, a categoria operacional e 
 | **TSharpenFilter** | `ccImage` | Estável | Filtro de imagem nativo para nitidez. |
 | **TSobelFilter** | `ccImage` | Estável | Filtro de imagem nativo para detecção de bordas Sobel. |
 | **TErosionDilationFilter**| `ccImage` | Estável | Filtros morfológicos nativos de erosão e dilatação. |
+| **TAIPostgreSQLDictionary** | `ccDBase` | Beta | Gerador de dicionário de metadados de bancos PostgreSQL para prompts de IA. |
+| **TAISQLiteDictionary** | `ccDBase` | Beta | Gerador de dicionário de metadados de bancos SQLite para prompts de IA. |
 
 ## Compatibilidade de Formatos Documentais
 

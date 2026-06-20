@@ -22,6 +22,7 @@ pacote/
   AI Voice/          # Voz, áudio e filtros sonoros
   AI Vision/         # OpenCV e visão computacional
   AI Graphic/        # Visualização 3D, avatar e modelos
+  AI DBase/          # Dicionários de dados e metadados de bancos
   python/            # Workers/scripts Python usados por componentes
   samples/           # Projetos de demonstração
 ```
@@ -52,6 +53,7 @@ pacote/packages/
 | `openai_industrial.lpk` | Modbus, MQTT e componentes industriais | **Experimental** |
 | `openai_graphic.lpk` | 3D, viewer, avatar, cena e Tripo3D | **Experimental** |
 | `openai_agent.lpk` | Agentes, segurança e executores | **Experimental** |
+| `openai_aidbase.lpk` | Dicionários de dados e metadados de bancos de dados para IA (TAIPostgreSQLDictionary, TAISQLiteDictionary, etc.) | **Opcional** |
 
 > **Nota sobre o Pacote Legado**: O pacote antigo `openai.lpk` foi totalmente removido. Utilize os pacotes modulares da lista acima.
 
@@ -73,6 +75,7 @@ pacote/packages/
 12. `packages/openai_industrial.lpk`
 13. `packages/openai_graphic.lpk`
 14. `packages/openai_agent.lpk`
+15. `packages/openai_aidbase.lpk` (Opcional - Dicionário de Dados)
 
 Instale apenas os pacotes necessários ao seu projeto.
 Recompile a IDE quando solicitado.

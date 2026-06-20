@@ -677,6 +677,12 @@ Text-to-speech synthesis demonstration.
 
 Asynchronous filesystem scanning and AI dataset inventory preparation.
 
+### DB Dictionary Demo
+
+![DB Dictionary Demo](screenshots/db_dicitionary_demo.jpg)
+
+Data dictionary generation from database connections (PostgreSQL and SQLite) to feed AI prompts.
+
 ---
 
 ## Known Limitations

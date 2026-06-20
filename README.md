@@ -313,6 +313,12 @@ Demonstração de síntese de voz.
 
 Varredura assíncrona do sistema de arquivos e preparação do inventário de datasets de IA.
 
+### DB Dictionary Demo
+
+![DB Dictionary Demo](screenshots/db_dicitionary_demo.jpg)
+
+Geração de dicionário de dados a partir de conexões de banco de dados (PostgreSQL e SQLite) para alimentação de prompts de IA.
+
 ---
 
 ## Limitações conhecidas
