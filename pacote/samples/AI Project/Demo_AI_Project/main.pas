@@ -22,7 +22,7 @@ type
   private
     // UI Page Control
     FPageControl: TPageControl;
-    
+
     // Tabs
     FTabConfig: TTabSheet;
     FTabDescription: TTabSheet;
@@ -35,13 +35,14 @@ type
     FTabGantt: TTabSheet;
     FTabTimeline: TTabSheet;
     FTabRevision: TTabSheet;
+    FTabReports: TTabSheet;
     FTabJSON: TTabSheet;
     FTabLog: TTabSheet;
 
     // Components (from AI Project palette)
     FAIProject: TAIProject;
     FChatGPT: TCHATGPT;
-    
+
     // Tab Config Controls
     FcbProvider: TComboBox;
     FedtToken: TEdit;
@@ -51,7 +52,6 @@ type
     FedtTemperature: TEdit;
     FedtMaxTokens: TEdit;
     FchkSaveToken: TCheckBox;
-    FchkSimulation: TCheckBox;
     FbtnTestLLM: TButton;
     FbtnSaveConfig: TButton;
     FbtnLoadConfig: TButton;
@@ -134,6 +134,9 @@ type
     FlstRevisions: TListBox;
     FmemoRevisionDetails: TMemo;
 
+    // Tab Reports Controls
+    FReportViewer: TAIProjectReportViewer;
+
     // Tab JSON Controls
     FmemoCurrentJSON: TMemo;
     FbtnCopyJSON: TButton;
@@ -161,7 +164,7 @@ type
     procedure DoRefreshTimeline(Sender: TObject);
     procedure OnRevisionsClick(Sender: TObject);
     procedure OnAgentsClick(Sender: TObject);
-    
+
     procedure RefreshUI;
     procedure LoadGrids;
     procedure LoadTaskComboBoxes;
@@ -177,7 +180,7 @@ implementation
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
-  Caption := 'AI Project Manager Demo (TAIProject)';
+  Caption := 'AI Project Manager Demo — Visual Component Showcase';
   Width := 1024;
   Height := 768;
   Position := poScreenCenter;
@@ -185,43 +188,39 @@ begin
   // Initialize components
   FChatGPT := TCHATGPT.Create(Self);
   FChatGPT.Name := 'ChatGPT';
-  
+
   FAIProject := TAIProject.Create(Self);
   FAIProject.Name := 'AIProject';
   FAIProject.ChatGPT := FChatGPT;
   FAIProject.OnLog := @OnLog;
-  
+  // SimulationMode defaults to False — real LLM calls only
+
   // Tab control
   FPageControl := TPageControl.Create(Self);
   FPageControl.Parent := Self;
   FPageControl.Align := alClient;
 
-  // 12 Tabs
-  FTabConfig := FPageControl.AddTabSheet; FTabConfig.Caption := 'Configuration';
-  FTabDescription := FPageControl.AddTabSheet; FTabDescription.Caption := 'Project Description';
-  FTabAgileDocs := FPageControl.AddTabSheet; FTabAgileDocs.Caption := 'Agile Documents';
-  FTabAgents := FPageControl.AddTabSheet; FTabAgents.Caption := 'Agents';
-  FTabTasks := FPageControl.AddTabSheet; FTabTasks.Caption := 'Tasks';
-  FTabActions := FPageControl.AddTabSheet; FTabActions.Caption := 'Task Actions';
-  FTabDependencies := FPageControl.AddTabSheet; FTabDependencies.Caption := 'Dependencies';
+  // 14 Tabs
+  FTabConfig        := FPageControl.AddTabSheet; FTabConfig.Caption        := 'Configuration';
+  FTabDescription   := FPageControl.AddTabSheet; FTabDescription.Caption   := 'Project Description';
+  FTabAgileDocs     := FPageControl.AddTabSheet; FTabAgileDocs.Caption     := 'Agile Documents';
+  FTabAgents        := FPageControl.AddTabSheet; FTabAgents.Caption        := 'Agents';
+  FTabTasks         := FPageControl.AddTabSheet; FTabTasks.Caption         := 'Tasks';
+  FTabActions       := FPageControl.AddTabSheet; FTabActions.Caption       := 'Task Actions';
+  FTabDependencies  := FPageControl.AddTabSheet; FTabDependencies.Caption  := 'Dependencies';
   FTabExecutionPlan := FPageControl.AddTabSheet; FTabExecutionPlan.Caption := 'Execution Plan';
-  FTabGantt := FPageControl.AddTabSheet; FTabGantt.Caption := 'Gantt';
-  FTabTimeline := FPageControl.AddTabSheet; FTabTimeline.Caption := 'Timeline';
-  FTabRevision := FPageControl.AddTabSheet; FTabRevision.Caption := 'Revision';
-  FTabJSON := FPageControl.AddTabSheet; FTabJSON.Caption := 'JSON';
-  FTabLog := FPageControl.AddTabSheet; FTabLog.Caption := 'Log';
+  FTabGantt         := FPageControl.AddTabSheet; FTabGantt.Caption         := 'Gantt';
+  FTabTimeline      := FPageControl.AddTabSheet; FTabTimeline.Caption      := 'Timeline';
+  FTabRevision      := FPageControl.AddTabSheet; FTabRevision.Caption      := 'Revision';
+  FTabReports       := FPageControl.AddTabSheet; FTabReports.Caption       := 'Reports';
+  FTabJSON          := FPageControl.AddTabSheet; FTabJSON.Caption          := 'JSON';
+  FTabLog           := FPageControl.AddTabSheet; FTabLog.Caption           := 'Log';
 
-  { Tab Config Setup }
-  with TPanel.Create(Self) do
-  begin
-    Parent := FTabConfig;
-    Align := alClient;
-    BorderWidth := 10;
-  end;
-
+  { ===== Tab Config ===== }
+  with TLabel.Create(Self) do begin Parent := FTabConfig; SetBounds(20,5,200,18); Caption := 'Provider:'; end;
   FcbProvider := TComboBox.Create(Self);
   FcbProvider.Parent := FTabConfig;
-  FcbProvider.SetBounds(20, 20, 200, 25);
+  FcbProvider.SetBounds(20, 22, 200, 25);
   FcbProvider.Items.Add('OpenAI');
   FcbProvider.Items.Add('OpenRouter');
   FcbProvider.Items.Add('Cerebras');
@@ -230,166 +229,184 @@ begin
   FcbProvider.Items.Add('Claude');
   FcbProvider.ItemIndex := 3; // Local (Ollama) default
 
+  with TLabel.Create(Self) do begin Parent := FTabConfig; SetBounds(20,50,200,18); Caption := 'API Token / Key:'; end;
   FedtToken := TEdit.Create(Self);
   FedtToken.Parent := FTabConfig;
-  FedtToken.SetBounds(20, 60, 200, 25);
-  FedtToken.TextHint := 'API Token / Key';
+  FedtToken.SetBounds(20, 67, 200, 25);
+  FedtToken.TextHint := 'Leave blank for Ollama';
+  FedtToken.PasswordChar := '*';
 
+  with TLabel.Create(Self) do begin Parent := FTabConfig; SetBounds(20,95,200,18); Caption := 'Model:'; end;
   FcbModel := TComboBox.Create(Self);
   FcbModel.Parent := FTabConfig;
-  FcbModel.SetBounds(20, 100, 200, 25);
+  FcbModel.SetBounds(20, 112, 200, 25);
   FcbModel.Items.Add('llama3.2');
   FcbModel.Items.Add('deepseek-r1:8b');
   FcbModel.Items.Add('gpt-4o-mini');
   FcbModel.Items.Add('gemini-2.5-flash');
   FcbModel.ItemIndex := 0;
 
+  with TLabel.Create(Self) do begin Parent := FTabConfig; SetBounds(20,140,200,18); Caption := 'Model Version:'; end;
   FedtModelVersion := TEdit.Create(Self);
   FedtModelVersion.Parent := FTabConfig;
-  FedtModelVersion.SetBounds(20, 140, 200, 25);
+  FedtModelVersion.SetBounds(20, 157, 200, 25);
   FedtModelVersion.Text := '1.0';
 
+  with TLabel.Create(Self) do begin Parent := FTabConfig; SetBounds(20,185,200,18); Caption := 'Endpoint (Ollama):'; end;
   FedtEndpoint := TEdit.Create(Self);
   FedtEndpoint.Parent := FTabConfig;
-  FedtEndpoint.SetBounds(20, 180, 200, 25);
+  FedtEndpoint.SetBounds(20, 202, 300, 25);
   FedtEndpoint.Text := 'http://localhost:11434';
 
+  with TLabel.Create(Self) do begin Parent := FTabConfig; SetBounds(20,230,200,18); Caption := 'Temperature:'; end;
   FedtTemperature := TEdit.Create(Self);
   FedtTemperature.Parent := FTabConfig;
-  FedtTemperature.SetBounds(20, 220, 200, 25);
+  FedtTemperature.SetBounds(20, 247, 100, 25);
   FedtTemperature.Text := '0.2';
 
+  with TLabel.Create(Self) do begin Parent := FTabConfig; SetBounds(130,230,200,18); Caption := 'Max Tokens:'; end;
   FedtMaxTokens := TEdit.Create(Self);
   FedtMaxTokens.Parent := FTabConfig;
-  FedtMaxTokens.SetBounds(20, 260, 200, 25);
+  FedtMaxTokens.SetBounds(130, 247, 100, 25);
   FedtMaxTokens.Text := '8000';
 
   FchkSaveToken := TCheckBox.Create(Self);
   FchkSaveToken.Parent := FTabConfig;
-  FchkSaveToken.SetBounds(20, 300, 200, 25);
-  FchkSaveToken.Caption := 'Save API Token to file';
-
-  FchkSimulation := TCheckBox.Create(Self);
-  FchkSimulation.Parent := FTabConfig;
-  FchkSimulation.SetBounds(20, 330, 200, 25);
-  FchkSimulation.Caption := 'Simulation Mode (Mock Offline)';
-  FchkSimulation.Checked := True;
+  FchkSaveToken.SetBounds(20, 280, 280, 25);
+  FchkSaveToken.Caption := 'Save API Token to file (security risk!)';
+  FchkSaveToken.Checked := False; // Default: do NOT save token
 
   FbtnTestLLM := TButton.Create(Self);
   FbtnTestLLM.Parent := FTabConfig;
-  FbtnTestLLM.SetBounds(20, 370, 150, 30);
+  FbtnTestLLM.SetBounds(20, 315, 160, 30);
   FbtnTestLLM.Caption := 'Test LLM Connection';
   FbtnTestLLM.OnClick := @DoTestLLM;
 
   FbtnSaveConfig := TButton.Create(Self);
   FbtnSaveConfig.Parent := FTabConfig;
-  FbtnSaveConfig.SetBounds(180, 370, 150, 30);
+  FbtnSaveConfig.SetBounds(190, 315, 150, 30);
   FbtnSaveConfig.Caption := 'Save Configuration';
   FbtnSaveConfig.OnClick := @DoSaveConfig;
 
   FbtnLoadConfig := TButton.Create(Self);
   FbtnLoadConfig.Parent := FTabConfig;
-  FbtnLoadConfig.SetBounds(340, 370, 150, 30);
+  FbtnLoadConfig.SetBounds(350, 315, 150, 30);
   FbtnLoadConfig.Caption := 'Load Configuration';
   FbtnLoadConfig.OnClick := @DoLoadConfig;
 
-  { Tab Description Setup }
+  with TLabel.Create(Self) do begin Parent := FTabConfig; SetBounds(20,360,600,40);
+    Caption := 'NOTE: This is a visual component demo. Set up your LLM and click "Generate Plan" ' +
+               'on the Project Description tab to load real data from the AI.';
+    Font.Color := $005599; WordWrap := True; end;
+
+  { ===== Tab Description ===== }
+  with TLabel.Create(Self) do begin Parent := FTabDescription; SetBounds(20,5,200,18); Caption := 'Project Name:'; end;
   FedtProjectName := TEdit.Create(Self);
   FedtProjectName.Parent := FTabDescription;
-  FedtProjectName.SetBounds(20, 20, 400, 25);
+  FedtProjectName.SetBounds(20, 22, 400, 25);
   FedtProjectName.Text := 'Lazarus Audio Capturer Component';
 
+  with TLabel.Create(Self) do begin Parent := FTabDescription; SetBounds(20,50,200,18); Caption := 'Goal:'; end;
   FmemoProjectGoal := TMemo.Create(Self);
   FmemoProjectGoal.Parent := FTabDescription;
-  FmemoProjectGoal.SetBounds(20, 60, 400, 60);
-  FmemoProjectGoal.Text := 'I want to create a Lazarus component that captures real audio from the microphone, saves it as WAV, validates the generated file and provides a visual demo without simulation mode.';
+  FmemoProjectGoal.SetBounds(20, 67, 400, 60);
+  FmemoProjectGoal.Text := 'Create a Lazarus component that captures real audio from the microphone, saves as WAV and provides a visual demo.';
 
+  with TLabel.Create(Self) do begin Parent := FTabDescription; SetBounds(20,130,200,18); Caption := 'Context:'; end;
   FmemoProjectContext := TMemo.Create(Self);
   FmemoProjectContext.Parent := FTabDescription;
-  FmemoProjectContext.SetBounds(20, 130, 400, 60);
+  FmemoProjectContext.SetBounds(20, 147, 400, 50);
   FmemoProjectContext.Text := 'Lazarus 3.x and Free Pascal on Windows and Linux.';
 
+  with TLabel.Create(Self) do begin Parent := FTabDescription; SetBounds(20,200,200,18); Caption := 'Scope:'; end;
   FmemoScope := TMemo.Create(Self);
   FmemoScope.Parent := FTabDescription;
-  FmemoScope.SetBounds(20, 200, 400, 60);
-  FmemoScope.Text := 'Includes TAIAudioInput component, sound filters, arecord and WASAPI drivers.';
+  FmemoScope.SetBounds(20, 217, 400, 50);
+  FmemoScope.Text := 'TAIAudioInput component, sound filters, arecord and WASAPI drivers.';
 
+  with TLabel.Create(Self) do begin Parent := FTabDescription; SetBounds(20,270,200,18); Caption := 'Constraints:'; end;
   FmemoConstraints := TMemo.Create(Self);
   FmemoConstraints.Parent := FTabDescription;
-  FmemoConstraints.SetBounds(20, 270, 400, 60);
-  FmemoConstraints.Text := 'No simulation mode allowed for audio capture in final demo.';
+  FmemoConstraints.SetBounds(20, 287, 400, 50);
+  FmemoConstraints.Text := 'No simulation mode in final demo.';
 
+  with TLabel.Create(Self) do begin Parent := FTabDescription; SetBounds(20,340,200,18); Caption := 'Expected Deliverables:'; end;
   FmemoDeliverables := TMemo.Create(Self);
   FmemoDeliverables.Parent := FTabDescription;
-  FmemoDeliverables.SetBounds(20, 340, 400, 60);
+  FmemoDeliverables.SetBounds(20, 357, 400, 50);
   FmemoDeliverables.Text := 'Component package, WAV validation utility, GUI test sample.';
 
+  with TLabel.Create(Self) do begin Parent := FTabDescription; SetBounds(20,410,120,18); Caption := 'Start Date:'; end;
   FedtProjectStart := TEdit.Create(Self);
   FedtProjectStart.Parent := FTabDescription;
-  FedtProjectStart.SetBounds(20, 410, 190, 25);
+  FedtProjectStart.SetBounds(20, 427, 190, 25);
   FedtProjectStart.Text := DateToStr(Date);
-  FedtProjectStart.TextHint := 'Start Date (YYYY-MM-DD)';
 
+  with TLabel.Create(Self) do begin Parent := FTabDescription; SetBounds(220,410,120,18); Caption := 'Target End Date:'; end;
   FedtTargetEnd := TEdit.Create(Self);
   FedtTargetEnd.Parent := FTabDescription;
-  FedtTargetEnd.SetBounds(220, 410, 200, 25);
+  FedtTargetEnd.SetBounds(220, 427, 200, 25);
   FedtTargetEnd.Text := DateToStr(Date + 30);
-  FedtTargetEnd.TextHint := 'Target End Date (YYYY-MM-DD)';
 
   FbtnGenerateInitialPlan := TButton.Create(Self);
   FbtnGenerateInitialPlan.Parent := FTabDescription;
-  FbtnGenerateInitialPlan.SetBounds(20, 450, 180, 30);
-  FbtnGenerateInitialPlan.Caption := 'Generate Plan with IA';
+  FbtnGenerateInitialPlan.SetBounds(20, 465, 180, 30);
+  FbtnGenerateInitialPlan.Caption := 'Generate Plan with AI';
   FbtnGenerateInitialPlan.OnClick := @DoGenerateInitialPlan;
 
   FbtnSaveProject := TButton.Create(Self);
   FbtnSaveProject.Parent := FTabDescription;
-  FbtnSaveProject.SetBounds(210, 450, 150, 30);
+  FbtnSaveProject.SetBounds(210, 465, 140, 30);
   FbtnSaveProject.Caption := 'Save Project';
   FbtnSaveProject.OnClick := @DoSaveProject;
 
   FbtnLoadProject := TButton.Create(Self);
   FbtnLoadProject.Parent := FTabDescription;
-  FbtnLoadProject.SetBounds(370, 450, 150, 30);
+  FbtnLoadProject.SetBounds(360, 465, 140, 30);
   FbtnLoadProject.Caption := 'Load Project';
   FbtnLoadProject.OnClick := @DoLoadProject;
 
-  { Tab Agile Docs Setup }
+  { ===== Tab Agile Docs ===== }
+  with TLabel.Create(Self) do begin Parent := FTabAgileDocs; SetBounds(20,5,200,18); Caption := 'Business Vision:'; end;
   FmemoBusinessVision := TMemo.Create(Self);
   FmemoBusinessVision.Parent := FTabAgileDocs;
-  FmemoBusinessVision.SetBounds(20, 20, 300, 100);
+  FmemoBusinessVision.SetBounds(20, 22, 300, 80);
   FmemoBusinessVision.TextHint := 'Business Vision';
 
+  with TLabel.Create(Self) do begin Parent := FTabAgileDocs; SetBounds(20,105,200,18); Caption := 'Functional Requirements:'; end;
   FgridFunctional := TStringGrid.Create(Self);
   FgridFunctional.Parent := FTabAgileDocs;
-  FgridFunctional.SetBounds(20, 130, 300, 120);
+  FgridFunctional.SetBounds(20, 122, 300, 110);
   FgridFunctional.ColCount := 3;
   FgridFunctional.FixedCols := 0;
   FgridFunctional.Cells[0, 0] := 'ID';
   FgridFunctional.Cells[1, 0] := 'Requirement';
   FgridFunctional.Cells[2, 0] := 'Priority';
 
+  with TLabel.Create(Self) do begin Parent := FTabAgileDocs; SetBounds(20,235,200,18); Caption := 'Non-Functional Requirements:'; end;
   FgridNonFunctional := TStringGrid.Create(Self);
   FgridNonFunctional.Parent := FTabAgileDocs;
-  FgridNonFunctional.SetBounds(20, 260, 300, 120);
+  FgridNonFunctional.SetBounds(20, 252, 300, 110);
   FgridNonFunctional.ColCount := 3;
   FgridNonFunctional.FixedCols := 0;
   FgridNonFunctional.Cells[0, 0] := 'ID';
   FgridNonFunctional.Cells[1, 0] := 'Req';
   FgridNonFunctional.Cells[2, 0] := 'Priority';
 
+  with TLabel.Create(Self) do begin Parent := FTabAgileDocs; SetBounds(340,5,200,18); Caption := 'Stakeholders:'; end;
   FgridStakeholders := TStringGrid.Create(Self);
   FgridStakeholders.Parent := FTabAgileDocs;
-  FgridStakeholders.SetBounds(340, 20, 300, 100);
+  FgridStakeholders.SetBounds(340, 22, 300, 80);
   FgridStakeholders.ColCount := 3;
   FgridStakeholders.FixedCols := 0;
   FgridStakeholders.Cells[0, 0] := 'Name';
   FgridStakeholders.Cells[1, 0] := 'Role';
   FgridStakeholders.Cells[2, 0] := 'Responsibility';
 
+  with TLabel.Create(Self) do begin Parent := FTabAgileDocs; SetBounds(340,105,200,18); Caption := 'Risk Map:'; end;
   FgridRiskMap := TStringGrid.Create(Self);
   FgridRiskMap.Parent := FTabAgileDocs;
-  FgridRiskMap.SetBounds(340, 130, 300, 120);
+  FgridRiskMap.SetBounds(340, 122, 300, 110);
   FgridRiskMap.ColCount := 4;
   FgridRiskMap.FixedCols := 0;
   FgridRiskMap.Cells[0, 0] := 'ID';
@@ -399,28 +416,37 @@ begin
 
   FRiskMatrix := TAIRiskMatrix.Create(Self);
   FRiskMatrix.Parent := FTabAgileDocs;
-  FRiskMatrix.SetBounds(660, 20, 220, 220);
+  FRiskMatrix.SetBounds(660, 22, 200, 200);
   FRiskMatrix.Project := FAIProject;
 
+  with TLabel.Create(Self) do begin Parent := FTabAgileDocs; SetBounds(340,235,200,18); Caption := 'Epics:'; end;
   FmemoEpics := TMemo.Create(Self);
   FmemoEpics.Parent := FTabAgileDocs;
-  FmemoEpics.SetBounds(340, 260, 300, 120);
+  FmemoEpics.SetBounds(340, 252, 300, 55);
   FmemoEpics.TextHint := 'Epics';
 
-  { Tab Agents Setup }
+  with TLabel.Create(Self) do begin Parent := FTabAgileDocs; SetBounds(340,310,200,18); Caption := 'User Stories:'; end;
+  FmemoUserStories := TMemo.Create(Self);
+  FmemoUserStories.Parent := FTabAgileDocs;
+  FmemoUserStories.SetBounds(340, 327, 300, 55);
+  FmemoUserStories.TextHint := 'User Stories';
+
+  { ===== Tab Agents ===== }
   FlstAgents := TListBox.Create(Self);
   FlstAgents.Parent := FTabAgents;
   FlstAgents.SetBounds(20, 20, 150, 300);
   FlstAgents.OnClick := @OnAgentsClick;
 
+  with TLabel.Create(Self) do begin Parent := FTabAgents; SetBounds(180,5,200,18); Caption := 'Agent Name:'; end;
   FedtAgentName := TEdit.Create(Self);
   FedtAgentName.Parent := FTabAgents;
-  FedtAgentName.SetBounds(180, 20, 200, 25);
+  FedtAgentName.SetBounds(180, 22, 200, 25);
   FedtAgentName.TextHint := 'Agent Name';
 
+  with TLabel.Create(Self) do begin Parent := FTabAgents; SetBounds(180,50,200,18); Caption := 'Profile:'; end;
   FcbAgentProfile := TComboBox.Create(Self);
   FcbAgentProfile.Parent := FTabAgents;
-  FcbAgentProfile.SetBounds(180, 60, 200, 25);
+  FcbAgentProfile.SetBounds(180, 67, 200, 25);
   FcbAgentProfile.Items.Add('UI');
   FcbAgentProfile.Items.Add('DBA');
   FcbAgentProfile.Items.Add('DEV');
@@ -432,64 +458,68 @@ begin
   FcbAgentProfile.Items.Add('Gerente de Projeto');
   FcbAgentProfile.ItemIndex := 2;
 
+  with TLabel.Create(Self) do begin Parent := FTabAgents; SetBounds(180,95,200,18); Caption := 'Skill Level:'; end;
   FcbAgentSkillLevel := TComboBox.Create(Self);
   FcbAgentSkillLevel.Parent := FTabAgents;
-  FcbAgentSkillLevel.SetBounds(180, 100, 200, 25);
+  FcbAgentSkillLevel.SetBounds(180, 112, 200, 25);
   FcbAgentSkillLevel.Items.Add('intern');
   FcbAgentSkillLevel.Items.Add('junior');
   FcbAgentSkillLevel.Items.Add('mid_level');
   FcbAgentSkillLevel.Items.Add('senior');
   FcbAgentSkillLevel.ItemIndex := 3;
 
+  with TLabel.Create(Self) do begin Parent := FTabAgents; SetBounds(180,140,200,18); Caption := 'Description:'; end;
   FmemoAgentDescription := TMemo.Create(Self);
   FmemoAgentDescription.Parent := FTabAgents;
-  FmemoAgentDescription.SetBounds(180, 140, 200, 60);
+  FmemoAgentDescription.SetBounds(180, 157, 200, 55);
   FmemoAgentDescription.TextHint := 'Agent Description';
 
+  with TLabel.Create(Self) do begin Parent := FTabAgents; SetBounds(180,215,200,18); Caption := 'Responsibilities:'; end;
   FmemoAgentResponsibilities := TMemo.Create(Self);
   FmemoAgentResponsibilities.Parent := FTabAgents;
-  FmemoAgentResponsibilities.SetBounds(180, 210, 200, 60);
+  FmemoAgentResponsibilities.SetBounds(180, 232, 200, 55);
   FmemoAgentResponsibilities.TextHint := 'Responsibilities';
 
+  with TLabel.Create(Self) do begin Parent := FTabAgents; SetBounds(395,5,200,18); Caption := 'Agent System Prompt:'; end;
   FmemoAgentPrompt := TMemo.Create(Self);
   FmemoAgentPrompt.Parent := FTabAgents;
-  FmemoAgentPrompt.SetBounds(390, 20, 300, 180);
-  FmemoAgentPrompt.TextHint := 'Agent System Prompt';
+  FmemoAgentPrompt.SetBounds(395, 22, 280, 150);
+  FmemoAgentPrompt.TextHint := 'Agent System Prompt (AI use)';
 
   FchkAgentActive := TCheckBox.Create(Self);
   FchkAgentActive.Parent := FTabAgents;
-  FchkAgentActive.SetBounds(390, 210, 200, 25);
+  FchkAgentActive.SetBounds(395, 180, 200, 25);
   FchkAgentActive.Caption := 'Agent Active';
   FchkAgentActive.Checked := True;
 
   FbtnAddAgent := TButton.Create(Self);
   FbtnAddAgent.Parent := FTabAgents;
-  FbtnAddAgent.SetBounds(180, 290, 90, 30);
+  FbtnAddAgent.SetBounds(180, 305, 90, 28);
   FbtnAddAgent.Caption := 'Add Agent';
   FbtnAddAgent.OnClick := @DoAddAgent;
 
   FbtnUpdateAgent := TButton.Create(Self);
   FbtnUpdateAgent.Parent := FTabAgents;
-  FbtnUpdateAgent.SetBounds(280, 290, 90, 30);
+  FbtnUpdateAgent.SetBounds(280, 305, 90, 28);
   FbtnUpdateAgent.Caption := 'Update';
   FbtnUpdateAgent.OnClick := @DoUpdateAgent;
 
   FbtnRemoveAgent := TButton.Create(Self);
   FbtnRemoveAgent.Parent := FTabAgents;
-  FbtnRemoveAgent.SetBounds(380, 290, 90, 30);
+  FbtnRemoveAgent.SetBounds(380, 305, 90, 28);
   FbtnRemoveAgent.Caption := 'Remove';
   FbtnRemoveAgent.OnClick := @DoRemoveAgent;
 
   FbtnCreateDefaultAgents := TButton.Create(Self);
   FbtnCreateDefaultAgents.Parent := FTabAgents;
-  FbtnCreateDefaultAgents.SetBounds(480, 290, 150, 30);
-  FbtnCreateDefaultAgents.Caption := 'Create Default Agents';
+  FbtnCreateDefaultAgents.SetBounds(480, 305, 160, 28);
+  FbtnCreateDefaultAgents.Caption := 'Create Default Agents (9)';
   FbtnCreateDefaultAgents.OnClick := @DoCreateDefaultAgents;
 
-  { Tab Tasks Setup }
+  { ===== Tab Tasks ===== }
   FgridTasks := TStringGrid.Create(Self);
   FgridTasks.Parent := FTabTasks;
-  FgridTasks.SetBounds(20, 20, 800, 300);
+  FgridTasks.SetBounds(20, 20, 800, 290);
   FgridTasks.ColCount := 9;
   FgridTasks.FixedCols := 0;
   FgridTasks.Cells[0, 0] := 'ID';
@@ -504,29 +534,43 @@ begin
 
   FbtnAddTask := TButton.Create(Self);
   FbtnAddTask.Parent := FTabTasks;
-  FbtnAddTask.SetBounds(20, 335, 120, 30);
+  FbtnAddTask.SetBounds(20, 325, 120, 28);
   FbtnAddTask.Caption := 'Add Task';
   FbtnAddTask.OnClick := @DoAddTask;
 
   FbtnCancelTask := TButton.Create(Self);
   FbtnCancelTask.Parent := FTabTasks;
-  FbtnCancelTask.SetBounds(150, 335, 120, 30);
+  FbtnCancelTask.SetBounds(150, 325, 120, 28);
   FbtnCancelTask.Caption := 'Cancel Task';
 
-  { Tab Actions Setup }
+  FbtnRecalculateEstimates := TButton.Create(Self);
+  FbtnRecalculateEstimates.Parent := FTabTasks;
+  FbtnRecalculateEstimates.SetBounds(280, 325, 160, 28);
+  FbtnRecalculateEstimates.Caption := 'Recalculate Schedule';
+  FbtnRecalculateEstimates.OnClick := @DoRefreshTimeline;
+
+  FbtnAskAgentToAnalyzeTask := TButton.Create(Self);
+  FbtnAskAgentToAnalyzeTask.Parent := FTabTasks;
+  FbtnAskAgentToAnalyzeTask.SetBounds(450, 325, 200, 28);
+  FbtnAskAgentToAnalyzeTask.Caption := 'Ask Agent to Analyze Task';
+
+  { ===== Tab Actions ===== }
+  with TLabel.Create(Self) do begin Parent := FTabActions; SetBounds(10,5,200,18); Caption := 'Task:'; end;
   FcbSelectedTask := TComboBox.Create(Self);
   FcbSelectedTask.Parent := FTabActions;
-  FcbSelectedTask.SetBounds(20, 20, 200, 25);
+  FcbSelectedTask.SetBounds(10, 22, 200, 25);
   FcbSelectedTask.TextHint := 'Select Task';
 
+  with TLabel.Create(Self) do begin Parent := FTabActions; SetBounds(10,50,200,18); Caption := 'Agent:'; end;
   FcbSelectedAgent := TComboBox.Create(Self);
   FcbSelectedAgent.Parent := FTabActions;
-  FcbSelectedAgent.SetBounds(20, 60, 200, 25);
+  FcbSelectedAgent.SetBounds(10, 67, 200, 25);
   FcbSelectedAgent.TextHint := 'Select Agent';
 
+  with TLabel.Create(Self) do begin Parent := FTabActions; SetBounds(10,95,200,18); Caption := 'Action:'; end;
   FcbTaskAction := TComboBox.Create(Self);
   FcbTaskAction.Parent := FTabActions;
-  FcbTaskAction.SetBounds(20, 100, 200, 25);
+  FcbTaskAction.SetBounds(10, 112, 200, 25);
   FcbTaskAction.Items.Add('Confirm Task');
   FcbTaskAction.Items.Add('Reject Task');
   FcbTaskAction.Items.Add('Start Task');
@@ -535,125 +579,147 @@ begin
   FcbTaskAction.Items.Add('Block Task');
   FcbTaskAction.Items.Add('Unblock Task');
   FcbTaskAction.Items.Add('Reopen Task');
-  FcbTaskAction.ItemIndex := 2; // Start Task
+  FcbTaskAction.Items.Add('Comment Task');
+  FcbTaskAction.Items.Add('Request Revision');
+  FcbTaskAction.ItemIndex := 2;
 
+  with TLabel.Create(Self) do begin Parent := FTabActions; SetBounds(10,140,200,18); Caption := 'Comment:'; end;
   FmemoActionComment := TMemo.Create(Self);
   FmemoActionComment.Parent := FTabActions;
-  FmemoActionComment.SetBounds(20, 140, 250, 80);
-  FmemoActionComment.TextHint := 'Action Comment';
+  FmemoActionComment.SetBounds(10, 157, 250, 70);
+  FmemoActionComment.TextHint := 'Action comment';
 
+  with TLabel.Create(Self) do begin Parent := FTabActions; SetBounds(10,230,250,18); Caption := 'Deliverable (for Finish action):'; end;
   FedtActionDeliverable := TEdit.Create(Self);
   FedtActionDeliverable.Parent := FTabActions;
-  FedtActionDeliverable.SetBounds(20, 230, 250, 25);
-  FedtActionDeliverable.TextHint := 'Deliverable (for finish action)';
+  FedtActionDeliverable.SetBounds(10, 247, 250, 25);
+  FedtActionDeliverable.TextHint := 'File or URL';
 
   FbtnApplyTaskAction := TButton.Create(Self);
   FbtnApplyTaskAction.Parent := FTabActions;
-  FbtnApplyTaskAction.SetBounds(20, 270, 150, 30);
+  FbtnApplyTaskAction.SetBounds(10, 280, 160, 28);
   FbtnApplyTaskAction.Caption := 'Apply Task Action';
   FbtnApplyTaskAction.OnClick := @DoApplyTaskAction;
 
+  with TLabel.Create(Self) do begin Parent := FTabActions; SetBounds(280,5,200,18); Caption := 'Action History:'; end;
   FmemoTaskActionHistory := TMemo.Create(Self);
   FmemoTaskActionHistory.Parent := FTabActions;
-  FmemoTaskActionHistory.SetBounds(300, 20, 400, 280);
+  FmemoTaskActionHistory.SetBounds(280, 22, 580, 290);
   FmemoTaskActionHistory.ScrollBars := ssAutoBoth;
-  FmemoTaskActionHistory.TextHint := 'Action History Log';
+  FmemoTaskActionHistory.ReadOnly := True;
 
-  { Tab Dependencies Controls }
+  { ===== Tab Dependencies ===== }
+  with TLabel.Create(Self) do begin Parent := FTabDependencies; SetBounds(20,5,200,18); Caption := 'Serial Dependencies:'; end;
   FlstSerialDependencies := TListBox.Create(Self);
   FlstSerialDependencies.Parent := FTabDependencies;
-  FlstSerialDependencies.SetBounds(20, 20, 200, 200);
+  FlstSerialDependencies.SetBounds(20, 22, 200, 200);
 
+  with TLabel.Create(Self) do begin Parent := FTabDependencies; SetBounds(240,5,200,18); Caption := 'Parallel Tasks:'; end;
   FlstParallelGroups := TListBox.Create(Self);
   FlstParallelGroups.Parent := FTabDependencies;
-  FlstParallelGroups.SetBounds(240, 20, 200, 200);
+  FlstParallelGroups.SetBounds(240, 22, 200, 200);
 
+  with TLabel.Create(Self) do begin Parent := FTabDependencies; SetBounds(20,225,200,18); Caption := 'Explanation:'; end;
   FmemoDependencyExplanation := TMemo.Create(Self);
   FmemoDependencyExplanation.Parent := FTabDependencies;
-  FmemoDependencyExplanation.SetBounds(20, 240, 420, 100);
+  FmemoDependencyExplanation.SetBounds(20, 242, 420, 100);
 
-  { Tab Execution Plan Setup }
+  { ===== Tab Execution Plan ===== }
+  with TLabel.Create(Self) do begin Parent := FTabExecutionPlan; SetBounds(20,5,200,18); Caption := 'Execution Plan:'; end;
   FmemoExecutionPlan := TMemo.Create(Self);
   FmemoExecutionPlan.Parent := FTabExecutionPlan;
-  FmemoExecutionPlan.SetBounds(20, 20, 400, 250);
+  FmemoExecutionPlan.SetBounds(20, 22, 400, 240);
+  FmemoExecutionPlan.ScrollBars := ssAutoBoth;
 
+  with TLabel.Create(Self) do begin Parent := FTabExecutionPlan; SetBounds(440,5,200,18); Caption := 'Milestones:'; end;
   FmemoMilestones := TMemo.Create(Self);
   FmemoMilestones.Parent := FTabExecutionPlan;
-  FmemoMilestones.SetBounds(440, 20, 400, 250);
+  FmemoMilestones.SetBounds(440, 22, 380, 240);
+  FmemoMilestones.ScrollBars := ssAutoBoth;
 
-  { Tab Gantt Setup }
+  { ===== Tab Gantt ===== }
   FpbGantt := TAIProjectGantt.Create(Self);
   FpbGantt.Parent := FTabGantt;
-  FpbGantt.SetBounds(20, 20, 700, 350);
+  FpbGantt.SetBounds(10, 10, 870, 360);
   FpbGantt.Project := FAIProject;
 
   FbtnRecalculateSchedule := TButton.Create(Self);
   FbtnRecalculateSchedule.Parent := FTabGantt;
-  FbtnRecalculateSchedule.SetBounds(20, 385, 180, 30);
+  FbtnRecalculateSchedule.SetBounds(10, 380, 190, 28);
   FbtnRecalculateSchedule.Caption := 'Recalculate Schedule';
   FbtnRecalculateSchedule.OnClick := @DoRefreshTimeline;
 
-  { Tab Timeline Setup }
+  { ===== Tab Timeline ===== }
   FpbTimeline := TAIProjectTimeline.Create(Self);
   FpbTimeline.Parent := FTabTimeline;
-  FpbTimeline.SetBounds(20, 20, 500, 350);
+  FpbTimeline.SetBounds(10, 10, 500, 350);
   FpbTimeline.Project := FAIProject;
 
+  with TLabel.Create(Self) do begin Parent := FTabTimeline; SetBounds(525,5,200,18); Caption := 'Timeline Events:'; end;
   FlstTimelineEvents := TListBox.Create(Self);
   FlstTimelineEvents.Parent := FTabTimeline;
-  FlstTimelineEvents.SetBounds(540, 20, 250, 200);
+  FlstTimelineEvents.SetBounds(525, 22, 340, 190);
 
+  with TLabel.Create(Self) do begin Parent := FTabTimeline; SetBounds(525,215,200,18); Caption := 'Details:'; end;
   FmemoTimelineDetails := TMemo.Create(Self);
   FmemoTimelineDetails.Parent := FTabTimeline;
-  FmemoTimelineDetails.SetBounds(540, 230, 250, 140);
+  FmemoTimelineDetails.SetBounds(525, 232, 340, 130);
 
-  { Tab Revision Setup }
+  { ===== Tab Revision ===== }
+  with TLabel.Create(Self) do begin Parent := FTabRevision; SetBounds(20,5,400,18); Caption := 'Enter correction description to request a new revision from the AI:'; end;
   FmemoCorrection := TMemo.Create(Self);
   FmemoCorrection.Parent := FTabRevision;
-  FmemoCorrection.SetBounds(20, 20, 400, 80);
-  FmemoCorrection.TextHint := 'Enter project correction description here... (e.g. Add Linux backend using arecord)';
+  FmemoCorrection.SetBounds(20, 22, 400, 80);
+  FmemoCorrection.TextHint := 'Example: Add Linux backend using arecord...';
 
   FbtnApplyCorrection := TButton.Create(Self);
   FbtnApplyCorrection.Parent := FTabRevision;
-  FbtnApplyCorrection.SetBounds(20, 110, 180, 30);
+  FbtnApplyCorrection.SetBounds(20, 110, 200, 28);
   FbtnApplyCorrection.Caption := 'Apply Project Correction';
   FbtnApplyCorrection.OnClick := @DoApplyCorrection;
 
+  with TLabel.Create(Self) do begin Parent := FTabRevision; SetBounds(20,145,200,18); Caption := 'Revisions:'; end;
   FlstRevisions := TListBox.Create(Self);
   FlstRevisions.Parent := FTabRevision;
-  FlstRevisions.SetBounds(20, 150, 400, 150);
+  FlstRevisions.SetBounds(20, 162, 400, 150);
   FlstRevisions.OnClick := @OnRevisionsClick;
 
+  with TLabel.Create(Self) do begin Parent := FTabRevision; SetBounds(440,5,200,18); Caption := 'Revision Details:'; end;
   FmemoRevisionDetails := TMemo.Create(Self);
   FmemoRevisionDetails.Parent := FTabRevision;
-  FmemoRevisionDetails.SetBounds(440, 20, 400, 280);
+  FmemoRevisionDetails.SetBounds(440, 22, 430, 300);
   FmemoRevisionDetails.ScrollBars := ssAutoBoth;
 
-  { Tab JSON Setup }
-  FmemoCurrentJSON := TMemo.Create(Self);
-  FmemoCurrentJSON.Parent := FTabJSON;
-  FmemoCurrentJSON.Align := alClient;
-  FmemoCurrentJSON.ScrollBars := ssAutoBoth;
+  { ===== Tab Reports ===== }
+  FReportViewer := TAIProjectReportViewer.Create(Self);
+  FReportViewer.Parent := FTabReports;
+  FReportViewer.SetBounds(10, 10, 870, 420);
+  FReportViewer.Project := FAIProject;
 
-  TPanel.Create(Self); // placeholder/spacing
+  { ===== Tab JSON ===== }
   FbtnCopyJSON := TButton.Create(Self);
   FbtnCopyJSON.Parent := FTabJSON;
-  FbtnCopyJSON.SetBounds(10, 10, 100, 25);
+  FbtnCopyJSON.SetBounds(10, 10, 120, 28);
   FbtnCopyJSON.Caption := 'Copy JSON';
   FbtnCopyJSON.OnClick := @DoCopyJSON;
 
-  { Tab Log Setup }
-  FmemoLog := TMemo.Create(Self);
-  FmemoLog.Parent := FTabLog;
-  FmemoLog.Align := alClient;
-  FmemoLog.ScrollBars := ssAutoBoth;
+  FmemoCurrentJSON := TMemo.Create(Self);
+  FmemoCurrentJSON.Parent := FTabJSON;
+  FmemoCurrentJSON.SetBounds(10, 45, 870, 390);
+  FmemoCurrentJSON.ScrollBars := ssAutoBoth;
 
+  { ===== Tab Log ===== }
   FbtnClearLog := TButton.Create(Self);
   FbtnClearLog.Parent := FTabLog;
-  FbtnClearLog.SetBounds(10, 10, 100, 25);
+  FbtnClearLog.SetBounds(10, 10, 120, 28);
   FbtnClearLog.Caption := 'Clear Log';
   FbtnClearLog.OnClick := @DoClearLog;
-  
+
+  FmemoLog := TMemo.Create(Self);
+  FmemoLog.Parent := FTabLog;
+  FmemoLog.SetBounds(10, 45, 870, 390);
+  FmemoLog.ScrollBars := ssAutoBoth;
+
   DoCreateDefaultAgents(nil);
   RefreshUI;
 end;
@@ -668,10 +734,10 @@ var
   LvlStr: string;
 begin
   case Level of
-    llDebug: LvlStr := '[DEBUG] ';
-    llInfo: LvlStr := '[INFO] ';
+    llDebug:   LvlStr := '[DEBUG] ';
+    llInfo:    LvlStr := '[INFO] ';
     llWarning: LvlStr := '[WARNING] ';
-    llError: LvlStr := '[ERROR] ';
+    llError:   LvlStr := '[ERROR] ';
   end;
   FmemoLog.Lines.Add(LvlStr + Message);
 end;
@@ -682,8 +748,7 @@ begin
   FAIProject.Token := FedtToken.Text;
   FAIProject.DefaultModel := FcbModel.Text;
   FAIProject.LocalURL := FedtEndpoint.Text;
-  FAIProject.SimulationMode := FchkSimulation.Checked;
-  
+
   if FAIProject.TestConnection then
     ShowMessage('LLM Connection Successful!')
   else
@@ -696,10 +761,9 @@ begin
   FAIProject.Token := FedtToken.Text;
   FAIProject.DefaultModel := FcbModel.Text;
   FAIProject.LocalURL := FedtEndpoint.Text;
-  FAIProject.SimulationMode := FchkSimulation.Checked;
   FAIProject.SaveToken := FchkSaveToken.Checked;
   FAIProject.ConfigFileName := ExtractFilePath(Application.ExeName) + 'llm_config.json';
-  
+
   if FAIProject.SaveConfig then
     ShowMessage('LLM Configuration Saved to ' + FAIProject.ConfigFileName)
   else
@@ -715,7 +779,6 @@ begin
     FedtToken.Text := FAIProject.Token;
     FcbModel.Text := FAIProject.DefaultModel;
     FedtEndpoint.Text := FAIProject.LocalURL;
-    FchkSimulation.Checked := FAIProject.SimulationMode;
     FchkSaveToken.Checked := FAIProject.SaveToken;
     ShowMessage('LLM Configuration Loaded.');
   end
@@ -727,7 +790,6 @@ procedure TfrmMain.DoGenerateInitialPlan(Sender: TObject);
 var
   dtS, dtE: TDateTime;
 begin
-  // Set properties from fields
   FAIProject.ProjectName := FedtProjectName.Text;
   FAIProject.Goal := FmemoProjectGoal.Text;
   FAIProject.Description := FmemoProjectGoal.Text;
@@ -735,11 +797,10 @@ begin
   FAIProject.Scope := FmemoScope.Text;
   FAIProject.Constraints := FmemoConstraints.Text;
   FAIProject.ExpectedDeliverables := FmemoDeliverables.Text;
-  
+
   if TryStrToDate(FedtProjectStart.Text, dtS) then FAIProject.StartDate := dtS;
   if TryStrToDate(FedtTargetEnd.Text, dtE) then FAIProject.TargetEndDate := dtE;
-  
-  FAIProject.SimulationMode := FchkSimulation.Checked;
+
   FAIProject.DefaultProvider := TAIProvider(FcbProvider.ItemIndex);
   FAIProject.Token := FedtToken.Text;
   FAIProject.DefaultModel := FcbModel.Text;
@@ -764,6 +825,7 @@ begin
     SaveDialog.InitialDir := ExtractFilePath(Application.ExeName);
     if SaveDialog.Execute then
     begin
+      // Token security: only saved if SaveToken=True
       if FAIProject.SaveProjectToFile(SaveDialog.FileName) then
         ShowMessage('Project saved successfully.')
       else
@@ -786,7 +848,6 @@ begin
     begin
       if FAIProject.LoadProjectFromFile(OpenDialog.FileName) then
       begin
-        // Update Description Fields
         FedtProjectName.Text := FAIProject.ProjectName;
         FmemoProjectGoal.Text := FAIProject.Goal;
         FmemoProjectContext.Text := FAIProject.Context;
@@ -795,10 +856,12 @@ begin
         FmemoDeliverables.Text := FAIProject.ExpectedDeliverables;
         FedtProjectStart.Text := DateToStr(FAIProject.StartDate);
         FedtTargetEnd.Text := DateToStr(FAIProject.TargetEndDate);
-        
+
         ShowMessage('Project loaded successfully.');
         RefreshUI;
-      end;
+      end
+      else
+        ShowMessage('Failed to load project: ' + FAIProject.LastError);
     end;
   finally
     OpenDialog.Free;
@@ -811,14 +874,17 @@ var
 begin
   Agents := TJSONArray(FAIProject.ProjectData.FindPath('agents'));
   if not Assigned(Agents) then Exit;
-  
+
   Agents.Clear;
   Agents.Add(TJSONObject.Create(['id', 'AG001', 'name', 'UI Agent', 'profile', 'UI', 'description', 'Specialist in screen flow', 'skill_level', 'senior', 'active', true]));
   Agents.Add(TJSONObject.Create(['id', 'AG002', 'name', 'DBA Agent', 'profile', 'DBA', 'description', 'Specialist in database & storage', 'skill_level', 'senior', 'active', true]));
   Agents.Add(TJSONObject.Create(['id', 'AG003', 'name', 'DEV Agent', 'profile', 'DEV', 'description', 'Software Developer', 'skill_level', 'mid_level', 'active', true]));
   Agents.Add(TJSONObject.Create(['id', 'AG004', 'name', 'Infra Agent', 'profile', 'Infra', 'description', 'Deployment expert', 'skill_level', 'senior', 'active', true]));
-  Agents.Add(TJSONObject.Create(['id', 'AG005', 'name', 'Tester Agent', 'profile', 'Tester', 'description', 'QA validation', 'skill_level', 'junior', 'active', true]));
-  Agents.Add(TJSONObject.Create(['id', 'AG006', 'name', 'Project Manager', 'profile', 'Gerente de Projeto', 'description', 'Coordinates the team', 'skill_level', 'senior', 'active', true]));
+  Agents.Add(TJSONObject.Create(['id', 'AG005', 'name', 'Operador', 'profile', 'Operador', 'description', 'System operator', 'skill_level', 'junior', 'active', true]));
+  Agents.Add(TJSONObject.Create(['id', 'AG006', 'name', 'Key User', 'profile', 'Key User', 'description', 'Business validator', 'skill_level', 'mid_level', 'active', true]));
+  Agents.Add(TJSONObject.Create(['id', 'AG007', 'name', 'Tester Agent', 'profile', 'Tester', 'description', 'QA validation', 'skill_level', 'junior', 'active', true]));
+  Agents.Add(TJSONObject.Create(['id', 'AG008', 'name', 'Documentador', 'profile', 'Documentador', 'description', 'Technical writer', 'skill_level', 'mid_level', 'active', true]));
+  Agents.Add(TJSONObject.Create(['id', 'AG009', 'name', 'Project Manager', 'profile', 'Gerente', 'description', 'Coordinates the team', 'skill_level', 'senior', 'active', true]));
 
   RefreshUI;
 end;
@@ -830,7 +896,7 @@ var
 begin
   Agents := TJSONArray(FAIProject.ProjectData.FindPath('agents'));
   if not Assigned(Agents) then Exit;
-  
+
   AgentObj := TJSONObject.Create([
     'id', 'AG' + IntToStr(Agents.Count + 1),
     'name', FedtAgentName.Text,
@@ -853,14 +919,14 @@ begin
   if Idx < 0 then Exit;
   Agents := TJSONArray(FAIProject.ProjectData.FindPath('agents'));
   if not Assigned(Agents) then Exit;
-  
+
   AgentObj := Agents.Objects[Idx];
   AgentObj.Strings['name'] := FedtAgentName.Text;
   AgentObj.Strings['profile'] := FcbAgentProfile.Text;
   AgentObj.Strings['description'] := FmemoAgentDescription.Text;
   AgentObj.Strings['skill_level'] := FcbAgentSkillLevel.Text;
   AgentObj.Booleans['active'] := FchkAgentActive.Checked;
-  
+
   RefreshUI;
 end;
 
@@ -885,30 +951,31 @@ var
 begin
   Tasks := TJSONArray(FAIProject.ProjectData.FindPath('planning.tasks'));
   if not Assigned(Tasks) then Exit;
-  
+
   Tasks.Add(TJSONObject.Create([
-    'id', 'T00' + IntToStr(Tasks.Count + 1),
-    'epic_id', 'E001',
-    'title', 'New Custom Task',
-    'description', 'Added by user manually.',
+    'id',                  'T' + Format('%.3d', [Tasks.Count + 1]),
+    'epic_id',             'E001',
+    'title',               'New Custom Task',
+    'description',         'Added by user manually.',
     'acceptance_criteria', 'Custom criteria',
-    'priority', 'medium',
-    'status', 'draft',
-    'dependency_type', 'serial',
-    'dependencies', TJSONArray.Create,
+    'priority',            'medium',
+    'status',              'draft',
+    'dependency_type',     'serial',
+    'dependencies',        TJSONArray.Create,
     'can_run_in_parallel', false,
-    'estimated_hours', TJSONObject.Create(['intern', 12, 'junior', 8, 'mid_level', 4, 'senior', 2]),
+    'estimated_hours',     TJSONObject.Create(['mid_level', 4]),
     'suggested_skill_level', 'mid_level',
-    'assigned_skill_level', 'mid_level',
-    'assigned_to', 'DEV Agent',
-    'responsible_profile', 'DEV',
+    'assigned_skill_level',  'mid_level',
+    'assigned_to',           'DEV Agent',
+    'responsible_profile',   'DEV',
     'estimated_duration_days', 1,
-    'deliverable', 'Layout',
-    'notes', '',
-    'revision_created', 1,
-    'revision_updated', 1
+    'deliverable',           '',
+    'notes',                 '',
+    'progress_percent',      0,
+    'revision_created',      1,
+    'revision_updated',      1
   ]));
-  
+
   FAIProject.RecalculateSchedule;
   RefreshUI;
 end;
@@ -924,14 +991,16 @@ begin
   TaskAct := TAIProjectTaskAction(FcbTaskAction.ItemIndex);
   Comm := FmemoActionComment.Text;
   Deliv := FedtActionDeliverable.Text;
-  
+
   if FAIProject.ApplyTaskAction(TaskID, AgentID, TaskAct, Comm, Deliv) then
   begin
+    FmemoTaskActionHistory.Lines.Add(DateTimeToStr(Now) + ' | ' + TaskID + ' | ' +
+      AgentID + ' | ' + FcbTaskAction.Text);
     ShowMessage('Action applied successfully!');
     RefreshUI;
   end
   else
-    ShowMessage('Action failed.');
+    ShowMessage('Action failed: ' + FAIProject.LastError);
 end;
 
 procedure TfrmMain.DoApplyCorrection(Sender: TObject);
@@ -981,7 +1050,7 @@ begin
   if Idx < 0 then Exit;
   Agents := TJSONArray(FAIProject.ProjectData.FindPath('agents'));
   if not Assigned(Agents) then Exit;
-  
+
   AgentObj := Agents.Objects[Idx];
   FedtAgentName.Text := AgentObj.Strings['name'];
   FcbAgentProfile.ItemIndex := FcbAgentProfile.Items.IndexOf(AgentObj.Strings['profile']);
@@ -1002,11 +1071,11 @@ end;
 
 procedure TfrmMain.LoadGrids;
 var
-  Funcs, NonFunc, Stakeh, Risks, Tasks, Timeline, Revisions: TJSONArray;
+  Funcs, NonFunc, Stakeh, Risks, Tasks, Timeline, Revisions, Deps, Parallel: TJSONArray;
   Obj: TJSONObject;
   i: Integer;
 begin
-  // Clean Functional
+  // Functional Requirements
   FgridFunctional.RowCount := 1;
   Funcs := TJSONArray(FAIProject.ProjectData.FindPath('agile_documents.functional_requirements'));
   if Assigned(Funcs) then
@@ -1021,7 +1090,7 @@ begin
     end;
   end;
 
-  // Non-Functional
+  // Non-Functional Requirements
   FgridNonFunctional.RowCount := 1;
   NonFunc := TJSONArray(FAIProject.ProjectData.FindPath('agile_documents.non_functional_requirements'));
   if Assigned(NonFunc) then
@@ -1068,43 +1137,38 @@ begin
   end;
 
   // Business Vision
-  FmemoBusinessVision.Text := FAIProject.ProjectData.FindPath('agile_documents.business_vision').AsString;
+  if Assigned(FAIProject.ProjectData.FindPath('agile_documents.business_vision')) then
+    FmemoBusinessVision.Text := FAIProject.ProjectData.FindPath('agile_documents.business_vision').AsString;
 
   // Epics
   FmemoEpics.Clear;
   Funcs := TJSONArray(FAIProject.ProjectData.FindPath('agile_documents.epics'));
   if Assigned(Funcs) then
-  begin
     for i := 0 to Funcs.Count - 1 do
     begin
       Obj := Funcs.Objects[i];
-      FmemoEpics.Lines.Add(Obj.Strings['id'] + ': ' + Obj.Strings['title'] + ' - ' + Obj.Strings['description']);
+      FmemoEpics.Lines.Add(Obj.Strings['id'] + ': ' + Obj.Strings['title']);
     end;
-  end;
 
   // User Stories
   FmemoUserStories.Clear;
   Funcs := TJSONArray(FAIProject.ProjectData.FindPath('agile_documents.user_stories'));
   if Assigned(Funcs) then
-  begin
     for i := 0 to Funcs.Count - 1 do
     begin
       Obj := Funcs.Objects[i];
       FmemoUserStories.Lines.Add(Obj.Strings['id'] + ': ' + Obj.Strings['title']);
     end;
-  end;
 
   // Agents
   FlstAgents.Clear;
   Funcs := TJSONArray(FAIProject.ProjectData.FindPath('agents'));
   if Assigned(Funcs) then
-  begin
     for i := 0 to Funcs.Count - 1 do
     begin
       Obj := Funcs.Objects[i];
       FlstAgents.Items.Add(Obj.Strings['name'] + ' (' + Obj.Strings['profile'] + ')');
     end;
-  end;
 
   // Tasks Grid
   FgridTasks.RowCount := 1;
@@ -1127,59 +1191,64 @@ begin
     end;
   end;
 
-  // Execution Plan list
+  // Execution Plan
   FmemoExecutionPlan.Clear;
   Funcs := TJSONArray(FAIProject.ProjectData.FindPath('planning.execution_plan'));
   if Assigned(Funcs) then
-  begin
     for i := 0 to Funcs.Count - 1 do
       FmemoExecutionPlan.Lines.Add(Funcs.Strings[i]);
-  end;
-  
+
   if (FmemoExecutionPlan.Lines.Count = 0) and Assigned(Tasks) then
-  begin
     for i := 0 to Tasks.Count - 1 do
     begin
       Obj := Tasks.Objects[i];
       FmemoExecutionPlan.Lines.Add(IntToStr(i + 1) + '. ' + Obj.Strings['id'] + ' - ' + Obj.Strings['title']);
     end;
-  end;
 
   // Milestones
   FmemoMilestones.Clear;
   Funcs := TJSONArray(FAIProject.ProjectData.FindPath('planning.milestones'));
   if Assigned(Funcs) then
-  begin
     for i := 0 to Funcs.Count - 1 do
     begin
       Obj := Funcs.Objects[i];
-      FmemoMilestones.Lines.Add(Obj.Strings['id'] + ': ' + Obj.Strings['title'] + ' (Target: ' + Obj.Strings['target_date'] + ')');
+      FmemoMilestones.Lines.Add(Obj.Strings['id'] + ': ' + Obj.Strings['title'] +
+                                ' (Target: ' + Obj.Strings['target_date'] + ')');
     end;
-  end;
 
   // Revisions List
   FlstRevisions.Clear;
   Revisions := TJSONArray(FAIProject.ProjectData.FindPath('revisions'));
   if Assigned(Revisions) then
-  begin
     for i := 0 to Revisions.Count - 1 do
     begin
       Obj := Revisions.Objects[i];
-      FlstRevisions.Items.Add('Revision ' + IntToStr(Obj.Integers['number']) + ' - ' + Obj.Strings['title']);
+      FlstRevisions.Items.Add('Rev ' + IntToStr(Obj.Integers['number']) + ' — ' + Obj.Strings['title']);
     end;
-  end;
 
   // Timeline list
   FlstTimelineEvents.Clear;
   Timeline := TJSONArray(FAIProject.ProjectData.FindPath('planning.timeline'));
   if Assigned(Timeline) then
-  begin
     for i := 0 to Timeline.Count - 1 do
     begin
       Obj := Timeline.Objects[i];
       FlstTimelineEvents.Items.Add(Obj.Strings['date'] + ': ' + Obj.Strings['title']);
     end;
-  end;
+
+  // Dependencies
+  FlstSerialDependencies.Clear;
+  FlstParallelGroups.Clear;
+  if Assigned(Tasks) then
+    for i := 0 to Tasks.Count - 1 do
+    begin
+      Obj := Tasks.Objects[i];
+      Deps := TJSONArray(Obj.FindPath('dependencies'));
+      if Assigned(Deps) and (Deps.Count > 0) then
+        FlstSerialDependencies.Items.Add(Obj.Strings['id'] + ' depends on ' + Deps.Strings[0]);
+      if Obj.Booleans['can_run_in_parallel'] then
+        FlstParallelGroups.Items.Add(Obj.Strings['id'] + ': ' + Obj.Strings['title']);
+    end;
 end;
 
 procedure TfrmMain.LoadTaskComboBoxes;
@@ -1190,19 +1259,15 @@ begin
   FcbSelectedTask.Clear;
   Tasks := TJSONArray(FAIProject.ProjectData.FindPath('planning.tasks'));
   if Assigned(Tasks) then
-  begin
     for i := 0 to Tasks.Count - 1 do
       FcbSelectedTask.Items.Add(Tasks.Objects[i].Strings['id']);
-    end;
   if FcbSelectedTask.Items.Count > 0 then FcbSelectedTask.ItemIndex := 0;
 
   FcbSelectedAgent.Clear;
   Agents := TJSONArray(FAIProject.ProjectData.FindPath('agents'));
   if Assigned(Agents) then
-  begin
     for i := 0 to Agents.Count - 1 do
       FcbSelectedAgent.Items.Add(Agents.Objects[i].Strings['name']);
-  end;
   if FcbSelectedAgent.Items.Count > 0 then FcbSelectedAgent.ItemIndex := 0;
 end;
 

@@ -150,7 +150,7 @@ Os exemplos a seguir são projetos visuais prontos para compilação e execuçã
 | Exemplo | Caminho | Descrição |
 |---|---|---|
 | **[AI Project](AI Project/)** | `pacote/samples/AI Project` | Nenhuma descrição disponível. |
-| **[Demo_AI_Project](AI Project/Demo_AI_Project/)** | `pacote/samples/AI Project/Demo_AI_Project` | Planejador visual de projetos com IA que integra documentos ágeis, tarefas, dependências, Gantt, timeline e agentes. |
+| **[Demo_AI_Project](AI Project/Demo_AI_Project/)** | `pacote/samples/AI Project/Demo_AI_Project` | **Demo visual de componentes AI Project.** Não é uma aplicação final — demonstra `TAIProjectGantt`, `TAIProjectTimeline`, `TAIRiskMatrix`, `TAIProjectTaskGrid`, `TAIAgentManagerFrame`, `TAITaskActionPanel`, `TAIProjectReportViewer` e outros. Inclui 14 abas: configuração LLM, documentos ágeis, tarefas, agentes, ações, dependências, Gantt, timeline, revisões, relatórios e persistência em `.aiproj.json`. |
 
 ### 📦 AI Python
 
