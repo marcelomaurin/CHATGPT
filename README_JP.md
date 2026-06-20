@@ -632,7 +632,7 @@ Python 統合デモ。
 
 ### Voice Synthesizer Demo
 
-![Voice Synthesizer](screenshots/voicesynthesizer.jpg)
+![Voice Synthesizer](screenshots/voicesynthesizer_demo.jpg)
 
 音声合成デモ。
 

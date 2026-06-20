@@ -628,7 +628,7 @@ OFDM-компонент с использованием FFT/IFFT.
 
 ### Voice Synthesizer Demo
 
-![Voice Synthesizer](screenshots/voicesynthesizer.jpg)
+![Voice Synthesizer](screenshots/voicesynthesizer_demo.jpg)
 
 Демонстрация синтеза речи.
 

@@ -26,7 +26,7 @@
 
 ## Voicesynthesizer
 
-![Voicesynthesizer](voicesynthesizer.jpg)
+![Voicesynthesizer](voicesynthesizer_demo.jpg)
 
 ## Pose Detector Demo
 

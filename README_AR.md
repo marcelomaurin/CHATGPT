@@ -626,7 +626,7 @@
 
 ### Voice Synthesizer Demo
 
-![Voice Synthesizer](screenshots/voicesynthesizer.jpg)
+![Voice Synthesizer](screenshots/voicesynthesizer_demo.jpg)
 
 عرض لتحويل النص إلى كلام.
 

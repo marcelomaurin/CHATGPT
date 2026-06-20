@@ -303,7 +303,7 @@ Demonstração de filtros de som.
 
 ### Voice Synthesizer Demo
 
-![Voice Synthesizer](screenshots/voicesynthesizer.jpg)
+![Voice Synthesizer](screenshots/voicesynthesizer_demo.jpg)
 
 Demonstração de síntese de voz.
 

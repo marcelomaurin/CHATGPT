@@ -1,5 +1,7 @@
 # Voice Synthesizer Demo (voicesynthesizer_demo)
 
+![Voice Synthesizer Demo Screenshot](../../../../screenshots/voicesynthesizer_demo.jpg)
+
 Este exemplo demonstra o uso do componente **`TAIVoiceSynthesizer`**, um sintetizador de voz nativo, puro e multiplataforma de alta performance para Lazarus/Delphi.
 
 ---

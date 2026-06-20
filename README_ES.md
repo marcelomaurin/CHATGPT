@@ -626,7 +626,7 @@ Demostración de filtros de sonido.
 
 ### Voice Synthesizer Demo
 
-![Voice Synthesizer](screenshots/voicesynthesizer.jpg)
+![Voice Synthesizer](screenshots/voicesynthesizer_demo.jpg)
 
 Demostración de síntesis de voz.
 

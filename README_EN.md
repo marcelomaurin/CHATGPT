@@ -667,7 +667,7 @@ Sound filter demonstration.
 
 ### Voice Synthesizer Demo
 
-![Voice Synthesizer](screenshots/voicesynthesizer.jpg)
+![Voice Synthesizer](screenshots/voicesynthesizer_demo.jpg)
 
 Text-to-speech synthesis demonstration.
 
