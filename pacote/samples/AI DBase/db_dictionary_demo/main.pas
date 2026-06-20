@@ -87,8 +87,8 @@ begin
     edtPassword.Enabled := False;
     edtSchema.Enabled := False;
     lblDatabase.Caption := 'Arquivo SQLite (.db):';
-    if edtDatabase.Text = 'postgres' then
-      edtDatabase.Text := 'database.db';
+    if (edtDatabase.Text = 'postgres') or (edtDatabase.Text = 'database.db') then
+      edtDatabase.Text := 'database\etiqueta.db';
   end
   else
   begin
@@ -98,7 +98,7 @@ begin
     edtPassword.Enabled := True;
     edtSchema.Enabled := True;
     lblDatabase.Caption := 'Nome do Banco:';
-    if edtDatabase.Text = 'database.db' then
+    if (edtDatabase.Text = 'database.db') or (edtDatabase.Text = 'database\etiqueta.db') then
       edtDatabase.Text := 'postgres';
   end;
 end;
