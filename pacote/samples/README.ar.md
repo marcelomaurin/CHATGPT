@@ -56,7 +56,7 @@
 
 | المشروع | المسار | الوصف |
 |---|---|---|
-| **[sound_filters_demo](AI Filtros Sonoros/sound_filters_demo/)**<br><br>![sound_filters_demo](../../screenshots/sound_filters.jpg) | `pacote/samples/AI Filtros Sonoros/sound_filters_demo` | محاكاة تفاعلية لفلاتر الصوت وتعدد إرسال إشارات معالجة الإشارة الرقمية. |
+| **[sound_filters_demo](AI Filtros Sonoros/sound_filters_demo/)** | `pacote/samples/AI Filtros Sonoros/sound_filters_demo` | لا يوجد وصف متاح. |
 
 ### 📦 AI Graph
 
@@ -192,7 +192,7 @@
 | المشروع | المسار | الوصف |
 |---|---|---|
 | **[audio_capture_demo](AI Voice/audio_capture_demo/)** | `pacote/samples/AI Voice/audio_capture_demo` | أداة التقاط الصوت وتسجيل الإشارات من أجهزة الإدخال. |
-| **[sound_filters_visual_demo](AI Voice/sound_filters_visual_demo/)** | `pacote/samples/AI Voice/sound_filters_visual_demo` | لوحة تحكم فلاتر الصوت المرئية وموازن الصوت في الوقت الفعلي. |
+| **[sound_filters_visual_demo](AI Voice/sound_filters_visual_demo/)**<br><br>![sound_filters_visual_demo](../../screenshots/sound_filters_visual_demo.jpg) | `pacote/samples/AI Voice/sound_filters_visual_demo` | لوحة تحكم فلاتر الصوت المرئية وموازن الصوت في الوقت الفعلي. |
 | **[voice_synthesizer_complete_demo](AI Voice/voice_synthesizer_complete_demo/)** | `pacote/samples/AI Voice/voice_synthesizer_complete_demo` | عرض توضيحي كامل لتوليد الكلام يدعم القراءة المتزامنة وغير المتزامنة. |
 | **[voicesynthesizer_demo](AI Voice/voicesynthesizer_demo/)**<br><br>![voicesynthesizer_demo](../../screenshots/voicesynthesizer_demo.jpg) | `pacote/samples/AI Voice/voicesynthesizer_demo` | عرض توضيحي لتوليد الكلام (Text-to-Speech) بشكل أصلي ومتعدد المنصات. |
 

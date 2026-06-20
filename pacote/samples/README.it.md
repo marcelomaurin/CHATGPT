@@ -56,7 +56,7 @@ I seguenti esempi sono progetti visuali pronti per la compilazione e l'esecuzion
 
 | Esempio | Percorso | Descrizione |
 |---|---|---|
-| **[sound_filters_demo](AI Filtros Sonoros/sound_filters_demo/)**<br><br>![sound_filters_demo](../../screenshots/sound_filters.jpg) | `pacote/samples/AI Filtros Sonoros/sound_filters_demo` | Simulazione interattiva di filtri audio e multiplazione di segnali DSP. |
+| **[sound_filters_demo](AI Filtros Sonoros/sound_filters_demo/)** | `pacote/samples/AI Filtros Sonoros/sound_filters_demo` | Nessuna descrizione disponível. |
 
 ### 📦 AI Graph
 
@@ -192,7 +192,7 @@ I seguenti esempi sono progetti visuali pronti per la compilazione e l'esecuzion
 | Esempio | Percorso | Descrizione |
 |---|---|---|
 | **[audio_capture_demo](AI Voice/audio_capture_demo/)** | `pacote/samples/AI Voice/audio_capture_demo` | Registratore e analizzatore audio da dispositivi di input fisici. |
-| **[sound_filters_visual_demo](AI Voice/sound_filters_visual_demo/)** | `pacote/samples/AI Voice/sound_filters_visual_demo` | Equalizzatore e pannello di controllo dei filtri audio in tempo reale. |
+| **[sound_filters_visual_demo](AI Voice/sound_filters_visual_demo/)**<br><br>![sound_filters_visual_demo](../../screenshots/sound_filters_visual_demo.jpg) | `pacote/samples/AI Voice/sound_filters_visual_demo` | Equalizzatore e pannello di controllo dei filtri audio in tempo reale. |
 | **[voice_synthesizer_complete_demo](AI Voice/voice_synthesizer_complete_demo/)** | `pacote/samples/AI Voice/voice_synthesizer_complete_demo` | Vetrina completa di sintesi vocale sincrona e asincrona. |
 | **[voicesynthesizer_demo](AI Voice/voicesynthesizer_demo/)**<br><br>![voicesynthesizer_demo](../../screenshots/voicesynthesizer_demo.jpg) | `pacote/samples/AI Voice/voicesynthesizer_demo` | Dimostrazione di sintesi vocale (Text-to-Speech) nativa e multipiattaforma. |
 

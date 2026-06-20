@@ -20,9 +20,9 @@
 
 ![Som Demo](som_demo.jpg)
 
-## Sound Filters
+## Sound Filters Visual Demo
 
-![Sound Filters](sound_filters.jpg)
+![Sound Filters Visual Demo](sound_filters_visual_demo.jpg)
 
 ## Voicesynthesizer
 

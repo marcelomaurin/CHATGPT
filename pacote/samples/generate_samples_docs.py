@@ -183,13 +183,13 @@ SAMPLE_DESCRIPTIONS = {
         'it': 'Elaborazione matriciale di filtri d\'immagine nativi su canvas Pascal.',
         'ar': 'المعالجة المصفوفية لفلاتر الصور الأصلية على لوحة رسم باسكال.'
     },
-    'sound_filters_demo': {
-        'pt': 'Demo gráfico de filtros sonoros com processamento real de sinais em memória, sem modo simulado.',
-        'en': 'GUI demo for real in-memory sound signal filtering without simulation mode.',
-        'es': 'Simulación interactiva de filtros de audio y multiplexación de señales DSP.',
-        'fr': 'Simulation interactive de filtres audio et multiplexage de signaux DSP.',
-        'it': 'Simulazione interattiva di filtri audio e multiplazione di segnali DSP.',
-        'ar': 'محاكاة تفاعلية لفلاتر الصوت وتعدد إرسال إشارات معالجة الإشارة الرقمية.'
+    'sound_filters_visual_demo': {
+        'pt': 'Demonstração visual de processamento e filtragem de sinais de áudio em tempo real (Low-pass, High-pass, Moving average).',
+        'en': 'Visual demonstration of real-time audio signal processing and filtering (Low-pass, High-pass, Moving average).',
+        'es': 'Demostración visual del procesamiento y filtración de señales de audio en tiempo real.',
+        'fr': 'Démonstration visuelle du traitement et filtrage de signaux audio en temps réel.',
+        'it': 'Dimostrazione visiva dell\'elaborazione e filtraggio di segnali audio in tempo reale.',
+        'ar': 'عرض مرئي لمعالجة وتصفية إشارات الصوت في الوقت الفعلي.'
     },
     'schedule_demo': {
         'pt': 'Gerenciamento estruturado de cronogramas e fila de tarefas baseadas em cron.',
@@ -807,7 +807,7 @@ SCREENSHOT_MAPPING = {
     'python_demo': 'python_demo.jpg',
     'python_runtime_check_demo': 'python_runtime_check_demo.jpg',
     'som_demo': 'som_demo.jpg',
-    'sound_filters_demo': 'sound_filters.jpg',
+    'sound_filters_visual_demo': 'sound_filters_visual_demo.jpg',
     'voicesynthesizer_demo': 'voicesynthesizer_demo.jpg'
 }
 

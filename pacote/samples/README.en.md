@@ -56,7 +56,7 @@ The following examples are visual projects ready for compilation and interactive
 
 | Sample | Path | Description |
 |---|---|---|
-| **[sound_filters_demo](AI Filtros Sonoros/sound_filters_demo/)**<br><br>![sound_filters_demo](../../screenshots/sound_filters.jpg) | `pacote/samples/AI Filtros Sonoros/sound_filters_demo` | GUI demo for real in-memory sound signal filtering without simulation mode. |
+| **[sound_filters_demo](AI Filtros Sonoros/sound_filters_demo/)** | `pacote/samples/AI Filtros Sonoros/sound_filters_demo` | No description available. |
 
 ### 📦 AI Graph
 
@@ -192,7 +192,7 @@ The following examples are visual projects ready for compilation and interactive
 | Sample | Path | Description |
 |---|---|---|
 | **[audio_capture_demo](AI Voice/audio_capture_demo/)** | `pacote/samples/AI Voice/audio_capture_demo` | Audio capture and input device signal recording utility. |
-| **[sound_filters_visual_demo](AI Voice/sound_filters_visual_demo/)** | `pacote/samples/AI Voice/sound_filters_visual_demo` | Visual sound filters control board and real-time audio equalizer. |
+| **[sound_filters_visual_demo](AI Voice/sound_filters_visual_demo/)**<br><br>![sound_filters_visual_demo](../../screenshots/sound_filters_visual_demo.jpg) | `pacote/samples/AI Voice/sound_filters_visual_demo` | Visual sound filters control board and real-time audio equalizer. |
 | **[voice_synthesizer_complete_demo](AI Voice/voice_synthesizer_complete_demo/)** | `pacote/samples/AI Voice/voice_synthesizer_complete_demo` | Complete GUI demo for real text-to-speech synthesis using local system voices or the OpenAI Voice API. |
 | **[voicesynthesizer_demo](AI Voice/voicesynthesizer_demo/)**<br><br>![voicesynthesizer_demo](../../screenshots/voicesynthesizer_demo.jpg) | `pacote/samples/AI Voice/voicesynthesizer_demo` | Text-to-Speech synthesis demonstration, native and cross-platform. |
 
