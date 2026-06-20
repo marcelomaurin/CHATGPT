@@ -96,7 +96,9 @@ gui_samples = {
         {'name': 'graphmap_demo', 'desc': 'Classificação e roteamento de texto por mapas de grafos ponderados de tokens.', 'comps': 'TAIGraphMap', 'how': 'Permite adicionar frases de treinamento e classes de destino, treinar o modelo e visualizar o ranking de categorias e explicações com pesos.'},
         {'name': 'tripo3d_demo', 'desc': 'Geração de modelos 3D via API da Tripo3D (Image-to-3D / Text-to-3D).', 'comps': 'TAITripo3DClient, TAI3DModelViewer, TAIModel3D', 'how': 'Envia imagens ou textos para a API do Tripo3D, monitora a geração e renderiza a malha STL/OBJ resultante em OpenGL.'},
     {'name': 'opencv_vision_demo', 'desc': 'Captura, processamento e rastreamento visual usando a suíte AI Vision.', 'comps': 'TAIOpenCV TAIFrameProcessor, TAIFaceTracker, TAIMotionTracker', 'how': 'Interface gráfica para controle de câmera, aplicação de filtros de cinza/equalização e detecção facial/movimento em tempo real.'},
-        {'name': 'opengl_graphic_demo', 'desc': 'Showcase interativo OpenGL da cena 2D/3D e visualizador de modelos.', 'comps': 'TAIScene2D3D, TAI3DModelViewer, TAIModel3D', 'how': 'Permite rodar simulação de cena 2D/3D, controlar grid, eixos, zoom e renderizar malhas 3D em tempo real.'}
+        {'name': 'opengl_graphic_demo', 'desc': 'Showcase interativo OpenGL da cena 2D/3D e visualizador de modelos.', 'comps': 'TAIScene2D3D, TAI3DModelViewer, TAIModel3D', 'how': 'Permite rodar simulação de cena 2D/3D, controlar grid, eixos, zoom e renderizar malhas 3D em tempo real.'},
+        {'name': 'db_dictionary_demo', 'desc': 'Extrator visual de dicionário de dados de banco de dados (SQLite/PostgreSQL).', 'comps': 'TAISQLiteDictionary, TAIPostgreSQLDictionary', 'how': 'Conecta visualmente a bancos de dados, varre o catálogo de metadados e exporta em Markdown, JSON ou texto.'},
+        {'name': 'ai_sqlite_query_assistant_demo', 'desc': 'Assistente de consulta SQL em linguagem natural usando SQLite e ChatGPT.', 'comps': 'TAISQLiteDictionary, TCHATGPT, TZConnection, TZQuery, TDataSource, TDBGrid', 'how': 'Traduz perguntas em linguagem natural para SQL seguro, valida contra comandos destrutivos e exibe os resultados em um DBGrid.'}
     ],
     'en': [
         {'name': 'visual_demo', 'desc': 'Unified AI control center with functional testing tabs.', 'comps': 'TCHATGPT, TNeuralNetwork, TAICodeAssistant, TAIDatasetGenerator', 'how': 'Allows querying cloud LLMs, auditing Pascal code, exporting fine-tuning datasets, and training XOR networks.'},
@@ -116,17 +118,107 @@ gui_samples = {
         {'name': 'hardware_net_demo', 'desc': 'Advanced hardware, network, PLC, and IoT client showcase.', 'comps': 'TAICameraInput, TAIMQTTClient, TAIEmailClient, TAIMessenger, TAIIndustrialBridge, TAIChromiumBrowser, TAIOSInputCapture', 'how': 'Captures video frames, reads MQTT broker topics, sends emails, bridges Profinet CLPs, and logs global events.'},
         {'name': 'graphmap_demo', 'desc': 'Text classification and routing using weighted token graph maps.', 'comps': 'TAIGraphMap', 'how': 'Allows adding training phrases and target categories, training the model, and visualizing category ranking and weight-based explanations.'},
         {'name': 'tripo3d_demo', 'desc': '3D model generation using Tripo3D API (Image-to-3D / Text-to-3D).', 'comps': 'TAITripo3DClient, TAI3DModelViewer, TAIModel3D', 'how': 'Sends images or text to the Tripo3D API, monitors the task progress, and renders the output STL/OBJ mesh in OpenGL.'},
-    {'name': 'opencv_vision_demo', 'desc': 'Visual capture, processing, and tracking utilizing the AI Vision suite.', 'comps': 'TAIOpenCV TAIFrameProcessor, TAIFaceTracker, TAIMotionTracker', 'how': 'Graphical interface for camera control, grayscale/equalization filtering, and real-time face/motion tracking.'},
-        {'name': 'opengl_graphic_demo', 'desc': 'Interactive OpenGL 2D/3D scene and 3D model viewer showcase.', 'comps': 'TAIScene2D3D, TAI3DModelViewer, TAIModel3D', 'how': 'Controls visual grids, axes, simulation states, cameras, and renders 3D mesh files in real-time.'}
+        {'name': 'opencv_vision_demo', 'desc': 'Visual capture, processing, and tracking utilizing the AI Vision suite.', 'comps': 'TAIOpenCV TAIFrameProcessor, TAIFaceTracker, TAIMotionTracker', 'how': 'Graphical interface for camera control, grayscale/equalization filtering, and real-time face/motion tracking.'},
+        {'name': 'opengl_graphic_demo', 'desc': 'Interactive OpenGL 2D/3D scene and 3D model viewer showcase.', 'comps': 'TAIScene2D3D, TAI3DModelViewer, TAIModel3D', 'how': 'Controls visual grids, axes, simulation states, cameras, and renders 3D mesh files in real-time.'},
+        {'name': 'db_dictionary_demo', 'desc': 'Visual database metadata dictionary extractor (SQLite/PostgreSQL).', 'comps': 'TAISQLiteDictionary, TAIPostgreSQLDictionary', 'how': 'Connects to databases, extracts structural metadata, and exports the data dictionary to Markdown, JSON, or text.'},
+        {'name': 'ai_sqlite_query_assistant_demo', 'desc': 'Natural language SQLite query assistant powered by ChatGPT.', 'comps': 'TAISQLiteDictionary, TCHATGPT, TZConnection, TZQuery, TDataSource, TDBGrid', 'how': 'Translates natural language questions to safe SQLite queries, blocks destructive SQL, and renders results on a DBGrid.'}
     ]
 }
 
 # Fill remaining languages using translation maps to avoid huge files
 translations = {
-    'es': {'visual_demo': 'Central unificada con pestañas de prueba.', 'voicesynthesizer_demo': 'Sintetizador de voz nativo (TTS).', 'yolo_demo': 'Detección profunda YOLOv8.', 'cnn_demo': 'Clasificación profunda de imágenes MobileNetV2.', 'lstm_demo': 'Predicción gráfica de series temporales LSTM.', 'face_detection_demo': 'Identificación facial en tiempo real OpenCV.', 'python_demo': 'Consola interativa del intérprete Python.', 'neural_network_demo': 'Entrenamiento XOR local MLP.', 'perceptron_demo': 'Entrenador de compuertas lógicas perceptrón.', 'som_demo': 'Agrupamiento de colores en rejilla Kohonen.', 'tokenizer_demo': 'Segmentación y tokenización de cadenas.', 'image_filters_demo': 'Procesamiento de filtros de imagem en Pascal.', 'sound_filters_demo': 'Procesamiento DSP y modulación de sinais.', 'schedule_demo': 'Programador de tareas periódicas cron.', 'hardware_net_demo': 'Demostración de hardware, redes, PLC y MQTT.', 'graphmap_demo': 'Clasificación de texto y enrutamiento usando mapas de grafos ponderados de tokens.', 'tripo3d_demo': 'Generación de modelos 3D a través de la API Tripo3D (Image-to-3D / Text-to-3D).', 'opencv_vision_demo': 'Captura, procesamiento y seguimiento visual usando la suite AI Vision.', 'opengl_graphic_demo': 'Demostración interactiva OpenGL de escena 2D/3D y visualizador.'},
-    'fr': {'visual_demo': 'Centre unifié de contrôle IA avec onglets.', 'voicesynthesizer_demo': 'Synthétiseur de voix natif (TTS).', 'yolo_demo': 'Détection d\'objets YOLOv8.', 'cnn_demo': 'Classification d\'images MobileNetV2.', 'lstm_demo': 'Prédiction temporelle graphique LSTM.', 'face_detection_demo': 'Reconnaissance faciale OpenCV.', 'python_demo': 'Console interactive pour Python.', 'neural_network_demo': 'Entraînement local XOR MLP.', 'perceptron_demo': 'Entraînement de portes logiques perceptron.', 'som_demo': 'Classification de couleurs Kohonen.', 'tokenizer_demo': 'Segmentation de texte et tokenisation.', 'image_filters_demo': 'Filtres d\'image natifs dans Pascal.', 'sound_filters_demo': 'Traitement du signal DSP et modulations.', 'schedule_demo': 'Planificateur de tâches cron.', 'hardware_net_demo': 'Démo avancée matériels, réseaux, API et MQTT.', 'graphmap_demo': 'Classification et routage de texte par cartes de graphes de jetons pondérés.', 'tripo3d_demo': 'Génération de modèles 3D via l\'API Tripo3D (Image-to-3D / Text-to-3D).', 'opencv_vision_demo': 'Capture, traitement et suivi visuels à l\'aide de la suite AI Vision.', 'opengl_graphic_demo': 'Démo interactive OpenGL de scène 2D/3D et visualiseur.'},
-    'it': {'visual_demo': 'Centro di controllo IA unificato con schede.', 'voicesynthesizer_demo': 'Sintetizzatore vocale nativo (TTS).', 'yolo_demo': 'Rilevamento profondo oggetti YOLOv8.', 'cnn_demo': 'Classificazione immagini MobileNetV2.', 'lstm_demo': 'Previsione grafica serie temporali LSTM.', 'face_detection_demo': 'Rilevamento volti OpenCV.', 'python_demo': 'Playground interattivo per Python.', 'neural_network_demo': 'Addestramento locale XOR MLP.', 'perceptron_demo': 'Addestratore porte logiche perceptron.', 'som_demo': 'Clustering topologico colori Kohonen.', 'tokenizer_demo': 'Segmentazione e tokenizzazione stringhe.', 'image_filters_demo': 'Filtri d\'immagine in canvas Pascal.', 'sound_filters_demo': 'Elaborazione segnali DSP e modulazioni.', 'schedule_demo': 'Pianificatore compiti basato su cron.', 'hardware_net_demo': 'Demo hardware, reti, PLC e broker MQTT.', 'graphmap_demo': 'Classificazione e instradamento del testo tramite mappe di grafi di token pesati.', 'tripo3d_demo': 'Generazione di modelli 3D tramite l\'API Tripo3D (Image-to-3D / Text-to-3D).', 'opencv_vision_demo': 'Acquisizione visiva, elaborazione e tracciamento utilizzando la suite AI Vision.', 'opengl_graphic_demo': 'Demo OpenGL interattiva di scene 2D/3D e visualizzatore di modelli.'},
-    'ar': {'visual_demo': 'مركز تحكم ذكاء اصطناعي موحد مع تبويبات.', 'voicesynthesizer_demo': 'مخلق الصوت والترجمة الصوتية (TTS).', 'yolo_demo': 'رصد واكتشاف الكائنات YOLOv8 عميق.', 'cnn_demo': 'تصنيف الصور باستخدام شبكة MobileNetV2.', 'lstm_demo': 'التنبؤ البياني بالسلاسل الزمنية LSTM.', 'face_detection_demo': 'اكتشاف وتحديد الوجوه OpenCV.', 'python_demo': 'بيئة عمل تفاعلية للغة بايثون.', 'neural_network_demo': 'تدريب XOR محلي للشبكات MLP.', 'perceptron_demo': 'تدريب البوابات المنطقية العصبية perceptron.', 'som_demo': 'تجميع الألوان على شبكة Kohonen ذاتية التنظيم.', 'tokenizer_demo': 'تقسيم وتحليل الكلمات للنصوص.', 'image_filters_demo': 'فلاتر معالجة الصور ومصفوفاتها.', 'sound_filters_demo': 'معالجة الإشارات الصوتية DSP وتعديلها.', 'schedule_demo': 'مجدول المهام الدورية والزمنية cron.', 'hardware_net_demo': 'عرض متكامل لأتمتة الأجهزة، الشبكات، والتحكم الصناعي.', 'graphmap_demo': 'تصنيف وتوجيه النصوص باستخدام خرائط الرسوم البيانية الموزونة للرموز.', 'tripo3d_demo': 'إنشاء نماذج ثلاثية الأبعاد عبر واجهة برمجة تطبيقات Tripo3D (صورة إلى ثلاثي الأبعاد / نص إلى ثلاثي الأبعاد).', 'opencv_vision_demo': 'التقاط ومعالجة وتتبع مرئي باستخدام مجموعة AI Vision.', 'opengl_graphic_demo': 'عرض رسومي تفاعلي OpenGL للمشهد ثنائي/ثلاثي الأبعاد ومستعرض النماذج.'}
+    'es': {
+        'visual_demo': 'Central unificada con pestañas de prueba.', 
+        'voicesynthesizer_demo': 'Sintetizador de voz nativo (TTS).', 
+        'yolo_demo': 'Detección profunda YOLOv8.', 
+        'cnn_demo': 'Clasificación profunda de imágenes MobileNetV2.', 
+        'lstm_demo': 'Predicción gráfica de series temporales LSTM.', 
+        'face_detection_demo': 'Identificación facial en tiempo real OpenCV.', 
+        'python_demo': 'Consola interativa del intérprete Python.', 
+        'neural_network_demo': 'Entrenamiento XOR local MLP.', 
+        'perceptron_demo': 'Entrenador de compuertas lógicas perceptrón.', 
+        'som_demo': 'Agrupamiento de colores en rejilla Kohonen.', 
+        'tokenizer_demo': 'Segmentación y tokenización de cadenas.', 
+        'image_filters_demo': 'Procesamiento de filtros de imagem en Pascal.', 
+        'sound_filters_demo': 'Procesamiento DSP y modulación de sinais.', 
+        'schedule_demo': 'Programador de tareas periódicas cron.', 
+        'hardware_net_demo': 'Demostración de hardware, redes, PLC y MQTT.', 
+        'graphmap_demo': 'Clasificación de texto y enrutamiento usando mapas de grafos ponderados de tokens.', 
+        'tripo3d_demo': 'Generación de modelos 3D a través de la API Tripo3D (Image-to-3D / Text-to-3D).', 
+        'opencv_vision_demo': 'Captura, procesamiento y seguimiento visual usando la suite AI Vision.', 
+        'opengl_graphic_demo': 'Demostración interactiva OpenGL de escena 2D/3D y visualizador.',
+        'db_dictionary_demo': 'Extractor visual de metadatos de diccionario de datos (SQLite/PostgreSQL).',
+        'ai_sqlite_query_assistant_demo': 'Asistente de consultas SQLite en lenguaje natural potenciado por ChatGPT.'
+    },
+    'fr': {
+        'visual_demo': 'Centre unifié de contrôle IA avec onglets.', 
+        'voicesynthesizer_demo': 'Synthétiseur de voix natif (TTS).', 
+        'yolo_demo': 'Détection d\'objets YOLOv8.', 
+        'cnn_demo': 'Classification d\'images MobileNetV2.', 
+        'lstm_demo': 'Prédiction temporelle graphique LSTM.', 
+        'face_detection_demo': 'Reconnaissance faciale OpenCV.', 
+        'python_demo': 'Console interactive pour Python.', 
+        'neural_network_demo': 'Entraînement local XOR MLP.', 
+        'perceptron_demo': 'Entraînement de portes logiques perceptron.', 
+        'som_demo': 'Classification de couleurs Kohonen.', 
+        'tokenizer_demo': 'Segmentation de texte et tokenisation.', 
+        'image_filters_demo': 'Filtres d\'image natifs dans Pascal.', 
+        'sound_filters_demo': 'Traitement du signal DSP et modulations.', 
+        'schedule_demo': 'Planificateur de tâches cron.', 
+        'hardware_net_demo': 'Démo avancée matériels, réseaux, API et MQTT.', 
+        'graphmap_demo': 'Classification et routage de texte par cartes de graphes de jetons pondérés.', 
+        'tripo3d_demo': 'Génération de modèles 3D via l\'API Tripo3D (Image-to-3D / Text-to-3D).', 
+        'opencv_vision_demo': 'Capture, traitement et suivi visuels à l\'aide de la suite AI Vision.', 
+        'opengl_graphic_demo': 'Démo interactive OpenGL de scène 2D/3D et visualiseur.',
+        'db_dictionary_demo': 'Extracteur visuel de dictionnaire de métadonnées de base de données (SQLite/PostgreSQL).',
+        'ai_sqlite_query_assistant_demo': 'Assistant de requête SQLite en langage naturel propulsé par ChatGPT.'
+    },
+    'it': {
+        'visual_demo': 'Centro di controllo IA unificato con schede.', 
+        'voicesynthesizer_demo': 'Sintetizzatore vocale nativo (TTS).', 
+        'yolo_demo': 'Rilevamento profondo oggetti YOLOv8.', 
+        'cnn_demo': 'Classificazione immagini MobileNetV2.', 
+        'lstm_demo': 'Previsione grafica serie temporali LSTM.', 
+        'face_detection_demo': 'Rilevamento volti OpenCV.', 
+        'python_demo': 'Playground interattivo per Python.', 
+        'neural_network_demo': 'Addestramento locale XOR MLP.', 
+        'perceptron_demo': 'Addestratore porte logiche perceptron.', 
+        'som_demo': 'Clustering topologico colori Kohonen.', 
+        'tokenizer_demo': 'Segmentazione e tokenizzazione stringhe.', 
+        'image_filters_demo': 'Filtri d\'immagine in canvas Pascal.', 
+        'sound_filters_demo': 'Elaborazione segnali DSP e modulazioni.', 
+        'schedule_demo': 'Pianificatore compiti basato su cron.', 
+        'hardware_net_demo': 'Demo hardware, reti, PLC e broker MQTT.', 
+        'graphmap_demo': 'Classificazione e instradamento del testo tramite mappe di grafi di token pesati.', 
+        'tripo3d_demo': 'Generazione di modelli 3D tramite l\'API Tripo3D (Image-to-3D / Text-to-3D).', 
+        'opencv_vision_demo': 'Acquisizione visiva, elaborazione e tracciamento utilizzando la suite AI Vision.', 
+        'opengl_graphic_demo': 'Demo OpenGL interattiva di scene 2D/3D e visualizzatore di modelli.',
+        'db_dictionary_demo': 'Estrattore visuale di dizionario dati di database (SQLite/PostgreSQL).',
+        'ai_sqlite_query_assistant_demo': 'Assistente alle query SQLite in linguaggio naturale basato su ChatGPT.'
+    },
+    'ar': {
+        'visual_demo': 'مركز تحكم ذكاء اصطناعي موحد مع تبويبات.', 
+        'voicesynthesizer_demo': 'مخلق الصوت والترجمة الصوتية (TTS).', 
+        'yolo_demo': 'رصد واكتشاف الكائنات YOLOv8 عميق.', 
+        'cnn_demo': 'تصنيف الصور باستخدام شبكة MobileNetV2.', 
+        'lstm_demo': 'التنبؤ البياني بالسلاسل الزمنية LSTM.', 
+        'face_detection_demo': 'اكتشاف وتحديد الوجوه OpenCV.', 
+        'python_demo': 'بيئة عمل تفاعلية للغة بايثون.', 
+        'neural_network_demo': 'تدريب XOR محلي للشبكات MLP.', 
+        'perceptron_demo': 'تدريب البوابات المنطقية العصبية perceptron.', 
+        'som_demo': 'تجميع الألوان على شبكة Kohonen ذاتية التنظيم.', 
+        'tokenizer_demo': 'تقسيم وتحليل الكلمات للنصوص.', 
+        'image_filters_demo': 'فلاتر معالجة الصور ومصفوفاتها.', 
+        'sound_filters_demo': 'معالجة الإشارات الصوتية DSP وتعديلها.', 
+        'schedule_demo': 'مجدول المهام الدورية والزمنية cron.', 
+        'hardware_net_demo': 'عرض متكامل لأتمتة الأجهزة، الشبكات، والتحكم الصناعي.', 
+        'graphmap_demo': 'تصنيف وتوجيه النصوص باستخدام خرائط الرسوم البيانية الموزونة للرموز.', 
+        'tripo3d_demo': 'إنشاء نماذج ثلاثية الأبعاد عبر واجهة برمجة تطبيقات Tripo3D (صورة إلى ثلاثي الأبعاد / نص إلى ثلاثي الأبعاد).', 
+        'opencv_vision_demo': 'التقاط ومعالجة وتتبع مرئي باستخدام مجموعة AI Vision.', 
+        'opengl_graphic_demo': 'عرض رسومي تفاعلي OpenGL للمشهد ثنائي/ثلاثي الأبعاد ومستعرض النماذج.',
+        'db_dictionary_demo': 'مستخرج مرئي لقاموس بيانات قاعدة البيانات (SQLite/PostgreSQL).',
+        'ai_sqlite_query_assistant_demo': 'مساعد استعلام SQLite باللغة الطبيعية مدعوم من ChatGPT.'
+    }
 }
 
 console_samples = {

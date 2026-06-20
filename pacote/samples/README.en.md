@@ -27,6 +27,8 @@ The following examples are visual projects ready for compilation and interactive
 | **[tripo3d_demo/](AI Graphic/tripo3d_demo/)** | 3D model generation using Tripo3D API (Image-to-3D / Text-to-3D). | `TAITripo3DClient, TAI3DModelViewer, TAIModel3D` | Sends images or text to the Tripo3D API, monitors the task progress, and renders the output STL/OBJ mesh in OpenGL. |
 | **[opencv_vision_demo/](AI Vision/opencv_vision_demo/)** | Visual capture, processing, and tracking utilizing the AI Vision suite. | `TAIOpenCV TAIFrameProcessor, TAIFaceTracker, TAIMotionTracker` | Graphical interface for camera control, grayscale/equalization filtering, and real-time face/motion tracking. |
 | **[opengl_graphic_demo/](AI Graphic/opengl_graphic_demo/)** | Interactive OpenGL 2D/3D scene and 3D model viewer showcase. | `TAIScene2D3D, TAI3DModelViewer, TAIModel3D` | Controls visual grids, axes, simulation states, cameras, and renders 3D mesh files in real-time. |
+| **[db_dictionary_demo/](AI DBase/db_dictionary_demo/)** | Visual database metadata dictionary extractor (SQLite/PostgreSQL). | `TAISQLiteDictionary, TAIPostgreSQLDictionary` | Connects to databases, extracts structural metadata, and exports the data dictionary to Markdown, JSON, or text. |
+| **[ai_sqlite_query_assistant_demo/](AI DBase/ai_sqlite_query_assistant_demo/)** | Natural language SQLite query assistant powered by ChatGPT. | `TAISQLiteDictionary, TCHATGPT, TZConnection, TZQuery, TDataSource, TDBGrid` | Translates natural language questions to safe SQLite queries, blocks destructive SQL, and renders results on a DBGrid. |
 
 ## 💻 Command Line Interface (Console) Demonstrations
 These examples demonstrate direct component invocation via command line for rapid debugging or automation scenarios:

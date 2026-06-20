@@ -27,6 +27,8 @@
 | **[tripo3d_demo/](AI Graphic/tripo3d_demo/)** | إنشاء نماذج ثلاثية الأبعاد عبر واجهة برمجة تطبيقات Tripo3D (صورة إلى ثلاثي الأبعاد / نص إلى ثلاثي الأبعاد). | `TAITripo3DClient, TAI3DModelViewer, TAIModel3D` | Sends images or text to the Tripo3D API, monitors the task progress, and renders the output STL/OBJ mesh in OpenGL. |
 | **[opencv_vision_demo/](AI Vision/opencv_vision_demo/)** | التقاط ومعالجة وتتبع مرئي باستخدام مجموعة AI Vision. | `TAIOpenCV TAIFrameProcessor, TAIFaceTracker, TAIMotionTracker` | Graphical interface for camera control, grayscale/equalization filtering, and real-time face/motion tracking. |
 | **[opengl_graphic_demo/](AI Graphic/opengl_graphic_demo/)** | عرض رسومي تفاعلي OpenGL للمشهد ثنائي/ثلاثي الأبعاد ومستعرض النماذج. | `TAIScene2D3D, TAI3DModelViewer, TAIModel3D` | Controls visual grids, axes, simulation states, cameras, and renders 3D mesh files in real-time. |
+| **[db_dictionary_demo/](AI DBase/db_dictionary_demo/)** | مستخرج مرئي لقاموس بيانات قاعدة البيانات (SQLite/PostgreSQL). | `TAISQLiteDictionary, TAIPostgreSQLDictionary` | Connects to databases, extracts structural metadata, and exports the data dictionary to Markdown, JSON, or text. |
+| **[ai_sqlite_query_assistant_demo/](AI DBase/ai_sqlite_query_assistant_demo/)** | مساعد استعلام SQLite باللغة الطبيعية مدعوم من ChatGPT. | `TAISQLiteDictionary, TCHATGPT, TZConnection, TZQuery, TDataSource, TDBGrid` | Translates natural language questions to safe SQLite queries, blocks destructive SQL, and renders results on a DBGrid. |
 
 ## 💻 مشاريع توضيحية لسطر الأوامر (Console)
 توضح هذه الأمثلة الاستدعاء المباشر للمكونات عبر سطر الأوامر لسيناريوهات تصحيح الأخطاء السريعة وأتمتة العمليات الدورية:

@@ -35,6 +35,8 @@ arquivos de entrada de teste
 | `AI Vision/opencv_filter_demo` | GUI | `openai_vision.lpk` | `TAIOpenCV`, `aiopencvruntime`, `aiplatform` | Python Process + Native DLL com fallback | Funcional/Beta |
 | `AI Vision/opencv_image_real_demo` | GUI | `openai_vision.lpk` | `TAIOpenCV`, `TAIFrameProcessor`, `aiopencvruntime`, `aiplatform` | Native DLL com fallback Python e modo simulação | Funcional/Beta |
 | `AI Python/cnn_classifier_complete_demo` | GUI | `openai_core.lpk` | `TCNNClassifier`, `TPythonConnector`, `pythonconnector` | Python DLL/SO (TensorFlow) | Funcional |
+| `AI DBase/db_dictionary_demo` | GUI | `openai_aidbase.lpk` | `TAISQLiteDictionary`, `TAIPostgreSQLDictionary` | SQLite / PostgreSQL | Funcional/Beta |
+| `AI DBase/ai_sqlite_query_assistant_demo` | GUI | `openai_aidbase.lpk`, `openai_core.lpk` | `TAISQLiteDictionary`, `TCHATGPT`, `TZConnection`, `TZQuery`, `TDBGrid` | SQLite + ZeosLib + ChatGPT | Funcional/Beta |
 
 ---
 
@@ -173,6 +175,45 @@ Para processamento real com filtros OpenCV, o backend recomendado continua sendo
 ```text
 Python Process
 ```
+
+---
+
+## Sample: Data Dictionary Demo (`db_dictionary_demo`)
+
+Caminho:
+
+```text
+pacote/samples/AI DBase/db_dictionary_demo/
+```
+
+Esse sample demonstra os extratores de metadados do pacote `openai_aidbase` para PostgreSQL e SQLite.
+
+Recursos demonstrados:
+
+* Conexão visual a bancos PostgreSQL e arquivos locais SQLite;
+* varredura automática do catálogo de metadados do banco;
+* exportação do dicionário de dados gerado em formatos Markdown, JSON e Texto Puro;
+* visualização do dicionário formatado diretamente em tela.
+
+---
+
+## Sample: AI SQLite Query Assistant Demo (`ai_sqlite_query_assistant_demo`)
+
+Caminho:
+
+```text
+pacote/samples/AI DBase/ai_sqlite_query_assistant_demo/
+```
+
+Esse sample demonstra a criação de uma interface de consulta em linguagem natural a bancos SQLite locais, combinando a extração do catálogo pelo `TAISQLiteDictionary` e a geração/validação de queries pelo `TCHATGPT`.
+
+Recursos demonstrados:
+
+* Geração automatizada de uma base SQLite de demonstração (`sales_ai_demo.db`) e inserção de dados de exemplo;
+* extração estruturada de metadados das tabelas e colunas em formato otimizado de prompt de IA (`AsAIPrompt`);
+* orquestração com o `TCHATGPT` para tradução de perguntas textuais em queries SQL compatíveis com SQLite;
+* validação estrita de segurança inline de SQL (bloqueando comandos destrutivos/modificadores para garantir execuções apenas de leitura);
+* execução de queries através do ZeosLib (`TZConnection`, `TZQuery`) e renderização em grid nativa `TDBGrid` conectada via `TDataSource`.
 
 ---
 
