@@ -6,9 +6,9 @@ object frmMain: TfrmMain
   Caption = 'Sound Filters Visual Demo - Real Signal Processing'
   ClientHeight = 680
   ClientWidth = 840
+  LCLVersion = '4.4.0.0'
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  LCLVersion = '2.2.6.0'
   object pnlTop: TPanel
     Left = 0
     Height = 80
@@ -16,13 +16,17 @@ object frmMain: TfrmMain
     Width = 840
     Align = alTop
     BevelOuter = bvNone
+    ClientHeight = 80
+    ClientWidth = 840
     Color = clForm
+    ParentBackground = False
+    ParentColor = False
     TabOrder = 0
     object lblTitle: TLabel
       Left = 15
-      Height = 25
+      Height = 28
       Top = 15
-      Width = 350
+      Width = 248
       Caption = 'Sound Filters Visual Demo'
       Font.CharSet = ANSI_CHARSET
       Font.Height = -20
@@ -37,7 +41,7 @@ object frmMain: TfrmMain
       Left = 15
       Height = 15
       Top = 45
-      Width = 530
+      Width = 476
       Caption = 'Process generated audio signals using real low-pass, high-pass and moving average filters.'
       Font.CharSet = ANSI_CHARSET
       Font.Height = -12
@@ -108,7 +112,7 @@ object frmMain: TfrmMain
         Left = 20
         Height = 15
         Top = 80
-        Width = 102
+        Width = 103
         Caption = 'Duration (seconds):'
         ParentColor = False
       end
@@ -124,7 +128,7 @@ object frmMain: TfrmMain
         Left = 20
         Height = 15
         Top = 140
-        Width = 113
+        Width = 108
         Caption = 'Base frequency (Hz):'
         ParentColor = False
       end
@@ -140,7 +144,7 @@ object frmMain: TfrmMain
         Left = 20
         Height = 15
         Top = 200
-        Width = 119
+        Width = 114
         Caption = 'Noise frequency (Hz):'
         ParentColor = False
       end
@@ -156,7 +160,7 @@ object frmMain: TfrmMain
         Left = 20
         Height = 15
         Top = 260
-        Width = 91
+        Width = 90
         Caption = 'Noise amplitude:'
         ParentColor = False
       end
@@ -174,8 +178,8 @@ object frmMain: TfrmMain
         Top = 330
         Width = 150
         Caption = 'Generate Signal'
-        OnClick = btnGenerateSignalClick
         TabOrder = 5
+        OnClick = btnGenerateSignalClick
       end
       object btnClearSignal: TButton
         Left = 190
@@ -183,8 +187,8 @@ object frmMain: TfrmMain
         Top = 330
         Width = 150
         Caption = 'Clear Signal'
-        OnClick = btnClearSignalClick
         TabOrder = 6
+        OnClick = btnClearSignalClick
       end
       object btnSelfTest: TButton
         Left = 360
@@ -192,8 +196,8 @@ object frmMain: TfrmMain
         Top = 330
         Width = 150
         Caption = 'Run Self-Test'
-        OnClick = btnSelfTestClick
         TabOrder = 7
+        OnClick = btnSelfTestClick
       end
     end
     object tsFilters: TTabSheet
@@ -204,7 +208,7 @@ object frmMain: TfrmMain
         Left = 20
         Height = 15
         Top = 20
-        Width = 57
+        Width = 55
         Caption = 'Filter type:'
         ParentColor = False
       end
@@ -228,7 +232,7 @@ object frmMain: TfrmMain
         Left = 20
         Height = 15
         Top = 80
-        Width = 197
+        Width = 169
         Caption = 'Low-pass cutoff frequency (Hz):'
         ParentColor = False
       end
@@ -244,7 +248,7 @@ object frmMain: TfrmMain
         Left = 20
         Height = 15
         Top = 140
-        Width = 202
+        Width = 173
         Caption = 'High-pass cutoff frequency (Hz):'
         ParentColor = False
       end
@@ -260,7 +264,7 @@ object frmMain: TfrmMain
         Left = 20
         Height = 15
         Top = 200
-        Width = 153
+        Width = 155
         Caption = 'Moving average window size:'
         ParentColor = False
       end
@@ -278,8 +282,8 @@ object frmMain: TfrmMain
         Top = 270
         Width = 150
         Caption = 'Apply Filter'
-        OnClick = btnApplyFilterClick
         TabOrder = 4
+        OnClick = btnApplyFilterClick
       end
       object btnResetFilters: TButton
         Left = 190
@@ -287,8 +291,8 @@ object frmMain: TfrmMain
         Top = 270
         Width = 150
         Caption = 'Reset Filters'
-        OnClick = btnResetFiltersClick
         TabOrder = 5
+        OnClick = btnResetFiltersClick
       end
     end
     object tsResult: TTabSheet
@@ -299,7 +303,7 @@ object frmMain: TfrmMain
         Left = 20
         Height = 15
         Top = 10
-        Width = 63
+        Width = 64
         Caption = 'Input signal'
         Font.Style = [fsBold]
         ParentColor = False
@@ -316,7 +320,7 @@ object frmMain: TfrmMain
         Left = 20
         Height = 15
         Top = 180
-        Width = 78
+        Width = 77
         Caption = 'Filtered signal'
         Font.Style = [fsBold]
         ParentColor = False
@@ -333,7 +337,7 @@ object frmMain: TfrmMain
         Left = 20
         Height = 15
         Top = 345
-        Width = 61
+        Width = 62
         Caption = 'View Mode:'
         ParentColor = False
       end
@@ -358,7 +362,7 @@ object frmMain: TfrmMain
         Left = 520
         Height = 15
         Top = 10
-        Width = 86
+        Width = 81
         Caption = 'Signal Metrics:'
         Font.Style = [fsBold]
         ParentColor = False
@@ -392,7 +396,7 @@ object frmMain: TfrmMain
         Left = 520
         Height = 15
         Top = 295
-        Width = 92
+        Width = 94
         Caption = 'Plain explanation:'
         ParentColor = False
       end
@@ -411,8 +415,8 @@ object frmMain: TfrmMain
         Top = 385
         Width = 150
         Caption = 'Export CSV'
-        OnClick = btnExportCSVClick
         TabOrder = 1
+        OnClick = btnExportCSVClick
       end
       object btnCopyMetrics: TButton
         Left = 190
@@ -420,8 +424,8 @@ object frmMain: TfrmMain
         Top = 385
         Width = 150
         Caption = 'Copy Metrics'
-        OnClick = btnCopyMetricsClick
         TabOrder = 2
+        OnClick = btnCopyMetricsClick
       end
     end
     object tsLog: TTabSheet
@@ -443,8 +447,8 @@ object frmMain: TfrmMain
         Top = 415
         Width = 150
         Caption = 'Clear Log'
-        OnClick = btnClearLogClick
         TabOrder = 1
+        OnClick = btnClearLogClick
       end
     end
   end
