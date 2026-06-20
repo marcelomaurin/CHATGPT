@@ -191,7 +191,7 @@
 
 | المشروع | المسار | الوصف |
 |---|---|---|
-| **[audio_capture_demo](AI Voice/audio_capture_demo/)** | `pacote/samples/AI Voice/audio_capture_demo` | عرض رسومي لالتقاط الصوت الحقيقي من الميكروفون وحفظه بصيغة WAV، بدون وضع المحاكاة. |
+| **[audio_capture_demo](AI Voice/audio_capture_demo/)**<br><br>![audio_capture_demo](../../screenshots/audio_capture_demo.jpg) | `pacote/samples/AI Voice/audio_capture_demo` | عرض رسومي لالتقاط الصوت الحقيقي من الميكروفون وحفظه بصيغة WAV، بدون وضع المحاكاة. |
 | **[sound_filters_visual_demo](AI Voice/sound_filters_visual_demo/)**<br><br>![sound_filters_visual_demo](../../screenshots/sound_filters_visual_demo.jpg) | `pacote/samples/AI Voice/sound_filters_visual_demo` | لوحة تحكم فلاتر الصوت المرئية وموازن الصوت في الوقت الفعلي. |
 | **[voice_synthesizer_complete_demo](AI Voice/voice_synthesizer_complete_demo/)**<br><br>![voice_synthesizer_complete_demo](../../screenshots/voice_synthesizer_complete_demo.jpg) | `pacote/samples/AI Voice/voice_synthesizer_complete_demo` | عرض توضيحي كامل لتوليد الكلام يدعم القراءة المتزامنة وغير المتزامنة. |
 | **[voicesynthesizer_demo](AI Voice/voicesynthesizer_demo/)**<br><br>![voicesynthesizer_demo](../../screenshots/voicesynthesizer_demo.jpg) | `pacote/samples/AI Voice/voicesynthesizer_demo` | عرض توضيحي لتوليد الكلام (Text-to-Speech) بشكل أصلي ومتعدد المنصات. |

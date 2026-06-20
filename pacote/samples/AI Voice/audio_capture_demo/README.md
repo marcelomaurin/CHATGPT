@@ -1,5 +1,7 @@
 # Audio Capture Demo
 
+![Audio Capture Demo](../../../../screenshots/audio_capture_demo.jpg)
+
 | Field | Value |
 |---|---|
 | Package | openai_voice |

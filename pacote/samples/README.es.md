@@ -191,7 +191,7 @@ Los siguientes ejemplos son proyectos visuales listos para compilar y ejecutar i
 
 | Ejemplo | Ruta | Descripción |
 |---|---|---|
-| **[audio_capture_demo](AI Voice/audio_capture_demo/)** | `pacote/samples/AI Voice/audio_capture_demo` | Demostración gráfica para captura real de audio del micrófono, guardando en WAV, sin modo simulado. |
+| **[audio_capture_demo](AI Voice/audio_capture_demo/)**<br><br>![audio_capture_demo](../../screenshots/audio_capture_demo.jpg) | `pacote/samples/AI Voice/audio_capture_demo` | Demostración gráfica para captura real de audio del micrófono, guardando en WAV, sin modo simulado. |
 | **[sound_filters_visual_demo](AI Voice/sound_filters_visual_demo/)**<br><br>![sound_filters_visual_demo](../../screenshots/sound_filters_visual_demo.jpg) | `pacote/samples/AI Voice/sound_filters_visual_demo` | Ecualizador y panel visual de filtros de sonido en tiempo real. |
 | **[voice_synthesizer_complete_demo](AI Voice/voice_synthesizer_complete_demo/)**<br><br>![voice_synthesizer_complete_demo](../../screenshots/voice_synthesizer_complete_demo.jpg) | `pacote/samples/AI Voice/voice_synthesizer_complete_demo` | Muestra completa de síntesis de voz con narración síncrona y asíncrona. |
 | **[voicesynthesizer_demo](AI Voice/voicesynthesizer_demo/)**<br><br>![voicesynthesizer_demo](../../screenshots/voicesynthesizer_demo.jpg) | `pacote/samples/AI Voice/voicesynthesizer_demo` | Demostración de síntesis de voz (Text-to-Speech) nativa y multiplataforma. |

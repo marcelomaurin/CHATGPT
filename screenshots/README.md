@@ -32,6 +32,10 @@
 
 ![Voice Synthesizer Complete Demo](voice_synthesizer_complete_demo.jpg)
 
+## Audio Capture Demo
+
+![Audio Capture Demo](audio_capture_demo.jpg)
+
 ## Pose Detector Demo
 
 ![Pose Detector Demo](pose_detector_demo.jpg)
