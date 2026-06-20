@@ -31,9 +31,6 @@ Use esta classificação para documentação, README de abas, samples e planejam
 | `TAICodeAssistant` | `aicodeassistant.pas` | `openai_core` | Beta | Assistente de código baseado em LLM |
 | `TAIPromptBuilder` | `aipromptbuilder.pas` | `openai_core` | Beta | Construção padronizada de prompts |
 | `TAIModelRegistry` | `aimodelregistry.pas` | `openai_core` | Experimental | Registro de modelos e provedores |
-| `TAIWizardConfig` | `aiwizardconfig.pas` | `openai_core` | Experimental | Assistente de configuração |
-| `TAIProject` | `aiproject.pas` | `openai_core` | Experimental | Estrutura de projeto IA |
-| `TAIPipeline` | `aipipeline.pas` | `openai_core` | Experimental | Orquestra vários módulos e ainda deve ser desacoplado |
 
 ---
 
@@ -101,7 +98,6 @@ Use esta classificação para documentação, README de abas, samples e planejam
 |---|---|---|---|---|
 | `TAICaptureSource` | `aicapturesource.pas` | `openai_input` | Beta | Fonte de captura unificada: câmera local, IP snapshot, tela, arquivo; substitui os 4 componentes legados |
 | `TAIInputData` | `aiinput.pas` | `openai_input` | Beta | Entrada e normalização de dados numéricos |
-| `TAIAudioInput` | `aiaudio.pas` | `openai_voice` | Beta | Captura de áudio via microfone (WAV/MP3) |
 | `TAIWebAPIServer` | `aiwebserver.pas` | `openai_input` | Beta | Servidor REST/HTTP embutido |
 | `TAISocketTCP` | `aisockets.pas` | `openai_input` | Beta | Cliente/servidor TCP |
 | `TAISocketUDP` | `aisockets.pas` | `openai_input` | Beta | Cliente/servidor UDP |
@@ -160,6 +156,19 @@ Use esta classificação para documentação, README de abas, samples e planejam
 | `TAIAgent` | `aiagent.pas` | `openai_agent` | Experimental | Agente com ações; exige segurança |
 | `TAIAgentSafety` | `aiagentsafety.pas` | `openai_agent` | Beta | Bloqueios conservadores e modo simulação |
 | `TAIAgentExecutor` | `aiagent_executors.pas` | `openai_agent` | Experimental | Executores devem ser validados por ação |
+| `TAIProject` | `aiproject.pas` | `openai_agent` | Beta | Coordenação de projetos IA (migrado para openai_agent) |
+| `TAIPipeline` | `aipipeline.pas` | `openai_agent` | Beta | Orquestração de fluxos ML, LLM e Agentes (migrado para openai_agent) |
+| `TAIWizardConfig` | `aiwizardconfig.pas` | `openai_agent` | Beta | Assistente visual de configurações iniciais (migrado para openai_agent) |
+
+---
+
+## Voice
+
+| Componente | Unit | Pacote | Status | Observação |
+|---|---|---|---|---|
+| `TAIVoiceSynthesizer` | `aivoicesynthesizer.pas` | `openai_voice` | Stable | Síntese real de voz (SAPI/local e OpenAI Speech API). Funcional e validado pelo demo `voice_synthesizer_complete_demo` |
+| `TAIAudioInput` | `aiaudio.pas` | `openai_voice` | Beta | Captura de áudio via microfone |
+
 
 ---
 

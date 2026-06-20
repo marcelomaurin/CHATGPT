@@ -39,7 +39,7 @@ pacote/packages/
 
 | Pacote | Finalidade | Status |
 |---|---|---|
-| `openai_core.lpk` | Base comum, LLM, prompt builder, model registry, wizard, projeto e pipeline | **Essencial** |
+| `openai_core.lpk` | Base comum, LLM, prompt builder, model registry e dicionário de tokens | **Essencial** |
 | `openai_python.lpk` | Conectores Python e executores de modelos (TPythonConnector, TYoloDetect, TFaceDetection, TCNNClassifier, TLSTMPredictor, TAIPythonRuntime) | **Opcional** |
 | `openai_ml.lpk` | Machine learning simples, matrizes e utilitários matemáticos | **Opcional** |
 | `openai_graph.lpk` | Grafos, classificação, exportação, análise e relatórios | **Opcional** |
@@ -52,7 +52,7 @@ pacote/packages/
 | `openai_simulation.lpk` | Simulação celular 2D: grade, entidades, regras, movimento e evolução | **Opcional** |
 | `openai_industrial.lpk` | Modbus, MQTT e componentes industriais | **Experimental** |
 | `openai_graphic.lpk` | 3D, viewer, avatar, cena e Tripo3D | **Experimental** |
-| `openai_agent.lpk` | Agentes, segurança e executores | **Experimental** |
+| `openai_agent.lpk` | Agentes, segurança, executores, projetos (TAIProject), pipeline (TAIPipeline) e wizard de configuração (TAIWizardConfig) | **Beta** |
 | `openai_aidbase.lpk` | Dicionários de dados e metadados de bancos de dados para IA (TAIPostgreSQLDictionary, TAISQLiteDictionary, etc.) | **Opcional** |
 
 > **Nota sobre o Pacote Legado**: O pacote antigo `openai.lpk` foi totalmente removido. Utilize os pacotes modulares da lista acima.
@@ -133,8 +133,9 @@ Samples funcionais:
 
 ```text
 samples/AI Vision/opencv_filter_demo/
-samples/AI Input/capture_source_demo/    ← TAICaptureSource (todos os 5 modos)
+samples/AI Input/capture_source_demo/           ← TAICaptureSource (todos os 5 modos)
 samples/AI Input/hardware_net_demo/
+samples/AI Voice/voice_synthesizer_complete_demo/ ← TAIVoiceSynthesizer (local e OpenAI real)
 ```
 
 ---
