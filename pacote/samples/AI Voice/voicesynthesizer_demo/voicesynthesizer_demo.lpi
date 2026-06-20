@@ -25,7 +25,7 @@
     </RunParams>
     <RequiredPackages>
       <Item>
-        <PackageName Value="openai"/>
+        <PackageName Value="openai_voice"/>
       </Item>
       <Item>
         <PackageName Value="LCL"/>
