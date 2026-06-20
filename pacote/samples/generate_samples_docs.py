@@ -712,8 +712,8 @@ SAMPLE_DESCRIPTIONS = {
         'ar': 'لوحة تحكم فلاتر الصوت المرئية وموازن الصوت في الوقت الفعلي.'
     },
     'voice_synthesizer_complete_demo': {
-        'pt': 'Showcase completo de sintetização de fala e narração síncrona/assíncrona.',
-        'en': 'Complete speech synthesis showcase supporting sync and async narrations.',
+        'pt': 'Demo gráfico completo para síntese real de voz usando vozes locais do sistema ou a API de voz da OpenAI.',
+        'en': 'Complete GUI demo for real text-to-speech synthesis using local system voices or the OpenAI Voice API.',
         'es': 'Muestra completa de síntesis de voz con narración síncrona y asíncrona.',
         'fr': 'Démonstration complète de synthèse vocale synchrone et asynchrone.',
         'it': 'Vetrina completa di sintesi vocale sincrona e asincrona.',

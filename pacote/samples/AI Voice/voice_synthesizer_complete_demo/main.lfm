@@ -3,25 +3,63 @@ object frmMain: TfrmMain
   Height = 600
   Top = 150
   Width = 800
-  Caption = 'Voice Synthesizer Complete Demo'
+  Caption = 'Voice Synthesizer Complete Demo - Local and OpenAI Voice API'
   ClientHeight = 600
   ClientWidth = 800
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   LCLVersion = '3.0.0.3'
+  object pnlTop: TPanel
+    Left = 0
+    Height = 100
+    Top = 0
+    Width = 800
+    Align = alTop
+    ClientHeight = 100
+    ClientWidth = 800
+    TabOrder = 0
+    object lblTitle: TLabel
+      Left = 15
+      Height = 25
+      Top = 15
+      Width = 286
+      Caption = 'Voice Synthesizer Complete Demo'
+      Font.Height = -18
+      Font.Name = 'Segoe UI'
+      Font.Style = [fsBold]
+      ParentColor = False
+    end
+    object lblSubtitle: TLabel
+      Left = 15
+      Height = 15
+      Top = 45
+      Width = 431
+      Caption = 'Generate real speech using local system voices or the OpenAI Voice API.'
+      ParentColor = False
+    end
+    object lblStatus: TLabel
+      Left = 15
+      Height = 15
+      Top = 70
+      Width = 71
+      Caption = 'Status: Ready'
+      Font.Style = [fsBold]
+      ParentColor = False
+    end
+  end
   object pgcMain: TPageControl
     Left = 10
-    Height = 580
-    Top = 10
+    Height = 480
+    Top = 110
     Width = 780
     ActivePage = tsConfiguration
     Align = alClient
     BorderSpacing.Around = 10
     TabIndex = 0
-    TabOrder = 0
+    TabOrder = 1
     object tsConfiguration: TTabSheet
       Caption = 'Configuration'
-      ClientHeight = 552
+      ClientHeight = 452
       ClientWidth = 772
       object lblEngine: TLabel
         Left = 20
@@ -37,14 +75,8 @@ object frmMain: TfrmMain
         Top = 16
         Width = 300
         ItemHeight = 15
-        ItemIndex = 1
-        Items.Strings = (
-          'Local System Voice'
-          'OpenAI Voice API'
-        )
         Style = csDropDownList
         TabOrder = 0
-        Text = 'OpenAI Voice API'
       end
       object lblToken: TLabel
         Left = 20
@@ -77,15 +109,8 @@ object frmMain: TfrmMain
         Top = 96
         Width = 300
         ItemHeight = 15
-        ItemIndex = 0
-        Items.Strings = (
-          'gpt-4o-mini-tts'
-          'tts-1'
-          'tts-1-hd'
-        )
         Style = csDropDownList
         TabOrder = 2
-        Text = 'gpt-4o-mini-tts'
       end
       object lblVoice: TLabel
         Left = 20
@@ -101,25 +126,8 @@ object frmMain: TfrmMain
         Top = 136
         Width = 300
         ItemHeight = 15
-        ItemIndex = 0
-        Items.Strings = (
-          'alloy'
-          'ash'
-          'ballad'
-          'coral'
-          'echo'
-          'fable'
-          'nova'
-          'onyx'
-          'sage'
-          'shimmer'
-          'verse'
-          'marin'
-          'cedar'
-        )
         Style = csDropDownList
         TabOrder = 3
-        Text = 'alloy'
       end
       object lblLanguage: TLabel
         Left = 20
@@ -135,21 +143,8 @@ object frmMain: TfrmMain
         Top = 176
         Width = 300
         ItemHeight = 15
-        ItemIndex = 0
-        Items.Strings = (
-          'en-US - English (United States)'
-          'en-GB - English (United Kingdom)'
-          'pt-BR - Portuguese (Brazil)'
-          'es-ES - Spanish (Spain)'
-          'fr-FR - French (France)'
-          'it-IT - Italian (Italy)'
-          'de-DE - German (Germany)'
-          'ja-JP - Japanese (Japan)'
-          'zh-CN - Chinese (Simplified)'
-        )
         Style = csDropDownList
         TabOrder = 4
-        Text = 'en-US - English (United States)'
       end
       object lblFormat: TLabel
         Left = 20
@@ -165,18 +160,8 @@ object frmMain: TfrmMain
         Top = 216
         Width = 300
         ItemHeight = 15
-        ItemIndex = 0
-        Items.Strings = (
-          'mp3'
-          'wav'
-          'opus'
-          'aac'
-          'flac'
-          'pcm'
-        )
         Style = csDropDownList
         TabOrder = 5
-        Text = 'mp3'
       end
       object lblSpeed: TLabel
         Left = 20
@@ -208,7 +193,7 @@ object frmMain: TfrmMain
         Top = 296
         Width = 400
         TabOrder = 7
-        Text = 'speech.mp3'
+        Text = 'output/speech.mp3'
       end
       object btnSelectOutputFile: TButton
         Left = 560
@@ -240,7 +225,7 @@ object frmMain: TfrmMain
     end
     object tsSpeech: TTabSheet
       Caption = 'Speech'
-      ClientHeight = 552
+      ClientHeight = 452
       ClientWidth = 772
       TabOrder = 1
       object lblSpeechText: TLabel
@@ -253,25 +238,25 @@ object frmMain: TfrmMain
       end
       object memoSpeechText: TMemo
         Left = 15
-        Height = 280
+        Height = 220
         Top = 40
         Width = 740
         ScrollBars = ssAutoBoth
         TabOrder = 0
       end
-      object btnSpeak: TButton
+      object btnGenerateSpeech: TButton
         Left = 15
         Height = 35
-        Top = 340
+        Top = 280
         Width = 180
         Caption = 'Generate Speech'
-        OnClick = btnSpeakClick
+        OnClick = btnGenerateSpeechClick
         TabOrder = 1
       end
       object btnClearText: TButton
         Left = 210
         Height = 35
-        Top = 340
+        Top = 280
         Width = 120
         Caption = 'Clear Text'
         OnClick = btnClearTextClick
@@ -280,7 +265,7 @@ object frmMain: TfrmMain
       object btnLoadExample: TButton
         Left = 340
         Height = 35
-        Top = 340
+        Top = 280
         Width = 120
         Caption = 'Load Example'
         OnClick = btnLoadExampleClick
@@ -289,7 +274,7 @@ object frmMain: TfrmMain
     end
     object tsOutput: TTabSheet
       Caption = 'Output'
-      ClientHeight = 552
+      ClientHeight = 452
       ClientWidth = 772
       TabOrder = 2
       object lblGeneratedFile: TLabel
@@ -345,7 +330,7 @@ object frmMain: TfrmMain
       end
       object memoLastResult: TMemo
         Left = 15
-        Height = 200
+        Height = 180
         Top = 155
         Width = 740
         ReadOnly = True
@@ -355,12 +340,12 @@ object frmMain: TfrmMain
     end
     object tsLog: TTabSheet
       Caption = 'Log'
-      ClientHeight = 552
+      ClientHeight = 452
       ClientWidth = 772
       TabOrder = 3
       object memoLog: TMemo
         Left = 0
-        Height = 502
+        Height = 402
         Top = 0
         Width = 772
         Align = alClient
@@ -370,7 +355,7 @@ object frmMain: TfrmMain
       object pnlLogButtons: TPanel
         Left = 0
         Height = 50
-        Top = 502
+        Top = 402
         Width = 772
         Align = alBottom
         ClientHeight = 50
@@ -391,7 +376,7 @@ object frmMain: TfrmMain
   object dlgSaveAudio: TSaveDialog
     Title = 'Select Output File'
     DefaultExt = '.mp3'
-    Filter = 'Audio Files (*.mp3, *.wav, *.opus, *.aac, *.flac, *.pcm)|*.mp3;*.wav;*.opus;*.aac;*.flac;*.pcm|All Files (*.*)|*.*'
+    Filter = 'MP3 Audio (*.mp3)|*.mp3|WAV Audio (*.wav)|*.wav|All files (*.*)|*.*'
     Left = 600
     Top = 380
   end

@@ -88,6 +88,8 @@ type
 
     procedure Say(const AText: string = '');
     procedure GetAvailableVoices(AList: TStrings);
+    function ValidateOpenAIConfig(const AText: string): Boolean;
+    function JSONEscape(const S: string): string;
 
   published
     property Text: string read FText write FText;
@@ -135,7 +137,7 @@ begin
   FOpenAIModel := 'gpt-4o-mini-tts';
   FOpenAIVoice := 'alloy';
   FOpenAIOutputFormat := 'mp3';
-  FOpenAIOutputFile := 'speech.mp3';
+  FOpenAIOutputFile := 'output' + DirectorySeparator + 'speech.mp3';
   FOpenAIInstructions := '';
   FLanguage := 'en-US';
   FSpeed := 1.0;
@@ -271,35 +273,100 @@ begin
   espeak_ListVoices := nil;
 end;
 
+function TAIVoiceSynthesizer.ValidateOpenAIConfig(const AText: string): Boolean;
+begin
+  Result := False;
+  if Trim(FOpenAIToken) = '' then
+  begin
+    SetError('OpenAI API token is required.');
+    Exit;
+  end;
+  if Trim(AText) = '' then
+  begin
+    SetError('Text is empty.');
+    Exit;
+  end;
+  if Trim(FOpenAIModel) = '' then
+  begin
+    SetError('OpenAI model is required.');
+    Exit;
+  end;
+  if Trim(FOpenAIVoice) = '' then
+  begin
+    SetError('OpenAI voice is required.');
+    Exit;
+  end;
+  if Trim(FOpenAIOutputFormat) = '' then
+  begin
+    SetError('OpenAI output format is required.');
+    Exit;
+  end;
+  if Trim(FOpenAIOutputFile) = '' then
+  begin
+    SetError('OpenAI output file is required.');
+    Exit;
+  end;
+  if (FSpeed < 0.25) or (FSpeed > 4.0) then
+  begin
+    SetError('Speed must be between 0.25 and 4.0.');
+    Exit;
+  end;
+  Result := True;
+end;
+
+function TAIVoiceSynthesizer.JSONEscape(const S: string): string;
+var
+  I: Integer;
+  C: Char;
+begin
+  Result := '';
+  for I := 1 to Length(S) do
+  begin
+    C := S[I];
+    case C of
+      '"': Result := Result + '\"';
+      '\': Result := Result + '\\';
+      '/': Result := Result + '\/';
+      #8: Result := Result + '\b';
+      #9: Result := Result + '\t';
+      #10: Result := Result + '\n';
+      #12: Result := Result + '\f';
+      #13: Result := Result + '\r';
+    else
+      Result := Result + C;
+    end;
+  end;
+end;
+
 function TAIVoiceSynthesizer.BuildOpenAIInstructions: string;
 var
   LangPrompt: string;
 begin
+  if SameText(FLanguage, 'pt-BR') then
+    LangPrompt := 'Speak in Brazilian Portuguese (pt-BR). Use a natural, clear and professional tone.'
+  else if SameText(FLanguage, 'en-US') then
+    LangPrompt := 'Speak in English (en-US). Use a natural, clear and professional tone.'
+  else if SameText(FLanguage, 'es-ES') then
+    LangPrompt := 'Speak in Spanish (es-ES). Use a natural, clear and professional tone.'
+  else if SameText(FLanguage, 'fr-FR') then
+    LangPrompt := 'Speak in French (fr-FR). Use a natural, clear and professional tone.'
+  else if SameText(FLanguage, 'it-IT') then
+    LangPrompt := 'Speak in Italian (it-IT). Use a natural, clear and professional tone.'
+  else if SameText(FLanguage, 'de-DE') then
+    LangPrompt := 'Speak in German (de-DE). Use a natural, clear and professional tone.'
+  else if SameText(FLanguage, 'ja-JP') then
+    LangPrompt := 'Speak in Japanese (ja-JP). Use a natural, clear and professional tone.'
+  else if SameText(FLanguage, 'zh-CN') then
+    LangPrompt := 'Speak in Chinese (zh-CN). Use a natural, clear and professional tone.'
+  else
+    LangPrompt := 'Speak in the selected language (' + FLanguage + '). Use a natural, clear and professional tone.';
+
   if Trim(FOpenAIInstructions) <> '' then
   begin
-    Result := 'Language context: ' + FLanguage + '. ' + FOpenAIInstructions;
+    Result := LangPrompt + ' ' + FOpenAIInstructions;
   end
   else
   begin
-    if SameText(FLanguage, 'pt-BR') then
-      LangPrompt := 'Speak in Brazilian Portuguese (pt-BR). Use a natural, clear and professional tone.'
-    else if SameText(FLanguage, 'en-US') then
-      LangPrompt := 'Speak in English (en-US). Use a natural, clear and professional tone.'
-    else if SameText(FLanguage, 'es-ES') then
-      LangPrompt := 'Speak in Spanish (es-ES). Use a natural, clear and professional tone.'
-    else if SameText(FLanguage, 'fr-FR') then
-      LangPrompt := 'Speak in French (fr-FR). Use a natural, clear and professional tone.'
-    else if SameText(FLanguage, 'it-IT') then
-      LangPrompt := 'Speak in Italian (it-IT). Use a natural, clear and professional tone.'
-    else if SameText(FLanguage, 'de-DE') then
-      LangPrompt := 'Speak in German (de-DE). Use a natural, clear and professional tone.'
-    else if SameText(FLanguage, 'ja-JP') then
-      LangPrompt := 'Speak in Japanese (ja-JP). Use a natural, clear and professional tone.'
-    else if SameText(FLanguage, 'zh-CN') then
-      LangPrompt := 'Speak in Chinese (zh-CN). Use a natural, clear and professional tone.'
-    else
-      LangPrompt := 'Speak in ' + FLanguage + '. Use a natural, clear and professional tone.';
-      
     Result := LangPrompt;
   end;
 end;
@@ -307,41 +374,37 @@ end;
 function TAIVoiceSynthesizer.SayOpenAI(const AText: string): Boolean;
 var
   HTTP: TFPHttpClient;
-  RequestBody: TJSONObject;
   BodyStream: TStringStream;
   ResponseStream: TFileStream;
   Payload: string;
   DestDir: string;
+  EscapedInput: string;
+  FSpeedStr: string;
 begin
   Result := False;
   ClearError;
   
-  if Trim(FOpenAIToken) = '' then
-  begin
-    SetError('OpenAI API Token is required.');
+  if not ValidateOpenAIConfig(AText) then
     Exit;
-  end;
-  
-  if Trim(AText) = '' then
-  begin
-    SetError('Input text is empty.');
-    Exit;
-  end;
-  
+    
   HTTP := TFPHttpClient.Create(nil);
-  RequestBody := TJSONObject.Create;
   BodyStream := nil;
   ResponseStream := nil;
   try
-    RequestBody.Add('model', FOpenAIModel);
-    RequestBody.Add('input', AText);
-    RequestBody.Add('voice', FOpenAIVoice);
-    RequestBody.Add('response_format', FOpenAIOutputFormat);
-    RequestBody.Add('speed', FSpeed);
+    EscapedInput := JSONEscape(AText);
+    FSpeedStr := Format('%0.2f', [FSpeed]);
+    FSpeedStr := StringReplace(FSpeedStr, ',', '.', []);
     
-    RequestBody.Add('instructions', BuildOpenAIInstructions);
-    
-    Payload := RequestBody.AsJSON;
+    // Construct manual JSON body
+    Payload := '{' +
+      '"model": "' + JSONEscape(FOpenAIModel) + '",' +
+      '"input": "' + EscapedInput + '",' +
+      '"voice": "' + JSONEscape(FOpenAIVoice) + '",' +
+      '"instructions": "' + JSONEscape(BuildOpenAIInstructions) + '",' +
+      '"response_format": "' + JSONEscape(FOpenAIOutputFormat) + '",' +
+      '"speed": ' + FSpeedStr +
+      '}';
+      
     BodyStream := TStringStream.Create(Payload);
     
     HTTP.AddHeader('Content-Type', 'application/json');
@@ -351,15 +414,18 @@ begin
     HTTP.IOTimeout := 30000;
     HTTP.ConnectTimeout := 30000;
     
-    DestDir := ExtractFileDir(FOpenAIOutputFile);
-    if (DestDir <> '') and not DirectoryExists(DestDir) then
+    DestDir := ExtractFilePath(FOpenAIOutputFile);
+    if DestDir = '' then
+      DestDir := 'output' + DirectorySeparator;
+      
+    if not DirectoryExists(DestDir) then
       ForceDirectories(DestDir);
       
     ResponseStream := TFileStream.Create(FOpenAIOutputFile, fmCreate);
     
     try
       HTTP.Post(FOpenAIEndpoint, ResponseStream);
-      FLastResult := 'Speech synthesis completed via OpenAI API. Saved to ' + FOpenAIOutputFile;
+      FLastResult := FOpenAIOutputFile;
       FLastSuccess := True;
       Result := True;
     except
@@ -371,7 +437,6 @@ begin
   finally
     if Assigned(ResponseStream) then ResponseStream.Free;
     if Assigned(BodyStream) then BodyStream.Free;
-    RequestBody.Free;
     HTTP.Free;
   end;
 end;

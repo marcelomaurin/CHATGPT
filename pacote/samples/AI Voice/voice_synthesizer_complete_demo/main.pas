@@ -5,14 +5,19 @@ unit main;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  ComCtrls, LCLIntf, Clipbrd, aibase, aivoicesynthesizer;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls,
+  ExtCtrls, StdCtrls, LCLIntf, Clipbrd,
+  aibase, aivoicesynthesizer;
 
 type
 
   { TfrmMain }
 
   TfrmMain = class(TForm)
+    pnlTop: TPanel;
+    lblTitle: TLabel;
+    lblSubtitle: TLabel;
+    lblStatus: TLabel;
     pgcMain: TPageControl;
     tsConfiguration: TTabSheet;
     tsSpeech: TTabSheet;
@@ -43,7 +48,7 @@ type
     // Speech controls
     lblSpeechText: TLabel;
     memoSpeechText: TMemo;
-    btnSpeak: TButton;
+    btnGenerateSpeech: TButton;
     btnClearText: TButton;
     btnLoadExample: TButton;
     
@@ -69,7 +74,7 @@ type
     procedure btnSelectOutputFileClick(Sender: TObject);
     procedure btnApplyConfigClick(Sender: TObject);
     procedure btnTestConfigClick(Sender: TObject);
-    procedure btnSpeakClick(Sender: TObject);
+    procedure btnGenerateSpeechClick(Sender: TObject);
     procedure btnClearTextClick(Sender: TObject);
     procedure btnLoadExampleClick(Sender: TObject);
     procedure btnPlayAudioClick(Sender: TObject);
@@ -78,6 +83,7 @@ type
     procedure btnClearLogClick(Sender: TObject);
   private
     FAIVoice: TAIVoiceSynthesizer;
+    FExampleIndex: Integer;
     procedure AddLog(const AMsg: string);
     procedure ApplyConfiguration;
     procedure PlayAudioFile(const AFileName: string);
@@ -92,26 +98,77 @@ implementation
 
 {$R *.lfm}
 
-function ExtractLanguageCode(const ALangStr: string): string;
+function ExtractLanguageCode(const AText: string): string;
 var
   P: Integer;
 begin
-  P := Pos(' - ', ALangStr);
+  P := Pos(' - ', AText);
   if P > 0 then
-    Result := Copy(ALangStr, 1, P - 1)
+    Result := Copy(AText, 1, P - 1)
   else
-    Result := Trim(ALangStr);
+    Result := Trim(AText);
+    
+  if Result = '' then
+    Result := 'en-US';
 end;
 
 { TfrmMain }
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
-  Randomize;
+  FExampleIndex := 0;
   FAIVoice := TAIVoiceSynthesizer.Create(Self);
   AddLog('Voice Synthesizer Complete Demo initialized.');
   
-  // Set default sample speech text
+  // Fill Configuration dropdowns
+  cbSpeechEngine.Clear;
+  cbSpeechEngine.Items.Add('OpenAI Voice API');
+  cbSpeechEngine.Items.Add('Local System Voice');
+  cbSpeechEngine.ItemIndex := 0;
+  
+  cbOpenAIModel.Clear;
+  cbOpenAIModel.Items.Add('gpt-4o-mini-tts');
+  cbOpenAIModel.Items.Add('tts-1');
+  cbOpenAIModel.Items.Add('tts-1-hd');
+  cbOpenAIModel.ItemIndex := 0;
+  
+  cbOpenAIVoice.Clear;
+  cbOpenAIVoice.Items.Add('alloy');
+  cbOpenAIVoice.Items.Add('ash');
+  cbOpenAIVoice.Items.Add('ballad');
+  cbOpenAIVoice.Items.Add('coral');
+  cbOpenAIVoice.Items.Add('echo');
+  cbOpenAIVoice.Items.Add('fable');
+  cbOpenAIVoice.Items.Add('nova');
+  cbOpenAIVoice.Items.Add('onyx');
+  cbOpenAIVoice.Items.Add('sage');
+  cbOpenAIVoice.Items.Add('shimmer');
+  cbOpenAIVoice.Items.Add('verse');
+  cbOpenAIVoice.Items.Add('marin');
+  cbOpenAIVoice.Items.Add('cedar');
+  cbOpenAIVoice.ItemIndex := 0;
+  
+  cbLanguage.Clear;
+  cbLanguage.Items.Add('en-US - English (United States)');
+  cbLanguage.Items.Add('en-GB - English (United Kingdom)');
+  cbLanguage.Items.Add('pt-BR - Portuguese (Brazil)');
+  cbLanguage.Items.Add('es-ES - Spanish (Spain)');
+  cbLanguage.Items.Add('fr-FR - French (France)');
+  cbLanguage.Items.Add('it-IT - Italian (Italy)');
+  cbLanguage.Items.Add('de-DE - German (Germany)');
+  cbLanguage.Items.Add('ja-JP - Japanese (Japan)');
+  cbLanguage.Items.Add('zh-CN - Chinese (Simplified)');
+  cbLanguage.ItemIndex := 0;
+  
+  cbOutputFormat.Clear;
+  cbOutputFormat.Items.Add('mp3');
+  cbOutputFormat.Items.Add('wav');
+  cbOutputFormat.Items.Add('opus');
+  cbOutputFormat.Items.Add('aac');
+  cbOutputFormat.Items.Add('flac');
+  cbOutputFormat.Items.Add('pcm');
+  cbOutputFormat.ItemIndex := 0;
+
   memoSpeechText.Text := 'Welcome to the Lazarus AI Voice Synthesizer demo using the OpenAI Voice API.';
 end;
 
@@ -132,10 +189,10 @@ end;
 
 procedure TfrmMain.ApplyConfiguration;
 begin
-  if cbSpeechEngine.ItemIndex = 0 then
-    FAIVoice.Engine := seSystemDefault
+  if cbSpeechEngine.Text = 'OpenAI Voice API' then
+    FAIVoice.Engine := seOpenAI
   else
-    FAIVoice.Engine := seOpenAI;
+    FAIVoice.Engine := seSystemDefault;
 
   FAIVoice.OpenAIToken := Trim(edtOpenAIToken.Text);
   FAIVoice.OpenAIModel := cbOpenAIModel.Text;
@@ -143,9 +200,10 @@ begin
   FAIVoice.Language := ExtractLanguageCode(cbLanguage.Text);
   FAIVoice.OpenAIOutputFormat := cbOutputFormat.Text;
   FAIVoice.OpenAIOutputFile := edtOutputFile.Text;
-  FAIVoice.Speed := StrToFloatDef(edtSpeed.Text, 1.0);
+  FAIVoice.Speed := StrToFloatDef(StringReplace(edtSpeed.Text, ',', '.', []), 1.0);
   
-  AddLog('Configuration applied successfully.');
+  lblStatus.Caption := 'Status: Configuration applied';
+  AddLog('Configuration applied.');
 end;
 
 procedure TfrmMain.btnApplyConfigClick(Sender: TObject);
@@ -155,34 +213,43 @@ begin
 end;
 
 procedure TfrmMain.btnTestConfigClick(Sender: TObject);
+var
+  LocalList: TStringList;
 begin
   ApplyConfiguration;
   if FAIVoice.Engine = seOpenAI then
   begin
-    if FAIVoice.OpenAIToken = '' then
+    if FAIVoice.ValidateOpenAIConfig('test') then
     begin
-      ShowMessage('Error: API token is required for OpenAI Voice API.');
-      AddLog('Error: OpenAI API token validation failed.');
+      ShowMessage('OpenAI configuration is valid.');
+      AddLog('Test Configuration: OpenAI configuration is valid.');
     end
     else
     begin
-      ShowMessage('OpenAI Voice API configured. Token entered (Length: ' + IntToStr(Length(FAIVoice.OpenAIToken)) + ').');
-      AddLog('Test Configuration: OpenAI Voice API is configured.');
+      ShowMessage('OpenAI configuration is invalid: ' + FAIVoice.LastError);
+      AddLog('Test Configuration: OpenAI validation failed: ' + FAIVoice.LastError);
     end;
   end
   else
   begin
-    ShowMessage('Local System Voice configured.');
-    AddLog('Test Configuration: Local System Voice selected.');
+    LocalList := TStringList.Create;
+    try
+      FAIVoice.GetAvailableVoices(LocalList);
+      ShowMessage('Local voice configuration is valid. Available voices count: ' + IntToStr(LocalList.Count));
+      AddLog('Test Configuration: Local voice configuration is valid. Voices count: ' + IntToStr(LocalList.Count));
+    finally
+      LocalList.Free;
+    end;
   end;
 end;
 
-procedure TfrmMain.btnSpeakClick(Sender: TObject);
+procedure TfrmMain.btnGenerateSpeechClick(Sender: TObject);
 var
   TextToSpeak: string;
   FSize: Int64;
   F: TFileStream;
 begin
+  ApplyConfiguration;
   TextToSpeak := Trim(memoSpeechText.Text);
   if TextToSpeak = '' then
   begin
@@ -190,46 +257,29 @@ begin
     Exit;
   end;
 
-  AddLog('Starting speech generation...');
+  lblStatus.Caption := 'Status: Generating speech...';
+  btnGenerateSpeech.Enabled := False;
+  AddLog('Starting real speech generation...');
   try
-    ApplyConfiguration;
-    
-    if FAIVoice.Engine = seOpenAI then
-    begin
-      if FAIVoice.OpenAIToken = '' then
-      begin
-        ShowMessage('API token is required for OpenAI Voice API.');
-        AddLog('Error: OpenAI API token is empty.');
-        Exit;
-      end;
-      if FAIVoice.OpenAIOutputFile = '' then
-      begin
-        ShowMessage('Output file is empty.');
-        AddLog('Error: OpenAI output file path is empty.');
-        Exit;
-      end;
-      
-      AddLog('Synthesizing speech via OpenAI API...');
-    end
-    else
-    begin
-      AddLog('Synthesizing speech via Local System Voice...');
-    end;
-    
     FAIVoice.Say(TextToSpeak);
     
     if FAIVoice.LastSuccess then
     begin
+      lblStatus.Caption := 'Status: Speech generated successfully';
+      ShowMessage('Speech generated successfully.');
       AddLog('Speech generated successfully.');
       
       if FAIVoice.Engine = seOpenAI then
       begin
         edtGeneratedFile.Text := FAIVoice.OpenAIOutputFile;
         memoLastResult.Clear;
+        memoLastResult.Lines.Add('Engine: OpenAI Voice API');
         memoLastResult.Lines.Add('Model: ' + FAIVoice.OpenAIModel);
         memoLastResult.Lines.Add('Voice: ' + FAIVoice.OpenAIVoice);
         memoLastResult.Lines.Add('Language: ' + FAIVoice.Language);
-        memoLastResult.Lines.Add('Output Format: ' + FAIVoice.OpenAIOutputFormat);
+        memoLastResult.Lines.Add('Output format: ' + FAIVoice.OpenAIOutputFormat);
+        memoLastResult.Lines.Add('Speed: ' + Format('%0.2f', [FAIVoice.Speed]));
+        memoLastResult.Lines.Add('Generated file: ' + FAIVoice.OpenAIOutputFile);
         
         FSize := 0;
         if FileExists(FAIVoice.OpenAIOutputFile) then
@@ -244,24 +294,31 @@ begin
           except
           end;
         end;
-        memoLastResult.Lines.Add('File Size: ' + IntToStr(FSize) + ' bytes');
-        memoLastResult.Lines.Add('Result Message: ' + FAIVoice.LastResult);
-        
-        AddLog('OpenAI Speech file saved to ' + FAIVoice.OpenAIOutputFile + ' (Size: ' + IntToStr(FSize) + ' bytes).');
-        pgcMain.ActivePage := tsOutput;
+        memoLastResult.Lines.Add('File size: ' + IntToStr(FSize) + ' bytes');
+        AddLog('OpenAI Speech file generated: ' + FAIVoice.OpenAIOutputFile + ' (' + IntToStr(FSize) + ' bytes)');
+      end
+      else
+      begin
+        edtGeneratedFile.Text := '';
+        memoLastResult.Clear;
+        memoLastResult.Lines.Add('Engine: Local System Voice');
+        memoLastResult.Lines.Add('Voice: ' + FAIVoice.VoiceName);
+        memoLastResult.Lines.Add('Rate: ' + IntToStr(FAIVoice.Rate));
+        memoLastResult.Lines.Add('Volume: ' + IntToStr(FAIVoice.Volume));
+        memoLastResult.Lines.Add('Result: ' + FAIVoice.LastResult);
+        AddLog('Local system voice synthesis output completed.');
       end;
+      
+      pgcMain.ActivePage := tsOutput;
     end
     else
     begin
+      lblStatus.Caption := 'Status: Speech synthesis failed';
       AddLog('Speech synthesis failed: ' + FAIVoice.LastError);
       ShowMessage('Speech synthesis failed: ' + FAIVoice.LastError);
     end;
-  except
-    on E: Exception do
-    begin
-      AddLog('Critical Error: ' + E.Message);
-      ShowMessage('Critical Error: ' + E.Message);
-    end;
+  finally
+    btnGenerateSpeech.Enabled := True;
   end;
 end;
 
@@ -272,18 +329,20 @@ end;
 
 procedure TfrmMain.btnLoadExampleClick(Sender: TObject);
 const
-  Examples: array[0..3] of string = (
+  Examples: array[0..4] of string = (
     'Welcome to the Lazarus AI Voice Synthesizer demo using the OpenAI Voice API.',
     'This sample generates real speech audio using OpenAI text-to-speech models.',
     'Este exemplo gera áudio real em português do Brasil usando a API de voz da OpenAI.',
-    'This voice demo supports local system voices and cloud-based OpenAI voices.'
+    'This voice demo supports local system voices and cloud-based OpenAI voices.',
+    'Use this component to add spoken responses, alerts and accessibility features to Lazarus applications.'
   );
-var
-  Idx: Integer;
 begin
-  Idx := Random(4);
-  memoSpeechText.Text := Examples[Idx];
-  AddLog('Loaded sample text index ' + IntToStr(Idx));
+  Inc(FExampleIndex);
+  if FExampleIndex > 4 then
+    FExampleIndex := 0;
+    
+  memoSpeechText.Text := Examples[FExampleIndex];
+  AddLog('Loaded sample text index ' + IntToStr(FExampleIndex));
 end;
 
 procedure TfrmMain.PlayAudioFile(const AFileName: string);
@@ -300,6 +359,11 @@ end;
 
 procedure TfrmMain.btnPlayAudioClick(Sender: TObject);
 begin
+  if (edtGeneratedFile.Text = '') or not FileExists(edtGeneratedFile.Text) then
+  begin
+    ShowMessage('Generated audio file was not found.');
+    Exit;
+  end;
   PlayAudioFile(edtGeneratedFile.Text);
 end;
 
@@ -307,9 +371,19 @@ procedure TfrmMain.btnOpenOutputFolderClick(Sender: TObject);
 var
   Dir: string;
 begin
-  Dir := ExtractFileDir(edtGeneratedFile.Text);
+  if edtGeneratedFile.Text = '' then
+  begin
+    ShowMessage('Generated audio file was not found.');
+    Exit;
+  end;
+  Dir := ExtractFilePath(edtGeneratedFile.Text);
   if Dir = '' then
     Dir := GetCurrentDir;
+  if not DirectoryExists(Dir) then
+  begin
+    ShowMessage('Generated audio file was not found.');
+    Exit;
+  end;
   AddLog('Opening folder: ' + Dir);
   LCLIntf.OpenDocument(Dir);
 end;
@@ -319,7 +393,7 @@ begin
   if edtGeneratedFile.Text <> '' then
   begin
     Clipboard.AsText := edtGeneratedFile.Text;
-    ShowMessage('File path copied to clipboard.');
+    ShowMessage('Generated file path copied to clipboard.');
     AddLog('Copied file path to clipboard.');
   end;
 end;

@@ -193,7 +193,7 @@ The following examples are visual projects ready for compilation and interactive
 |---|---|---|
 | **[audio_capture_demo](AI Voice/audio_capture_demo/)** | `pacote/samples/AI Voice/audio_capture_demo` | Audio capture and input device signal recording utility. |
 | **[sound_filters_visual_demo](AI Voice/sound_filters_visual_demo/)** | `pacote/samples/AI Voice/sound_filters_visual_demo` | Visual sound filters control board and real-time audio equalizer. |
-| **[voice_synthesizer_complete_demo](AI Voice/voice_synthesizer_complete_demo/)** | `pacote/samples/AI Voice/voice_synthesizer_complete_demo` | Complete speech synthesis showcase supporting sync and async narrations. |
+| **[voice_synthesizer_complete_demo](AI Voice/voice_synthesizer_complete_demo/)** | `pacote/samples/AI Voice/voice_synthesizer_complete_demo` | Complete GUI demo for real text-to-speech synthesis using local system voices or the OpenAI Voice API. |
 | **[voicesynthesizer_demo](AI Voice/voicesynthesizer_demo/)**<br><br>![voicesynthesizer_demo](../../screenshots/voicesynthesizer_demo.jpg) | `pacote/samples/AI Voice/voicesynthesizer_demo` | Text-to-Speech synthesis demonstration, native and cross-platform. |
 
 ## 💻 Command Line Interface (Console) Demonstrations
