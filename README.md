@@ -319,6 +319,12 @@ Varredura assíncrona do sistema de arquivos e preparação do inventário de da
 
 Geração de dicionário de dados a partir de conexões de banco de dados (PostgreSQL e SQLite) para alimentação de prompts de IA.
 
+### AI SQLite Query Assistant Demo
+
+![AI SQLite Query Assistant Demo](screenshots/ai_sqlite_query_assistant_demo.jpg)
+
+Interface para geração e execução segura de consultas SQLite (SELECT) por meio de linguagem natural, integrada ao ChatGPT e dicionário de metadados da ZeosLib.
+
 ---
 
 ## Limitações conhecidas

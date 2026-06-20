@@ -52,3 +52,7 @@
 
 ![DB Dictionary Demo](db_dicitionary_demo.jpg)
 
+## AI SQLite Query Assistant Demo
+
+![AI SQLite Query Assistant Demo](ai_sqlite_query_assistant_demo.jpg)
+
