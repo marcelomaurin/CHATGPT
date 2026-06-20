@@ -549,6 +549,7 @@ The suite is organized in modular packages:
 | `openai_industrial.lpk` | Modbus, MQTT and industrial PLC bridges | Experimental | **Experimental** |
 | `openai_graphic.lpk` | 3D rendering, STL/OBJ, avatar and Tripo3D integration | Experimental | **Experimental** |
 | `openai_agent.lpk` | Autonomous agents, strict safety rules and action executors | Experimental | **Experimental** |
+| `openai_aidbase.lpk` | Data dictionaries and database metadata structures for AI (TAIPostgreSQLDictionary, TAISQLiteDictionary, etc.) | Optional | **Optional** |
 
 > **Legacy Package Note**: The old monolithic `openai.lpk` package is fully deprecated and removed. Please use the modular packages listed above.
 
@@ -576,6 +577,7 @@ The suite is organized in modular packages:
 12. pacote/packages/openai_industrial.lpk (Experimental)
 13. pacote/packages/openai_graphic.lpk    (Experimental)
 14. pacote/packages/openai_agent.lpk       (Experimental)
+15. pacote/packages/openai_aidbase.lpk     (Optional - Data Dictionary)
 ```
 
 ---

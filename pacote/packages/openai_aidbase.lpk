@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="5">
+    <PathDelim Value="\"/>
+    <Name Value="openai_aidbase"/>
+    <Type Value="RunAndDesignTime"/>
+    <Author Value="Marcelo Maurin Martins"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <PathDelim Value="\"/>
+      <SearchPaths>
+        <OtherUnitFiles Value="..\AI;..\AI Agent;..\AI Voice;..\AI Filtros Sonoros;..\AI Image;..\AI Schedule;..\AI Math;..\AI Input;..\AI Output;..\AI Graph;..\AI Graphic;..\AI Vision;..\AI DBase;.."/>
+        <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+      </SearchPaths>
+    </CompilerOptions>
+    <Description Value="Lazarus AI Suite: Database metadata structure dictionaries and exporters for AI model consumption."/>
+    <License Value="OPEN SOURCE GPL3"/>
+    <Files>
+      <Item>
+        <Filename Value="..\AI DBase\aidb_types.pas"/>
+        <UnitName Value="aidb_types"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI DBase\aidb_dictionary_exporter.pas"/>
+        <UnitName Value="aidb_dictionary_exporter"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI DBase\aidb_dictionary_base.pas"/>
+        <UnitName Value="aidb_dictionary_base"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI DBase\aidb_postgresql_dictionary.pas"/>
+        <UnitName Value="aidb_postgresql_dictionary"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI DBase\aidb_sqlite_dictionary.pas"/>
+        <UnitName Value="aidb_sqlite_dictionary"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI DBase\aidb_mysql_dictionary.pas"/>
+        <UnitName Value="aidb_mysql_dictionary"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI DBase\aidb_firebird_dictionary.pas"/>
+        <UnitName Value="aidb_firebird_dictionary"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI DBase\aidb_sqlserver_dictionary.pas"/>
+        <UnitName Value="aidb_sqlserver_dictionary"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI DBase\aidb_oracle_dictionary.pas"/>
+        <UnitName Value="aidb_oracle_dictionary"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI DBase\aidb_register.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aidb_register"/>
+      </Item>
+    </Files>
+    <RequiredPkgs>
+      <Item>
+        <PackageName Value="openai_core"/>
+      </Item>
+      <Item>
+        <PackageName Value="LCL"/>
+      </Item>
+      <Item>
+        <PackageName Value="FCL"/>
+      </Item>
+      <Item>
+        <PackageName Value="zcomponent"/>
+      </Item>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+      <UseFileFilters Value="True"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>

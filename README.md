@@ -84,6 +84,7 @@ Para novos projetos, use diretamente os pacotes modulares.
 | `openai_industrial.lpk` | Modbus, MQTT e pontes PLC industriais | Experimental | **Experimental** |
 | `openai_graphic.lpk` | Visualização 3D, STL/OBJ, avatar e integração Tripo3D | Experimental | **Experimental** |
 | `openai_agent.lpk` | Agentes autônomos, regras de segurança estrita e executores de ação | Experimental | **Experimental** |
+| `openai_aidbase.lpk` | Dicionários de dados e metadados de bancos de dados para IA (TAIPostgreSQLDictionary, TAISQLiteDictionary, etc.) | Opcional | **Opcional** |
 
 > **Nota sobre o Pacote Legado**: O pacote antigo e monolítico `openai.lpk` foi completamente descontinuado e removido. Utilize a estrutura modular acima.
 
@@ -121,6 +122,7 @@ pacote/packages/openai_core.lpk
 12. pacote/packages/openai_industrial.lpk (Experimental)
 13. pacote/packages/openai_graphic.lpk    (Experimental)
 14. pacote/packages/openai_agent.lpk       (Experimental)
+15. pacote/packages/openai_aidbase.lpk     (Opcional - Dicionário de Dados)
 ```
 
 ---

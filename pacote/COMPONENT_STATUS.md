@@ -197,6 +197,20 @@ Use esta classificação para documentação, README de abas, samples e planejam
 
 ---
 
+## AI DBase
+
+| Componente | Unit | Pacote | Status | Observação |
+|---|---|---|---|---|
+| `TAICustomDBDictionary` | `aidb_dictionary_base.pas` | `openai_aidbase` | Base | Classe base abstrata para dicionário de dados |
+| `TAIPostgreSQLDictionary` | `aidb_postgresql_dictionary.pas` | `openai_aidbase` | Beta | Geração de dicionário de dados PostgreSQL via information_schema |
+| `TAISQLiteDictionary` | `aidb_sqlite_dictionary.pas` | `openai_aidbase` | Beta | Geração de dicionário SQLite via sqlite_master e PRAGMA |
+| `TAIMySQLDictionary` | `aidb_mysql_dictionary.pas` | `openai_aidbase` | Experimental | Estrutura preparada para MySQL |
+| `TAIFirebirdDictionary` | `aidb_firebird_dictionary.pas` | `openai_aidbase` | Experimental | Estrutura preparada para Firebird |
+| `TAISQLServerDictionary` | `aidb_sqlserver_dictionary.pas` | `openai_aidbase` | Experimental | Estrutura preparada para SQL Server |
+| `TAIOracleDictionary` | `aidb_oracle_dictionary.pas` | `openai_aidbase` | Experimental | Estrutura preparada para Oracle |
+
+---
+
 ## Legacy
 
 | Componente/Pacote | Caminho | Status | Observação |
