@@ -9,10 +9,11 @@ uses
   {$IFDEF MSWINDOWS}
   ComObj, ActiveX, Variants,
   {$ENDIF}
-  DynLibs, aibase, LResources;
+  DynLibs, aibase, LResources,
+  fphttpclient, opensslsockets, fpjson, jsonparser;
 
 type
-  TSpeechEngine = (seSystemDefault, seSAPI, seEspeak);
+  TSpeechEngine = (seSystemDefault, seSAPI, seEspeak, seOpenAI);
 
   Pespeak_VOICE = ^Tespeak_VOICE;
   Tespeak_VOICE = record
@@ -48,6 +49,17 @@ type
     FAsynchronous : Boolean;
     FEngine       : TSpeechEngine;
 
+    // OpenAI fields
+    FOpenAIToken       : string;
+    FOpenAIModel       : string;
+    FOpenAIVoice       : string;
+    FOpenAIInstructions: string;
+    FOpenAIOutputFormat: string;
+    FOpenAIOutputFile  : string;
+    FLanguage          : string;
+    FOpenAIEndpoint    : string;
+    FSpeed             : Double;
+
     {$IFDEF MSWINDOWS}
     FSpVoice      : OleVariant;
     FSpVoiceCreated: Boolean;
@@ -67,6 +79,8 @@ type
 
     function InitEspeak: Boolean;
     procedure UnloadEspeak;
+    function SayOpenAI(const AText: string): Boolean;
+    function BuildOpenAIInstructions: string;
 
   public
     constructor Create(AOwner: TComponent); override;
@@ -82,6 +96,17 @@ type
     property VoiceName: string read FVoiceName write FVoiceName;
     property Asynchronous: Boolean read FAsynchronous write FAsynchronous default True;
     property Engine: TSpeechEngine read FEngine write FEngine default seSystemDefault;
+
+    // OpenAI properties
+    property OpenAIToken: string read FOpenAIToken write FOpenAIToken;
+    property OpenAIModel: string read FOpenAIModel write FOpenAIModel;
+    property OpenAIVoice: string read FOpenAIVoice write FOpenAIVoice;
+    property OpenAIInstructions: string read FOpenAIInstructions write FOpenAIInstructions;
+    property OpenAIOutputFormat: string read FOpenAIOutputFormat write FOpenAIOutputFormat;
+    property OpenAIOutputFile: string read FOpenAIOutputFile write FOpenAIOutputFile;
+    property Language: string read FLanguage write FLanguage;
+    property OpenAIEndpoint: string read FOpenAIEndpoint write FOpenAIEndpoint;
+    property Speed: Double read FSpeed write FSpeed;
   end;
 
 procedure Register;
@@ -105,6 +130,15 @@ begin
   FVoiceName := '';
   FAsynchronous := True;
   FEngine := seSystemDefault;
+
+  FOpenAIEndpoint := 'https://api.openai.com/v1/audio/speech';
+  FOpenAIModel := 'gpt-4o-mini-tts';
+  FOpenAIVoice := 'alloy';
+  FOpenAIOutputFormat := 'mp3';
+  FOpenAIOutputFile := 'speech.mp3';
+  FOpenAIInstructions := '';
+  FLanguage := 'en-US';
+  FSpeed := 1.0;
 
   {$IFDEF MSWINDOWS}
   FSpVoiceCreated := False;
@@ -237,6 +271,111 @@ begin
   espeak_ListVoices := nil;
 end;
 
+function TAIVoiceSynthesizer.BuildOpenAIInstructions: string;
+var
+  LangPrompt: string;
+begin
+  if Trim(FOpenAIInstructions) <> '' then
+  begin
+    Result := 'Language context: ' + FLanguage + '. ' + FOpenAIInstructions;
+  end
+  else
+  begin
+    if SameText(FLanguage, 'pt-BR') then
+      LangPrompt := 'Speak in Brazilian Portuguese (pt-BR). Use a natural, clear and professional tone.'
+    else if SameText(FLanguage, 'en-US') then
+      LangPrompt := 'Speak in English (en-US). Use a natural, clear and professional tone.'
+    else if SameText(FLanguage, 'es-ES') then
+      LangPrompt := 'Speak in Spanish (es-ES). Use a natural, clear and professional tone.'
+    else if SameText(FLanguage, 'fr-FR') then
+      LangPrompt := 'Speak in French (fr-FR). Use a natural, clear and professional tone.'
+    else if SameText(FLanguage, 'it-IT') then
+      LangPrompt := 'Speak in Italian (it-IT). Use a natural, clear and professional tone.'
+    else if SameText(FLanguage, 'de-DE') then
+      LangPrompt := 'Speak in German (de-DE). Use a natural, clear and professional tone.'
+    else if SameText(FLanguage, 'ja-JP') then
+      LangPrompt := 'Speak in Japanese (ja-JP). Use a natural, clear and professional tone.'
+    else if SameText(FLanguage, 'zh-CN') then
+      LangPrompt := 'Speak in Chinese (zh-CN). Use a natural, clear and professional tone.'
+    else
+      LangPrompt := 'Speak in ' + FLanguage + '. Use a natural, clear and professional tone.';
+      
+    Result := LangPrompt;
+  end;
+end;
+
+function TAIVoiceSynthesizer.SayOpenAI(const AText: string): Boolean;
+var
+  HTTP: TFPHttpClient;
+  RequestBody: TJSONObject;
+  BodyStream: TStringStream;
+  ResponseStream: TFileStream;
+  Payload: string;
+  DestDir: string;
+begin
+  Result := False;
+  ClearError;
+  
+  if Trim(FOpenAIToken) = '' then
+  begin
+    SetError('OpenAI API Token is required.');
+    Exit;
+  end;
+  
+  if Trim(AText) = '' then
+  begin
+    SetError('Input text is empty.');
+    Exit;
+  end;
+  
+  HTTP := TFPHttpClient.Create(nil);
+  RequestBody := TJSONObject.Create;
+  BodyStream := nil;
+  ResponseStream := nil;
+  try
+    RequestBody.Add('model', FOpenAIModel);
+    RequestBody.Add('input', AText);
+    RequestBody.Add('voice', FOpenAIVoice);
+    RequestBody.Add('response_format', FOpenAIOutputFormat);
+    RequestBody.Add('speed', FSpeed);
+    
+    RequestBody.Add('instructions', BuildOpenAIInstructions);
+    
+    Payload := RequestBody.AsJSON;
+    BodyStream := TStringStream.Create(Payload);
+    
+    HTTP.AddHeader('Content-Type', 'application/json');
+    HTTP.AddHeader('Authorization', 'Bearer ' + FOpenAIToken);
+    HTTP.RequestBody := BodyStream;
+    HTTP.AllowRedirect := True;
+    HTTP.IOTimeout := 30000;
+    HTTP.ConnectTimeout := 30000;
+    
+    DestDir := ExtractFileDir(FOpenAIOutputFile);
+    if (DestDir <> '') and not DirectoryExists(DestDir) then
+      ForceDirectories(DestDir);
+      
+    ResponseStream := TFileStream.Create(FOpenAIOutputFile, fmCreate);
+    
+    try
+      HTTP.Post(FOpenAIEndpoint, ResponseStream);
+      FLastResult := 'Speech synthesis completed via OpenAI API. Saved to ' + FOpenAIOutputFile;
+      FLastSuccess := True;
+      Result := True;
+    except
+      on E: Exception do
+      begin
+        SetError('OpenAI API Request failed: ' + E.Message);
+      end;
+    end;
+  finally
+    if Assigned(ResponseStream) then ResponseStream.Free;
+    if Assigned(BodyStream) then BodyStream.Free;
+    RequestBody.Free;
+    HTTP.Free;
+  end;
+end;
+
 procedure TAIVoiceSynthesizer.Say(const AText: string);
 var
   SpeakText: string;
@@ -250,6 +389,12 @@ begin
 
   SpeakText := FText;
   if SpeakText = '' then Exit;
+
+  if FEngine = seOpenAI then
+  begin
+    SayOpenAI(SpeakText);
+    Exit;
+  end;
 
   // Check if we use Windows SAPI
   if (FEngine = seSAPI) or ((FEngine = seSystemDefault) and
