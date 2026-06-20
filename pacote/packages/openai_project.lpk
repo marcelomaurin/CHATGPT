@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="5">
+    <PathDelim Value="\"/>
+    <Name Value="openai_project"/>
+    <Type Value="RunAndDesignTime"/>
+    <Author Value="Marcelo Maurin Martins"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <PathDelim Value="\"/>
+      <SearchPaths>
+        <OtherUnitFiles Value="..\AI;..\AI Agent;..\AI Project;.."/>
+        <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+      </SearchPaths>
+    </CompilerOptions>
+    <Description Value="Lazarus AI Suite: Project planning, Gantt charts, timelines, agents, actions and risk mapping."/>
+    <License Value="OPEN SOURCE GPL3"/>
+    <Files>
+      <Item>
+        <Filename Value="..\AI Project\aiproject_llmconfig.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiproject_llmconfig"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Project\aiproject_storage.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiproject_storage"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Project\aiproject_documents.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiproject_documents"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Project\aiproject_tasks.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiproject_tasks"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Project\aiproject_dependencies.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiproject_dependencies"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Project\aiproject_agents.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiproject_agents"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Project\aiproject_actions.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiproject_actions"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Project\aiproject_reports.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiproject_reports"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Project\aiproject_revisions.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiproject_revisions"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Project\aiproject_taskgrid.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiproject_taskgrid"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Project\aiproject_gantt.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiproject_gantt"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Project\aiproject_timeline.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiproject_timeline"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Project\aiproject_riskmatrix.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiproject_riskmatrix"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Project\aiproject_statuspanel.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiproject_statuspanel"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Project\aiproject_agentmanager.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiproject_agentmanager"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Project\aiproject_taskactionpanel.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiproject_taskactionpanel"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Project\aiproject_reportviewer.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiproject_reportviewer"/>
+      </Item>
+    </Files>
+    <RequiredPkgs>
+      <Item>
+        <PackageName Value="openai_agent"/>
+      </Item>
+      <Item>
+        <PackageName Value="openai_core"/>
+      </Item>
+      <Item>
+        <PackageName Value="LCL"/>
+      </Item>
+      <Item>
+        <PackageName Value="FCL"/>
+      </Item>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+      <UseFileFilters Value="True"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>

@@ -6,7 +6,12 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, StdCtrls,
-  ExtCtrls, Grids, Buttons, Clipbrd, chatgpt, aiproject, aiproject_components, aibase, fpjson, jsonparser;
+  ExtCtrls, Grids, Buttons, Clipbrd, chatgpt, aiproject,
+  aiproject_llmconfig, aiproject_storage, aiproject_documents, aiproject_tasks,
+  aiproject_dependencies, aiproject_agents, aiproject_actions, aiproject_reports,
+  aiproject_revisions, aiproject_taskgrid, aiproject_gantt, aiproject_timeline,
+  aiproject_riskmatrix, aiproject_statuspanel, aiproject_agentmanager,
+  aiproject_taskactionpanel, aiproject_reportviewer, aibase, fpjson, jsonparser;
 
 type
   { TfrmMain }

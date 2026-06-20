@@ -25,6 +25,9 @@
     </RunParams>
     <RequiredPackages>
       <Item>
+        <PackageName Value="openai_project"/>
+      </Item>
+      <Item>
         <PackageName Value="openai_agent"/>
       </Item>
       <Item>

@@ -49,11 +49,6 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="aipipeline"/>
       </Item>
-      <Item>
-        <Filename Value="..\AI Project\aiproject_components.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="aiproject_components"/>
-      </Item>
     </Files>
     <RequiredPkgs>
       <Item>
