@@ -1,0 +1,428 @@
+object frmMain: TfrmMain
+  Left = 200
+  Height = 700
+  Top = 100
+  Width = 1000
+  Caption = 'AI SQLite Query Assistant - ChatGPT + AI DBase Dictionary'
+  ClientHeight = 700
+  ClientWidth = 1000
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  Position = poScreenCenter
+  object PageControl1: TPageControl
+    Left = 0
+    Height = 700
+    Top = 0
+    Width = 1000
+    ActivePage = tabDatabase
+    Align = alClient
+    TabIndex = 0
+    TabOrder = 0
+    object tabDatabase: TTabSheet
+      Caption = 'Database'
+      object pnlDbTop: TPanel
+        Left = 0
+        Height = 110
+        Top = 0
+        Width = 992
+        Align = alTop
+        ClientHeight = 110
+        ClientWidth = 992
+        TabOrder = 0
+        object lblDatabasePath: TLabel
+          Left = 16
+          Height = 15
+          Top = 16
+          Width = 73
+          Caption = 'Database file:'
+          ParentColor = False
+        end
+        object edtDatabasePath: TEdit
+          Left = 104
+          Height = 23
+          Top = 12
+          Width = 520
+          TabOrder = 0
+        end
+        object btnSelectDatabase: TButton
+          Left = 632
+          Height = 25
+          Top = 11
+          Width = 110
+          Caption = 'Select Database'
+          OnClick = btnSelectDatabaseClick
+          TabOrder = 1
+        end
+        object btnCreateDatabase: TButton
+          Left = 750
+          Height = 25
+          Top = 11
+          Width = 140
+          Caption = 'Create Demo Database'
+          OnClick = btnCreateDatabaseClick
+          TabOrder = 2
+        end
+        object btnConnectDatabase: TButton
+          Left = 104
+          Height = 25
+          Top = 44
+          Width = 110
+          Caption = 'Connect'
+          OnClick = btnConnectDatabaseClick
+          TabOrder = 3
+        end
+        object btnGenerateDictionary: TButton
+          Left = 224
+          Height = 25
+          Top = 44
+          Width = 140
+          Caption = 'Generate Dictionary'
+          OnClick = btnGenerateDictionaryClick
+          TabOrder = 4
+        end
+        object lblDatabaseStatus: TLabel
+          Left = 16
+          Height = 15
+          Top = 80
+          Width = 115
+          Caption = 'Status: Not connected'
+          Font.Style = [fsBold]
+          ParentColor = False
+        end
+      end
+      object memoDictionary: TMemo
+        Left = 0
+        Height = 552
+        Top = 110
+        Width = 992
+        Align = alClient
+        Font.CharSet = ANSI_CHARSET
+        Font.Name = 'Courier New'
+        Font.Pitch = fpFixed
+        ParentFont = False
+        ReadOnly = True
+        ScrollBars = ssAutoBoth
+        TabOrder = 1
+      end
+    end
+    object tabLLMConfig: TTabSheet
+      Caption = 'LLM Config'
+      object pnlLlmConfig: TPanel
+        Left = 16
+        Height = 450
+        Top = 16
+        Width = 500
+        BevelOuter = bvNone
+        ClientHeight = 450
+        ClientWidth = 500
+        TabOrder = 0
+        object lblProvider: TLabel
+          Left = 16
+          Height = 15
+          Top = 16
+          Width = 47
+          Caption = 'Provider:'
+          ParentColor = False
+        end
+        object cbProvider: TComboBox
+          Left = 110
+          Height = 23
+          Top = 12
+          Width = 200
+          ItemHeight = 15
+          Style = csDropDownList
+          TabOrder = 0
+          OnChange = cbProviderChange
+        end
+        object lblModel: TLabel
+          Left = 16
+          Height = 15
+          Top = 56
+          Width = 37
+          Caption = 'Model:'
+          ParentColor = False
+        end
+        object cbModel: TComboBox
+          Left = 110
+          Height = 23
+          Top = 52
+          Width = 200
+          ItemHeight = 15
+          Style = csDropDownList
+          TabOrder = 1
+        end
+        object lblToken: TLabel
+          Left = 16
+          Height = 15
+          Top = 96
+          Width = 55
+          Caption = 'API Token:'
+          ParentColor = False
+        end
+        object edtToken: TEdit
+          Left = 110
+          Height = 23
+          Top = 92
+          Width = 350
+          EchoMode = emPassword
+          PasswordChar = '*'
+          TabOrder = 2
+        end
+        object lblMaxTokens: TLabel
+          Left = 16
+          Height = 15
+          Top = 136
+          Width = 64
+          Caption = 'Max tokens:'
+          ParentColor = False
+        end
+        object edtMaxTokens: TEdit
+          Left = 110
+          Height = 23
+          Top = 132
+          Width = 100
+          TabOrder = 3
+          Text = '2048'
+        end
+        object btnTestLLM: TButton
+          Left = 110
+          Height = 30
+          Top = 176
+          Width = 120
+          Caption = 'Test LLM'
+          OnClick = btnTestLLMClick
+          TabOrder = 4
+        end
+      end
+      object memoLLMLog: TMemo
+        Left = 530
+        Height = 630
+        Top = 16
+        Width = 450
+        Align = alRight
+        BorderSpacing.Around = 16
+        Font.CharSet = ANSI_CHARSET
+        Font.Name = 'Courier New'
+        Font.Pitch = fpFixed
+        ParentFont = False
+        ReadOnly = True
+        ScrollBars = ssAutoBoth
+        TabOrder = 1
+      end
+    end
+    object tabPrompt: TTabSheet
+      Caption = 'Prompt'
+      object pnlPromptTop: TPanel
+        Left = 0
+        Height = 250
+        Top = 0
+        Width = 992
+        Align = alTop
+        ClientHeight = 250
+        ClientWidth = 992
+        TabOrder = 0
+        object lblUserPrompt: TLabel
+          Left = 16
+          Height = 15
+          Top = 16
+          Width = 71
+          Caption = 'User request:'
+          ParentColor = False
+        end
+        object memoUserPrompt: TMemo
+          Left = 16
+          Height = 130
+          Top = 40
+          Width = 960
+          ScrollBars = ssAutoBoth
+          TabOrder = 0
+        end
+        object btnGenerateSQL: TButton
+          Left = 16
+          Height = 30
+          Top = 186
+          Width = 120
+          Caption = 'Generate SQL'
+          OnClick = btnGenerateSQLClick
+          TabOrder = 1
+        end
+        object btnAddExamplePrompt: TButton
+          Left = 152
+          Height = 30
+          Top = 186
+          Width = 120
+          Caption = 'Add Example'
+          OnClick = btnAddExamplePromptClick
+          TabOrder = 2
+        end
+      end
+      object pnlPromptClient: TPanel
+        Left = 0
+        Height = 412
+        Top = 250
+        Width = 992
+        Align = alClient
+        BorderWidth = 10
+        ClientHeight = 412
+        ClientWidth = 992
+        TabOrder = 1
+        object lblPromptSent: TLabel
+          Left = 11
+          Height = 15
+          Top = 11
+          Width = 970
+          Align = alTop
+          Caption = 'Prompt sent to LLM:'
+          ParentColor = False
+        end
+        object memoPromptSentToLLM: TMemo
+          Left = 11
+          Height = 375
+          Top = 26
+          Width = 970
+          Align = alClient
+          Font.CharSet = ANSI_CHARSET
+          Font.Name = 'Courier New'
+          Font.Pitch = fpFixed
+          ParentFont = False
+          ReadOnly = True
+          ScrollBars = ssAutoBoth
+          TabOrder = 0
+        end
+      end
+    end
+    object tabSQL: TTabSheet
+      Caption = 'SQL'
+      object pnlSqlTop: TPanel
+        Left = 0
+        Height = 50
+        Top = 0
+        Width = 992
+        Align = alTop
+        ClientHeight = 50
+        ClientWidth = 992
+        TabOrder = 0
+        object btnValidateSQL: TButton
+          Left = 16
+          Height = 30
+          Top = 10
+          Width = 120
+          Caption = 'Validate SQL'
+          OnClick = btnValidateSQLClick
+          TabOrder = 0
+        end
+        object btnExecuteSQL: TButton
+          Left = 152
+          Height = 30
+          Top = 10
+          Width = 120
+          Caption = 'Execute SQL'
+          OnClick = btnExecuteSQLClick
+          TabOrder = 1
+        end
+        object btnClearSQL: TButton
+          Left = 288
+          Height = 30
+          Top = 10
+          Width = 120
+          Caption = 'Clear SQL'
+          OnClick = btnClearSQLClick
+          TabOrder = 2
+        end
+      end
+      object pnlSqlClient: TPanel
+        Left = 0
+        Height = 612
+        Top = 50
+        Width = 992
+        Align = alClient
+        BorderWidth = 10
+        ClientHeight = 612
+        ClientWidth = 992
+        TabOrder = 1
+        object lblGeneratedSql: TLabel
+          Left = 11
+          Height = 15
+          Top = 11
+          Width = 970
+          Align = alTop
+          Caption = 'Generated SQL:'
+          ParentColor = False
+        end
+        object memoGeneratedSQL: TMemo
+          Left = 11
+          Height = 575
+          Top = 26
+          Width = 970
+          Align = alClient
+          Font.CharSet = ANSI_CHARSET
+          Font.Name = 'Courier New'
+          Font.Pitch = fpFixed
+          ParentFont = False
+          ScrollBars = ssAutoBoth
+          TabOrder = 0
+        end
+      end
+    end
+    object tabResult: TTabSheet
+      Caption = 'Result'
+      object pnlResultTop: TPanel
+        Left = 0
+        Height = 40
+        Top = 0
+        Width = 992
+        Align = alTop
+        ClientHeight = 40
+        ClientWidth = 992
+        TabOrder = 0
+        object lblRows: TLabel
+          Left = 16
+          Height = 15
+          Top = 12
+          Width = 44
+          Caption = 'Rows: 0'
+          Font.Style = [fsBold]
+          ParentColor = False
+        end
+      end
+      object pnlResultClient: TPanel
+        Left = 0
+        Height = 622
+        Top = 40
+        Width = 992
+        Align = alClient
+        ClientHeight = 622
+        ClientWidth = 992
+        TabOrder = 1
+        object DBGridResult: TDBGrid
+          Left = 0
+          Height = 450
+          Top = 0
+          Width = 992
+          Align = alTop
+          Color = clWindow
+          Columns = <>
+          TabOrder = 0
+        end
+        object memoExecutionLog: TMemo
+          Left = 0
+          Height = 172
+          Top = 450
+          Width = 992
+          Align = alClient
+          Font.CharSet = ANSI_CHARSET
+          Font.Name = 'Courier New'
+          Font.Pitch = fpFixed
+          ParentFont = False
+          ReadOnly = True
+          ScrollBars = ssAutoBoth
+          TabOrder = 1
+        end
+      end
+    end
+  end
+  object OpenDialog1: TOpenDialog
+    Left = 900
+    Top = 10
+  end
+end
