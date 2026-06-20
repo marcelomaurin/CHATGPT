@@ -35,8 +35,3 @@ end;
 
 ### ⚡ Ponte de IA e Hardware
 Cada um destes componentes possui uma propriedade published `Prompt` que documenta sua API interna de forma transparente para orientar Agentes de IA (`TAIAgent`) de forma automática!
-
-## 📸 Capturas de Tela
-
-### Demo do TAI_DOCFILESMANAGER
-![Demo do TAI_DOCFILESMANAGER](../../screenshots/docfilesmanager_demo.jpg)

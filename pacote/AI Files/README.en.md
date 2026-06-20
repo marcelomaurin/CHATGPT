@@ -35,8 +35,3 @@ end;
 
 ### ⚡ AI and Hardware Bridge
 Each of these components features a published `Prompt` property that transparently documents its internal API to guide AI Agents (`TAIAgent`) autonomously!
-
-## 📸 Screenshots
-
-### TAI_DOCFILESMANAGER Demo
-![TAI_DOCFILESMANAGER Demo](../../screenshots/docfilesmanager_demo.jpg)
