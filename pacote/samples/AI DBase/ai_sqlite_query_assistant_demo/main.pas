@@ -208,28 +208,34 @@ end;
 procedure TfrmMain.ExecuteScript(const AScript: string);
 var
   LQuery: TZQuery;
-  LCommands: TStringList;
+  LSQL, LCurrent: string;
   I: Integer;
-  LSQL: string;
 begin
   LQuery := TZQuery.Create(nil);
-  LCommands := TStringList.Create;
   try
     LQuery.Connection := FConnection;
-    // Basic splitting of commands by semicolon
-    LCommands.Text := StringReplace(AScript, ';', ';' + sLineBreak, [rfReplaceAll]);
-    
-    for I := 0 to LCommands.Count - 1 do
+    LCurrent := '';
+    for I := 1 to Length(AScript) do
     begin
-      LSQL := Trim(LCommands[I]);
-      if (LSQL <> '') and (LSQL <> ';') then
+      LCurrent := LCurrent + AScript[I];
+      if AScript[I] = ';' then
       begin
-        LQuery.SQL.Text := LSQL;
-        LQuery.ExecSQL;
+        LSQL := Trim(LCurrent);
+        if LSQL <> '' then
+        begin
+          LQuery.SQL.Text := LSQL;
+          LQuery.ExecSQL;
+        end;
+        LCurrent := '';
       end;
     end;
+    LSQL := Trim(LCurrent);
+    if LSQL <> '' then
+    begin
+      LQuery.SQL.Text := LSQL;
+      LQuery.ExecSQL;
+    end;
   finally
-    LCommands.Free;
     LQuery.Free;
   end;
 end;
