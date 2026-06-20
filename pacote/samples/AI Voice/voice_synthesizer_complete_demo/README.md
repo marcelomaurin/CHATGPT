@@ -1,5 +1,7 @@
 # Voice Synthesizer Complete Demo
 
+![Voice Synthesizer Complete Demo](../../../../screenshots/voice_synthesizer_complete_demo.jpg)
+
 | Field | Value |
 |---|---|
 | Package | openai_voice |

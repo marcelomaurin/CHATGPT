@@ -103,6 +103,14 @@ SAMPLE_DESCRIPTIONS = {
         'it': 'Dimostrazione di sintesi vocale (Text-to-Speech) nativa e multipiattaforma.',
         'ar': 'عرض توضيحي لتوليد الكلام (Text-to-Speech) بشكل أصلي ومتعدد المنصات.'
     },
+    'voice_synthesizer_complete_demo': {
+        'pt': 'Demonstração completa de sintetização de voz com controles adicionais de áudio.',
+        'en': 'Complete Text-to-Speech voice synthesis demonstration with additional audio controls.',
+        'es': 'Demostración completa de síntesis de voz con controles de audio adicionales.',
+        'fr': 'Démonstration complète de synthèse vocale avec contrôles audio supplémentaires.',
+        'it': 'Dimostrazione completa di sintesi vocale con controlli audio aggiuntivi.',
+        'ar': 'عرض توضيحي كامل لتوليد الكلام مع عناصر تحكم إضافية في الصوت.'
+    },
     'yolo_demo': {
         'pt': 'Detecção profunda de objetos com YOLOv8 via integração Python.',
         'en': 'Deep object detection using YOLOv8 via Python integration.',
@@ -808,6 +816,7 @@ SCREENSHOT_MAPPING = {
     'python_runtime_check_demo': 'python_runtime_check_demo.jpg',
     'som_demo': 'som_demo.jpg',
     'sound_filters_visual_demo': 'sound_filters_visual_demo.jpg',
+    'voice_synthesizer_complete_demo': 'voice_synthesizer_complete_demo.jpg',
     'voicesynthesizer_demo': 'voicesynthesizer_demo.jpg'
 }
 
