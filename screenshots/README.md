@@ -47,3 +47,8 @@
 ## DocFilesManager Demo
 
 ![DocFilesManager Demo](docfilesmanager_demo.jpg)
+
+## DB Dictionary Demo
+
+![DB Dictionary Demo](db_dicitionary_demo.jpg)
+
