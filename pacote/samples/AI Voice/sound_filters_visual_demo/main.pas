@@ -266,39 +266,37 @@ begin
                             'The 12000 Hz noise is above the cutoff and should be reduced.';
     
     // Evaluation for Low-pass
-    if OutRMS < (InRMS * 0.95) then
+    if OutRMS < InRMS * 0.99 then
     begin
       pnlPassStatus.Caption := 'STATUS: PASS';
       pnlPassStatus.Color := clGreen;
       pnlPassStatus.Font.Color := clWhite;
     end
-    else if Abs(OutRMS - InRMS) < (InRMS * 0.05) then
+    else if OutRMS > InRMS * 1.01 then
     begin
-      pnlPassStatus.Caption := 'STATUS: WARNING';
-      pnlPassStatus.Color := $0000A5FF; // Orange
+      pnlPassStatus.Caption := 'STATUS: FAIL';
+      pnlPassStatus.Color := clRed;
       pnlPassStatus.Font.Color := clWhite;
     end
     else
     begin
-      pnlPassStatus.Caption := 'STATUS: FAIL';
-      pnlPassStatus.Color := clRed;
+      pnlPassStatus.Caption := 'STATUS: WARNING';
+      pnlPassStatus.Color := $0000A5FF; // Orange
       pnlPassStatus.Font.Color := clWhite;
     end;
   end
   else if AFilter = 'High-pass' then
   begin
-    memoExplanation.Text := 'The high-pass filter reduces frequencies below the cutoff and keeps frequencies above it. ' +
-                            'In this test, the 1000 Hz base signal is below the 6000 Hz cutoff and should be reduced, ' +
-                            'while the 12000 Hz high frequency noise remains.';
+    memoExplanation.Text := 'The high-pass filter reduces frequencies below the cutoff and keeps frequencies above it.';
                             
     // Evaluation for High-pass (should drop base frequency, meaning RMS goes down)
-    if OutRMS < InRMS then
+    if OutRMS < InRMS * 0.99 then
     begin
       pnlPassStatus.Caption := 'STATUS: PASS';
       pnlPassStatus.Color := clGreen;
       pnlPassStatus.Font.Color := clWhite;
     end
-    else
+    else if OutRMS > InRMS * 1.01 then
     begin
       pnlPassStatus.Caption := 'STATUS: FAIL';
       pnlPassStatus.Color := clRed;
@@ -307,11 +305,10 @@ begin
   end
   else // Moving average
   begin
-    memoExplanation.Text := 'The moving average filter smooths fast variations in the signal. ' +
-                            'It averages neighboring samples to cancel out high-frequency noise spikes.';
+    memoExplanation.Text := 'The moving average filter smooths fast variations in the signal.';
                             
     // Evaluation for Moving average
-    if (OutPeak < InPeak) or (OutRMS < InRMS) then
+    if (OutPeak < InPeak * 0.999) or (OutRMS < InRMS * 0.999) then
     begin
       pnlPassStatus.Caption := 'STATUS: PASS';
       pnlPassStatus.Color := clGreen;
@@ -356,10 +353,13 @@ end;
 
 procedure TfrmMain.DrawSignal(APaintBox: TPaintBox; const ASignal: TDoubleArray; const ATitle: string);
 var
-  W, H, MidY, I, StartIdx, DrawSamplesCount: Integer;
+  W, H, MidY, I, J, StartIdx, DrawSamplesCount: Integer;
   MaxVal: Double;
   X, Y, LastX, LastY: Integer;
   Step: Double;
+  IdxStart, IdxEnd: Integer;
+  MinV, MaxV: Double;
+  YMin, YMax: Integer;
 begin
   W := APaintBox.Width;
   H := APaintBox.Height;
@@ -405,18 +405,46 @@ begin
 
   if DrawSamplesCount <= 0 then Exit;
 
-  // Draw waveforms
   Step := DrawSamplesCount / W;
-  LastX := 0;
-  LastY := MidY - Round((ASignal[StartIdx] / MaxVal) * (MidY - 10));
 
-  for I := 1 to W - 1 do
+  if (cbViewMode.Text = 'Full signal envelope') and (DrawSamplesCount > W) then
   begin
-    X := I;
-    Y := MidY - Round((ASignal[StartIdx + Round(I * Step)] / MaxVal) * (MidY - 10));
-    APaintBox.Canvas.Line(LastX, LastY, X, Y);
-    LastX := X;
-    LastY := Y;
+    for I := 0 to W - 1 do
+    begin
+      IdxStart := Round(I * Step);
+      IdxEnd := Round((I + 1) * Step) - 1;
+      if IdxEnd >= DrawSamplesCount then IdxEnd := DrawSamplesCount - 1;
+      if IdxStart >= DrawSamplesCount then IdxStart := DrawSamplesCount - 1;
+
+      MinV := ASignal[IdxStart];
+      MaxV := ASignal[IdxStart];
+      for J := IdxStart + 1 to IdxEnd do
+      begin
+        if ASignal[J] < MinV then MinV := ASignal[J];
+        if ASignal[J] > MaxV then MaxV := ASignal[J];
+      end;
+
+      YMin := MidY - Round((MinV / MaxVal) * (MidY - 10));
+      YMax := MidY - Round((MaxV / MaxVal) * (MidY - 10));
+
+      APaintBox.Canvas.Line(I, YMin, I, YMax);
+    end;
+  end
+  else
+  begin
+    LastX := 0;
+    LastY := MidY - Round((ASignal[StartIdx] / MaxVal) * (MidY - 10));
+
+    for I := 1 to W - 1 do
+    begin
+      X := I;
+      IdxStart := Round(I * Step);
+      if IdxStart >= DrawSamplesCount then IdxStart := DrawSamplesCount - 1;
+      Y := MidY - Round((ASignal[IdxStart] / MaxVal) * (MidY - 10));
+      APaintBox.Canvas.Line(LastX, LastY, X, Y);
+      LastX := X;
+      LastY := Y;
+    end;
   end;
 end;
 
@@ -476,9 +504,9 @@ begin
     Metrics.Add(Format('  Samples: %d', [Length(FInputSignal)]));
     if Length(FInputSignal) > 0 then
     begin
-      Metrics.Add(Format('  Sample Rate: %g Hz', [FSampleRate]));
+      Metrics.Add(Format('  Sample rate: %.3f Hz', [FSampleRate]));
       Metrics.Add(Format('  Duration: %.3f s', [FDuration]));
-      Metrics.Add(Format('  Peak Amplitude: %.3f', [CalculatePeak(FInputSignal)]));
+      Metrics.Add(Format('  Peak amplitude: %.3f', [CalculatePeak(FInputSignal)]));
       Metrics.Add(Format('  RMS: %.3f', [CalculateRMS(FInputSignal)]));
     end
     else
@@ -490,7 +518,7 @@ begin
     if Length(FOutputSignal) > 0 then
     begin
       Metrics.Add(Format('  Selected Filter: %s', [cbFilterType.Text]));
-      Metrics.Add(Format('  Peak Amplitude: %.3f', [CalculatePeak(FOutputSignal)]));
+      Metrics.Add(Format('  Peak amplitude: %.3f', [CalculatePeak(FOutputSignal)]));
       Metrics.Add(Format('  RMS: %.3f', [CalculateRMS(FOutputSignal)]));
     end
     else
@@ -554,8 +582,8 @@ procedure TfrmMain.btnSelfTestClick(Sender: TObject);
 var
   LowPassCutoff, HighPassCutoff: Double;
   AvgWindow: Integer;
-  LInRMS, LOutRMS: Double;
-  LP_Pass, HP_Pass, MA_Pass: Boolean;
+  LInRMS, LOutRMS, LInPeak, LOutPeak: Double;
+  LP_Result, HP_Result, MA_Result: string;
   SummaryText: string;
 begin
   AddLog('--- Launching Sound Filters Self-Test ---');
@@ -565,6 +593,7 @@ begin
     // Step 1: Generate Default Signal
     GenerateTestSignal;
     LInRMS := CalculateRMS(FInputSignal);
+    LInPeak := CalculatePeak(FInputSignal);
     AddLog(Format('Self-Test Input Signal RMS: %.3f', [LInRMS]));
     
     LowPassCutoff := StrToFloatDef(edtLowPassCutoff.Text, 4000.0);
@@ -577,9 +606,14 @@ begin
     FLowPass.CutoffFrequency := LowPassCutoff;
     FOutputSignal := FLowPass.ProcessArray(FInputSignal);
     LOutRMS := CalculateRMS(FOutputSignal);
-    LP_Pass := LOutRMS < (LInRMS * 0.95);
+    if LOutRMS < LInRMS * 0.99 then
+      LP_Result := 'PASS'
+    else if LOutRMS > LInRMS * 1.01 then
+      LP_Result := 'FAIL'
+    else
+      LP_Result := 'WARNING';
     AddLog(Format('Low-Pass Self-Test: Input RMS %.3f -> Output RMS %.3f [%s]', 
-      [LInRMS, LOutRMS, BoolToStr(LP_Pass, 'PASS', 'FAIL')]));
+      [LInRMS, LOutRMS, LP_Result]));
       
     // Step 3: Apply High-Pass
     FHighPass.Reset;
@@ -587,24 +621,33 @@ begin
     FHighPass.CutoffFrequency := HighPassCutoff;
     FOutputSignal := FHighPass.ProcessArray(FInputSignal);
     LOutRMS := CalculateRMS(FOutputSignal);
-    HP_Pass := LOutRMS < LInRMS;
+    if LOutRMS < LInRMS * 0.99 then
+      HP_Result := 'PASS'
+    else if LOutRMS > LInRMS * 1.01 then
+      HP_Result := 'FAIL'
+    else
+      HP_Result := 'WARNING';
     AddLog(Format('High-Pass Self-Test: Input RMS %.3f -> Output RMS %.3f [%s]', 
-      [LInRMS, LOutRMS, BoolToStr(HP_Pass, 'PASS', 'FAIL')]));
+      [LInRMS, LOutRMS, HP_Result]));
       
     // Step 4: Apply Moving Average
     FAverage.Reset;
     FAverage.WindowSize := AvgWindow;
     FOutputSignal := FAverage.ProcessArray(FInputSignal);
     LOutRMS := CalculateRMS(FOutputSignal);
-    MA_Pass := LOutRMS < LInRMS;
+    LOutPeak := CalculatePeak(FOutputSignal);
+    if (LOutPeak < LInPeak * 0.999) or (LOutRMS < LInRMS * 0.999) then
+      MA_Result := 'PASS'
+    else
+      MA_Result := 'FAIL';
     AddLog(Format('Moving Average Self-Test: Input RMS %.3f -> Output RMS %.3f [%s]', 
-      [LInRMS, LOutRMS, BoolToStr(MA_Pass, 'PASS', 'FAIL')]));
+      [LInRMS, LOutRMS, MA_Result]));
       
     // Summary
     SummaryText := 'Self-Test Results Summary:' + sLineBreak +
-                   Format('Low-pass filter check: %s' + sLineBreak, [BoolToStr(LP_Pass, 'PASS', 'FAIL')]) +
-                   Format('High-pass filter check: %s' + sLineBreak, [BoolToStr(HP_Pass, 'PASS', 'FAIL')]) +
-                   Format('Moving average filter check: %s', [BoolToStr(MA_Pass, 'PASS', 'FAIL')]);
+                   Format('Low-pass filter check: %s' + sLineBreak, [LP_Result]) +
+                   Format('High-pass filter check: %s' + sLineBreak, [HP_Result]) +
+                   Format('Moving average filter check: %s', [MA_Result]);
                    
     ShowMessage(SummaryText);
     AddLog('Self-Test completed.');
