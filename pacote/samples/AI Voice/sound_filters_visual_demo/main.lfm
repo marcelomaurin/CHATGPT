@@ -1,11 +1,11 @@
 object frmMain: TfrmMain
   Left = 320
-  Height = 650
-  Top = 150
-  Width = 780
+  Height = 680
+  Top = 120
+  Width = 840
   Caption = 'Sound Filters Visual Demo - Real Signal Processing'
-  ClientHeight = 650
-  ClientWidth = 780
+  ClientHeight = 680
+  ClientWidth = 840
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   LCLVersion = '2.2.6.0'
@@ -13,7 +13,7 @@ object frmMain: TfrmMain
     Left = 0
     Height = 80
     Top = 0
-    Width = 780
+    Width = 840
     Align = alTop
     BevelOuter = bvNone
     Color = clForm
@@ -51,13 +51,13 @@ object frmMain: TfrmMain
   object pnlStatus: TPanel
     Left = 0
     Height = 35
-    Top = 615
-    Width = 780
+    Top = 645
+    Width = 840
     Align = alBottom
     Alignment = taLeftJustify
     BevelOuter = bvNone
     ClientHeight = 35
-    ClientWidth = 780
+    ClientWidth = 840
     TabOrder = 1
     object lblStatus: TLabel
       Left = 15
@@ -77,17 +77,17 @@ object frmMain: TfrmMain
   end
   object pcMain: TPageControl
     Left = 0
-    Height = 535
+    Height = 565
     Top = 80
-    Width = 780
+    Width = 840
     ActivePage = tsSignal
     Align = alClient
     TabIndex = 0
     TabOrder = 2
     object tsSignal: TTabSheet
       Caption = 'Signal'
-      ClientHeight = 507
-      ClientWidth = 772
+      ClientHeight = 537
+      ClientWidth = 832
       object lblSampleRate: TLabel
         Left = 20
         Height = 15
@@ -186,11 +186,20 @@ object frmMain: TfrmMain
         OnClick = btnClearSignalClick
         TabOrder = 6
       end
+      object btnSelfTest: TButton
+        Left = 360
+        Height = 35
+        Top = 330
+        Width = 150
+        Caption = 'Run Self-Test'
+        OnClick = btnSelfTestClick
+        TabOrder = 7
+      end
     end
     object tsFilters: TTabSheet
       Caption = 'Filters'
-      ClientHeight = 507
-      ClientWidth = 772
+      ClientHeight = 537
+      ClientWidth = 832
       object lblFilterType: TLabel
         Left = 20
         Height = 15
@@ -245,7 +254,7 @@ object frmMain: TfrmMain
         Top = 160
         Width = 200
         TabOrder = 2
-        Text = '12000'
+        Text = '6000'
       end
       object lblAverageWindow: TLabel
         Left = 20
@@ -284,8 +293,8 @@ object frmMain: TfrmMain
     end
     object tsResult: TTabSheet
       Caption = 'Result'
-      ClientHeight = 507
-      ClientWidth = 772
+      ClientHeight = 537
+      ClientWidth = 832
       object lblInputSignal: TLabel
         Left = 20
         Height = 15
@@ -298,15 +307,15 @@ object frmMain: TfrmMain
       end
       object pbInputSignal: TPaintBox
         Left = 20
-        Height = 150
+        Height = 135
         Top = 30
-        Width = 450
+        Width = 480
         OnPaint = pbInputSignalPaint
       end
       object lblFilteredSignal: TLabel
         Left = 20
         Height = 15
-        Top = 195
+        Top = 180
         Width = 78
         Caption = 'Filtered signal'
         Font.Style = [fsBold]
@@ -315,13 +324,38 @@ object frmMain: TfrmMain
       end
       object pbOutputSignal: TPaintBox
         Left = 20
-        Height = 150
-        Top = 215
-        Width = 450
+        Height = 135
+        Top = 200
+        Width = 480
         OnPaint = pbOutputSignalPaint
       end
+      object lblViewMode: TLabel
+        Left = 20
+        Height = 15
+        Top = 345
+        Width = 61
+        Caption = 'View Mode:'
+        ParentColor = False
+      end
+      object cbViewMode: TComboBox
+        Left = 90
+        Height = 23
+        Top = 342
+        Width = 160
+        ItemHeight = 15
+        ItemIndex = 0
+        Items.Strings = (
+          'First 5 ms'
+          'First 20 ms'
+          'Full signal envelope'
+        )
+        Style = csDropDownList
+        TabOrder = 3
+        Text = 'First 5 ms'
+        OnSelect = cbViewModeSelect
+      end
       object lblMetrics: TLabel
-        Left = 490
+        Left = 520
         Height = 15
         Top = 10
         Width = 86
@@ -331,13 +365,45 @@ object frmMain: TfrmMain
         ParentFont = False
       end
       object memoMetrics: TMemo
-        Left = 490
-        Height = 335
+        Left = 520
+        Height = 200
         Top = 30
-        Width = 260
+        Width = 290
         ReadOnly = True
         ScrollBars = ssAutoVertical
         TabOrder = 0
+      end
+      object pnlPassStatus: TPanel
+        Left = 520
+        Height = 45
+        Top = 240
+        Width = 290
+        BevelOuter = bvNone
+        Caption = 'STATUS: UNKNOWN'
+        Color = clSilver
+        Font.Height = -16
+        Font.Style = [fsBold]
+        ParentBackground = False
+        ParentColor = False
+        ParentFont = False
+        TabOrder = 4
+      end
+      object lblExplanation: TLabel
+        Left = 520
+        Height = 15
+        Top = 295
+        Width = 92
+        Caption = 'Plain explanation:'
+        ParentColor = False
+      end
+      object memoExplanation: TMemo
+        Left = 520
+        Height = 110
+        Top = 315
+        Width = 290
+        ReadOnly = True
+        ScrollBars = ssAutoVertical
+        TabOrder = 5
       end
       object btnExportCSV: TButton
         Left = 20
@@ -360,13 +426,13 @@ object frmMain: TfrmMain
     end
     object tsLog: TTabSheet
       Caption = 'Log'
-      ClientHeight = 507
-      ClientWidth = 772
+      ClientHeight = 537
+      ClientWidth = 832
       object memoLog: TMemo
         Left = 20
         Height = 380
         Top = 20
-        Width = 730
+        Width = 790
         ReadOnly = True
         ScrollBars = ssAutoBoth
         TabOrder = 0
@@ -386,7 +452,7 @@ object frmMain: TfrmMain
     Title = 'Export Signal to CSV'
     DefaultExt = '.csv'
     Filter = 'CSV Files (*.csv)|*.csv|All Files (*.*)|*.*'
-    Left = 720
+    Left = 780
     Top = 10
   end
 end
