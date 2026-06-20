@@ -1,5 +1,7 @@
 # Sound Filters Visual Demo
 
+![Sound Filters Visual Demo](../../../../screenshots/sound_filters_visual_demo.jpg)
+
 | Field | Value |
 |---|---|
 | Package | openai_voice |
