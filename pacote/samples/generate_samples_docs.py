@@ -184,8 +184,8 @@ SAMPLE_DESCRIPTIONS = {
         'ar': 'المعالجة المصفوفية لفلاتر الصور الأصلية على لوحة رسم باسكال.'
     },
     'sound_filters_demo': {
-        'pt': 'Simulação interativa de filtros de áudio e multiplexação de sinais DSP.',
-        'en': 'Interactive simulation of audio filters and DSP signal multiplexing.',
+        'pt': 'Demo gráfico de filtros sonoros com processamento real de sinais em memória, sem modo simulado.',
+        'en': 'GUI demo for real in-memory sound signal filtering without simulation mode.',
         'es': 'Simulación interactiva de filtros de audio y multiplexación de señales DSP.',
         'fr': 'Simulation interactive de filtres audio et multiplexage de signaux DSP.',
         'it': 'Simulazione interattiva di filtri audio e multiplazione di segnali DSP.',

@@ -1,14 +1,70 @@
-# Sound Filters Visual Demo (soundfilters)
+# Sound Filters Visual Demo
 
-This sample project demonstrates the usage of component `soundfilters` from the `openai_voice` package.
+| Field | Value |
+|---|---|
+| Package | openai_voice |
+| Component area | AI Voice / Sound Filters |
+| Sample type | GUI |
+| Status | Beta |
+| Main project file | sound_filters_visual_demo.lpi |
+| External dependencies | No external dependencies |
 
-## Features Illustrated
-- Exercises at least 3 component properties.
-- Calls at least 2 methods.
-- Supports **Simulation Mode** (enabled by default) to allow immediate verification of components without hardware, brokers, API credentials, or local Python installations.
+## Purpose
 
-## How to Build & Run
-1. Open this project folder in Lazarus.
-2. Verify package `openai_voice` is available or referenced.
-3. Build the project (`Ctrl+F9` or run `lazbuild.exe`).
-4. Execute and click "Execute Test".
+This sample demonstrates real signal processing using the sound filter components.
+
+It does not use simulation mode.
+
+## Components used
+
+- TLowPassFilter
+- THighPassFilter
+- TAverageFilter
+
+## Required packages
+
+- LCL
+- openai_voice
+
+## Interface
+
+The demo contains four tabs:
+
+- Signal
+- Filters
+- Result
+- Log
+
+## Signal tab
+
+Generates a real in-memory test signal composed of a base sine wave plus high-frequency noise.
+
+## Filters tab
+
+Applies one real filter to the generated signal:
+
+- Low-pass
+- High-pass
+- Moving average
+
+## Result tab
+
+Displays the input and filtered signals as waveforms and shows numeric metrics.
+
+## Log tab
+
+Shows real execution logs.
+
+## Safety notes
+
+This sample does not read or write real audio devices.
+
+It only processes numeric sample arrays in memory.
+
+## Known limitations
+
+This demo does not load WAV files yet.
+
+This demo does not play audio yet.
+
+The visual waveform is intended for demonstration and debugging of the filter components.

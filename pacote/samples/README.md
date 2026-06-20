@@ -56,7 +56,7 @@ Os exemplos a seguir são projetos visuais prontos para compilação e execuçã
 
 | Exemplo | Caminho | Descrição |
 |---|---|---|
-| **[sound_filters_demo](AI Filtros Sonoros/sound_filters_demo/)**<br><br>![sound_filters_demo](../../screenshots/sound_filters.jpg) | `pacote/samples/AI Filtros Sonoros/sound_filters_demo` | Simulação interativa de filtros de áudio e multiplexação de sinais DSP. |
+| **[sound_filters_demo](AI Filtros Sonoros/sound_filters_demo/)**<br><br>![sound_filters_demo](../../screenshots/sound_filters.jpg) | `pacote/samples/AI Filtros Sonoros/sound_filters_demo` | Demo gráfico de filtros sonoros com processamento real de sinais em memória, sem modo simulado. |
 
 ### 📦 AI Graph
 

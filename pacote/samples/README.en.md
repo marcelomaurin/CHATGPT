@@ -56,7 +56,7 @@ The following examples are visual projects ready for compilation and interactive
 
 | Sample | Path | Description |
 |---|---|---|
-| **[sound_filters_demo](AI Filtros Sonoros/sound_filters_demo/)**<br><br>![sound_filters_demo](../../screenshots/sound_filters.jpg) | `pacote/samples/AI Filtros Sonoros/sound_filters_demo` | Interactive simulation of audio filters and DSP signal multiplexing. |
+| **[sound_filters_demo](AI Filtros Sonoros/sound_filters_demo/)**<br><br>![sound_filters_demo](../../screenshots/sound_filters.jpg) | `pacote/samples/AI Filtros Sonoros/sound_filters_demo` | GUI demo for real in-memory sound signal filtering without simulation mode. |
 
 ### 📦 AI Graph
 
