@@ -12,7 +12,8 @@ langs = {
         'gui_desc': 'Os exemplos a seguir são projetos visuais prontos para compilação e execução interativa através do Lazarus:',
         'console_title': '💻 Demonstrações em Linha de Comando (Console)',
         'console_desc': 'Estes exemplos demonstram a invocação direta de componentes via linha de comando para cenários de depuração rápida ou automação de rotinas:',
-        'col_sample': 'Exemplo / Caminho',
+        'col_sample': 'Exemplo',
+        'col_path': 'Caminho',
         'col_desc': 'Descrição',
         'no_desc': 'Nenhuma descrição disponível.',
         'category': 'Categoria'
@@ -24,7 +25,8 @@ langs = {
         'gui_desc': 'The following examples are visual projects ready for compilation and interactive execution through Lazarus:',
         'console_title': '💻 Command Line Interface (Console) Demonstrations',
         'console_desc': 'These examples demonstrate direct component invocation via command line for rapid debugging or automation scenarios:',
-        'col_sample': 'Sample / Path',
+        'col_sample': 'Sample',
+        'col_path': 'Path',
         'col_desc': 'Description',
         'no_desc': 'No description available.',
         'category': 'Category'
@@ -36,7 +38,8 @@ langs = {
         'gui_desc': 'Los siguientes ejemplos son proyectos visuales listos para compilar y ejecutar interactivamente en Lazarus:',
         'console_title': '💻 Demostraciones de Línea de Comando (Consola)',
         'console_desc': 'Estos ejemplos demuestran la invocación directa de componentes a través de la línea de comandos para depuración rápida o automatización:',
-        'col_sample': 'Ejemplo / Ruta',
+        'col_sample': 'Ejemplo',
+        'col_path': 'Ruta',
         'col_desc': 'Descripción',
         'no_desc': 'Sin descripción disponible.',
         'category': 'Categoría'
@@ -48,7 +51,8 @@ langs = {
         'gui_desc': 'Les exemples suivants sont des projets visuels prêts à être compilés et exécutés via Lazarus :',
         'console_title': '💻 Démonstrations en Ligne de Commande (Console)',
         'console_desc': 'Ces exemples illustrent l\'utilisation directe des composants en ligne de commande pour le débogage rapide :',
-        'col_sample': 'Exemple / Chemin',
+        'col_sample': 'Exemple',
+        'col_path': 'Chemin',
         'col_desc': 'Description',
         'no_desc': 'Aucune description disponible.',
         'category': 'Catégorie'
@@ -60,9 +64,10 @@ langs = {
         'gui_desc': 'I seguenti esempi sono progetti visuali pronti per la compilazione e l\'esecuzione interattiva tramite Lazarus:',
         'console_title': '💻 Demo a Riga di Comando (Console)',
         'console_desc': 'Questi esempi mostrano l\'invocazione diretta dei componentes da riga di comando per debug rapido o automazione:',
-        'col_sample': 'Esempio / Percorso',
+        'col_sample': 'Esempio',
+        'col_path': 'Percorso',
         'col_desc': 'Descrizione',
-        'no_desc': 'Nessuna descrizione disponibile.',
+        'no_desc': 'Nessuna descrizione disponível.',
         'category': 'Categoria'
     },
     'ar': {
@@ -72,7 +77,8 @@ langs = {
         'gui_desc': 'الأمثلة التالية عبارة عن مشاريع مرئية جاهزة للتجميع والتشغيل التفاعلي عبر لازاروس:',
         'console_title': '💻 مشاريع توضيحية لسطر الأوامر (Console)',
         'console_desc': 'توضح هذه الأمثلة الاستدعاء المباشر للمكونات عبر سطر الأوامر لسيناريوهات تصحيح الأخطاء السريعة وأتمتة العمليات الدورية:',
-        'col_sample': 'المشروع / المسار',
+        'col_sample': 'المشروع',
+        'col_path': 'المسار',
         'col_desc': 'الوصف',
         'no_desc': 'لا يوجد وصف متاح.',
         'category': 'الفئة'
@@ -135,7 +141,7 @@ SAMPLE_DESCRIPTIONS = {
         'es': 'Consola interactiva para ejecutar y probar scripts de Python.',
         'fr': 'Espace de travail interactif pour exécuter et tester des scripts Python.',
         'it': 'Console interattiva per l\'esecuzione e il test di script Python.',
-        'ar': 'مساحة عمل تفاعلية لتشغيل واختبار نصوص بايثون.'
+        'ar': 'مساحة trabalho تفاعلية لتشغيل واxtبار نصوص بايثون.'
     },
     'neural_network_demo': {
         'pt': 'Treinamento e visualização local de redes neurais multicamadas (MLP).',
@@ -172,7 +178,7 @@ SAMPLE_DESCRIPTIONS = {
     'image_filters_demo': {
         'pt': 'Processamento matricial de filtros de imagem nativos em canvas Pascal.',
         'en': 'Matrix processing of native image filters on Pascal canvas.',
-        'es': 'Procesamiento matricial de filtros de imagen nativos en canvas de Pascal.',
+        'es': 'Procesamiento matricial de filtros de imagem nativos en canvas de Pascal.',
         'fr': 'Traitement matriciel de filtres d\'image natifs sur canvas Pascal.',
         'it': 'Elaborazione matriciale di filtri d\'immagine nativi su canvas Pascal.',
         'ar': 'المعالجة المصفوفية لفلاتر الصور الأصلية على لوحة رسم باسكال.'
@@ -294,7 +300,7 @@ SAMPLE_DESCRIPTIONS = {
         'en': 'Step-by-step interactive wizard for initial setup of AI projects.',
         'es': 'Asistente interactivo paso a paso para la configuración inicial de proyectos de IA.',
         'fr': 'Assistant interactif étape par étape pour la configuration initiale de projets IA.',
-        'it': 'Configurazione guidata interattiva passo-passo per l\'avvio di progetti IA.',
+        'it': 'Configurazione guidata interattiva passo-passo per l\'avvio di projetos IA.',
         'ar': 'معالج تفاعلي خطوة بخطوة للإعداد الأولي لمشاريع الذكاء الاصطناعي.'
     },
     'disk_tree_ai_dataset_demo': {
@@ -316,7 +322,7 @@ SAMPLE_DESCRIPTIONS = {
     'dataset_analyzer_demo': {
         'pt': 'Ferramenta gráfica de análise estatística de bases de treinamento.',
         'en': 'Graphical statistical analysis tool for training datasets.',
-        'es': 'Herramienta gráfica de análisis estatístico de conjuntos de datos de entrenamiento.',
+        'es': 'Herramienta gráfica de análisis estadístico de conjuntos de datos de entrenamiento.',
         'fr': 'Outil graphique d\'analyse statistique d\'ensembles de données d\'entraînement.',
         'it': 'Strumento grafico di analisi statistica dei dataset di addestramento.',
         'ar': 'أداة تحليل إحصائي رسومي لمجموعات بيانات التدريب.'
@@ -373,7 +379,7 @@ SAMPLE_DESCRIPTIONS = {
         'pt': 'Simulação física básica para treinamento de comportamento em tempo real.',
         'en': 'Basic physical simulation for real-time behavior training.',
         'es': 'Simulación física básica para el entrenamiento del comportamiento en tiempo real.',
-        'fr': 'Simulation physique de base pour l\'entraînement du comportement en temps réel.',
+        'fr': 'Simulation physique de base pour l\'entraînement du comportamento en temps réel.',
         'it': 'Simulazione fisica di base per l\'addestramento del comportamento in tempo reale.',
         'ar': 'محاكاة فيزيائية أساسية لتدريب السلوك في الوقت الفعلي.'
     },
@@ -391,7 +397,7 @@ SAMPLE_DESCRIPTIONS = {
         'es': 'Visualizador de escenas 3D y control de múltiples cámaras con OpenGL.',
         'fr': 'Visualisateur de scènes 3D et contrôle multi-caméras avec OpenGL.',
         'it': 'Visualizzatore di scene 3D e controllo multi-camera con OpenGL.',
-        'ar': 'مستعرض مشاهد ثلاثية الأبعاد والتحكم in كاميرات متعددة باستخدام OpenGL.'
+        'ar': 'مستعرض مشاهد ثلاثية الأبعاد والتحكم في كاميرات متعددة باستخدام OpenGL.'
     },
     'skeleton_rig_demo': {
         'pt': 'Controle de esqueleto em malhas e deformação de vértices gráficos 3D.',
@@ -423,7 +429,7 @@ SAMPLE_DESCRIPTIONS = {
         'es': 'Conexión y publicación de eventos en brokers MQTT.',
         'fr': 'Connexion et publication d\'événements sur brokers MQTT.',
         'it': 'Connessione e pubblicazione di eventi su broker MQTT.',
-        'ar': 'الاتصال ونشر الأحداث في وسطاء MQTT.'
+        'ar': 'الاتصال ونشر الأحداث in وسطاء MQTT.'
     },
     'capture_source_demo': {
         'pt': 'Demonstração de captura física de frames a partir de múltiplas fontes.',
@@ -478,7 +484,7 @@ SAMPLE_DESCRIPTIONS = {
         'en': 'Lazarus visual interface for building and exporting structured training datasets.',
         'es': 'Interfaz visual de Lazarus para construir y exportar conjuntos de datos.',
         'fr': 'Interface visuelle Lazarus pour construire et exporter des ensembles de données.',
-        'it': 'Interfaccia visuale Lazarus per la creazione e l\'esportazione di dataset.',
+        'it': 'Interfaccia visuale Lazarus per la criação e l\'esportazione di dataset.',
         'ar': 'واجهة مرئية في لازاروس لبناء وتصدير مجموعات بيانات التدريب المنظمة.'
     },
     'matrix_component_demo': {
@@ -487,7 +493,7 @@ SAMPLE_DESCRIPTIONS = {
         'es': 'Operaciones avanzadas con matrices matemáticas escritas en Pascal puro.',
         'fr': 'Opérations avancées sur les matrices mathématiques en pur Pascal.',
         'it': 'Operazioni avanzate con matrici matematiche in puro Pascal.',
-        'ar': 'عرض للعمليات المتقدمة على المصفوفات الرياضية بلغة باسكال الخالصة.'
+        'ar': 'عرض للعمليات Mtaqadema ala al-masfufat al-riyadiyah bi-lughat Pascal al-khalisah.'
     },
     'numps_demo': {
         'pt': 'Integração visual Pascal para computação científica com o NUMPS.',
@@ -503,7 +509,7 @@ SAMPLE_DESCRIPTIONS = {
         'es': 'Visualizador y procesador de variables de entrada y salida matemáticas.',
         'fr': 'Visualisateur et processeur de variables d\'entrée/sortie mathématiques.',
         'it': 'Visualizzatore e processore di variabili matematiche di input e output.',
-        'ar': 'مستعرض ومعالج لمتغيرas المدخلات والمخرجات الرياضية.'
+        'ar': 'مستعرض ومعالج لمتغيرات المدخلات والمخرجات الرياضية.'
     },
     'pose_detector_demo': {
         'pt': 'Rastreamento corporal de articulações em tempo real com MediaPipe.',
@@ -663,7 +669,7 @@ SAMPLE_DESCRIPTIONS = {
         'es': 'Detección de movimiento mediante diferencias entre fotogramas consecutivos.',
         'fr': 'Détection de mouvement par différence entre trames consécutives.',
         'it': 'Rilevamento del movimento tramite differenze tra frame consecutivi.',
-        'ar': 'رصد الحركة باستخدام الفروقات entre الإطارات المتتالية.'
+        'ar': 'رصد الحركة باستخدام الفروقات بين الإطارات المتتالية.'
     },
     'image_info_demo': {
         'pt': 'Exibição e leitura rápida de cabeçalhos e metadados de arquivos de imagem.',
@@ -703,7 +709,7 @@ SAMPLE_DESCRIPTIONS = {
         'es': 'Ecualizador y panel visual de filtros de sonido en tiempo real.',
         'fr': 'Égaliseur et panneau de contrôle des filtres audio en temps réel.',
         'it': 'Equalizzatore e pannello di controllo dei filtri audio in tempo reale.',
-        'ar': 'لوحة تحكم فلاتr الصوت المرئية وموازن الصوت في الوقت الفعلي.'
+        'ar': 'لوحة تحكم فلاتر الصوت المرئية وموازن الصوت في الوقت الفعلي.'
     },
     'voice_synthesizer_complete_demo': {
         'pt': 'Showcase completo de sintetização de fala e narração síncrona/assíncrona.',
@@ -719,7 +725,7 @@ SAMPLE_DESCRIPTIONS = {
         'es': 'Demostración de línea de comandos de entrada y salida de datos con los componentes de AI Input.',
         'fr': 'Démonstration en ligne de commande de la gestion des entrées/sorties avec les composants AI Input.',
         'it': 'Dimostrazione da riga di comando della gestione degli input/output di dati con i componenti AI Input.',
-        'ar': 'عرض توضيحي عبر سطر الأوامr لإدخال وإخراج البيانات باستخدام مكونات AI Input.'
+        'ar': 'عرض توضيحي عبر سطر الأوامر لإدخال وإخراج البيانات باستخدام مكونات AI Input.'
     },
     'numps_sample.lpr': {
         'pt': 'Demonstração simples de console para operações matemáticas de matrizes e vetores com o NUMPS.',
@@ -758,15 +764,15 @@ SAMPLE_DESCRIPTIONS = {
         'en': 'Console-based assistant to optimize and automatically document Delphi/Pascal code.',
         'es': 'Asistente de consola para optimizar y documentar automáticamente código Pascal.',
         'fr': 'Assistant en ligne de commande pour optimiser et documenter automatiquement le code Pascal.',
-        'it': 'Assistente da riga di comando per ottimizzare e documentare automaticamente il codice Pascal.',
-        'ar': 'مساعد عبر سطر الأوامر لتحسين وتوثيق كود باسكال تلقائيًا.'
+        'it': 'Assistant da riga di comando per ottimizzare e documentare automaticamente il codice Pascal.',
+        'ar': 'مساعد عبر سطر الأوامر لتحسين وتوثيق كود باسكal تلقائيًا.'
     },
     'aidatasetgenerator_sample.lpr': {
         'pt': 'Loop de compilação e exportação de base de dados em formato JSONL.',
         'en': 'Automated dataset generation loop exporting data to JSONL format.',
         'es': 'Bucle automatizado de generación de conjuntos de datos exportados a JSONL.',
         'fr': 'Boucle automatisée de génération de jeux de données exportés au format JSONL.',
-        'it': 'Ciclo automatizzato di generazione di dataset esportati in formato JSONL.',
+        'it': 'Ciclo automatizzato di generazione di dataset esportato in formato JSONL.',
         'ar': 'حلقة توليد مجموعات البيانات التلقائية وتصديرها بصيغة JSONL.'
     },
     'chatgpt_sample.lpr': {
@@ -807,8 +813,7 @@ def scan_samples(samples_root, lang_code, trans):
             if category == ".":
                 category = "General"
                 
-            # Determine best display title (e.g. folder name or parsed fallback)
-            folder_name = rel_path.split('/')[-1]
+            folder_name = os.path.basename(root)
             proj_name = lpi_file[:-4]
             
             # Resolve description in the exact language
@@ -818,18 +823,13 @@ def scan_samples(samples_root, lang_code, trans):
                     desc = SAMPLE_DESCRIPTIONS[name_key][lang_code]
                     break
             
-            title = folder_name
-            if proj_name in SAMPLE_DESCRIPTIONS:
-                # We can keep a clean display name
-                title = folder_name
-                
             if category not in gui_samples:
                 gui_samples[category] = []
                 
             gui_samples[category].append({
                 'name': proj_name,
                 'rel_path': rel_path.replace('\\', '/'),
-                'title': title,
+                'title': folder_name,
                 'desc': desc
             })
             
@@ -847,7 +847,6 @@ def scan_samples(samples_root, lang_code, trans):
             if category == ".":
                 category = "General"
                 
-            # Resolve description
             desc = trans['no_desc']
             if lpr in SAMPLE_DESCRIPTIONS and lang_code in SAMPLE_DESCRIPTIONS[lpr]:
                 desc = SAMPLE_DESCRIPTIONS[lpr][lang_code]
@@ -891,11 +890,12 @@ def generate():
             for category in sorted(gui.keys()):
                 content.append(f"### 📦 {category}")
                 content.append("")
-                content.append(f"| {trans['col_sample']} | {trans['col_desc']} |")
-                content.append("|---|---|")
+                content.append(f"| {trans['col_sample']} | {trans['col_path']} | {trans['col_desc']} |")
+                content.append("|---|---|---|")
                 
                 for item in sorted(gui[category], key=lambda x: x['title']):
-                    content.append(f"| **[{item['title']}]({item['rel_path']}/)** | {item['desc']} |")
+                    repo_path = f"pacote/samples/{item['rel_path']}"
+                    content.append(f"| **[{item['title']}]({item['rel_path']}/)** | `{repo_path}` | {item['desc']} |")
                 content.append("")
                 
             if console:
@@ -906,11 +906,12 @@ def generate():
                 for category in sorted(console.keys()):
                     content.append(f"### ⌨️ {category}")
                     content.append("")
-                    content.append(f"| {trans['col_sample']} | {trans['col_desc']} |")
-                    content.append("|---|---|")
+                    content.append(f"| {trans['col_sample']} | {trans['col_path']} | {trans['col_desc']} |")
+                    content.append("|---|---|---|")
                     
                     for item in sorted(console[category], key=lambda x: x['name']):
-                        content.append(f"| **[{item['name']}]({item['rel_path']})** | {item['desc']} |")
+                        repo_path = f"pacote/samples/{item['rel_path']}"
+                        content.append(f"| **[{item['name']}]({item['rel_path']})** | `{repo_path}` | {item['desc']} |")
                     content.append("")
             
             with open(filepath, 'w', encoding='utf-8') as f:
