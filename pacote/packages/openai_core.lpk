@@ -66,15 +66,6 @@
         <UnitName Value="aimodelregistry"/>
       </Item>
       <Item>
-        <Filename Value="..\AI\aiwizardconfig.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="aiwizardconfig"/>
-      </Item>
-      <Item>
-        <Filename Value="..\AI\frm_aiwizardconfig.pas"/>
-        <UnitName Value="frm_aiwizardconfig"/>
-      </Item>
-      <Item>
         <Filename Value="..\AI\dbtokenlist.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="dbtokenlist"/>
@@ -89,16 +80,7 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="iaschedule"/>
       </Item>
-      <Item>
-        <Filename Value="..\AI\aiproject.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="aiproject"/>
-      </Item>
-      <Item>
-        <Filename Value="..\AI\aipipeline.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="aipipeline"/>
-      </Item>
+
     </Files>
     <RequiredPkgs>
       <Item>

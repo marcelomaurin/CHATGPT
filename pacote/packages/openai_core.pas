@@ -10,9 +10,7 @@ interface
 uses
   funcoes, aibase, aiplatform, airuntimepaths, ailibraryloader, 
   aiprocessrunner, chatgpt, tokenizer, aicodeassistant, aipromptbuilder, 
-  aimodelregistry, aiwizardconfig, frm_aiwizardconfig, DBTokenList, 
-  GroupResponse, iaschedule, aiproject, aipipeline, 
-  LazarusPackageIntf;
+  aimodelregistry, DBTokenList, GroupResponse, iaschedule, LazarusPackageIntf;
 
 implementation
 
@@ -23,12 +21,9 @@ begin
   RegisterUnit('aicodeassistant', @aicodeassistant.Register);
   RegisterUnit('aipromptbuilder', @aipromptbuilder.Register);
   RegisterUnit('aimodelregistry', @aimodelregistry.Register);
-  RegisterUnit('aiwizardconfig', @aiwizardconfig.Register);
   RegisterUnit('DBTokenList', @DBTokenList.Register);
   RegisterUnit('GroupResponse', @GroupResponse.Register);
   RegisterUnit('iaschedule', @iaschedule.Register);
-  RegisterUnit('aiproject', @aiproject.Register);
-  RegisterUnit('aipipeline', @aipipeline.Register);
 end;
 
 initialization

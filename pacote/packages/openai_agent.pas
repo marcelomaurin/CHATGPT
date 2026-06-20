@@ -8,7 +8,8 @@ unit openai_agent;
 interface
 
 uses
-  aiagent, aiagentsafety, aiagent_executors, LazarusPackageIntf;
+  aiagent, aiagentsafety, aiagent_executors, aiproject, aiwizardconfig, 
+  frm_aiwizardconfig, aipipeline, LazarusPackageIntf;
 
 implementation
 
@@ -16,6 +17,9 @@ procedure Register;
 begin
   RegisterUnit('aiagent', @aiagent.Register);
   RegisterUnit('aiagentsafety', @aiagentsafety.Register);
+  RegisterUnit('aiproject', @aiproject.Register);
+  RegisterUnit('aiwizardconfig', @aiwizardconfig.Register);
+  RegisterUnit('aipipeline', @aipipeline.Register);
 end;
 
 initialization

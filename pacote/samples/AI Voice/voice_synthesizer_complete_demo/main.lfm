@@ -6,9 +6,9 @@ object frmMain: TfrmMain
   Caption = 'Voice Synthesizer Complete Demo - Local and OpenAI Voice API'
   ClientHeight = 600
   ClientWidth = 800
+  LCLVersion = '4.4.0.0'
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  LCLVersion = '3.0.0.3'
   object pnlTop: TPanel
     Left = 0
     Height = 100
@@ -22,18 +22,19 @@ object frmMain: TfrmMain
       Left = 15
       Height = 25
       Top = 15
-      Width = 286
+      Width = 290
       Caption = 'Voice Synthesizer Complete Demo'
       Font.Height = -18
       Font.Name = 'Segoe UI'
       Font.Style = [fsBold]
       ParentColor = False
+      ParentFont = False
     end
     object lblSubtitle: TLabel
       Left = 15
       Height = 15
       Top = 45
-      Width = 431
+      Width = 377
       Caption = 'Generate real speech using local system voices or the OpenAI Voice API.'
       ParentColor = False
     end
@@ -41,10 +42,11 @@ object frmMain: TfrmMain
       Left = 15
       Height = 15
       Top = 70
-      Width = 71
+      Width = 75
       Caption = 'Status: Ready'
       Font.Style = [fsBold]
       ParentColor = False
+      ParentFont = False
     end
   end
   object pgcMain: TPageControl
@@ -65,7 +67,7 @@ object frmMain: TfrmMain
         Left = 20
         Height = 15
         Top = 20
-        Width = 82
+        Width = 80
         Caption = 'Speech engine:'
         ParentColor = False
       end
@@ -82,7 +84,7 @@ object frmMain: TfrmMain
         Left = 20
         Height = 15
         Top = 60
-        Width = 53
+        Width = 54
         Caption = 'API token:'
         ParentColor = False
       end
@@ -99,7 +101,7 @@ object frmMain: TfrmMain
         Left = 20
         Height = 15
         Top = 100
-        Width = 78
+        Width = 80
         Caption = 'OpenAI model:'
         ParentColor = False
       end
@@ -193,7 +195,7 @@ object frmMain: TfrmMain
         Top = 296
         Width = 400
         TabOrder = 7
-        Text = 'output/speech.mp3'
+        Text = 'speech.mp3'
       end
       object btnSelectOutputFile: TButton
         Left = 560
@@ -201,8 +203,8 @@ object frmMain: TfrmMain
         Top = 295
         Width = 150
         Caption = 'Select Output File'
-        OnClick = btnSelectOutputFileClick
         TabOrder = 8
+        OnClick = btnSelectOutputFileClick
       end
       object btnApplyConfig: TButton
         Left = 150
@@ -210,8 +212,8 @@ object frmMain: TfrmMain
         Top = 350
         Width = 150
         Caption = 'Apply Configuration'
-        OnClick = btnApplyConfigClick
         TabOrder = 9
+        OnClick = btnApplyConfigClick
       end
       object btnTestConfig: TButton
         Left = 310
@@ -219,20 +221,19 @@ object frmMain: TfrmMain
         Top = 350
         Width = 150
         Caption = 'Test Configuration'
-        OnClick = btnTestConfigClick
         TabOrder = 10
+        OnClick = btnTestConfigClick
       end
     end
     object tsSpeech: TTabSheet
       Caption = 'Speech'
       ClientHeight = 452
       ClientWidth = 772
-      TabOrder = 1
       object lblSpeechText: TLabel
         Left = 15
         Height = 15
         Top = 15
-        Width = 103
+        Width = 95
         Caption = 'Text to synthesize:'
         ParentColor = False
       end
@@ -250,8 +251,8 @@ object frmMain: TfrmMain
         Top = 280
         Width = 180
         Caption = 'Generate Speech'
-        OnClick = btnGenerateSpeechClick
         TabOrder = 1
+        OnClick = btnGenerateSpeechClick
       end
       object btnClearText: TButton
         Left = 210
@@ -259,8 +260,8 @@ object frmMain: TfrmMain
         Top = 280
         Width = 120
         Caption = 'Clear Text'
-        OnClick = btnClearTextClick
         TabOrder = 2
+        OnClick = btnClearTextClick
       end
       object btnLoadExample: TButton
         Left = 340
@@ -268,20 +269,19 @@ object frmMain: TfrmMain
         Top = 280
         Width = 120
         Caption = 'Load Example'
-        OnClick = btnLoadExampleClick
         TabOrder = 3
+        OnClick = btnLoadExampleClick
       end
     end
     object tsOutput: TTabSheet
       Caption = 'Output'
       ClientHeight = 452
       ClientWidth = 772
-      TabOrder = 2
       object lblGeneratedFile: TLabel
         Left = 15
         Height = 15
         Top = 15
-        Width = 111
+        Width = 109
         Caption = 'Generated audio file:'
         ParentColor = False
       end
@@ -299,8 +299,8 @@ object frmMain: TfrmMain
         Top = 80
         Width = 120
         Caption = 'Play Audio'
-        OnClick = btnPlayAudioClick
         TabOrder = 1
+        OnClick = btnPlayAudioClick
       end
       object btnOpenOutputFolder: TButton
         Left = 145
@@ -308,8 +308,8 @@ object frmMain: TfrmMain
         Top = 80
         Width = 150
         Caption = 'Open Output Folder'
-        OnClick = btnOpenOutputFolderClick
         TabOrder = 2
+        OnClick = btnOpenOutputFolderClick
       end
       object btnCopyPath: TButton
         Left = 305
@@ -317,14 +317,14 @@ object frmMain: TfrmMain
         Top = 80
         Width = 120
         Caption = 'Copy Path'
-        OnClick = btnCopyPathClick
         TabOrder = 3
+        OnClick = btnCopyPathClick
       end
       object lblLastResult: TLabel
         Left = 15
         Height = 15
         Top = 130
-        Width = 58
+        Width = 56
         Caption = 'Last result:'
         ParentColor = False
       end
@@ -342,7 +342,6 @@ object frmMain: TfrmMain
       Caption = 'Log'
       ClientHeight = 452
       ClientWidth = 772
-      TabOrder = 3
       object memoLog: TMemo
         Left = 0
         Height = 402
@@ -367,8 +366,8 @@ object frmMain: TfrmMain
           Top = 10
           Width = 120
           Caption = 'Clear Log'
-          OnClick = btnClearLogClick
           TabOrder = 0
+          OnClick = btnClearLogClick
         end
       end
     end
