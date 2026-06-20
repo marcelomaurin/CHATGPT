@@ -77,14 +77,15 @@ begin
     AddLog('Simulating Speech Synthesis to local audio device...');
     AddLog('Synthesizing: "' + FEditSpeech.Text + '"');
     // Call methods
-    FAIVoice.Speak(FEditSpeech.Text);
+    FAIVoice.Say(FEditSpeech.Text);
     AddLog('Synthesized voice waveform processed successfully (Simulated).');
   end
   else
   begin
     AddLog('Speaking actual sentence...');
     try
-      if FAIVoice.Speak(FEditSpeech.Text) then
+      FAIVoice.Say(FEditSpeech.Text);
+      if FAIVoice.LastSuccess then
         AddLog('Speak finished.')
       else
         AddLog('Speech synthesis failed: ' + FAIVoice.LastError);
