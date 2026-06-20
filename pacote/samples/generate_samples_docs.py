@@ -87,6 +87,14 @@ langs = {
 
 # Explicit localized translations for all samples on disk
 SAMPLE_DESCRIPTIONS = {
+    'Demo_AI_Project': {
+        'pt': 'Planejador visual de projetos com IA que integra documentos ágeis, tarefas, dependências, Gantt, timeline e agentes.',
+        'en': 'Visual AI Project Planner integrating agile documents, tasks, dependencies, Gantt, timeline, and agents.',
+        'es': 'Planificador visual de proyectos de IA que integra documentos ágiles, tareas, dependencias, Gantt, línea de tiempo y agentes.',
+        'fr': 'Planificateur visuel de projet IA intégrant des documents agiles, des tâches, des dépendances, un Gantt, une chronologie et des agents.',
+        'it': 'Pianificatore visivo di progetti IA che integra documenti agili, attività, dipendenze, Gantt, sequenza temporale e agenti.',
+        'ar': 'مخطط مشروع الذكاء الاصطناعي المرئي الذي يدمج المستندات الرشيقة والمهام والتبعيات وجانت والجدول الزمني والوكلاء.'
+    },
     'visual_demo': {
         'pt': 'Playground unificado reunindo várias demonstrações visuais e abas de teste.',
         'en': 'Unified control playground combining multiple visual demos and testing tabs.',

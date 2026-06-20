@@ -9,7 +9,7 @@ interface
 
 uses
   aiagent, aiagentsafety, aiagent_executors, aiproject, aiwizardconfig, 
-  frm_aiwizardconfig, aipipeline, LazarusPackageIntf;
+  frm_aiwizardconfig, aipipeline, aiproject_components, LazarusPackageIntf;
 
 implementation
 
@@ -20,6 +20,7 @@ begin
   RegisterUnit('aiproject', @aiproject.Register);
   RegisterUnit('aiwizardconfig', @aiwizardconfig.Register);
   RegisterUnit('aipipeline', @aipipeline.Register);
+  RegisterUnit('aiproject_components', @aiproject_components.Register);
 end;
 
 initialization

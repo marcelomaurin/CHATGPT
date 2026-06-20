@@ -9,7 +9,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\AI;..\AI Agent;..\AI Voice;..\AI Filtros Sonoros;..\AI Image;..\AI Schedule;..\AI Math;..\AI Input;..\AI Output;..\AI Graph;..\AI Graphic;..\AI Vision;..\AI Industrial;.."/>
+        <OtherUnitFiles Value="..\AI;..\AI Agent;..\AI Project;..\AI Voice;..\AI Filtros Sonoros;..\AI Image;..\AI Schedule;..\AI Math;..\AI Input;..\AI Output;..\AI Graph;..\AI Graphic;..\AI Vision;..\AI Industrial;.."/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
@@ -48,6 +48,11 @@
         <Filename Value="..\AI Agent\aipipeline.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aipipeline"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Project\aiproject_components.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiproject_components"/>
       </Item>
     </Files>
     <RequiredPkgs>

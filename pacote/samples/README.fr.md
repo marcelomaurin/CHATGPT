@@ -150,6 +150,7 @@ Les exemples suivants sont des projets visuels prêts à être compilés et exé
 | Exemple | Chemin | Description |
 |---|---|---|
 | **[AI Project](AI Project/)** | `pacote/samples/AI Project` | Aucune description disponible. |
+| **[Demo_AI_Project](AI Project/Demo_AI_Project/)** | `pacote/samples/AI Project/Demo_AI_Project` | Planificateur visuel de projet IA intégrant des documents agiles, des tâches, des dépendances, un Gantt, une chronologie et des agents. |
 
 ### 📦 AI Python
 

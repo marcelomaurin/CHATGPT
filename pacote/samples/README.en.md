@@ -150,6 +150,7 @@ The following examples are visual projects ready for compilation and interactive
 | Sample | Path | Description |
 |---|---|---|
 | **[AI Project](AI Project/)** | `pacote/samples/AI Project` | No description available. |
+| **[Demo_AI_Project](AI Project/Demo_AI_Project/)** | `pacote/samples/AI Project/Demo_AI_Project` | Visual AI Project Planner integrating agile documents, tasks, dependencies, Gantt, timeline, and agents. |
 
 ### 📦 AI Python
 
