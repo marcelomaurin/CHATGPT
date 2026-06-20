@@ -1,5 +1,7 @@
 # AI SQLite Query Assistant Demo
 
+![AI SQLite Query Assistant Demo](../../../../screenshots/ai_sqlite_query_assistant_demo.jpg)
+
 This demo shows how to combine ChatGPT with the AI DBase Dictionary component to generate SQLite SELECT queries from natural language.
 
 ## Technologies used
