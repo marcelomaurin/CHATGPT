@@ -93,6 +93,7 @@ install_recommended() {
   install_package "pacote/packages/openai_simulation.lpk"
   install_package "pacote/packages/openai_files.lpk"
   install_package "pacote/packages/openai_aidbase.lpk"
+  install_package "pacote/packages/openai_project.lpk"
 }
 
 install_all() {
@@ -110,6 +111,7 @@ install_all() {
   install_package "pacote/packages/openai_simulation.lpk"
   install_package "pacote/packages/openai_files.lpk"
   install_package "pacote/packages/openai_aidbase.lpk"
+  install_package "pacote/packages/openai_project.lpk"
 }
 
 case "$MODE" in
