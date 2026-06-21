@@ -80,45 +80,45 @@ end;
 
 procedure TAIProjectAgents.CreateDefaultAgents;
 var
-  Agents: TJSONArray;
+  LAgents: TJSONArray;
 begin
-  Agents := GetAgents;
-  if not Assigned(Agents) then Exit;
-  Agents.Clear;
+  LAgents := GetAgents;
+  if not Assigned(LAgents) then Exit;
+  LAgents.Clear;
 
-  Agents.Add(TJSONObject.Create(['id', 'AG001', 'name', 'UI Agent',
+  LAgents.Add(TJSONObject.Create(['id', 'AG001', 'name', 'UI Agent',
     'profile', 'UI', 'description', 'Specialist in screen flow and UX',
     'skill_level', 'senior', 'active', true]));
 
-  Agents.Add(TJSONObject.Create(['id', 'AG002', 'name', 'DBA Agent',
+  LAgents.Add(TJSONObject.Create(['id', 'AG002', 'name', 'DBA Agent',
     'profile', 'DBA', 'description', 'Specialist in database and storage',
     'skill_level', 'senior', 'active', true]));
 
-  Agents.Add(TJSONObject.Create(['id', 'AG003', 'name', 'DEV Agent',
+  LAgents.Add(TJSONObject.Create(['id', 'AG003', 'name', 'DEV Agent',
     'profile', 'DEV', 'description', 'Software Developer',
     'skill_level', 'mid_level', 'active', true]));
 
-  Agents.Add(TJSONObject.Create(['id', 'AG004', 'name', 'Infra Agent',
+  LAgents.Add(TJSONObject.Create(['id', 'AG004', 'name', 'Infra Agent',
     'profile', 'Infra', 'description', 'Deployment and infrastructure expert',
     'skill_level', 'senior', 'active', true]));
 
-  Agents.Add(TJSONObject.Create(['id', 'AG005', 'name', 'Operador',
+  LAgents.Add(TJSONObject.Create(['id', 'AG005', 'name', 'Operador',
     'profile', 'Operador', 'description', 'System operator',
     'skill_level', 'junior', 'active', true]));
 
-  Agents.Add(TJSONObject.Create(['id', 'AG006', 'name', 'Key User',
+  LAgents.Add(TJSONObject.Create(['id', 'AG006', 'name', 'Key User',
     'profile', 'Key User', 'description', 'Key business user and validator',
     'skill_level', 'mid_level', 'active', true]));
 
-  Agents.Add(TJSONObject.Create(['id', 'AG007', 'name', 'Tester Agent',
+  LAgents.Add(TJSONObject.Create(['id', 'AG007', 'name', 'Tester Agent',
     'profile', 'Tester', 'description', 'QA and functional validation',
     'skill_level', 'junior', 'active', true]));
 
-  Agents.Add(TJSONObject.Create(['id', 'AG008', 'name', 'Documentador',
+  LAgents.Add(TJSONObject.Create(['id', 'AG008', 'name', 'Documentador',
     'profile', 'Documentador', 'description', 'Technical writer and documentation specialist',
     'skill_level', 'mid_level', 'active', true]));
 
-  Agents.Add(TJSONObject.Create(['id', 'AG009', 'name', 'Gerente de Projeto',
+  LAgents.Add(TJSONObject.Create(['id', 'AG009', 'name', 'Gerente de Projeto',
     'profile', 'Gerente', 'description', 'Project coordinator and stakeholder communicator',
     'skill_level', 'senior', 'active', true]));
 end;
@@ -126,19 +126,19 @@ end;
 function TAIProjectAgents.AddAgent(const AName, AProfile, ADescription,
   ASkillLevel: string; AActive: Boolean): string;
 var
-  Agents: TJSONArray;
+  LAgents: TJSONArray;
   NewID: string;
 begin
   Result := '';
   FLastError := '';
-  Agents := GetAgents;
-  if not Assigned(Agents) then
+  LAgents := GetAgents;
+  if not Assigned(LAgents) then
   begin
     FLastError := 'Agent array not found. Generate initial plan first.';
     Exit;
   end;
-  NewID := 'AG' + Format('%.3d', [Agents.Count + 1]);
-  Agents.Add(TJSONObject.Create([
+  NewID := 'AG' + Format('%.3d', [LAgents.Count + 1]);
+  LAgents.Add(TJSONObject.Create([
     'id', NewID, 'name', AName, 'profile', AProfile,
     'description', ADescription, 'skill_level', ASkillLevel, 'active', AActive
   ]));
@@ -148,17 +148,17 @@ end;
 function TAIProjectAgents.UpdateAgent(const AAgentID, AName, AProfile,
   ADescription, ASkillLevel: string; AActive: Boolean): Boolean;
 var
-  Agents: TJSONArray;
+  LAgents: TJSONArray;
   Obj: TJSONObject;
   i: Integer;
 begin
   Result := False;
   FLastError := '';
-  Agents := GetAgents;
-  if not Assigned(Agents) then Exit;
-  for i := 0 to Agents.Count - 1 do
+  LAgents := GetAgents;
+  if not Assigned(LAgents) then Exit;
+  for i := 0 to LAgents.Count - 1 do
   begin
-    Obj := Agents.Objects[i];
+    Obj := LAgents.Objects[i];
     if Obj.Strings['id'] = AAgentID then
     begin
       Obj.Strings['name'] := AName;
@@ -175,43 +175,43 @@ end;
 
 function TAIProjectAgents.RemoveAgentByIndex(AIndex: Integer): Boolean;
 var
-  Agents: TJSONArray;
+  LAgents: TJSONArray;
 begin
   Result := False;
   FLastError := '';
-  Agents := GetAgents;
-  if not Assigned(Agents) then Exit;
-  if (AIndex < 0) or (AIndex >= Agents.Count) then
+  LAgents := GetAgents;
+  if not Assigned(LAgents) then Exit;
+  if (AIndex < 0) or (AIndex >= LAgents.Count) then
   begin
     FLastError := 'Invalid agent index: ' + IntToStr(AIndex);
     Exit;
   end;
-  Agents.Delete(AIndex);
+  LAgents.Delete(AIndex);
   Result := True;
 end;
 
 function TAIProjectAgents.GetAgentByIndex(AIndex: Integer): TJSONObject;
 var
-  Agents: TJSONArray;
+  LAgents: TJSONArray;
 begin
   Result := nil;
-  Agents := GetAgents;
-  if Assigned(Agents) and (AIndex >= 0) and (AIndex < Agents.Count) then
-    Result := Agents.Objects[AIndex];
+  LAgents := GetAgents;
+  if Assigned(LAgents) and (AIndex >= 0) and (AIndex < LAgents.Count) then
+    Result := LAgents.Objects[AIndex];
 end;
 
 function TAIProjectAgents.GetAgentByName(const AName: string): TJSONObject;
 var
-  Agents: TJSONArray;
+  LAgents: TJSONArray;
   i: Integer;
 begin
   Result := nil;
-  Agents := GetAgents;
-  if not Assigned(Agents) then Exit;
-  for i := 0 to Agents.Count - 1 do
-    if Agents.Objects[i].Strings['name'] = AName then
+  LAgents := GetAgents;
+  if not Assigned(LAgents) then Exit;
+  for i := 0 to LAgents.Count - 1 do
+    if LAgents.Objects[i].Strings['name'] = AName then
     begin
-      Result := Agents.Objects[i];
+      Result := LAgents.Objects[i];
       Exit;
     end;
 end;

@@ -5,7 +5,7 @@ unit aiproject_llmconfig;
 interface
 
 uses
-  Classes, SysUtils, aiproject, aibase;
+  Classes, SysUtils, aiproject, aibase, chatgpt;
 
 type
   { TAIProjectLLMConfig — stores and applies LLM configuration to a TAIProject }

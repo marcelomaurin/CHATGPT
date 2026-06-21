@@ -9,7 +9,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\AI;..\AI Agent;..\AI Voice;..\AI Filtros Sonoros;..\AI Image;..\AI Schedule;..\AI Math;..\AI Input;..\AI Output;..\AI Graph;..\AI Graphic;..\AI Vision;.."/>
+        <OtherUnitFiles Value="..\AI Graph"/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
@@ -48,6 +48,15 @@
       </Item>
       <Item>
         <PackageName Value="openai_ml"/>
+      </Item>
+      <Item>
+        <PackageName Value="openai_input"/>
+      </Item>
+      <Item>
+        <PackageName Value="openai_output"/>
+      </Item>
+      <Item>
+        <PackageName Value="openai_agent"/>
       </Item>
       <Item>
         <PackageName Value="LCL"/>
