@@ -5,7 +5,7 @@ unit aiwebserver;
 interface
 
 uses
-  Classes, SysUtils, fphttpserver, LResources;
+  Classes, SysUtils, fphttpserver, LResources, aibase;
 
 type
   TAPIRequestEvent = procedure(Sender: TObject; const ARoute, AMethod, AContent: string;
@@ -24,9 +24,8 @@ type
 
   { TAIWebAPIServer }
 
-  TAIWebAPIServer = class(TComponent)
+  TAIWebAPIServer = class(TAIBaseComponent)
   private
-    FPrompt: string;
     FPort: Integer;
     FActive: Boolean;
     FAllowedRoutes: TStrings;
@@ -41,10 +40,9 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     
-    procedure StartServer;
+    function StartServer: Boolean;
     procedure StopServer;
   published
-    property Prompt: string read FPrompt write FPrompt;
     property Port: Integer read FPort write FPort default 8080;
     property Active: Boolean read FActive write SetActive default False;
     property AllowedRoutes: TStrings read FAllowedRoutes write SetAllowedRoutes;
@@ -89,6 +87,7 @@ begin
   FAllowedRoutes := TStringList.Create;
   FServer := nil;
   FThread := nil;
+  FCategory := ccInput;
 end;
 
 destructor TAIWebAPIServer.Destroy;
@@ -112,18 +111,35 @@ begin
     StopServer;
 end;
 
-procedure TAIWebAPIServer.StartServer;
+function TAIWebAPIServer.StartServer: Boolean;
 begin
-  if FActive then Exit;
+  Result := False;
+  if FActive then
+  begin
+    Result := True;
+    Exit;
+  end;
   
-  FServer := TFPHTTPServer.Create(Self);
-  FServer.Port := FPort;
-  FServer.OnRequest := @HandleRequest;
-  
-  FThread := TServerThread.Create(FServer);
-  FThread.Start;
-  
-  FActive := True;
+  ClearError;
+  try
+    FServer := TFPHTTPServer.Create(Self);
+    FServer.Port := FPort;
+    FServer.OnRequest := @HandleRequest;
+    
+    FThread := TServerThread.Create(FServer);
+    FThread.Start;
+    
+    FActive := True;
+    FLastSuccess := True;
+    Result := True;
+    Log(llInfo, 'AI Web API Server started successfully on port ' + IntToStr(FPort));
+  except
+    on E: Exception do
+    begin
+      SetError('Failed to start server: ' + E.Message);
+      StopServer;
+    end;
+  end;
 end;
 
 procedure TAIWebAPIServer.StopServer;
@@ -132,18 +148,27 @@ begin
   
   if Assigned(FServer) then
   begin
-    FServer.Active := False;
+    try
+      FServer.Active := False;
+    except
+      // ignore
+    end;
   end;
   
   if Assigned(FThread) then
   begin
-    FThread.Terminate;
-    FThread.WaitFor;
+    try
+      FThread.Terminate;
+      FThread.WaitFor;
+    except
+      // ignore
+    end;
     FreeAndNil(FThread);
   end;
   
   FreeAndNil(FServer);
   FActive := False;
+  Log(llInfo, 'AI Web API Server stopped.');
 end;
 
 procedure TAIWebAPIServer.HandleRequest(Sender: TObject; var ARequest: TFPHTTPConnectionRequest;
@@ -212,3 +237,4 @@ initialization
   {$I aiwebserver_icon.lrs}
 
 end.
+

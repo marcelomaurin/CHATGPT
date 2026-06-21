@@ -64,3 +64,8 @@
 
 ![AI SQLite Query Assistant Demo](ai_sqlite_query_assistant_demo.jpg)
 
+## Avatar Demo
+
+![Avatar Demo](avatar_demo.JPG)
+
+
