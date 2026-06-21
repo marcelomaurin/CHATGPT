@@ -28,7 +28,7 @@
         <PackageName Value="LCL"/>
       </Item>
       <Item>
-        <PackageName Value="openai"/>
+        <PackageName Value="openai_core"/>
       </Item>
     </RequiredPackages>
     <Units>
@@ -67,4 +67,5 @@
     </Linking>
   </CompilerOptions>
 </CONFIG>
+
 

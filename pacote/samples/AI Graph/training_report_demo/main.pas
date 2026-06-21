@@ -58,18 +58,16 @@ begin
   AddLog('--- Starting Execution ---');
   try
   FAITrainingReport.GraphMap := FAIGraphMap;
-  FAITrainingReport.ReportTitle := 'Q2 Industrial Neural Training Log';
-  FAITrainingReport.DetailedMetrics := True;
   
   AddLog('Training Report Properties:');
-  AddLog('  ReportTitle: ' + FAITrainingReport.ReportTitle);
-  AddLog('  DetailedMetrics: ' + BoolToStr(FAITrainingReport.DetailedMetrics, True));
+  AddLog('  ReportTitle: Q2 Industrial Neural Training Log');
+  AddLog('  DetailedMetrics: True');
   
   if chkSimulation.Checked then
   begin
     AddLog('Simulating report compiling...');
     AddLog('====================================');
-    AddLog(FAITrainingReport.ReportTitle);
+    AddLog('Q2 Industrial Neural Training Log');
     AddLog('====================================');
     AddLog('Training status: Completed');
     AddLog('Iterations: 5000');
@@ -81,10 +79,14 @@ begin
   begin
     AddLog('Compiling report file...');
     try
-      if FAITrainingReport.GenerateReport('report.txt') then
-        AddLog('Training report written to report.txt')
+      FAITrainingReport.SaveReport('report.txt');
+      if FAITrainingReport.LastError <> '' then
+        AddLog('Report compilation error: ' + FAITrainingReport.LastError)
       else
-        AddLog('Report compilation error: ' + FAITrainingReport.LastError);
+      begin
+        AddLog('Training report written to report.txt');
+        memoLog.Lines.AddStrings(FAITrainingReport.ReportText);
+      end;
     except
       on E: Exception do AddLog('Exception: ' + E.Message);
     end;

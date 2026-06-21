@@ -86,7 +86,7 @@ begin
     // Method 3: Apply model parameters
     FAIModelRegistry.ApplyModel('custom-model-v1', FChatGPT);
     AddLog('Applied model config custom-model-v1 to ChatClient');
-    AddLog('ChatClient Model: ' + FChatGPT.Model);
+    AddLog('ChatClient Model: ' + FChatGPT.TipoModelo);
   end
   else
   begin

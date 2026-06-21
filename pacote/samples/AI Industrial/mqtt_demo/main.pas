@@ -70,19 +70,19 @@ begin
   lblStatus.Caption := 'Status: Processing...';
   AddLog('--- Starting Execution ---');
   try
-  FAIMQTT.BrokerHost := FEditBroker.Text;
-  FAIMQTT.BrokerPort := 1883;
+  FAIMQTT.Host := FEditBroker.Text;
+  FAIMQTT.Port := 1883;
   FAIMQTT.ClientID := 'LazarusAI_Agent';
   
   AddLog('MQTT Client Properties:');
-  AddLog('  Broker: ' + FAIMQTT.BrokerHost);
-  AddLog('  Port: ' + IntToStr(FAIMQTT.BrokerPort));
+  AddLog('  Broker: ' + FAIMQTT.Host);
+  AddLog('  Port: ' + IntToStr(FAIMQTT.Port));
   AddLog('  ClientID: ' + FAIMQTT.ClientID);
   
   if chkSimulation.Checked then
   begin
     AddLog('Simulating MQTT broker operations...');
-    AddLog('Connected to ' + FAIMQTT.BrokerHost);
+    AddLog('Connected to ' + FAIMQTT.Host);
     AddLog('Subscribed to topic: ' + FEditTopic.Text);
     AddLog('Published message: {"temperature": 23.5, "status": "OK"} to ' + FEditTopic.Text);
     AddLog('Received topic update: ' + FEditTopic.Text + ' -> {"ping": "ack"}');
@@ -90,7 +90,7 @@ begin
   end
   else
   begin
-    AddLog('Connecting to MQTT broker: ' + FAIMQTT.BrokerHost);
+    AddLog('Connecting to MQTT broker: ' + FAIMQTT.Host);
     try
       if FAIMQTT.ConnectBroker then
       begin

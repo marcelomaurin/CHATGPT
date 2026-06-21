@@ -25,7 +25,7 @@
     </RunParams>
     <RequiredPackages>
       <Item>
-        <PackageName Value="openai"/>
+        <PackageName Value="openai_core"/>
       </Item>
       <Item>
         <PackageName Value="ImagesForLazarus"/>
@@ -71,4 +71,5 @@
     </Linking>
   </CompilerOptions>
 </CONFIG>
+
 

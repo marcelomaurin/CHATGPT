@@ -46,9 +46,6 @@ begin
   FAISkeleton := TAISkeletonRig.Create(Self);
   FAIPoseLibrary := TAIPoseLibrary.Create(Self);
   FAIAnimSeq := TAIAnimationSequence.Create(Self);
-  
-  FAIPoseLibrary.Skeleton := FAISkeleton;
-  FAIAnimSeq.PoseLibrary := FAIPoseLibrary;
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
@@ -61,36 +58,30 @@ begin
   lblStatus.Caption := 'Status: Processing...';
   AddLog('--- Starting Execution ---');
   try
-  FAIAnimSeq.FrameRate := 30;
   FAIAnimSeq.Loop := True;
-  FAIAnimSeq.DurationSeconds := 2.5;
+  FAIAnimSeq.Duration := 2500;
   
   AddLog('Pose Animation Properties:');
-  AddLog('  FrameRate: ' + IntToStr(FAIAnimSeq.FrameRate));
   AddLog('  Loop: ' + BoolToStr(FAIAnimSeq.Loop, True));
-  AddLog('  DurationSeconds: 2.5');
+  AddLog('  Duration (ms): ' + IntToStr(FAIAnimSeq.Duration));
   
   if chkSimulation.Checked then
   begin
     AddLog('Simulating timeline interpolation sequence...');
     // Add poses
-    FAIPoseLibrary.RegisterPose('T-Pose');
-    FAIPoseLibrary.RegisterPose('Walking-Key1');
-    FAIPoseLibrary.RegisterPose('Walking-Key2');
+    FAIPoseLibrary.SavePose('T-Pose', FAISkeleton);
+    FAIPoseLibrary.SavePose('Walking-Key1', FAISkeleton);
+    FAIPoseLibrary.SavePose('Walking-Key2', FAISkeleton);
     AddLog('Registered 3 standard poses: T-Pose, Walking-Key1, Walking-Key2');
-    
-    // Animate
-    FAIAnimSeq.BuildSequence;
-    AddLog('Animation build sequence compiled. Frames Count: 75');
     AddLog('Interpolation method: Linear (Simulated).');
   end
   else
   begin
     AddLog('Initializing production animation matrix...');
     try
-      FAIAnimSeq.Play;
+      FAIAnimSeq.PlayAnimation;
       Sleep(100);
-      FAIAnimSeq.Stop;
+      FAIAnimSeq.StopAnimation;
       AddLog('Play & Stop execution completed successfully.');
     except
       on E: Exception do AddLog('Exception: ' + E.Message);

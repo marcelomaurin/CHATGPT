@@ -56,39 +56,34 @@ begin
   lblStatus.Caption := 'Status: Processing...';
   AddLog('--- Starting Execution ---');
   try
-  FAIMatrix.Rows := 3;
-  FAIMatrix.Cols := 3;
-  FAIMatrix.DefaultValue := 1.5;
+  FAIMatrix.ClearAll;
   
-  AddLog('Matrix Properties:');
-  AddLog('  Rows: ' + IntToStr(FAIMatrix.Rows));
-  AddLog('  Cols: ' + IntToStr(FAIMatrix.Cols));
-  AddLog('  DefaultValue: 1.5');
+  // Add classification samples (Key = actual, Value = predicted)
+  FAIMatrix.Add(1, 1); // True Positive
+  FAIMatrix.Add(1, 1); // True Positive
+  FAIMatrix.Add(0, 0); // True Negative
+  FAIMatrix.Add(1, 0); // False Negative
+  FAIMatrix.Add(0, 1); // False Positive
   
-  // Matrix operations
-  FAIMatrix.InitializeMatrix;
-  AddLog('Matrix filled with initial values:');
-  AddLog('  [1.5, 1.5, 1.5]');
-  AddLog('  [1.5, 1.5, 1.5]');
-  AddLog('  [1.5, 1.5, 1.5]');
+  AddLog('Confusion Matrix Properties:');
+  AddLog('  Registered Samples Count: ' + IntToStr(FAIMatrix.Count));
   
   if chkSimulation.Checked then
   begin
-    AddLog('Simulating matrix multiplications...');
-    // Multiply matrix
-    FAIMatrix.MultiplyScalar(2.0);
-    AddLog('Multiplied Matrix by scalar 2.0 (Simulated):');
-    AddLog('  [3.0, 3.0, 3.0]');
-    AddLog('  [3.0, 3.0, 3.0]');
-    AddLog('  [3.0, 3.0, 3.0]');
+    AddLog('Simulating matrix classification evaluations...');
+    AddLog('Metrics (Simulated):');
+    AddLog('  Precision: 0.75');
+    AddLog('  Recall: 0.67');
+    AddLog('  F1 Score: 0.71');
     AddLog('Simulation complete.');
   end
   else
   begin
-    AddLog('Executing matrix linear algebra...');
+    AddLog('Executing matrix metrics analysis...');
     try
-      FAIMatrix.Transpose;
-      AddLog('Transpose matrix method executed.');
+      AddLog('Precision: ' + FloatToStr(FAIMatrix.Precision));
+      AddLog('Recall: ' + FloatToStr(FAIMatrix.Recall));
+      AddLog('F1 Score: ' + FloatToStr(FAIMatrix.F1Score));
     except
       on E: Exception do AddLog('Exception: ' + E.Message);
     end;

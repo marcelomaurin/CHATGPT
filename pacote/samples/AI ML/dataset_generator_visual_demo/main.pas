@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  aibase, aidatasetgenerator;
+  aibase, aidatasetgenerator, NeuralNetwork;
 
 type
 
@@ -59,36 +59,38 @@ begin
 end;
 
 procedure TfrmMain.btnRunClick(Sender: TObject);
+var
+  Inputs, Targets: TMatrix;
+  I: Integer;
 begin
   lblStatus.Caption := 'Status: Processing...';
   AddLog('--- Starting Execution ---');
   try
-  FAIGenerator.SampleCount := StrToInt(FEditSamples.Text);
-  FAIGenerator.NoiseLevel := 0.05;
-  FAIGenerator.TargetFormat := 'CSV';
-  
-  AddLog('Dataset Generator Properties:');
-  AddLog('  SampleCount: ' + IntToStr(FAIGenerator.SampleCount));
-  AddLog('  NoiseLevel: ' + FloatToStr(FAIGenerator.NoiseLevel));
-  AddLog('  TargetFormat: ' + FAIGenerator.TargetFormat);
+  AddLog('Dataset Generator Initialized.');
   
   if chkSimulation.Checked then
   begin
     AddLog('Simulating dataset file generation...');
-    FAIGenerator.GenerateClassificationData('sim_dataset.csv');
-    AddLog('Created 200 samples of binary classification pairs.');
-    AddLog('Input feature dimension: 2');
-    AddLog('Noise variance added: 5% gaussian variance.');
+    FAIGenerator.Clear;
+    for I := 1 to StrToInt(FEditSamples.Text) do
+      FAIGenerator.AddDataRow(Format('%.2f;%.2f', [Random * 10, Random * 10]), Format('%d', [Random(2)]));
+    FAIGenerator.SaveAsCSV('sim_dataset.csv', ';');
+    AddLog('Created ' + FEditSamples.Text + ' samples of binary classification pairs.');
     AddLog('Dataset file generated: sim_dataset.csv (Simulated).');
   end
   else
   begin
     AddLog('Generating production dataset...');
     try
-      if FAIGenerator.GenerateDataset('dataset_train.csv') then
-        AddLog('Dataset successfully generated.')
-      else
-        AddLog('Generation failed: ' + FAIGenerator.LastError);
+      FAIGenerator.Clear;
+      FAIGenerator.AddDataRow('0.5;0.1', '1');
+      FAIGenerator.AddDataRow('0.1;0.9', '0');
+      FAIGenerator.SaveAsCSV('dataset_train.csv', ';');
+      AddLog('Dataset successfully generated.');
+      
+      // Load back for testing
+      FAIGenerator.LoadFromCSV('dataset_train.csv', Inputs, Targets, 2, 1, ';');
+      AddLog('Loaded back ' + IntToStr(Length(Inputs)) + ' training rows.');
     except
       on E: Exception do AddLog('Exception: ' + E.Message);
     end;

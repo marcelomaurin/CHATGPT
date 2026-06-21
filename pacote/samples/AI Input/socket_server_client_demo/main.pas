@@ -65,8 +65,10 @@ begin
   AddLog('--- Starting Execution ---');
   try
   FAISocketServer.Port := StrToInt(FEditPort.Text);
+  FAISocketServer.Mode := smServer;
   FAISocketClient.Host := '127.0.0.1';
   FAISocketClient.Port := StrToInt(FEditPort.Text);
+  FAISocketClient.Mode := smClient;
   
   AddLog('Socket TCP Server/Client Properties:');
   AddLog('  Server Port: ' + IntToStr(FAISocketServer.Port));
@@ -87,18 +89,18 @@ begin
   begin
     AddLog('Opening real socket server and client connection...');
     try
-      if FAISocketServer.Listen then
+      if FAISocketServer.Connect then
       begin
         AddLog('Server is listening.');
         if FAISocketClient.Connect then
         begin
           AddLog('Client connected.');
-          FAISocketClient.SendString('Hello Server!');
+          FAISocketClient.SendText('Hello Server!');
           Sleep(100);
           FAISocketClient.Disconnect;
           AddLog('Client disconnected.');
         end;
-        FAISocketServer.Stop;
+        FAISocketServer.Disconnect;
         AddLog('Server stopped.');
       end
       else

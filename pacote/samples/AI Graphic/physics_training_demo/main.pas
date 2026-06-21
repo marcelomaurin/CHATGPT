@@ -45,7 +45,6 @@ begin
   AddLog('Physics Training Demo (aiphysicssimulator) initialized.');
   FAIPhysics := TAIPhysicsSimulator.Create(Self);
   FAIEnv := TAITrainingEnvironment.Create(Self);
-  FAIEnv.PhysicsSimulator := FAIPhysics;
   
   FEditGravity := TEdit.Create(Self);
   FEditGravity.Parent := pnlTop;
@@ -66,19 +65,15 @@ begin
   AddLog('--- Starting Execution ---');
   try
   // Set physics simulation options
-  FAIPhysics.GravityY := StrToFloat(FEditGravity.Text);
-  FAIPhysics.TimeStep := 0.016;
-  FAIEnv.RewardThreshold := 0.95;
+  FAIPhysics.Gravity := StrToFloat(FEditGravity.Text);
   
   AddLog('Physics & Environment Training Properties:');
-  AddLog('  GravityY: ' + FloatToStr(FAIPhysics.GravityY));
-  AddLog('  TimeStep: ' + FloatToStr(FAIPhysics.TimeStep));
-  AddLog('  RewardThreshold: ' + FloatToStr(FAIEnv.RewardThreshold));
+  AddLog('  Gravity: ' + FloatToStr(FAIPhysics.Gravity));
   
   if chkSimulation.Checked then
   begin
     AddLog('Simulating agent steps in environment...');
-    FAIEnv.Reset;
+    FAIEnv.ResetEpisode;
     AddLog('Environment reset.');
     
     // Simulate step loops
@@ -91,12 +86,9 @@ begin
   begin
     AddLog('Running actual physics simulation steps...');
     try
-      FAIPhysics.InitializeSimulator;
-      FAIEnv.Reset;
-      if FAIEnv.StepActions then
-        AddLog('Step completed. Reward: ' + FloatToStr(FAIEnv.LastReward))
-      else
-        AddLog('Step failed: ' + FAIEnv.LastError);
+      FAIEnv.ResetEpisode;
+      FAIEnv.Step('ApplyForce: [0.5, 0.1, 0.0]');
+      AddLog('Step completed.');
     except
       on E: Exception do AddLog('Exception: ' + E.Message);
     end;

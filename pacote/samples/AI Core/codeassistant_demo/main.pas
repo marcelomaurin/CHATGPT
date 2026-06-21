@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  aibase, aicodeassistant;
+  aibase, aicodeassistant, chatgpt;
 
 type
 
@@ -41,9 +41,13 @@ implementation
 { TfrmMain }
 
 procedure TfrmMain.FormCreate(Sender: TObject);
+var
+  LBackgroundChatGPT: TCHATGPT;
 begin
   AddLog('Codeassistant Demo (aicodeassistant) initialized.');
   FAICodeAssistant := TAICodeAssistant.Create(Self);
+  LBackgroundChatGPT := TCHATGPT.Create(Self);
+  FAICodeAssistant.ChatGPT := LBackgroundChatGPT;
   
   FEditLang := TEdit.Create(Self);
   FEditLang.Parent := pnlTop;
@@ -71,13 +75,12 @@ begin
   lblStatus.Caption := 'Status: Processing...';
   AddLog('--- Starting Execution ---');
   try
-  FAICodeAssistant.Language := FEditLang.Text;
-  FAICodeAssistant.Context := 'Correct the quotes';
-  FAICodeAssistant.MaxTokens := 1024;
+  if Assigned(FAICodeAssistant.ChatGPT) then
+    FAICodeAssistant.ChatGPT.MaxTokens := 1024;
   
   AddLog('Code Assistant Properties:');
-  AddLog('  Language: ' + FAICodeAssistant.Language);
-  AddLog('  Context: ' + FAICodeAssistant.Context);
+  AddLog('  Language: ' + FEditLang.Text);
+  AddLog('  Context: Correct the quotes');
   
   if chkSimulation.Checked then
   begin
@@ -89,8 +92,8 @@ begin
   begin
     AddLog('Running actual code assistant...');
     try
-      // Method 1: Analyze code
-      AddLog('Result: ' + FAICodeAssistant.AnalyzeCode(FMemoCode.Lines.Text));
+      // Method 1: Optimize code
+      AddLog('Result: ' + FAICodeAssistant.OptimizeCode(FMemoCode.Lines.Text));
     except
       on E: Exception do AddLog('Error: ' + E.Message);
     end;

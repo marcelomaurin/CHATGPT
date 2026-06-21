@@ -59,22 +59,24 @@ begin
 end;
 
 procedure TfrmMain.btnRunClick(Sender: TObject);
+var
+  SimResponse: string;
 begin
   lblStatus.Caption := 'Status: Processing...';
   AddLog('--- Starting Execution ---');
   try
-  FAISerial.Port := FEditPort.Text;
+  FAISerial.DeviceName := FEditPort.Text;
   FAISerial.BaudRate := 9600;
   FAISerial.Prompt := 'Serial communication';
   
   AddLog('Serial Component Properties:');
-  AddLog('  Port: ' + FAISerial.Port);
+  AddLog('  Port: ' + FAISerial.DeviceName);
   AddLog('  BaudRate: ' + IntToStr(FAISerial.BaudRate));
   
   if chkSimulation.Checked then
   begin
     AddLog('Simulating Connection...');
-    AddLog('Connected to Port: ' + FAISerial.Port);
+    AddLog('Connected to Port: ' + FAISerial.DeviceName);
     // Method 1: Send Data
     AddLog('Sent command AT to Port');
     // Method 2: Receive Data
@@ -83,16 +85,17 @@ begin
   end
   else
   begin
-    AddLog('Connecting to physical serial port: ' + FAISerial.Port);
+    AddLog('Connecting to physical serial port: ' + FAISerial.DeviceName);
     try
-      if FAISerial.OpenConnection then
+      if FAISerial.OpenPort then
       begin
         AddLog('Connection opened.');
-        FAISerial.WriteData('AT'#13#10);
+        FAISerial.WriteText('AT'#13#10);
         AddLog('Sent: AT');
         Sleep(200);
-        AddLog('Received: ' + FAISerial.ReadData);
-        FAISerial.CloseConnection;
+        FAISerial.ReadText(SimResponse);
+        AddLog('Received: ' + SimResponse);
+        FAISerial.ClosePort;
         AddLog('Connection closed.');
       end
       else

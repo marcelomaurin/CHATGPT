@@ -63,35 +63,31 @@ begin
   lblStatus.Caption := 'Status: Processing...';
   AddLog('--- Starting Execution ---');
   try
-  FAIScene.GridSize := 10;
-  FAIScene.AmbientLight := True;
-  FAIScene.ShadowsEnabled := False;
+  FAIScene.TargetFPS := 60;
+  FAIScene.GridVisible := True;
   
   AddLog('Scene 3D Properties:');
-  AddLog('  GridSize: ' + IntToStr(FAIScene.GridSize));
-  AddLog('  AmbientLight: ' + BoolToStr(FAIScene.AmbientLight, True));
+  AddLog('  TargetFPS: ' + IntToStr(FAIScene.TargetFPS));
+  AddLog('  GridVisible: ' + BoolToStr(FAIScene.GridVisible, True));
   
   // Methods to manipulate scene objects
-  FAIScene.ClearScene;
+  FAIScene.Clear;
   AddLog('Scene cleared.');
   
   if chkSimulation.Checked then
   begin
     AddLog('Simulating adding items to scene hierarchy...');
-    FAIScene.AddCube(0, 0, 0, 2);
-    AddLog('Added Cube at coordinates (0, 0, 0) with scale 2.');
-    FAIScene.AddSphere(5, 2, -1, 1.5);
-    AddLog('Added Sphere at coordinates (5, 2, -1) with radius 1.5.');
-    AddLog('Dynamic objects added: 2 items');
+    FAIScene.AddObject(TObject.Create);
+    AddLog('Added simulated object.');
+    AddLog('Dynamic objects added: 1 item');
     AddLog('Scene compiled structure created (Simulated).');
   end
   else
   begin
     AddLog('Configuring production parameters...');
     try
-      FAIScene.InitializeOpenGL;
-      FAIScene.RenderFrame;
-      AddLog('RenderFrame executed successfully.');
+      FAIScene.Play;
+      AddLog('Scene playing: ' + FAIScene.ExportStateJSON);
     except
       on E: Exception do AddLog('OpenGL Rendering Exception: ' + E.Message);
     end;

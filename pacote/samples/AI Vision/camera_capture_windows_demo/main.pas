@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  aibase, aicameracapture, aicamera_backend;
+  aibase, aicapturesource, aicamera_backend;
 
 type
 
@@ -25,7 +25,7 @@ type
     procedure btnRunClick(Sender: TObject);
     procedure btnClearLogClick(Sender: TObject);
   private
-    FAICamera: TAICameraCapture; FEditDevice: TEdit;
+    FAICamera: TAICaptureSource; FEditDevice: TEdit;
     procedure AddLog(const AMsg: string);
   public
 
@@ -43,7 +43,7 @@ implementation
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
   AddLog('Camera Capture Windows Demo (aicameracapture) initialized.');
-  FAICamera := TAICameraCapture.Create(Self);
+  FAICamera := TAICaptureSource.Create(Self);
   
   FEditDevice := TEdit.Create(Self);
   FEditDevice.Parent := pnlTop;

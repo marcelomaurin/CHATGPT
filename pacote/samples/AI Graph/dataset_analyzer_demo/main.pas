@@ -63,12 +63,9 @@ begin
   lblStatus.Caption := 'Status: Processing...';
   AddLog('--- Starting Execution ---');
   try
-  FAIDatasetAnalyzer.MinSamplesPerClass := StrToInt(FEditMinSamples.Text);
-  FAIDatasetAnalyzer.AutoBalance := True;
-  
   AddLog('Dataset Analyzer Properties:');
-  AddLog('  MinSamplesPerClass: ' + IntToStr(FAIDatasetAnalyzer.MinSamplesPerClass));
-  AddLog('  AutoBalance: ' + BoolToStr(FAIDatasetAnalyzer.AutoBalance, True));
+  AddLog('  MinSamplesPerClass: ' + FEditMinSamples.Text);
+  AddLog('  AutoBalance: True');
   
   if chkSimulation.Checked then
   begin
@@ -85,10 +82,14 @@ begin
   begin
     AddLog('Running real dataset analysis steps...');
     try
-      if FAIDatasetAnalyzer.AnalyzeDataset('train_dataset.csv') then
-        AddLog('Analysis reports generated.')
-      else
-        AddLog('Failed: ' + FAIDatasetAnalyzer.LastError);
+      FAIDatasetAnalyzer.Analyze;
+      if FAIDatasetAnalyzer.Alerts.Count > 0 then
+      begin
+        AddLog('Alerts found:');
+        memoLog.Lines.AddStrings(FAIDatasetAnalyzer.Alerts);
+      end;
+      AddLog('Summary:');
+      memoLog.Lines.AddStrings(FAIDatasetAnalyzer.SummaryText);
     except
       on E: Exception do AddLog('Exception: ' + E.Message);
     end;

@@ -65,11 +65,11 @@ begin
   AddLog('--- Starting Execution ---');
   try
   // Bind training exporter parameters
-  FAITrainingExporter.FileName := FEditFile.Text;
+  FAITrainingExporter.TargetFileName := FEditFile.Text;
   FAITrainingExporter.GraphMap := FAIGraphMap;
   
   AddLog('Training Exporter Properties:');
-  AddLog('  FileName: ' + FAITrainingExporter.FileName);
+  AddLog('  FileName: ' + FAITrainingExporter.TargetFileName);
   AddLog('  GraphMap Reference Assigned: ' + BoolToStr(FAITrainingExporter.GraphMap <> nil, True));
   
   if chkSimulation.Checked then
@@ -85,8 +85,8 @@ begin
   begin
     AddLog('Exporting dataset weights...');
     try
-      if FAITrainingExporter.ExportToCSV then
-        AddLog('Dataset CSV exported to: ' + FAITrainingExporter.FileName)
+      if FAITrainingExporter.ExportToFile(FAITrainingExporter.TargetFileName) then
+        AddLog('Dataset CSV exported to: ' + FAITrainingExporter.TargetFileName)
       else
         AddLog('Export failed: ' + FAITrainingExporter.LastError);
     except

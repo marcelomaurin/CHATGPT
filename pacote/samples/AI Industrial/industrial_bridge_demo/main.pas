@@ -63,21 +63,20 @@ begin
   lblStatus.Caption := 'Status: Processing...';
   AddLog('--- Starting Execution ---');
   try
-  FAIBridge.PlcType := FEditPlcModel.Text;
-  FAIBridge.PlcIP := '192.168.0.1';
+  FAIBridge.IPAddress := '192.168.0.1';
   FAIBridge.Rack := 0;
   FAIBridge.Slot := 1;
   
   AddLog('Industrial Bridge Properties:');
-  AddLog('  PlcType: ' + FAIBridge.PlcType);
-  AddLog('  IP: ' + FAIBridge.PlcIP);
+  AddLog('  PLC Model: ' + FEditPlcModel.Text);
+  AddLog('  IP: ' + FAIBridge.IPAddress);
   
   if chkSimulation.Checked then
   begin
     AddLog('Simulating Industrial PLC Bridge link...');
     if FAIBridge.ConnectBridge then
     begin
-      AddLog('Connected to S7 PLC at ' + FAIBridge.PlcIP);
+      AddLog('Connected to S7 PLC at ' + FAIBridge.IPAddress);
       AddLog('Reading telemetry variables DB10.DBW0: 420 (Normal)');
       AddLog('Reading telemetry variables DB10.DBW2: 65 (Optimal)');
       AddLog('Predictive status: OK');
@@ -85,7 +84,7 @@ begin
   end
   else
   begin
-    AddLog('Attempting connection to PLC ' + FAIBridge.PlcIP);
+    AddLog('Attempting connection to PLC ' + FAIBridge.IPAddress);
     try
       if FAIBridge.ConnectBridge then
       begin

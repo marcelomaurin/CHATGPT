@@ -64,13 +64,9 @@ begin
   AddLog('--- Starting Execution ---');
   try
   FAIChromium.URL := FEditURL.Text;
-  FAIChromium.TimeoutSec := 15;
-  FAIChromium.EnabledJS := True;
   
   AddLog('Chromium Browser Properties:');
   AddLog('  URL: ' + FAIChromium.URL);
-  AddLog('  Timeout: ' + IntToStr(FAIChromium.TimeoutSec));
-  AddLog('  EnabledJS: ' + BoolToStr(FAIChromium.EnabledJS, True));
   
   if chkSimulation.Checked then
   begin
@@ -84,13 +80,9 @@ begin
   begin
     AddLog('Connecting to Chromium engine...');
     try
-      if FAIChromium.LoadURL then
-      begin
-        AddLog('Loaded successfully.');
-        AddLog('HTML: ' + Copy(FAIChromium.PageText, 1, 200) + '...');
-      end
-      else
-        AddLog('Failed to load. Is Chromium engine installed/active? Error: ' + FAIChromium.LastError);
+      FAIChromium.Navigate(FAIChromium.URL);
+      AddLog('Loaded successfully.');
+      AddLog('HTML: ' + Copy(FAIChromium.GetHtmlContent, 1, 200) + '...');
     except
       on E: Exception do AddLog('Exception: ' + E.Message);
     end;

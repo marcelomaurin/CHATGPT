@@ -63,12 +63,12 @@ begin
   lblStatus.Caption := 'Status: Processing...';
   AddLog('--- Starting Execution ---');
   try
-  FAIPosPrinter.IpAddress := FEditAddr.Text;
+  FAIPosPrinter.Host := FEditAddr.Text;
   FAIPosPrinter.Port := 9100;
   FAIPosPrinter.Active := True;
   
   AddLog('POS Printer Component Properties:');
-  AddLog('  IP: ' + FAIPosPrinter.IpAddress);
+  AddLog('  IP: ' + FAIPosPrinter.Host);
   AddLog('  Port: ' + IntToStr(FAIPosPrinter.Port));
   AddLog('  Active: ' + BoolToStr(FAIPosPrinter.Active, True));
   
@@ -87,13 +87,13 @@ begin
   end
   else
   begin
-    AddLog('Sending RAW commands to POS printer at ' + FAIPosPrinter.IpAddress + ':9100...');
+    AddLog('Sending RAW commands to POS printer at ' + FAIPosPrinter.Host + ':9100...');
     try
-      if FAIPosPrinter.ConnectPrinter then
+      if FAIPosPrinter.OpenConnection then
       begin
         FAIPosPrinter.PrintText('DAILY TEST SUCCESSFUL'#10);
         FAIPosPrinter.CutPaper;
-        FAIPosPrinter.DisconnectPrinter;
+        FAIPosPrinter.CloseConnection;
         AddLog('Printed successfully.');
       end
       else
