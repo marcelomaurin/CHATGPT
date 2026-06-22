@@ -1,0 +1,387 @@
+object frmMain: TfrmMain
+  Left = 250
+  Height = 720
+  Top = 150
+  Width = 1000
+  Caption = 'Project TaskList AI Demo'
+  ClientHeight = 720
+  ClientWidth = 1000
+  Position = poScreenCenter
+  LCLVersion = '4.4.0.0'
+  OnCreate = FormCreate
+  object PageControl1: TPageControl
+    Left = 0
+    Height = 720
+    Top = 0
+    Width = 1000
+    ActivePage = tabConfig
+    Align = alClient
+    TabIndex = 0
+    TabOrder = 0
+    object tabConfig: TTabSheet
+      Caption = 'Config IA'
+      ClientHeight = 692
+      ClientWidth = 992
+      object btnApplyConfig: TButton
+        Left = 20
+        Height = 30
+        Top = 290
+        Width = 150
+        Caption = 'Aplicar Configuração'
+        TabOrder = 1
+        OnClick = btnApplyConfigClick
+      end
+      object btnTestConnection: TButton
+        Left = 190
+        Height = 30
+        Top = 290
+        Width = 150
+        Caption = 'Testar Conexão'
+        TabOrder = 0
+        OnClick = btnTestConnectionClick
+      end
+    end
+    object tabProject: TTabSheet
+      Caption = 'Projeto'
+      ClientHeight = 692
+      ClientWidth = 992
+      object Label1: TLabel
+        Left = 20
+        Height = 15
+        Top = 20
+        Width = 94
+        Caption = 'Nome do projeto:'
+      end
+      object MemoProjectName: TMemo
+        Left = 20
+        Height = 30
+        Top = 40
+        Width = 600
+        Lines.Strings = (
+          'Sistema simples de cadastro de tarefas com IA'
+        )
+        TabOrder = 0
+      end
+      object Label2: TLabel
+        Left = 20
+        Height = 15
+        Top = 90
+        Width = 108
+        Caption = 'Descrição / objetivo:'
+      end
+      object MemoGoal: TMemo
+        Left = 20
+        Height = 60
+        Top = 110
+        Width = 600
+        Lines.Strings = (
+          'Criar um sistema Lazarus simples para cadastrar tarefas de projeto, controlar status, agentes responsáveis e gerar relatório final.'
+        )
+        TabOrder = 1
+      end
+      object Label3: TLabel
+        Left = 20
+        Height = 15
+        Top = 190
+        Width = 56
+        Caption = 'Restrições:'
+      end
+      object MemoConstraints: TMemo
+        Left = 20
+        Height = 60
+        Top = 210
+        Width = 600
+        Lines.Strings = (
+          'Não usar banco de dados. Salvar em JSON. Usar componentes AI Project.'
+        )
+        TabOrder = 2
+      end
+      object Label4: TLabel
+        Left = 20
+        Height = 15
+        Top = 290
+        Width = 119
+        Caption = 'Entregáveis esperados:'
+      end
+      object MemoDeliverables: TMemo
+        Left = 20
+        Height = 60
+        Top = 310
+        Width = 600
+        Lines.Strings = (
+          'Form principal, grid de tarefas, agentes, ações, Gantt e relatório.'
+        )
+        TabOrder = 3
+      end
+      object btnGenerateTasks: TButton
+        Left = 20
+        Height = 30
+        Top = 400
+        Width = 160
+        Caption = 'Gerar Tarefas com IA'
+        TabOrder = 4
+        OnClick = btnGenerateTasksClick
+      end
+      object btnCreateDefaultAgents: TButton
+        Left = 190
+        Height = 30
+        Top = 400
+        Width = 160
+        Caption = 'Criar Agentes Padrão'
+        TabOrder = 5
+        OnClick = btnCreateDefaultAgentsClick
+      end
+      object btnSalvarProjeto: TButton
+        Left = 360
+        Height = 30
+        Top = 400
+        Width = 120
+        Caption = 'Salvar Projeto'
+        TabOrder = 6
+        OnClick = btnSalvarProjetoClick
+      end
+      object btnCarregarProjeto: TButton
+        Left = 490
+        Height = 30
+        Top = 400
+        Width = 120
+        Caption = 'Carregar Projeto'
+        TabOrder = 7
+        OnClick = btnCarregarProjetoClick
+      end
+    end
+    object tabTasks: TTabSheet
+      Caption = 'Tarefas'
+      ClientHeight = 692
+      ClientWidth = 992
+      object StatusPanel1: TAIProjectStatusPanel
+        Left = 20
+        Height = 300
+        Top = 20
+        Width = 250
+        BevelOuter = bvLowered
+        ClientHeight = 300
+        ClientWidth = 250
+        TabOrder = 0
+      end
+      object TaskGrid1: TAIProjectTaskGrid
+        Left = 290
+        Height = 300
+        Top = 20
+        Width = 680
+        ColCount = 9
+        FixedCols = 0
+        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goSmoothScroll, goRowHighlight]
+        RowCount = 2
+        TabOrder = 1
+        ColWidths = (
+          55
+          180
+          80
+          65
+          120
+          70
+          80
+          80
+          65
+        )
+        Cells = (
+          9
+          0
+          0
+          'ID'
+          1
+          0
+          'Task Title'
+          2
+          0
+          'Status'
+          3
+          0
+          'Priority'
+          4
+          0
+          'Agent'
+          5
+          0
+          'Profile'
+          6
+          0
+          'Start'
+          7
+          0
+          'End'
+          8
+          0
+          'Progress'
+        )
+      end
+      object btnAddManualTask: TButton
+        Left = 290
+        Height = 30
+        Top = 340
+        Width = 180
+        Caption = 'Adicionar Tarefa Manual'
+        TabOrder = 2
+        OnClick = btnAddManualTaskClick
+      end
+    end
+    object tabExecution: TTabSheet
+      Caption = 'Execução'
+      ClientHeight = 692
+      ClientWidth = 992
+      object TaskActionPanel1: TAITaskActionPanel
+        Left = 20
+        Height = 350
+        Top = 20
+        Width = 400
+      end
+      object Gantt1: TAIProjectGantt
+        Left = 440
+        Height = 300
+        Top = 20
+        Width = 530
+      end
+      object Timeline1: TAIProjectTimeline
+        Left = 440
+        Height = 300
+        Top = 340
+        Width = 530
+      end
+    end
+    object tabReport: TTabSheet
+      Caption = 'Relatório'
+      ClientHeight = 692
+      ClientWidth = 992
+      object btnGenerateSummary: TButton
+        Left = 20
+        Height = 30
+        Top = 20
+        Width = 120
+        Caption = 'Gerar Resumo'
+        TabOrder = 0
+        OnClick = btnGenerateSummaryClick
+      end
+      object btnGenerateTaskReport: TButton
+        Left = 150
+        Height = 30
+        Top = 20
+        Width = 180
+        Caption = 'Gerar Relatório de Tarefas'
+        TabOrder = 1
+        OnClick = btnGenerateTaskReportClick
+      end
+      object btnGenerateAgentReport: TButton
+        Left = 340
+        Height = 30
+        Top = 20
+        Width = 180
+        Caption = 'Gerar Relatório de Agentes'
+        TabOrder = 2
+        OnClick = btnGenerateAgentReportClick
+      end
+      object btnExportMarkdown: TButton
+        Left = 530
+        Height = 30
+        Top = 20
+        Width = 150
+        Caption = 'Exportar Markdown'
+        TabOrder = 3
+        OnClick = btnExportMarkdownClick
+      end
+      object btnExportJSON: TButton
+        Left = 690
+        Height = 30
+        Top = 20
+        Width = 120
+        Caption = 'Exportar JSON'
+        TabOrder = 4
+        OnClick = btnExportJSONClick
+      end
+      object MemoReport: TMemo
+        Left = 20
+        Height = 600
+        Top = 70
+        Width = 950
+        ScrollBars = ssAutoBoth
+        TabOrder = 5
+      end
+    end
+    object tabJSONLog: TTabSheet
+      Caption = 'JSON/Log'
+      ClientHeight = 692
+      ClientWidth = 992
+      object MemoJSON: TMemo
+        Left = 20
+        Height = 300
+        Top = 20
+        Width = 950
+        ScrollBars = ssAutoBoth
+        TabOrder = 0
+      end
+      object MemoLog: TMemo
+        Left = 20
+        Height = 300
+        Top = 340
+        Width = 950
+        ScrollBars = ssAutoBoth
+        TabOrder = 1
+      end
+    end
+  end
+  object AIProjectLLMConfig1: TAIProjectLLMConfig
+    Model = 'llama3.2'
+    ModelVersion = '1.0'
+    Endpoint = 'http://localhost:11434'
+    Temperature = 0.2
+    Left = 20
+    Top = 20
+  end
+  object AIProject1: TAIProject
+    Prompt = 'Component TAIProject coordinates the entire AI Project structure.'
+    Category = ccProject
+    ProjectName = 'New AI Project'
+    StartDate = 46195
+    TargetEndDate = 46225
+    WorkingDays = 'mon,tue,wed,thu,fri'
+    Left = 40
+    Top = 500
+  end
+  object ChatGPT1: TCHATGPT
+    Prompt = 'VocÃª Ã© um assistente.'
+    Dev = 'Voc'#195#170' '#195#169' um assistente.'
+    TipoChat = VCT_GPT4o
+    Provider = AIP_OPENAI
+    LocalIP = 'http://localhost:11434'
+    MaxTokens = 2000
+    Left = 120
+    Top = 500
+  end
+  object AIProjectAgents1: TAIProjectAgents
+    Project = AIProject1
+    Left = 200
+    Top = 500
+  end
+  object AIProjectTasks1: TAIProjectTasks
+    Project = AIProject1
+    Left = 280
+    Top = 500
+  end
+  object TaskActions1: TAITaskActions
+    Project = AIProject1
+    Left = 360
+    Top = 500
+  end
+  object ProjectReports1: TAIProjectReports
+    Project = AIProject1
+    Left = 440
+    Top = 500
+  end
+  object AIProjectStorage1: TAIProjectStorage
+    Project = AIProject1
+    ConfigFileName = 'llm_config.json'
+    ProjectFileName = 'project.aiproj.json'
+    Left = 520
+    Top = 500
+  end
+end
