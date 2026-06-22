@@ -28,6 +28,15 @@ type
     btnApplyConfig: TButton;
     btnAddManualTask: TButton;
     btnTestConnection: TButton;
+    cbTipoIA: TComboBox;
+    edtModelo: TComboBox;
+    edtToken: TEdit;
+    edtEndpoint: TEdit;
+    chkSalvarToken: TCheckBox;
+    LabelTipoIA: TLabel;
+    LabelModelo: TLabel;
+    LabelToken: TLabel;
+    LabelEndpoint: TLabel;
     btnGenerateTasks: TButton;
     btnCreateDefaultAgents: TButton;
     btnGenerateSummary: TButton;
@@ -75,6 +84,7 @@ type
   private
     procedure LogMsg(const AMsg: string);
     procedure RefreshAllViews;
+    procedure ValidarConfigIA;
   public
   end;
 
@@ -125,19 +135,62 @@ begin
     MemoJSON.Text := AIProject1.ProjectData.FormatJSON();
 end;
 
+procedure TfrmMain.ValidarConfigIA;
+begin
+  if Trim(cbTipoIA.Text) = '' then
+    raise Exception.Create('Informe o tipo de IA.');
+
+  if Trim(edtModelo.Text) = '' then
+    raise Exception.Create('Informe o modelo da IA.');
+
+  if cbTipoIA.Text = 'OpenAI' then
+  begin
+    if Trim(edtToken.Text) = '' then
+      raise Exception.Create('Informe o token da API.');
+  end;
+
+  if (cbTipoIA.Text <> 'OpenAI') and (Trim(edtEndpoint.Text) = '') then
+    raise Exception.Create('Informe o endpoint da IA local ou servidor.');
+end;
+
 procedure TfrmMain.btnApplyConfigClick(Sender: TObject);
 begin
+  ValidarConfigIA;
+
+  if cbTipoIA.Text = 'OpenAI' then AIProjectLLMConfig1.Provider := AIP_OPENAI
+  else if cbTipoIA.Text = 'Ollama' then AIProjectLLMConfig1.Provider := AIP_LOCAL
+  else if cbTipoIA.Text = 'LM Studio' then AIProjectLLMConfig1.Provider := AIP_LOCAL
+  else if cbTipoIA.Text = 'Local HTTP' then AIProjectLLMConfig1.Provider := AIP_LOCAL
+  else AIProjectLLMConfig1.Provider := AIP_OPENAI;
+
+  AIProjectLLMConfig1.Model := edtModelo.Text;
+  AIProjectLLMConfig1.Token := edtToken.Text;
+  AIProjectLLMConfig1.Endpoint := edtEndpoint.Text;
+  AIProjectLLMConfig1.SaveToken := chkSalvarToken.Checked;
+
   AIProjectLLMConfig1.ApplyToProject;
+  
+  if AIProjectLLMConfig1.Provider = AIP_LOCAL then
+  begin
+    ChatGPT1.URL := edtEndpoint.Text;
+    ChatGPT1.CustomModel := edtModelo.Text;
+  end;
+
   LogMsg('[OK] Configuração de LLM aplicada ao projeto.');
 end;
 
 procedure TfrmMain.btnTestConnectionClick(Sender: TObject);
 begin
-  // Simple validation mechanism
+  ValidarConfigIA;
+  btnApplyConfigClick(nil); // Apply first to ensure ChatGPT is ready
+  
+  LogMsg('[INFO] Testando conexão com a IA...');
+  Application.ProcessMessages;
+  
   if AIProjectLLMConfig1.TestConnection then
-    LogMsg('[OK] Teste de conexão bem-sucedido.')
+    LogMsg('[OK] IA respondeu corretamente.')
   else
-    LogMsg('[ERRO] Falha no teste de conexão.');
+    LogMsg('[ERRO] Falha ao testar IA.');
 end;
 
 procedure TfrmMain.btnCreateDefaultAgentsClick(Sender: TObject);
