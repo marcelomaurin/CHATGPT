@@ -53,16 +53,19 @@ begin
 end;
 
 procedure TfrmMain.btnRunClick(Sender: TObject);
+var
+  Probs: aioutput.TArray;
 begin
   lblStatus.Caption := 'Status: Processing...';
   AddLog('--- Starting Execution ---');
   try
   // Method 1: Set output options
   FAIOutput.ClassificationResult := 'Normal Operations';
-  SetLength(FAIOutput.Probabilities, 3);
-  FAIOutput.Probabilities[0] := 0.05;
-  FAIOutput.Probabilities[1] := 0.90;
-  FAIOutput.Probabilities[2] := 0.05;
+  SetLength(Probs, 3);
+  Probs[0] := 0.05;
+  Probs[1] := 0.90;
+  Probs[2] := 0.05;
+  FAIOutput.Probabilities := Probs;
   
   AddLog('Output Data Properties:');
   AddLog('  ClassificationResult: ' + FAIOutput.ClassificationResult);

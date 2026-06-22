@@ -16,7 +16,6 @@ type
     pnlTop: TPanel;
     lblTitle: TLabel;
     lblStatus: TLabel;
-    chkSimulation: TCheckBox;
     btnRun: TButton;
     btnClearLog: TButton;
     memoLog: TMemo;
@@ -25,8 +24,11 @@ type
     procedure btnRunClick(Sender: TObject);
     procedure btnClearLogClick(Sender: TObject);
   private
-    FAINumps: TNumPS; FEditArr: TEdit;
+    FAINumps: TNumPS;
+    FEditArr: TEdit;
     procedure AddLog(const AMsg: string);
+    function ParseStringToDoubleArray(const S: string): TArray;
+    function DoubleArrayToString(const A: TArray): string;
   public
 
   end;
@@ -58,37 +60,86 @@ begin
   // Handled by LCL Owner auto-free.
 end;
 
+function TfrmMain.ParseStringToDoubleArray(const S: string): TArray;
+var
+  List: TStringList;
+  I: Integer;
+  V: Double;
+  FormatSettings: TFormatSettings;
+begin
+  Result := nil;
+  List := TStringList.Create;
+  try
+    List.Delimiter := ',';
+    List.StrictDelimiter := True;
+    List.DelimitedText := S;
+    SetLength(Result, List.Count);
+    FormatSettings := DefaultFormatSettings;
+    FormatSettings.DecimalSeparator := '.';
+    for I := 0 to List.Count - 1 do
+    begin
+      if not TryStrToFloat(Trim(List[I]), V, FormatSettings) then
+      begin
+        if not TryStrToFloat(Trim(List[I]), V) then
+          V := 0.0;
+      end;
+      Result[I] := V;
+    end;
+  finally
+    List.Free;
+  end;
+end;
+
+function TfrmMain.DoubleArrayToString(const A: TArray): string;
+var
+  I: Integer;
+begin
+  Result := '[';
+  for I := 0 to High(A) do
+  begin
+    Result := Result + FloatToStr(A[I]);
+    if I < High(A) then
+      Result := Result + ', ';
+  end;
+  Result := Result + ']';
+end;
+
 procedure TfrmMain.btnRunClick(Sender: TObject);
+var
+  Arr: TArray;
+  ZerosArr, OnesArr: TArray;
 begin
   lblStatus.Caption := 'Status: Processing...';
   AddLog('--- Starting Execution ---');
   try
-  FAINumps.ArrayString := FEditArr.Text;
-  
-  AddLog('NumPS Array Properties:');
-  AddLog('  Input Array String: ' + FAINumps.ArrayString);
-  
-  if chkSimulation.Checked then
-  begin
-    AddLog('Simulating array statistic calculations...');
-    AddLog('Parsed vector length: 5');
-    AddLog('Array Min: -2.3');
-    AddLog('Array Max: 8.1');
-    AddLog('Array Mean: 2.3');
-    AddLog('Standard Deviation: 3.75');
-    AddLog('Simulation complete.');
-  end
-  else
-  begin
-    AddLog('Parsing array with NumPS utilities...');
-    try
-      FAINumps.ParseArray;
-      AddLog('Parsed items count: ' + IntToStr(FAINumps.Count));
-      AddLog('Mean: ' + FloatToStr(FAINumps.Mean));
-    except
-      on E: Exception do AddLog('Exception: ' + E.Message);
+    AddLog('Input Array String: ' + FEditArr.Text);
+    Arr := ParseStringToDoubleArray(FEditArr.Text);
+    
+    AddLog('Parsed vector length: ' + IntToStr(Length(Arr)));
+    AddLog('Values: ' + DoubleArrayToString(Arr));
+    
+    if Length(Arr) > 0 then
+    begin
+      AddLog('Mean: ' + FloatToStr(FAINumps.Mean(Arr)));
+      AddLog('Std (Standard Deviation): ' + FloatToStr(FAINumps.Std(Arr)));
+      AddLog('Sum: ' + FloatToStr(FAINumps.Sum(Arr)));
+      AddLog('Min: ' + FloatToStr(FAINumps.Min(Arr)));
+      AddLog('Max: ' + FloatToStr(FAINumps.Max(Arr)));
+      AddLog('ArgMin (index of Min): ' + IntToStr(FAINumps.ArgMin(Arr)));
+      AddLog('ArgMax (index of Max): ' + IntToStr(FAINumps.ArgMax(Arr)));
+    end
+    else
+    begin
+      AddLog('Array is empty, skipping statistics.');
     end;
-  end;
+
+    AddLog('--- Demonstrating other NumPS array generators ---');
+    ZerosArr := FAINumps.Zeros1D(5);
+    AddLog('Zeros1D(5): ' + DoubleArrayToString(ZerosArr));
+    
+    OnesArr := FAINumps.Ones1D(5);
+    AddLog('Ones1D(5): ' + DoubleArrayToString(OnesArr));
+
     lblStatus.Caption := 'Status: Completed Successfully';
   except
     on E: Exception do
@@ -111,3 +162,4 @@ begin
 end;
 
 end.
+

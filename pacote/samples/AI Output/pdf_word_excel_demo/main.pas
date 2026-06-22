@@ -79,14 +79,18 @@ begin
   begin
     AddLog('Saving actual files...');
     try
-      if FPDFOut.SaveDocument then
+      if FPDFOut.SavePDF then
         AddLog('PDF generated successfully.')
       else
         AddLog('PDF failed to write.');
-      if FWordOut.SaveDocument then
+      if FWordOut.SaveWord then
         AddLog('Word generated successfully.')
       else
         AddLog('Word failed to write.');
+      if FExcelOut.SaveExcel then
+        AddLog('Excel generated successfully.')
+      else
+        AddLog('Excel failed to write.');
     except
       on E: Exception do AddLog('Exception: ' + E.Message);
     end;
