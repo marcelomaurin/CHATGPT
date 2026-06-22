@@ -145,13 +145,6 @@ The following examples are visual projects ready for compilation and interactive
 | **[word_object_demo](AI Output/word_object_demo/)** | `pacote/samples/AI Output/word_object_demo` | Structured manipulation and editing of DOCX files using OpenXML. |
 | **[word_viewer_demo](AI Output/word_viewer_demo/)** | `pacote/samples/AI Output/word_viewer_demo` | Native viewer and renderer for DOCX documents within Lazarus forms. |
 
-### 📦 AI Project
-
-| Sample | Path | Description |
-|---|---|---|
-| **[AI Project](AI Project/)** | `pacote/samples/AI Project` | No description available. |
-| **[Demo_AI_Project](AI Project/Demo_AI_Project/)** | `pacote/samples/AI Project/Demo_AI_Project` | Visual AI Project Planner integrating agile documents, tasks, dependencies, Gantt, timeline, and agents. |
-
 ### 📦 AI Python
 
 | Sample | Path | Description |

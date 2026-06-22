@@ -28,6 +28,9 @@ type
 
     { Reads current config from the linked TAIProject into this component. }
     procedure LoadFromProject;
+    
+    function ValidateConfig: Boolean;
+    function TestConnection: Boolean;
   published
     property Project: TAIProject read FProject write FProject;
 
@@ -86,6 +89,25 @@ begin
   FEndpoint := FProject.LocalURL;
   FSaveToken := FProject.SaveToken;
   FToken := FProject.Token;
+end;
+
+function TAIProjectLLMConfig.ValidateConfig: Boolean;
+begin
+  Result := False;
+  // If OpenAI is selected, usually requires a Token. Ollama requires an Endpoint.
+  if (FProvider = AIP_OPENAI) and (FToken = '') then Exit;
+  if (FProvider = AIP_LOCAL) and (FEndpoint = '') then Exit;
+  Result := True;
+end;
+
+function TAIProjectLLMConfig.TestConnection: Boolean;
+begin
+  Result := False;
+  if not Assigned(FProject) then Exit;
+  
+  // Try to test using the project's logic
+  ApplyToProject;
+  Result := FProject.TestConnection;
 end;
 
 end.

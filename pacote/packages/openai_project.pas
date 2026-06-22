@@ -1,6 +1,6 @@
 { This file was automatically created by Lazarus. Do not edit!
   This source is only used to compile and install the package.
-}
+ }
 
 unit openai_project;
 
@@ -8,10 +8,11 @@ unit openai_project;
 interface
 
 uses
-  aiproject_llmconfig, aiproject_storage, aiproject_documents, aiproject_tasks,
-  aiproject_dependencies, aiproject_agents, aiproject_actions, aiproject_reports,
-  aiproject_revisions, aiproject_taskgrid, aiproject_gantt, aiproject_timeline,
-  aiproject_riskmatrix, aiproject_statuspanel, aiproject_agentmanager,
+  aiproject_llmconfig, aiproject_storage, aiproject_description, 
+  aiproject_documents, aiproject_tasks, aiproject_dependencies, 
+  aiproject_agents, aiproject_actions, aiproject_reports, aiproject_revisions, 
+  aiproject_taskgrid, aiproject_gantt, aiproject_timeline, 
+  aiproject_riskmatrix, aiproject_statuspanel, aiproject_agentmanager, 
   aiproject_taskactionpanel, aiproject_reportviewer, LazarusPackageIntf;
 
 implementation
@@ -20,6 +21,7 @@ procedure Register;
 begin
   RegisterUnit('aiproject_llmconfig', @aiproject_llmconfig.Register);
   RegisterUnit('aiproject_storage', @aiproject_storage.Register);
+  RegisterUnit('aiproject_description', @aiproject_description.Register);
   RegisterUnit('aiproject_documents', @aiproject_documents.Register);
   RegisterUnit('aiproject_tasks', @aiproject_tasks.Register);
   RegisterUnit('aiproject_dependencies', @aiproject_dependencies.Register);
@@ -33,7 +35,8 @@ begin
   RegisterUnit('aiproject_riskmatrix', @aiproject_riskmatrix.Register);
   RegisterUnit('aiproject_statuspanel', @aiproject_statuspanel.Register);
   RegisterUnit('aiproject_agentmanager', @aiproject_agentmanager.Register);
-  RegisterUnit('aiproject_taskactionpanel', @aiproject_taskactionpanel.Register);
+  RegisterUnit('aiproject_taskactionpanel', @aiproject_taskactionpanel.Register
+    );
   RegisterUnit('aiproject_reportviewer', @aiproject_reportviewer.Register);
 end;
 

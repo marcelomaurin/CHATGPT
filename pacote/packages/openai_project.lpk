@@ -27,6 +27,11 @@
         <UnitName Value="aiproject_storage"/>
       </Item>
       <Item>
+        <Filename Value="..\AI Project\aiproject_description.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiproject_description"/>
+      </Item>
+      <Item>
         <Filename Value="..\AI Project\aiproject_documents.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiproject_documents"/>

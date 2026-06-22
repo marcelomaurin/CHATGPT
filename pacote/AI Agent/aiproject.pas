@@ -63,6 +63,8 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     
+    procedure EnsureProjectStructure;
+    
     function Initialize: Boolean;
     function TestConnection: Boolean;
     function ExecuteText(const AText: string): string;
@@ -238,6 +240,65 @@ begin
   FProjectData.Add('revisions', TJSONArray.Create);
   FProjectData.Add('last_generated_json', '');
   FProjectData.Add('last_generated_markdown', '');
+end;
+
+procedure TAIProject.EnsureProjectStructure;
+var
+  Doc, Plan, Cal, Team: TJSONObject;
+begin
+  if not Assigned(FProjectData) then Exit;
+  
+  if FProjectData.IndexOfName('project') < 0 then
+    FProjectData.Add('project', TJSONObject.Create);
+    
+  if FProjectData.IndexOfName('llm_config') < 0 then
+    FProjectData.Add('llm_config', TJSONObject.Create);
+    
+  if FProjectData.IndexOfName('agile_documents') < 0 then
+    FProjectData.Add('agile_documents', TJSONObject.Create);
+    
+  Doc := TJSONObject(FProjectData.FindPath('agile_documents'));
+  if Assigned(Doc) then
+  begin
+    if Doc.IndexOfName('functional_requirements') < 0 then Doc.Add('functional_requirements', TJSONArray.Create);
+    if Doc.IndexOfName('non_functional_requirements') < 0 then Doc.Add('non_functional_requirements', TJSONArray.Create);
+    if Doc.IndexOfName('stakeholders') < 0 then Doc.Add('stakeholders', TJSONArray.Create);
+    if Doc.IndexOfName('risk_map') < 0 then Doc.Add('risk_map', TJSONArray.Create);
+    if Doc.IndexOfName('epics') < 0 then Doc.Add('epics', TJSONArray.Create);
+    if Doc.IndexOfName('user_stories') < 0 then Doc.Add('user_stories', TJSONArray.Create);
+  end;
+
+  if FProjectData.IndexOfName('agents') < 0 then
+    FProjectData.Add('agents', TJSONArray.Create);
+    
+  if FProjectData.IndexOfName('planning') < 0 then
+    FProjectData.Add('planning', TJSONObject.Create);
+    
+  Plan := TJSONObject(FProjectData.FindPath('planning'));
+  if Assigned(Plan) then
+  begin
+    if Plan.IndexOfName('calendar') < 0 then Plan.Add('calendar', TJSONObject.Create);
+    Cal := TJSONObject(Plan.FindPath('calendar'));
+    if Assigned(Cal) and (Cal.IndexOfName('working_days') < 0) then Cal.Add('working_days', TJSONArray.Create);
+
+    if Plan.IndexOfName('team_profile') < 0 then Plan.Add('team_profile', TJSONObject.Create);
+    if Plan.IndexOfName('tasks') < 0 then Plan.Add('tasks', TJSONArray.Create);
+    if Plan.IndexOfName('dependencies') < 0 then Plan.Add('dependencies', TJSONArray.Create);
+    if Plan.IndexOfName('execution_plan') < 0 then Plan.Add('execution_plan', TJSONArray.Create);
+    if Plan.IndexOfName('parallel_groups') < 0 then Plan.Add('parallel_groups', TJSONArray.Create);
+    if Plan.IndexOfName('milestones') < 0 then Plan.Add('milestones', TJSONArray.Create);
+    if Plan.IndexOfName('gantt') < 0 then Plan.Add('gantt', TJSONArray.Create);
+    if Plan.IndexOfName('timeline') < 0 then Plan.Add('timeline', TJSONArray.Create);
+  end;
+
+  if FProjectData.IndexOfName('task_actions') < 0 then
+    FProjectData.Add('task_actions', TJSONArray.Create);
+    
+  if FProjectData.IndexOfName('agent_task_analysis') < 0 then
+    FProjectData.Add('agent_task_analysis', TJSONArray.Create);
+    
+  if FProjectData.IndexOfName('revisions') < 0 then
+    FProjectData.Add('revisions', TJSONArray.Create);
 end;
 
 procedure TAIProject.DoError(const AError: string);
@@ -647,6 +708,8 @@ begin
     Exit;
   end;
   
+  EnsureProjectStructure;
+  
   PromptStr := BuildInitialPlanningPrompt;
   if FChatGPT.SendQuestion(PromptStr) then
   begin
@@ -725,6 +788,8 @@ begin
     Exit;
   end;
   
+  EnsureProjectStructure;
+  
   PromptStr := BuildRevisionPrompt(ACorrection);
   if FChatGPT.SendQuestion(PromptStr) then
   begin
@@ -777,6 +842,7 @@ var
 begin
   Result := False;
   Log(llInfo, 'Recalculating project schedule...');
+  EnsureProjectStructure;
   
   LTasks := TJSONArray(FProjectData.FindPath('planning.tasks'));
   if not Assigned(LTasks) then Exit;
@@ -874,10 +940,26 @@ function TAIProject.LoadPlanFromJSON(const AJSON: string): Boolean;
 var
   LData: TJSONData;
   LObj: TJSONObject;
+  CleanJSON: string;
 begin
   Result := False;
+  EnsureProjectStructure;
   try
-    LData := GetJSON(AJSON);
+    CleanJSON := Trim(AJSON);
+    if Pos('```json', CleanJSON) = 1 then
+    begin
+      Delete(CleanJSON, 1, 7);
+      if RightStr(CleanJSON, 3) = '```' then
+        SetLength(CleanJSON, Length(CleanJSON) - 3);
+    end
+    else if Pos('```', CleanJSON) = 1 then
+    begin
+      Delete(CleanJSON, 1, 3);
+      if RightStr(CleanJSON, 3) = '```' then
+        SetLength(CleanJSON, Length(CleanJSON) - 3);
+    end;
+    
+    LData := GetJSON(CleanJSON);
     try
       if LData.JSONType = jtObject then
       begin
@@ -933,6 +1015,7 @@ end;
 
 function TAIProject.ExportPlanToJSON: string;
 begin
+  EnsureProjectStructure;
   Result := FProjectData.AsJSON;
 end;
 
@@ -986,6 +1069,7 @@ var
 begin
   Result := False;
   Log(llInfo, 'Saving project state to ' + AFileName);
+  EnsureProjectStructure;
   SaveList := TStringList.Create;
   try
     // Save LLM Config inside FProjectData too
@@ -1027,6 +1111,7 @@ begin
     begin
       FProjectData.Free;
       FProjectData := TJSONObject(LData);
+      EnsureProjectStructure;
       
       // Restore properties from JSON
       FProjectName := TJSONObject(FProjectData.FindPath('project')).Strings['name'];
@@ -1134,6 +1219,7 @@ var
   ActID: string;
 begin
   Result := False;
+  EnsureProjectStructure;
   LTasks := TJSONArray(FProjectData.FindPath('planning.tasks'));
   if not Assigned(LTasks) then Exit;
   

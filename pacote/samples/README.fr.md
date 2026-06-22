@@ -145,13 +145,6 @@ Les exemples suivants sont des projets visuels prêts à être compilés et exé
 | **[word_object_demo](AI Output/word_object_demo/)** | `pacote/samples/AI Output/word_object_demo` | Édition et manipulation structurée de fichiers DOCX avec OpenXML. |
 | **[word_viewer_demo](AI Output/word_viewer_demo/)** | `pacote/samples/AI Output/word_viewer_demo` | Visualisateur et moteur de rendu natif de documents DOCX dans les formulaires. |
 
-### 📦 AI Project
-
-| Exemple | Chemin | Description |
-|---|---|---|
-| **[AI Project](AI Project/)** | `pacote/samples/AI Project` | Aucune description disponible. |
-| **[Demo_AI_Project](AI Project/Demo_AI_Project/)** | `pacote/samples/AI Project/Demo_AI_Project` | Planificateur visuel de projet IA intégrant des documents agiles, des tâches, des dépendances, un Gantt, une chronologie et des agents. |
-
 ### 📦 AI Python
 
 | Exemple | Chemin | Description |

@@ -145,13 +145,6 @@
 | **[word_object_demo](AI Output/word_object_demo/)** | `pacote/samples/AI Output/word_object_demo` | تعديل ومعالجة ملفات DOCX المنظمة باستخدام OpenXML. |
 | **[word_viewer_demo](AI Output/word_viewer_demo/)** | `pacote/samples/AI Output/word_viewer_demo` | مستعرض وعارض أصلي لمستندات DOCX داخل نماذج لازاروس. |
 
-### 📦 AI Project
-
-| المشروع | المسار | الوصف |
-|---|---|---|
-| **[AI Project](AI Project/)** | `pacote/samples/AI Project` | لا يوجد وصف متاح. |
-| **[Demo_AI_Project](AI Project/Demo_AI_Project/)** | `pacote/samples/AI Project/Demo_AI_Project` | مخطط مشروع الذكاء الاصطناعي المرئي الذي يدمج المستندات الرشيقة والمهام والتبعيات وجانت والجدول الزمني والوكلاء. |
-
 ### 📦 AI Python
 
 | المشروع | المسار | الوصف |

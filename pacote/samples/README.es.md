@@ -145,13 +145,6 @@ Los siguientes ejemplos son proyectos visuales listos para compilar y ejecutar i
 | **[word_object_demo](AI Output/word_object_demo/)** | `pacote/samples/AI Output/word_object_demo` | Edición y manipulación estructurada de archivos DOCX con OpenXML. |
 | **[word_viewer_demo](AI Output/word_viewer_demo/)** | `pacote/samples/AI Output/word_viewer_demo` | Visualizador y renderizador nativo de documentos DOCX en formularios Lazarus. |
 
-### 📦 AI Project
-
-| Ejemplo | Ruta | Descripción |
-|---|---|---|
-| **[AI Project](AI Project/)** | `pacote/samples/AI Project` | Sin descripción disponible. |
-| **[Demo_AI_Project](AI Project/Demo_AI_Project/)** | `pacote/samples/AI Project/Demo_AI_Project` | Planificador visual de proyectos de IA que integra documentos ágiles, tareas, dependencias, Gantt, línea de tiempo y agentes. |
-
 ### 📦 AI Python
 
 | Ejemplo | Ruta | Descripción |
