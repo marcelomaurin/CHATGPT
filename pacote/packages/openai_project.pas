@@ -8,7 +8,7 @@ unit openai_project;
 interface
 
 uses
-  aiproject_llmconfig, aiproject_storage, aiproject_description, 
+  aiproject, aiproject_llmconfig, aiproject_storage, aiproject_description, 
   aiproject_documents, aiproject_tasks, aiproject_dependencies, 
   aiproject_agents, aiproject_actions, aiproject_reports, aiproject_revisions, 
   aiproject_taskgrid, aiproject_gantt, aiproject_timeline, 
@@ -19,6 +19,7 @@ implementation
 
 procedure Register;
 begin
+  RegisterUnit('aiproject', @aiproject.Register);
   RegisterUnit('aiproject_llmconfig', @aiproject_llmconfig.Register);
   RegisterUnit('aiproject_storage', @aiproject_storage.Register);
   RegisterUnit('aiproject_description', @aiproject_description.Register);

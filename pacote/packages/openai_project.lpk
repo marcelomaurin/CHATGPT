@@ -9,13 +9,18 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\AI;..\AI Agent;..\AI Project;.."/>
+        <OtherUnitFiles Value="..\AI Agent;..\AI Project;.."/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
     <Description Value="Lazarus AI Suite: Project planning, Gantt charts, timelines, agents, actions and risk mapping."/>
     <License Value="OPEN SOURCE GPL3"/>
     <Files>
+      <Item>
+        <Filename Value="..\AI Project\aiproject.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiproject"/>
+      </Item>
       <Item>
         <Filename Value="..\AI Project\aiproject_llmconfig.pas"/>
         <HasRegisterProc Value="True"/>

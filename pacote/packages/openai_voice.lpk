@@ -9,7 +9,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\AI;..\AI Agent;..\AI Voice;..\AI Filtros Sonoros;..\AI Image;..\AI Schedule;..\AI Math;..\AI Input;..\AI Output;..\AI Graph;..\AI Graphic;..\AI Vision;.."/>
+        <OtherUnitFiles Value="..\AI Agent;..\AI Voice;..\AI Filtros Sonoros;..\AI Image;..\AI Schedule;..\AI Math;..\AI Input;..\AI Output;..\AI Graph;..\AI Graphic;..\AI Vision;.."/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>

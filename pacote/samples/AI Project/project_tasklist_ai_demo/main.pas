@@ -25,18 +25,11 @@ type
     AIProjectTasks1: TAIProjectTasks;
     btnCarregarProjeto: TButton;
     btnSalvarProjeto: TButton;
+    btnClearProject: TButton;
     btnApplyConfig: TButton;
     btnAddManualTask: TButton;
     btnTestConnection: TButton;
-    cbTipoIA: TComboBox;
-    edtModelo: TComboBox;
-    edtToken: TEdit;
-    edtEndpoint: TEdit;
     chkSalvarToken: TCheckBox;
-    LabelTipoIA: TLabel;
-    LabelModelo: TLabel;
-    LabelToken: TLabel;
-    LabelEndpoint: TLabel;
     btnGenerateTasks: TButton;
     btnCreateDefaultAgents: TButton;
     btnGenerateSummary: TButton;
@@ -80,18 +73,25 @@ type
     procedure btnGenerateTasksClick(Sender: TObject);
     procedure btnSalvarProjetoClick(Sender: TObject);
     procedure btnTestConnectionClick(Sender: TObject);
+    procedure btnClearProjectClick(Sender: TObject);
+    procedure cbProviderChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   private
+    lblProvider: TLabel;
+    cbProvider: TComboBox;
+    lblModel: TLabel;
+    cbModel: TComboBox;
+    lblToken: TLabel;
+    edtToken: TEdit;
+    lblEndpoint: TLabel;
+    edtEndpoint: TEdit;
     procedure LogMsg(const AMsg: string);
     procedure RefreshAllViews;
     procedure ValidarConfigIA;
-    procedure EnsureProjectDataStructure;
     procedure ApplyProjectTextToComponent;
     function ExtractJSONFromAIResponse(const AText: string): string;
     procedure NormalizeGeneratedTasks(APlanning: TJSONObject);
     procedure ReplaceJSONValue(AObject: TJSONObject; const AName: string; AValue: TJSONData);
-    function GetOrCreateObject(AParent: TJSONObject; const AName: string): TJSONObject;
-    function GetOrCreateArray(AParent: TJSONObject; const AName: string): TJSONArray;
     function NormalizeStatus(const AStatus: string): string;
     function NormalizePriority(const APriority: string): string;
     function ISODate(ADate: TDateTime): string;
@@ -124,38 +124,144 @@ begin
   Timeline1.Project := AIProject1;
   TaskActionPanel1.Project := AIProject1;
 
-  if cbTipoIA.Items.Count = 0 then
-  begin
-    cbTipoIA.Items.Add('OpenAI');
-    cbTipoIA.Items.Add('Ollama');
-    cbTipoIA.Items.Add('LM Studio');
-    cbTipoIA.Items.Add('Local HTTP');
-    cbTipoIA.Items.Add('Outro');
-  end;
+  // Create Config UI components programmatically
+  lblProvider := TLabel.Create(Self);
+  lblProvider.Parent := tabConfig;
+  lblProvider.Left := 20;
+  lblProvider.Top := 20;
+  lblProvider.Caption := 'Provider:';
+  
+  cbProvider := TComboBox.Create(Self);
+  cbProvider.Parent := tabConfig;
+  cbProvider.Left := 120;
+  cbProvider.Top := 16;
+  cbProvider.Width := 250;
+  cbProvider.Style := csDropDownList;
+  cbProvider.Items.Add('OpenAI');
+  cbProvider.Items.Add('OpenRouter');
+  cbProvider.Items.Add('Cerebras');
+  cbProvider.Items.Add('Ollama');
+  cbProvider.Items.Add('Gemini');
+  cbProvider.Items.Add('Claude');
+  cbProvider.Items.Add('LM Studio');
+  cbProvider.Items.Add('Local HTTP');
+  cbProvider.OnChange := @cbProviderChange;
+  
+  lblModel := TLabel.Create(Self);
+  lblModel.Parent := tabConfig;
+  lblModel.Left := 20;
+  lblModel.Top := 60;
+  lblModel.Caption := 'Model:';
+  
+  cbModel := TComboBox.Create(Self);
+  cbModel.Parent := tabConfig;
+  cbModel.Left := 120;
+  cbModel.Top := 56;
+  cbModel.Width := 250;
+  
+  lblToken := TLabel.Create(Self);
+  lblToken.Parent := tabConfig;
+  lblToken.Left := 20;
+  lblToken.Top := 100;
+  lblToken.Caption := 'Token:';
+  
+  edtToken := TEdit.Create(Self);
+  edtToken.Parent := tabConfig;
+  edtToken.Left := 120;
+  edtToken.Top := 96;
+  edtToken.Width := 400;
+  edtToken.PasswordChar := '*';
+  
+  lblEndpoint := TLabel.Create(Self);
+  lblEndpoint.Parent := tabConfig;
+  lblEndpoint.Left := 20;
+  lblEndpoint.Top := 140;
+  lblEndpoint.Caption := 'URL / IP:';
+  
+  edtEndpoint := TEdit.Create(Self);
+  edtEndpoint.Parent := tabConfig;
+  edtEndpoint.Left := 120;
+  edtEndpoint.Top := 136;
+  edtEndpoint.Width := 400;
 
-  if Trim(cbTipoIA.Text) = '' then
-    cbTipoIA.Text := 'Ollama';
-
-  if edtModelo.Items.Count = 0 then
-  begin
-    edtModelo.Items.Add('llama3.2');
-    edtModelo.Items.Add('qwen2.5');
-    edtModelo.Items.Add('mistral');
-    edtModelo.Items.Add('gpt-4o-mini');
-    edtModelo.Items.Add('gpt-4.1-mini');
-  end;
-
-  if Trim(edtModelo.Text) = '' then
-    edtModelo.Text := 'llama3.2';
-
-  if Trim(edtEndpoint.Text) = '' then
-    edtEndpoint.Text := 'http://localhost:11434';
+  // Initialize with default
+  cbProvider.ItemIndex := 0;
+  cbProviderChange(nil);
 
   chkSalvarToken.Checked := False;
 
-  EnsureProjectDataStructure;
+  AIProject1.EnsureProjectStructure;
   RefreshAllViews;
   LogMsg('[OK] Formulário inicializado.');
+end;
+
+procedure TfrmMain.cbProviderChange(Sender: TObject);
+begin
+  cbModel.Items.Clear;
+  edtEndpoint.Text := '';
+  edtEndpoint.Enabled := False;
+
+  if SameText(cbProvider.Text, 'OpenAI') then
+  begin
+    cbModel.Items.Add('gpt-4o');
+    cbModel.Items.Add('gpt-4o-mini');
+    cbModel.Items.Add('o3-mini');
+    cbModel.Items.Add('o1-mini');
+    cbModel.Items.Add('o1');
+    cbModel.Items.Add('gpt-4-turbo');
+    cbModel.Items.Add('gpt-3.5-turbo');
+    cbModel.Text := 'gpt-4o-mini';
+  end
+  else if SameText(cbProvider.Text, 'Gemini') then
+  begin
+    cbModel.Items.Add('gemini-2.5-flash');
+    cbModel.Items.Add('gemini-2.5-pro');
+    cbModel.Items.Add('gemini-2.0-flash');
+    cbModel.Text := 'gemini-2.5-flash';
+  end
+  else if SameText(cbProvider.Text, 'Claude') then
+  begin
+    cbModel.Items.Add('claude-3-5-sonnet-20241022');
+    cbModel.Items.Add('claude-3-5-haiku-20241022');
+    cbModel.Items.Add('claude-3-opus-20240229');
+    cbModel.Text := 'claude-3-5-sonnet-20241022';
+  end
+  else if SameText(cbProvider.Text, 'OpenRouter') then
+  begin
+    cbModel.Items.Add('meta-llama/llama-3-8b-instruct:free');
+    cbModel.Items.Add('google/gemma-2-9b-it:free');
+    cbModel.Items.Add('deepseek/deepseek-r1:free');
+    cbModel.Items.Add('meta-llama/llama-3.2-3b-instruct:free');
+    cbModel.Text := 'google/gemma-2-9b-it:free';
+  end
+  else if SameText(cbProvider.Text, 'Cerebras') then
+  begin
+    cbModel.Items.Add('qwen-3-235b-a22b-instruct-2507');
+    cbModel.Text := 'qwen-3-235b-a22b-instruct-2507';
+  end
+  else if SameText(cbProvider.Text, 'Ollama') then
+  begin
+    cbModel.Items.Add('llama3.2');
+    cbModel.Items.Add('qwen2.5');
+    cbModel.Items.Add('mistral');
+    cbModel.Text := 'llama3.2';
+    edtEndpoint.Text := 'http://localhost:11434';
+    edtEndpoint.Enabled := True;
+  end
+  else if SameText(cbProvider.Text, 'LM Studio') then
+  begin
+    cbModel.Items.Add('local-model');
+    cbModel.Text := 'local-model';
+    edtEndpoint.Text := 'http://localhost:1234/v1';
+    edtEndpoint.Enabled := True;
+  end
+  else if SameText(cbProvider.Text, 'Local HTTP') then
+  begin
+    cbModel.Items.Add('local-model');
+    cbModel.Text := 'local-model';
+    edtEndpoint.Text := 'http://localhost:8080';
+    edtEndpoint.Enabled := True;
+  end;
 end;
 
 procedure TfrmMain.LogMsg(const AMsg: string);
@@ -181,64 +287,7 @@ begin
   AObject.Add(AName, AValue);
 end;
 
-function TfrmMain.GetOrCreateObject(AParent: TJSONObject; const AName: string): TJSONObject;
-var
-  LData: TJSONData;
-  LIndex: Integer;
-begin
-  Result := nil;
-  if not Assigned(AParent) then
-    Exit;
 
-  LData := AParent.Find(AName);
-  if LData is TJSONObject then
-    Exit(TJSONObject(LData));
-
-  LIndex := AParent.IndexOfName(AName);
-  if LIndex >= 0 then
-    AParent.Delete(LIndex);
-
-  Result := TJSONObject.Create;
-  AParent.Add(AName, Result);
-end;
-
-function TfrmMain.GetOrCreateArray(AParent: TJSONObject; const AName: string): TJSONArray;
-var
-  LData: TJSONData;
-  LIndex: Integer;
-begin
-  Result := nil;
-  if not Assigned(AParent) then
-    Exit;
-
-  LData := AParent.Find(AName);
-  if LData is TJSONArray then
-    Exit(TJSONArray(LData));
-
-  LIndex := AParent.IndexOfName(AName);
-  if LIndex >= 0 then
-    AParent.Delete(LIndex);
-
-  Result := TJSONArray.Create;
-  AParent.Add(AName, Result);
-end;
-
-procedure TfrmMain.EnsureProjectDataStructure;
-var
-  LPlanning: TJSONObject;
-begin
-  if not Assigned(AIProject1.ProjectData) then
-    raise Exception.Create(
-      'AIProject1.ProjectData está nil. Corrija o constructor do TAIProject para criar FProjectData.'
-    );
-
-  GetOrCreateArray(AIProject1.ProjectData, 'agents');
-  LPlanning := GetOrCreateObject(AIProject1.ProjectData, 'planning');
-  GetOrCreateArray(LPlanning, 'tasks');
-  GetOrCreateArray(LPlanning, 'timeline');
-  GetOrCreateArray(AIProject1.ProjectData, 'task_action_history');
-  GetOrCreateArray(AIProject1.ProjectData, 'revisions');
-end;
 
 procedure TfrmMain.ApplyProjectTextToComponent;
 begin
@@ -250,7 +299,8 @@ end;
 
 procedure TfrmMain.RefreshAllViews;
 begin
-  EnsureProjectDataStructure;
+  if Assigned(AIProject1) then
+    AIProject1.EnsureProjectStructure;
 
   if Assigned(TaskGrid1) then
     TaskGrid1.LoadTasks;
@@ -273,22 +323,13 @@ end;
 
 procedure TfrmMain.ValidarConfigIA;
 begin
-  if Trim(cbTipoIA.Text) = '' then
-    raise Exception.Create('Informe o tipo de IA.');
-
-  if Trim(edtModelo.Text) = '' then
-    raise Exception.Create('Informe o modelo da IA.');
-
-  if SameText(cbTipoIA.Text, 'OpenAI') then
-  begin
-    if Trim(edtToken.Text) = '' then
-      raise Exception.Create('Informe o token da API.');
-  end
-  else
-  begin
-    if Trim(edtEndpoint.Text) = '' then
-      raise Exception.Create('Informe o endpoint da IA local ou servidor.');
-  end;
+  if Trim(cbProvider.Text) = '' then
+    raise Exception.Create('Selecione o provedor de IA.');
+  if Trim(cbModel.Text) = '' then
+    raise Exception.Create('Informe o modelo.');
+  
+  if (SameText(cbProvider.Text, 'OpenAI') or SameText(cbProvider.Text, 'Gemini') or SameText(cbProvider.Text, 'Claude')) and (Trim(edtToken.Text) = '') then
+    raise Exception.Create('Para provedores em nuvem, o Token de API é obrigatório.');
 end;
 
 function TfrmMain.ISODate(ADate: TDateTime): string;
@@ -465,12 +506,20 @@ begin
   try
     ValidarConfigIA;
 
-    if SameText(cbTipoIA.Text, 'OpenAI') then
+    if SameText(cbProvider.Text, 'OpenAI') then
       AIProjectLLMConfig1.Provider := AIP_OPENAI
+    else if SameText(cbProvider.Text, 'Gemini') then
+      AIProjectLLMConfig1.Provider := AIP_GEMINI
+    else if SameText(cbProvider.Text, 'Claude') then
+      AIProjectLLMConfig1.Provider := AIP_CLAUDE
+    else if SameText(cbProvider.Text, 'OpenRouter') then
+      AIProjectLLMConfig1.Provider := AIP_OPENROUTER
+    else if SameText(cbProvider.Text, 'Cerebras') then
+      AIProjectLLMConfig1.Provider := AIP_CEREBRAS
     else
       AIProjectLLMConfig1.Provider := AIP_LOCAL;
 
-    AIProjectLLMConfig1.Model := Trim(edtModelo.Text);
+    AIProjectLLMConfig1.Model := Trim(cbModel.Text);
     AIProjectLLMConfig1.Token := Trim(edtToken.Text);
     AIProjectLLMConfig1.Endpoint := Trim(edtEndpoint.Text);
     AIProjectLLMConfig1.SaveToken := chkSalvarToken.Checked;
@@ -478,11 +527,16 @@ begin
 
     AIProjectLLMConfig1.ApplyToProject;
 
-    ChatGPT1.CustomModel := Trim(edtModelo.Text);
-    if Trim(edtEndpoint.Text) <> '' then
-      ChatGPT1.URL := Trim(edtEndpoint.Text);
+    ChatGPT1.Provider := AIProjectLLMConfig1.Provider;
+    ChatGPT1.TOKEN := AIProjectLLMConfig1.Token;
+    ChatGPT1.URL := ''; 
+    ChatGPT1.CustomModel := Trim(cbModel.Text);
+    
+    // For local models, configure LocalIP if available
+    if ChatGPT1.Provider = AIP_LOCAL then
+      ChatGPT1.LocalIP := Trim(edtEndpoint.Text);
 
-    LogMsg('[OK] Configuração de IA aplicada. Tipo=' + cbTipoIA.Text + ', Modelo=' + edtModelo.Text);
+    LogMsg('[OK] Configuração de IA aplicada. Tipo=' + cbProvider.Text + ', Modelo=' + cbModel.Text);
   except
     on E: Exception do
       LogMsg('[ERRO] Configuração inválida: ' + E.Message);
@@ -490,24 +544,18 @@ begin
 end;
 
 procedure TfrmMain.btnTestConnectionClick(Sender: TObject);
-var
-  LPrompt: string;
 begin
   try
     ValidarConfigIA;
     btnApplyConfigClick(nil);
 
-    LPrompt := 'Responda somente com a palavra OK.';
-
     LogMsg('[INFO] Testando conexão com a IA...');
     Application.ProcessMessages;
 
-    if ChatGPT1.SendQuestion(LPrompt) then
-    begin
-      LogMsg('[OK] IA respondeu: ' + Trim(ChatGPT1.Response));
-    end
+    if ChatGPT1.SendQuestion('Responda apenas OK.') then
+      LogMsg('[OK] IA respondeu: ' + ChatGPT1.Response)
     else
-      LogMsg('[ERRO] Falha ao enviar pergunta para IA.');
+      LogMsg('[ERRO] A IA não respondeu.');
   except
     on E: Exception do
       LogMsg('[ERRO] Falha ao testar IA: ' + E.Message);
@@ -517,7 +565,7 @@ end;
 procedure TfrmMain.btnCreateDefaultAgentsClick(Sender: TObject);
 begin
   try
-    EnsureProjectDataStructure;
+    AIProject1.EnsureProjectStructure;
     AIProjectAgents1.CreateDefaultAgents;
     RefreshAllViews;
     LogMsg('[OK] Agentes padrão criados.');
@@ -528,20 +576,22 @@ begin
 end;
 
 procedure TfrmMain.btnGenerateTasksClick(Sender: TObject);
-var
-  LPrompt: string;
-  LResponse: string;
-  LCleanJSON: string;
-  LData: TJSONData;
-  LJSON: TJSONObject;
-  LPlanning: TJSONObject;
-begin
-  LData := nil;
+  var
+    LPrompt: string;
+    LResponse: string;
+    LCleanJSON: string;
+    LData: TJSONData;
+    LJSON: TJSONObject;
+    LPlanning: TJSONObject;
+    LProjectPlanning: TJSONObject;
+    LIndex: Integer;
+  begin
+    LData := nil;
 
   try
     ValidarConfigIA;
     btnApplyConfigClick(nil);
-    EnsureProjectDataStructure;
+    AIProject1.EnsureProjectStructure;
     ApplyProjectTextToComponent;
 
     LPrompt :=
@@ -607,10 +657,14 @@ begin
 
     NormalizeGeneratedTasks(LPlanning);
 
-    if AIProject1.ProjectData.IndexOfName('planning') >= 0 then
-      AIProject1.ProjectData.Delete(AIProject1.ProjectData.IndexOfName('planning'));
-
-    AIProject1.ProjectData.Add('planning', LPlanning.Clone);
+    LProjectPlanning := TJSONObject(AIProject1.ProjectData.FindPath('planning'));
+    if Assigned(LProjectPlanning) then
+    begin
+      LIndex := LProjectPlanning.IndexOfName('tasks');
+      if LIndex >= 0 then
+        LProjectPlanning.Delete(LIndex);
+      LProjectPlanning.Add('tasks', LPlanning.Find('tasks').Clone);
+    end;
 
     AIProjectTasks1.RecalculateEstimates;
     RefreshAllViews;
@@ -636,7 +690,7 @@ var
   LID: string;
 begin
   try
-    EnsureProjectDataStructure;
+    AIProject1.EnsureProjectStructure;
 
     LID := AIProjectTasks1.AddTask(
       'Criar tela principal manual',
@@ -678,7 +732,7 @@ begin
   try
     if AIProjectStorage1.LoadProjectFromFile('project_tasklist_demo.aiproj.json') then
     begin
-      EnsureProjectDataStructure;
+      AIProject1.EnsureProjectStructure;
       LogMsg('[OK] Projeto carregado com sucesso.');
       RefreshAllViews;
     end
@@ -687,6 +741,22 @@ begin
   except
     on E: Exception do
       LogMsg('[ERRO] Falha ao carregar projeto: ' + E.Message);
+  end;
+end;
+
+procedure TfrmMain.btnClearProjectClick(Sender: TObject);
+begin
+  if MessageDlg('Confirmação', 'Tem certeza que deseja limpar todo o projeto e começar do zero?', mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+  begin
+    AIProject1.ProjectData.Clear;
+    AIProject1.EnsureProjectStructure;
+    AIProject1.ProjectName := 'Novo Projeto';
+    MemoProjectName.Text := 'Novo Projeto';
+    MemoGoal.Clear;
+    MemoConstraints.Clear;
+    MemoDeliverables.Clear;
+    RefreshAllViews;
+    LogMsg('[OK] Projeto limpo com sucesso.');
   end;
 end;
 

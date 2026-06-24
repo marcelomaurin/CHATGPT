@@ -19,6 +19,9 @@ type
     VCT_GPT4o,
     VCT_GPT4O_MINI,
     VCT_GPTo3_mini,
+    VCT_GPTo1,
+    VCT_GPTo1_mini,
+    VCT_GPTo1_preview,
     VCT_GPT41,
     VCT_GPT41_MINI,
     VCT_GPT5,
@@ -391,10 +394,13 @@ begin
   case FTipoChat of
     VCT_GPT35TURBO:    Result := 'gpt-3.5-turbo';
     VCT_GPT40:         Result := 'gpt-4';
-    VCT_GPT40_TURBO:   Result := 'gpt-4-turbo-preview';
+    VCT_GPT40_TURBO:   Result := 'gpt-4-turbo';
     VCT_GPT4o:         Result := 'gpt-4o';
     VCT_GPT4O_MINI:    Result := 'gpt-4o-mini';
     VCT_GPTo3_mini:    Result := 'o3-mini';
+    VCT_GPTo1:         Result := 'o1';
+    VCT_GPTo1_mini:    Result := 'o1-mini';
+    VCT_GPTo1_preview: Result := 'o1-preview';
     VCT_GPT41:         Result := 'gpt-4.1';
     VCT_GPT41_MINI:    Result := 'gpt-4.1-mini';
     VCT_GPT5:          Result := 'gpt-5';
