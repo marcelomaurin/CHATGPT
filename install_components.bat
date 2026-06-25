@@ -44,6 +44,12 @@ echo Mode:           %MODE%
 echo ============================================================
 echo.
 
+echo Building AI Project icons...
+if exist "C:\lazarus\tools\lazres.exe" (
+  "C:\lazarus\tools\lazres.exe" "%ROOT_DIR%pacote\AI Project\aiproject_icon.lrs" "%ROOT_DIR%pacote\AI Project\TAIProject.png" "%ROOT_DIR%pacote\AI Project\TAIProjectLLMConfig.png" "%ROOT_DIR%pacote\AI Project\TAIProjectStorage.png"
+)
+echo.
+
 if /I "%MODE%"=="core" (
   call :install_package "pacote\packages\openai_core.lpk"
   goto :finish

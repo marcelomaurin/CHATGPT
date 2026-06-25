@@ -146,6 +146,16 @@ echo "Mode:           $MODE"
 echo "============================================================"
 echo
 
+echo "Building AI Project icons..."
+if command -v lazres >/dev/null 2>&1; then
+  lazres "$ROOT_DIR/pacote/AI Project/aiproject_icon.lrs" "$ROOT_DIR/pacote/AI Project/TAIProject.png" "$ROOT_DIR/pacote/AI Project/TAIProjectLLMConfig.png" "$ROOT_DIR/pacote/AI Project/TAIProjectStorage.png"
+elif [[ -x "/usr/bin/lazres" ]]; then
+  /usr/bin/lazres "$ROOT_DIR/pacote/AI Project/aiproject_icon.lrs" "$ROOT_DIR/pacote/AI Project/TAIProject.png" "$ROOT_DIR/pacote/AI Project/TAIProjectLLMConfig.png" "$ROOT_DIR/pacote/AI Project/TAIProjectStorage.png"
+elif [[ -x "/usr/lib/lazarus/default/tools/lazres" ]]; then
+  /usr/lib/lazarus/default/tools/lazres "$ROOT_DIR/pacote/AI Project/aiproject_icon.lrs" "$ROOT_DIR/pacote/AI Project/TAIProject.png" "$ROOT_DIR/pacote/AI Project/TAIProjectLLMConfig.png" "$ROOT_DIR/pacote/AI Project/TAIProjectStorage.png"
+fi
+echo
+
 case "$MODE" in
   core)
     install_package "pacote/packages/openai_core.lpk"

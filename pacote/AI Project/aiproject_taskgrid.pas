@@ -38,7 +38,7 @@ end;
 constructor TAIProjectTaskGrid.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  ColCount := 9;
+  ColCount := 7;
   RowCount := 2;
   FixedRows := 1;
   FixedCols := 0;
@@ -48,21 +48,17 @@ begin
   Cells[1, 0] := 'Task Title';
   Cells[2, 0] := 'Status';
   Cells[3, 0] := 'Priority';
-  Cells[4, 0] := 'Agent';
-  Cells[5, 0] := 'Profile';
-  Cells[6, 0] := 'Start';
-  Cells[7, 0] := 'End';
-  Cells[8, 0] := 'Progress';
+  Cells[4, 0] := 'Start';
+  Cells[5, 0] := 'End';
+  Cells[6, 0] := 'Progress';
 
   ColWidths[0] := 55;
   ColWidths[1] := 180;
   ColWidths[2] := 80;
   ColWidths[3] := 65;
-  ColWidths[4] := 120;
-  ColWidths[5] := 70;
-  ColWidths[6] := 80;
-  ColWidths[7] := 80;
-  ColWidths[8] := 65;
+  ColWidths[4] := 80;
+  ColWidths[5] := 80;
+  ColWidths[6] := 65;
 end;
 
 procedure TAIProjectTaskGrid.SetProject(AValue: TAIProject);
@@ -103,11 +99,9 @@ begin
     Cells[1, i + 1] := Task.Strings['title'];
     Cells[2, i + 1] := StatusStr;
     Cells[3, i + 1] := Task.Strings['priority'];
-    Cells[4, i + 1] := Task.Strings['assigned_to'];
-    Cells[5, i + 1] := Task.Strings['responsible_profile'];
-    Cells[6, i + 1] := Task.Strings['planned_start_date'];
-    Cells[7, i + 1] := Task.Strings['planned_end_date'];
-    Cells[8, i + 1] := IntToStr(Task.Integers['progress_percent']) + '%';
+    Cells[4, i + 1] := Task.Strings['planned_start_date'];
+    Cells[5, i + 1] := Task.Strings['planned_end_date'];
+    Cells[6, i + 1] := IntToStr(Task.Integers['progress_percent']) + '%';
 
     // Color entire row by status
     RowHeights[i + 1] := 20;

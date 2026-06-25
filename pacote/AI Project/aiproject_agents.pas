@@ -18,9 +18,6 @@ type
   public
     constructor Create(AOwner: TComponent); override;
 
-    { Populates project with the 9 standard agent profiles. }
-    procedure CreateDefaultAgents;
-
     { Adds a new agent. Returns the new agent ID or empty on error. }
     function AddAgent(const AName, AProfile, ADescription,
                       ASkillLevel: string; AActive: Boolean): string;
@@ -76,78 +73,6 @@ var
 begin
   Arr := GetAgents;
   if Assigned(Arr) then Result := Arr.Count else Result := 0;
-end;
-
-procedure TAIProjectAgents.CreateDefaultAgents;
-var
-  LAgents: TJSONArray;
-begin
-  LAgents := GetAgents;
-  if not Assigned(LAgents) then Exit;
-  LAgents.Clear;
-
-  LAgents.Add(TJSONObject.Create(['id', 'AG001', 'name', 'UI Agent',
-    'profile', 'UI', 'description', 'Specialist in screen flow and UX',
-    'skill_level', 'senior', 'active', true,
-    'responsibilities', TJSONArray.Create(['Design screens', 'Implement UX/UI']),
-    'allowed_actions', TJSONArray.Create(['create_screen', 'update_layout']),
-    'system_prompt', 'You are a Senior UI/UX Specialist.']));
-
-  LAgents.Add(TJSONObject.Create(['id', 'AG002', 'name', 'DBA Agent',
-    'profile', 'DBA', 'description', 'Specialist in database and storage',
-    'skill_level', 'senior', 'active', true,
-    'responsibilities', TJSONArray.Create(['Design database schemas', 'Optimize queries']),
-    'allowed_actions', TJSONArray.Create(['create_table', 'alter_schema']),
-    'system_prompt', 'You are a Senior DBA.']));
-
-  LAgents.Add(TJSONObject.Create(['id', 'AG003', 'name', 'DEV Agent',
-    'profile', 'DEV', 'description', 'Software Developer',
-    'skill_level', 'mid_level', 'active', true,
-    'responsibilities', TJSONArray.Create(['Write business logic', 'Fix bugs']),
-    'allowed_actions', TJSONArray.Create(['write_code', 'run_tests']),
-    'system_prompt', 'You are a Developer.']));
-
-  LAgents.Add(TJSONObject.Create(['id', 'AG004', 'name', 'Infra Agent',
-    'profile', 'Infra', 'description', 'Deployment and infrastructure expert',
-    'skill_level', 'senior', 'active', true,
-    'responsibilities', TJSONArray.Create(['Manage infrastructure', 'Deploy applications']),
-    'allowed_actions', TJSONArray.Create(['deploy', 'restart_server']),
-    'system_prompt', 'You are an Infrastructure specialist.']));
-
-  LAgents.Add(TJSONObject.Create(['id', 'AG005', 'name', 'Operador',
-    'profile', 'Operador', 'description', 'System operator',
-    'skill_level', 'junior', 'active', true,
-    'responsibilities', TJSONArray.Create(['Monitor system', 'Report issues']),
-    'allowed_actions', TJSONArray.Create(['view_logs', 'create_ticket']),
-    'system_prompt', 'You are a System Operator.']));
-
-  LAgents.Add(TJSONObject.Create(['id', 'AG006', 'name', 'Key User',
-    'profile', 'Key User', 'description', 'Key business user and validator',
-    'skill_level', 'mid_level', 'active', true,
-    'responsibilities', TJSONArray.Create(['Validate features', 'Provide business rules']),
-    'allowed_actions', TJSONArray.Create(['approve_feature', 'reject_feature']),
-    'system_prompt', 'You represent the end user.']));
-
-  LAgents.Add(TJSONObject.Create(['id', 'AG007', 'name', 'Tester Agent',
-    'profile', 'Tester', 'description', 'QA and functional validation',
-    'skill_level', 'junior', 'active', true,
-    'responsibilities', TJSONArray.Create(['Run test scripts', 'Find bugs']),
-    'allowed_actions', TJSONArray.Create(['run_tests', 'log_bug']),
-    'system_prompt', 'You are a QA Tester.']));
-
-  LAgents.Add(TJSONObject.Create(['id', 'AG008', 'name', 'Documentador',
-    'profile', 'Documentador', 'description', 'Technical writer and documentation specialist',
-    'skill_level', 'mid_level', 'active', true,
-    'responsibilities', TJSONArray.Create(['Write manuals', 'Update wiki']),
-    'allowed_actions', TJSONArray.Create(['write_doc', 'publish_doc']),
-    'system_prompt', 'You are a Technical Writer.']));
-
-  LAgents.Add(TJSONObject.Create(['id', 'AG009', 'name', 'Gerente de Projeto',
-    'profile', 'Gerente', 'description', 'Project coordinator and stakeholder communicator',
-    'skill_level', 'senior', 'active', true,
-    'responsibilities', TJSONArray.Create(['Plan sprints', 'Manage risks']),
-    'allowed_actions', TJSONArray.Create(['assign_task', 'approve_milestone']),
-    'system_prompt', 'You are the Project Manager.']));
 end;
 
 function TAIProjectAgents.AddAgent(const AName, AProfile, ADescription,

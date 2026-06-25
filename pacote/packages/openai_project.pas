@@ -9,11 +9,12 @@ interface
 
 uses
   aiproject, aiproject_llmconfig, aiproject_storage, aiproject_description, 
-  aiproject_documents, aiproject_tasks, aiproject_dependencies, 
-  aiproject_agents, aiproject_actions, aiproject_reports, aiproject_revisions, 
-  aiproject_taskgrid, aiproject_gantt, aiproject_timeline, 
-  aiproject_riskmatrix, aiproject_statuspanel, aiproject_agentmanager, 
-  aiproject_taskactionpanel, aiproject_reportviewer, LazarusPackageIntf;
+  aiproject_documents, aiproject_tasks, aiproject_specification, 
+  aiproject_dependencies, aiproject_agents, aiproject_actions, 
+  aiproject_reports, aiproject_revisions, aiproject_taskgrid, aiproject_gantt, 
+  aiproject_timeline, aiproject_riskmatrix, aiproject_statuspanel, 
+  aiproject_agentmanager, aiproject_taskactionpanel, aiproject_reportviewer, 
+  LazarusPackageIntf;
 
 implementation
 
@@ -25,6 +26,7 @@ begin
   RegisterUnit('aiproject_description', @aiproject_description.Register);
   RegisterUnit('aiproject_documents', @aiproject_documents.Register);
   RegisterUnit('aiproject_tasks', @aiproject_tasks.Register);
+  RegisterUnit('aiproject_specification', @aiproject_specification.Register);
   RegisterUnit('aiproject_dependencies', @aiproject_dependencies.Register);
   RegisterUnit('aiproject_agents', @aiproject_agents.Register);
   RegisterUnit('aiproject_actions', @aiproject_actions.Register);

@@ -35,6 +35,11 @@ type
     { Triggers schedule recalculation in the linked TAIProject. }
     function RecalculateEstimates: Boolean;
 
+    { Long text property to store extended descriptions/specifications }
+    function GetTaskLongDescription(const ATaskID: string): string;
+    procedure SetTaskLongDescription(const ATaskID, AText: string);
+    property TaskLongDescription[const ATaskID: string]: string read GetTaskLongDescription write SetTaskLongDescription;
+
     { Read-only access to the raw tasks JSON array. }
     property Tasks: TJSONArray read GetTasks;
     property Count: Integer read GetCount;
@@ -166,6 +171,31 @@ begin
       Result := Arr.Objects[i];
       Exit;
     end;
+end;
+
+function TAIProjectTasks.GetTaskLongDescription(const ATaskID: string): string;
+var
+  Task: TJSONObject;
+begin
+  Result := '';
+  Task := GetTaskByID(ATaskID);
+  if Assigned(Task) then
+    Result := Task.Get('long_description', Task.Get('description', '')); // fallback to description
+end;
+
+procedure TAIProjectTasks.SetTaskLongDescription(const ATaskID, AText: string);
+var
+  Task: TJSONObject;
+  LIndex: Integer;
+begin
+  Task := GetTaskByID(ATaskID);
+  if Assigned(Task) then
+  begin
+    LIndex := Task.IndexOfName('long_description');
+    if LIndex >= 0 then
+      Task.Delete(LIndex);
+    Task.Add('long_description', AText);
+  end;
 end;
 
 function TAIProjectTasks.RecalculateEstimates: Boolean;

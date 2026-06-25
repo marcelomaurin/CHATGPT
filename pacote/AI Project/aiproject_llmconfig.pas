@@ -11,6 +11,7 @@ type
   { TAIProjectLLMConfig — stores and applies LLM configuration to a TAIProject }
   TAIProjectLLMConfig = class(TComponent)
   private
+    FChatGPT: TCHATGPT;
     FProject: TAIProject;
     FProvider: TAIProvider;
     FModel: string;
@@ -29,10 +30,14 @@ type
     { Reads current config from the linked TAIProject into this component. }
     procedure LoadFromProject;
     
+    { Reads current config from the linked TCHATGPT into this component. }
+    procedure LoadFromChatGPT;
+    
     function ValidateConfig: Boolean;
     function TestConnection: Boolean;
   published
     property Project: TAIProject read FProject write FProject;
+    property ChatGPT: TCHATGPT read FChatGPT write FChatGPT;
 
     property Provider: TAIProvider read FProvider write FProvider default AIP_OPENAI;
     property Model: string read FModel write FModel;
@@ -79,6 +84,15 @@ begin
   FProject.SaveToken := FSaveToken;
   // Only apply token to project — never persisted unless SaveToken=True
   FProject.Token := FToken;
+  
+  if Assigned(FChatGPT) then
+  begin
+    FChatGPT.Provider := FProvider;
+    FChatGPT.CustomModel := FModel;
+    FChatGPT.TOKEN := FToken;
+    if FProvider = AIP_LOCAL then
+      FChatGPT.LocalIP := FEndpoint;
+  end;
 end;
 
 procedure TAIProjectLLMConfig.LoadFromProject;
@@ -89,6 +103,16 @@ begin
   FEndpoint := FProject.LocalURL;
   FSaveToken := FProject.SaveToken;
   FToken := FProject.Token;
+end;
+
+procedure TAIProjectLLMConfig.LoadFromChatGPT;
+begin
+  if not Assigned(FChatGPT) then Exit;
+  FProvider := FChatGPT.Provider;
+  FModel := FChatGPT.CustomModel;
+  FToken := FChatGPT.TOKEN;
+  if FProvider = AIP_LOCAL then
+    FEndpoint := FChatGPT.LocalIP;
 end;
 
 function TAIProjectLLMConfig.ValidateConfig: Boolean;

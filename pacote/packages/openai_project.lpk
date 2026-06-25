@@ -47,6 +47,11 @@
         <UnitName Value="aiproject_tasks"/>
       </Item>
       <Item>
+        <Filename Value="..\AI Project\aiproject_specification.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiproject_specification"/>
+      </Item>
+      <Item>
         <Filename Value="..\AI Project\aiproject_dependencies.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiproject_dependencies"/>
