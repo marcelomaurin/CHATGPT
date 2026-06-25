@@ -156,9 +156,20 @@ Use esta classificação para documentação, README de abas, samples e planejam
 | `TAIAgent` | `aiagent.pas` | `openai_agent` | Experimental | Agente com ações; exige segurança |
 | `TAIAgentSafety` | `aiagentsafety.pas` | `openai_agent` | Beta | Bloqueios conservadores e modo simulação |
 | `TAIAgentExecutor` | `aiagent_executors.pas` | `openai_agent` | Experimental | Executores devem ser validados por ação |
-| `TAIProject` | `aiproject.pas` | `openai_agent` | Beta | Coordenação de projetos IA (migrado para openai_agent) |
 | `TAIPipeline` | `aipipeline.pas` | `openai_agent` | Beta | Orquestração de fluxos ML, LLM e Agentes (migrado para openai_agent) |
 | `TAIWizardConfig` | `aiwizardconfig.pas` | `openai_agent` | Beta | Assistente visual de configurações iniciais (migrado para openai_agent) |
+
+---
+
+## Project
+
+| Componente | Unit | Pacote | Status | Observação |
+|---|---|---|---|---|
+| `TAIProject` | `aiproject.pas` | `openai_project` | Beta | Coordenação e armazenamento JSON do projeto |
+| `TAIProjectSpecification` | `aiproject_specification.pas` | `openai_project` | Beta | Geração de especificação de projeto com IA |
+| `TAIProjectTasks` | `aiproject_tasks.pas` | `openai_project` | Beta | Gerenciamento de tarefas do projeto |
+| `TAIProjectStorage` | `aiproject_storage.pas` | `openai_project` | Beta | Gravação e leitura do projeto JSON |
+| `TAIProjectLLMConfig` | `aiproject_llmconfig.pas` | `openai_project` | Beta | Configuração de LLM e Token para o projeto |
 
 ---
 
