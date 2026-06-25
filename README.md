@@ -70,21 +70,21 @@ Para novos projetos, use diretamente os pacotes modulares.
 
 | Pacote | Finalidade | Uso recomendado | Status |
 |---|---|---|---|
-| `openai_core.lpk` | Componentes centrais, LLM, base comum, utilitários principais e suporte a projetos | Instalar primeiro | **Essencial** |
-| `openai_python.lpk` | Conectores Python e executores de modelos (TPythonConnector, TYoloDetect, TFaceDetection, TCNNClassifier, TLSTMPredictor, TAIPythonRuntime) | Opcional | **Opcional** |
-| `openai_ml.lpk` | Machine learning simples e matemática em Pascal (Rede Neural, Perceptron, SOM) | Opcional | **Opcional** |
-| `openai_graph.lpk` | Grafos, classificação por grafo, exportação e relatórios | Opcional | **Opcional** |
-| `openai_files.lpk` | Varredura de diretórios, Disk Tree Scanner e gerenciamento físico de arquivos | Opcional | **Opcional** |
-| `openai_output.lpk` | Saídas, relatórios, PDF, TXT, geração de arquivos Word/Excel compatíveis | Opcional | **Opcional** |
-| `openai_input.lpk` | Entrada, captura unificada (TAICaptureSource), e-mail, sockets, serial, MQTT, Modbus, Profinet | Opcional | **Opcional** |
-| `openai_vision.lpk` | OpenCV, backends nativos de câmera (VFW/V4L2), face e motion tracker, pose detector (MediaPipe 64-bit) | Opcional | **Opcional** |
-| `openai_image.lpk` | Filtros rápidos de pixel 100% nativos (Grayscale, Negative, Blur, Sobel, etc.) | Opcional | **Opcional** |
-| `openai_voice.lpk` | Voz, áudio, sintetizador de texto para fala e filtros sonoros | Opcional | **Opcional** |
-| `openai_simulation.lpk` | Simulações em grade 2D, motor de regras, comportamento e movimentação | Opcional | **Opcional** |
-| `openai_industrial.lpk` | Modbus, MQTT e pontes PLC industriais | Experimental | **Experimental** |
-| `openai_graphic.lpk` | Visualização 3D, STL/OBJ, avatar e integração Tripo3D | Experimental | **Experimental** |
-| `openai_agent.lpk` | Agentes autônomos, regras de segurança estrita e executores de ação | Experimental | **Experimental** |
-| `openai_aidbase.lpk` | Dicionários de dados e metadados de bancos de dados para IA (TAIPostgreSQLDictionary, TAISQLiteDictionary, etc.) | Opcional | **Opcional** |
+| `openai_core.lpk` | Componentes centrais, LLM, base comum, utilitários principais e suporte a projetos | **Essencial** | Stable / Beta |
+| `openai_python.lpk` | Conectores Python e executores de modelos (TPythonConnector, TYoloDetect, TFaceDetection, TCNNClassifier, TLSTMPredictor, TAIPythonRuntime) | Opcional | Beta / Experimental |
+| `openai_ml.lpk` | Machine learning simples e matemática em Pascal (Rede Neural, Perceptron, SOM) | Opcional | Beta / Experimental |
+| `openai_graph.lpk` | Grafos, classificação por grafo, exportação e relatórios | Opcional | Beta / Experimental |
+| `openai_files.lpk` | Varredura de diretórios, Disk Tree Scanner e gerenciamento físico de arquivos | Opcional | Beta |
+| `openai_output.lpk` | Saídas, relatórios, PDF, TXT, geração de arquivos Word/Excel compatíveis | Opcional | Stable / Beta |
+| `openai_input.lpk` | Entrada, captura unificada (TAICaptureSource), e-mail, sockets, serial, MQTT, Modbus, Profinet | Opcional | Beta |
+| `openai_vision.lpk` | OpenCV, backends nativos de câmera (VFW/V4L2), face e motion tracker, pose detector (MediaPipe 64-bit) | Opcional | Stable / Beta / Exp |
+| `openai_image.lpk` | Filtros rápidos de pixel 100% nativos (Grayscale, Negative, Blur, Sobel, etc.) | Opcional | Stable |
+| `openai_voice.lpk` | Voz, áudio, sintetizador de texto para fala e filtros sonoros | Opcional | Stable / Beta |
+| `openai_simulation.lpk` | Simulações em grade 2D, motor de regras, comportamento e movimentação | Opcional | Experimental |
+| `openai_industrial.lpk` | Modbus, MQTT e pontes PLC industriais | Opcional | Beta / Experimental |
+| `openai_graphic.lpk` | Visualização 3D, STL/OBJ, avatar e integração Tripo3D | Opcional | Experimental |
+| `openai_agent.lpk` | Agentes autônomos, regras de segurança estrita e executores de ação | Opcional | Beta / Experimental |
+| `openai_aidbase.lpk` | Dicionários de dados e metadados de bancos de dados para IA (TAIPostgreSQLDictionary, TAISQLiteDictionary, etc.) | Opcional | Beta / Experimental |
 
 > **Nota sobre o Pacote Legado**: O pacote antigo e monolítico `openai.lpk` foi completamente descontinuado e removido. Utilize a estrutura modular acima.
 
