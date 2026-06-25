@@ -271,6 +271,12 @@ Samples nativos em validação/documentação:
 > As imagens abaixo demonstram recursos já testados ou atualmente em desenvolvimento.
 > Componentes novos podem não ter ainda demonstrações visuais completas.
 
+### AI Project Demo
+
+![AI Project Demo](screenshots/project_tasklist_ai.jpg)
+
+Demonstração do gerador e gerenciador de projetos e tarefas (Gantt, Timeline) integrados com IA.
+
 ### CNN Demo
 
 ![CNN Demo](screenshots/cnn_demo.jpg)
