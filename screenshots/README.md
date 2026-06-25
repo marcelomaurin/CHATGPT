@@ -1,5 +1,9 @@
 # Screenshots
 
+## AI Project Demo
+
+![AI Project Demo](project_tasklist_ai.jpg)
+
 ## CNN Classifier Complete Demo
 
 ![CNN Classifier Complete Demo](cnn_classifier_complete_demo.jpg)
