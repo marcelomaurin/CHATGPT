@@ -1,70 +1,393 @@
 # Project TaskList AI Demo
 
-Este projeto demonstra o uso da suíte **Lazarus AI Suite (AI Project)** para o planejamento e gerenciamento estruturado de projetos utilizando Inteligência Artificial (modelos LLM como OpenAI, Ollama, etc.).
+Este sample demonstra o uso de componentes do pacote **AI Project** da Lazarus AI Suite para criar um fluxo simples de planejamento de projeto com apoio de LLM.
 
-## 🎯 Objetivo
+O objetivo atual deste sample é mostrar, de forma prática, como um formulário Lazarus pode:
 
-O objetivo deste projeto não é ser um gerenciador de tarefas completo para o usuário final, mas sim uma **Prova de Conceito (PoC)** robusta e arquitetural. Ele ilustra como separar adequadamente as responsabilidades na interface visual (View) da lógica de orquestração de IA (Controller/Model) usando nossa arquitetura de componentes.
+1. configurar um provedor/modelo de IA;
+2. coletar dados básicos de um projeto;
+3. pedir ao LLM uma especificação inicial em JSON;
+4. pedir ao LLM a geração de tarefas técnicas;
+5. armazenar o estado do projeto em `ProjectData`;
+6. exibir tarefas em grid, status e JSON/log;
+7. salvar e carregar o arquivo `.aiproj.json`.
 
-O fluxo de planejamento provado neste demo segue os preceitos de uma engenharia de projeto guiada por IA:
-1. **Configuração de LLM:** Configurar chaves e modelos de IA.
-2. **Especificação de Escopo:** Coletar um escopo básico (ideia/briefing) e utilizar a IA para redigir uma documentação ágil completa (Visão, Requisitos, Riscos).
-3. **Quebra de Tarefas:** Utilizar a especificação enriquecida para quebrar o projeto em tarefas técnicas encadeadas.
-4. **Gerenciamento e Visualização:** Monitorar as tarefas em um ambiente Kanban/Grid, incluindo painéis de Status, gráficos de Gantt e Timeline.
-5. **Persistência e Relatórios:** Exportar relatórios em formato Markdown, JSON e salvar o estado completo (.aiproj.json).
-
----
-
-## ⚙️ Arquitetura Orientada a Componentes (Deep Dive)
-
-O principal pilar da arquitetura do pacote **AI Project** é a descentralização. Em vez de centralizar prompts, tratamentos JSON e conexões HTTP em um `Form` monstruoso, o **Lazarus AI Suite** encapsula lógicas complexas de domínio em componentes especialistas. 
-
-Todos os componentes interagem com uma fonte de verdade única: a propriedade `ProjectData`, um objeto JSON persistido em memória que representa o estado completo do projeto.
-
-### 1. Motor e Comunicação Base
-- **`TCHATGPT` (do pacote openai_core):** É o motor universal de comunicação LLM. Ele não entende o que é um projeto, apenas processa prompts e devolve respostas. Todos os componentes inteligentes do *AI Project* precisam estar linkados a um objeto `TCHATGPT` para funcionar.
-- **`TAIProjectLLMConfig`:** Facilita a configuração do motor. No demo, este componente é responsável por ler os dados da aba "Config IA" (Provedor, Modelo, Endpoint, Token) e repassar essas credenciais dinamicamente para o `TCHATGPT`, sem que o desenvolvedor precise codificar integrações manuais.
-
-### 2. Ciclo de Vida do Projeto
-- **`TAIProject`:** É o coração estrutural do projeto. Ele hospeda a instância base do `ProjectData`. Os componentes visuais (Grids, Timelines, Gráficos) se vinculam a este componente para refletir mudanças no estado do JSON de forma reativa.
-
-### 3. Orquestração e Geração de Conteúdo (Inteligência)
-- **`TAIProjectSpecification`:** *O Engenheiro de Requisitos*. 
-  Sua responsabilidade é ler os campos básicos descritos pelo usuário (Nome, Objetivo, Restrições, Entregáveis) e acionar o `TCHATGPT` com um prompt específico de engenharia de software ágil. Ele traduz uma ideia de 2 linhas em um documento contendo:
-  - Visão de Negócio
-  - Requisitos Funcionais e Não Funcionais
-  - Riscos do Projeto
-  - Épicos e Histórias de Usuário
-  O resultado é embutido na chave `specification` do `ProjectData`.
-  
-- **`TAIProjectTasks`:** *O Gerente de Projetos*.
-  Este componente consome a `specification` gerada no passo anterior. Ele instrui o `TCHATGPT` a ler a especificação rica e quebrar o projeto em tarefas (Tasks). O motor cuida de solicitar um retorno em formato JSON estrito, faz o parsing da resposta do LLM e popula a árvore de tarefas com dependências, prioridades, estimativas de horas e datas.
-
-### 4. Interface Gráfica e Apresentação Visuais
-- **`TAIProjectTaskGrid` e `TAITaskActionPanel`:** Estes controles se atrelam ao `TAIProject` e fazem o *bind* bidirecional da árvore de tarefas. O Grid lista as tarefas; o painel permite realizar "apontamentos" e ações, mudando o estado da tarefa (ex: TODO -> DOING).
-- **`TAIProjectStatusPanel`:** Lê as horas estimadas vs reais e os percentuais de completude para mostrar um sumário executivo em tempo real.
-- **`TAIProjectGantt` e `TAIProjectTimeline`:** Renderizam o plano de projeto. O Gantt foca no encadeamento lógico e dependências; a Timeline foca no histórico de eventos contínuos.
-
-### 5. Persistência e Exportação
-- **`TAIProjectStorage`:** Responsável exclusivo pelas operações de disco. Serializa o `ProjectData` em arquivos `.aiproj.json` e o recupera, restaurando todo o contexto do projeto instantaneamente, sem perder as dependências encadeadas.
-- **`TAIProjectReports`:** Um extrator que lê o JSON estruturado e compila arquivos `.md` elegantes contendo toda a documentação, escopo e relação de tarefas para entrega final.
-
-> **Nota de Design:** Anteriormente, o componente `TAIProjectAgents` (O RH de Inteligência) estava incluído neste demo. Ele foi intencionalmente removido para manter o escopo deste sample restrito apenas à mecânica fundamental de **Escopo -> Tarefas**. Para orquestração multi-agentes e auto-associação de tarefas a perfis sintéticos de IA, consulte as documentações avançadas de Agentes do pacote `openai_agent`.
+> Observação importante: este README descreve o que o sample faz **hoje**. Ele não descreve uma versão ideal futura do demo.
 
 ---
 
-## 🚀 Como Executar o Fluxo
+## Objetivo real do sample
 
-1. **Abra o Projeto:** No Lazarus, abra `project_tasklist_ai_demo.lpi`. Compile e execute.
-2. **Configuração de LLM:** 
-   - Na aba **Config IA**, selecione o provedor (ex: `OpenAI`).
-   - Informe seu Token de acesso (API Key).
-   - Clique em **Aplicar Configuração** (isso aciona o `TAIProjectLLMConfig`).
-3. **Escopo:**
-   - Na aba **Projeto**, digite um cenário simples.
-   - Clique no botão **"1. Gerar Especificação com IA"** e aguarde. O `TAIProjectSpecification` fará o trabalho pesado. O resultado detalhado aparecerá nos campos de memo abaixo.
-4. **Tarefas:**
-   - Estando satisfeito com o escopo criado, clique no botão **"2. Gerar Tarefas com IA"**.
-   - O `TAIProjectTasks` assumirá. Acompanhe a aba `JSON/Log` para ver o tráfego gerado pela IA.
-5. **Acompanhamento Visual:**
-   - Navegue para as abas **Tarefas**, **Execução**, **Gantt**, **Timeline** e **Relatório**. Note como todos os componentes gráficos desenharam e interpretaram as informações sem que uma única linha de código extra fosse necessária no seu formulário `main.pas`.
+O `project_tasklist_ai_demo` é uma prova de conceito de integração entre:
+
+- um formulário Lazarus;
+- o componente `TCHATGPT`;
+- o componente central `TAIProject`;
+- componentes auxiliares do pacote `AI Project`;
+- uma estrutura JSON de projeto mantida em `AIProject1.ProjectData`.
+
+Ele ainda não é um gerenciador completo de projetos. Também não é, nesta versão, um demo limpo apenas de componentes encapsulados. Parte importante da lógica de prompt, validação e integração de JSON ainda está implementada no `main.pas`.
+
+---
+
+## Fluxo implementado atualmente
+
+### 1. Configuração da IA
+
+Na aba **Config IA**, o usuário seleciona:
+
+- provedor;
+- modelo;
+- token;
+- endpoint/local URL;
+- versão de IA do componente `TCHATGPT`.
+
+Ao clicar em **Aplicar Configuração**, o formulário preenche `AIProjectLLMConfig1`, aplica a configuração em `AIProject1` e também atualiza diretamente o componente `ChatGPT1`.
+
+O botão **Testar IA** envia uma pergunta simples para `ChatGPT1` e espera uma resposta do LLM.
+
+### 2. Cadastro básico do projeto
+
+Na aba **Projeto**, o usuário informa:
+
+- nome do projeto;
+- descrição/objetivo;
+- restrições;
+- entregáveis esperados.
+
+Essas informações são copiadas para propriedades de `AIProject1`, como `ProjectName`, `Goal`, `Constraints` e `ExpectedDeliverables`.
+
+### 3. Geração de especificação com IA
+
+O botão **Gerar Descrição Elaborada (IA)** executa o fluxo de especificação.
+
+Na implementação atual, o prompt é montado no próprio `main.pas`, enviado por `ChatGPT1.SendQuestion`, interpretado como JSON e integrado em `AIProject1.ProjectData`.
+
+A estrutura esperada é:
+
+```json
+{
+  "project": {
+    "name": "...",
+    "description": "...",
+    "goal": "...",
+    "context": "...",
+    "scope": "...",
+    "constraints": "...",
+    "expected_deliverables": "..."
+  },
+  "agile_documents": {
+    "business_vision": "...",
+    "functional_requirements": [],
+    "non_functional_requirements": [],
+    "stakeholders": [],
+    "risk_map": [],
+    "epics": [],
+    "user_stories": []
+  }
+}
+```
+
+A documentação gerada é integrada em `ProjectData.project` e `ProjectData.agile_documents`.
+
+### 4. Geração de tarefas com IA
+
+O botão **Gerar Tarefas com IA** envia ao LLM o JSON atual do projeto e solicita uma lista de tarefas técnicas.
+
+A estrutura esperada é:
+
+```json
+{
+  "planning": {
+    "tasks": [
+      {
+        "id": "T001",
+        "epic_id": "E001",
+        "title": "...",
+        "description": "...",
+        "long_description": "...",
+        "acceptance_criteria": "...",
+        "priority": "alta",
+        "status": "draft",
+        "dependency_type": "serial",
+        "dependencies": [],
+        "can_run_in_parallel": false,
+        "estimated_hours": {
+          "intern": 8,
+          "junior": 6,
+          "mid_level": 4,
+          "senior": 2
+        },
+        "suggested_skill_level": "mid_level",
+        "assigned_skill_level": "mid_level",
+        "assigned_to": "DEV",
+        "responsible_profile": "DEV",
+        "planned_start_date": "2026-06-26",
+        "planned_end_date": "2026-06-27",
+        "estimated_duration_days": 1,
+        "progress_percent": 0,
+        "deliverable": "...",
+        "notes": "...",
+        "revision_created": 1,
+        "revision_updated": 1
+      }
+    ]
+  }
+}
+```
+
+Após validar a resposta, o sample substitui `ProjectData.planning.tasks` pelas tarefas retornadas e chama `AIProjectTasks1.RecalculateEstimates`.
+
+### 5. Exibição das tarefas
+
+A aba **Tarefas** usa:
+
+- `TAIProjectStatusPanel` para resumo de status;
+- `TAIProjectTaskGrid` para listar as tarefas;
+- `MemoTaskDescription` para mostrar a descrição longa da tarefa selecionada.
+
+Ao selecionar uma linha no grid, o sample busca a tarefa pelo ID e mostra `long_description` ou `description` no memo.
+
+### 6. JSON e log
+
+A aba **JSON/Log** exibe:
+
+- o JSON completo de `AIProject1.ProjectData`;
+- mensagens de log do fluxo executado;
+- respostas originais do LLM em caso de erro de parsing ou validação.
+
+### 7. Salvar e carregar projeto
+
+O botão **Salvar Projeto** usa `AIProjectStorage1.SaveProjectToFile` para salvar o arquivo:
+
+```text
+project_tasklist_demo.aiproj.json
+```
+
+O botão **Carregar Projeto** usa `AIProjectStorage1.LoadProjectFromFile` para carregar o mesmo arquivo.
+
+Na versão atual, salvar e carregar também usam chamadas auxiliares ao LLM para validação/resumo. Isso é comportamento atual do sample, mas não é obrigatório para persistência do projeto.
+
+---
+
+## Componentes realmente integrados no fluxo atual
+
+### `TCHATGPT` / `ChatGPT1`
+
+É o componente efetivamente usado para comunicação com o LLM.
+
+O sample chama diretamente:
+
+```pascal
+ChatGPT1.SendQuestion(APrompt)
+```
+
+Esse componente é usado em:
+
+- teste de conexão;
+- geração de especificação;
+- geração de tarefas;
+- geração de tarefa adicional;
+- geração de resumo;
+- geração de relatório textual;
+- validação/exportação JSON;
+- validação antes de salvar;
+- confirmação de limpeza.
+
+### `TAIProject` / `AIProject1`
+
+É o componente central do sample.
+
+Ele mantém a estrutura principal em:
+
+```pascal
+AIProject1.ProjectData
+```
+
+O sample usa `AIProject1` para armazenar:
+
+- dados do projeto;
+- documentos ágeis em `agile_documents`;
+- lista de tarefas em `planning.tasks`;
+- configuração básica de projeto;
+- estado serializável do `.aiproj.json`.
+
+Também é chamado:
+
+```pascal
+AIProject1.EnsureProjectStructure;
+```
+
+para garantir que a estrutura JSON mínima exista.
+
+### `TAIProjectLLMConfig` / `AIProjectLLMConfig1`
+
+Usado para receber os dados da aba **Config IA** e aplicar configuração em `AIProject1` e `ChatGPT1`.
+
+O sample usa:
+
+```pascal
+AIProjectLLMConfig1.ApplyToProject;
+```
+
+Além disso, o formulário ainda atualiza diretamente algumas propriedades de `ChatGPT1`, como modelo, token, endpoint e tipo de chat.
+
+### `TAIProjectStorage` / `AIProjectStorage1`
+
+Usado para persistência do projeto.
+
+Métodos usados:
+
+```pascal
+AIProjectStorage1.SaveProjectToFile(...)
+AIProjectStorage1.LoadProjectFromFile(...)
+```
+
+O componente está realmente integrado ao fluxo de salvar e carregar.
+
+### `TAIProjectTasks` / `AIProjectTasks1`
+
+Usado para trabalhar com as tarefas já armazenadas em `ProjectData`.
+
+Na versão atual, ele é usado principalmente para:
+
+```pascal
+AIProjectTasks1.RecalculateEstimates;
+AIProjectTasks1.TaskLongDescription[TaskID];
+```
+
+A geração das tarefas ainda é feita pelo `main.pas`, com prompt manual enviado ao `ChatGPT1`.
+
+### `TAIProjectSpecification` / `AIProjectSpecification1`
+
+O componente está presente no formulário e vinculado a `AIProject1`.
+
+Porém, na versão atual do sample, a geração da especificação não chama diretamente um método público do componente. O fluxo de especificação é feito no `main.pas`, usando prompt manual, parsing manual e integração manual no `ProjectData`.
+
+Portanto, este componente está **presente e conectado**, mas **não é o executor principal do fluxo atual**.
+
+### `TAIProjectTaskGrid` / `TaskGrid1`
+
+Componente visual realmente integrado.
+
+Usado para exibir `ProjectData.planning.tasks` em formato de grid.
+
+O formulário chama:
+
+```pascal
+TaskGrid1.LoadTasks;
+```
+
+### `TAIProjectStatusPanel` / `StatusPanel1`
+
+Componente visual realmente integrado.
+
+Usado para atualizar o painel de status com base no projeto atual.
+
+O formulário chama:
+
+```pascal
+StatusPanel1.RefreshStatus;
+```
+
+### `TAITaskActions` / `AITaskActions1`
+
+O componente está presente no formulário e vinculado ao projeto.
+
+Na versão atual, ele não é uma parte central do fluxo visual demonstrado. Não há uma aba ou painel completo de ações de tarefa exposto ao usuário neste sample.
+
+### `TAIProjectDescription` / `AIProjectDescription1`
+
+O componente está presente e vinculado ao projeto.
+
+Na versão atual do sample, ele não é usado diretamente pelo fluxo principal de geração de especificação ou tarefas.
+
+---
+
+## Componentes presentes ou citados, mas não demonstrados completamente
+
+### Agentes
+
+A documentação anterior dizia que agentes haviam sido removidos do sample. No estado atual do projeto, a remoção ainda não está completa.
+
+Ainda existem no sample:
+
+- aba `Agent`;
+- `TAIAgentManagerFrame`;
+- referências a units de agentes;
+- botões e métodos relacionados a geração de agentes;
+- dependência do pacote `openai_agent` no `.lpi`.
+
+Portanto, agentes estão **parcialmente presentes**, mas o fluxo principal do sample continua sendo geração de especificação e tarefas.
+
+### Gantt e Timeline
+
+O README anterior descrevia abas de Gantt e Timeline como parte do fluxo principal.
+
+Na versão atual do sample, essas abas ainda não estão demonstradas de forma completa na interface principal.
+
+O componente `TAIProjectGantt` aparece declarado no `main.pas`, mas a tela atual não apresenta uma aba Gantt completa integrada ao fluxo. Também não há aba Timeline completa no formulário atual.
+
+### Relatórios
+
+O sample possui botões e métodos para resumo, relatório de tarefas, relatório de agentes, exportação Markdown e exportação JSON.
+
+Na versão atual, esses relatórios são gerados por chamadas ao LLM no próprio formulário, e não por um fluxo visual completo baseado em `TAIProjectReports`.
+
+---
+
+## Arquivo gerado
+
+O sample salva o projeto no arquivo fixo:
+
+```text
+project_tasklist_demo.aiproj.json
+```
+
+Esse arquivo contém o JSON completo do projeto, incluindo:
+
+- `project`;
+- `agile_documents`;
+- `planning.tasks`;
+- demais estruturas garantidas por `AIProject1.EnsureProjectStructure`.
+
+---
+
+## Como executar o fluxo atual
+
+1. Abra `project_tasklist_ai_demo.lpi` no Lazarus.
+2. Compile e execute.
+3. Acesse a aba **Config IA**.
+4. Selecione o provedor e o modelo.
+5. Informe token ou endpoint, conforme o provedor.
+6. Clique em **Aplicar Configuração**.
+7. Clique em **Testar IA** para validar a comunicação.
+8. Vá para a aba **Projeto**.
+9. Preencha nome, objetivo, restrições e entregáveis.
+10. Gere a especificação usando o botão **Gerar Descrição Elaborada (IA)**, disponível atualmente na aba **Tarefas**.
+11. Gere as tarefas usando **Gerar Tarefas com IA**.
+12. Confira o resultado na aba **Tarefas**.
+13. Confira o JSON e logs na aba **JSON/Log**.
+14. Salve o projeto com **Salvar Projeto**.
+15. Carregue novamente com **Carregar Projeto**.
+
+---
+
+## Limitações conhecidas desta versão
+
+- O formulário ainda concentra muita lógica de prompt, parsing e validação JSON.
+- `TAIProjectSpecification` está conectado, mas o fluxo atual de especificação ainda é executado manualmente pelo `main.pas`.
+- `TAIProjectTasks` é usado para recalcular e consultar tarefas, mas a geração das tarefas ainda é feita no formulário.
+- Agentes ainda aparecem parcialmente no sample, embora não sejam o foco principal do demo.
+- Gantt e Timeline ainda não estão expostos em abas completas no formulário.
+- Exportação Markdown e validação JSON ainda usam chamadas ao LLM, em vez de usar exclusivamente componentes de relatório/exportação.
+- Salvar, carregar e limpar ainda têm chamadas auxiliares ao LLM, embora essas operações possam ser locais.
+- O arquivo salvo usa nome fixo `project_tasklist_demo.aiproj.json`.
+
+---
+
+## Escopo real desta versão
+
+Este sample deve ser entendido como uma demonstração prática de integração inicial entre `TCHATGPT`, `TAIProject`, `TAIProjectLLMConfig`, `TAIProjectStorage`, `TAIProjectTasks`, `TAIProjectTaskGrid` e `TAIProjectStatusPanel`.
+
+Ele ainda não deve ser tratado como exemplo final de arquitetura ideal do pacote `AI Project`.
