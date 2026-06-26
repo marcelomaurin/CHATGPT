@@ -1,9 +1,27 @@
-﻿program AIChromiumBrowser_Test;
+program AIChromiumBrowser_Test;
+
+{$mode objfpc}{$H+}
 
 uses
-  Interfaces, Forms, aichromiumbrowser;
+  {$IFDEF UNIX}
+  cthreads,
+  {$ENDIF}
+  Interfaces, // this includes the LCL widgetset
+  Forms, main, uCEFApplication, aichromiumbrowser;
+
+{$R *.res}
 
 begin
-  Application.Initialize;
-  Application.Run;
+  GlobalCEFApp := TCefApplication.Create;
+
+  if GlobalCEFApp.StartMainProcess then
+  begin
+    RequireDerivedFormResource:=True;
+    Application.Scaled:=True;
+    Application.Initialize;
+    Application.CreateForm(TfrmMain, frmMain);
+    Application.Run;
+  end;
+
+  GlobalCEFApp.Free;
 end.

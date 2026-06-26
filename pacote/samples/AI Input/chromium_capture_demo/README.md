@@ -1,22 +1,19 @@
-# Chromium Capture Demo
+# Chromium Google Search Demo
 
-This demo shows how to use `TAIChromiumBrowser` from the `openai_input` package.
+This demo shows how to use `TAIChromiumBrowser` from the `openai_input` package to perform a practical web automation task:
+**Lazarus controla o campo de pesquisa do Google dentro do Chromium.**
 
 The component is based on CEF4Delphi `TChromiumWindow`.
 
 ## Features
 
+- **Google Search Automation**: Open Google, locate the search field dynamically in the DOM, fill it, and submit the search using real DOM events.
 - Initialize Chromium
 - Navigate to a real URL
-- Go back
-- Go forward
-- Reload
+- Go back, Go forward, Reload
 - Execute JavaScript
-- Wait for CSS selector
-- Click CSS selector
-- Set input value
+- Advanced DOM manipulation (Wait for CSS selector, Click CSS selector, Set input value)
 - Get DOM HTML
-- Save screenshot, when supported by the component
 
 ## Requirements
 
@@ -30,3 +27,4 @@ The component is based on CEF4Delphi `TChromiumWindow`.
 This demo does not use simulation mode.
 This demo does not use TIpHtmlPanel.
 This demo does not fetch HTML with TFPHTTPClient.
+All rendering and JavaScript execution is performed by a real embedded Chromium browser instance.

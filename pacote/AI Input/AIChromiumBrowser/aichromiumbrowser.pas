@@ -72,6 +72,7 @@ type
     function WaitForSelector(const ASelector: string; ATimeoutMs: Integer = 0): Boolean;
     function Click(const ASelector: string): Boolean;
     function SetValue(const ASelector, AValue: string): Boolean;
+    function GoogleSearch(const AText: string): Boolean;
     function Screenshot(const AFileName: string): Boolean;
     procedure CloseBrowser;
 
@@ -481,6 +482,75 @@ begin
               '  return true; ' +
               '})();';
   Result := ExecuteJavaScript(JSScript);
+end;
+
+function TAIChromiumBrowser.GoogleSearch(const AText: string): Boolean;
+var
+  JSScript: string;
+begin
+  Result := False;
+  ClearError;
+
+  if Trim(AText) = '' then
+  begin
+    SetError('Texto da pesquisa não informado.');
+    Exit;
+  end;
+
+  if not FBrowserReady then
+  begin
+    SetError('Browser não está pronto.');
+    Exit;
+  end;
+
+  JSScript :=
+    '(function() {' +
+    '  var value = "' + EscapeJSString(AText) + '";' +
+
+    '  var el = document.querySelector(''textarea[name="q"]'');' +
+    '  if (!el) el = document.querySelector(''input[name="q"]'');' +
+    '  if (!el) el = document.querySelector(''[aria-label*="Pesquisar"]'');' +
+    '  if (!el) el = document.querySelector(''[aria-label*="Search"]'');' +
+    '  if (!el) el = document.querySelector(''[title*="Pesquisar"]'');' +
+    '  if (!el) el = document.querySelector(''[title*="Search"]'');' +
+
+    '  if (!el) {' +
+    '    window.__ai_last_google_search = "SEARCH_BOX_NOT_FOUND";' +
+    '    return false;' +
+    '  }' +
+
+    '  el.focus();' +
+    '  el.value = value;' +
+
+    '  el.dispatchEvent(new Event("input", { bubbles: true }));' +
+    '  el.dispatchEvent(new Event("change", { bubbles: true }));' +
+
+    '  var form = el.form;' +
+    '  if (form) {' +
+    '    window.__ai_last_google_search = "FORM_SUBMIT";' +
+    '    form.submit();' +
+    '    return true;' +
+    '  }' +
+
+    '  var ev = new KeyboardEvent("keydown", {' +
+    '    key: "Enter",' +
+    '    code: "Enter",' +
+    '    keyCode: 13,' +
+    '    which: 13,' +
+    '    bubbles: true' +
+    '  });' +
+    '  el.dispatchEvent(ev);' +
+
+    '  window.__ai_last_google_search = "ENTER_SENT";' +
+    '  return true;' +
+    '})();';
+
+  Result := ExecuteJavaScript(JSScript);
+
+  if Result then
+    FLastResult := 'Pesquisa enviada para o Google.'
+  else
+    SetError('Falha ao enviar pesquisa para o Google.');
 end;
 
 function TAIChromiumBrowser.WaitForSelector(const ASelector: string; ATimeoutMs: Integer = 0): Boolean;
