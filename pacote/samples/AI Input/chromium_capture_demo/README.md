@@ -1,14 +1,32 @@
-# Chromium Capture Demo (aichromiumbrowser)
+# Chromium Capture Demo
 
-This sample project demonstrates the usage of component `aichromiumbrowser` from the `openai_input` package.
+This demo shows how to use `TAIChromiumBrowser` from the `openai_input` package.
 
-## Features Illustrated
-- Exercises at least 3 component properties.
-- Calls at least 2 methods.
-- Supports **Simulation Mode** (enabled by default) to allow immediate verification of components without hardware, brokers, API credentials, or local Python installations.
+The component is based on CEF4Delphi `TChromiumWindow`.
 
-## How to Build & Run
-1. Open this project folder in Lazarus.
-2. Verify package `openai_input` is available or referenced.
-3. Build the project (`Ctrl+F9` or run `lazbuild.exe`).
-4. Execute and click "Execute Test".
+## Features
+
+- Initialize Chromium
+- Navigate to a real URL
+- Go back
+- Go forward
+- Reload
+- Execute JavaScript
+- Wait for CSS selector
+- Click CSS selector
+- Set input value
+- Get DOM HTML
+- Save screenshot, when supported by the component
+
+## Requirements
+
+- Lazarus / Free Pascal
+- openai_input package
+- CEF4Delphi installed
+- CEF binaries available for the target platform
+
+## Important
+
+This demo does not use simulation mode.
+This demo does not use TIpHtmlPanel.
+This demo does not fetch HTML with TFPHTTPClient.

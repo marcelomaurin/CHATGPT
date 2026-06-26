@@ -108,7 +108,7 @@ Use esta classificação para documentação, README de abas, samples e planejam
 | `TAIEmailClient` | `aiemail.pas` | `openai_input` | Beta | E-mail SMTP/POP3 |
 | `TAIMessenger` | `aimessenger.pas` | `openai_input` | Beta | WhatsApp e SMS |
 | `TAIIndustrialBridge` | `aiindustrial.pas` | `openai_industrial` | Beta | Ponte Profinet/Profibus para CLPs |
-| `TAIChromiumBrowser` | `aichromiumbrowser.pas` | `openai_input` | Beta | Navegador Chromium incorporado |
+| `TAIChromiumBrowser` | `aichromiumbrowser.pas` | `openai_input` | Beta/Experimental | Navegador Chromium real baseado em CEF4Delphi `TChromiumWindow`; substitui a renderização anterior via `TIpHtmlPanel`. |
 
 ---
 

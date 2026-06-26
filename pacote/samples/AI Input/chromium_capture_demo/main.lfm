@@ -1,80 +1,241 @@
 object frmMain: TfrmMain
   Left = 300
-  Height = 600
+  Height = 700
   Top = 150
-  Width = 800
-  Caption = 'Chromium Capture Demo (aichromiumbrowser)'
-  ClientHeight = 600
-  ClientWidth = 800
+  Width = 900
+  Caption = 'Chromium Capture Demo - CEF4Delphi TChromiumWindow'
+  ClientHeight = 700
+  ClientWidth = 900
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   LCLVersion = '3.0.0.3'
   object pnlTop: TPanel
-    Left = 10
-    Height = 150
-    Top = 10
-    Width = 780
+    Left = 0
+    Height = 80
+    Top = 0
+    Width = 900
     Align = alTop
-    BorderSpacing.Around = 10
-    ClientHeight = 150
-    ClientWidth = 780
+    ClientHeight = 80
+    ClientWidth = 900
     TabOrder = 0
     object lblTitle: TLabel
-      Left = 15
-      Height = 25
-      Top = 15
-      Width = 500
-      Caption = 'Chromium Capture Demo (aichromiumbrowser)'
-      Font.Height = -18
-      Font.Name = 'Segoe UI'
-      Font.Style = [fsBold]
-      ParentColor = False
+      Left = 10
+      Height = 15
+      Top = 5
+      Width = 400
+      Caption = 'Chromium Capture Demo - TAIChromiumBrowser + TChromiumWindow'
     end
     object lblStatus: TLabel
-      Left = 15
+      Left = 10
       Height = 15
-      Top = 50
+      Top = 25
       Width = 400
       Caption = 'Status: Ready'
-      ParentColor = False
     end
-    object chkSimulation: TCheckBox
-      Left = 15
-      Height = 19
-      Top = 80
-      Width = 150
-      Caption = 'Simulation Mode'
-      Checked = True
-      State = cbChecked
+    object edURL: TEdit
+      Left = 10
+      Height = 23
+      Top = 50
+      Width = 350
       TabOrder = 0
+      Text = 'https://www.lazarus-ide.org'
     end
-    object btnRun: TButton
-      Left = 200
-      Height = 30
-      Top = 75
-      Width = 150
-      Caption = 'Execute Test'
-      OnClick = btnRunClick
+    object btnInitialize: TButton
+      Left = 370
+      Height = 25
+      Top = 48
+      Width = 70
+      Caption = 'Initialize'
+      OnClick = btnInitializeClick
       TabOrder = 1
     end
-    object btnClearLog: TButton
-      Left = 360
-      Height = 30
-      Top = 75
-      Width = 120
-      Caption = 'Clear Log'
-      OnClick = btnClearLogClick
+    object btnNavigate: TButton
+      Left = 445
+      Height = 25
+      Top = 48
+      Width = 70
+      Caption = 'Navigate'
+      OnClick = btnNavigateClick
       TabOrder = 2
     end
+    object btnBack: TButton
+      Left = 520
+      Height = 25
+      Top = 48
+      Width = 60
+      Caption = 'Back'
+      OnClick = btnBackClick
+      TabOrder = 3
+    end
+    object btnForward: TButton
+      Left = 585
+      Height = 25
+      Top = 48
+      Width = 60
+      Caption = 'Forward'
+      OnClick = btnForwardClick
+      TabOrder = 4
+    end
+    object btnReload: TButton
+      Left = 650
+      Height = 25
+      Top = 48
+      Width = 60
+      Caption = 'Reload'
+      OnClick = btnReloadClick
+      TabOrder = 5
+    end
+    object btnClearLog: TButton
+      Left = 715
+      Height = 25
+      Top = 48
+      Width = 70
+      Caption = 'Clear Log'
+      OnClick = btnClearLogClick
+      TabOrder = 6
+    end
   end
-  object memoLog: TMemo
-    Left = 10
-    Height = 410
-    Top = 180
-    Width = 780
+  object PageControl1: TPageControl
+    Left = 0
+    Height = 620
+    Top = 80
+    Width = 900
+    ActivePage = tsBrowser
     Align = alClient
-    BorderSpacing.Around = 10
-    ScrollBars = ssAutoBoth
+    TabIndex = 0
     TabOrder = 1
+    object tsBrowser: TTabSheet
+      Caption = 'Browser'
+      ClientHeight = 592
+      ClientWidth = 892
+      object AIChromiumBrowser1: TAIChromiumBrowser
+        Left = 0
+        Height = 592
+        Top = 0
+        Width = 892
+        Prompt = 'Component TAIChromiumBrowser is an embedded Chromium browser based on CEF4Delphi TChromiumWindow. It can navigate real web pages, execute JavaScript, capture DOM HTML, click elements, fill fields, wait for selectors and support web application validation workflows.'
+        URL = ''
+        HTML = ''
+        ShowAddressBar = False
+        DefaultTimeoutMs = 30000
+        Align = alClient
+        TabOrder = 0
+      end
+    end
+    object tsAutomation: TTabSheet
+      Caption = 'Automation'
+      ClientHeight = 592
+      ClientWidth = 892
+      object edSelector: TEdit
+        Left = 10
+        Height = 23
+        Top = 10
+        Width = 200
+        TabOrder = 0
+        Text = 'body'
+      end
+      object btnWaitSelector: TButton
+        Left = 220
+        Height = 25
+        Top = 9
+        Width = 100
+        Caption = 'Wait Selector'
+        OnClick = btnWaitSelectorClick
+        TabOrder = 1
+      end
+      object btnClick: TButton
+        Left = 325
+        Height = 25
+        Top = 9
+        Width = 75
+        Caption = 'Click'
+        OnClick = btnClickClick
+        TabOrder = 2
+      end
+      object edValue: TEdit
+        Left = 10
+        Height = 23
+        Top = 45
+        Width = 200
+        TabOrder = 3
+        Text = 'Marcelo'
+      end
+      object btnSetValue: TButton
+        Left = 220
+        Height = 25
+        Top = 44
+        Width = 100
+        Caption = 'SetValue'
+        OnClick = btnSetValueClick
+        TabOrder = 4
+      end
+      object memoJS: TMemo
+        Left = 10
+        Height = 200
+        Top = 80
+        Width = 500
+        Lines.Strings = (
+          'document.body.style.outline = "5px solid red";'
+          'console.log("TAIChromiumBrowser JavaScript test executed");'
+        )
+        TabOrder = 5
+      end
+      object btnExecuteJS: TButton
+        Left = 10
+        Height = 25
+        Top = 290
+        Width = 100
+        Caption = 'Execute JS'
+        OnClick = btnExecuteJSClick
+        TabOrder = 6
+      end
+      object btnScreenshot: TButton
+        Left = 410
+        Height = 25
+        Top = 9
+        Width = 100
+        Caption = 'Screenshot'
+        OnClick = btnScreenshotClick
+        TabOrder = 7
+      end
+    end
+    object tsHTML: TTabSheet
+      Caption = 'HTML'
+      ClientHeight = 592
+      ClientWidth = 892
+      object btnGetHTML: TButton
+        Left = 10
+        Height = 25
+        Top = 10
+        Width = 100
+        Caption = 'Get HTML'
+        OnClick = btnGetHTMLClick
+        TabOrder = 0
+      end
+      object memoHTML: TMemo
+        Left = 0
+        Height = 540
+        Top = 52
+        Width = 892
+        Align = alBottom
+        Anchors = [akTop, akLeft, akRight, akBottom]
+        ScrollBars = ssAutoBoth
+        TabOrder = 1
+      end
+    end
+    object tsLog: TTabSheet
+      Caption = 'Log'
+      ClientHeight = 592
+      ClientWidth = 892
+      object memoLog: TMemo
+        Left = 0
+        Height = 592
+        Top = 0
+        Width = 892
+        Align = alClient
+        ScrollBars = ssAutoBoth
+        TabOrder = 0
+      end
+    end
   end
 end

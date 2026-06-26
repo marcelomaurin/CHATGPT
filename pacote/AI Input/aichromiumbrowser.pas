@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, ExtCtrls, StdCtrls, Buttons,
-  Graphics, iphtml, fphttpclient, opensslsockets, LCLIntf, LCLType, LResources;
+  Graphics, LCLIntf, LCLType, LResources,
+  uCEFChromiumWindow, uCEFChromium, uCEFInterfaces, uCEFTypes;
 
 type
   { TAIChromiumBrowser }
@@ -17,42 +18,74 @@ type
     FURL: string;
     FHTML: string;
     FShowAddressBar: Boolean;
-    
+    FLastError: string;
+    FLastResult: string;
+    FBrowserReady: Boolean;
+    FDefaultTimeoutMs: Integer;
+    FPendingURL: string;
+
     // Address Bar UI Controls
     FAddressPanel: TPanel;
     FEditURL: TEdit;
     FBtnGo: TSpeedButton;
     FBtnBack: TSpeedButton;
-    
-    // Web Rendering Engine Panel (Cross-platform out-of-the-box fallback)
-    FHtmlPanel: TIpHtmlPanel;
+    FBtnForward: TSpeedButton;
+    FBtnReload: TSpeedButton;
+
+    // CEF4Delphi Browser Window
+    FChromiumWindow: TChromiumWindow;
     FHistory: TStringList;
     FHistoryIdx: Integer;
-    
+
     procedure SetURL(const AValue: string);
     procedure SetShowAddressBar(AValue: Boolean);
     
+    procedure CreateChromiumWindow;
+    procedure ChromiumAfterCreated(Sender: TObject);
+    procedure ChromiumBeforeClose(Sender: TObject);
+    procedure ChromiumClose(Sender: TObject);
+
+    procedure ClearError;
+    procedure SetError(const AMsg: string);
+    function EscapeJSString(const S: string): string;
+
     // Event Handlers
     procedure BtnGoClick(Sender: TObject);
     procedure BtnBackClick(Sender: TObject);
+    procedure BtnForwardClick(Sender: TObject);
+    procedure BtnReloadClick(Sender: TObject);
     procedure EditURLKeyPress(Sender: TObject; var Key: Char);
   protected
     procedure Resize; override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    
+
     procedure Navigate(const AURL: string);
     procedure GoBack;
     procedure GoForward;
     procedure Reload;
     function GetHtmlContent: string;
+
+    function InitializeBrowser: Boolean;
+    function ExecuteJavaScript(const AScript: string): Boolean;
+    function WaitForSelector(const ASelector: string; ATimeoutMs: Integer = 0): Boolean;
+    function Click(const ASelector: string): Boolean;
+    function SetValue(const ASelector, AValue: string): Boolean;
+    function Screenshot(const AFileName: string): Boolean;
+    procedure CloseBrowser;
+
   published
     property Prompt: string read FPrompt write FPrompt;
     property URL: string read FURL write SetURL;
     property HTML: string read FHTML write FHTML;
     property ShowAddressBar: Boolean read FShowAddressBar write SetShowAddressBar default True;
-    
+
+    property LastError: string read FLastError;
+    property LastResult: string read FLastResult;
+    property BrowserReady: Boolean read FBrowserReady;
+    property DefaultTimeoutMs: Integer read FDefaultTimeoutMs write FDefaultTimeoutMs default 30000;
+
     // Standard panel properties exposed for styling
     property Align;
     property Anchors;
@@ -78,16 +111,19 @@ end;
 constructor TAIChromiumBrowser.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  FPrompt := 'Component TAIChromiumBrowser is an embedded web browser widget inherited from TPanel. Properties: URL: string (navigates to web page), HTML: string (raw HTML content), ShowAddressBar: Boolean. Methods: Navigate(const AURL: string), GoBack, GoForward, Reload, GetHtmlContent: string. AI Agent: Use this to visually embed web portals or load internet content for crawling/scraping.';
+  FPrompt := 'Component TAIChromiumBrowser is an embedded Chromium browser based on CEF4Delphi TChromiumWindow. ' +
+             'It can navigate real web pages, execute JavaScript, capture DOM HTML, click elements, fill fields, ' +
+             'wait for selectors and support web application validation workflows.';
   Caption := '';
   FShowAddressBar := True;
   FHistory := TStringList.Create;
   FHistoryIdx := -1;
+  FDefaultTimeoutMs := 30000;
   
   // Set default dimensions
   Width := 600;
   Height := 400;
-  
+
   // 1. Create Address Bar panel
   FAddressPanel := TPanel.Create(Self);
   FAddressPanel.Parent := Self;
@@ -96,7 +132,7 @@ begin
   FAddressPanel.Caption := '';
   FAddressPanel.BevelOuter := bvNone;
   FAddressPanel.Color := $F4F4F4;
-  
+
   // 2. Back Button
   FBtnBack := TSpeedButton.Create(Self);
   FBtnBack.Parent := FAddressPanel;
@@ -107,8 +143,30 @@ begin
   FBtnBack.Left := 5;
   FBtnBack.OnClick := @BtnBackClick;
   FBtnBack.Flat := True;
-  
-  // 3. Go Button
+
+  // 3. Forward Button
+  FBtnForward := TSpeedButton.Create(Self);
+  FBtnForward.Parent := FAddressPanel;
+  FBtnForward.Caption := '>';
+  FBtnForward.Width := 28;
+  FBtnForward.Height := 28;
+  FBtnForward.Top := 5;
+  FBtnForward.Left := FBtnBack.Left + FBtnBack.Width + 2;
+  FBtnForward.OnClick := @BtnForwardClick;
+  FBtnForward.Flat := True;
+
+  // 4. Reload Button
+  FBtnReload := TSpeedButton.Create(Self);
+  FBtnReload.Parent := FAddressPanel;
+  FBtnReload.Caption := '⟳';
+  FBtnReload.Width := 28;
+  FBtnReload.Height := 28;
+  FBtnReload.Top := 5;
+  FBtnReload.Left := FBtnForward.Left + FBtnForward.Width + 2;
+  FBtnReload.OnClick := @BtnReloadClick;
+  FBtnReload.Flat := True;
+
+  // 5. Go Button
   FBtnGo := TSpeedButton.Create(Self);
   FBtnGo.Parent := FAddressPanel;
   FBtnGo.Caption := 'Ir';
@@ -117,8 +175,8 @@ begin
   FBtnGo.Top := 5;
   FBtnGo.OnClick := @BtnGoClick;
   FBtnGo.Flat := True;
-  
-  // 4. URL Edit Box
+
+  // 6. URL Edit Box
   FEditURL := TEdit.Create(Self);
   FEditURL.Parent := FAddressPanel;
   FEditURL.Text := 'https://www.google.com';
@@ -126,18 +184,11 @@ begin
   FEditURL.Height := 28;
   FEditURL.OnKeyPress := @EditURLKeyPress;
   
-  // 5. Create native HTML Rendering Panel
-  FHtmlPanel := TIpHtmlPanel.Create(Self);
-  FHtmlPanel.Parent := Self;
-  FHtmlPanel.Align := alClient;
-  FHtmlPanel.BorderStyle := bsNone;
-  FHtmlPanel.Color := clWhite;
-  
   // Place controls correctly
   Resize;
-  
-  // Navigate to initial default page
-  Navigate(FEditURL.Text);
+
+  if not (csDesigning in ComponentState) then
+    CreateChromiumWindow;
 end;
 
 destructor TAIChromiumBrowser.Destroy;
@@ -152,9 +203,102 @@ begin
   if FAddressPanel <> nil then
   begin
     FBtnGo.Left := FAddressPanel.Width - FBtnGo.Width - 8;
-    FEditURL.Left := FBtnBack.Left + FBtnBack.Width + 8;
+    FEditURL.Left := FBtnReload.Left + FBtnReload.Width + 8;
     FEditURL.Width := FBtnGo.Left - FEditURL.Left - 8;
   end;
+end;
+
+procedure TAIChromiumBrowser.CreateChromiumWindow;
+begin
+  if Assigned(FChromiumWindow) then
+    Exit;
+
+  FChromiumWindow := TChromiumWindow.Create(Self);
+  FChromiumWindow.Parent := Self;
+  FChromiumWindow.Align := alClient;
+
+  FChromiumWindow.OnAfterCreated := @ChromiumAfterCreated;
+  FChromiumWindow.OnBeforeClose := @ChromiumBeforeClose;
+  FChromiumWindow.OnClose := @ChromiumClose;
+end;
+
+procedure TAIChromiumBrowser.ChromiumAfterCreated(Sender: TObject);
+begin
+  FBrowserReady := True;
+  FLastResult := 'Chromium browser initialized.';
+  if FPendingURL <> '' then
+  begin
+    FChromiumWindow.LoadURL(FPendingURL);
+    FPendingURL := '';
+  end;
+end;
+
+procedure TAIChromiumBrowser.ChromiumBeforeClose(Sender: TObject);
+begin
+  FBrowserReady := False;
+end;
+
+procedure TAIChromiumBrowser.ChromiumClose(Sender: TObject);
+begin
+  // Handled by ChromiumBeforeClose usually, cleanups if any
+end;
+
+procedure TAIChromiumBrowser.ClearError;
+begin
+  FLastError := '';
+  FLastResult := '';
+end;
+
+procedure TAIChromiumBrowser.SetError(const AMsg: string);
+begin
+  FLastError := AMsg;
+end;
+
+function TAIChromiumBrowser.EscapeJSString(const S: string): string;
+var
+  I: Integer;
+begin
+  Result := '';
+  for I := 1 to Length(S) do
+  begin
+    case S[I] of
+      '\': Result := Result + '\\';
+      '"': Result := Result + '\"';
+      '''': Result := Result + '\''';
+      #13: Result := Result + '\r';
+      #10: Result := Result + '\n';
+      #9:  Result := Result + '\t';
+    else
+      Result := Result + S[I];
+    end;
+  end;
+end;
+
+function TAIChromiumBrowser.InitializeBrowser: Boolean;
+begin
+  Result := False;
+  ClearError;
+
+  if csDesigning in ComponentState then
+  begin
+    SetError('Chromium browser cannot be initialized at design-time.');
+    Exit;
+  end;
+
+  CreateChromiumWindow;
+
+  if FChromiumWindow.Initialized then
+  begin
+    FBrowserReady := True;
+    Result := True;
+    Exit;
+  end;
+
+  Result := FChromiumWindow.CreateBrowser;
+  if not Result then
+    SetError('TChromiumWindow.CreateBrowser failed.')
+  else
+    FLastResult := 'Browser creation requested.';
 end;
 
 procedure TAIChromiumBrowser.SetURL(const AValue: string);
@@ -162,7 +306,8 @@ begin
   if FURL <> AValue then
   begin
     FURL := AValue;
-    Navigate(FURL);
+    if not (csDesigning in ComponentState) then
+      Navigate(FURL);
   end;
 end;
 
@@ -171,7 +316,8 @@ begin
   if FShowAddressBar <> AValue then
   begin
     FShowAddressBar := AValue;
-    FAddressPanel.Visible := FShowAddressBar;
+    if Assigned(FAddressPanel) then
+      FAddressPanel.Visible := FShowAddressBar;
   end;
 end;
 
@@ -185,6 +331,16 @@ begin
   GoBack;
 end;
 
+procedure TAIChromiumBrowser.BtnForwardClick(Sender: TObject);
+begin
+  GoForward;
+end;
+
+procedure TAIChromiumBrowser.BtnReloadClick(Sender: TObject);
+begin
+  Reload;
+end;
+
 procedure TAIChromiumBrowser.EditURLKeyPress(Sender: TObject; var Key: Char);
 begin
   if Key = #13 then
@@ -196,75 +352,50 @@ end;
 
 procedure TAIChromiumBrowser.Navigate(const AURL: string);
 var
-  Client: TFPHTTPClient;
   SafeURL: string;
-  Stream: TStringStream;
-  ErrStream: TStringStream;
-  NewHTML: TIpHtml;
 begin
   SafeURL := Trim(AURL);
   if SafeURL = '' then Exit;
-  
-  // Simple autocomplete protocol prefix if missing
+
   if (Pos('http://', LowerCase(SafeURL)) <> 1) and (Pos('https://', LowerCase(SafeURL)) <> 1) then
     SafeURL := 'https://' + SafeURL;
-    
+
   FURL := SafeURL;
   if FEditURL.Text <> FURL then
     FEditURL.Text := FURL;
-    
-  // Add to history
+
   if (FHistory.Count = 0) or (FHistory[FHistory.Count - 1] <> FURL) then
   begin
     FHistory.Add(FURL);
     FHistoryIdx := FHistory.Count - 1;
   end;
-  
-  // Fetch Web HTML content via cross-platform SSL client
-  Client := TFPHTTPClient.Create(nil);
-  Stream := TStringStream.Create('');
-  try
-    try
-      Client.AllowRedirect := True;
-      Client.Get(FURL, Stream);
-      Stream.Position := 0;
-      FHTML := Stream.DataString;
-      
-      // Load standard LCL HTML panel
-      FHtmlPanel.OpenURL(FURL);
-      
-      NewHTML := TIpHtml.Create;
-      FHtmlPanel.SetHtml(NewHTML);
-      NewHTML.LoadFromStream(Stream);
-    except
-      on E: Exception do
-      begin
-        FHTML := '<html><body style="font-family: sans-serif; padding: 20px; color: #444;">' +
-                 '<h2 style="color: #d32f2f;">Erro de Navegação</h2>' +
-                 '<p>Não foi possível carregar a página: <b>' + FURL + '</b></p>' +
-                 '<p>Detalhe técnico: <i>' + E.Message + '</i></p>' +
-                 '<hr><p style="font-size: 11px; color: #888;">TAIChromiumBrowser Embedded cross-platform widget</p>' +
-                 '</body></html>';
-        
-        ErrStream := TStringStream.Create(FHTML);
-        try
-          NewHTML := TIpHtml.Create;
-          FHtmlPanel.SetHtml(NewHTML);
-          NewHTML.LoadFromStream(ErrStream);
-        finally
-          ErrStream.Free;
-        end;
-      end;
-    end;
-  finally
-    Stream.Free;
-    Client.Free;
+
+  if not Assigned(FChromiumWindow) or not FChromiumWindow.Initialized then
+  begin
+    FPendingURL := SafeURL;
+    InitializeBrowser;
+    Exit;
   end;
+
+  if FBrowserReady then
+    FChromiumWindow.LoadURL(SafeURL)
+  else
+    FPendingURL := SafeURL;
 end;
 
 procedure TAIChromiumBrowser.GoBack;
 begin
-  if (FHistory.Count > 0) and (FHistoryIdx > 0) then
+  if Assigned(FChromiumWindow) and FChromiumWindow.Initialized then
+  begin
+    if FChromiumWindow.ChromiumBrowser.CanGoBack then
+      FChromiumWindow.ChromiumBrowser.GoBack
+    else if (FHistory.Count > 0) and (FHistoryIdx > 0) then
+    begin
+      Dec(FHistoryIdx);
+      Navigate(FHistory[FHistoryIdx]);
+    end;
+  end
+  else if (FHistory.Count > 0) and (FHistoryIdx > 0) then
   begin
     Dec(FHistoryIdx);
     Navigate(FHistory[FHistoryIdx]);
@@ -273,7 +404,17 @@ end;
 
 procedure TAIChromiumBrowser.GoForward;
 begin
-  if (FHistory.Count > 0) and (FHistoryIdx < FHistory.Count - 1) then
+  if Assigned(FChromiumWindow) and FChromiumWindow.Initialized then
+  begin
+    if FChromiumWindow.ChromiumBrowser.CanGoForward then
+      FChromiumWindow.ChromiumBrowser.GoForward
+    else if (FHistory.Count > 0) and (FHistoryIdx < FHistory.Count - 1) then
+    begin
+      Inc(FHistoryIdx);
+      Navigate(FHistory[FHistoryIdx]);
+    end;
+  end
+  else if (FHistory.Count > 0) and (FHistoryIdx < FHistory.Count - 1) then
   begin
     Inc(FHistoryIdx);
     Navigate(FHistory[FHistoryIdx]);
@@ -282,12 +423,111 @@ end;
 
 procedure TAIChromiumBrowser.Reload;
 begin
-  Navigate(FURL);
+  if Assigned(FChromiumWindow) and FChromiumWindow.Initialized then
+    FChromiumWindow.ChromiumBrowser.Reload
+  else
+    Navigate(FURL);
+end;
+
+function TAIChromiumBrowser.ExecuteJavaScript(const AScript: string): Boolean;
+begin
+  Result := False;
+  ClearError;
+  if not FBrowserReady or not Assigned(FChromiumWindow) or not FChromiumWindow.Initialized then
+  begin
+    SetError('Browser is not ready to execute JavaScript.');
+    Exit;
+  end;
+  if Trim(AScript) = '' then
+  begin
+    SetError('Script is empty.');
+    Exit;
+  end;
+
+  FChromiumWindow.ChromiumBrowser.ExecuteJavaScript(
+    AScript,
+    FChromiumWindow.ChromiumBrowser.DefaultUrl,
+    0
+  );
+  FLastResult := 'JavaScript executed.';
+  Result := True;
+end;
+
+function TAIChromiumBrowser.Click(const ASelector: string): Boolean;
+var
+  JSScript: string;
+begin
+  JSScript := '(function() { ' +
+              '  var el = document.querySelector("' + EscapeJSString(ASelector) + '"); ' +
+              '  if (!el) { return false; } ' +
+              '  el.scrollIntoView({block: "center", inline: "center"}); ' +
+              '  el.click(); ' +
+              '  return true; ' +
+              '})();';
+  Result := ExecuteJavaScript(JSScript);
+end;
+
+function TAIChromiumBrowser.SetValue(const ASelector, AValue: string): Boolean;
+var
+  JSScript: string;
+begin
+  JSScript := '(function() { ' +
+              '  var el = document.querySelector("' + EscapeJSString(ASelector) + '"); ' +
+              '  if (!el) { return false; } ' +
+              '  el.focus(); ' +
+              '  el.value = "' + EscapeJSString(AValue) + '"; ' +
+              '  el.dispatchEvent(new Event("input", { bubbles: true })); ' +
+              '  el.dispatchEvent(new Event("change", { bubbles: true })); ' +
+              '  return true; ' +
+              '})();';
+  Result := ExecuteJavaScript(JSScript);
+end;
+
+function TAIChromiumBrowser.WaitForSelector(const ASelector: string; ATimeoutMs: Integer = 0): Boolean;
+var
+  JSScript: string;
+begin
+  if ATimeoutMs <= 0 then
+    ATimeoutMs := FDefaultTimeoutMs;
+  
+  // As JavaScript execution in CEF is asynchronous and doesn't return immediately,
+  // we are just injecting the script to check and saving it into a global variable for now.
+  // Full blocking wait requires more complex callback mechanics or IPC which will be added later.
+  JSScript := 'window.__ai_last_selector_exists = !!document.querySelector("' + EscapeJSString(ASelector) + '");';
+  Result := ExecuteJavaScript(JSScript);
+  
+  if Result then
+    FLastResult := 'WaitForSelector script injected. Real synchronous waiting requires IPC callbacks.'
+  else
+    SetError('Failed to inject WaitForSelector script.');
 end;
 
 function TAIChromiumBrowser.GetHtmlContent: string;
+var
+  JSScript: string;
 begin
-  Result := FHTML;
+  // Standard way to get HTML synchronously isn't fully supported without visitor callbacks in CEF.
+  // For MVP we request the outerHTML.
+  JSScript := 'document.documentElement.outerHTML';
+  ExecuteJavaScript(JSScript);
+  
+  Result := FHTML; // FHTML will be updated via async callbacks in future versions
+  SetError('GetHtmlContent returns last cached HTML or empty until async DOM Visitor callback is implemented.');
+end;
+
+function TAIChromiumBrowser.Screenshot(const AFileName: string): Boolean;
+begin
+  Result := False;
+  SetError('Screenshot is not implemented yet for TChromiumWindow mode.');
+end;
+
+procedure TAIChromiumBrowser.CloseBrowser;
+begin
+  if Assigned(FChromiumWindow) then
+  begin
+    FChromiumWindow.CloseBrowser(True);
+    FBrowserReady := False;
+  end;
 end;
 
 initialization

@@ -25,6 +25,9 @@
     </RunParams>
     <RequiredPackages>
       <Item>
+        <PackageName Value="CEF4Delphi_Lazarus"/>
+      </Item>
+      <Item>
         <PackageName Value="openai_input"/>
       </Item>
       <Item>

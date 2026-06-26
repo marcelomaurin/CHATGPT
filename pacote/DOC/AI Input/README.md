@@ -20,6 +20,17 @@ This package (`openai_input.lpk`) provides input and capture components for the 
 
 `samples/AI Input/capture_source_demo/` — demonstrates all `TAICaptureSource` modes.
 
+## TAIChromiumBrowser
+
+Embedded Chromium browser component based on CEF4Delphi TChromiumWindow.
+
+Requirements:
+- CEF4Delphi installed and configured.
+- GlobalCEFApp initialized in the application .lpr before creating forms.
+- CEF binaries available for the target platform.
+
+This component does not use TIpHtmlPanel anymore.
+
 ## Migration from v1.8.x
 
 | Old Component | Replaced By | Mode |

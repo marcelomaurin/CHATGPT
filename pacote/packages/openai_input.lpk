@@ -63,6 +63,9 @@
     </Files>
     <RequiredPkgs>
       <Item>
+        <PackageName Value="CEF4Delphi_Lazarus"/>
+      </Item>
+      <Item>
         <PackageName Value="openai_core"/>
       </Item>
       <Item>
