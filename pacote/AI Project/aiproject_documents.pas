@@ -5,7 +5,7 @@ unit aiproject_documents;
 interface
 
 uses
-  Classes, SysUtils, aiproject, fpjson;
+  Classes, SysUtils, aiproject, fpjson, LResources;
 
 type
   { TAIAgileDocuments — stores and provides access to agile document sections }
@@ -198,5 +198,8 @@ begin
   Result := Result + LineEnding + '## Epics' + LineEnding + Epics;
   Result := Result + LineEnding + '## User Stories' + LineEnding + UserStories;
 end;
+
+initialization
+  {$I taiagiledocuments_icon.lrs}
 
 end.

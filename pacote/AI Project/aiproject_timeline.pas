@@ -5,7 +5,7 @@ unit aiproject_timeline;
 interface
 
 uses
-  Classes, SysUtils, ExtCtrls, Graphics, aiproject, fpjson;
+  Classes, SysUtils, ExtCtrls, Graphics, aiproject, fpjson, LResources;
 
 type
   TAIProjectTimeline = class(TPaintBox)
@@ -89,5 +89,8 @@ begin
     Canvas.TextOut(95, Y - 6, TitleStr);
   end;
 end;
+
+initialization
+  {$I taiprojecttimeline_icon.lrs}
 
 end.

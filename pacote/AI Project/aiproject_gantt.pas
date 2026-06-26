@@ -5,7 +5,7 @@ unit aiproject_gantt;
 interface
 
 uses
-  Classes, SysUtils, ExtCtrls, Graphics, aiproject, fpjson;
+  Classes, SysUtils, ExtCtrls, Graphics, aiproject, fpjson, LResources;
 
 type
   TAIProjectGantt = class(TPaintBox)
@@ -107,5 +107,8 @@ begin
     end;
   end;
 end;
+
+initialization
+  {$I taiprojectgantt_icon.lrs}
 
 end.

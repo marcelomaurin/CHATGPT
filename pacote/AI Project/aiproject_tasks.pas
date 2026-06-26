@@ -5,7 +5,7 @@ unit aiproject_tasks;
 interface
 
 uses
-  Classes, SysUtils, aiproject, fpjson, jsonparser;
+  Classes, SysUtils, aiproject, fpjson, jsonparser, LResources;
 
 type
   { TAIProjectTasks — manages task list, delegates to TAIProject }
@@ -209,5 +209,8 @@ begin
   end;
   Result := FProject.RecalculateSchedule;
 end;
+
+initialization
+  {$I taiprojecttasks_icon.lrs}
 
 end.

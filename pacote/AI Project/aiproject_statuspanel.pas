@@ -5,7 +5,7 @@ unit aiproject_statuspanel;
 interface
 
 uses
-  Classes, SysUtils, Controls, ExtCtrls, StdCtrls, Graphics, aiproject, fpjson;
+  Classes, SysUtils, Controls, ExtCtrls, StdCtrls, Graphics, aiproject, fpjson, LResources;
 
 type
   { TAIProjectStatusPanel — shows task summary counts }
@@ -110,5 +110,8 @@ begin
   FLblCanceled.Caption   := 'Canceled:    ' + IntToStr(Canceled);
   FLblDraft.Caption      := 'Draft:       ' + IntToStr(Draft);
 end;
+
+initialization
+  {$I taiprojectstatuspanel_icon.lrs}
 
 end.

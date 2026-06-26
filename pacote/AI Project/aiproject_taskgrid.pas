@@ -5,7 +5,7 @@ unit aiproject_taskgrid;
 interface
 
 uses
-  Classes, SysUtils, Controls, Grids, Graphics, aiproject, fpjson;
+  Classes, SysUtils, Controls, Grids, Graphics, aiproject, fpjson, LResources;
 
 type
   { TAIProjectTaskGrid — TStringGrid pre-configured to display project tasks }
@@ -114,5 +114,8 @@ begin
   if (Row > 0) and (Row < RowCount) then
     Result := Cells[0, Row];
 end;
+
+initialization
+  {$I taiprojecttaskgrid_icon.lrs}
 
 end.

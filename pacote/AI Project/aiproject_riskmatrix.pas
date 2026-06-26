@@ -5,7 +5,7 @@ unit aiproject_riskmatrix;
 interface
 
 uses
-  Classes, SysUtils, ExtCtrls, Graphics, aiproject, fpjson;
+  Classes, SysUtils, ExtCtrls, Graphics, aiproject, fpjson, LResources;
 
 type
   TAIRiskMatrix = class(TPaintBox)
@@ -100,5 +100,8 @@ begin
     end;
   end;
 end;
+
+initialization
+  {$I tairiskmatrix_icon.lrs}
 
 end.

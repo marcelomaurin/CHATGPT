@@ -5,7 +5,7 @@ unit aiproject_agents;
 interface
 
 uses
-  Classes, SysUtils, aiproject, fpjson;
+  Classes, SysUtils, aiproject, fpjson, LResources;
 
 type
   { TAIProjectAgents — manages agents list and agent-task analysis }
@@ -184,5 +184,8 @@ begin
   if not Result then
     FLastError := FProject.LastError;
 end;
+
+initialization
+  {$I taiprojectagents_icon.lrs}
 
 end.

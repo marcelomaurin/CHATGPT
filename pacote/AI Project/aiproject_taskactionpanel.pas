@@ -5,7 +5,7 @@ unit aiproject_taskactionpanel;
 interface
 
 uses
-  Classes, SysUtils, Controls, ExtCtrls, StdCtrls, Dialogs, aiproject, fpjson;
+  Classes, SysUtils, Controls, ExtCtrls, StdCtrls, Dialogs, aiproject, fpjson, LResources;
 
 // TAIProjectTaskAction is defined in aiproject.pas:
 //   taConfirmTask, taRejectTask, taStartTask, taFinishTask, taCancelTask,
@@ -205,5 +205,8 @@ begin
   else
     ShowMessage('Action failed: ' + FProject.LastError);
 end;
+
+initialization
+  {$I taitaskactionpanel_icon.lrs}
 
 end.

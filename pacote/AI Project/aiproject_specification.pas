@@ -5,7 +5,7 @@ unit aiproject_specification;
 interface
 
 uses
-  Classes, SysUtils, fpjson, jsonparser, aiproject;
+  Classes, SysUtils, fpjson, jsonparser, aiproject, LResources;
 
 type
   { TAIProjectSpecification
@@ -395,5 +395,8 @@ begin
     end;
   end;
 end;
+
+initialization
+  {$I taiprojectspecification_icon.lrs}
 
 end.

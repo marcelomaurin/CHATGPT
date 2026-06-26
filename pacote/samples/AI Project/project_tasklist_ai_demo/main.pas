@@ -20,15 +20,13 @@ type
   TfrmMain = class(TForm)
     AIAgentManagerFrame1: TAIAgentManagerFrame;
     AIProject1: TAIProject;
-    AIProjectAgents1: TAIProjectAgents;
     AIProjectDescription1: TAIProjectDescription;
-    AIProjectRevisions1: TAIProjectRevisions;
+    AIProjectSpecification1: TAIProjectSpecification;
+    AIProjectStorage1: TAIProjectStorage;
+    AIProjectTasks1: TAIProjectTasks;
     AITaskActions1: TAITaskActions;
     ChatGPT1: TCHATGPT;
     AIProjectLLMConfig1: TAIProjectLLMConfig;
-    AIProjectStorage1: TAIProjectStorage;
-    AIProjectTasks1: TAIProjectTasks;
-    AIProjectSpecification1: TAIProjectSpecification;
     btnCarregarProjeto: TButton;
     btnSalvarProjeto: TButton;
     btnClearProject: TButton;

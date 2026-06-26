@@ -5,7 +5,7 @@ unit aiproject_storage;
 interface
 
 uses
-  Classes, SysUtils, aiproject, fpjson, jsonparser;
+  Classes, SysUtils, aiproject, fpjson, jsonparser, LResources;
 
 type
   { TAIProjectStorage }
@@ -145,5 +145,8 @@ begin
   if not Result then
     FLastError := FProject.LastError;
 end;
+
+initialization
+  {$I taiprojectstorage_icon.lrs}
 
 end.

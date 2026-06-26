@@ -1,7 +1,7 @@
 object frmMain: TfrmMain
-  Left = 250
+  Left = 482
   Height = 720
-  Top = 150
+  Top = 165
   Width = 1000
   Caption = 'Project TaskList AI Demo'
   ClientHeight = 720
@@ -14,9 +14,9 @@ object frmMain: TfrmMain
     Height = 720
     Top = 0
     Width = 1000
-    ActivePage = tabConfig
+    ActivePage = tsAgent
     Align = alClient
-    TabIndex = 0
+    TabIndex = 3
     TabOrder = 0
     object tabConfig: TTabSheet
       Caption = 'Config IA'
@@ -68,7 +68,7 @@ object frmMain: TfrmMain
         Left = 20
         Height = 15
         Top = 100
-        Width = 34
+        Width = 36
         Caption = 'Token:'
       end
       object edtToken: TEdit
@@ -98,7 +98,7 @@ object frmMain: TfrmMain
         Left = 20
         Height = 15
         Top = 180
-        Width = 67
+        Width = 68
         Caption = 'Versão de IA:'
       end
       object cbVersaoIA: TComboBox
@@ -396,10 +396,25 @@ object frmMain: TfrmMain
     Left = 112
     Top = 568
   end
+  object AIProjectDescription1: TAIProjectDescription
+    Project = AIProject1
+    Left = 230
+    Top = 387
+  end
   object AIProjectTasks1: TAIProjectTasks
     Project = AIProject1
     Left = 128
     Top = 500
+  end
+  object AIProjectSpecification1: TAIProjectSpecification
+    Project = AIProject1
+    Left = 344
+    Top = 372
+  end
+  object AITaskActions1: TAITaskActions
+    Project = AIProject1
+    Left = 432
+    Top = 512
   end
   object AIProjectStorage1: TAIProjectStorage
     Project = AIProject1
@@ -407,30 +422,5 @@ object frmMain: TfrmMain
     ProjectFileName = 'project.aiproj.json'
     Left = 520
     Top = 500
-  end
-  object AIProjectDescription1: TAIProjectDescription
-    Project = AIProject1
-    Left = 230
-    Top = 387
-  end
-  object AIProjectSpecification1: TAIProjectSpecification
-    Project = AIProject1
-    Left = 344
-    Top = 372
-  end
-  object AIProjectAgents1: TAIProjectAgents
-    Project = AIProject1
-    Left = 477
-    Top = 367
-  end
-  object AITaskActions1: TAITaskActions
-    Project = AIProject1
-    Left = 572
-    Top = 372
-  end
-  object AIProjectRevisions1: TAIProjectRevisions
-    Project = AIProject1
-    Left = 538
-    Top = 281
   end
 end

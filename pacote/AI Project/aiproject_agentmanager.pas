@@ -5,7 +5,7 @@ unit aiproject_agentmanager;
 interface
 
 uses
-  Classes, SysUtils, Controls, ExtCtrls, StdCtrls, ComCtrls, aiproject, fpjson;
+  Classes, SysUtils, Controls, ExtCtrls, StdCtrls, ComCtrls, aiproject, fpjson, LResources;
 
 type
   { TAIAgentManagerFrame — frame with agent list + edit panel }
@@ -217,5 +217,8 @@ begin
     LoadAgents;
   end;
 end;
+
+initialization
+  {$I taiagentmanagerframe_icon.lrs}
 
 end.

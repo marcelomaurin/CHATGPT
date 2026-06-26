@@ -5,7 +5,7 @@ unit aiproject_dependencies;
 interface
 
 uses
-  Classes, SysUtils, aiproject, fpjson;
+  Classes, SysUtils, aiproject, fpjson, LResources;
 
 type
   { TAIProjectDependencies — access to serial/parallel dependency data }
@@ -152,5 +152,8 @@ begin
     Parallel.Free;
   end;
 end;
+
+initialization
+  {$I taiprojectdependencies_icon.lrs}
 
 end.

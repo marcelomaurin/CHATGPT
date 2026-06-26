@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Controls, ExtCtrls, StdCtrls, Dialogs,
-  aiproject, aiproject_reports;
+  aiproject, aiproject_reports, LResources;
 
 type
   { TAIProjectReportViewer — frame with report selector and export buttons }
@@ -145,5 +145,8 @@ begin
     SD.Free;
   end;
 end;
+
+initialization
+  {$I taiprojectreportviewer_icon.lrs}
 
 end.

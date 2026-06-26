@@ -5,7 +5,7 @@ unit aiproject_reports;
 interface
 
 uses
-  Classes, SysUtils, aiproject, fpjson;
+  Classes, SysUtils, aiproject, fpjson, LResources;
 
 type
   TReportType = (
@@ -340,5 +340,8 @@ begin
     SL.Free;
   end;
 end;
+
+initialization
+  {$I taiprojectreports_icon.lrs}
 
 end.

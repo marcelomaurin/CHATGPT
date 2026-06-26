@@ -5,7 +5,7 @@ unit aiproject_description;
 interface
 
 uses
-  Classes, SysUtils, aiproject, fpjson;
+  Classes, SysUtils, aiproject, fpjson, LResources;
 
 type
   { TAIProjectDescription — manages the project high-level description data }
@@ -84,5 +84,8 @@ begin
   AStart := FProject.StartDate;
   ATargetEnd := FProject.TargetEndDate;
 end;
+
+initialization
+  {$I taiprojectdescription_icon.lrs}
 
 end.

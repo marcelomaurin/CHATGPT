@@ -5,7 +5,7 @@ unit aiproject_actions;
 interface
 
 uses
-  Classes, SysUtils, aiproject, fpjson;
+  Classes, SysUtils, aiproject, fpjson, LResources;
 
 // TAIProjectTaskAction is defined in aiproject.pas:
 //   taConfirmTask, taRejectTask, taStartTask, taFinishTask, taCancelTask,
@@ -103,5 +103,8 @@ begin
   if not Result then
     FLastError := FProject.LastError;
 end;
+
+initialization
+  {$I taittaskactions_icon.lrs}
 
 end.

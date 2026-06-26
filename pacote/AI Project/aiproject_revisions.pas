@@ -5,7 +5,7 @@ unit aiproject_revisions;
 interface
 
 uses
-  Classes, SysUtils, aiproject, fpjson;
+  Classes, SysUtils, aiproject, fpjson, LResources;
 
 type
   TRevisionEventType = (
@@ -150,5 +150,8 @@ begin
   ]);
   Timeline.Add(Event);
 end;
+
+initialization
+  {$I taiprojectrevisions_icon.lrs}
 
 end.
