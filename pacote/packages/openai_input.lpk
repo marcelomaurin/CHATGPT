@@ -9,7 +9,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\AI Agent;..\AI Voice;..\AI Filtros Sonoros;..\AI Image;..\AI Schedule;..\AI Math;..\AI Input;..\AI Output;..\AI Graph;..\AI Graphic;..\AI Vision;.."/>
+        <OtherUnitFiles Value="..\AI Agent;..\AI Voice;..\AI Filtros Sonoros;..\AI Image;..\AI Schedule;..\AI Math;..\AI Input;..\AI Input\AIAudio;..\AI Input\AICaptureSource;..\AI Input\AIChromiumBrowser;..\AI Input\AIEmail;..\AI Input\AIInput;..\AI Input\AIMessenger;..\AI Input\AISerial;..\AI Input\AISockets;..\AI Input\AIWebServer;..\AI Output;..\AI Graph;..\AI Graphic;..\AI Vision;.."/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
@@ -17,46 +17,46 @@
     <License Value="OPEN SOURCE GPL3"/>
     <Files>
       <Item>
-        <Filename Value="..\AI Input\aiinput.pas"/>
+        <Filename Value="..\AI Input\AIInput\aiinput.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiinput"/>
       </Item>
       <Item>
-        <Filename Value="..\AI Input\aicapturesource.pas"/>
+        <Filename Value="..\AI Input\AICaptureSource\aicapturesource.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aicapturesource"/>
       </Item>
       <Item>
-        <Filename Value="..\AI Input\aicapturesource_icon.lrs"/>
+        <Filename Value="..\AI Input\AICaptureSource\aicapturesource_icon.lrs"/>
         <Type Value="LRS"/>
       </Item>
       <Item>
-        <Filename Value="..\AI Input\aiwebserver.pas"/>
+        <Filename Value="..\AI Input\AIWebServer\aiwebserver.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiwebserver"/>
       </Item>
       <Item>
-        <Filename Value="..\AI Input\aisockets.pas"/>
+        <Filename Value="..\AI Input\AISockets\aisockets.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aisockets"/>
       </Item>
       <Item>
-        <Filename Value="..\AI Input\aiserial.pas"/>
+        <Filename Value="..\AI Input\AISerial\aiserial.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiserial"/>
       </Item>
       <Item>
-        <Filename Value="..\AI Input\aiemail.pas"/>
+        <Filename Value="..\AI Input\AIEmail\aiemail.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiemail"/>
       </Item>
       <Item>
-        <Filename Value="..\AI Input\aimessenger.pas"/>
+        <Filename Value="..\AI Input\AIMessenger\aimessenger.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aimessenger"/>
       </Item>
       <Item>
-        <Filename Value="..\AI Input\aichromiumbrowser.pas"/>
+        <Filename Value="..\AI Input\AIChromiumBrowser\aichromiumbrowser.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aichromiumbrowser"/>
       </Item>
