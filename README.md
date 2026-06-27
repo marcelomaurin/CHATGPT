@@ -138,6 +138,7 @@ pacote/packages/openai_core.lpk
 | `openai_vision` | Para `TAIOpenCV`: Python 3, `opencv-python`, `numpy`. Componentes nativos usam LCL/FPC;usa VFW no Windows |
 | `openai_voice` | Windows SAPI ou Linux eSpeak/eSpeak-NG conforme uso |
 | `openai_output` | `fpPDF`/FPC para PDF; Word/Excel podem ser HTML compatível |
+| `openai_input` | Componentes web como TAIChromiumBrowser requerem CEF4Delphi e os binários do Chromium (disponíveis na pasta `runtime/chromium`) |
 | `openai_industrial` | Dependências de Modbus/MQTT e permissões do ambiente |
 | `openai_graphic` | Dependências gráficas conforme viewer/3D |
 | `openai_agent` | Depende de segurança e confirmação explícita para ações reais |
