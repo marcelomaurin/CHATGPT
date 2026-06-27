@@ -1,4 +1,4 @@
-# TCHATGPT — AI Component Suite for Lazarus / Free Pascal
+﻿# TCHATGPT — AI Component Suite for Lazarus / Free Pascal
 
 🌍 **Languages / Idiomas**
 
@@ -541,7 +541,7 @@ The suite is organized in modular packages:
 | `openai_graph.lpk` | Graphs, token-based classification, export and reports | Optional | **Optional** |
 | `openai_files.lpk` | Directory scanning, Disk Tree Scanner and physical file management | Optional | **Optional** |
 | `openai_output.lpk` | Outputs, reports, PDF, TXT, Excel/Word compatible files generation | Optional | **Optional** |
-| `openai_input.lpk` | Inputs, unified capture (TAICaptureSource), email, sockets, serial, MQTT, Modbus, Profinet | Optional | **Optional** |
+| `openai_input.lpk` | Inputs, unified capture (TAICaptureSource), email, sockets, serial, MQTT, Modbus, Profinet (requires CEF4Delphi and Chromium binaries in runtime/chromium) | Optional | **Optional** |
 | `openai_vision.lpk` | OpenCV, camera native backends (VFW/V4L2), face and motion tracker, pose detector (MediaPipe 64-bit) | Optional | **Optional** |
 | `openai_image.lpk` | Fast 100% native pixel filters (Grayscale, Negative, Blur, Sobel, etc.) | Optional | **Optional** |
 | `openai_voice.lpk` | Voice, audio, text-to-speech synthesis and sound filters | Optional | **Optional** |

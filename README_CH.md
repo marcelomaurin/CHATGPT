@@ -1,4 +1,4 @@
-# TCHATGPT — Lazarus / Free Pascal AI Component Suite
+﻿# TCHATGPT — Lazarus / Free Pascal AI Component Suite
 
 🌍 **Languages / 语言**
 
