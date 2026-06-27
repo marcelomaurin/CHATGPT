@@ -1,4 +1,4 @@
-﻿unit aichromiumbrowser;
+unit aichromiumbrowser;
 
 {$mode objfpc}{$H+}
 
