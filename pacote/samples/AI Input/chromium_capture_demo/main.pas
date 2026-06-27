@@ -77,6 +77,7 @@ type
     // Regras da aplicação/sample. Não pertencem ao componente.
     function UrlEncodeQuery(const S: string): string;
     function BuildGoogleSearchURL(const AText: string): string;
+    function EscapeJSStringMain(const S: string): string;
     function PesquisarGooglePorURL(const AText: string): Boolean;
     function PesquisarGooglePorDOM(const AText: string): Boolean;
   public
@@ -115,6 +116,7 @@ begin
   AddLog('Demo initialized.');
   AddLog('Este sample demonstra o TAIChromiumBrowser como plataforma genérica de automação web.');
   AddLog('A pesquisa no Google é regra deste sample, não do componente.');
+  AddLog('A pesquisa do Google será feita pelo DOM, usando o campo real da página.');
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
@@ -361,7 +363,8 @@ var
 begin
   Result := '';
 
-  // Lazarus usa UTF-8 em strings comuns no LCL. Aqui codificamos byte a byte.
+  // Mantido apenas para compatibilidade com código antigo.
+  // A pesquisa atual do Google não usa mais URL montada.
   for I := 1 to Length(S) do
   begin
     B := Ord(S[I]);
@@ -377,37 +380,44 @@ end;
 
 function TfrmMain.BuildGoogleSearchURL(const AText: string): string;
 begin
+  // Mantido apenas para compatibilidade.
+  // O botão de pesquisa não usa mais esta função.
   Result := 'https://www.google.com/search?q=' + UrlEncodeQuery(AText);
 end;
 
-function TfrmMain.PesquisarGooglePorURL(const AText: string): Boolean;
+function TfrmMain.EscapeJSStringMain(const S: string): string;
 var
-  vURL: string;
+  I: Integer;
 begin
-  Result := False;
+  Result := '';
 
-  if Trim(AText) = '' then
+  for I := 1 to Length(S) do
   begin
-    AddLog('Informe o texto da pesquisa.');
-    edPesquisa.SetFocus;
-    Exit;
+    case S[I] of
+      '\': Result := Result + '\\';
+      '"': Result := Result + '\"';
+      #13: Result := Result + '\r';
+      #10: Result := Result + '\n';
+      #9:  Result := Result + '\t';
+    else
+      Result := Result + S[I];
+    end;
   end;
+end;
 
-  if not EnsureBrowser then
-    Exit;
-
-  vURL := BuildGoogleSearchURL(AText);
-  AddLog('Pesquisa por URL: ' + vURL);
-
-  AIChromiumBrowser1.Navigate(vURL);
-  edURL.Text := vURL;
-
-  Result := AIChromiumBrowser1.LastError = '';
+function TfrmMain.PesquisarGooglePorURL(const AText: string): Boolean;
+begin
+  // Mantida apenas para não quebrar chamadas antigas.
+  // A pesquisa correta deste sample agora é por DOM.
+  Result := PesquisarGooglePorDOM(AText);
 end;
 
 function TfrmMain.PesquisarGooglePorDOM(const AText: string): Boolean;
 const
-  CGoogleSelector = 'textarea[name="q"]';
+  CGoogleSelector =
+    'textarea#APjFqb, textarea[name="q"], textarea[aria-label="Pesquisar"], input[name="q"], [role="combobox"][name="q"]';
+var
+  vJS: string;
 begin
   Result := False;
 
@@ -421,21 +431,107 @@ begin
   if not EnsureBrowser then
     Exit;
 
-  // Esta função mostra como a aplicação pode usar os métodos genéricos do componente.
-  // A regra de conhecer o seletor do Google continua no sample, não no TAIChromiumBrowser.
-  AddLog('Pesquisa por DOM usando seletor específico do sample: ' + CGoogleSelector);
+  AddLog('Pesquisa Google por DOM.');
+  AddLog('Seletor usado: ' + CGoogleSelector);
 
-  if not AIChromiumBrowser1.SetValue(CGoogleSelector, AText) then
+  vJS :=
+    '(function(){' +
+    '  var texto = "' + EscapeJSStringMain(AText) + '";' +
+    '  var selector = "' + EscapeJSStringMain(CGoogleSelector) + '";' +
+    '  var maxTentativas = 80;' +
+    '  var tentativa = 0;' +
+
+    '  function setNativeValue(el, value) {' +
+    '    var proto = Object.getPrototypeOf(el);' +
+    '    var desc = Object.getOwnPropertyDescriptor(proto, "value");' +
+    '    if (desc && desc.set) {' +
+    '      desc.set.call(el, value);' +
+    '    } else {' +
+    '      el.value = value;' +
+    '    }' +
+    '  }' +
+
+    '  function fireKeyboard(el, type, key, code, keyCode) {' +
+    '    var ev = new KeyboardEvent(type, {' +
+    '      key: key,' +
+    '      code: code,' +
+    '      keyCode: keyCode,' +
+    '      which: keyCode,' +
+    '      bubbles: true,' +
+    '      cancelable: true' +
+    '    });' +
+    '    el.dispatchEvent(ev);' +
+    '  }' +
+
+    '  function registrarFalha(msg) {' +
+    '    window.__ai_last_capture = {' +
+    '      kind: "google-search-dom",' +
+    '      success: false,' +
+    '      selector: selector,' +
+    '      value: "",' +
+    '      error: msg' +
+    '    };' +
+    '  }' +
+
+    '  function registrarSucesso() {' +
+    '    window.__ai_last_capture = {' +
+    '      kind: "google-search-dom",' +
+    '      success: true,' +
+    '      selector: selector,' +
+    '      value: texto,' +
+    '      error: ""' +
+    '    };' +
+    '  }' +
+
+    '  function tentar() {' +
+    '    tentativa++;' +
+
+    '    var el = document.querySelector(selector);' +
+    '    if (!el) {' +
+    '      registrarFalha("Campo de pesquisa do Google ainda nao encontrado. Tentativa " + tentativa);' +
+    '      if (tentativa < maxTentativas) {' +
+    '        setTimeout(tentar, 250);' +
+    '      }' +
+    '      return;' +
+    '    }' +
+
+    '    try {' +
+    '      el.focus();' +
+    '      setNativeValue(el, texto);' +
+
+    '      el.dispatchEvent(new Event("input", { bubbles: true }));' +
+    '      el.dispatchEvent(new Event("change", { bubbles: true }));' +
+
+    '      fireKeyboard(el, "keydown", "Enter", "Enter", 13);' +
+    '      fireKeyboard(el, "keypress", "Enter", "Enter", 13);' +
+    '      fireKeyboard(el, "keyup", "Enter", "Enter", 13);' +
+
+    '      var form = el.form;' +
+    '      if (form) {' +
+    '        if (form.requestSubmit) {' +
+    '          form.requestSubmit();' +
+    '        } else {' +
+    '          form.submit();' +
+    '        }' +
+    '      }' +
+
+    '      registrarSucesso();' +
+    '    } catch(e) {' +
+    '      registrarFalha(String(e));' +
+    '    }' +
+    '  }' +
+
+    '  tentar();' +
+    '})();';
+
+  if not AIChromiumBrowser1.ExecuteJavaScript(vJS) then
   begin
-    AddLog('Falha ao preencher campo de pesquisa: ' + AIChromiumBrowser1.LastError);
+    AddLog('Falha ao executar JavaScript da pesquisa: ' + AIChromiumBrowser1.LastError);
     Exit;
   end;
 
-  if not AIChromiumBrowser1.SubmitForm(CGoogleSelector) then
-  begin
-    AddLog('Falha ao submeter formulário: ' + AIChromiumBrowser1.LastError);
-    Exit;
-  end;
+  AddLog('Script DOM de pesquisa injetado no Google.');
+  AddLog('Resultado interno ficará em window.__ai_last_capture.');
 
   Result := True;
 end;
@@ -463,13 +559,13 @@ begin
   AddLog('Pesquisa Google solicitada pela aplicação: ' + edPesquisa.Text);
 
   // Importante:
-  // Não existe mais AIChromiumBrowser1.GoogleSearch.
-  // Google é regra deste sample. O componente continua genérico.
-  // A opção por URL é mais estável porque não depende do carregamento assíncrono da home do Google.
-  if PesquisarGooglePorURL(edPesquisa.Text) then
-    AddLog('Pesquisa enviada pela aplicação usando Navigate.')
+  // Google é regra deste sample.
+  // O TAIChromiumBrowser continua genérico.
+  // Aqui NÃO montamos URL. A pesquisa é enviada pelo elemento real do DOM.
+  if PesquisarGooglePorDOM(edPesquisa.Text) then
+    AddLog('Pesquisa enviada pela aplicação usando DOM.')
   else
-    AddLog('Erro ao pesquisar: ' + AIChromiumBrowser1.LastError);
+    AddLog('Erro ao pesquisar pelo DOM: ' + AIChromiumBrowser1.LastError);
 
   ShowComponentState;
 end;
@@ -484,4 +580,3 @@ begin
 end;
 
 end.
-
