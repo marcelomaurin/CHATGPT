@@ -115,7 +115,8 @@ runtime_check_report.txt
 chatgpt_ai_runtime.ini
 
 # CEF Runtimes and Binaries
-runtime/chromium/
+runtime/chromium/**/bin/
+runtime/chromium/*.tar.bz2
 pacote/samples/AI Input/chromium_capture_demo/cef.tar.bz2
 pacote/samples/AI Input/chromium_capture_demo/*.pak
 pacote/samples/AI Input/chromium_capture_demo/*.dat
