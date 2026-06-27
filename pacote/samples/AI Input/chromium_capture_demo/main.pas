@@ -100,6 +100,11 @@ type
     FPendingGoogleSearch: string;
     FExecutingPendingGoogleSearch: Boolean;
 
+    // Controle lógico contra loop/reentrada.
+    FInternalEventLock: Integer;
+    FApplyingPendingDOMSelection: Boolean;
+    FPendingSelectAttempts: Integer;
+
     // Lista DOM carregada pelo Button1.
     FDOMListData: TJSONData;
     FDOMListSelector: string;
@@ -128,6 +133,9 @@ type
     procedure AddLog(const AMsg: string);
     procedure ShowComponentState;
     function EnsureBrowser: Boolean;
+
+    procedure BeginInternalEventControl;
+    procedure EndInternalEventControl;
 
     function EscapeJSString(const S: string): string;
 
@@ -320,6 +328,10 @@ begin
     'document.body.style.outline = "5px solid red";' + LineEnding +
     'console.log("TAIChromiumBrowser JavaScript test executed");';
 
+  FInternalEventLock := 0;
+  FApplyingPendingDOMSelection := False;
+  FPendingSelectAttempts := 0;
+
   FDOMListData := nil;
   FDOMListSelector := '*';
   FSelectedDOMRealIndex := -1;
@@ -403,12 +415,24 @@ begin
   AddLog('TAIChromiumBrowser ligado ao ChromiumWindow1.');
   AddLog('MonitorDOMEvents=True.');
   AddLog('Button1 lista todos os objetos DOM usando DOMList("*").');
+  AddLog('Controle anti-loop ativado por FInternalEventLock + tentativa única de DOMList pendente.');
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
   ClearDOMList;
   ClearJSVars;
+end;
+
+procedure TfrmMain.BeginInternalEventControl;
+begin
+  Inc(FInternalEventLock);
+end;
+
+procedure TfrmMain.EndInternalEventControl;
+begin
+  if FInternalEventLock > 0 then
+    Dec(FInternalEventLock);
 end;
 
 function TfrmMain.EscapeJSString(const S: string): string;
@@ -447,6 +471,8 @@ begin
   FPendingSelectClassName := '';
   FPendingSelectPropertyName := '';
   FPendingSelectValue := '';
+  FPendingSelectAttempts := 0;
+  FApplyingPendingDOMSelection := False;
 
   if Assigned(listobjects) then
     listobjects.Clear;
@@ -677,6 +703,9 @@ begin
     begin
       AddLog('Erro ao carregar JSON DOMList: ' + E.Message);
       FreeAndNil(FDOMListData);
+      FPendingSelectDOM := False;
+      FPendingSelectAttempts := 0;
+      FApplyingPendingDOMSelection := False;
     end;
   end;
 
@@ -746,7 +775,7 @@ begin
     listobjects.Items.EndUpdate;
   end;
 
-  if listobjects.Items.Count > 0 then
+  if (listobjects.Items.Count > 0) and (not FPendingSelectDOM) then
   begin
     listobjects.ItemIndex := 0;
     listobjectsChangeBounds(listobjects);
@@ -927,25 +956,51 @@ begin
   FPendingSelectClassName := AClassName;
   FPendingSelectPropertyName := APropertyName;
   FPendingSelectValue := AValue;
+
+  // Só permite uma tentativa automática de refresh.
+  FPendingSelectAttempts := 0;
 end;
 
 procedure TfrmMain.ApplyPendingDOMSelection;
+var
+  LFound: Boolean;
 begin
   if not FPendingSelectDOM then
     Exit;
 
-  if SelectListObjectByDOMInfo(
-    FPendingSelectSelector,
-    FPendingSelectTagName,
-    FPendingSelectId,
-    FPendingSelectName,
-    FPendingSelectClassName,
-    FPendingSelectPropertyName,
-    FPendingSelectValue
-  ) then
-  begin
-    FPendingSelectDOM := False;
-    AddLog('Seleção pendente DOM aplicada no listobjects.');
+  if FApplyingPendingDOMSelection then
+    Exit;
+
+  FApplyingPendingDOMSelection := True;
+  try
+    Inc(FPendingSelectAttempts);
+
+    LFound := SelectListObjectByDOMInfo(
+      FPendingSelectSelector,
+      FPendingSelectTagName,
+      FPendingSelectId,
+      FPendingSelectName,
+      FPendingSelectClassName,
+      FPendingSelectPropertyName,
+      FPendingSelectValue
+    );
+
+    if LFound then
+    begin
+      FPendingSelectDOM := False;
+      FPendingSelectAttempts := 0;
+      AddLog('Seleção pendente DOM aplicada no listobjects.');
+    end
+    else
+    begin
+      // Não chama DOMList novamente aqui. Isso evita o loop.
+      FPendingSelectDOM := False;
+      FPendingSelectAttempts := 0;
+
+      AddLog('Seleção pendente DOM cancelada: objeto não encontrado após atualizar listobjects uma vez.');
+    end;
+  finally
+    FApplyingPendingDOMSelection := False;
   end;
 end;
 
@@ -1050,7 +1105,31 @@ begin
 
   if FoundIndex < 0 then
   begin
-    AddLog('Objeto clicado não encontrado em listobjects. Solicitando DOMList("*") para atualizar a lista...');
+    if FApplyingPendingDOMSelection then
+    begin
+      AddLog(
+        'Objeto clicado não encontrado em listobjects após refresh. ' +
+        'Não será solicitado DOMList novamente para evitar loop.'
+      );
+      Exit;
+    end;
+
+    if FPendingSelectAttempts > 0 then
+    begin
+      AddLog(
+        'Objeto clicado não encontrado em listobjects. ' +
+        'Tentativa automática já executada. Operação cancelada.'
+      );
+
+      FPendingSelectDOM := False;
+      FPendingSelectAttempts := 0;
+      Exit;
+    end;
+
+    AddLog(
+      'Objeto clicado não encontrado em listobjects. ' +
+      'Solicitando DOMList("*") uma única vez para atualizar a lista...'
+    );
 
     SavePendingDOMSelection(
       ASelector,
@@ -1070,13 +1149,20 @@ begin
     Exit;
   end;
 
-  listobjects.ItemIndex := FoundIndex;
-  listobjectsChangeBounds(listobjects);
+  BeginInternalEventControl;
+  try
+    listobjects.ItemIndex := FoundIndex;
 
-  SelectComboPropertyByDOMProperty(APropertyName);
+    // Chamada manual controlada. Não depende do evento visual.
+    listobjectsChangeBounds(listobjects);
 
-  if Trim(AValue) <> '' then
-    edValue.Text := AValue;
+    SelectComboPropertyByDOMProperty(APropertyName);
+
+    if Trim(AValue) <> '' then
+      edValue.Text := AValue;
+  finally
+    EndInternalEventControl;
+  end;
 
   AddLog(
     'Objeto DOM clicado localizado em listobjects: item=' + IntToStr(FoundIndex) +
@@ -1563,6 +1649,9 @@ begin
     Exit;
 
   FDOMListSelector := '*';
+  FPendingSelectDOM := False;
+  FPendingSelectAttempts := 0;
+  FApplyingPendingDOMSelection := False;
 
   listobjects.Clear;
   cbListProperties.Clear;
@@ -1585,6 +1674,9 @@ end;
 
 procedure TfrmMain.lstVarsClick(Sender: TObject);
 begin
+  if FInternalEventLock > 0 then
+    Exit;
+
   RequestSelectedJSVarValue;
 end;
 
@@ -1635,6 +1727,9 @@ end;
 
 procedure TfrmMain.cbListPropertiesChangeBounds(Sender: TObject);
 begin
+  if FInternalEventLock > 0 then
+    Exit;
+
   SelectPropertyToValue;
 
   AddLog(
@@ -1647,6 +1742,9 @@ procedure TfrmMain.listJavascriptChangeBounds(Sender: TObject);
 var
   MethodName1: string;
 begin
+  if FInternalEventLock > 0 then
+    Exit;
+
   if listJavascript.ItemIndex < 0 then
     Exit;
 
@@ -2129,6 +2227,9 @@ procedure TfrmMain.AIChromiumBrowser1KeyPressDOM(
   AKeyCode: Integer
 );
 begin
+  if FInternalEventLock > 0 then
+    Exit;
+
   AddLog(
     'OnKeyPressDOM: evento=' + AEventName +
     ' objeto=' + ASelector +
@@ -2156,23 +2257,32 @@ procedure TfrmMain.AIChromiumBrowser1ClickDOM(
   AKeyCode: Integer
 );
 begin
-  AddLog(
-    'OnClickDOM: objeto=' + ASelector +
-    ' tag=' + ATagName +
-    ' id=' + AId +
-    ' name=' + AName +
-    ' class=' + AClassName
-  );
+  // Evita reentrada por evento interno.
+  if FInternalEventLock > 0 then
+    Exit;
 
-  SelectListObjectByDOMInfo(
-    ASelector,
-    ATagName,
-    AId,
-    AName,
-    AClassName,
-    APropertyName,
-    AValue
-  );
+  BeginInternalEventControl;
+  try
+    AddLog(
+      'OnClickDOM: objeto=' + ASelector +
+      ' tag=' + ATagName +
+      ' id=' + AId +
+      ' name=' + AName +
+      ' class=' + AClassName
+    );
+
+    SelectListObjectByDOMInfo(
+      ASelector,
+      ATagName,
+      AId,
+      AName,
+      AClassName,
+      APropertyName,
+      AValue
+    );
+  finally
+    EndInternalEventControl;
+  end;
 end;
 
 procedure TfrmMain.AIChromiumBrowser1SetFocusDOM(
@@ -2189,6 +2299,9 @@ procedure TfrmMain.AIChromiumBrowser1SetFocusDOM(
   AKeyCode: Integer
 );
 begin
+  if FInternalEventLock > 0 then
+    Exit;
+
   AddLog(
     'OnSetFocusDOM: objeto=' + ASelector +
     ' tag=' + ATagName +
@@ -2213,6 +2326,9 @@ procedure TfrmMain.AIChromiumBrowser1OutFocusDOM(
   AKeyCode: Integer
 );
 begin
+  if FInternalEventLock > 0 then
+    Exit;
+
   AddLog(
     'OnOutFocusDOM: objeto=' + ASelector +
     ' tag=' + ATagName +

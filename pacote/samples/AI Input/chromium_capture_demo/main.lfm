@@ -141,9 +141,9 @@ object frmMain: TfrmMain
     Height = 590
     Top = 110
     Width = 900
-    ActivePage = tsJavascript
+    ActivePage = tsBrowser
     Align = alClient
-    TabIndex = 3
+    TabIndex = 0
     TabOrder = 1
     object tsBrowser: TTabSheet
       Caption = 'Browser'
