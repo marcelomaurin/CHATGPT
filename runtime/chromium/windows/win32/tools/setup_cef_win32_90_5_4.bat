@@ -1,20 +1,20 @@
 @echo off
 setlocal
 
-call "%~dp0download_cef_win32_87.bat"
+call "%~dp0download_cef_win32_90_5_4.bat"
 if errorlevel 1 exit /b 1
 
-call "%~dp0extract_cef_win32_87.bat"
+call "%~dp0extract_cef_win32_90_5_4.bat"
 if errorlevel 1 exit /b 1
 
-call "%~dp0install_cef_win32_87.bat"
+call "%~dp0install_cef_win32_90_5_4.bat"
 if errorlevel 1 exit /b 1
 
-call "%~dp0check_cef_win32_runtime.bat"
+call "%~dp0check_cef_win32_90_5_4.bat"
 if errorlevel 1 exit /b 1
 
 echo.
 echo ==========================================
-echo Runtime Chromium/CEF Windows 32 bits OK.
+echo Runtime CEF 90.5.4 Windows 32 bits OK.
 echo ==========================================
 exit /b 0

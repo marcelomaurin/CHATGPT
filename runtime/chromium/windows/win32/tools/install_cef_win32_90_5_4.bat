@@ -5,16 +5,17 @@ set BASE=D:\projetos\maurinsoft\CHATGPT\runtime\chromium\windows\win32
 set EXTRACT=%BASE%\extract
 set BIN=%BASE%\bin
 
-if not exist "%BIN%" mkdir "%BIN%"
+if exist "%BIN%" rmdir /S /Q "%BIN%"
+mkdir "%BIN%"
 
 set CEFROOT=
 
-for /d %%d in ("%EXTRACT%\cef_binary_*windows32*") do (
+for /d %%d in ("%EXTRACT%\cef_binary_90.5.4*windows32*") do (
   set CEFROOT=%%d
 )
 
 if "%CEFROOT%"=="" (
-  echo ERRO: Pasta cef_binary_*windows32* nao encontrada em:
+  echo ERRO: Pasta cef_binary_90.5.4*windows32* nao encontrada em:
   echo %EXTRACT%
   exit /b 1
 )

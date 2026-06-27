@@ -4,7 +4,7 @@ setlocal
 set BIN=D:\projetos\maurinsoft\CHATGPT\runtime\chromium\windows\win32\bin
 set SWIFT=%BIN%\swiftshader
 
-echo Validando runtime CEF Windows 32 bits...
+echo Validando runtime CEF 90.5.4 Windows 32 bits...
 echo Pasta:
 echo %BIN%
 echo.
@@ -27,7 +27,10 @@ if not exist "%BIN%\locales" (
 )
 
 echo.
-echo OK: Runtime CEF Windows 32 bits completo.
+echo OK: Arquivos principais encontrados.
+echo ATENCAO: confirmar em execucao se a mensagem mudou para:
+echo Expected libcef.dll version : 90.5.4.0
+echo Found libcef.dll version    : 90.5.4.0
 exit /b 0
 
 :check_file
