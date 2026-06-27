@@ -72,4 +72,6 @@
 
 ![Avatar Demo](avatar_demo.JPG)
 
+## Chromium Capture Demo
 
+![Chromium Capture Demo](chromium_capture_demo.jpg)
