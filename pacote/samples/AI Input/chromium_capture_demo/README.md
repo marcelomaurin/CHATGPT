@@ -1,5 +1,7 @@
 # Chromium Google Search Demo
 
+![Demonstração do Chromium Capture](../../../../screenshots/chromium_capture_demo.jpg)
+
 This demo shows how to use `TAIChromiumBrowser` from the `openai_input` package to perform a practical web automation task:
 **Lazarus controla o campo de pesquisa do Google dentro do Chromium.**
 
