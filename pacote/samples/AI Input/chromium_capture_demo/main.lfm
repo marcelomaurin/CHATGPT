@@ -163,10 +163,11 @@ object frmMain: TfrmMain
         ShowAddressBar = False
         LastCaptureVarName = '__ai_last_capture'
         object ChromiumWindow1: TChromiumWindow
-          Left = 359
-          Height = 93
-          Top = 138
-          Width = 117
+          Left = 1
+          Height = 519
+          Top = 42
+          Width = 890
+          Align = alBottom
           TabOrder = 1
         end
       end
