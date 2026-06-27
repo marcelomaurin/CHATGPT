@@ -141,112 +141,48 @@ object frmMain: TfrmMain
     Height = 590
     Top = 110
     Width = 900
-    ActivePage = tsAutomation
+    ActivePage = tsJavascript
     Align = alClient
-    TabIndex = 1
+    TabIndex = 3
     TabOrder = 1
     object tsBrowser: TTabSheet
       Caption = 'Browser'
       ClientHeight = 562
       ClientWidth = 892
-      object AIChromiumBrowser1: TAIChromiumBrowser
+      object Panel1: TPanel
         Left = 0
-        Height = 562
+        Height = 56
         Top = 0
         Width = 892
-        Align = alClient
-        ClientHeight = 562
+        Align = alTop
+        Caption = 'Panel1'
+        ClientHeight = 56
         ClientWidth = 892
         TabOrder = 0
-        Prompt = 'Component TAIChromiumBrowser is an embedded Chromium browser based on CEF4Delphi TChromiumWindow. It can navigate real web pages, execute JavaScript, capture DOM HTML, click elements, fill fields, wait for selectors and support web application validation workflows.'
-        ChromiumWindow = ChromiumWindow1
-        ShowAddressBar = False
-        LastCaptureVarName = '__ai_last_capture'
-        object ChromiumWindow1: TChromiumWindow
+        object AIChromiumBrowser1: TAIChromiumBrowser
           Left = 1
-          Height = 519
-          Top = 42
+          Height = 54
+          Top = 1
           Width = 890
-          Align = alBottom
-          TabOrder = 1
+          Align = alClient
+          ClientHeight = 54
+          ClientWidth = 890
+          TabOrder = 0
+          Prompt = 'Component TAIChromiumBrowser is an embedded Chromium browser based on CEF4Delphi TChromiumWindow. It can navigate real web pages, execute JavaScript, capture DOM HTML, click elements, fill fields, wait for selectors and support web application validation workflows.'
+          ShowAddressBar = False
+          LastCaptureVarName = '__ai_last_capture'
+          DOMSelector = '*'
+          DOMResultVarName = '__ai_dom_result'
         end
       end
-    end
-    object tsAutomation: TTabSheet
-      Caption = 'Automation'
-      ClientHeight = 562
-      ClientWidth = 892
-      object edSelector: TEdit
-        Left = 10
-        Height = 23
-        Top = 10
-        Width = 200
-        TabOrder = 0
-        Text = 'body'
-      end
-      object btnWaitSelector: TButton
-        Left = 220
-        Height = 25
-        Top = 9
-        Width = 100
-        Caption = 'Wait Selector'
+      object ChromiumWindow1: TChromiumWindow
+        Left = 0
+        Height = 506
+        Top = 56
+        Width = 892
+        Align = alClient
+        Anchors = [akLeft, akRight]
         TabOrder = 1
-        OnClick = btnWaitSelectorClick
-      end
-      object btnClick: TButton
-        Left = 325
-        Height = 25
-        Top = 9
-        Width = 75
-        Caption = 'Click'
-        TabOrder = 2
-        OnClick = btnClickClick
-      end
-      object edValue: TEdit
-        Left = 10
-        Height = 23
-        Top = 45
-        Width = 200
-        TabOrder = 3
-        Text = 'Marcelo'
-      end
-      object btnSetValue: TButton
-        Left = 220
-        Height = 25
-        Top = 44
-        Width = 100
-        Caption = 'SetValue'
-        TabOrder = 4
-        OnClick = btnSetValueClick
-      end
-      object memoJS: TMemo
-        Left = 10
-        Height = 200
-        Top = 80
-        Width = 500
-        Lines.Strings = (
-          'document.body.style.outline = "5px solid red";'
-          'console.log("TAIChromiumBrowser JavaScript test executed");'
-        )
-        TabOrder = 5
-      end
-      object btnExecuteJS: TButton
-        Left = 10
-        Height = 25
-        Top = 290
-        Width = 100
-        Caption = 'Execute JS'
-        TabOrder = 6
-        OnClick = btnExecuteJSClick
-      end
-      object btnScreenshot: TButton
-        Left = 410
-        Height = 25
-        Top = 9
-        Width = 100
-        Caption = 'Screenshot'
-        TabOrder = 7
-        OnClick = btnScreenshotClick
       end
     end
     object tsHTML: TTabSheet
@@ -268,10 +204,180 @@ object frmMain: TfrmMain
         Top = 52
         Width = 892
         Align = alBottom
-        Anchors = [akTop, akLeft, akRight, akBottom]
+        Anchors = [akTop, akLeft, akRight]
         ScrollBars = ssAutoBoth
         TabOrder = 1
       end
+    end
+    object tsAutomation: TTabSheet
+      Caption = 'DOM Objects'
+      ClientHeight = 562
+      ClientWidth = 892
+      object edValue: TEdit
+        Left = 269
+        Height = 23
+        Top = 120
+        Width = 200
+        TabOrder = 0
+      end
+      object btnSetValue: TButton
+        Left = 479
+        Height = 25
+        Top = 119
+        Width = 100
+        Caption = 'SetValue'
+        TabOrder = 1
+        OnClick = btnSetValueClick
+      end
+      object Label3: TLabel
+        Left = 271
+        Height = 15
+        Top = 104
+        Width = 28
+        Caption = 'Value'
+      end
+      object Label4: TLabel
+        Left = 0
+        Height = 15
+        Top = 56
+        Width = 40
+        Caption = 'Objects'
+      end
+      object Button1: TButton
+        Left = 0
+        Height = 25
+        Top = 8
+        Width = 176
+        Caption = 'Make List Objects'
+        TabOrder = 2
+        OnClick = Button1Click
+      end
+      object Label5: TLabel
+        Left = 269
+        Height = 15
+        Top = 56
+        Width = 53
+        Caption = 'Properties'
+      end
+      object cbListProperties: TComboBox
+        Left = 269
+        Height = 23
+        Top = 71
+        Width = 158
+        ItemHeight = 15
+        TabOrder = 3
+        Text = 'cbListProperties'
+        OnChangeBounds = cbListPropertiesChangeBounds
+      end
+      object listobjects: TListBox
+        Left = 0
+        Height = 481
+        Top = 71
+        Width = 256
+        ItemHeight = 0
+        TabOrder = 4
+        OnChangeBounds = listobjectsChangeBounds
+      end
+    end
+    object tsJavascript: TTabSheet
+      Caption = 'JavaScript Object'
+      ClientHeight = 562
+      ClientWidth = 892
+      object memoJS: TMemo
+        Left = 0
+        Height = 336
+        Top = 226
+        Width = 892
+        Align = alBottom
+        Lines.Strings = (
+          'document.body.style.outline = "5px solid red";'
+          'console.log("TAIChromiumBrowser JavaScript test executed");'
+        )
+        TabOrder = 0
+      end
+      object btnExecuteJS: TButton
+        Left = 784
+        Height = 25
+        Top = 196
+        Width = 100
+        Caption = 'Execute JS'
+        TabOrder = 1
+        OnClick = btnExecuteJSClick
+      end
+      object listJavascript: TListBox
+        Left = 8
+        Height = 164
+        Top = 32
+        Width = 296
+        ItemHeight = 0
+        TabOrder = 2
+        OnChangeBounds = listJavascriptChangeBounds
+      end
+      object Label6: TLabel
+        Left = 8
+        Height = 15
+        Top = 12
+        Width = 60
+        Caption = 'JavaScripts:'
+      end
+      object Label7: TLabel
+        Left = 8
+        Height = 15
+        Top = 206
+        Width = 36
+        Caption = 'Source'
+      end
+      object lstVars: TListBox
+        Left = 344
+        Height = 164
+        Top = 32
+        Width = 288
+        ItemHeight = 0
+        TabOrder = 3
+      end
+      object Label8: TLabel
+        Left = 344
+        Height = 15
+        Top = 16
+        Width = 24
+        Caption = 'Vars:'
+      end
+      object lbValue: TLabel
+        Left = 648
+        Height = 15
+        Top = 14
+        Width = 28
+        Caption = 'Value'
+      end
+      object edValueVar: TEdit
+        Left = 648
+        Height = 23
+        Top = 34
+        Width = 224
+        TabOrder = 4
+        Text = 'edValueVar'
+      end
+      object btSetValueVar: TToggleBox
+        Left = 736
+        Height = 25
+        Top = 72
+        Width = 136
+        Caption = 'Set Value Var'
+        TabOrder = 5
+        OnClick = btSetValueVarClick
+      end
+      object btListVars: TButton
+        Left = 344
+        Height = 25
+        Top = 200
+        Width = 121
+        Caption = 'List Vars'
+        TabOrder = 6
+        OnClick = btListVarsClick
+      end
+    end
+    object tsCss: TTabSheet
+      Caption = 'CSS Object'
     end
     object tsLog: TTabSheet
       Caption = 'Log'
