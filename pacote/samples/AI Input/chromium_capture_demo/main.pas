@@ -6,12 +6,15 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  ComCtrls, Buttons, aibase, aichromiumbrowser;
+  ComCtrls, Buttons, uCEFChromiumWindow, aibase, aichromiumbrowser;
 
 type
   { TfrmMain }
 
   TfrmMain = class(TForm)
+    ChromiumWindow1: TChromiumWindow;
+    Label1: TLabel;
+    Label2: TLabel;
     pnlTop: TPanel;
     lblTitle: TLabel;
     lblStatus: TLabel;
@@ -62,15 +65,21 @@ type
     procedure btnExecuteJSClick(Sender: TObject);
     procedure btnGetHTMLClick(Sender: TObject);
     procedure btnScreenshotClick(Sender: TObject);
-    
+
     procedure btnAbrirGoogleClick(Sender: TObject);
     procedure btnPesquisarGoogleClick(Sender: TObject);
     procedure edPesquisaKeyPress(Sender: TObject; var Key: Char);
   private
     procedure AddLog(const AMsg: string);
     procedure ShowComponentState;
-  public
+    function EnsureBrowser: Boolean;
 
+    // Regras da aplicação/sample. Não pertencem ao componente.
+    function UrlEncodeQuery(const S: string): string;
+    function BuildGoogleSearchURL(const AText: string): string;
+    function PesquisarGooglePorURL(const AText: string): Boolean;
+    function PesquisarGooglePorDOM(const AText: string): Boolean;
+  public
   end;
 
 var
@@ -84,13 +93,13 @@ implementation
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
-  Caption := 'Google Search Demo - TAIChromiumBrowser';
-  lblTitle.Caption := 'Google Search Demo - TAIChromiumBrowser';
+  Caption := 'Web Automation Demo - TAIChromiumBrowser';
+  lblTitle.Caption := 'Web Automation Demo - TAIChromiumBrowser';
   lblStatus.Caption := 'Status: Ready';
 
   edURL.Text := 'https://www.google.com';
   edPesquisa.Text := 'Lazarus Free Pascal';
-  
+
   edSelector.Text := 'body';
   edValue.Text := 'Marcelo';
 
@@ -98,18 +107,41 @@ begin
     'document.body.style.outline = "5px solid red";' + LineEnding +
     'console.log("TAIChromiumBrowser JavaScript test executed");';
 
+  memoHTML.Clear;
+  memoHTML.Lines.Add('As capturas do componente são assíncronas.');
+  memoHTML.Lines.Add('CaptureHTML/CaptureText/CaptureCookies gravam o resultado no browser em window.__ai_last_capture.');
+  memoHTML.Lines.Add('A etapa futura do componente deve trazer este valor para uma propriedade Lazarus via callback/IPC do CEF.');
+
   AddLog('Demo initialized.');
-  AddLog('Este sample abre o Google e envia uma pesquisa usando o TAIChromiumBrowser.');
+  AddLog('Este sample demonstra o TAIChromiumBrowser como plataforma genérica de automação web.');
+  AddLog('A pesquisa no Google é regra deste sample, não do componente.');
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
-  //
+  // O componente gerencia seu próprio fechamento.
+end;
+
+function TfrmMain.EnsureBrowser: Boolean;
+begin
+  Result := True;
+
+  if AIChromiumBrowser1.BrowserReady then
+    Exit;
+
+  AddLog('Inicializando Chromium...');
+  Result := AIChromiumBrowser1.InitializeBrowser;
+
+  if Result then
+    AddLog('Browser creation requested.')
+  else
+    AddLog('Erro ao inicializar Chromium: ' + AIChromiumBrowser1.LastError);
 end;
 
 procedure TfrmMain.btnInitializeClick(Sender: TObject);
 begin
   AddLog('Initializing Chromium...');
+
   if AIChromiumBrowser1.InitializeBrowser then
   begin
     AddLog('Browser creation requested.');
@@ -127,6 +159,9 @@ begin
   AddLog('Navigate: ' + edURL.Text);
 
   try
+    if not EnsureBrowser then
+      Exit;
+
     AIChromiumBrowser1.Navigate(edURL.Text);
 
     if AIChromiumBrowser1.LastError <> '' then
@@ -171,10 +206,20 @@ procedure TfrmMain.btnWaitSelectorClick(Sender: TObject);
 begin
   AddLog('WaitForSelector: ' + edSelector.Text);
 
+  if Trim(edSelector.Text) = '' then
+  begin
+    AddLog('Informe um seletor CSS.');
+    edSelector.SetFocus;
+    Exit;
+  end;
+
+  if not EnsureBrowser then
+    Exit;
+
   if AIChromiumBrowser1.WaitForSelector(edSelector.Text, 10000) then
-    AddLog('Selector found.')
+    AddLog('Script de verificação do seletor injetado. O resultado fica em window.__ai_last_capture.')
   else
-    AddLog('Selector not found: ' + AIChromiumBrowser1.LastError);
+    AddLog('WaitForSelector error: ' + AIChromiumBrowser1.LastError);
 
   ShowComponentState;
 end;
@@ -182,6 +227,16 @@ end;
 procedure TfrmMain.btnClickClick(Sender: TObject);
 begin
   AddLog('Click: ' + edSelector.Text);
+
+  if Trim(edSelector.Text) = '' then
+  begin
+    AddLog('Informe um seletor CSS.');
+    edSelector.SetFocus;
+    Exit;
+  end;
+
+  if not EnsureBrowser then
+    Exit;
 
   if AIChromiumBrowser1.Click(edSelector.Text) then
     AddLog('Click script executed.')
@@ -195,6 +250,16 @@ procedure TfrmMain.btnSetValueClick(Sender: TObject);
 begin
   AddLog('SetValue: ' + edSelector.Text + ' = ' + edValue.Text);
 
+  if Trim(edSelector.Text) = '' then
+  begin
+    AddLog('Informe um seletor CSS.');
+    edSelector.SetFocus;
+    Exit;
+  end;
+
+  if not EnsureBrowser then
+    Exit;
+
   if AIChromiumBrowser1.SetValue(edSelector.Text, edValue.Text) then
     AddLog('SetValue script executed.')
   else
@@ -207,6 +272,16 @@ procedure TfrmMain.btnExecuteJSClick(Sender: TObject);
 begin
   AddLog('Executing JavaScript...');
 
+  if Trim(memoJS.Text) = '' then
+  begin
+    AddLog('Informe um JavaScript no memo.');
+    memoJS.SetFocus;
+    Exit;
+  end;
+
+  if not EnsureBrowser then
+    Exit;
+
   if AIChromiumBrowser1.ExecuteJavaScript(memoJS.Text) then
     AddLog('JavaScript executed.')
   else
@@ -216,18 +291,25 @@ begin
 end;
 
 procedure TfrmMain.btnGetHTMLClick(Sender: TObject);
-var
-  vHTML: string;
 begin
-  AddLog('Getting HTML content...');
+  AddLog('CaptureHTML: html');
 
-  vHTML := AIChromiumBrowser1.GetHtmlContent;
-  memoHTML.Text := vHTML;
+  if not EnsureBrowser then
+    Exit;
 
-  if AIChromiumBrowser1.LastError <> '' then
-    AddLog('GetHTML warning/error: ' + AIChromiumBrowser1.LastError)
+  if AIChromiumBrowser1.CaptureHTML('html') then
+  begin
+    AddLog('CaptureHTML script executed.');
+    memoHTML.Clear;
+    memoHTML.Lines.Add('Captura solicitada com sucesso.');
+    memoHTML.Lines.Add('Resultado disponível dentro do browser em:');
+    memoHTML.Lines.Add('window.' + AIChromiumBrowser1.LastCaptureVarName);
+    memoHTML.Lines.Add('');
+    memoHTML.Lines.Add('Observação: esta versão ainda não traz o valor capturado de volta para o Lazarus de forma síncrona.');
+    memoHTML.Lines.Add('Para isso, o componente precisa receber a próxima evolução com callback/IPC do CEF.');
+  end
   else
-    AddLog('HTML length: ' + IntToStr(Length(vHTML)));
+    AddLog('CaptureHTML error: ' + AIChromiumBrowser1.LastError);
 
   ShowComponentState;
 end;
@@ -240,6 +322,9 @@ begin
                'chromium_capture_demo_screenshot.png';
 
   AddLog('Screenshot: ' + vFileName);
+
+  if not EnsureBrowser then
+    Exit;
 
   if AIChromiumBrowser1.Screenshot(vFileName) then
     AddLog('Screenshot saved.')
@@ -264,17 +349,106 @@ end;
 
 procedure TfrmMain.AddLog(const AMsg: string);
 begin
-  memoLog.Lines.Add(AMsg);
+  memoLog.Lines.Add(FormatDateTime('hh:nn:ss', Now) + ' - ' + AMsg);
+end;
+
+function TfrmMain.UrlEncodeQuery(const S: string): string;
+const
+  Hex: array[0..15] of Char = '0123456789ABCDEF';
+var
+  I: Integer;
+  B: Byte;
+begin
+  Result := '';
+
+  // Lazarus usa UTF-8 em strings comuns no LCL. Aqui codificamos byte a byte.
+  for I := 1 to Length(S) do
+  begin
+    B := Ord(S[I]);
+
+    if Char(B) in ['A'..'Z', 'a'..'z', '0'..'9', '-', '_', '.', '~'] then
+      Result := Result + Char(B)
+    else if Char(B) = ' ' then
+      Result := Result + '+'
+    else
+      Result := Result + '%' + Hex[B shr 4] + Hex[B and $0F];
+  end;
+end;
+
+function TfrmMain.BuildGoogleSearchURL(const AText: string): string;
+begin
+  Result := 'https://www.google.com/search?q=' + UrlEncodeQuery(AText);
+end;
+
+function TfrmMain.PesquisarGooglePorURL(const AText: string): Boolean;
+var
+  vURL: string;
+begin
+  Result := False;
+
+  if Trim(AText) = '' then
+  begin
+    AddLog('Informe o texto da pesquisa.');
+    edPesquisa.SetFocus;
+    Exit;
+  end;
+
+  if not EnsureBrowser then
+    Exit;
+
+  vURL := BuildGoogleSearchURL(AText);
+  AddLog('Pesquisa por URL: ' + vURL);
+
+  AIChromiumBrowser1.Navigate(vURL);
+  edURL.Text := vURL;
+
+  Result := AIChromiumBrowser1.LastError = '';
+end;
+
+function TfrmMain.PesquisarGooglePorDOM(const AText: string): Boolean;
+const
+  CGoogleSelector = 'textarea[name="q"]';
+begin
+  Result := False;
+
+  if Trim(AText) = '' then
+  begin
+    AddLog('Informe o texto da pesquisa.');
+    edPesquisa.SetFocus;
+    Exit;
+  end;
+
+  if not EnsureBrowser then
+    Exit;
+
+  // Esta função mostra como a aplicação pode usar os métodos genéricos do componente.
+  // A regra de conhecer o seletor do Google continua no sample, não no TAIChromiumBrowser.
+  AddLog('Pesquisa por DOM usando seletor específico do sample: ' + CGoogleSelector);
+
+  if not AIChromiumBrowser1.SetValue(CGoogleSelector, AText) then
+  begin
+    AddLog('Falha ao preencher campo de pesquisa: ' + AIChromiumBrowser1.LastError);
+    Exit;
+  end;
+
+  if not AIChromiumBrowser1.SubmitForm(CGoogleSelector) then
+  begin
+    AddLog('Falha ao submeter formulário: ' + AIChromiumBrowser1.LastError);
+    Exit;
+  end;
+
+  Result := True;
 end;
 
 procedure TfrmMain.btnAbrirGoogleClick(Sender: TObject);
 begin
   AddLog('Abrindo Google...');
 
-  if not AIChromiumBrowser1.BrowserReady then
-    AIChromiumBrowser1.InitializeBrowser;
+  if not EnsureBrowser then
+    Exit;
 
   AIChromiumBrowser1.Navigate('https://www.google.com');
+  edURL.Text := 'https://www.google.com';
 
   if AIChromiumBrowser1.LastError <> '' then
     AddLog('Erro: ' + AIChromiumBrowser1.LastError)
@@ -286,29 +460,14 @@ end;
 
 procedure TfrmMain.btnPesquisarGoogleClick(Sender: TObject);
 begin
-  AddLog('Pesquisa Google: ' + edPesquisa.Text);
+  AddLog('Pesquisa Google solicitada pela aplicação: ' + edPesquisa.Text);
 
-  if Trim(edPesquisa.Text) = '' then
-  begin
-    AddLog('Informe o texto da pesquisa.');
-    edPesquisa.SetFocus;
-    Exit;
-  end;
-
-  if not AIChromiumBrowser1.BrowserReady then
-  begin
-    AddLog('Inicializando browser...');
-    AIChromiumBrowser1.InitializeBrowser;
-  end;
-
-  if Trim(AIChromiumBrowser1.URL) = '' then
-  begin
-    AddLog('Abrindo Google antes da pesquisa...');
-    AIChromiumBrowser1.Navigate('https://www.google.com');
-  end;
-
-  if AIChromiumBrowser1.GoogleSearch(edPesquisa.Text) then
-    AddLog('Pesquisa enviada para o Google.')
+  // Importante:
+  // Não existe mais AIChromiumBrowser1.GoogleSearch.
+  // Google é regra deste sample. O componente continua genérico.
+  // A opção por URL é mais estável porque não depende do carregamento assíncrono da home do Google.
+  if PesquisarGooglePorURL(edPesquisa.Text) then
+    AddLog('Pesquisa enviada pela aplicação usando Navigate.')
   else
     AddLog('Erro ao pesquisar: ' + AIChromiumBrowser1.LastError);
 
@@ -325,3 +484,4 @@ begin
 end;
 
 end.
+

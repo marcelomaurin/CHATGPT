@@ -6,9 +6,9 @@ object frmMain: TfrmMain
   Caption = 'Chromium Capture Demo - CEF4Delphi TChromiumWindow'
   ClientHeight = 700
   ClientWidth = 900
+  LCLVersion = '4.4.0.0'
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  LCLVersion = '3.0.0.3'
   object pnlTop: TPanel
     Left = 0
     Height = 110
@@ -22,21 +22,21 @@ object frmMain: TfrmMain
       Left = 10
       Height = 15
       Top = 5
-      Width = 400
+      Width = 386
       Caption = 'Chromium Capture Demo - TAIChromiumBrowser + TChromiumWindow'
     end
     object lblStatus: TLabel
       Left = 10
       Height = 15
       Top = 25
-      Width = 400
+      Width = 70
       Caption = 'Status: Ready'
     end
     object Label1: TLabel
       Left = 10
       Height = 15
       Top = 53
-      Width = 27
+      Width = 24
       Caption = 'URL:'
     end
     object edURL: TEdit
@@ -53,14 +53,14 @@ object frmMain: TfrmMain
       Top = 48
       Width = 100
       Caption = 'Abrir Google'
-      OnClick = btnAbrirGoogleClick
       TabOrder = 1
+      OnClick = btnAbrirGoogleClick
     end
     object Label2: TLabel
       Left = 10
       Height = 15
       Top = 83
-      Width = 59
+      Width = 53
       Caption = 'Pesquisar:'
     end
     object edPesquisa: TEdit
@@ -68,9 +68,9 @@ object frmMain: TfrmMain
       Height = 23
       Top = 80
       Width = 350
-      OnKeyPress = edPesquisaKeyPress
       TabOrder = 2
       Text = 'Lazarus Free Pascal'
+      OnKeyPress = edPesquisaKeyPress
     end
     object btnPesquisarGoogle: TButton
       Left = 440
@@ -78,8 +78,8 @@ object frmMain: TfrmMain
       Top = 78
       Width = 100
       Caption = 'Pesquisar'
-      OnClick = btnPesquisarGoogleClick
       TabOrder = 3
+      OnClick = btnPesquisarGoogleClick
     end
     object btnInitialize: TButton
       Left = 550
@@ -87,8 +87,8 @@ object frmMain: TfrmMain
       Top = 48
       Width = 70
       Caption = 'Initialize'
-      OnClick = btnInitializeClick
       TabOrder = 4
+      OnClick = btnInitializeClick
     end
     object btnNavigate: TButton
       Left = 550
@@ -96,8 +96,8 @@ object frmMain: TfrmMain
       Top = 78
       Width = 70
       Caption = 'Navigate'
-      OnClick = btnNavigateClick
       TabOrder = 5
+      OnClick = btnNavigateClick
     end
     object btnBack: TButton
       Left = 630
@@ -105,8 +105,8 @@ object frmMain: TfrmMain
       Top = 48
       Width = 60
       Caption = 'Back'
-      OnClick = btnBackClick
       TabOrder = 6
+      OnClick = btnBackClick
     end
     object btnForward: TButton
       Left = 695
@@ -114,8 +114,8 @@ object frmMain: TfrmMain
       Top = 48
       Width = 60
       Caption = 'Forward'
-      OnClick = btnForwardClick
       TabOrder = 7
+      OnClick = btnForwardClick
     end
     object btnReload: TButton
       Left = 760
@@ -123,8 +123,8 @@ object frmMain: TfrmMain
       Top = 48
       Width = 60
       Caption = 'Reload'
-      OnClick = btnReloadClick
       TabOrder = 8
+      OnClick = btnReloadClick
     end
     object btnClearLog: TButton
       Left = 630
@@ -132,14 +132,14 @@ object frmMain: TfrmMain
       Top = 78
       Width = 190
       Caption = 'Clear Log'
-      OnClick = btnClearLogClick
       TabOrder = 9
+      OnClick = btnClearLogClick
     end
   end
   object PageControl1: TPageControl
     Left = 0
-    Height = 620
-    Top = 80
+    Height = 590
+    Top = 110
     Width = 900
     ActivePage = tsBrowser
     Align = alClient
@@ -147,25 +147,33 @@ object frmMain: TfrmMain
     TabOrder = 1
     object tsBrowser: TTabSheet
       Caption = 'Browser'
-      ClientHeight = 592
+      ClientHeight = 562
       ClientWidth = 892
       object AIChromiumBrowser1: TAIChromiumBrowser
         Left = 0
-        Height = 592
+        Height = 562
         Top = 0
         Width = 892
-        Prompt = 'Component TAIChromiumBrowser is an embedded Chromium browser based on CEF4Delphi TChromiumWindow. It can navigate real web pages, execute JavaScript, capture DOM HTML, click elements, fill fields, wait for selectors and support web application validation workflows.'
-        URL = ''
-        HTML = ''
-        ShowAddressBar = False
-        DefaultTimeoutMs = 30000
         Align = alClient
+        ClientHeight = 562
+        ClientWidth = 892
         TabOrder = 0
+        Prompt = 'Component TAIChromiumBrowser is an embedded Chromium browser based on CEF4Delphi TChromiumWindow. It can navigate real web pages, execute JavaScript, capture DOM HTML, click elements, fill fields, wait for selectors and support web application validation workflows.'
+        ChromiumWindow = ChromiumWindow1
+        ShowAddressBar = False
+        LastCaptureVarName = '__ai_last_capture'
+        object ChromiumWindow1: TChromiumWindow
+          Left = 359
+          Height = 93
+          Top = 138
+          Width = 117
+          TabOrder = 1
+        end
       end
     end
     object tsAutomation: TTabSheet
       Caption = 'Automation'
-      ClientHeight = 592
+      ClientHeight = 562
       ClientWidth = 892
       object edSelector: TEdit
         Left = 10
@@ -181,8 +189,8 @@ object frmMain: TfrmMain
         Top = 9
         Width = 100
         Caption = 'Wait Selector'
-        OnClick = btnWaitSelectorClick
         TabOrder = 1
+        OnClick = btnWaitSelectorClick
       end
       object btnClick: TButton
         Left = 325
@@ -190,8 +198,8 @@ object frmMain: TfrmMain
         Top = 9
         Width = 75
         Caption = 'Click'
-        OnClick = btnClickClick
         TabOrder = 2
+        OnClick = btnClickClick
       end
       object edValue: TEdit
         Left = 10
@@ -207,8 +215,8 @@ object frmMain: TfrmMain
         Top = 44
         Width = 100
         Caption = 'SetValue'
-        OnClick = btnSetValueClick
         TabOrder = 4
+        OnClick = btnSetValueClick
       end
       object memoJS: TMemo
         Left = 10
@@ -227,8 +235,8 @@ object frmMain: TfrmMain
         Top = 290
         Width = 100
         Caption = 'Execute JS'
-        OnClick = btnExecuteJSClick
         TabOrder = 6
+        OnClick = btnExecuteJSClick
       end
       object btnScreenshot: TButton
         Left = 410
@@ -236,13 +244,13 @@ object frmMain: TfrmMain
         Top = 9
         Width = 100
         Caption = 'Screenshot'
-        OnClick = btnScreenshotClick
         TabOrder = 7
+        OnClick = btnScreenshotClick
       end
     end
     object tsHTML: TTabSheet
       Caption = 'HTML'
-      ClientHeight = 592
+      ClientHeight = 562
       ClientWidth = 892
       object btnGetHTML: TButton
         Left = 10
@@ -250,12 +258,12 @@ object frmMain: TfrmMain
         Top = 10
         Width = 100
         Caption = 'Get HTML'
-        OnClick = btnGetHTMLClick
         TabOrder = 0
+        OnClick = btnGetHTMLClick
       end
       object memoHTML: TMemo
         Left = 0
-        Height = 540
+        Height = 510
         Top = 52
         Width = 892
         Align = alBottom
@@ -266,11 +274,11 @@ object frmMain: TfrmMain
     end
     object tsLog: TTabSheet
       Caption = 'Log'
-      ClientHeight = 592
+      ClientHeight = 562
       ClientWidth = 892
       object memoLog: TMemo
         Left = 0
-        Height = 592
+        Height = 562
         Top = 0
         Width = 892
         Align = alClient

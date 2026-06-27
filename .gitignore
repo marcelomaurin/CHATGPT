@@ -113,3 +113,16 @@ __pycache__/
 install_report.txt
 runtime_check_report.txt
 chatgpt_ai_runtime.ini
+
+# CEF Runtimes and Binaries
+runtime/chromium/
+pacote/samples/AI Input/chromium_capture_demo/cef.tar.bz2
+pacote/samples/AI Input/chromium_capture_demo/*.pak
+pacote/samples/AI Input/chromium_capture_demo/*.dat
+pacote/samples/AI Input/chromium_capture_demo/*.bin
+pacote/samples/AI Input/chromium_capture_demo/locales/
+pacote/samples/AI Input/chromium_capture_demo/swiftshader/
+pacote/samples/AI Input/chromium_capture_demo/*.json
+pacote/download_chromium_runtimes.ps1
+pacote/samples/AI Input/chromium_capture_demo/download_cef.ps1
+
