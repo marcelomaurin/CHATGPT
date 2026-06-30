@@ -1,0 +1,10 @@
+object frmMain: TfrmMain
+  Left = 150
+  Height = 800
+  Top = 80
+  Width = 1200
+  Caption = 'IA Multi-Agent Task-Oriented Workflow Demo'
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '2.2.0'
+end
