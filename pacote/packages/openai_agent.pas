@@ -9,7 +9,9 @@ interface
 
 uses
   aiagent, aiagentsafety, aiagent_executors, aiwizardconfig, 
-  frm_aiwizardconfig, aipipeline, LazarusPackageIntf;
+  frm_aiwizardconfig, aipipeline, aiagent_flowevents, aiagent_memorymap,
+  aiagent_core, aiagent_classifier, aiagent_decision, aiagent_actionbuilder,
+  aiagent_executor, aiagent_actions, aiagent_orchestrator, LazarusPackageIntf;
 
 implementation
 
@@ -19,6 +21,8 @@ begin
   RegisterUnit('aiagentsafety', @aiagentsafety.Register);
   RegisterUnit('aiwizardconfig', @aiwizardconfig.Register);
   RegisterUnit('aipipeline', @aipipeline.Register);
+  RegisterUnit('aiagent_memorymap', @aiagent_memorymap.Register);
+  RegisterUnit('aiagent_orchestrator', @aiagent_orchestrator.Register);
 end;
 
 initialization

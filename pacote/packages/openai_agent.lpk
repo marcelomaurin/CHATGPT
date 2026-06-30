@@ -45,6 +45,44 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="aipipeline"/>
       </Item>
+      <Item>
+        <Filename Value="..\AI Agent\aiagent_flowevents.pas"/>
+        <UnitName Value="aiagent_flowevents"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Agent\aiagent_memorymap.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiagent_memorymap"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Agent\aiagent_core.pas"/>
+        <UnitName Value="aiagent_core"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Agent\aiagent_classifier.pas"/>
+        <UnitName Value="aiagent_classifier"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Agent\aiagent_decision.pas"/>
+        <UnitName Value="aiagent_decision"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Agent\aiagent_actionbuilder.pas"/>
+        <UnitName Value="aiagent_actionbuilder"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Agent\aiagent_executor.pas"/>
+        <UnitName Value="aiagent_executor"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Agent\aiagent_actions.pas"/>
+        <UnitName Value="aiagent_actions"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Agent\aiagent_orchestrator.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiagent_orchestrator"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>

@@ -1,0 +1,10 @@
+object frmAgentMemoryMapDemo: TfrmAgentMemoryMapDemo
+  Left = 200
+  Height = 750
+  Top = 100
+  Width = 1200
+  Caption = 'IA Multi-Agent & Memory Map Demo'
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '2.2.0'
+end
