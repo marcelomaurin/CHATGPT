@@ -27,6 +27,8 @@ The following examples are visual projects ready for compilation and interactive
 | Sample | Path | Description |
 |---|---|---|
 | **[agent_demo](AI Agent/agent_demo/)** | `pacote/samples/AI Agent/agent_demo` | Simulation of intelligent autonomous agents for decision making and action execution. |
+| **[agent_memorymap_demo](AI Agent/agent_memorymap_demo/)** | `pacote/samples/AI Agent/agent_memorymap_demo` | Multi-agent workflow demonstration with structured persistent history using the TAIMapaDeMemoria component. |
+| **[agent_task_memory_action_demo](AI Agent/agent_task_memory_action_demo/)** | `pacote/samples/AI Agent/agent_task_memory_action_demo` | Advanced visual demonstration of task-oriented multi-agent workflows, featuring a memory map and simulated or real action execution. |
 
 ### 📦 AI Core
 
@@ -144,6 +146,12 @@ The following examples are visual projects ready for compilation and interactive
 | **[posprinter_demo](AI Output/posprinter_demo/)** | `pacote/samples/AI Output/posprinter_demo` | ESC/POS formatting utility for receipt and thermal printers. |
 | **[word_object_demo](AI Output/word_object_demo/)** | `pacote/samples/AI Output/word_object_demo` | Structured manipulation and editing of DOCX files using OpenXML. |
 | **[word_viewer_demo](AI Output/word_viewer_demo/)** | `pacote/samples/AI Output/word_viewer_demo` | Native viewer and renderer for DOCX documents within Lazarus forms. |
+
+### 📦 AI Project
+
+| Sample | Path | Description |
+|---|---|---|
+| **[project_tasklist_ai_demo](AI Project/project_tasklist_ai_demo/)** | `pacote/samples/AI Project/project_tasklist_ai_demo` | No description available. |
 
 ### 📦 AI Python
 

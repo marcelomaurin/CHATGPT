@@ -248,6 +248,30 @@ SAMPLE_DESCRIPTIONS = {
         'it': 'Rendering grafico 3D interattivo con griglie, luci e OpenGL nativo.',
         'ar': 'عرض رسومي تفاعلي ثلاثي الأبعاد مع الشبكات والإضاءة والـ OpenGL الأصلي.'
     },
+    'agent_demo': {
+        'pt': 'Simulação de agentes inteligentes autônomos para tomada de decisão e disparo de saídas.',
+        'en': 'Simulation of intelligent autonomous agents for decision making and action execution.',
+        'es': 'Simulación de agentes autónomos inteligentes para la toma de decisiones.',
+        'fr': 'Simulation d\'agents intelligents autonomes pour la prise de décision.',
+        'it': 'Simulazione di agenti intelligenti autonomi per il processo decisionale.',
+        'ar': 'محاكاة الوكلاء الأذكياء المستقلين لاتخاذ القرارات وتنفيذ الإجراءات.'
+    },
+    'agent_memorymap_demo': {
+        'pt': 'Demonstração de fluxo multiagente com histórico estruturado persistente no componente TAIMapaDeMemoria.',
+        'en': 'Multi-agent workflow demonstration with structured persistent history using the TAIMapaDeMemoria component.',
+        'es': 'Demostración de flujo multiagente con historial estructurado persistente en el componente TAIMapaDeMemoria.',
+        'fr': 'Démonstration de flux multi-agents avec historique structuré persistant dans le composant TAIMapaDeMemoria.',
+        'it': 'Dimostrazione di workflow multi-agente con cronologia strutturata persistente nel componente TAIMapaDeMemoria.',
+        'ar': 'عرض توضيحي لتدفق العمل متعدد الوكلاء مع سجل هيكلي مستمر في مكون TAIMapaDeMemoria.'
+    },
+    'agent_task_memory_action_demo': {
+        'pt': 'Demonstração visual avançada de fluxo multiagente orientado por tarefas, com mapa de memória e execução simulada/real de ações.',
+        'en': 'Advanced visual demonstration of task-oriented multi-agent workflows, featuring a memory map and simulated or real action execution.',
+        'es': 'Demostración visual avanzada de flujos multiagente orientados a tareas, con mapa de memoria y ejecución simulada o real de acciones.',
+        'fr': 'Démonstration visuelle avancée de flux multi-agents orientés tâches, avec carte mémoire et exécution simulée ou réelle d\'actions.',
+        'it': 'Dimostrazione visiva avanzata di workflow multi-agente orientati ai task, con mappa di memoria ed esecuzione simulata o reale di azioni.',
+        'ar': 'عرض توضيحي مرئي متقدم لتدفقات العمل متعددة الوكلاء الموجهة بالمهام، ويتميز بخريطة ذاكرة وتنفيذ إجراءات محاكاة أو حقيقية.'
+    },
     'db_dictionary_demo': {
         'pt': 'Extrator visual de dicionário de dados e metadados de bancos SQLite/PostgreSQL.',
         'en': 'Visual data dictionary and metadata extractor for SQLite/PostgreSQL databases.',

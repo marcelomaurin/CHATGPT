@@ -27,6 +27,8 @@ Os exemplos a seguir são projetos visuais prontos para compilação e execuçã
 | Exemplo | Caminho | Descrição |
 |---|---|---|
 | **[agent_demo](AI Agent/agent_demo/)** | `pacote/samples/AI Agent/agent_demo` | Simulação de agentes inteligentes autônomos para tomada de decisão e disparo de saídas. |
+| **[agent_memorymap_demo](AI Agent/agent_memorymap_demo/)** | `pacote/samples/AI Agent/agent_memorymap_demo` | Demonstração de fluxo multiagente com histórico estruturado persistente no componente TAIMapaDeMemoria. |
+| **[agent_task_memory_action_demo](AI Agent/agent_task_memory_action_demo/)** | `pacote/samples/AI Agent/agent_task_memory_action_demo` | Demonstração visual avançada de fluxo multiagente orientado por tarefas, com mapa de memória e execução simulada/real de ações. |
 
 ### 📦 AI Core
 
@@ -144,6 +146,12 @@ Os exemplos a seguir são projetos visuais prontos para compilação e execuçã
 | **[posprinter_demo](AI Output/posprinter_demo/)** | `pacote/samples/AI Output/posprinter_demo` | Utilitário de formatação física de comandos ESC/POS para impressoras térmicas. |
 | **[word_object_demo](AI Output/word_object_demo/)** | `pacote/samples/AI Output/word_object_demo` | Manipulação real e edição estruturada de arquivos DOCX via OpenXML. |
 | **[word_viewer_demo](AI Output/word_viewer_demo/)** | `pacote/samples/AI Output/word_viewer_demo` | Visualizador nativo e renderizador de documentos DOCX dentro de formulários Lazarus. |
+
+### 📦 AI Project
+
+| Exemplo | Caminho | Descrição |
+|---|---|---|
+| **[project_tasklist_ai_demo](AI Project/project_tasklist_ai_demo/)** | `pacote/samples/AI Project/project_tasklist_ai_demo` | Nenhuma descrição disponível. |
 
 ### 📦 AI Python
 

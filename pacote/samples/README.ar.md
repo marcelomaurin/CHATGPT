@@ -27,6 +27,8 @@
 | المشروع | المسار | الوصف |
 |---|---|---|
 | **[agent_demo](AI Agent/agent_demo/)** | `pacote/samples/AI Agent/agent_demo` | محاكاة الوكلاء الأذكياء المستقلين لاتخاذ القرارات وتنفيذ الإجراءات. |
+| **[agent_memorymap_demo](AI Agent/agent_memorymap_demo/)** | `pacote/samples/AI Agent/agent_memorymap_demo` | عرض توضيحي لتدفق العمل متعدد الوكلاء مع سجل هيكلي مستمر في مكون TAIMapaDeMemoria. |
+| **[agent_task_memory_action_demo](AI Agent/agent_task_memory_action_demo/)** | `pacote/samples/AI Agent/agent_task_memory_action_demo` | عرض توضيحي مرئي متقدم لتدفقات العمل متعددة الوكلاء الموجهة بالمهام، ويتميز بخريطة ذاكرة وتنفيذ إجراءات محاكاة أو حقيقية. |
 
 ### 📦 AI Core
 
@@ -144,6 +146,12 @@
 | **[posprinter_demo](AI Output/posprinter_demo/)** | `pacote/samples/AI Output/posprinter_demo` | أداة تنسيق ESC/POS لطباعة الإيصالات والطابعات الحرارية. |
 | **[word_object_demo](AI Output/word_object_demo/)** | `pacote/samples/AI Output/word_object_demo` | تعديل ومعالجة ملفات DOCX المنظمة باستخدام OpenXML. |
 | **[word_viewer_demo](AI Output/word_viewer_demo/)** | `pacote/samples/AI Output/word_viewer_demo` | مستعرض وعارض أصلي لمستندات DOCX داخل نماذج لازاروس. |
+
+### 📦 AI Project
+
+| المشروع | المسار | الوصف |
+|---|---|---|
+| **[project_tasklist_ai_demo](AI Project/project_tasklist_ai_demo/)** | `pacote/samples/AI Project/project_tasklist_ai_demo` | لا يوجد وصف متاح. |
 
 ### 📦 AI Python
 

@@ -27,6 +27,8 @@ Les exemples suivants sont des projets visuels prêts à être compilés et exé
 | Exemple | Chemin | Description |
 |---|---|---|
 | **[agent_demo](AI Agent/agent_demo/)** | `pacote/samples/AI Agent/agent_demo` | Simulation d'agents intelligents autonomes pour la prise de décision. |
+| **[agent_memorymap_demo](AI Agent/agent_memorymap_demo/)** | `pacote/samples/AI Agent/agent_memorymap_demo` | Démonstration de flux multi-agents avec historique structuré persistant dans le composant TAIMapaDeMemoria. |
+| **[agent_task_memory_action_demo](AI Agent/agent_task_memory_action_demo/)** | `pacote/samples/AI Agent/agent_task_memory_action_demo` | Démonstration visuelle avancée de flux multi-agents orientés tâches, avec carte mémoire et exécution simulée ou réelle d'actions. |
 
 ### 📦 AI Core
 
@@ -144,6 +146,12 @@ Les exemples suivants sont des projets visuels prêts à être compilés et exé
 | **[posprinter_demo](AI Output/posprinter_demo/)** | `pacote/samples/AI Output/posprinter_demo` | Utilitaire de formatage ESC/POS pour imprimantes thermiques. |
 | **[word_object_demo](AI Output/word_object_demo/)** | `pacote/samples/AI Output/word_object_demo` | Édition et manipulation structurée de fichiers DOCX avec OpenXML. |
 | **[word_viewer_demo](AI Output/word_viewer_demo/)** | `pacote/samples/AI Output/word_viewer_demo` | Visualisateur et moteur de rendu natif de documents DOCX dans les formulaires. |
+
+### 📦 AI Project
+
+| Exemple | Chemin | Description |
+|---|---|---|
+| **[project_tasklist_ai_demo](AI Project/project_tasklist_ai_demo/)** | `pacote/samples/AI Project/project_tasklist_ai_demo` | Aucune description disponible. |
 
 ### 📦 AI Python
 
