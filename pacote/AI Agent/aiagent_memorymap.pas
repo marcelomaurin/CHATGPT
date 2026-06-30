@@ -265,23 +265,24 @@ type
     function AsJSON: string;
     procedure SaveToFile(const AFileName: string);
     procedure LoadFromFile(const AFileName: string);
-  published
+    // Runtime properties (not serialized in LFM)
     property SessionId: string read FSessionId write FSessionId;
     property FlowName: string read FFlowName write FFlowName;
     property SolicitacaoOriginal: string read FSolicitacaoOriginal write FSolicitacaoOriginal;
     property Usuario: string read FUsuario write FUsuario;
     property Origem: string read FOrigem write FOrigem;
+    property CurrentOrder: Integer read FCurrentOrder write FCurrentOrder;
+    property Items: TAIAgentMemoryMapCollection read FItems write SetItems;
+    property LastItem: TAIAgentMemoryMapItem read FLastItem;
+    property LastWarning: string read FLastWarning write FLastWarning;
+  published
     property AutoIncrementOrder: Boolean read FAutoIncrementOrder write FAutoIncrementOrder default True;
-    property CurrentOrder: Integer read FCurrentOrder write FCurrentOrder default 0;
     property MaxItems: Integer read FMaxItems write SetMaxItems default 100;
     property StoreRawJSON: Boolean read FStoreRawJSON write FStoreRawJSON default True;
     property StoreFullPrompt: Boolean read FStoreFullPrompt write FStoreFullPrompt default False;
     property StoreFullResponse: Boolean read FStoreFullResponse write FStoreFullResponse default False;
     property DetectInformationLoss: Boolean read FDetectInformationLoss write FDetectInformationLoss default True;
     property RedactSensitiveData: Boolean read FRedactSensitiveData write FRedactSensitiveData default True;
-    property Items: TAIAgentMemoryMapCollection read FItems write SetItems;
-    property LastItem: TAIAgentMemoryMapItem read FLastItem;
-    property LastWarning: string read FLastWarning write FLastWarning;
     // Events
     property OnBeforeCreateStep: TAIMapaBeforeCreateStepEvent read FOnBeforeCreateStep write FOnBeforeCreateStep;
     property OnAfterCreateStep: TAIMapaStepEvent read FOnAfterCreateStep write FOnAfterCreateStep;
