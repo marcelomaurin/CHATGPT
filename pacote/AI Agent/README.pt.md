@@ -1,6 +1,8 @@
 # 🤖 Documentação da Aba AI Agent
 
-Esta pasta contém a suíte completa de componentes do Lazarus sob a aba **AI Agent** e relacionados à orquestração cognitiva, tomada de decisão por agentes autônomos de IA e integração de hardware/pipelines.
+Esta pasta contém os componentes do Lazarus sob a aba **AI Agent**, voltados à criação de agentes de IA, orquestração multiagente, tomada de decisão, auditoria de contexto, mapa de memória, controle de segurança e integração com ações externas controladas.
+
+> **Nota de maturidade:** Os componentes de agentes e orquestração estão em evolução. Alguns recursos são voltados à auditoria, simulação, estruturação de decisões e integração controlada com ações externas. Antes de uso em produção, valide permissões, segurança, persistência, logs e integração com provedores LLM.
 
 ---
 
@@ -12,6 +14,7 @@ Esta pasta contém a suíte completa de componentes do Lazarus sob a aba **AI Ag
 - [TAIAgentResource](#taiagentresource)
 - [TAIAgentOutput](#taiagentoutput)
 - [TAIAgentOrchestrator](#taiagentorchestrator)
+- [TAICustomAgent](#taicustomagent)
 - [TAIClassifierAgent](#taiclassifieragent)
 - [TAIDecisionAgent](#taidecisionagent)
 - [TAIActionBuilderAgent](#taiactionbuilderagent)
@@ -27,7 +30,7 @@ Esta pasta contém a suíte completa de componentes do Lazarus sob a aba **AI Ag
 
 ### TAIAgent
 
-**Função:** Cérebro do agente cognitivo. Coordena a conversação com modelos de IA para planejar e executar ações com base em um histórico (memória).
+**Função:** Cérebro do agente de IA com execução controlada. Coordena a conversação com modelos de IA para planejar e executar ações com base em um histórico (memória).
 
 - **Propriedades (Published):**
   - `ChatGPT: TCHATGPT` - Conector de chat com o modelo de LLM.
@@ -107,12 +110,13 @@ Esta pasta contém a suíte completa de componentes do Lazarus sob a aba **AI Ag
 
 ### TAIAgentOrchestrator
 
-**Função:** Orquestrador cognitivo central. Coordena fluxos de processamento em múltiplos agentes especializados e gerencia o ciclo cognitivo.
+**Função:** Orquestrador central do fluxo multiagente. Coordena a execução sequencial de classificação, decisão, ajuste de ações e execução, compartilhando o mapa de memória entre as etapas quando configurado.
 
 - **Propriedades (Published):**
   - `ChatGPT: TCHATGPT` - Conector de chat com LLM.
   - `MapaDeMemoria: TAIMapaDeMemoria` - Histórico operacional compartilhado entre etapas.
   - `CriarMapaAutomaticamente: Boolean` - Indica se deve instanciar um mapa temporário caso nenhum seja associado.
+  - `RepassarMapaParaAgentes: Boolean` - Quando verdadeiro, repassa automaticamente o `MapaDeMemoria` para `Classifier`, `DecisionAgent`, `ActionBuilder` e `Executor`.
   - `Classifier: TAIClassifierAgent` - Agente responsável pela classificação inicial.
   - `DecisionAgent: TAIDecisionAgent` - Agente decisor do plano de ações.
   - `ActionBuilder: TAIActionBuilderAgent` - Agente de ajuste e preenchimento de parâmetros.
@@ -133,9 +137,52 @@ Esta pasta contém a suíte completa de componentes do Lazarus sob a aba **AI Ag
 
 ---
 
+### TAICustomAgent
+
+**Função:** Classe base para agentes especializados do pacote AI Agent. Centraliza integração com `TCHATGPT`, prompt de sistema, mapa de memória, auditoria de etapas, confiança mínima e eventos comuns do ciclo de execução.
+
+É a base usada por agentes como `TAIClassifierAgent`, `TAIDecisionAgent` e `TAIActionBuilderAgent`.
+
+- **Propriedades (Published):**
+  - `ChatGPT: TCHATGPT` - Conector LLM usado pelo agente.
+  - `SystemPrompt: string` - Prompt de sistema específico do agente.
+  - `MapaDeMemoria: TAIMapaDeMemoria` - Mapa de memória usado para auditoria e contexto.
+  - `AutoRegistrarNoMapa: Boolean` - Define se o agente registra automaticamente suas etapas no mapa.
+  - `NomeAgente: string` - Nome lógico do agente.
+  - `TipoAgenteMapa: TAITipoAgenteMapa` - Tipo do agente no mapa de memória.
+  - `OrdemAtualMapa: Integer` - Ordem atual da etapa registrada no mapa.
+  - `MaxPerguntasAnalise: Integer` - Limite de perguntas internas de análise.
+  - `MinConfidence: Double` - Confiança mínima esperada.
+  - `VerificarPerdaInformacao: Boolean` - Indica se o agente deve considerar verificação de perda de informação.
+
+- **Métodos (Public):**
+  - `BeginMemoryStep(const AInput: string): TAIMapaDeMemoriaItem` - Inicia uma etapa no mapa de memória.
+  - `EndMemoryStep(AItem: TAIMapaDeMemoriaItem; const AAnalise: string; const AExplicacao: string; const AAcaoTomada: string; const ASaidaGerada: string)` - Finaliza uma etapa no mapa.
+  - `AddMemoryQuestion(AItem: TAIMapaDeMemoriaItem; const APergunta: string; const AResposta: string; const AAnalise: string; const AOrigem: string = 'LLM'; const AConfianca: Double = 0)` - Adiciona uma pergunta interna de análise.
+
+- **Eventos:**
+  - `OnBeforeMemoryStep: TAIAgentMemoryStepEvent`
+  - `OnAfterMemoryStep: TAIAgentMemoryStepEvent`
+  - `OnAgentQuestion: TAIAgentQuestionEvent`
+  - `OnBeforeAgentExecute: TAIFluxoEtapaControlEvent`
+  - `OnAfterAgentExecute: TAIFluxoEtapaEvent`
+  - `OnBeforeBuildPrompt: TAIFluxoEtapaControlEvent`
+  - `OnAfterBuildPrompt: TAIFluxoEtapaEvent`
+  - `OnBeforeLLMCall: TAIFluxoEtapaControlEvent`
+  - `OnAfterLLMCall: TAIFluxoEtapaEvent`
+  - `OnBeforeParseResponse: TAIFluxoEtapaControlEvent`
+  - `OnAfterParseResponse: TAIFluxoEtapaEvent`
+  - `OnBeforeMemoryWrite: TAIFluxoEtapaControlEvent`
+  - `OnAfterMemoryWrite: TAIFluxoEtapaEvent`
+  - `OnAgentError: TAIFluxoEtapaEvent`
+
+---
+
 ### TAIClassifierAgent
 
 **Função:** Agente especialista em triagem, priorização e classificação textual.
+
+> Herda de `TAICustomAgent`, portanto também possui `ChatGPT`, `SystemPrompt`, `MapaDeMemoria`, `AutoRegistrarNoMapa`, `NomeAgente`, `TipoAgenteMapa`, `MinConfidence` e eventos comuns de ciclo/memória.
 
 - **Métodos (Public):**
   - `Classify(const AInput: string; out AOutput: string): Boolean` - Classifica e formata a intenção inicial em uma estrutura para processamento posterior.
@@ -152,8 +199,10 @@ Esta pasta contém a suíte completa de componentes do Lazarus sob a aba **AI Ag
 
 **Função:** Agente decisor responsável por criar planos lógicos de tarefas e caminhos operacionais de ações.
 
+> Herda de `TAICustomAgent`, portanto também possui integração com `TCHATGPT`, `SystemPrompt`, `MapaDeMemoria`, auditoria automática e eventos comuns de execução.
+
 - **Métodos (Public):**
-  - `Decide(const AInput: string; out AOutput: string): Boolean` - Gera o plano de ação detalhado.
+  - `Decide(const AInput: string; out AOutput: string): Boolean` - Gera o plan de ação detalhado.
 - **Eventos:**
   - `OnBeforeDecision: TAIFluxoEtapaControlEvent`
   - `OnAfterDecision: TAIFluxoEtapaEvent`
@@ -169,6 +218,8 @@ Esta pasta contém a suíte completa de componentes do Lazarus sob a aba **AI Ag
 ### TAIActionBuilderAgent
 
 **Função:** Agente ajustador responsável por validar parâmetros, injetar valores padrão e higienizar inputs inseguros.
+
+> Herda de `TAICustomAgent`, usando o mapa de memória e o contexto acumulado para ajustar parâmetros, aplicar padrões e preparar ações planejadas.
 
 - **Métodos (Public):**
   - `BuildActions(const AInput: string; out AOutput: string): Boolean` - Preenche, higieniza e detalha os parâmetros das ações planejadas.
@@ -186,12 +237,13 @@ Esta pasta contém a suíte completa de componentes do Lazarus sob a aba **AI Ag
 
 ### TAIActionExecutor
 
-**Função:** Simulador e despachador físico de ações. Valida precondições e integra-se diretamente ao `TAIAgentOutput`.
+**Função:** Executor de planos de ação. Pode operar em modo simulado ou real, registra execução no mapa de memória e permite interceptar etapas por eventos antes/depois da execução.
 
 - **Propriedades (Published):**
   - `ChatGPT: TCHATGPT` - Conector ChatGPT.
   - `MapaDeMemoria: TAIMapaDeMemoria` - Mapa de memória de auditoria.
   - `NomeAgente: string` - Identificador de auditoria do executor.
+  - `TipoAgenteMapa: TAITipoAgenteMapa` - Tipo usado para registrar o executor no mapa de memória.
   - `ForcarSimulacaoGlobal: Boolean` - Se verdadeiro, nenhuma ação de hardware real será despachada, operando apenas de forma simulada.
   - `AutoRegistrarNoMapa: Boolean` - Loga automaticamente as etapas de execução no mapa.
 - **Métodos (Public):**
@@ -212,20 +264,95 @@ Esta pasta contém a suíte completa de componentes do Lazarus sob a aba **AI Ag
 
 ### TAIMapaDeMemoria
 
-**Função:** Preserva e audita todo o histórico e transições do ciclo cognitivo multiagente, com algoritmos integrados de proteção contra perda de informações.
+**Função:** Componente de auditoria e rastreamento de fluxo multiagente. Registra a solicitação original, cada etapa executada por agentes, análises, explicações, ações tomadas, parâmetros, saídas geradas, perguntas internas, alertas e possíveis perdas de informação.
+
+Este componente não executa IA diretamente. Ele funciona como memória operacional, trilha de auditoria e fonte de contexto para os agentes especializados.
 
 - **Propriedades (Published):**
-  - `SessionId: string` - Identificador único de sessão de atendimento/execução.
-  - `FlowName: string` - Nome identificador do fluxo corrente.
-  - `Items: TAIMapaDeMemoriaItem` - Lista ordenada dos passos operacionais já executados (solicitações, análises de agentes, decisões e execuções).
-  - `DetectInformationLoss: Boolean` - Se verdadeiro, o componente analisa a transição lógica para verificar se dados críticos fornecidos pelo usuário no início (ex.: e-mails, códigos, chaves) foram omitidos/esquecidos pelas etapas intermediárias do LLM.
+  - `SessionId: string` - Identificador da sessão de execução.
+  - `FlowName: string` - Nome do fluxo atual.
+  - `SolicitacaoOriginal: string` - Pedido original recebido pelo fluxo.
+  - `Usuario: string` - Identificação opcional do usuário associado ao fluxo.
+  - `Origem: string` - Origem opcional da solicitação.
+  - `AutoIncrementOrder: Boolean` - Controla incremento automático da ordem das etapas.
+  - `CurrentOrder: Integer` - Ordem corrente usada no mapa.
+  - `MaxItems: Integer` - Limite máximo de etapas mantidas em memória.
+  - `StoreRawJSON: Boolean` - Indica se respostas JSON brutas podem ser preservadas.
+  - `StoreFullPrompt: Boolean` - Flag reservada para controle de armazenamento de prompt completo.
+  - `StoreFullResponse: Boolean` - Flag reservada para controle de armazenamento de resposta completa.
+  - `DetectInformationLoss: Boolean` - Ativa a verificação heurística de possível perda de informação entre entrada e saída.
+  - `RedactSensitiveData: Boolean` - Ativa mascaramento de dados sensíveis antes do armazenamento.
+  - `Items: TAIMapaDeMemoriaCollection` - Coleção de etapas registradas.
+  - `LastItem: TAIMapaDeMemoriaItem` - Última etapa registrada.
+  - `LastWarning: string` - Último alerta gerado pelo mapa.
+
 - **Métodos (Public):**
-  - `StartFlow(const AFlowName: string; const AInput: string)` - Inicializa o fluxo e registra a entrada do usuário.
-  - `BeginAgentStep(const ANomeAgente: string; ATipo: TAITipoAgenteMapa; const AInput: string)` - Registra a entrada do passo operacional de um agente.
-  - `EndAgentStep(const ANomeAgente: string; const AOutput: string; const AExplanation: string; AConfidence: Double)` - Registra a saída gerada pelo agente e seus metadados.
-  - `BuildContextForAgent(const ANomeAgente: string): string` - Consolida o histórico percorrido em formato XML estruturado para alimentar o contexto do próximo modelo LLM de forma otimizada.
+  - `StartFlow(const ASolicitacaoOriginal: string; const AFlowName: string = ''; const AUsuario: string = ''; const AOrigem: string = '')` - Inicializa um novo fluxo e registra a solicitação original.
+  - `BeginAgentStep(const ANomeAgente: string; ATipoAgente: TAITipoAgenteMapa; const APedidoRecebido: string; const AContextoRecebido: string = ''; AOrdemPai: Integer = 0): TAIMapaDeMemoriaItem` - Abre uma nova etapa no mapa para um agente.
+  - `EndAgentStep(AItem: TAIMapaDeMemoriaItem; const AAnalise: string; const AExplicacao: string; const AAcaoTomada: string; const ASaidaGerada: string; const AResumoParaProximoAgente: string = '')` - Finaliza uma etapa do mapa registrando análise, explicação, ação, saída e resumo.
+  - `AddQuestion(AItem: TAIMapaDeMemoriaItem; const APergunta: string; const AResposta: string; const AAnalise: string; const AOrigem: string = 'LLM'; const AConfianca: Double = 0)` - Adiciona pergunta interna de análise à etapa.
+  - `AddActionParam(AItem: TAIMapaDeMemoriaItem; const AName: string; const AValue: string)` - Adiciona parâmetro de ação à etapa.
+  - `CheckInformationLoss(AItem: TAIMapaDeMemoriaItem; out ALostInfo: string): Boolean` - Executa verificação heurística de possível perda de informação.
+  - `BuildContextForAgent(const ANomeAgente: string; ATipoAgente: TAITipoAgenteMapa; const AMaxSteps: Integer = 10): string` - Gera contexto textual estruturado com o caminho percorrido até o momento.
+  - `AsText: string` - Exporta o mapa em formato textual.
+  - `AsJSON: string` - Exporta o mapa em JSON.
+  - `SaveToFile(const AFileName: string)` - Salva o mapa em arquivo JSON.
+  - `LoadFromFile(const AFileName: string)` - Carrega o mapa a partir de arquivo JSON.
+
 - **Eventos:**
-  - `OnInformationLossDetected: TAIFluxoEtapaEvent` - Disparado quando o algoritmo de segurança detecta que chaves críticas do prompt do usuário foram esquecidas por um agente.
+  - `OnBeforeCreateStep: TAIMapaBeforeCreateStepEvent` - Permite bloquear ou autorizar a criação de uma etapa.
+  - `OnAfterCreateStep: TAIMapaStepEvent` - Disparado após criar uma etapa.
+  - `OnBeforeCloseStep: TAIMapaStepEvent` - Disparado antes de finalizar uma etapa.
+  - `OnAfterCloseStep: TAIMapaStepEvent` - Disparado após finalizar uma etapa.
+  - `OnInformationLossDetected: TAIMapaInformationLossEvent` - Disparado quando possível perda de informação é detectada.
+  - `OnMemoryMapLog: TAIMapaLogEvent` - Evento de log do mapa de memória.
+
+#### Exemplo básico
+
+```pascal
+var
+  Mapa: TAIMapaDeMemoria;
+  Item: TAIMapaDeMemoriaItem;
+begin
+  Mapa := TAIMapaDeMemoria.Create(nil);
+  try
+    Mapa.StartFlow(
+      'Usuário solicitou manutenção urgente no equipamento.',
+      'Fluxo de Atendimento',
+      'usuario_teste',
+      'demo'
+    );
+
+    Item := Mapa.BeginAgentStep(
+      'ClassifierAgent',
+      tamClassificador,
+      'Classificar solicitação recebida'
+    );
+
+    Mapa.AddQuestion(
+      Item,
+      'Qual é a intenção principal?',
+      'Solicitação de manutenção',
+      'O texto indica falha operacional e urgência.',
+      'LLM',
+      0.95
+    );
+
+    Mapa.EndAgentStep(
+      Item,
+      'Solicitação classificada como manutenção.',
+      'A prioridade foi considerada alta.',
+      'CLASSIFIED_AND_ROUTED',
+      'category=maintenance; priority=high',
+      'Encaminhar para agente decisor.'
+    );
+
+    WriteLn(Mapa.AsText);
+  finally
+    Mapa.Free;
+  end;
+end;
+```
 
 ---
 
