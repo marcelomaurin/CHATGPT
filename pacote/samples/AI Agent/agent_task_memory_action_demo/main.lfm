@@ -115,17 +115,17 @@ object frmMain: TfrmMain
       ClientWidth = 1192
       object gbPromptInput: TGroupBox
         Left = 0
-        Height = 642
+        Height = 667
         Top = 0
         Width = 1192
         Align = alClient
         Caption = 'Prompt de Entrada'
-        ClientHeight = 622
+        ClientHeight = 647
         ClientWidth = 1188
         TabOrder = 0
         object memPrompt: TMemo
           Left = 0
-          Height = 622
+          Height = 647
           Top = 0
           Width = 1188
           Align = alClient
@@ -135,12 +135,12 @@ object frmMain: TfrmMain
       end
       object pnlPromptCommands: TPanel
         Left = 0
-        Height = 80
-        Top = 642
+        Height = 55
+        Top = 667
         Width = 1192
         Align = alBottom
         BevelOuter = bvNone
-        ClientHeight = 80
+        ClientHeight = 55
         ClientWidth = 1192
         TabOrder = 1
         object btnGerarTarefas: TButton
@@ -160,30 +160,6 @@ object frmMain: TfrmMain
           Caption = 'Limpar'
           TabOrder = 1
           OnClick = btnLimparPromptClick
-        end
-        object chkModoSimulado: TCheckBox
-          Left = 310
-          Height = 19
-          Top = 10
-          Width = 151
-          Caption = 'Modo Simulado (Seguro)'
-          TabOrder = 2
-        end
-        object chkPermitirGerarWordReal: TCheckBox
-          Left = 310
-          Height = 19
-          Top = 30
-          Width = 148
-          Caption = 'Permitir Gerar Word Real'
-          TabOrder = 3
-        end
-        object chkPermitirEnvioEmailReal: TCheckBox
-          Left = 310
-          Height = 19
-          Top = 50
-          Width = 170
-          Caption = 'Permitir Envio de E-mail Real'
-          TabOrder = 4
         end
       end
     end
@@ -588,12 +564,12 @@ object frmMain: TfrmMain
           TabOrder = 1
           object pnlEmailParams: TPanel
             Left = 0
-            Height = 80
+            Height = 140
             Top = 0
             Width = 608
             Align = alTop
             BevelOuter = bvNone
-            ClientHeight = 80
+            ClientHeight = 140
             ClientWidth = 608
             TabOrder = 0
             object lblEmailTo: TLabel
@@ -624,11 +600,71 @@ object frmMain: TfrmMain
               Width = 300
               TabOrder = 1
             end
+            object lblSMTPHost: TLabel
+              Left = 10
+              Height = 15
+              Top = 78
+              Width = 60
+              Caption = 'Host SMTP:'
+            end
+            object edSMTPHost: TEdit
+              Left = 90
+              Height = 23
+              Top = 74
+              Width = 200
+              TabOrder = 2
+              Text = 'localhost'
+            end
+            object lblSMTPPort: TLabel
+              Left = 300
+              Height = 15
+              Top = 78
+              Width = 62
+              Caption = 'Porta SMTP:'
+            end
+            object edSMTPPort: TEdit
+              Left = 380
+              Height = 23
+              Top = 74
+              Width = 60
+              TabOrder = 3
+              Text = '25'
+            end
+            object lblSMTPUser: TLabel
+              Left = 10
+              Height = 15
+              Top = 108
+              Width = 74
+              Caption = 'Usuário SMTP:'
+            end
+            object edSMTPUser: TEdit
+              Left = 90
+              Height = 23
+              Top = 104
+              Width = 200
+              TabOrder = 4
+            end
+            object lblSMTPPassword: TLabel
+              Left = 300
+              Height = 15
+              Top = 108
+              Width = 66
+              Caption = 'Senha SMTP:'
+            end
+            object edSMTPPassword: TEdit
+              Left = 380
+              Height = 23
+              Top = 104
+              Width = 150
+              EchoMode = emPassword
+              PasswordChar = '*'
+              TabOrder = 5
+            end
           end
           object memCorpoEmail: TMemo
             Left = 0
-            Height = 572
-            Top = 80
+            Height = 512
+            Top = 140
             Width = 608
             Align = alClient
             ScrollBars = ssAutoVertical
@@ -644,22 +680,13 @@ object frmMain: TfrmMain
             ClientHeight = 50
             ClientWidth = 608
             TabOrder = 2
-            object btnSimularEnvioEmail: TButton
+            object btnEnviarEmailReal: TButton
               Left = 10
               Height = 30
               Top = 10
               Width = 150
-              Caption = 'Simular Envio'
-              TabOrder = 0
-              OnClick = btnSimularEnvioEmailClick
-            end
-            object btnEnviarEmailReal: TButton
-              Left = 170
-              Height = 30
-              Top = 10
-              Width = 150
               Caption = 'Enviar Real'
-              TabOrder = 1
+              TabOrder = 0
               OnClick = btnEnviarEmailRealClick
             end
           end
@@ -708,6 +735,68 @@ object frmMain: TfrmMain
           TabOrder = 1
           OnClick = btnSalvarLogClick
         end
+      end
+    end
+    object tabBrowser: TTabSheet
+      Caption = 'Navegador Chromium'
+      ClientHeight = 722
+      ClientWidth = 1192
+      object pnlBrowserTop: TPanel
+        Left = 0
+        Height = 40
+        Top = 0
+        Width = 1192
+        Align = alTop
+        ClientHeight = 40
+        ClientWidth = 1192
+        TabOrder = 0
+        object lblBrowserStatus: TLabel
+          Left = 10
+          Height = 15
+          Top = 12
+          Width = 250
+          Caption = 'Status: Não Inicializado'
+        end
+        object edBrowserURL: TEdit
+          Left = 280
+          Height = 23
+          Top = 8
+          Width = 600
+          TabOrder = 0
+          Text = 'https://maurinsoft.com.br/wp/sobre-nos/'
+        end
+        object btnBrowserNavigate: TButton
+          Left = 890
+          Height = 25
+          Top = 7
+          Width = 100
+          Caption = 'Navegar'
+          TabOrder = 1
+          OnClick = btnBrowserNavigateClick
+        end
+      end
+      object AIChromiumBrowser1: TAIChromiumBrowser
+        Left = 0
+        Height = 40
+        Top = 40
+        Width = 1192
+        Align = alTop
+        ClientHeight = 40
+        ClientWidth = 1192
+        TabOrder = 1
+        Prompt = 'Component TAIChromiumBrowser is an embedded Chromium browser based on CEF4Delphi TChromiumWindow. It can navigate real web pages, execute JavaScript, capture DOM HTML, click elements, fill fields, wait for selectors and support web application validation workflows.'
+        ShowAddressBar = False
+        LastCaptureVarName = '__ai_last_capture'
+        DOMSelector = '*'
+        DOMResultVarName = '__ai_dom_result'
+      end
+      object ChromiumWindow1: TChromiumWindow
+        Left = 0
+        Height = 642
+        Top = 80
+        Width = 1192
+        Align = alClient
+        TabOrder = 2
       end
     end
   end
