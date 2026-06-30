@@ -197,9 +197,9 @@ begin
 
     if not ChatGPT.SendQuestion(LPrompt) then
     begin
-      SetError('Network error while executing plan: ' + ChatGPT.Response);
+      SetError('Network error while executing plan: ' + ChatGPT.LastError);
       if Assigned(Item) and Assigned(MapaDeMemoria) then
-        MapaDeMemoria.EndAgentStep(Item, 'Network error', ChatGPT.Response, 'ERROR', '');
+        MapaDeMemoria.EndAgentStep(Item, 'Network error', ChatGPT.LastError, 'ERROR', '');
       if Assigned(FOnExecutionFailed) then
         FOnExecutionFailed(Self, Ctx);
       Exit;

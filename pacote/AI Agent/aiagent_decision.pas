@@ -134,9 +134,9 @@ begin
 
     if not ChatGPT.SendQuestion(LPrompt) then
     begin
-      SetError('Network error while deciding: ' + ChatGPT.Response);
+      SetError('Network error while deciding: ' + ChatGPT.LastError);
       if Assigned(Item) then
-        EndMemoryStep(Item, 'Network error', ChatGPT.Response, 'ERROR', '');
+        EndMemoryStep(Item, 'Network error', ChatGPT.LastError, 'ERROR', '');
       Exit;
     end;
 

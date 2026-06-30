@@ -141,12 +141,12 @@ procedure TfrmAgentMemoryMapDemo.cbProviderChange(Sender: TObject);
 begin
   if cbProvider.ItemIndex = 0 then
   begin
-    edtBaseURL.Text := 'https://api.openai.com/v1';
+    edtBaseURL.Text := '';
     edtModel.Text := 'gpt-4o-mini';
   end
   else
   begin
-    edtBaseURL.Text := 'http://localhost:11434/v1';
+    edtBaseURL.Text := 'http://localhost:11434';
     edtModel.Text := 'llama3';
   end;
 end;
@@ -157,6 +157,10 @@ begin
   FChatGPT.TOKEN := edtToken.Text;
   FChatGPT.URL := edtBaseURL.Text;
   FChatGPT.CustomModel := edtModel.Text;
+  if cbProvider.ItemIndex = 0 then
+    FChatGPT.Provider := AIP_OPENAI
+  else
+    FChatGPT.Provider := AIP_LOCAL;
   Result := True;
 end;
 

@@ -117,9 +117,9 @@ begin
     // Send question to LLM
     if not ChatGPT.SendQuestion(LPrompt) then
     begin
-      SetError('Network error while classifying: ' + ChatGPT.Response);
+      SetError('Network error while classifying: ' + ChatGPT.LastError);
       if Assigned(Item) then
-        EndMemoryStep(Item, 'Network error', ChatGPT.Response, 'ERROR', '');
+        EndMemoryStep(Item, 'Network error', ChatGPT.LastError, 'ERROR', '');
       Exit;
     end;
 
