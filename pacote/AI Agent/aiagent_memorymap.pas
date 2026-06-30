@@ -308,6 +308,7 @@ implementation
 procedure Register;
 begin
   RegisterComponents('AI Agents', [TAIAgentMemoryMap]);
+  RegisterClassAlias(TAIAgentMemoryMap, 'TAIMapaDeMemoria');
 end;
 
 function DateTimeToJSONText(const AValue: TDateTime): string;
