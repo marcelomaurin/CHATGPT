@@ -15,10 +15,6 @@ type
   { TfrmAgentMemoryMapDemo }
 
   TfrmAgentMemoryMapDemo = class(TForm)
-    procedure FormCreate(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
-  private
-    { Config Controls }
     pnlHeader: TPanel;
     lblProvider: TLabel;
     cbProvider: TComboBox;
@@ -28,37 +24,27 @@ type
     edtToken: TEdit;
     lblBaseURL: TLabel;
     edtBaseURL: TEdit;
-
-    { Main Panels }
     pnlClient: TPanel;
     pnlLeft: TPanel;
     splitterLeft: TSplitter;
     pnlCenter: TPanel;
     splitterCenter: TSplitter;
     pnlRight: TPanel;
-
-    { Left Controls }
     gbInput: TGroupBox;
     memInput: TMemo;
     btnRun: TButton;
-
-    { Center Controls }
     gbClassifier: TGroupBox;
     memClassifier: TMemo;
     gbDecision: TGroupBox;
     memDecision: TMemo;
     gbExecutor: TGroupBox;
     memExecutor: TMemo;
-
-    { Right Controls }
     gbMemoryMap: TGroupBox;
     memMemoryMap: TMemo;
     gbInfoLoss: TGroupBox;
     memInfoLoss: TMemo;
     gbErrors: TGroupBox;
     memErrors: TMemo;
-
-    { Components }
     FChatGPT: TCHATGPT;
     FMapaDeMemoria: TAIMapaDeMemoria;
     FClassifier: TAIClassifierAgent;
@@ -66,11 +52,12 @@ type
     FActionBuilder: TAIActionBuilderAgent;
     FExecutor: TAIActionExecutor;
     FOrchestrator: TAIAgentOrchestrator;
-
-    procedure CreateLayout;
-    procedure SetupScenario;
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
     procedure btnRunClick(Sender: TObject);
     procedure cbProviderChange(Sender: TObject);
+  private
+    procedure SetupScenario;
     function ConfigureChatGPT: Boolean;
 
     { Orchestrator stage events }
@@ -106,15 +93,6 @@ begin
   Position := poScreenCenter;
   Caption := 'IA Multi-Agent & Memory Map Demo';
 
-  { Instantiate components }
-  FChatGPT := TCHATGPT.Create(Self);
-  FMapaDeMemoria := TAIMapaDeMemoria.Create(Self);
-  FClassifier := TAIClassifierAgent.Create(Self);
-  FDecisionAgent := TAIDecisionAgent.Create(Self);
-  FActionBuilder := TAIActionBuilderAgent.Create(Self);
-  FExecutor := TAIActionExecutor.Create(Self);
-  FOrchestrator := TAIAgentOrchestrator.Create(Self);
-
   { Wire components together }
   FOrchestrator.ChatGPT := FChatGPT;
   FOrchestrator.MapaDeMemoria := FMapaDeMemoria;
@@ -144,7 +122,6 @@ begin
   FOrchestrator.OnFlowStage := @OnFlowStage;
   FOrchestrator.OnInformationLossDetected := @OnInformationLossDetected;
 
-  CreateLayout;
   SetupScenario;
 end;
 
@@ -153,198 +130,7 @@ begin
   { Sub-components are owned by form, freed automatically }
 end;
 
-procedure TfrmAgentMemoryMapDemo.CreateLayout;
-var
-  pnlSep: TPanel;
-begin
-  { Header Panel }
-  pnlHeader := TPanel.Create(Self);
-  pnlHeader.Parent := Self;
-  pnlHeader.Align := alTop;
-  pnlHeader.Height := 50;
-  pnlHeader.BevelOuter := bvNone;
-  pnlHeader.BorderWidth := 5;
 
-  lblProvider := TLabel.Create(Self);
-  lblProvider.Parent := pnlHeader;
-  lblProvider.Align := alLeft;
-  lblProvider.Caption := ' Provedor: ';
-  lblProvider.Layout := tlCenter;
-
-  cbProvider := TComboBox.Create(Self);
-  cbProvider.Parent := pnlHeader;
-  cbProvider.Align := alLeft;
-  cbProvider.Width := 100;
-  cbProvider.Items.Add('OpenAI');
-  cbProvider.Items.Add('Local (Ollama/LMStudio)');
-  cbProvider.Style := csDropDownList;
-  cbProvider.OnChange := @cbProviderChange;
-
-  lblModel := TLabel.Create(Self);
-  lblModel.Parent := pnlHeader;
-  lblModel.Align := alLeft;
-  lblModel.Caption := ' Modelo: ';
-  lblModel.Layout := tlCenter;
-
-  edtModel := TEdit.Create(Self);
-  edtModel.Parent := pnlHeader;
-  edtModel.Align := alLeft;
-  edtModel.Width := 120;
-  edtModel.Text := 'gpt-4o-mini';
-
-  lblToken := TLabel.Create(Self);
-  lblToken.Parent := pnlHeader;
-  lblToken.Align := alLeft;
-  lblToken.Caption := ' API Token: ';
-  lblToken.Layout := tlCenter;
-
-  edtToken := TEdit.Create(Self);
-  edtToken.Parent := pnlHeader;
-  edtToken.Align := alLeft;
-  edtToken.Width := 150;
-  edtToken.PasswordChar := '*';
-
-  lblBaseURL := TLabel.Create(Self);
-  lblBaseURL.Parent := pnlHeader;
-  lblBaseURL.Align := alLeft;
-  lblBaseURL.Caption := ' Base URL: ';
-  lblBaseURL.Layout := tlCenter;
-
-  edtBaseURL := TEdit.Create(Self);
-  edtBaseURL.Parent := pnlHeader;
-  edtBaseURL.Align := alLeft;
-  edtBaseURL.Width := 180;
-  edtBaseURL.Text := 'https://api.openai.com/v1';
-
-  { Client panel }
-  pnlClient := TPanel.Create(Self);
-  pnlClient.Parent := Self;
-  pnlClient.Align := alClient;
-  pnlClient.BevelOuter := bvNone;
-
-  { Left panel }
-  pnlLeft := TPanel.Create(Self);
-  pnlLeft.Parent := pnlClient;
-  pnlLeft.Align := alLeft;
-  pnlLeft.Width := 300;
-  pnlLeft.BevelOuter := bvNone;
-
-  splitterLeft := TSplitter.Create(Self);
-  splitterLeft.Parent := pnlClient;
-  splitterLeft.Align := alLeft;
-
-  { Right panel }
-  pnlRight := TPanel.Create(Self);
-  pnlRight.Parent := pnlClient;
-  pnlRight.Align := alRight;
-  pnlRight.Width := 350;
-  pnlRight.BevelOuter := bvNone;
-
-  splitterCenter := TSplitter.Create(Self);
-  splitterCenter.Parent := pnlClient;
-  splitterCenter.Align := alRight;
-
-  { Center panel }
-  pnlCenter := TPanel.Create(Self);
-  pnlCenter.Parent := pnlClient;
-  pnlCenter.Align := alClient;
-  pnlCenter.BevelOuter := bvNone;
-
-  { Left Controls: Input }
-  gbInput := TGroupBox.Create(Self);
-  gbInput.Parent := pnlLeft;
-  gbInput.Align := alClient;
-  gbInput.Caption := 'Entrada Original do Usuário';
-
-  memInput := TMemo.Create(Self);
-  memInput.Parent := gbInput;
-  memInput.Align := alClient;
-  memInput.ScrollBars := ssAutoVertical;
-
-  pnlSep := TPanel.Create(Self);
-  pnlSep.Parent := pnlLeft;
-  pnlSep.Align := alBottom;
-  pnlSep.Height := 45;
-  pnlSep.BevelOuter := bvNone;
-
-  btnRun := TButton.Create(Self);
-  btnRun.Parent := pnlSep;
-  btnRun.Align := alClient;
-  btnRun.Caption := 'Executar Fluxo Multiagente';
-  btnRun.OnClick := @btnRunClick;
-
-  { Center Controls: Agents logs }
-  gbClassifier := TGroupBox.Create(Self);
-  gbClassifier.Parent := pnlCenter;
-  gbClassifier.Align := alTop;
-  gbClassifier.Height := 200;
-  gbClassifier.Caption := 'Etapa 1: Classificador (Resultado)';
-
-  memClassifier := TMemo.Create(Self);
-  memClassifier.Parent := gbClassifier;
-  memClassifier.Align := alClient;
-  memClassifier.ReadOnly := True;
-  memClassifier.ScrollBars := ssAutoVertical;
-
-  gbDecision := TGroupBox.Create(Self);
-  gbDecision.Parent := pnlCenter;
-  gbDecision.Align := alTop;
-  gbDecision.Height := 200;
-  gbDecision.Caption := 'Etapa 2: Decisor & Ajustador (Resultado)';
-
-  memDecision := TMemo.Create(Self);
-  memDecision.Parent := gbDecision;
-  memDecision.Align := alClient;
-  memDecision.ReadOnly := True;
-  memDecision.ScrollBars := ssAutoVertical;
-
-  gbExecutor := TGroupBox.Create(Self);
-  gbExecutor.Parent := pnlCenter;
-  gbExecutor.Align := alClient;
-  gbExecutor.Caption := 'Etapa 3: Executor de Ações';
-
-  memExecutor := TMemo.Create(Self);
-  memExecutor.Parent := gbExecutor;
-  memExecutor.Align := alClient;
-  memExecutor.ReadOnly := True;
-  memExecutor.ScrollBars := ssAutoVertical;
-
-  { Right Controls: Memory Map, Info Loss & Errors }
-  gbMemoryMap := TGroupBox.Create(Self);
-  gbMemoryMap.Parent := pnlRight;
-  gbMemoryMap.Align := alTop;
-  gbMemoryMap.Height := 350;
-  gbMemoryMap.Caption := 'Histórico e Mapa de Memória';
-
-  memMemoryMap := TMemo.Create(Self);
-  memMemoryMap.Parent := gbMemoryMap;
-  memMemoryMap.Align := alClient;
-  memMemoryMap.ReadOnly := True;
-  memMemoryMap.ScrollBars := ssAutoVertical;
-
-  gbInfoLoss := TGroupBox.Create(Self);
-  gbInfoLoss.Parent := pnlRight;
-  gbInfoLoss.Align := alTop;
-  gbInfoLoss.Height := 150;
-  gbInfoLoss.Caption := 'Alertas de Perda de Informações';
-
-  memInfoLoss := TMemo.Create(Self);
-  memInfoLoss.Parent := gbInfoLoss;
-  memInfoLoss.Align := alClient;
-  memInfoLoss.ReadOnly := True;
-  memInfoLoss.ScrollBars := ssAutoVertical;
-
-  gbErrors := TGroupBox.Create(Self);
-  gbErrors.Parent := pnlRight;
-  gbErrors.Align := alClient;
-  gbErrors.Caption := 'Erros do Fluxo';
-
-  memErrors := TMemo.Create(Self);
-  memErrors.Parent := gbErrors;
-  memErrors.Align := alClient;
-  memErrors.ReadOnly := True;
-  memErrors.ScrollBars := ssAutoVertical;
-end;
 
 procedure TfrmAgentMemoryMapDemo.SetupScenario;
 begin
