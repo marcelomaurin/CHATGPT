@@ -189,17 +189,17 @@ begin
 
     if not Assigned(ChatGPT) then
     begin
-      SetError('ChatGPT não conectado ao Executor.');
+      SetError('ChatGPT is not connected to the Executor.');
       if Assigned(Item) and Assigned(MapaDeMemoria) then
-        MapaDeMemoria.EndAgentStep(Item, 'Erro de hardware', 'ChatGPT não conectado', 'ERROR', '');
+        MapaDeMemoria.EndAgentStep(Item, 'Hardware error', 'ChatGPT is not connected', 'ERROR', '');
       Exit;
     end;
 
     if not ChatGPT.SendQuestion(LPrompt) then
     begin
-      SetError('Falha de rede ao executar plano: ' + ChatGPT.Response);
+      SetError('Network error while executing plan: ' + ChatGPT.Response);
       if Assigned(Item) and Assigned(MapaDeMemoria) then
-        MapaDeMemoria.EndAgentStep(Item, 'Erro de rede', ChatGPT.Response, 'ERROR', '');
+        MapaDeMemoria.EndAgentStep(Item, 'Network error', ChatGPT.Response, 'ERROR', '');
       if Assigned(FOnExecutionFailed) then
         FOnExecutionFailed(Self, Ctx);
       Exit;

@@ -110,16 +110,16 @@ begin
     begin
       SetError('ChatGPT is not connected to the classifier.');
       if Assigned(Item) then
-        EndMemoryStep(Item, 'Erro de hardware', 'ChatGPT não conectado', 'ERROR', '');
+        EndMemoryStep(Item, 'Hardware error', 'ChatGPT is not connected', 'ERROR', '');
       Exit;
     end;
 
     // Send question to LLM
     if not ChatGPT.SendQuestion(LPrompt) then
     begin
-      SetError('Falha de rede ao classificar: ' + ChatGPT.Response);
+      SetError('Network error while classifying: ' + ChatGPT.Response);
       if Assigned(Item) then
-        EndMemoryStep(Item, 'Erro de rede', ChatGPT.Response, 'ERROR', '');
+        EndMemoryStep(Item, 'Network error', ChatGPT.Response, 'ERROR', '');
       Exit;
     end;
 

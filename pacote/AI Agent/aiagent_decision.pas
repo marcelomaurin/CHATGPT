@@ -122,21 +122,21 @@ begin
       '  ]' + sLineBreak +
       '}' + sLineBreak + sLineBreak +
       '=== MEMORY MAP SO FAR ===' + sLineBreak + Ctx.ContextoAtual + sLineBreak +
-      '=== PEDIDO RECEBIDO NESTA ETAPA ===' + sLineBreak + Ctx.PedidoAtual;
+      '=== RECEIVED REQUEST AT THIS STAGE ===' + sLineBreak + Ctx.PedidoAtual;
 
     if not Assigned(ChatGPT) then
     begin
       SetError('ChatGPT is not connected to the decision agent.');
       if Assigned(Item) then
-        EndMemoryStep(Item, 'Erro de hardware', 'ChatGPT não conectado', 'ERROR', '');
+        EndMemoryStep(Item, 'Hardware error', 'ChatGPT is not connected', 'ERROR', '');
       Exit;
     end;
 
     if not ChatGPT.SendQuestion(LPrompt) then
     begin
-      SetError('Falha de rede ao decidir: ' + ChatGPT.Response);
+      SetError('Network error while deciding: ' + ChatGPT.Response);
       if Assigned(Item) then
-        EndMemoryStep(Item, 'Erro de rede', ChatGPT.Response, 'ERROR', '');
+        EndMemoryStep(Item, 'Network error', ChatGPT.Response, 'ERROR', '');
       Exit;
     end;
 
