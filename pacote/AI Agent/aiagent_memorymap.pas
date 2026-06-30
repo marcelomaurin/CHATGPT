@@ -5,7 +5,8 @@ unit aiagent_memorymap;
 interface
 
 uses
-  Classes, SysUtils, fpjson, jsonparser, TypInfo, aibase, aiagent_flowevents, LResources;
+  Classes, SysUtils, LazUTF8, fpjson, jsonparser, TypInfo, aibase,
+  aiagent_flowevents, LResources;
 
 type
   { Status of map step }
@@ -28,6 +29,8 @@ type
     FAnalise: string;
     FConfianca: Double;
     FOrigem: string;
+  public
+    procedure Assign(Source: TPersistent); override;
   published
     property Ordem: Integer read FOrdem write FOrdem;
     property Pergunta: string read FPergunta write FPergunta;
@@ -93,6 +96,7 @@ type
   public
     constructor Create(ACollection: TCollection); override;
     destructor Destroy; override;
+    procedure Assign(Source: TPersistent); override;
     procedure Clear;
     function AsText: string;
     function AsJSON: string;
@@ -205,6 +209,11 @@ type
     FOnInformationLossDetected: TAIMapaInformationLossEvent;
     FOnMemoryMapLog: TAIMapaLogEvent;
     procedure SetItems(AValue: TAIMapaDeMemoriaCollection);
+    procedure SetMaxItems(AValue: Integer);
+    procedure TrimItemsToMax;
+    procedure UpdateCurrentOrderFromItems;
+    function NewSessionId: string;
+    function SafeText(const AText: string): string;
     procedure DoMapLog(const AMessage: string);
   public
     constructor Create(AOwner: TComponent); override;
@@ -264,7 +273,7 @@ type
     property Origem: string read FOrigem write FOrigem;
     property AutoIncrementOrder: Boolean read FAutoIncrementOrder write FAutoIncrementOrder default True;
     property CurrentOrder: Integer read FCurrentOrder write FCurrentOrder default 0;
-    property MaxItems: Integer read FMaxItems write FMaxItems default 100;
+    property MaxItems: Integer read FMaxItems write SetMaxItems default 100;
     property StoreRawJSON: Boolean read FStoreRawJSON write FStoreRawJSON default True;
     property StoreFullPrompt: Boolean read FStoreFullPrompt write FStoreFullPrompt default False;
     property StoreFullResponse: Boolean read FStoreFullResponse write FStoreFullResponse default False;
@@ -289,6 +298,373 @@ implementation
 procedure Register;
 begin
   RegisterComponents('AI Agents', [TAIMapaDeMemoria]);
+end;
+
+function DateTimeToJSONText(const AValue: TDateTime): string;
+begin
+  if AValue <= 0 then
+    Result := ''
+  else
+    Result := FormatDateTime('yyyy"-"mm"-"dd"T"hh":"nn":"ss', AValue);
+end;
+
+function NormalizeForCompare(const S: string): string;
+var
+  R: string;
+  I: Integer;
+begin
+  R := UTF8LowerCase(S);
+
+  R := StringReplace(R, 'á', 'a', [rfReplaceAll]);
+  R := StringReplace(R, 'à', 'a', [rfReplaceAll]);
+  R := StringReplace(R, 'ã', 'a', [rfReplaceAll]);
+  R := StringReplace(R, 'â', 'a', [rfReplaceAll]);
+  R := StringReplace(R, 'ä', 'a', [rfReplaceAll]);
+
+  R := StringReplace(R, 'é', 'e', [rfReplaceAll]);
+  R := StringReplace(R, 'è', 'e', [rfReplaceAll]);
+  R := StringReplace(R, 'ê', 'e', [rfReplaceAll]);
+  R := StringReplace(R, 'ë', 'e', [rfReplaceAll]);
+
+  R := StringReplace(R, 'í', 'i', [rfReplaceAll]);
+  R := StringReplace(R, 'ì', 'i', [rfReplaceAll]);
+  R := StringReplace(R, 'î', 'i', [rfReplaceAll]);
+  R := StringReplace(R, 'ï', 'i', [rfReplaceAll]);
+
+  R := StringReplace(R, 'ó', 'o', [rfReplaceAll]);
+  R := StringReplace(R, 'ò', 'o', [rfReplaceAll]);
+  R := StringReplace(R, 'õ', 'o', [rfReplaceAll]);
+  R := StringReplace(R, 'ô', 'o', [rfReplaceAll]);
+  R := StringReplace(R, 'ö', 'o', [rfReplaceAll]);
+
+  R := StringReplace(R, 'ú', 'u', [rfReplaceAll]);
+  R := StringReplace(R, 'ù', 'u', [rfReplaceAll]);
+  R := StringReplace(R, 'û', 'u', [rfReplaceAll]);
+  R := StringReplace(R, 'ü', 'u', [rfReplaceAll]);
+
+  R := StringReplace(R, 'ç', 'c', [rfReplaceAll]);
+
+  for I := 1 to Length(R) do
+  begin
+    if not (R[I] in ['a'..'z', '0'..'9']) then
+      R[I] := ' ';
+  end;
+
+  while Pos('  ', R) > 0 do
+    R := StringReplace(R, '  ', ' ', [rfReplaceAll]);
+
+  Result := Trim(R);
+end;
+
+function IsStopWord(const AWord: string): Boolean;
+const
+  STOP_WORDS: array[0..45] of string = (
+    'para', 'como', 'mais', 'esta', 'este', 'pela', 'pelo', 'pelos',
+    'pelas', 'isso', 'esse', 'essa', 'aquele', 'aquela', 'uma', 'umas',
+    'uns', 'com', 'sem', 'que', 'por', 'das', 'dos', 'nas', 'nos',
+    'lhe', 'seu', 'sua', 'seus', 'suas', 'meu', 'minha', 'meus',
+    'minhas', 'foi', 'era', 'ser', 'ter', 'tem', 'deve', 'deveria',
+    'antes', 'depois', 'muito', 'pouco', 'sobre'
+  );
+var
+  I: Integer;
+begin
+  Result := False;
+  for I := Low(STOP_WORDS) to High(STOP_WORDS) do
+  begin
+    if AWord = STOP_WORDS[I] then
+      Exit(True);
+  end;
+end;
+
+function JSONStringArrayFromStrings(AStrings: TStrings): TJSONArray;
+var
+  I: Integer;
+begin
+  Result := TJSONArray.Create;
+  if not Assigned(AStrings) then
+    Exit;
+
+  for I := 0 to AStrings.Count - 1 do
+    Result.Add(AStrings[I]);
+end;
+
+procedure LoadStringsFromJSONArray(AStrings: TStrings; AData: TJSONData);
+var
+  I: Integer;
+  Arr: TJSONArray;
+begin
+  if not Assigned(AStrings) then
+    Exit;
+
+  AStrings.Clear;
+
+  if (AData = nil) or (AData.JSONType <> jtArray) then
+    Exit;
+
+  Arr := TJSONArray(AData);
+  for I := 0 to Arr.Count - 1 do
+    AStrings.Add(Arr.Items[I].AsString);
+end;
+
+function JSONGetString(AObj: TJSONObject; const AName, ADefault: string): string;
+var
+  D: TJSONData;
+begin
+  Result := ADefault;
+  if AObj = nil then
+    Exit;
+
+  D := AObj.Find(AName);
+  if D <> nil then
+    Result := D.AsString;
+end;
+
+function JSONGetInteger(AObj: TJSONObject; const AName: string; ADefault: Integer): Integer;
+var
+  D: TJSONData;
+begin
+  Result := ADefault;
+  if AObj = nil then
+    Exit;
+
+  D := AObj.Find(AName);
+  if D <> nil then
+    Result := D.AsInteger;
+end;
+
+function JSONGetFloat(AObj: TJSONObject; const AName: string; ADefault: Double): Double;
+var
+  D: TJSONData;
+begin
+  Result := ADefault;
+  if AObj = nil then
+    Exit;
+
+  D := AObj.Find(AName);
+  if D <> nil then
+    Result := D.AsFloat;
+end;
+
+function JSONGetBool(AObj: TJSONObject; const AName: string; ADefault: Boolean): Boolean;
+var
+  D: TJSONData;
+begin
+  Result := ADefault;
+  if AObj = nil then
+    Exit;
+
+  D := AObj.Find(AName);
+  if D <> nil then
+    Result := D.AsBoolean;
+end;
+
+function CreatePerguntaJSONObject(AItem: TAIPerguntaAnaliseItem): TJSONObject;
+begin
+  Result := TJSONObject.Create;
+  if AItem = nil then
+    Exit;
+
+  Result.Add('ordem', AItem.Ordem);
+  Result.Add('pergunta', AItem.Pergunta);
+  Result.Add('resposta', AItem.Resposta);
+  Result.Add('analise', AItem.Analise);
+  Result.Add('origem', AItem.Origem);
+  Result.Add('confianca', AItem.Confianca);
+end;
+
+function CreateMapaItemJSONObject(AItem: TAIMapaDeMemoriaItem): TJSONObject;
+var
+  Arr: TJSONArray;
+  I: Integer;
+begin
+  Result := TJSONObject.Create;
+  if AItem = nil then
+    Exit;
+
+  Result.Add('ordem', AItem.Ordem);
+  Result.Add('ordem_pai', AItem.OrdemPai);
+  Result.Add('data_hora_inicio', DateTimeToJSONText(AItem.DataHoraInicio));
+  Result.Add('data_hora_inicio_value', AItem.DataHoraInicio);
+  Result.Add('data_hora_fim', DateTimeToJSONText(AItem.DataHoraFim));
+  Result.Add('data_hora_fim_value', AItem.DataHoraFim);
+  Result.Add('nome_agente', AItem.NomeAgente);
+  Result.Add('tipo_agente', Ord(AItem.TipoAgente));
+  Result.Add('status', Ord(AItem.Status));
+  Result.Add('solicitacao_original', AItem.SolicitacaoOriginal);
+  Result.Add('pedido_recebido', AItem.PedidoRecebido);
+  Result.Add('pedido_normalizado', AItem.PedidoNormalizado);
+  Result.Add('contexto_recebido', AItem.ContextoRecebido);
+  Result.Add('analise', AItem.Analise);
+  Result.Add('explicacao', AItem.Explicacao);
+  Result.Add('acao_tomada', AItem.AcaoTomada);
+  Result.Add('saida_gerada', AItem.SaidaGerada);
+  Result.Add('resumo_para_proximo_agente', AItem.ResumoParaProximoAgente);
+  Result.Add('resumo', AItem.ResumoParaProximoAgente);
+  Result.Add('confianca', AItem.Confianca);
+  Result.Add('erro', AItem.Erro);
+  Result.Add('raw_json', AItem.RawJSON);
+
+  Result.Add('parametros_acao', JSONStringArrayFromStrings(AItem.ParametrosAcao));
+  Result.Add('informacoes_preservadas', JSONStringArrayFromStrings(AItem.InformacoesPreservadas));
+  Result.Add('informacoes_perdidas', JSONStringArrayFromStrings(AItem.InformacoesPerdidas));
+  Result.Add('informacoes_novas', JSONStringArrayFromStrings(AItem.InformacoesNovas));
+  Result.Add('alertas', JSONStringArrayFromStrings(AItem.Alertas));
+
+  Arr := TJSONArray.Create;
+  for I := 0 to AItem.PerguntasAnalises.Count - 1 do
+    Arr.Add(CreatePerguntaJSONObject(AItem.PerguntasAnalises[I]));
+  Result.Add('perguntas', Arr);
+end;
+
+procedure LoadPerguntasFromJSONArray(ACollection: TAIPerguntaAnaliseCollection; AData: TJSONData);
+var
+  I: Integer;
+  Arr: TJSONArray;
+  Obj: TJSONObject;
+  Item: TAIPerguntaAnaliseItem;
+begin
+  if not Assigned(ACollection) then
+    Exit;
+
+  ACollection.Clear;
+
+  if (AData = nil) or (AData.JSONType <> jtArray) then
+    Exit;
+
+  Arr := TJSONArray(AData);
+  for I := 0 to Arr.Count - 1 do
+  begin
+    if Arr.Items[I].JSONType <> jtObject then
+      Continue;
+
+    Obj := TJSONObject(Arr.Items[I]);
+    Item := ACollection.Add;
+    Item.Ordem := JSONGetInteger(Obj, 'ordem', I + 1);
+    Item.Pergunta := JSONGetString(Obj, 'pergunta', '');
+    Item.Resposta := JSONGetString(Obj, 'resposta', '');
+    Item.Analise := JSONGetString(Obj, 'analise', '');
+    Item.Origem := JSONGetString(Obj, 'origem', 'LLM');
+    Item.Confianca := JSONGetFloat(Obj, 'confianca', 0.0);
+  end;
+end;
+
+function RedactSensitiveText(const AText: string): string;
+const
+  SENSITIVE_KEYS: array[0..14] of string = (
+    'token', 'password', 'senha', 'apikey', 'api_key', 'secret',
+    'privatekey', 'private_key', 'authorization', 'cpf', 'cns',
+    'rg', 'cartao', 'prontuario', 'paciente'
+  );
+var
+  I, J, K, DigitCount: Integer;
+  R, LowerLine, Key, Sequence, OutText: string;
+  Lines: TStringList;
+  Ch: Char;
+  HasAt, HasDot: Boolean;
+begin
+  R := AText;
+
+  Lines := TStringList.Create;
+  try
+    Lines.Text := R;
+    for I := 0 to Lines.Count - 1 do
+    begin
+      LowerLine := UTF8LowerCase(Trim(Lines[I]));
+      for J := Low(SENSITIVE_KEYS) to High(SENSITIVE_KEYS) do
+      begin
+        Key := SENSITIVE_KEYS[J];
+
+        if (Pos(Key + '=', LowerLine) = 1) or
+           (Pos(Key + ':', LowerLine) = 1) or
+           (Pos(Key + ' =', LowerLine) = 1) or
+           (Pos(Key + ' :', LowerLine) = 1) then
+        begin
+          if Pos('=', Lines[I]) > 0 then
+            Lines[I] := Copy(Lines[I], 1, Pos('=', Lines[I])) + ' [REDACTED]'
+          else if Pos(':', Lines[I]) > 0 then
+            Lines[I] := Copy(Lines[I], 1, Pos(':', Lines[I])) + ' [REDACTED]'
+          else
+            Lines[I] := '[REDACTED]';
+        end;
+      end;
+    end;
+    R := Lines.Text;
+  finally
+    Lines.Free;
+  end;
+
+  { Redact e-mails in whitespace-delimited tokens. }
+  Lines := TStringList.Create;
+  try
+    ExtractStrings([' ', #9, #10, #13], [], PChar(R), Lines);
+    for I := 0 to Lines.Count - 1 do
+    begin
+      HasAt := Pos('@', Lines[I]) > 0;
+      HasDot := Pos('.', Lines[I]) > 0;
+      if HasAt and HasDot then
+        R := StringReplace(R, Lines[I], '[EMAIL]', [rfReplaceAll]);
+    end;
+  finally
+    Lines.Free;
+  end;
+
+  { Redact long numeric sequences such as CPF, CNS, phone, card and IDs. }
+  OutText := '';
+  I := 1;
+  while I <= Length(R) do
+  begin
+    Ch := R[I];
+
+    if Ch in ['0'..'9'] then
+    begin
+      Sequence := '';
+      DigitCount := 0;
+      K := I;
+
+      while (K <= Length(R)) and (R[K] in ['0'..'9', '.', '-', '/', '(', ')', '+', ' ']) do
+      begin
+        Sequence := Sequence + R[K];
+        if R[K] in ['0'..'9'] then
+          Inc(DigitCount);
+        Inc(K);
+      end;
+
+      if DigitCount >= 11 then
+        OutText := OutText + '[DADO_NUMERICO]'
+      else
+        OutText := OutText + Sequence;
+
+      I := K;
+    end
+    else
+    begin
+      OutText := OutText + Ch;
+      Inc(I);
+    end;
+  end;
+
+  Result := OutText;
+end;
+
+{ TAIPerguntaAnaliseItem }
+
+procedure TAIPerguntaAnaliseItem.Assign(Source: TPersistent);
+var
+  S: TAIPerguntaAnaliseItem;
+begin
+  if Source is TAIPerguntaAnaliseItem then
+  begin
+    S := TAIPerguntaAnaliseItem(Source);
+    FOrdem := S.Ordem;
+    FPergunta := S.Pergunta;
+    FResposta := S.Resposta;
+    FAnalise := S.Analise;
+    FConfianca := S.Confianca;
+    FOrigem := S.Origem;
+  end
+  else
+    inherited Assign(Source);
 end;
 
 { TAIPerguntaAnaliseCollection }
@@ -337,8 +713,14 @@ begin
   Result := '';
   for I := 0 to Count - 1 do
   begin
-    Result := Result + Format('  Pergunta %d: %s' + sLineBreak + '  Resposta: %s' + sLineBreak + '  Análise: %s' + sLineBreak,
-      [Items[I].Ordem, Items[I].Pergunta, Items[I].Resposta, Items[I].Analise]);
+    Result := Result + Format(
+      '  Question %d: %s' + sLineBreak +
+      '  Answer: %s' + sLineBreak +
+      '  Analysis: %s' + sLineBreak +
+      '  Source: %s | Confidence: %.2f' + sLineBreak,
+      [Items[I].Ordem, Items[I].Pergunta, Items[I].Resposta,
+       Items[I].Analise, Items[I].Origem, Items[I].Confianca]
+    );
   end;
 end;
 
@@ -365,6 +747,43 @@ begin
   FAlertas.Free;
   FPerguntasAnalises.Free;
   inherited Destroy;
+end;
+
+procedure TAIMapaDeMemoriaItem.Assign(Source: TPersistent);
+var
+  S: TAIMapaDeMemoriaItem;
+begin
+  if Source is TAIMapaDeMemoriaItem then
+  begin
+    S := TAIMapaDeMemoriaItem(Source);
+    FOrdem := S.Ordem;
+    FOrdemPai := S.OrdemPai;
+    FDataHoraInicio := S.DataHoraInicio;
+    FDataHoraFim := S.DataHoraFim;
+    FNomeAgente := S.NomeAgente;
+    FTipoAgente := S.TipoAgente;
+    FStatus := S.Status;
+    FSolicitacaoOriginal := S.SolicitacaoOriginal;
+    FPedidoRecebido := S.PedidoRecebido;
+    FPedidoNormalizado := S.PedidoNormalizado;
+    FContextoRecebido := S.ContextoRecebido;
+    FAnalise := S.Analise;
+    FExplicacao := S.Explicacao;
+    FAcaoTomada := S.AcaoTomada;
+    FParametrosAcao.Assign(S.ParametrosAcao);
+    FSaidaGerada := S.SaidaGerada;
+    FResumoParaProximoAgente := S.ResumoParaProximoAgente;
+    FInformacoesPreservadas.Assign(S.InformacoesPreservadas);
+    FInformacoesPerdidas.Assign(S.InformacoesPerdidas);
+    FInformacoesNovas.Assign(S.InformacoesNovas);
+    FAlertas.Assign(S.Alertas);
+    FPerguntasAnalises.Assign(S.PerguntasAnalises);
+    FConfianca := S.Confianca;
+    FErro := S.Erro;
+    FRawJSON := S.RawJSON;
+  end
+  else
+    inherited Assign(Source);
 end;
 
 procedure TAIMapaDeMemoriaItem.Clear;
@@ -402,22 +821,36 @@ var
 begin
   SB := TStringBuilder.Create;
   try
-    SB.AppendLine(Format('Ordem: %d (Pai: %d)', [FOrdem, FOrdemPai]));
-    SB.AppendLine(Format('Agente: %s [Tipo: %d]', [FNomeAgente, Ord(FTipoAgente)]));
+    SB.AppendLine(Format('Order: %d (Parent: %d)', [FOrdem, FOrdemPai]));
+    SB.AppendLine(Format('Agent: %s [Type: %d]', [FNomeAgente, Ord(FTipoAgente)]));
     SB.AppendLine('Status: ' + GetEnumName(TypeInfo(TAIStatusEtapaMapa), Ord(FStatus)));
-    SB.AppendLine('Pedido Recebido: ' + FPedidoRecebido);
-    if FAnalise <> '' then SB.AppendLine('Análise: ' + FAnalise);
-    if FExplicacao <> '' then SB.AppendLine('Explicação: ' + FExplicacao);
-    if FAcaoTomada <> '' then SB.AppendLine('Ação Tomada: ' + FAcaoTomada);
-    if FParametrosAcao.Count > 0 then SB.AppendLine('Parâmetros: ' + FParametrosAcao.CommaText);
-    if FResumoParaProximoAgente <> '' then SB.AppendLine('Resumo: ' + FResumoParaProximoAgente);
+    if FDataHoraInicio > 0 then SB.AppendLine('Start: ' + DateTimeToStr(FDataHoraInicio));
+    if FDataHoraFim > 0 then SB.AppendLine('Fim: ' + DateTimeToStr(FDataHoraFim));
+    if FSolicitacaoOriginal <> '' then SB.AppendLine('Original Request: ' + FSolicitacaoOriginal);
+    if FPedidoRecebido <> '' then SB.AppendLine('Received Request: ' + FPedidoRecebido);
+    if FPedidoNormalizado <> '' then SB.AppendLine('Normalized Request: ' + FPedidoNormalizado);
+    if FContextoRecebido <> '' then SB.AppendLine('Contexto Recebido: ' + FContextoRecebido);
+    if FAnalise <> '' then SB.AppendLine('Analysis: ' + FAnalise);
+    if FExplicacao <> '' then SB.AppendLine('Explanation: ' + FExplicacao);
+    if FAcaoTomada <> '' then SB.AppendLine('Action Taken: ' + FAcaoTomada);
+    if FParametrosAcao.Count > 0 then SB.AppendLine('Parameters: ' + FParametrosAcao.CommaText);
+    if FSaidaGerada <> '' then SB.AppendLine('Generated Output: ' + FSaidaGerada);
+    if FResumoParaProximoAgente <> '' then SB.AppendLine('Summary: ' + FResumoParaProximoAgente);
+    if FConfianca > 0 then SB.AppendLine(Format('Confidence: %.2f', [FConfianca]));
+    if FErro <> '' then SB.AppendLine('Error: ' + FErro);
+    if FInformacoesPreservadas.Count > 0 then
+      SB.AppendLine('Preserved information: ' + FInformacoesPreservadas.CommaText);
+    if FInformacoesNovas.Count > 0 then
+      SB.AppendLine('New information: ' + FInformacoesNovas.CommaText);
+    if FInformacoesPerdidas.Count > 0 then
+      SB.AppendLine('WARNING: Information loss: ' + FInformacoesPerdidas.CommaText);
+    if FAlertas.Count > 0 then
+      SB.AppendLine('Warnings: ' + FAlertas.CommaText);
     if FPerguntasAnalises.Count > 0 then
     begin
-      SB.AppendLine('Perguntas Internas:');
+      SB.AppendLine('Internal Questions:');
       SB.Append(FPerguntasAnalises.AsText);
     end;
-    if FInformacoesPerdidas.Count > 0 then
-      SB.AppendLine('ALERT: Perdas de informação: ' + FInformacoesPerdidas.CommaText);
     Result := SB.ToString;
   finally
     SB.Free;
@@ -427,40 +860,9 @@ end;
 function TAIMapaDeMemoriaItem.AsJSON: string;
 var
   Obj: TJSONObject;
-  Arr: TJSONArray;
-  PItem: TAIPerguntaAnaliseItem;
-  I: Integer;
 begin
-  Obj := TJSONObject.Create;
+  Obj := CreateMapaItemJSONObject(Self);
   try
-    Obj.Add('ordem', FOrdem);
-    Obj.Add('ordem_pai', FOrdemPai);
-    Obj.Add('nome_agente', FNomeAgente);
-    Obj.Add('tipo_agente', Ord(FTipoAgente));
-    Obj.Add('status', Ord(FStatus));
-    Obj.Add('pedido_recebido', FPedidoRecebido);
-    Obj.Add('analise', FAnalise);
-    Obj.Add('explicacao', FExplicacao);
-    Obj.Add('acao_tomada', FAcaoTomada);
-    Obj.Add('saida_gerada', FSaidaGerada);
-    Obj.Add('resumo', FResumoParaProximoAgente);
-    
-    // Add arrays
-    Arr := TJSONArray.Create;
-    for I := 0 to FPerguntasAnalises.Count - 1 do
-    begin
-      PItem := FPerguntasAnalises[I];
-      Arr.Add(TJSONObject.Create([
-        'ordem', PItem.Ordem,
-        'pergunta', PItem.Pergunta,
-        'resposta', PItem.Resposta,
-        'analise', PItem.Analise,
-        'origem', PItem.Origem,
-        'confianca', PItem.Confianca
-      ]));
-    end;
-    Obj.Add('perguntas', Arr);
-
     Result := Obj.AsJSON;
   finally
     Obj.Free;
@@ -485,56 +887,74 @@ end;
 
 procedure TAIMapaDeMemoriaItem.AddInformacaoPreservada(const AInfo: string);
 begin
-  if FInformacoesPreservadas.IndexOf(AInfo) < 0 then
+  if (Trim(AInfo) <> '') and (FInformacoesPreservadas.IndexOf(AInfo) < 0) then
     FInformacoesPreservadas.Add(AInfo);
 end;
 
 procedure TAIMapaDeMemoriaItem.AddInformacaoPerdida(const AInfo: string);
 begin
-  if FInformacoesPerdidas.IndexOf(AInfo) < 0 then
+  if (Trim(AInfo) <> '') and (FInformacoesPerdidas.IndexOf(AInfo) < 0) then
     FInformacoesPerdidas.Add(AInfo);
 end;
 
 procedure TAIMapaDeMemoriaItem.AddInformacaoNova(const AInfo: string);
 begin
-  if FInformacoesNovas.IndexOf(AInfo) < 0 then
+  if (Trim(AInfo) <> '') and (FInformacoesNovas.IndexOf(AInfo) < 0) then
     FInformacoesNovas.Add(AInfo);
 end;
 
 procedure TAIMapaDeMemoriaItem.AddAlerta(const AAlerta: string);
 begin
-  if FAlertas.IndexOf(AAlerta) < 0 then
+  if (Trim(AAlerta) <> '') and (FAlertas.IndexOf(AAlerta) < 0) then
     FAlertas.Add(AAlerta);
 end;
 
 procedure TAIMapaDeMemoriaItem.SetParametrosAcao(AValue: TStrings);
 begin
-  FParametrosAcao.Assign(AValue);
+  if Assigned(AValue) then
+    FParametrosAcao.Assign(AValue)
+  else
+    FParametrosAcao.Clear;
 end;
 
 procedure TAIMapaDeMemoriaItem.SetInformacoesPreservadas(AValue: TStrings);
 begin
-  FInformacoesPreservadas.Assign(AValue);
+  if Assigned(AValue) then
+    FInformacoesPreservadas.Assign(AValue)
+  else
+    FInformacoesPreservadas.Clear;
 end;
 
 procedure TAIMapaDeMemoriaItem.SetInformacoesPerdidas(AValue: TStrings);
 begin
-  FInformacoesPerdidas.Assign(AValue);
+  if Assigned(AValue) then
+    FInformacoesPerdidas.Assign(AValue)
+  else
+    FInformacoesPerdidas.Clear;
 end;
 
 procedure TAIMapaDeMemoriaItem.SetInformacoesNovas(AValue: TStrings);
 begin
-  FInformacoesNovas.Assign(AValue);
+  if Assigned(AValue) then
+    FInformacoesNovas.Assign(AValue)
+  else
+    FInformacoesNovas.Clear;
 end;
 
 procedure TAIMapaDeMemoriaItem.SetAlertas(AValue: TStrings);
 begin
-  FAlertas.Assign(AValue);
+  if Assigned(AValue) then
+    FAlertas.Assign(AValue)
+  else
+    FAlertas.Clear;
 end;
 
 procedure TAIMapaDeMemoriaItem.SetPerguntasAnalises(AValue: TAIPerguntaAnaliseCollection);
 begin
-  FPerguntasAnalises.Assign(AValue);
+  if Assigned(AValue) then
+    FPerguntasAnalises.Assign(AValue)
+  else
+    FPerguntasAnalises.Clear;
 end;
 
 { TAIMapaDeMemoriaCollection }
@@ -649,9 +1069,71 @@ begin
   inherited Destroy;
 end;
 
+function TAIMapaDeMemoria.NewSessionId: string;
+var
+  G: TGUID;
+begin
+  if CreateGUID(G) = 0 then
+    Result := GUIDToString(G)
+  else
+    Result := FormatDateTime('yyyymmddhhnnsszzz', Now) + '-' + IntToStr(Random(1000000));
+end;
+
+function TAIMapaDeMemoria.SafeText(const AText: string): string;
+begin
+  if FRedactSensitiveData then
+    Result := RedactSensitiveText(AText)
+  else
+    Result := AText;
+end;
+
 procedure TAIMapaDeMemoria.SetItems(AValue: TAIMapaDeMemoriaCollection);
 begin
-  FItems.Assign(AValue);
+  if Assigned(AValue) then
+    FItems.Assign(AValue)
+  else
+    FItems.Clear;
+
+  TrimItemsToMax;
+  UpdateCurrentOrderFromItems;
+end;
+
+procedure TAIMapaDeMemoria.SetMaxItems(AValue: Integer);
+begin
+  if AValue < 1 then
+    AValue := 1;
+
+  FMaxItems := AValue;
+  TrimItemsToMax;
+end;
+
+procedure TAIMapaDeMemoria.TrimItemsToMax;
+begin
+  if not Assigned(FItems) then
+    Exit;
+
+  while (FMaxItems > 0) and (FItems.Count > FMaxItems) do
+    FItems.Delete(0);
+
+  if FItems.Count > 0 then
+    FLastItem := FItems[FItems.Count - 1]
+  else
+    FLastItem := nil;
+end;
+
+procedure TAIMapaDeMemoria.UpdateCurrentOrderFromItems;
+var
+  I: Integer;
+begin
+  FCurrentOrder := 0;
+  if not Assigned(FItems) then
+    Exit;
+
+  for I := 0 to FItems.Count - 1 do
+  begin
+    if FItems[I].Ordem > FCurrentOrder then
+      FCurrentOrder := FItems[I].Ordem;
+  end;
 end;
 
 procedure TAIMapaDeMemoria.DoMapLog(const AMessage: string);
@@ -668,18 +1150,19 @@ procedure TAIMapaDeMemoria.StartFlow(
   const AOrigem: string
 );
 begin
+  ClearError;
   FItems.Clear;
-  FSolicitacaoOriginal := ASolicitacaoOriginal;
-  FFlowName := AFlowName;
-  FUsuario := AUsuario;
-  FOrigem := AOrigem;
+  FSolicitacaoOriginal := SafeText(ASolicitacaoOriginal);
+  FFlowName := SafeText(AFlowName);
+  FUsuario := SafeText(AUsuario);
+  FOrigem := SafeText(AOrigem);
   FCurrentOrder := 0;
   FLastItem := nil;
+  FLastWarning := '';
 
-  if FSessionId = '' then
-    FSessionId := FormatDateTime('yyyymmddhhnnss', Now) + '-' + IntToStr(Random(1000));
+  FSessionId := NewSessionId;
 
-  DoMapLog(Format('Fluxo iniciado: %s (Sessão: %s)', [FFlowName, FSessionId]));
+  DoMapLog(Format('Flow started: %s (Session: %s)', [FFlowName, FSessionId]));
 end;
 
 function TAIMapaDeMemoria.BeginAgentStep(
@@ -691,35 +1174,58 @@ function TAIMapaDeMemoria.BeginAgentStep(
 ): TAIMapaDeMemoriaItem;
 var
   CanCreate: Boolean;
+  ProposedOrder: Integer;
 begin
   Result := nil;
+  ClearError;
   CanCreate := True;
-  
+
   if Assigned(FOnBeforeCreateStep) then
     FOnBeforeCreateStep(Self, ANomeAgente, ATipoAgente, CanCreate);
 
   if not CanCreate then
   begin
-    DoMapLog('Criação da etapa bloqueada pelo evento OnBeforeCreateStep.');
+    DoMapLog('Step creation blocked by the OnBeforeCreateStep event.');
     Exit;
   end;
 
   if FAutoIncrementOrder then
+  begin
     Inc(FCurrentOrder);
+    ProposedOrder := FCurrentOrder;
+  end
+  else
+  begin
+    if FCurrentOrder <= 0 then
+      ProposedOrder := FItems.Count + 1
+    else
+      ProposedOrder := FCurrentOrder;
+
+    while Assigned(FItems.FindByOrder(ProposedOrder)) do
+      Inc(ProposedOrder);
+
+    FCurrentOrder := ProposedOrder;
+  end;
 
   Result := FItems.Add;
-  Result.Ordem := FCurrentOrder;
+  Result.Ordem := ProposedOrder;
   Result.OrdemPai := AOrdemPai;
   Result.DataHoraInicio := Now;
-  Result.NomeAgente := ANomeAgente;
+  Result.NomeAgente := SafeText(ANomeAgente);
   Result.TipoAgente := ATipoAgente;
-  Result.PedidoRecebido := APedidoRecebido;
-  Result.ContextoRecebido := AContextoRecebido;
+  Result.PedidoRecebido := SafeText(APedidoRecebido);
+  Result.PedidoNormalizado := NormalizeForCompare(APedidoRecebido);
+  Result.ContextoRecebido := SafeText(AContextoRecebido);
   Result.SolicitacaoOriginal := FSolicitacaoOriginal;
   Result.Status := semEmAnalise;
-  FLastItem := Result;
 
-  DoMapLog(Format('Etapa iniciada: %s (%s)', [ANomeAgente, GetEnumName(TypeInfo(TAITipoAgenteMapa), Ord(ATipoAgente))]));
+  FLastItem := Result;
+  TrimItemsToMax;
+
+  DoMapLog(Format('Step started: %s (%s)', [
+    Result.NomeAgente,
+    GetEnumName(TypeInfo(TAITipoAgenteMapa), Ord(ATipoAgente))
+  ]));
 
   if Assigned(FOnAfterCreateStep) then
     FOnAfterCreateStep(Self, Result);
@@ -736,30 +1242,48 @@ procedure TAIMapaDeMemoria.EndAgentStep(
 var
   LostInfo: string;
 begin
-  if not Assigned(AItem) then Exit;
+  ClearError;
+
+  if not Assigned(AItem) then
+  begin
+    SetError('EndAgentStep received AItem=nil.');
+    Exit;
+  end;
 
   if Assigned(FOnBeforeCloseStep) then
     FOnBeforeCloseStep(Self, AItem);
 
-  AItem.Analise := AAnalise;
-  AItem.Explicacao := AExplicacao;
-  AItem.AcaoTomada := AAcaoTomada;
-  AItem.SaidaGerada := ASaidaGerada;
-  AItem.ResumoParaProximoAgente := AResumoParaProximoAgente;
+  AItem.Analise := SafeText(AAnalise);
+  AItem.Explicacao := SafeText(AExplicacao);
+  AItem.AcaoTomada := SafeText(AAcaoTomada);
+  AItem.SaidaGerada := SafeText(ASaidaGerada);
+  AItem.ResumoParaProximoAgente := SafeText(AResumoParaProximoAgente);
   AItem.DataHoraFim := Now;
   AItem.Status := semConcluida;
 
-  DoMapLog(Format('Etapa finalizada: %s', [AItem.NomeAgente]));
+  if FStoreRawJSON and (AItem.RawJSON = '') then
+  begin
+    { RawJSON is intentionally not invented here. It must be supplied by the caller
+      when the LLM raw response is available. }
+  end
+  else if not FStoreRawJSON then
+    AItem.RawJSON := '';
+
+  DoMapLog(Format('Step finished: %s', [AItem.NomeAgente]));
 
   if FDetectInformationLoss then
   begin
     if CheckInformationLoss(AItem, LostInfo) then
     begin
-      AItem.AddInformacaoPerdida(LostInfo);
+      FLastWarning := 'Possible information loss: ' + LostInfo;
+      AItem.AddAlerta(FLastWarning);
+
       if Assigned(FOnInformationLossDetected) then
         FOnInformationLossDetected(Self, AItem, LostInfo);
     end;
   end;
+
+  FLastItem := AItem;
 
   if Assigned(FOnAfterCloseStep) then
     FOnAfterCloseStep(Self, AItem);
@@ -774,8 +1298,18 @@ procedure TAIMapaDeMemoria.AddQuestion(
   const AConfianca: Double
 );
 begin
+  ClearError;
+
   if Assigned(AItem) then
-    AItem.AddPerguntaAnalise(APergunta, AResposta, AAnalise, AOrigem, AConfianca);
+    AItem.AddPerguntaAnalise(
+      SafeText(APergunta),
+      SafeText(AResposta),
+      SafeText(AAnalise),
+      SafeText(AOrigem),
+      AConfianca
+    )
+  else
+    SetError('AddQuestion received AItem=nil.');
 end;
 
 procedure TAIMapaDeMemoria.AddActionParam(
@@ -784,8 +1318,12 @@ procedure TAIMapaDeMemoria.AddActionParam(
   const AValue: string
 );
 begin
+  ClearError;
+
   if Assigned(AItem) then
-    AItem.ParametrosAcao.Values[AName] := AValue;
+    AItem.ParametrosAcao.Values[SafeText(AName)] := SafeText(AValue)
+  else
+    SetError('AddActionParam received AItem=nil.');
 end;
 
 function TAIMapaDeMemoria.CheckInformationLoss(
@@ -794,50 +1332,54 @@ function TAIMapaDeMemoria.CheckInformationLoss(
 ): Boolean;
 var
   OrigText, OutText: string;
+  Tokens: TStringList;
   I: Integer;
-  Keywords: TStringList;
   Word: string;
 begin
   Result := False;
   ALostInfo := '';
-  if not Assigned(AItem) then Exit;
 
-  OrigText := LowerCase(FSolicitacaoOriginal);
-  OutText := LowerCase(AItem.SaidaGerada) + ' ' + LowerCase(AItem.ResumoParaProximoAgente) + ' ' + LowerCase(AItem.Analise);
+  if not Assigned(AItem) then
+    Exit;
 
-  Keywords := TStringList.Create;
+  AItem.InformacoesPreservadas.Clear;
+  AItem.InformacoesPerdidas.Clear;
+
+  OrigText := NormalizeForCompare(FSolicitacaoOriginal);
+  OutText := NormalizeForCompare(
+    AItem.SaidaGerada + ' ' +
+    AItem.ResumoParaProximoAgente + ' ' +
+    AItem.Analise + ' ' +
+    AItem.Explicacao + ' ' +
+    AItem.AcaoTomada
+  );
+
+  Tokens := TStringList.Create;
   try
-    // Simple word extractor
-    Keywords.Delimiter := ' ';
-    Keywords.DelimitedText := OrigText;
-    for I := 0 to Keywords.Count - 1 do
+    Tokens.Sorted := True;
+    Tokens.Duplicates := dupIgnore;
+    ExtractStrings([' ', #9, #10, #13], [], PChar(OrigText), Tokens);
+
+    for I := 0 to Tokens.Count - 1 do
     begin
-      Word := Keywords[I];
-      // Clean word
-      Word := StringReplace(Word, '.', '', [rfReplaceAll]);
-      Word := StringReplace(Word, ',', '', [rfReplaceAll]);
-      Word := StringReplace(Word, ';', '', [rfReplaceAll]);
-      
-      // Basic check for important words (length > 3 and not common Portuguese stopwords)
-      if (Length(Word) > 3) and 
-         (Word <> 'para') and (Word <> 'como') and (Word <> 'mais') and 
-         (Word <> 'esta') and (Word <> 'pela') and (Word <> 'pelos') then
+      Word := Trim(Tokens[I]);
+
+      if (Length(Word) <= 3) or IsStopWord(Word) then
+        Continue;
+
+      if Pos(Word, OutText) = 0 then
       begin
-        if Pos(Word, OutText) = 0 then
-        begin
-          AItem.AddInformacaoPerdida(Word);
-          if ALostInfo <> '' then ALostInfo := ALostInfo + ', ';
-          ALostInfo := ALostInfo + Word;
-          Result := True;
-        end
-        else
-        begin
-          AItem.AddInformacaoPreservada(Word);
-        end;
-      end;
+        AItem.AddInformacaoPerdida(Word);
+        if ALostInfo <> '' then
+          ALostInfo := ALostInfo + ', ';
+        ALostInfo := ALostInfo + Word;
+        Result := True;
+      end
+      else
+        AItem.AddInformacaoPreservada(Word);
     end;
   finally
-    Keywords.Free;
+    Tokens.Free;
   end;
 end;
 
@@ -848,31 +1390,54 @@ function TAIMapaDeMemoria.BuildContextForAgent(
 ): string;
 var
   SB: TStringBuilder;
-  I, StartIdx: Integer;
+  I, StartIdx, MaxSteps: Integer;
   Item: TAIMapaDeMemoriaItem;
 begin
   SB := TStringBuilder.Create;
   try
-    SB.AppendLine('=== SOLICITAÇÃO ORIGINAL ===');
+    MaxSteps := AMaxSteps;
+    if MaxSteps < 1 then
+      MaxSteps := 1;
+
+    SB.AppendLine('=== ORIGINAL REQUEST ===');
     SB.AppendLine(FSolicitacaoOriginal);
     SB.AppendLine('');
-    SB.AppendLine('=== CAMINHO ATÉ AQUI ===');
-    
-    StartIdx := FItems.Count - AMaxSteps;
-    if StartIdx < 0 then StartIdx := 0;
+    SB.AppendLine('=== CURRENT AGENT ===');
+    SB.AppendLine('Name: ' + SafeText(ANomeAgente));
+    SB.AppendLine('Type: ' + GetEnumName(TypeInfo(TAITipoAgenteMapa), Ord(ATipoAgente)));
+    SB.AppendLine('');
+    SB.AppendLine('=== PATH SO FAR ===');
+
+    StartIdx := FItems.Count - MaxSteps;
+    if StartIdx < 0 then
+      StartIdx := 0;
 
     for I := StartIdx to FItems.Count - 1 do
     begin
       Item := FItems[I];
-      SB.AppendLine(Format('%d. %s [%s]', [Item.Ordem, Item.NomeAgente, GetEnumName(TypeInfo(TAITipoAgenteMapa), Ord(Item.TipoAgente))]));
+      SB.AppendLine(Format('%d. %s [%s]', [
+        Item.Ordem,
+        Item.NomeAgente,
+        GetEnumName(TypeInfo(TAITipoAgenteMapa), Ord(Item.TipoAgente))
+      ]));
+
+      if Item.PedidoRecebido <> '' then
+        SB.AppendLine('   Request: ' + Item.PedidoRecebido);
       if Item.Analise <> '' then
-        SB.AppendLine('   Análise: ' + Item.Analise);
+        SB.AppendLine('   Analysis: ' + Item.Analise);
+      if Item.Explicacao <> '' then
+        SB.AppendLine('   Explanation: ' + Item.Explicacao);
       if Item.AcaoTomada <> '' then
-        SB.AppendLine('   Ação tomada: ' + Item.AcaoTomada);
+        SB.AppendLine('   Action taken: ' + Item.AcaoTomada);
+      if Item.ResumoParaProximoAgente <> '' then
+        SB.AppendLine('   Summary for next agent: ' + Item.ResumoParaProximoAgente);
       if Item.InformacoesPreservadas.Count > 0 then
-        SB.AppendLine('   Informações preservadas: ' + Item.InformacoesPreservadas.CommaText);
+        SB.AppendLine('   Preserved information: ' + Item.InformacoesPreservadas.CommaText);
       if Item.InformacoesPerdidas.Count > 0 then
-        SB.AppendLine('   Informações perdidas: ' + Item.InformacoesPerdidas.CommaText);
+        SB.AppendLine('   Lost information: ' + Item.InformacoesPerdidas.CommaText);
+      if Item.Alertas.Count > 0 then
+        SB.AppendLine('   Warnings: ' + Item.Alertas.CommaText);
+
       SB.AppendLine('');
     end;
 
@@ -884,12 +1449,15 @@ end;
 
 function TAIMapaDeMemoria.AsText: string;
 begin
-  Result := '=== MEMORY MAP ===' + sLineBreak +
-            'Session: ' + FSessionId + sLineBreak +
-            'Flow: ' + FFlowName + sLineBreak +
-            'Original Request: ' + FSolicitacaoOriginal + sLineBreak +
-            '--------------------' + sLineBreak +
-            FItems.AsText;
+  Result :=
+    '=== MEMORY MAP ===' + sLineBreak +
+    'Session: ' + FSessionId + sLineBreak +
+    'Flow: ' + FFlowName + sLineBreak +
+    'User: ' + FUsuario + sLineBreak +
+    'Origin: ' + FOrigem + sLineBreak +
+    'Original Request: ' + FSolicitacaoOriginal + sLineBreak +
+    '--------------------' + sLineBreak +
+    FItems.AsText;
 end;
 
 function TAIMapaDeMemoria.AsJSON: string;
@@ -897,8 +1465,6 @@ var
   Obj: TJSONObject;
   Arr: TJSONArray;
   I: Integer;
-  Parser: TJSONParser;
-  ItemJSON: TJSONData;
 begin
   Obj := TJSONObject.Create;
   try
@@ -907,19 +1473,21 @@ begin
     Obj.Add('original_request', FSolicitacaoOriginal);
     Obj.Add('user', FUsuario);
     Obj.Add('origin', FOrigem);
-    
+    Obj.Add('auto_increment_order', FAutoIncrementOrder);
+    Obj.Add('current_order', FCurrentOrder);
+    Obj.Add('max_items', FMaxItems);
+    Obj.Add('store_raw_json', FStoreRawJSON);
+    Obj.Add('store_full_prompt', FStoreFullPrompt);
+    Obj.Add('store_full_response', FStoreFullResponse);
+    Obj.Add('detect_information_loss', FDetectInformationLoss);
+    Obj.Add('redact_sensitive_data', FRedactSensitiveData);
+    Obj.Add('last_warning', FLastWarning);
+
     Arr := TJSONArray.Create;
     for I := 0 to FItems.Count - 1 do
-    begin
-      Parser := TJSONParser.Create(FItems[I].AsJSON);
-      try
-        ItemJSON := Parser.Parse;
-        Arr.Add(ItemJSON);
-      finally
-        Parser.Free;
-      end;
-    end;
+      Arr.Add(CreateMapaItemJSONObject(FItems[I]));
     Obj.Add('steps', Arr);
+
     Result := Obj.AsJSON;
   finally
     Obj.Free;
@@ -930,10 +1498,24 @@ procedure TAIMapaDeMemoria.SaveToFile(const AFileName: string);
 var
   L: TStringList;
 begin
+  ClearError;
+
+  if Trim(AFileName) = '' then
+  begin
+    SetError('Invalid file name in SaveToFile.');
+    Exit;
+  end;
+
   L := TStringList.Create;
   try
-    L.Text := AsJSON;
-    L.SaveToFile(AFileName);
+    try
+      L.Text := AsJSON;
+      L.SaveToFile(AFileName);
+      DoMapLog('Memory map saved to: ' + AFileName);
+    except
+      on E: Exception do
+        SetError('Error saving memory map: ' + E.Message);
+    end;
   finally
     L.Free;
   end;
@@ -943,72 +1525,132 @@ procedure TAIMapaDeMemoria.LoadFromFile(const AFileName: string);
 var
   L: TStringList;
   Parser: TJSONParser;
-  JSONData: TJSONData;
+  JSONData, StepsData, PData: TJSONData;
   Obj, StepObj: TJSONObject;
   Arr: TJSONArray;
-  I, J: Integer;
+  I, MaxOrder: Integer;
   Item: TAIMapaDeMemoriaItem;
-  PArr: TJSONArray;
-  PObj: TJSONObject;
 begin
-  if not FileExists(AFileName) then Exit;
+  ClearError;
+
+  if Trim(AFileName) = '' then
+  begin
+    SetError('Invalid file name in LoadFromFile.');
+    Exit;
+  end;
+
+  if not FileExists(AFileName) then
+  begin
+    SetError('File not found: ' + AFileName);
+    Exit;
+  end;
+
   L := TStringList.Create;
+  Parser := nil;
+  JSONData := nil;
   try
-    L.LoadFromFile(AFileName);
-    Parser := TJSONParser.Create(L.Text);
     try
+      L.LoadFromFile(AFileName);
+      Parser := TJSONParser.Create(L.Text);
       JSONData := Parser.Parse;
-      if JSONData is TJSONObject then
+
+      if (JSONData = nil) or (JSONData.JSONType <> jtObject) then
       begin
-        Obj := TJSONObject(JSONData);
-        FSessionId := Obj.Get('session_id', '');
-        FFlowName := Obj.Get('flow_name', '');
-        FSolicitacaoOriginal := Obj.Get('original_request', '');
-        FUsuario := Obj.Get('user', '');
-        FOrigem := Obj.Get('origin', '');
-        
-        FItems.Clear;
-        Arr := Obj.Arrays['steps'];
-        if Assigned(Arr) then
+        SetError('Invalid JSON: root is not an object.');
+        Exit;
+      end;
+
+      Obj := TJSONObject(JSONData);
+
+      FSessionId := JSONGetString(Obj, 'session_id', '');
+      FFlowName := JSONGetString(Obj, 'flow_name', '');
+      FSolicitacaoOriginal := JSONGetString(Obj, 'original_request', '');
+      FUsuario := JSONGetString(Obj, 'user', '');
+      FOrigem := JSONGetString(Obj, 'origin', '');
+      FAutoIncrementOrder := JSONGetBool(Obj, 'auto_increment_order', True);
+      FCurrentOrder := JSONGetInteger(Obj, 'current_order', 0);
+      FMaxItems := JSONGetInteger(Obj, 'max_items', 100);
+      if FMaxItems < 1 then
+        FMaxItems := 1;
+      FStoreRawJSON := JSONGetBool(Obj, 'store_raw_json', True);
+      FStoreFullPrompt := JSONGetBool(Obj, 'store_full_prompt', False);
+      FStoreFullResponse := JSONGetBool(Obj, 'store_full_response', False);
+      FDetectInformationLoss := JSONGetBool(Obj, 'detect_information_loss', True);
+      FRedactSensitiveData := JSONGetBool(Obj, 'redact_sensitive_data', True);
+      FLastWarning := JSONGetString(Obj, 'last_warning', '');
+
+      FItems.Clear;
+      MaxOrder := 0;
+
+      StepsData := Obj.Find('steps');
+      if Assigned(StepsData) and (StepsData.JSONType = jtArray) then
+      begin
+        Arr := TJSONArray(StepsData);
+        for I := 0 to Arr.Count - 1 do
         begin
-          for I := 0 to Arr.Count - 1 do
-          begin
-            StepObj := Arr.Objects[I];
-            Item := FItems.Add;
-            Item.Ordem := StepObj.Get('ordem', 0);
-            Item.OrdemPai := StepObj.Get('ordem_pai', 0);
-            Item.NomeAgente := StepObj.Get('nome_agente', '');
-            Item.TipoAgente := TAITipoAgenteMapa(StepObj.Get('tipo_agente', 0));
-            Item.Status := TAIStatusEtapaMapa(StepObj.Get('status', 0));
-            Item.PedidoRecebido := StepObj.Get('pedido_recebido', '');
-            Item.Analise := StepObj.Get('analise', '');
-            Item.Explicacao := StepObj.Get('explicacao', '');
-            Item.AcaoTomada := StepObj.Get('acao_tomada', '');
-            Item.SaidaGerada := StepObj.Get('saida_gerada', '');
-            Item.ResumoParaProximoAgente := StepObj.Get('resumo', '');
-            
-            PArr := StepObj.Arrays['perguntas'];
-            if Assigned(PArr) then
-            begin
-              for J := 0 to PArr.Count - 1 do
-              begin
-                PObj := PArr.Objects[J];
-                Item.AddPerguntaAnalise(
-                  PObj.Get('pergunta', ''),
-                  PObj.Get('resposta', ''),
-                  PObj.Get('analise', ''),
-                  PObj.Get('origem', 'LLM'),
-                  PObj.Get('confianca', 0.0)
-                );
-              end;
-            end;
-          end;
+          if Arr.Items[I].JSONType <> jtObject then
+            Continue;
+
+          StepObj := TJSONObject(Arr.Items[I]);
+          Item := FItems.Add;
+
+          Item.Ordem := JSONGetInteger(StepObj, 'ordem', 0);
+          Item.OrdemPai := JSONGetInteger(StepObj, 'ordem_pai', 0);
+          Item.DataHoraInicio := JSONGetFloat(StepObj, 'data_hora_inicio_value', 0);
+          Item.DataHoraFim := JSONGetFloat(StepObj, 'data_hora_fim_value', 0);
+          Item.NomeAgente := JSONGetString(StepObj, 'nome_agente', '');
+          Item.TipoAgente := TAITipoAgenteMapa(JSONGetInteger(StepObj, 'tipo_agente', Ord(tamIndefinido)));
+          Item.Status := TAIStatusEtapaMapa(JSONGetInteger(StepObj, 'status', Ord(semIniciada)));
+          Item.SolicitacaoOriginal := JSONGetString(StepObj, 'solicitacao_original', FSolicitacaoOriginal);
+          Item.PedidoRecebido := JSONGetString(StepObj, 'pedido_recebido', '');
+          Item.PedidoNormalizado := JSONGetString(StepObj, 'pedido_normalizado', '');
+          Item.ContextoRecebido := JSONGetString(StepObj, 'contexto_recebido', '');
+          Item.Analise := JSONGetString(StepObj, 'analise', '');
+          Item.Explicacao := JSONGetString(StepObj, 'explicacao', '');
+          Item.AcaoTomada := JSONGetString(StepObj, 'acao_tomada', '');
+          Item.SaidaGerada := JSONGetString(StepObj, 'saida_gerada', '');
+          Item.ResumoParaProximoAgente := JSONGetString(
+            StepObj,
+            'resumo_para_proximo_agente',
+            JSONGetString(StepObj, 'resumo', '')
+          );
+          Item.Confianca := JSONGetFloat(StepObj, 'confianca', 0.0);
+          Item.Erro := JSONGetString(StepObj, 'erro', '');
+          Item.RawJSON := JSONGetString(StepObj, 'raw_json', '');
+
+          LoadStringsFromJSONArray(Item.ParametrosAcao, StepObj.Find('parametros_acao'));
+          LoadStringsFromJSONArray(Item.InformacoesPreservadas, StepObj.Find('informacoes_preservadas'));
+          LoadStringsFromJSONArray(Item.InformacoesPerdidas, StepObj.Find('informacoes_perdidas'));
+          LoadStringsFromJSONArray(Item.InformacoesNovas, StepObj.Find('informacoes_novas'));
+          LoadStringsFromJSONArray(Item.Alertas, StepObj.Find('alertas'));
+
+          PData := StepObj.Find('perguntas');
+          LoadPerguntasFromJSONArray(Item.PerguntasAnalises, PData);
+
+          if Item.Ordem > MaxOrder then
+            MaxOrder := Item.Ordem;
         end;
       end;
-    finally
-      Parser.Free;
+
+      if FCurrentOrder < MaxOrder then
+        FCurrentOrder := MaxOrder;
+
+      TrimItemsToMax;
+      UpdateCurrentOrderFromItems;
+
+      if FItems.Count > 0 then
+        FLastItem := FItems[FItems.Count - 1]
+      else
+        FLastItem := nil;
+
+      DoMapLog('Memory map loaded from: ' + AFileName);
+    except
+      on E: Exception do
+        SetError('Error loading memory map: ' + E.Message);
     end;
   finally
+    JSONData.Free;
+    Parser.Free;
     L.Free;
   end;
 end;
@@ -1017,3 +1659,4 @@ initialization
   {$I taimapadememoria_icon.lrs}
 
 end.
+

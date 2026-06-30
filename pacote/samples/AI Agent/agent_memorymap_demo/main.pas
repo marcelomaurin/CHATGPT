@@ -46,7 +46,6 @@ type
     gbErrors: TGroupBox;
     memErrors: TMemo;
     FChatGPT: TCHATGPT;
-    FMapaDeMemoria: TAIMapaDeMemoria;
     FClassifier: TAIClassifierAgent;
     FDecisionAgent: TAIDecisionAgent;
     FActionBuilder: TAIActionBuilderAgent;

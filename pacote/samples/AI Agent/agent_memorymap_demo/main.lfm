@@ -1,14 +1,14 @@
 object frmAgentMemoryMapDemo: TfrmAgentMemoryMapDemo
-  Left = 200
+  Left = 826
   Height = 750
-  Top = 100
+  Top = 180
   Width = 1200
   Caption = 'IA Multi-Agent & Memory Map Demo'
   ClientHeight = 750
   ClientWidth = 1200
+  LCLVersion = '4.4.0.0'
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  LCLVersion = '2.2.0'
   object pnlHeader: TPanel
     Left = 0
     Height = 50
@@ -22,10 +22,9 @@ object frmAgentMemoryMapDemo: TfrmAgentMemoryMapDemo
     TabOrder = 0
     object lblProvider: TLabel
       Left = 5
-      Height = 40
-      Top = 5
-      Width = 60
-      Align = alLeft
+      Height = 15
+      Top = 13
+      Width = 57
       Caption = ' Provedor: '
       Layout = tlCenter
     end
@@ -39,16 +38,15 @@ object frmAgentMemoryMapDemo: TfrmAgentMemoryMapDemo
         'OpenAI'
         'Local (Ollama/LMStudio)'
       )
-      OnChange = cbProviderChange
       Style = csDropDownList
       TabOrder = 0
+      OnChange = cbProviderChange
     end
     object lblModel: TLabel
       Left = 195
-      Height = 40
-      Top = 5
-      Width = 55
-      Align = alLeft
+      Height = 15
+      Top = 13
+      Width = 50
       Caption = ' Modelo: '
       Layout = tlCenter
     end
@@ -62,10 +60,9 @@ object frmAgentMemoryMapDemo: TfrmAgentMemoryMapDemo
     end
     object lblToken: TLabel
       Left = 390
-      Height = 40
-      Top = 5
-      Width = 65
-      Align = alLeft
+      Height = 15
+      Top = 13
+      Width = 61
       Caption = ' API Token: '
       Layout = tlCenter
     end
@@ -79,11 +76,10 @@ object frmAgentMemoryMapDemo: TfrmAgentMemoryMapDemo
       TabOrder = 2
     end
     object lblBaseURL: TLabel
-      Left = 645
-      Height = 40
-      Top = 5
-      Width = 60
-      Align = alLeft
+      Left = 640
+      Height = 15
+      Top = 13
+      Width = 57
       Caption = ' Base URL: '
       Layout = tlCenter
     end
@@ -119,17 +115,17 @@ object frmAgentMemoryMapDemo: TfrmAgentMemoryMapDemo
       TabOrder = 0
       object gbInput: TGroupBox
         Left = 5
-        Height = 650
+        Height = 655
         Top = 5
         Width = 340
         Align = alClient
         Caption = 'Solicitação do Usuário'
-        ClientHeight = 630
+        ClientHeight = 635
         ClientWidth = 336
         TabOrder = 0
         object memInput: TMemo
           Left = 0
-          Height = 630
+          Height = 635
           Top = 0
           Width = 336
           Align = alClient
@@ -144,8 +140,8 @@ object frmAgentMemoryMapDemo: TfrmAgentMemoryMapDemo
         Width = 340
         Align = alBottom
         Caption = 'Executar Fluxo Multiagente'
-        OnClick = btnRunClick
         TabOrder = 1
+        OnClick = btnRunClick
       end
     end
     object splitterLeft: TSplitter
@@ -188,17 +184,17 @@ object frmAgentMemoryMapDemo: TfrmAgentMemoryMapDemo
       end
       object gbDecision: TGroupBox
         Left = 5
-        Height = 280
-        Top = 210
+        Height = 290
+        Top = 205
         Width = 430
         Align = alClient
         Caption = '2. Decisor (Plano de Ação)'
-        ClientHeight = 260
+        ClientHeight = 270
         ClientWidth = 426
         TabOrder = 1
         object memDecision: TMemo
           Left = 0
-          Height = 260
+          Height = 270
           Top = 0
           Width = 426
           Align = alClient
@@ -235,6 +231,7 @@ object frmAgentMemoryMapDemo: TfrmAgentMemoryMapDemo
       Top = 0
       Width = 5
       Align = alRight
+      ResizeAnchor = akRight
     end
     object pnlRight: TPanel
       Left = 800
@@ -249,17 +246,17 @@ object frmAgentMemoryMapDemo: TfrmAgentMemoryMapDemo
       TabOrder = 4
       object gbMemoryMap: TGroupBox
         Left = 5
-        Height = 380
+        Height = 390
         Top = 5
         Width = 390
         Align = alClient
         Caption = 'Mapa de Memória (Persistência de Contexto)'
-        ClientHeight = 360
+        ClientHeight = 370
         ClientWidth = 386
         TabOrder = 0
         object memMemoryMap: TMemo
           Left = 0
-          Height = 360
+          Height = 370
           Top = 0
           Width = 386
           Align = alClient
@@ -277,7 +274,7 @@ object frmAgentMemoryMapDemo: TfrmAgentMemoryMapDemo
       object gbInfoLoss: TGroupBox
         Left = 5
         Height = 160
-        Top = 390
+        Top = 395
         Width = 390
         Align = alBottom
         Caption = 'Perdas de Informação Detectadas'
@@ -319,6 +316,7 @@ object frmAgentMemoryMapDemo: TfrmAgentMemoryMapDemo
           Width = 386
           Align = alClient
           Font.Color = clMaroon
+          ParentFont = False
           ReadOnly = True
           ScrollBars = ssAutoVertical
           TabOrder = 0
@@ -327,28 +325,39 @@ object frmAgentMemoryMapDemo: TfrmAgentMemoryMapDemo
     end
   end
   object FChatGPT: TCHATGPT
+    Prompt = 'VocÃª Ã© um assistente.'
+    Dev = 'Voc'#195#170' '#195#169' um assistente.'
+    TipoChat = VCT_GPT4o
+    Provider = AIP_OPENAI
+    LocalIP = 'http://localhost:11434'
+    MaxTokens = 4096
     Left = 32
     Top = 120
   end
-  object FMapaDeMemoria: TAIMapaDeMemoria
-    DetectInformationLoss = True
-    StoreRawJSON = True
-    Left = 112
-    Top = 120
-  end
   object FClassifier: TAIClassifierAgent
+    NomeAgente = 'ClassifierAgent'
+    TipoAgenteMapa = tamClassificador
+    MinConfidence = 0.7
     Left = 192
     Top = 120
   end
   object FDecisionAgent: TAIDecisionAgent
+    NomeAgente = 'DecisionAgent'
+    TipoAgenteMapa = tamDecisor
+    MinConfidence = 0.7
     Left = 272
     Top = 120
   end
   object FActionBuilder: TAIActionBuilderAgent
+    NomeAgente = 'ActionBuilderAgent'
+    TipoAgenteMapa = tamAjustadorAcao
+    MinConfidence = 0.7
     Left = 352
     Top = 120
   end
   object FExecutor: TAIActionExecutor
+    Category = ccAction
+    NomeAgente = 'ActionExecutor'
     Left = 432
     Top = 120
   end
