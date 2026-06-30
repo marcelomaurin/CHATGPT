@@ -245,13 +245,18 @@ end;
 procedure TfrmAgentMemoryMapDemo.OnFlowError(Sender: TObject; AContexto: TAIFluxoEtapaContexto);
 begin
   memErrors.Lines.Add('ERRO no fluxo: ' + AContexto.MensagemErro);
+  memErrors.Lines.Add('=== DEBUG INFO ===');
+  memErrors.Lines.Add('URL chamada: ' + FChatGPT.LastURL);
+  memErrors.Lines.Add('Resposta bruta da API:');
+  memErrors.Lines.Add(FChatGPT.LastJSON);
+  memErrors.Lines.Add('==================');
   if Assigned(FOrchestrator.MemoryMap) then
     memMemoryMap.Text := FOrchestrator.MemoryMap.AsText;
 end;
 
 procedure TfrmAgentMemoryMapDemo.OnFlowStage(Sender: TObject; AContexto: TAIFluxoEtapaContexto);
 begin
-  { Real-time debug log }
+  memErrors.Lines.Add(Format('Etapa: %d | Agente: %s', [Ord(AContexto.Etapa), AContexto.NomeAgenteAtual]));
 end;
 
 procedure TfrmAgentMemoryMapDemo.OnInformationLossDetected(Sender: TObject; AContexto: TAIFluxoEtapaContexto);
