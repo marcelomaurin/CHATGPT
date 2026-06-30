@@ -1668,6 +1668,7 @@ end;
 
 initialization
   {$I taiagentmemorymap_icon.lrs}
+  RegisterClassAlias(TAIAgentMemoryMap, 'TAIMapaDeMemoria');
 
 end.
 
