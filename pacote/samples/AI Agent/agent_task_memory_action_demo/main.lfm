@@ -167,8 +167,6 @@ object frmMain: TfrmMain
           Top = 10
           Width = 151
           Caption = 'Modo Simulado (Seguro)'
-          Checked = True
-          State = cbChecked
           TabOrder = 2
         end
         object chkPermitirGerarWordReal: TCheckBox
@@ -724,6 +722,8 @@ object frmMain: TfrmMain
     Top = 100
   end
   object FClassifierAgent: TAIClassifierAgent
+    ChatGPT = FChatGPT
+    MemoryMap = FMemoryMap
     NomeAgente = 'ClassifierAgent'
     TipoAgenteMapa = tamClassificador
     MinConfidence = 0.7
@@ -731,6 +731,8 @@ object frmMain: TfrmMain
     Top = 100
   end
   object FTaskPlannerAgent: TAIDecisionAgent
+    ChatGPT = FChatGPT
+    MemoryMap = FMemoryMap
     NomeAgente = 'DecisionAgent'
     TipoAgenteMapa = tamDecisor
     MinConfidence = 0.7
@@ -738,6 +740,8 @@ object frmMain: TfrmMain
     Top = 100
   end
   object FTaskProcessorAgent: TAIDecisionAgent
+    ChatGPT = FChatGPT
+    MemoryMap = FMemoryMap
     NomeAgente = 'DecisionAgent'
     TipoAgenteMapa = tamDecisor
     MinConfidence = 0.7
@@ -745,6 +749,8 @@ object frmMain: TfrmMain
     Top = 100
   end
   object FActionBuilderAgent: TAIActionBuilderAgent
+    ChatGPT = FChatGPT
+    MemoryMap = FMemoryMap
     NomeAgente = 'ActionBuilderAgent'
     TipoAgenteMapa = tamAjustadorAcao
     MinConfidence = 0.7
@@ -753,6 +759,8 @@ object frmMain: TfrmMain
   end
   object FActionExecutor: TAIActionExecutor
     Category = ccAction
+    ChatGPT = FChatGPT
+    MemoryMap = FMemoryMap
     NomeAgente = 'ActionExecutor'
     Left = 520
     Top = 100
@@ -771,8 +779,8 @@ object frmMain: TfrmMain
     Left = 680
     Top = 100
   end
-  object FMemoryMap: TAIMapaDeMemoria
-    Left = 233
-    Top = 313
+  object FMemoryMap: TAIAgentMemoryMap
+    Left = 112
+    Top = 104
   end
 end
