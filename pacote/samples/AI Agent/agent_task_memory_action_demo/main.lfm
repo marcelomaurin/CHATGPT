@@ -6,9 +6,9 @@ object frmMain: TfrmMain
   Caption = 'IA Multi-Agent Task-Oriented Workflow Demo'
   ClientHeight = 800
   ClientWidth = 1200
+  LCLVersion = '4.4.0.0'
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  LCLVersion = '2.2.0'
   object pnlHeader: TPanel
     Left = 0
     Height = 50
@@ -22,10 +22,9 @@ object frmMain: TfrmMain
     TabOrder = 0
     object lblProvider: TLabel
       Left = 5
-      Height = 40
-      Top = 5
-      Width = 60
-      Align = alLeft
+      Height = 15
+      Top = 16
+      Width = 57
       Caption = ' Provedor: '
       Layout = tlCenter
     end
@@ -39,16 +38,15 @@ object frmMain: TfrmMain
         'OpenAI'
         'Local (Ollama/LMStudio)'
       )
-      OnChange = cbProviderChange
       Style = csDropDownList
       TabOrder = 0
+      OnChange = cbProviderChange
     end
     object lblModel: TLabel
-      Left = 175
-      Height = 40
-      Top = 5
-      Width = 55
-      Align = alLeft
+      Left = 176
+      Height = 15
+      Top = 16
+      Width = 50
       Caption = ' Modelo: '
       Layout = tlCenter
     end
@@ -58,6 +56,7 @@ object frmMain: TfrmMain
       Top = 13
       Width = 120
       ItemHeight = 15
+      ItemIndex = 0
       Items.Strings = (
         'gpt-4o-mini'
         'gpt-4o'
@@ -69,10 +68,9 @@ object frmMain: TfrmMain
     end
     object lblToken: TLabel
       Left = 360
-      Height = 40
-      Top = 5
-      Width = 45
-      Align = alLeft
+      Height = 15
+      Top = 16
+      Width = 40
       Caption = ' Token: '
       Layout = tlCenter
     end
@@ -86,11 +84,10 @@ object frmMain: TfrmMain
       TabOrder = 2
     end
     object lblBaseURL: TLabel
-      Left = 570
-      Height = 40
-      Top = 5
-      Width = 60
-      Align = alLeft
+      Left = 568
+      Height = 15
+      Top = 16
+      Width = 57
       Caption = ' Base URL: '
       Layout = tlCenter
     end
@@ -152,8 +149,8 @@ object frmMain: TfrmMain
           Top = 10
           Width = 150
           Caption = 'Gerar Tarefas'
-          OnClick = btnGerarTarefasClick
           TabOrder = 0
+          OnClick = btnGerarTarefasClick
         end
         object btnLimparPrompt: TButton
           Left = 170
@@ -161,14 +158,14 @@ object frmMain: TfrmMain
           Top = 10
           Width = 120
           Caption = 'Limpar'
-          OnClick = btnLimparPromptClick
           TabOrder = 1
+          OnClick = btnLimparPromptClick
         end
         object chkModoSimulado: TCheckBox
           Left = 310
           Height = 19
           Top = 10
-          Width = 149
+          Width = 151
           Caption = 'Modo Simulado (Seguro)'
           Checked = True
           State = cbChecked
@@ -178,7 +175,7 @@ object frmMain: TfrmMain
           Left = 310
           Height = 19
           Top = 30
-          Width = 156
+          Width = 148
           Caption = 'Permitir Gerar Word Real'
           TabOrder = 3
         end
@@ -186,7 +183,7 @@ object frmMain: TfrmMain
           Left = 310
           Height = 19
           Top = 50
-          Width = 180
+          Width = 170
           Caption = 'Permitir Envio de E-mail Real'
           TabOrder = 4
         end
@@ -225,8 +222,8 @@ object frmMain: TfrmMain
           Top = 10
           Width = 180
           Caption = 'Executar Selecionada'
-          OnClick = btnExecutarTarefaSelecionadaClick
           TabOrder = 0
+          OnClick = btnExecutarTarefaSelecionadaClick
         end
         object btnExecutarTodas: TButton
           Left = 200
@@ -234,8 +231,8 @@ object frmMain: TfrmMain
           Top = 10
           Width = 150
           Caption = 'Executar Todas'
-          OnClick = btnExecutarTodasClick
           TabOrder = 1
+          OnClick = btnExecutarTodasClick
         end
         object btnReprocessarTarefa: TButton
           Left = 360
@@ -243,8 +240,8 @@ object frmMain: TfrmMain
           Top = 10
           Width = 130
           Caption = 'Reprocessar'
-          OnClick = btnReprocessarTarefaClick
           TabOrder = 2
+          OnClick = btnReprocessarTarefaClick
         end
         object btnCancelarTarefa: TButton
           Left = 500
@@ -252,8 +249,8 @@ object frmMain: TfrmMain
           Top = 10
           Width = 130
           Caption = 'Cancelar'
-          OnClick = btnCancelarTarefaClick
           TabOrder = 3
+          OnClick = btnCancelarTarefaClick
         end
       end
       object gbTaskDetail: TGroupBox
@@ -447,8 +444,8 @@ object frmMain: TfrmMain
           Top = 10
           Width = 150
           Caption = 'Atualizar Mapa'
-          OnClick = btnAtualizarMapaClick
           TabOrder = 0
+          OnClick = btnAtualizarMapaClick
         end
         object btnExportarMapaTexto: TButton
           Left = 170
@@ -456,8 +453,8 @@ object frmMain: TfrmMain
           Top = 10
           Width = 150
           Caption = 'Exportar TXT'
-          OnClick = btnExportarMapaTextoClick
           TabOrder = 1
+          OnClick = btnExportarMapaTextoClick
         end
         object btnExportarMapaJSON: TButton
           Left = 330
@@ -465,8 +462,8 @@ object frmMain: TfrmMain
           Top = 10
           Width = 150
           Caption = 'Exportar JSON'
-          OnClick = btnExportarMapaJSONClick
           TabOrder = 2
+          OnClick = btnExportarMapaJSONClick
         end
       end
       object gbMapDetail: TGroupBox
@@ -559,7 +556,7 @@ object frmMain: TfrmMain
               Left = 10
               Height = 15
               Top = 18
-              Width = 90
+              Width = 86
               Caption = 'Arquivo Gerado:'
             end
             object edArquivoWordGerado: TEdit
@@ -576,8 +573,8 @@ object frmMain: TfrmMain
               Top = 10
               Width = 130
               Caption = 'Abrir Arquivo'
-              OnClick = btnAbrirArquivoWordClick
               TabOrder = 1
+              OnClick = btnAbrirArquivoWordClick
             end
           end
         end
@@ -655,8 +652,8 @@ object frmMain: TfrmMain
               Top = 10
               Width = 150
               Caption = 'Simular Envio'
-              OnClick = btnSimularEnvioEmailClick
               TabOrder = 0
+              OnClick = btnSimularEnvioEmailClick
             end
             object btnEnviarEmailReal: TButton
               Left = 170
@@ -664,8 +661,8 @@ object frmMain: TfrmMain
               Top = 10
               Width = 150
               Caption = 'Enviar Real'
-              OnClick = btnEnviarEmailRealClick
               TabOrder = 1
+              OnClick = btnEnviarEmailRealClick
             end
           end
         end
@@ -701,8 +698,8 @@ object frmMain: TfrmMain
           Top = 10
           Width = 120
           Caption = 'Limpar Log'
-          OnClick = btnLimparLogClick
           TabOrder = 0
+          OnClick = btnLimparLogClick
         end
         object btnSalvarLog: TButton
           Left = 140
@@ -710,47 +707,67 @@ object frmMain: TfrmMain
           Top = 10
           Width = 120
           Caption = 'Salvar Log'
-          OnClick = btnSalvarLogClick
           TabOrder = 1
+          OnClick = btnSalvarLogClick
         end
       end
     end
   end
   object FChatGPT: TCHATGPT
+    Prompt = 'VocÃª Ã© um assistente.'
+    Dev = 'Voc'#195#170' '#195#169' um assistente.'
+    TipoChat = VCT_GPT4o
+    Provider = AIP_OPENAI
+    LocalIP = 'http://localhost:11434'
+    MaxTokens = 4096
     Left = 40
     Top = 100
   end
-  object FMemoryMap: TAIMapaDeMemoria
-    DetectInformationLoss = True
-    StoreRawJSON = True
-    Left = 120
-    Top = 100
-  end
   object FClassifierAgent: TAIClassifierAgent
+    NomeAgente = 'ClassifierAgent'
+    TipoAgenteMapa = tamClassificador
+    MinConfidence = 0.7
     Left = 200
     Top = 100
   end
   object FTaskPlannerAgent: TAIDecisionAgent
+    NomeAgente = 'DecisionAgent'
+    TipoAgenteMapa = tamDecisor
+    MinConfidence = 0.7
     Left = 280
     Top = 100
   end
   object FTaskProcessorAgent: TAIDecisionAgent
+    NomeAgente = 'DecisionAgent'
+    TipoAgenteMapa = tamDecisor
+    MinConfidence = 0.7
     Left = 360
     Top = 100
   end
   object FActionBuilderAgent: TAIActionBuilderAgent
+    NomeAgente = 'ActionBuilderAgent'
+    TipoAgenteMapa = tamAjustadorAcao
+    MinConfidence = 0.7
     Left = 440
     Top = 100
   end
   object FActionExecutor: TAIActionExecutor
+    Category = ccAction
+    NomeAgente = 'ActionExecutor'
     Left = 520
     Top = 100
   end
   object FWordOutput: TAIWordOutput
+    Prompt = 'Component TAIWordOutput creates Microsoft Word compatible documents (.docx/HTML) natively. Properties: FileName: string, Title: string. Methods: AddHeading(const AText: string; ALevel: Integer = 1), AddParagraph(const AText: string), AddTable(const AHeaders: array of string; const ARows: array of string; ACols: Integer), SaveWord: Boolean. AI Agent: Use this to generate formatted text documents or reports.'
+    FileName = 'documento_ia.docx'
+    Title = 'Relatório de IA'
     Left = 600
     Top = 100
   end
   object FEmailClient: TAIEmailClient
+    Prompt = 'Component TAIEmailClient handles email alerts via SMTP and POP3 in raw sockets. Properties: HostSMTP/HostPOP3: string, PortSMTP/PortPOP3: Integer, Username/Password: string, Active: Boolean. Methods: SendEmail(const ATo, ASubject, ABody: string): Boolean, FetchEmails(out AEmails: TStrings): Boolean. AI Agent: Use this to send notifications/reports to users or monitor incoming emails for automated pipeline commands.'
+    HostSMTP = 'localhost'
+    HostPOP3 = 'localhost'
     Left = 680
     Top = 100
   end

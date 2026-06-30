@@ -68,7 +68,10 @@ type
     function RunAction(const AParams: TStrings; ASimulate: Boolean): Boolean; override;
   end;
 
+  { TfrmMain }
+
   TfrmMain = class(TForm)
+    FMemoryMap: TAIMapaDeMemoria;
     { Credentials & Provider Panels }
     pnlHeader: TPanel;
     lblProvider: TLabel;
@@ -163,7 +166,6 @@ type
 
     { Components }
     FChatGPT: TCHATGPT;
-    FMemoryMap: TAIAgentMemoryMap;
     FClassifierAgent: TAIClassifierAgent;
     FTaskPlannerAgent: TAIDecisionAgent;
     FTaskProcessorAgent: TAIDecisionAgent;
