@@ -11,7 +11,7 @@ type
   { TAICustomAgentAction }
   TAICustomAgentAction = class(TComponent)
   private
-    FMapaDeMemoria: TAIMapaDeMemoria;
+    FMemoryMap: TAIAgentMemoryMap;
     FActionName: string;
     // Events
     FOnBeforeRun: TAIFluxoEtapaControlEvent;
@@ -28,12 +28,14 @@ type
     FOnActionError: TAIFluxoEtapaEvent;
   protected
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+    procedure SetMemoryMap(AValue: TAIAgentMemoryMap);
   public
+    property MapaDeMemoria: TAIAgentMemoryMap read FMemoryMap write SetMemoryMap;
     constructor Create(AOwner: TComponent); override;
     function RunAction(const AParams: TStrings; ASimulate: Boolean): Boolean; virtual;
   published
     property ActionName: string read FActionName write FActionName;
-    property MapaDeMemoria: TAIMapaDeMemoria read FMapaDeMemoria write FMapaDeMemoria;
+    property MemoryMap: TAIAgentMemoryMap read FMemoryMap write SetMemoryMap;
     // Events
     property OnBeforeRun: TAIFluxoEtapaControlEvent read FOnBeforeRun write FOnBeforeRun;
     property OnAfterRun: TAIFluxoEtapaEvent read FOnAfterRun write FOnAfterRun;
@@ -53,11 +55,26 @@ implementation
 
 { TAICustomAgentAction }
 
+
+procedure TAICustomAgentAction.SetMemoryMap(AValue: TAIAgentMemoryMap);
+begin
+  if FMemoryMap <> AValue then
+  begin
+    if Assigned(FMemoryMap) then
+      FMemoryMap.RemoveFreeNotification(Self);
+
+    FMemoryMap := AValue;
+
+    if Assigned(FMemoryMap) then
+      FMemoryMap.FreeNotification(Self);
+  end;
+end;
+
 constructor TAICustomAgentAction.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FActionName := '';
-  FMapaDeMemoria := nil;
+  FMemoryMap := nil;
 end;
 
 procedure TAICustomAgentAction.Notification(AComponent: TComponent; Operation: TOperation);
@@ -65,7 +82,7 @@ begin
   inherited Notification(AComponent, Operation);
   if Operation = opRemove then
   begin
-    if AComponent = FMapaDeMemoria then FMapaDeMemoria := nil;
+    if AComponent = FMemoryMap then FMemoryMap := nil;
   end;
 end;
 
@@ -79,7 +96,7 @@ begin
   try
     Ctx.SessionId := '';
     if Assigned(MapaDeMemoria) then
-      Ctx.SessionId := MapaDeMemoria.SessionId;
+      Ctx.SessionId := MemoryMap.SessionId;
     Ctx.FlowName := 'Execução de Ação Individual';
     Ctx.AcaoTomada := FActionName;
     Ctx.Parametros := AParams;

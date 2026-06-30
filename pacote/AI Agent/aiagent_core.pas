@@ -11,12 +11,12 @@ type
   { Event types for agents }
   TAIAgentMemoryStepEvent = procedure(
     Sender: TObject;
-    AItem: TAIMapaDeMemoriaItem
+    AItem: TAIAgentMemoryMapItem
   ) of object;
 
   TAIAgentQuestionEvent = procedure(
     Sender: TObject;
-    AItem: TAIMapaDeMemoriaItem;
+    AItem: TAIAgentMemoryMapItem;
     const APergunta: string;
     var AResposta: string
   ) of object;
@@ -26,7 +26,7 @@ type
   private
     FChatGPT: TCHATGPT;
     FSystemPrompt: string;
-    FMapaDeMemoria: TAIMapaDeMemoria;
+    FMemoryMap: TAIAgentMemoryMap;
     FOrdemAtualMapa: Integer;
     // Events
     FOnBeforeMemoryStep: TAIAgentMemoryStepEvent;
@@ -44,6 +44,7 @@ type
     FOnBeforeMemoryWrite: TAIFluxoEtapaControlEvent;
     FOnAfterMemoryWrite: TAIFluxoEtapaEvent;
     FOnAgentError: TAIFluxoEtapaEvent;
+    procedure SetMemoryMap(AValue: TAIAgentMemoryMap);
   protected
     FAutoRegistrarNoMapa: Boolean;
     FNomeAgente: string;
@@ -53,12 +54,13 @@ type
     FVerificarPerdaInformacao: Boolean;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
+    property MapaDeMemoria: TAIAgentMemoryMap read FMemoryMap write SetMemoryMap;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
-    function BeginMemoryStep(const AInput: string): TAIMapaDeMemoriaItem; virtual;
+    function BeginMemoryStep(const AInput: string): TAIAgentMemoryMapItem; virtual;
     procedure EndMemoryStep(
-      AItem: TAIMapaDeMemoriaItem;
+      AItem: TAIAgentMemoryMapItem;
       const AAnalise: string;
       const AExplicacao: string;
       const AAcaoTomada: string;
@@ -66,7 +68,7 @@ type
     ); virtual;
 
     procedure AddMemoryQuestion(
-      AItem: TAIMapaDeMemoriaItem;
+      AItem: TAIAgentMemoryMapItem;
       const APergunta: string;
       const AResposta: string;
       const AAnalise: string;
@@ -76,7 +78,7 @@ type
   published
     property ChatGPT: TCHATGPT read FChatGPT write FChatGPT;
     property SystemPrompt: string read FSystemPrompt write FSystemPrompt;
-    property MapaDeMemoria: TAIMapaDeMemoria read FMapaDeMemoria write FMapaDeMemoria;
+    property MemoryMap: TAIAgentMemoryMap read FMemoryMap write SetMemoryMap;
     property AutoRegistrarNoMapa: Boolean read FAutoRegistrarNoMapa write FAutoRegistrarNoMapa default True;
     property NomeAgente: string read FNomeAgente write FNomeAgente;
     property TipoAgenteMapa: TAITipoAgenteMapa read FTipoAgenteMapa write FTipoAgenteMapa default tamIndefinido;
@@ -111,7 +113,7 @@ begin
   inherited Create(AOwner);
   FChatGPT := nil;
   FSystemPrompt := '';
-  FMapaDeMemoria := nil;
+  FMemoryMap := nil;
   FAutoRegistrarNoMapa := True;
   FNomeAgente := '';
   FTipoAgenteMapa := tamIndefinido;
@@ -132,19 +134,33 @@ begin
   if Operation = opRemove then
   begin
     if AComponent = FChatGPT then FChatGPT := nil;
-    if AComponent = FMapaDeMemoria then FMapaDeMemoria := nil;
+    if AComponent = FMemoryMap then FMemoryMap := nil;
   end;
 end;
 
-function TAICustomAgent.BeginMemoryStep(const AInput: string): TAIMapaDeMemoriaItem;
+procedure TAICustomAgent.SetMemoryMap(AValue: TAIAgentMemoryMap);
+begin
+  if FMemoryMap <> AValue then
+  begin
+    if Assigned(FMemoryMap) then
+      FMemoryMap.RemoveFreeNotification(Self);
+
+    FMemoryMap := AValue;
+
+    if Assigned(FMemoryMap) then
+      FMemoryMap.FreeNotification(Self);
+  end;
+end;
+
+function TAICustomAgent.BeginMemoryStep(const AInput: string): TAIAgentMemoryMapItem;
 var
   Ctx: string;
 begin
   Result := nil;
-  if not Assigned(FMapaDeMemoria) or not FAutoRegistrarNoMapa then Exit;
+  if not Assigned(FMemoryMap) or not FAutoRegistrarNoMapa then Exit;
 
-  Ctx := FMapaDeMemoria.BuildContextForAgent(FNomeAgente, FTipoAgenteMapa);
-  Result := FMapaDeMemoria.BeginAgentStep(FNomeAgente, FTipoAgenteMapa, AInput, Ctx);
+  Ctx := FMemoryMap.BuildContextForAgent(FNomeAgente, FTipoAgenteMapa);
+  Result := FMemoryMap.BeginAgentStep(FNomeAgente, FTipoAgenteMapa, AInput, Ctx);
 
   if Assigned(Result) then
   begin
@@ -155,23 +171,23 @@ begin
 end;
 
 procedure TAICustomAgent.EndMemoryStep(
-  AItem: TAIMapaDeMemoriaItem;
+  AItem: TAIAgentMemoryMapItem;
   const AAnalise: string;
   const AExplicacao: string;
   const AAcaoTomada: string;
   const ASaidaGerada: string
 );
 begin
-  if not Assigned(FMapaDeMemoria) or not Assigned(AItem) then Exit;
+  if not Assigned(FMemoryMap) or not Assigned(AItem) then Exit;
 
   if Assigned(FOnAfterMemoryStep) then
     FOnAfterMemoryStep(Self, AItem);
 
-  FMapaDeMemoria.EndAgentStep(AItem, AAnalise, AExplicacao, AAcaoTomada, ASaidaGerada);
+  FMemoryMap.EndAgentStep(AItem, AAnalise, AExplicacao, AAcaoTomada, ASaidaGerada);
 end;
 
 procedure TAICustomAgent.AddMemoryQuestion(
-  AItem: TAIMapaDeMemoriaItem;
+  AItem: TAIAgentMemoryMapItem;
   const APergunta: string;
   const AResposta: string;
   const AAnalise: string;
@@ -179,8 +195,8 @@ procedure TAICustomAgent.AddMemoryQuestion(
   const AConfianca: Double
 );
 begin
-  if Assigned(FMapaDeMemoria) and Assigned(AItem) then
-    FMapaDeMemoria.AddQuestion(AItem, APergunta, AResposta, AAnalise, AOrigem, AConfianca);
+  if Assigned(FMemoryMap) and Assigned(AItem) then
+    FMemoryMap.AddQuestion(AItem, APergunta, AResposta, AAnalise, AOrigem, AConfianca);
 end;
 
 end.

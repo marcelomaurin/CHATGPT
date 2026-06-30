@@ -10,7 +10,7 @@ uses
 
 type
   { Status of map step }
-  TAIStatusEtapaMapa = (
+  TAIAgentMemoryStepStatus = (
     semIniciada,
     semEmAnalise,
     semAguardandoInformacao,
@@ -20,8 +20,8 @@ type
     semCancelada
   );
 
-  { TAIPerguntaAnaliseItem }
-  TAIPerguntaAnaliseItem = class(TCollectionItem)
+  { TAIAnalysisQuestionItem }
+  TAIAnalysisQuestionItem = class(TCollectionItem)
   private
     FOrdem: Integer;
     FPergunta: string;
@@ -40,27 +40,27 @@ type
     property Origem: string read FOrigem write FOrigem;
   end;
 
-  { TAIPerguntaAnaliseCollection }
-  TAIPerguntaAnaliseCollection = class(TCollection)
+  { TAIAnalysisQuestionCollection }
+  TAIAnalysisQuestionCollection = class(TCollection)
   private
-    function GetItem(Index: Integer): TAIPerguntaAnaliseItem;
-    procedure SetItem(Index: Integer; Value: TAIPerguntaAnaliseItem);
+    function GetItem(Index: Integer): TAIAnalysisQuestionItem;
+    procedure SetItem(Index: Integer; Value: TAIAnalysisQuestionItem);
   public
     constructor Create;
-    function Add: TAIPerguntaAnaliseItem;
+    function Add: TAIAnalysisQuestionItem;
     function AddPergunta(
       const APergunta: string;
       const AResposta: string;
       const AAnalise: string;
       const AOrigem: string = 'LLM';
       const AConfianca: Double = 0
-    ): TAIPerguntaAnaliseItem;
+    ): TAIAnalysisQuestionItem;
     function AsText: string;
-    property Items[Index: Integer]: TAIPerguntaAnaliseItem read GetItem write SetItem; default;
+    property Items[Index: Integer]: TAIAnalysisQuestionItem read GetItem write SetItem; default;
   end;
 
-  { TAIMapaDeMemoriaItem }
-  TAIMapaDeMemoriaItem = class(TCollectionItem)
+  { TAIAgentMemoryMapItem }
+  TAIAgentMemoryMapItem = class(TCollectionItem)
   private
     FOrdem: Integer;
     FOrdemPai: Integer;
@@ -68,7 +68,7 @@ type
     FDataHoraFim: TDateTime;
     FNomeAgente: string;
     FTipoAgente: TAITipoAgenteMapa;
-    FStatus: TAIStatusEtapaMapa;
+    FStatus: TAIAgentMemoryStepStatus;
     FSolicitacaoOriginal: string;
     FPedidoRecebido: string;
     FPedidoNormalizado: string;
@@ -83,7 +83,7 @@ type
     FInformacoesPerdidas: TStrings;
     FInformacoesNovas: TStrings;
     FAlertas: TStrings;
-    FPerguntasAnalises: TAIPerguntaAnaliseCollection;
+    FPerguntasAnalises: TAIAnalysisQuestionCollection;
     FConfianca: Double;
     FErro: string;
     FRawJSON: string;
@@ -92,7 +92,7 @@ type
     procedure SetInformacoesPerdidas(AValue: TStrings);
     procedure SetInformacoesNovas(AValue: TStrings);
     procedure SetAlertas(AValue: TStrings);
-    procedure SetPerguntasAnalises(AValue: TAIPerguntaAnaliseCollection);
+    procedure SetPerguntasAnalises(AValue: TAIAnalysisQuestionCollection);
   public
     constructor Create(ACollection: TCollection); override;
     destructor Destroy; override;
@@ -119,7 +119,7 @@ type
     property DataHoraFim: TDateTime read FDataHoraFim write FDataHoraFim;
     property NomeAgente: string read FNomeAgente write FNomeAgente;
     property TipoAgente: TAITipoAgenteMapa read FTipoAgente write FTipoAgente;
-    property Status: TAIStatusEtapaMapa read FStatus write FStatus;
+    property Status: TAIAgentMemoryStepStatus read FStatus write FStatus;
     property SolicitacaoOriginal: string read FSolicitacaoOriginal write FSolicitacaoOriginal;
     property PedidoRecebido: string read FPedidoRecebido write FPedidoRecebido;
     property PedidoNormalizado: string read FPedidoNormalizado write FPedidoNormalizado;
@@ -134,31 +134,31 @@ type
     property InformacoesPerdidas: TStrings read FInformacoesPerdidas write SetInformacoesPerdidas;
     property InformacoesNovas: TStrings read FInformacoesNovas write SetInformacoesNovas;
     property Alertas: TStrings read FAlertas write SetAlertas;
-    property PerguntasAnalises: TAIPerguntaAnaliseCollection read FPerguntasAnalises write SetPerguntasAnalises;
+    property PerguntasAnalises: TAIAnalysisQuestionCollection read FPerguntasAnalises write SetPerguntasAnalises;
     property Confianca: Double read FConfianca write FConfianca;
     property Erro: string read FErro write FErro;
     property RawJSON: string read FRawJSON write FRawJSON;
   end;
 
-  { TAIMapaDeMemoriaCollection }
-  TAIMapaDeMemoriaCollection = class(TCollection)
+  { TAIAgentMemoryMapCollection }
+  TAIAgentMemoryMapCollection = class(TCollection)
   private
     FOwnerComponent: TComponent;
-    function GetItem(Index: Integer): TAIMapaDeMemoriaItem;
-    procedure SetItem(Index: Integer; Value: TAIMapaDeMemoriaItem);
+    function GetItem(Index: Integer): TAIAgentMemoryMapItem;
+    procedure SetItem(Index: Integer; Value: TAIAgentMemoryMapItem);
   protected
     function GetOwner: TPersistent; override;
   public
     constructor Create(AOwner: TComponent);
-    function Add: TAIMapaDeMemoriaItem;
-    function FindByOrder(AOrdem: Integer): TAIMapaDeMemoriaItem;
-    function FindLastByAgentName(const ANomeAgente: string): TAIMapaDeMemoriaItem;
-    function FindLastByAgentType(ATipo: TAITipoAgenteMapa): TAIMapaDeMemoriaItem;
+    function Add: TAIAgentMemoryMapItem;
+    function FindByOrder(AOrdem: Integer): TAIAgentMemoryMapItem;
+    function FindLastByAgentName(const ANomeAgente: string): TAIAgentMemoryMapItem;
+    function FindLastByAgentType(ATipo: TAITipoAgenteMapa): TAIAgentMemoryMapItem;
     function AsText: string;
-    property Items[Index: Integer]: TAIMapaDeMemoriaItem read GetItem write SetItem; default;
+    property Items[Index: Integer]: TAIAgentMemoryMapItem read GetItem write SetItem; default;
   end;
 
-  { Events for TAIMapaDeMemoria }
+  { Events for TAIAgentMemoryMap }
   TAIMapaBeforeCreateStepEvent = procedure(
     Sender: TObject;
     const ANomeAgente: string;
@@ -168,12 +168,12 @@ type
 
   TAIMapaStepEvent = procedure(
     Sender: TObject;
-    AItem: TAIMapaDeMemoriaItem
+    AItem: TAIAgentMemoryMapItem
   ) of object;
 
   TAIMapaInformationLossEvent = procedure(
     Sender: TObject;
-    AItem: TAIMapaDeMemoriaItem;
+    AItem: TAIAgentMemoryMapItem;
     const ALostInfo: string
   ) of object;
 
@@ -182,8 +182,8 @@ type
     const AMessage: string
   ) of object;
 
-  { TAIMapaDeMemoria Component }
-  TAIMapaDeMemoria = class(TAIBaseComponent)
+  { TAIAgentMemoryMap Component }
+  TAIAgentMemoryMap = class(TAIBaseComponent)
   private
     FSessionId: string;
     FFlowName: string;
@@ -198,8 +198,8 @@ type
     FStoreFullResponse: Boolean;
     FDetectInformationLoss: Boolean;
     FRedactSensitiveData: Boolean;
-    FItems: TAIMapaDeMemoriaCollection;
-    FLastItem: TAIMapaDeMemoriaItem;
+    FItems: TAIAgentMemoryMapCollection;
+    FLastItem: TAIAgentMemoryMapItem;
     FLastWarning: string;
     // Events
     FOnBeforeCreateStep: TAIMapaBeforeCreateStepEvent;
@@ -208,7 +208,7 @@ type
     FOnAfterCloseStep: TAIMapaStepEvent;
     FOnInformationLossDetected: TAIMapaInformationLossEvent;
     FOnMemoryMapLog: TAIMapaLogEvent;
-    procedure SetItems(AValue: TAIMapaDeMemoriaCollection);
+    procedure SetItems(AValue: TAIAgentMemoryMapCollection);
     procedure SetMaxItems(AValue: Integer);
     procedure TrimItemsToMax;
     procedure UpdateCurrentOrderFromItems;
@@ -230,9 +230,9 @@ type
       const APedidoRecebido: string;
       const AContextoRecebido: string = '';
       AOrdemPai: Integer = 0
-    ): TAIMapaDeMemoriaItem;
+    ): TAIAgentMemoryMapItem;
     procedure EndAgentStep(
-      AItem: TAIMapaDeMemoriaItem;
+      AItem: TAIAgentMemoryMapItem;
       const AAnalise: string;
       const AExplicacao: string;
       const AAcaoTomada: string;
@@ -240,7 +240,7 @@ type
       const AResumoParaProximoAgente: string = ''
     );
     procedure AddQuestion(
-      AItem: TAIMapaDeMemoriaItem;
+      AItem: TAIAgentMemoryMapItem;
       const APergunta: string;
       const AResposta: string;
       const AAnalise: string;
@@ -248,12 +248,12 @@ type
       const AConfianca: Double = 0
     );
     procedure AddActionParam(
-      AItem: TAIMapaDeMemoriaItem;
+      AItem: TAIAgentMemoryMapItem;
       const AName: string;
       const AValue: string
     );
     function CheckInformationLoss(
-      AItem: TAIMapaDeMemoriaItem;
+      AItem: TAIAgentMemoryMapItem;
       out ALostInfo: string
     ): Boolean;
     function BuildContextForAgent(
@@ -279,8 +279,8 @@ type
     property StoreFullResponse: Boolean read FStoreFullResponse write FStoreFullResponse default False;
     property DetectInformationLoss: Boolean read FDetectInformationLoss write FDetectInformationLoss default True;
     property RedactSensitiveData: Boolean read FRedactSensitiveData write FRedactSensitiveData default True;
-    property Items: TAIMapaDeMemoriaCollection read FItems write SetItems;
-    property LastItem: TAIMapaDeMemoriaItem read FLastItem;
+    property Items: TAIAgentMemoryMapCollection read FItems write SetItems;
+    property LastItem: TAIAgentMemoryMapItem read FLastItem;
     property LastWarning: string read FLastWarning write FLastWarning;
     // Events
     property OnBeforeCreateStep: TAIMapaBeforeCreateStepEvent read FOnBeforeCreateStep write FOnBeforeCreateStep;
@@ -291,13 +291,22 @@ type
     property OnMemoryMapLog: TAIMapaLogEvent read FOnMemoryMapLog write FOnMemoryMapLog;
   end;
 
+
+type
+  TAIMapaDeMemoria = TAIAgentMemoryMap;
+  TAIMapaDeMemoriaItem = TAIAgentMemoryMapItem;
+  TAIMapaDeMemoriaCollection = TAIAgentMemoryMapCollection;
+  TAIStatusEtapaMapa = TAIAgentMemoryStepStatus;
+  TAIPerguntaAnaliseItem = TAIAnalysisQuestionItem;
+  TAIPerguntaAnaliseCollection = TAIAnalysisQuestionCollection;
+
 procedure Register;
 
 implementation
 
 procedure Register;
 begin
-  RegisterComponents('AI Agents', [TAIMapaDeMemoria]);
+  RegisterComponents('AI Agents', [TAIAgentMemoryMap]);
 end;
 
 function DateTimeToJSONText(const AValue: TDateTime): string;
@@ -459,7 +468,7 @@ begin
     Result := D.AsBoolean;
 end;
 
-function CreatePerguntaJSONObject(AItem: TAIPerguntaAnaliseItem): TJSONObject;
+function CreatePerguntaJSONObject(AItem: TAIAnalysisQuestionItem): TJSONObject;
 begin
   Result := TJSONObject.Create;
   if AItem = nil then
@@ -473,7 +482,7 @@ begin
   Result.Add('confianca', AItem.Confianca);
 end;
 
-function CreateMapaItemJSONObject(AItem: TAIMapaDeMemoriaItem): TJSONObject;
+function CreateMapaItemJSONObject(AItem: TAIAgentMemoryMapItem): TJSONObject;
 var
   Arr: TJSONArray;
   I: Integer;
@@ -517,12 +526,12 @@ begin
   Result.Add('perguntas', Arr);
 end;
 
-procedure LoadPerguntasFromJSONArray(ACollection: TAIPerguntaAnaliseCollection; AData: TJSONData);
+procedure LoadPerguntasFromJSONArray(ACollection: TAIAnalysisQuestionCollection; AData: TJSONData);
 var
   I: Integer;
   Arr: TJSONArray;
   Obj: TJSONObject;
-  Item: TAIPerguntaAnaliseItem;
+  Item: TAIAnalysisQuestionItem;
 begin
   if not Assigned(ACollection) then
     Exit;
@@ -647,15 +656,15 @@ begin
   Result := OutText;
 end;
 
-{ TAIPerguntaAnaliseItem }
+{ TAIAnalysisQuestionItem }
 
-procedure TAIPerguntaAnaliseItem.Assign(Source: TPersistent);
+procedure TAIAnalysisQuestionItem.Assign(Source: TPersistent);
 var
-  S: TAIPerguntaAnaliseItem;
+  S: TAIAnalysisQuestionItem;
 begin
-  if Source is TAIPerguntaAnaliseItem then
+  if Source is TAIAnalysisQuestionItem then
   begin
-    S := TAIPerguntaAnaliseItem(Source);
+    S := TAIAnalysisQuestionItem(Source);
     FOrdem := S.Ordem;
     FPergunta := S.Pergunta;
     FResposta := S.Resposta;
@@ -667,36 +676,36 @@ begin
     inherited Assign(Source);
 end;
 
-{ TAIPerguntaAnaliseCollection }
+{ TAIAnalysisQuestionCollection }
 
-constructor TAIPerguntaAnaliseCollection.Create;
+constructor TAIAnalysisQuestionCollection.Create;
 begin
-  inherited Create(TAIPerguntaAnaliseItem);
+  inherited Create(TAIAnalysisQuestionItem);
 end;
 
-function TAIPerguntaAnaliseCollection.GetItem(Index: Integer): TAIPerguntaAnaliseItem;
+function TAIAnalysisQuestionCollection.GetItem(Index: Integer): TAIAnalysisQuestionItem;
 begin
-  Result := TAIPerguntaAnaliseItem(inherited GetItem(Index));
+  Result := TAIAnalysisQuestionItem(inherited GetItem(Index));
 end;
 
-procedure TAIPerguntaAnaliseCollection.SetItem(Index: Integer; Value: TAIPerguntaAnaliseItem);
+procedure TAIAnalysisQuestionCollection.SetItem(Index: Integer; Value: TAIAnalysisQuestionItem);
 begin
   inherited SetItem(Index, Value);
 end;
 
-function TAIPerguntaAnaliseCollection.Add: TAIPerguntaAnaliseItem;
+function TAIAnalysisQuestionCollection.Add: TAIAnalysisQuestionItem;
 begin
-  Result := TAIPerguntaAnaliseItem(inherited Add);
+  Result := TAIAnalysisQuestionItem(inherited Add);
   Result.Ordem := Count;
 end;
 
-function TAIPerguntaAnaliseCollection.AddPergunta(
+function TAIAnalysisQuestionCollection.AddPergunta(
   const APergunta: string;
   const AResposta: string;
   const AAnalise: string;
   const AOrigem: string;
   const AConfianca: Double
-): TAIPerguntaAnaliseItem;
+): TAIAnalysisQuestionItem;
 begin
   Result := Add;
   Result.Pergunta := APergunta;
@@ -706,7 +715,7 @@ begin
   Result.Confianca := AConfianca;
 end;
 
-function TAIPerguntaAnaliseCollection.AsText: string;
+function TAIAnalysisQuestionCollection.AsText: string;
 var
   I: Integer;
 begin
@@ -724,9 +733,9 @@ begin
   end;
 end;
 
-{ TAIMapaDeMemoriaItem }
+{ TAIAgentMemoryMapItem }
 
-constructor TAIMapaDeMemoriaItem.Create(ACollection: TCollection);
+constructor TAIAgentMemoryMapItem.Create(ACollection: TCollection);
 begin
   inherited Create(ACollection);
   FParametrosAcao := TStringList.Create;
@@ -734,11 +743,11 @@ begin
   FInformacoesPerdidas := TStringList.Create;
   FInformacoesNovas := TStringList.Create;
   FAlertas := TStringList.Create;
-  FPerguntasAnalises := TAIPerguntaAnaliseCollection.Create;
+  FPerguntasAnalises := TAIAnalysisQuestionCollection.Create;
   Clear;
 end;
 
-destructor TAIMapaDeMemoriaItem.Destroy;
+destructor TAIAgentMemoryMapItem.Destroy;
 begin
   FParametrosAcao.Free;
   FInformacoesPreservadas.Free;
@@ -749,13 +758,13 @@ begin
   inherited Destroy;
 end;
 
-procedure TAIMapaDeMemoriaItem.Assign(Source: TPersistent);
+procedure TAIAgentMemoryMapItem.Assign(Source: TPersistent);
 var
-  S: TAIMapaDeMemoriaItem;
+  S: TAIAgentMemoryMapItem;
 begin
-  if Source is TAIMapaDeMemoriaItem then
+  if Source is TAIAgentMemoryMapItem then
   begin
-    S := TAIMapaDeMemoriaItem(Source);
+    S := TAIAgentMemoryMapItem(Source);
     FOrdem := S.Ordem;
     FOrdemPai := S.OrdemPai;
     FDataHoraInicio := S.DataHoraInicio;
@@ -786,7 +795,7 @@ begin
     inherited Assign(Source);
 end;
 
-procedure TAIMapaDeMemoriaItem.Clear;
+procedure TAIAgentMemoryMapItem.Clear;
 begin
   FOrdem := 0;
   FOrdemPai := 0;
@@ -815,7 +824,7 @@ begin
   FRawJSON := '';
 end;
 
-function TAIMapaDeMemoriaItem.AsText: string;
+function TAIAgentMemoryMapItem.AsText: string;
 var
   SB: TStringBuilder;
 begin
@@ -823,7 +832,7 @@ begin
   try
     SB.AppendLine(Format('Order: %d (Parent: %d)', [FOrdem, FOrdemPai]));
     SB.AppendLine(Format('Agent: %s [Type: %d]', [FNomeAgente, Ord(FTipoAgente)]));
-    SB.AppendLine('Status: ' + GetEnumName(TypeInfo(TAIStatusEtapaMapa), Ord(FStatus)));
+    SB.AppendLine('Status: ' + GetEnumName(TypeInfo(TAIAgentMemoryStepStatus), Ord(FStatus)));
     if FDataHoraInicio > 0 then SB.AppendLine('Start: ' + DateTimeToStr(FDataHoraInicio));
     if FDataHoraFim > 0 then SB.AppendLine('Fim: ' + DateTimeToStr(FDataHoraFim));
     if FSolicitacaoOriginal <> '' then SB.AppendLine('Original Request: ' + FSolicitacaoOriginal);
@@ -857,7 +866,7 @@ begin
   end;
 end;
 
-function TAIMapaDeMemoriaItem.AsJSON: string;
+function TAIAgentMemoryMapItem.AsJSON: string;
 var
   Obj: TJSONObject;
 begin
@@ -869,12 +878,12 @@ begin
   end;
 end;
 
-function TAIMapaDeMemoriaItem.HasInformationLoss: Boolean;
+function TAIAgentMemoryMapItem.HasInformationLoss: Boolean;
 begin
   Result := FInformacoesPerdidas.Count > 0;
 end;
 
-procedure TAIMapaDeMemoriaItem.AddPerguntaAnalise(
+procedure TAIAgentMemoryMapItem.AddPerguntaAnalise(
   const APergunta: string;
   const AResposta: string;
   const AAnalise: string;
@@ -885,31 +894,31 @@ begin
   FPerguntasAnalises.AddPergunta(APergunta, AResposta, AAnalise, AOrigem, AConfianca);
 end;
 
-procedure TAIMapaDeMemoriaItem.AddInformacaoPreservada(const AInfo: string);
+procedure TAIAgentMemoryMapItem.AddInformacaoPreservada(const AInfo: string);
 begin
   if (Trim(AInfo) <> '') and (FInformacoesPreservadas.IndexOf(AInfo) < 0) then
     FInformacoesPreservadas.Add(AInfo);
 end;
 
-procedure TAIMapaDeMemoriaItem.AddInformacaoPerdida(const AInfo: string);
+procedure TAIAgentMemoryMapItem.AddInformacaoPerdida(const AInfo: string);
 begin
   if (Trim(AInfo) <> '') and (FInformacoesPerdidas.IndexOf(AInfo) < 0) then
     FInformacoesPerdidas.Add(AInfo);
 end;
 
-procedure TAIMapaDeMemoriaItem.AddInformacaoNova(const AInfo: string);
+procedure TAIAgentMemoryMapItem.AddInformacaoNova(const AInfo: string);
 begin
   if (Trim(AInfo) <> '') and (FInformacoesNovas.IndexOf(AInfo) < 0) then
     FInformacoesNovas.Add(AInfo);
 end;
 
-procedure TAIMapaDeMemoriaItem.AddAlerta(const AAlerta: string);
+procedure TAIAgentMemoryMapItem.AddAlerta(const AAlerta: string);
 begin
   if (Trim(AAlerta) <> '') and (FAlertas.IndexOf(AAlerta) < 0) then
     FAlertas.Add(AAlerta);
 end;
 
-procedure TAIMapaDeMemoriaItem.SetParametrosAcao(AValue: TStrings);
+procedure TAIAgentMemoryMapItem.SetParametrosAcao(AValue: TStrings);
 begin
   if Assigned(AValue) then
     FParametrosAcao.Assign(AValue)
@@ -917,7 +926,7 @@ begin
     FParametrosAcao.Clear;
 end;
 
-procedure TAIMapaDeMemoriaItem.SetInformacoesPreservadas(AValue: TStrings);
+procedure TAIAgentMemoryMapItem.SetInformacoesPreservadas(AValue: TStrings);
 begin
   if Assigned(AValue) then
     FInformacoesPreservadas.Assign(AValue)
@@ -925,7 +934,7 @@ begin
     FInformacoesPreservadas.Clear;
 end;
 
-procedure TAIMapaDeMemoriaItem.SetInformacoesPerdidas(AValue: TStrings);
+procedure TAIAgentMemoryMapItem.SetInformacoesPerdidas(AValue: TStrings);
 begin
   if Assigned(AValue) then
     FInformacoesPerdidas.Assign(AValue)
@@ -933,7 +942,7 @@ begin
     FInformacoesPerdidas.Clear;
 end;
 
-procedure TAIMapaDeMemoriaItem.SetInformacoesNovas(AValue: TStrings);
+procedure TAIAgentMemoryMapItem.SetInformacoesNovas(AValue: TStrings);
 begin
   if Assigned(AValue) then
     FInformacoesNovas.Assign(AValue)
@@ -941,7 +950,7 @@ begin
     FInformacoesNovas.Clear;
 end;
 
-procedure TAIMapaDeMemoriaItem.SetAlertas(AValue: TStrings);
+procedure TAIAgentMemoryMapItem.SetAlertas(AValue: TStrings);
 begin
   if Assigned(AValue) then
     FAlertas.Assign(AValue)
@@ -949,7 +958,7 @@ begin
     FAlertas.Clear;
 end;
 
-procedure TAIMapaDeMemoriaItem.SetPerguntasAnalises(AValue: TAIPerguntaAnaliseCollection);
+procedure TAIAgentMemoryMapItem.SetPerguntasAnalises(AValue: TAIAnalysisQuestionCollection);
 begin
   if Assigned(AValue) then
     FPerguntasAnalises.Assign(AValue)
@@ -957,35 +966,35 @@ begin
     FPerguntasAnalises.Clear;
 end;
 
-{ TAIMapaDeMemoriaCollection }
+{ TAIAgentMemoryMapCollection }
 
-constructor TAIMapaDeMemoriaCollection.Create(AOwner: TComponent);
+constructor TAIAgentMemoryMapCollection.Create(AOwner: TComponent);
 begin
-  inherited Create(TAIMapaDeMemoriaItem);
+  inherited Create(TAIAgentMemoryMapItem);
   FOwnerComponent := AOwner;
 end;
 
-function TAIMapaDeMemoriaCollection.GetItem(Index: Integer): TAIMapaDeMemoriaItem;
+function TAIAgentMemoryMapCollection.GetItem(Index: Integer): TAIAgentMemoryMapItem;
 begin
-  Result := TAIMapaDeMemoriaItem(inherited GetItem(Index));
+  Result := TAIAgentMemoryMapItem(inherited GetItem(Index));
 end;
 
-procedure TAIMapaDeMemoriaCollection.SetItem(Index: Integer; Value: TAIMapaDeMemoriaItem);
+procedure TAIAgentMemoryMapCollection.SetItem(Index: Integer; Value: TAIAgentMemoryMapItem);
 begin
   inherited SetItem(Index, Value);
 end;
 
-function TAIMapaDeMemoriaCollection.GetOwner: TPersistent;
+function TAIAgentMemoryMapCollection.GetOwner: TPersistent;
 begin
   Result := FOwnerComponent;
 end;
 
-function TAIMapaDeMemoriaCollection.Add: TAIMapaDeMemoriaItem;
+function TAIAgentMemoryMapCollection.Add: TAIAgentMemoryMapItem;
 begin
-  Result := TAIMapaDeMemoriaItem(inherited Add);
+  Result := TAIAgentMemoryMapItem(inherited Add);
 end;
 
-function TAIMapaDeMemoriaCollection.FindByOrder(AOrdem: Integer): TAIMapaDeMemoriaItem;
+function TAIAgentMemoryMapCollection.FindByOrder(AOrdem: Integer): TAIAgentMemoryMapItem;
 var
   I: Integer;
 begin
@@ -1000,7 +1009,7 @@ begin
   end;
 end;
 
-function TAIMapaDeMemoriaCollection.FindLastByAgentName(const ANomeAgente: string): TAIMapaDeMemoriaItem;
+function TAIAgentMemoryMapCollection.FindLastByAgentName(const ANomeAgente: string): TAIAgentMemoryMapItem;
 var
   I: Integer;
 begin
@@ -1015,7 +1024,7 @@ begin
   end;
 end;
 
-function TAIMapaDeMemoriaCollection.FindLastByAgentType(ATipo: TAITipoAgenteMapa): TAIMapaDeMemoriaItem;
+function TAIAgentMemoryMapCollection.FindLastByAgentType(ATipo: TAITipoAgenteMapa): TAIAgentMemoryMapItem;
 var
   I: Integer;
 begin
@@ -1030,7 +1039,7 @@ begin
   end;
 end;
 
-function TAIMapaDeMemoriaCollection.AsText: string;
+function TAIAgentMemoryMapCollection.AsText: string;
 var
   I: Integer;
 begin
@@ -1039,13 +1048,13 @@ begin
     Result := Result + Items[I].AsText + sLineBreak + '--------------------' + sLineBreak;
 end;
 
-{ TAIMapaDeMemoria }
+{ TAIAgentMemoryMap }
 
-constructor TAIMapaDeMemoria.Create(AOwner: TComponent);
+constructor TAIAgentMemoryMap.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FCategory := ccOther;
-  FItems := TAIMapaDeMemoriaCollection.Create(Self);
+  FItems := TAIAgentMemoryMapCollection.Create(Self);
   FAutoIncrementOrder := True;
   FCurrentOrder := 0;
   FMaxItems := 100;
@@ -1063,13 +1072,13 @@ begin
   FOrigem := '';
 end;
 
-destructor TAIMapaDeMemoria.Destroy;
+destructor TAIAgentMemoryMap.Destroy;
 begin
   FItems.Free;
   inherited Destroy;
 end;
 
-function TAIMapaDeMemoria.NewSessionId: string;
+function TAIAgentMemoryMap.NewSessionId: string;
 var
   G: TGUID;
 begin
@@ -1079,7 +1088,7 @@ begin
     Result := FormatDateTime('yyyymmddhhnnsszzz', Now) + '-' + IntToStr(Random(1000000));
 end;
 
-function TAIMapaDeMemoria.SafeText(const AText: string): string;
+function TAIAgentMemoryMap.SafeText(const AText: string): string;
 begin
   if FRedactSensitiveData then
     Result := RedactSensitiveText(AText)
@@ -1087,7 +1096,7 @@ begin
     Result := AText;
 end;
 
-procedure TAIMapaDeMemoria.SetItems(AValue: TAIMapaDeMemoriaCollection);
+procedure TAIAgentMemoryMap.SetItems(AValue: TAIAgentMemoryMapCollection);
 begin
   if Assigned(AValue) then
     FItems.Assign(AValue)
@@ -1098,7 +1107,7 @@ begin
   UpdateCurrentOrderFromItems;
 end;
 
-procedure TAIMapaDeMemoria.SetMaxItems(AValue: Integer);
+procedure TAIAgentMemoryMap.SetMaxItems(AValue: Integer);
 begin
   if AValue < 1 then
     AValue := 1;
@@ -1107,7 +1116,7 @@ begin
   TrimItemsToMax;
 end;
 
-procedure TAIMapaDeMemoria.TrimItemsToMax;
+procedure TAIAgentMemoryMap.TrimItemsToMax;
 begin
   if not Assigned(FItems) then
     Exit;
@@ -1121,7 +1130,7 @@ begin
     FLastItem := nil;
 end;
 
-procedure TAIMapaDeMemoria.UpdateCurrentOrderFromItems;
+procedure TAIAgentMemoryMap.UpdateCurrentOrderFromItems;
 var
   I: Integer;
 begin
@@ -1136,14 +1145,14 @@ begin
   end;
 end;
 
-procedure TAIMapaDeMemoria.DoMapLog(const AMessage: string);
+procedure TAIAgentMemoryMap.DoMapLog(const AMessage: string);
 begin
   if Assigned(FOnMemoryMapLog) then
     FOnMemoryMapLog(Self, AMessage);
   Log(llInfo, AMessage);
 end;
 
-procedure TAIMapaDeMemoria.StartFlow(
+procedure TAIAgentMemoryMap.StartFlow(
   const ASolicitacaoOriginal: string;
   const AFlowName: string;
   const AUsuario: string;
@@ -1165,13 +1174,13 @@ begin
   DoMapLog(Format('Flow started: %s (Session: %s)', [FFlowName, FSessionId]));
 end;
 
-function TAIMapaDeMemoria.BeginAgentStep(
+function TAIAgentMemoryMap.BeginAgentStep(
   const ANomeAgente: string;
   ATipoAgente: TAITipoAgenteMapa;
   const APedidoRecebido: string;
   const AContextoRecebido: string;
   AOrdemPai: Integer
-): TAIMapaDeMemoriaItem;
+): TAIAgentMemoryMapItem;
 var
   CanCreate: Boolean;
   ProposedOrder: Integer;
@@ -1231,8 +1240,8 @@ begin
     FOnAfterCreateStep(Self, Result);
 end;
 
-procedure TAIMapaDeMemoria.EndAgentStep(
-  AItem: TAIMapaDeMemoriaItem;
+procedure TAIAgentMemoryMap.EndAgentStep(
+  AItem: TAIAgentMemoryMapItem;
   const AAnalise: string;
   const AExplicacao: string;
   const AAcaoTomada: string;
@@ -1289,8 +1298,8 @@ begin
     FOnAfterCloseStep(Self, AItem);
 end;
 
-procedure TAIMapaDeMemoria.AddQuestion(
-  AItem: TAIMapaDeMemoriaItem;
+procedure TAIAgentMemoryMap.AddQuestion(
+  AItem: TAIAgentMemoryMapItem;
   const APergunta: string;
   const AResposta: string;
   const AAnalise: string;
@@ -1312,8 +1321,8 @@ begin
     SetError('AddQuestion received AItem=nil.');
 end;
 
-procedure TAIMapaDeMemoria.AddActionParam(
-  AItem: TAIMapaDeMemoriaItem;
+procedure TAIAgentMemoryMap.AddActionParam(
+  AItem: TAIAgentMemoryMapItem;
   const AName: string;
   const AValue: string
 );
@@ -1326,8 +1335,8 @@ begin
     SetError('AddActionParam received AItem=nil.');
 end;
 
-function TAIMapaDeMemoria.CheckInformationLoss(
-  AItem: TAIMapaDeMemoriaItem;
+function TAIAgentMemoryMap.CheckInformationLoss(
+  AItem: TAIAgentMemoryMapItem;
   out ALostInfo: string
 ): Boolean;
 var
@@ -1383,7 +1392,7 @@ begin
   end;
 end;
 
-function TAIMapaDeMemoria.BuildContextForAgent(
+function TAIAgentMemoryMap.BuildContextForAgent(
   const ANomeAgente: string;
   ATipoAgente: TAITipoAgenteMapa;
   const AMaxSteps: Integer
@@ -1391,7 +1400,7 @@ function TAIMapaDeMemoria.BuildContextForAgent(
 var
   SB: TStringBuilder;
   I, StartIdx, MaxSteps: Integer;
-  Item: TAIMapaDeMemoriaItem;
+  Item: TAIAgentMemoryMapItem;
 begin
   SB := TStringBuilder.Create;
   try
@@ -1447,7 +1456,7 @@ begin
   end;
 end;
 
-function TAIMapaDeMemoria.AsText: string;
+function TAIAgentMemoryMap.AsText: string;
 begin
   Result :=
     '=== MEMORY MAP ===' + sLineBreak +
@@ -1460,7 +1469,7 @@ begin
     FItems.AsText;
 end;
 
-function TAIMapaDeMemoria.AsJSON: string;
+function TAIAgentMemoryMap.AsJSON: string;
 var
   Obj: TJSONObject;
   Arr: TJSONArray;
@@ -1494,7 +1503,7 @@ begin
   end;
 end;
 
-procedure TAIMapaDeMemoria.SaveToFile(const AFileName: string);
+procedure TAIAgentMemoryMap.SaveToFile(const AFileName: string);
 var
   L: TStringList;
 begin
@@ -1521,7 +1530,7 @@ begin
   end;
 end;
 
-procedure TAIMapaDeMemoria.LoadFromFile(const AFileName: string);
+procedure TAIAgentMemoryMap.LoadFromFile(const AFileName: string);
 var
   L: TStringList;
   Parser: TJSONParser;
@@ -1529,7 +1538,7 @@ var
   Obj, StepObj: TJSONObject;
   Arr: TJSONArray;
   I, MaxOrder: Integer;
-  Item: TAIMapaDeMemoriaItem;
+  Item: TAIAgentMemoryMapItem;
 begin
   ClearError;
 
@@ -1600,7 +1609,7 @@ begin
           Item.DataHoraFim := JSONGetFloat(StepObj, 'data_hora_fim_value', 0);
           Item.NomeAgente := JSONGetString(StepObj, 'nome_agente', '');
           Item.TipoAgente := TAITipoAgenteMapa(JSONGetInteger(StepObj, 'tipo_agente', Ord(tamIndefinido)));
-          Item.Status := TAIStatusEtapaMapa(JSONGetInteger(StepObj, 'status', Ord(semIniciada)));
+          Item.Status := TAIAgentMemoryStepStatus(JSONGetInteger(StepObj, 'status', Ord(semIniciada)));
           Item.SolicitacaoOriginal := JSONGetString(StepObj, 'solicitacao_original', FSolicitacaoOriginal);
           Item.PedidoRecebido := JSONGetString(StepObj, 'pedido_recebido', '');
           Item.PedidoNormalizado := JSONGetString(StepObj, 'pedido_normalizado', '');
@@ -1656,7 +1665,7 @@ begin
 end;
 
 initialization
-  {$I taimapadememoria_icon.lrs}
+  {$I taiagentmemorymap_icon.lrs}
 
 end.
 

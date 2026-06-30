@@ -4,6 +4,8 @@ This directory contains the complete suite of Lazarus components under the **AI 
 
 ---
 
+> **Compatibility:** the old aliases `TAIMapaDeMemoria`, `TAIMapaDeMemoriaItem`, `TAIMapaDeMemoriaCollection` and the `MapaDeMemoria` property have been temporarily retained to avoid breaking existing projects.
+
 ## 📋 Component Index
 
 - [TAIAgent](#taiagent)
@@ -16,7 +18,7 @@ This directory contains the complete suite of Lazarus components under the **AI 
 - [TAIDecisionAgent](#taidecisionagent)
 - [TAIActionBuilderAgent](#taiactionbuilderagent)
 - [TAIActionExecutor](#taiactionexecutor)
-- [TAIMapaDeMemoria](#taimapadememoria)
+- [TAIAgentMemoryMap](#taimapadememoria)
 - [TAIAgentSafety](#taiagentsafety)
 - [TAIPipeline](#taipipeline)
 - [TAIWizardConfig](#taiwizardconfig)
@@ -111,7 +113,7 @@ This directory contains the complete suite of Lazarus components under the **AI 
 
 - **Properties (Published):**
   - `ChatGPT: TCHATGPT` - Conector to the LLM model.
-  - `MapaDeMemoria: TAIMapaDeMemoria` - Shared operational memory map.
+  - `MemoryMap: TAIAgentMemoryMap` - Shared operational memory map.
   - `CriarMapaAutomaticamente: Boolean` - Automatically instances a local memory map if none is linked.
   - `Classifier: TAIClassifierAgent` - Linked classification specialist.
   - `DecisionAgent: TAIDecisionAgent` - Linked action plan planner.
@@ -190,7 +192,7 @@ This directory contains the complete suite of Lazarus components under the **AI 
 
 - **Properties (Published):**
   - `ChatGPT: TCHATGPT` - Linked ChatGPT component.
-  - `MapaDeMemoria: TAIMapaDeMemoria` - Linked memory map.
+  - `MemoryMap: TAIAgentMemoryMap` - Linked memory map.
   - `NomeAgente: string` - Agent identifier.
   - `ForcarSimulacaoGlobal: Boolean` - Forces mock/simulation mode globally (no physical changes will occur).
   - `AutoRegistrarNoMapa: Boolean` - Automatically registers logs in the memory map.
@@ -210,14 +212,14 @@ This directory contains the complete suite of Lazarus components under the **AI 
 
 ---
 
-### TAIMapaDeMemoria
+### TAIAgentMemoryMap
 
 **Function:** Context preservation ledger. Logs multi-agent steps and implements information loss protection algorithms.
 
 - **Properties (Published):**
   - `SessionId: string` - Current session ID identifier.
   - `FlowName: string` - Flow stage identifier.
-  - `Items: TAIMapaDeMemoriaItem` - List of steps taken (requests, rationale, outputs, confidence).
+  - `Items: TAIAgentMemoryMapItem` - List of steps taken (requests, rationale, outputs, confidence).
   - `DetectInformationLoss: Boolean` - Checks intermediate stages to detect if the LLM forgot key data (like email addresses or tokens) provided by the user originally.
 - **Methods (Public):**
   - `StartFlow(const AFlowName: string; const AInput: string)` - Logs initial user input and workflow name.

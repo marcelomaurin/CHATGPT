@@ -163,7 +163,7 @@ type
 
     { Components }
     FChatGPT: TCHATGPT;
-    FMapaDeMemoria: TAIMapaDeMemoria;
+    FMemoryMap: TAIAgentMemoryMap;
     FClassifierAgent: TAIClassifierAgent;
     FTaskPlannerAgent: TAIDecisionAgent;
     FTaskProcessorAgent: TAIDecisionAgent;
@@ -208,14 +208,14 @@ type
     function LoadTasksFromPlannerJSON(const AJSON: string): Boolean;
     function CanExecuteTask(ATask: TSampleTaskItem; out AError: string): Boolean;
     procedure ExecuteTaskFallback(ATask: TSampleTaskItem);
-    procedure ShowAgentStep(AItem: TAIMapaDeMemoriaItem);
+    procedure ShowAgentStep(AItem: TAIAgentMemoryMapItem);
     function DispatchPreparedActions(const APreparedActionsJSON: string): Boolean;
 
     { Events }
-    procedure OnMapaAfterCreateStep(Sender: TObject; AItem: TAIMapaDeMemoriaItem);
-    procedure OnMapaAfterCloseStep(Sender: TObject; AItem: TAIMapaDeMemoriaItem);
-    procedure OnMapaInformationLossDetected(Sender: TObject; AItem: TAIMapaDeMemoriaItem; const ALostInfo: string);
-    procedure OnMapaLog(Sender: TObject; const AMessage: string);
+    procedure OnMemoryMapAfterCreateStep(Sender: TObject; AItem: TAIAgentMemoryMapItem);
+    procedure OnMemoryMapAfterCloseStep(Sender: TObject; AItem: TAIAgentMemoryMapItem);
+    procedure OnMemoryMapInformationLossDetected(Sender: TObject; AItem: TAIAgentMemoryMapItem; const ALostInfo: string);
+    procedure OnMemoryMapLog(Sender: TObject; const AMessage: string);
   public
 
   end;
@@ -381,41 +381,41 @@ begin
   { Actions wiring }
   FCreateWordAction := TSampleCreateWordAction.Create(Self);
   FCreateWordAction.WordOutput := FWordOutput;
-  FCreateWordAction.MapaDeMemoria := FMapaDeMemoria;
+  FCreateWordAction.MemoryMap := FMemoryMap;
 
   FSendEmailAction := TSampleSendEmailAction.Create(Self);
   FSendEmailAction.EmailClient := FEmailClient;
-  FSendEmailAction.MapaDeMemoria := FMapaDeMemoria;
+  FSendEmailAction.MemoryMap := FMemoryMap;
 
   FRegisterResultAction := TSampleRegisterResultAction.Create(Self);
-  FRegisterResultAction.MapaDeMemoria := FMapaDeMemoria;
+  FRegisterResultAction.MemoryMap := FMemoryMap;
 
   { Setup agents configs }
   FClassifierAgent.ChatGPT := FChatGPT;
-  FClassifierAgent.MapaDeMemoria := FMapaDeMemoria;
+  FClassifierAgent.MemoryMap := FMemoryMap;
   FClassifierAgent.NomeAgente := 'classifier_agent';
 
   FTaskPlannerAgent.ChatGPT := FChatGPT;
-  FTaskPlannerAgent.MapaDeMemoria := FMapaDeMemoria;
+  FTaskPlannerAgent.MemoryMap := FMemoryMap;
   FTaskPlannerAgent.NomeAgente := 'task_planner_agent';
 
   FTaskProcessorAgent.ChatGPT := FChatGPT;
-  FTaskProcessorAgent.MapaDeMemoria := FMapaDeMemoria;
+  FTaskProcessorAgent.MemoryMap := FMemoryMap;
   FTaskProcessorAgent.NomeAgente := 'task_processor_agent';
 
   FActionBuilderAgent.ChatGPT := FChatGPT;
-  FActionBuilderAgent.MapaDeMemoria := FMapaDeMemoria;
+  FActionBuilderAgent.MemoryMap := FMemoryMap;
   FActionBuilderAgent.NomeAgente := 'action_builder_agent';
 
   FActionExecutor.ChatGPT := FChatGPT;
-  FActionExecutor.MapaDeMemoria := FMapaDeMemoria;
+  FActionExecutor.MemoryMap := FMemoryMap;
   FActionExecutor.NomeAgente := 'action_executor';
 
   { Map events }
-  FMapaDeMemoria.OnAfterCreateStep := @OnMapaAfterCreateStep;
-  FMapaDeMemoria.OnAfterCloseStep := @OnMapaAfterCloseStep;
-  FMapaDeMemoria.OnInformationLossDetected := @OnMapaInformationLossDetected;
-  FMapaDeMemoria.OnMemoryMapLog := @OnMapaLog;
+  FMemoryMap.OnAfterCreateStep := @OnMemoryMapAfterCreateStep;
+  FMemoryMap.OnAfterCloseStep := @OnMemoryMapAfterCloseStep;
+  FMemoryMap.OnInformationLossDetected := @OnMemoryMapInformationLossDetected;
+  FMemoryMap.OnMemoryMapLog := @OnMemoryMapLog;
 
   LoadDefaultScenario;
   AddLog('Sample inicializado e pronto.');
@@ -552,12 +552,12 @@ end;
 procedure TfrmMain.RefreshMemoryMapGrid;
 var
   i: Integer;
-  Item: TAIMapaDeMemoriaItem;
+  Item: TAIAgentMemoryMapItem;
 begin
-  gridMapaMemoria.RowCount := FMapaDeMemoria.Items.Count + 1;
-  for i := 0 to FMapaDeMemoria.Items.Count - 1 do
+  gridMapaMemoria.RowCount := FMemoryMap.Items.Count + 1;
+  for i := 0 to FMemoryMap.Items.Count - 1 do
   begin
-    Item := FMapaDeMemoria.Items[i];
+    Item := FMemoryMap.Items[i];
     gridMapaMemoria.Cells[0, i + 1] := IntToStr(Item.Ordem);
     gridMapaMemoria.Cells[1, i + 1] := Item.NomeAgente;
     gridMapaMemoria.Cells[2, i + 1] := GetEnumName(TypeInfo(TAITipoAgenteMapa), Ord(Item.TipoAgente));
@@ -617,19 +617,19 @@ end;
 procedure TfrmMain.gridMapaSelection(Sender: TObject; ACol, ARow: Integer);
 var
   Idx: Integer;
-  Item: TAIMapaDeMemoriaItem;
+  Item: TAIAgentMemoryMapItem;
 begin
   Idx := ARow - 1;
-  if (Idx >= 0) and (Idx < FMapaDeMemoria.Items.Count) then
+  if (Idx >= 0) and (Idx < FMemoryMap.Items.Count) then
   begin
-    Item := FMapaDeMemoria.Items[Idx];
+    Item := FMemoryMap.Items[Idx];
     memMapaDetalhe.Text := Item.AsText;
     memPerdasInformacao.Text := Item.InformacoesPerdidas.Text;
     ShowAgentStep(Item);
   end;
 end;
 
-procedure TfrmMain.ShowAgentStep(AItem: TAIMapaDeMemoriaItem);
+procedure TfrmMain.ShowAgentStep(AItem: TAIAgentMemoryMapItem);
 begin
   memEntradaAgente.Text := AItem.PedidoRecebido;
   memPerguntasAgente.Text := AItem.PerguntasAnalises.AsText;
@@ -660,7 +660,7 @@ begin
     ConfigureChatGPT;
     AddLog('Iniciando fluxo de geração de tarefas...');
 
-    FMapaDeMemoria.StartFlow(memPrompt.Text, 'Geração de Tarefas');
+    FMemoryMap.StartFlow(memPrompt.Text, 'Geração de Tarefas');
     CreateDefaultTasks;
 
     // 1. Classify Request
@@ -786,7 +786,7 @@ var
   T: TSampleTaskItem;
   Err: string;
   ProcessorOutput, BuilderOutput, ExecutorOutput: string;
-  AgentStep: TAIMapaDeMemoriaItem;
+  AgentStep: TAIAgentMemoryMapItem;
   ProcessSuccess, ActionsSuccess, ExecSuccess: Boolean;
 begin
   T := GetSelectedTask;
@@ -1053,14 +1053,14 @@ end;
 procedure TfrmMain.btnExportarMapaTextoClick(Sender: TObject);
 begin
   ForceDirectories('output');
-  FMapaDeMemoria.SaveToFile('output/memory_map.txt');
+  FMemoryMap.SaveToFile('output/memory_map.txt');
   ShowMessage('Mapa de Memória exportado como texto em output/memory_map.txt');
 end;
 
 procedure TfrmMain.btnExportarMapaJSONClick(Sender: TObject);
 begin
   ForceDirectories('output');
-  FMapaDeMemoria.SaveToFile('output/memory_map.json');
+  FMemoryMap.SaveToFile('output/memory_map.json');
   ShowMessage('Mapa de Memória exportado como JSON em output/memory_map.json');
 end;
 
@@ -1121,23 +1121,23 @@ end;
 
 { Event methods }
 
-procedure TfrmMain.OnMapaAfterCreateStep(Sender: TObject; AItem: TAIMapaDeMemoriaItem);
+procedure TfrmMain.OnMemoryMapAfterCreateStep(Sender: TObject; AItem: TAIAgentMemoryMapItem);
 begin
   AddLog(Format('[MAPA] Criou etapa para o agente: %s', [AItem.NomeAgente]));
 end;
 
-procedure TfrmMain.OnMapaAfterCloseStep(Sender: TObject; AItem: TAIMapaDeMemoriaItem);
+procedure TfrmMain.OnMemoryMapAfterCloseStep(Sender: TObject; AItem: TAIAgentMemoryMapItem);
 begin
   AddLog(Format('[MAPA] Fechou etapa do agente: %s. Ação: %s', [AItem.NomeAgente, AItem.AcaoTomada]));
   RefreshMemoryMapGrid;
 end;
 
-procedure TfrmMain.OnMapaInformationLossDetected(Sender: TObject; AItem: TAIMapaDeMemoriaItem; const ALostInfo: string);
+procedure TfrmMain.OnMemoryMapInformationLossDetected(Sender: TObject; AItem: TAIAgentMemoryMapItem; const ALostInfo: string);
 begin
   AddLog(Format('[MAPA - ATENÇÃO] Perda de informação na etapa %s: %s', [AItem.NomeAgente, ALostInfo]));
 end;
 
-procedure TfrmMain.OnMapaLog(Sender: TObject; const AMessage: string);
+procedure TfrmMain.OnMemoryMapLog(Sender: TObject; const AMessage: string);
 begin
   AddLog('[MAPA - LOG] ' + AMessage);
 end;

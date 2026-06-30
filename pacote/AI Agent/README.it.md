@@ -4,6 +4,8 @@ Questa cartella contiene la suite completa dei componenti Lazarus sotto la sched
 
 ---
 
+> **Compatibilità:** i vecchi alias `TAIMapaDeMemoria`, `TAIMapaDeMemoriaItem`, `TAIMapaDeMemoriaCollection` e la proprietà `MapaDeMemoria` sono stati temporaneamente mantenuti per non interrompere i progetti esistenti.
+
 ## 📋 Indice dei Componenti
 
 - [TAIAgent](#taiagent)
@@ -16,7 +18,7 @@ Questa cartella contiene la suite completa dei componenti Lazarus sotto la sched
 - [TAIDecisionAgent](#taidecisionagent)
 - [TAIActionBuilderAgent](#taiactionbuilderagent)
 - [TAIActionExecutor](#taiactionexecutor)
-- [TAIMapaDeMemoria](#taimapadememoria)
+- [TAIAgentMemoryMap](#taimapadememoria)
 - [TAIAgentSafety](#taiagentsafety)
 - [TAIPipeline](#taipipeline)
 - [TAIWizardConfig](#taiwizardconfig)
@@ -111,7 +113,7 @@ Questa cartella contiene la suite completa dei componenti Lazarus sotto la sched
 
 - **Proprietà (Published):**
   - `ChatGPT: TCHATGPT` - Connettore LLM.
-  - `MapaDeMemoria: TAIMapaDeMemoria` - Memoria operativa condivisa.
+  - `MemoryMap: TAIAgentMemoryMap` - Memoria operativa condivisa.
   - `CriarMapaAutomaticamente: Boolean` - Crea automaticamente una memoria temporanea se nessuna è collegata.
   - `Classifier: TAIClassifierAgent` - Agente di classificazione iniziale.
   - `DecisionAgent: TAIDecisionAgent` - Agente decisore del piano d'azione.
@@ -179,7 +181,7 @@ Questa cartella contiene la suite completa dei componenti Lazarus sotto la sched
 
 - **Proprietà (Published):**
   - `ChatGPT: TCHATGPT` - Connettore ChatGPT.
-  - `MapaDeMemoria: TAIMapaDeMemoria` - Memoria di audit.
+  - `MemoryMap: TAIAgentMemoryMap` - Memoria di audit.
   - `ForcarSimulacaoGlobal: Boolean` - Se attivo, blocca qualsiasi modifica fisica (modalità demo/simulazione).
   - `AutoRegistrarNoMapa: Boolean` - Registra automaticamente i passi logici nel mapa.
 - **Metodi (Public):**
@@ -191,14 +193,14 @@ Questa cartella contiene la suite completa dei componenti Lazarus sotto la sched
 
 ---
 
-### TAIMapaDeMemoria
+### TAIAgentMemoryMap
 
 **Funzione:** Registro persistente che conserva e controlla la cronologia del ciclo cognitivo, con rilevamento automatico di perdite di dati contestuali.
 
 - **Proprietà (Published):**
   - `SessionId: string` - ID univoco di sessione.
   - `FlowName: string` - Nome del flusso corrente.
-  - `Items: TAIMapaDeMemoriaItem` - Lista dei passi logici già completati.
+  - `Items: TAIAgentMemoryMapItem` - Lista dei passi logici già completati.
   - `DetectInformationLoss: Boolean` - Se vero, verifica se l'LLM ha dimenticato parametri indispensabili forniti originariamente dall'utente.
 - **Metodi (Public):**
   - `StartFlow(const AFlowName: string; const AInput: string)` - Registra l'input utente iniziale.

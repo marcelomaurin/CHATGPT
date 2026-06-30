@@ -4,6 +4,8 @@ Ce dossier contient la suite complète des composants de Lazarus sous l'onglet *
 
 ---
 
+> **Compatibilité:** les anciens alias `TAIMapaDeMemoria`, `TAIMapaDeMemoriaItem`, `TAIMapaDeMemoriaCollection` et la propriété `MapaDeMemoria` ont été temporairement conservés afin de ne pas perturber les projets existants.
+
 ## 📋 Table des Composants
 
 - [TAIAgent](#taiagent)
@@ -16,7 +18,7 @@ Ce dossier contient la suite complète des composants de Lazarus sous l'onglet *
 - [TAIDecisionAgent](#taidecisionagent)
 - [TAIActionBuilderAgent](#taiactionbuilderagent)
 - [TAIActionExecutor](#taiactionexecutor)
-- [TAIMapaDeMemoria](#taimapadememoria)
+- [TAIAgentMemoryMap](#taimapadememoria)
 - [TAIAgentSafety](#taiagentsafety)
 - [TAIPipeline](#taipipeline)
 - [TAIWizardConfig](#taiwizardconfig)
@@ -111,7 +113,7 @@ Ce dossier contient la suite complète des composants de Lazarus sous l'onglet *
 
 - **Propriétés (Published) :**
   - `ChatGPT: TCHATGPT` - Connecteur LLM.
-  - `MapaDeMemoria: TAIMapaDeMemoria` - Mémoire opérationnelle partagée.
+  - `MemoryMap: TAIAgentMemoryMap` - Mémoire opérationnelle partagée.
   - `CriarMapaAutomaticamente: Boolean` - Crée automatiquement une mémoire temporaire si aucune n'est liée.
   - `Classifier: TAIClassifierAgent` - Agent de classification.
   - `DecisionAgent: TAIDecisionAgent` - Agent de décision (générateur de plan).
@@ -179,7 +181,7 @@ Ce dossier contient la suite complète des composants de Lazarus sous l'onglet *
 
 - **Propriétés (Published) :**
   - `ChatGPT: TCHATGPT` - Connecteur ChatGPT.
-  - `MapaDeMemoria: TAIMapaDeMemoria` - Mémoire de journalisation.
+  - `MemoryMap: TAIAgentMemoryMap` - Mémoire de journalisation.
   - `ForcarSimulacaoGlobal: Boolean` - Si actif, aucun envoi matériel n'a lieu (mode demo/simulation).
   - `AutoRegistrarNoMapa: Boolean` - Log automatiquement les étapes dans le mapa.
 - **Méthodes (Public) :**
@@ -191,14 +193,14 @@ Ce dossier contient la suite complète des composants de Lazarus sous l'onglet *
 
 ---
 
-### TAIMapaDeMemoria
+### TAIAgentMemoryMap
 
 **Fonction :** Journal de bord persistant conservant l'historique du cycle cognitif, avec détection automatique de pertes de données contextuelles.
 
 - **Propriétés (Published) :**
   - `SessionId: string` - ID unique de session.
   - `FlowName: string` - Nom du flux en cours.
-  - `Items: TAIMapaDeMemoriaItem` - Liste des étapes franchies.
+  - `Items: TAIAgentMemoryMapItem` - Liste des étapes franchies.
   - `DetectInformationLoss: Boolean` - Si vrai, vérifie si l'LLM a omis des paramètres indispensables fournis au départ par l'utilisateur.
 - **Méthodes (Public) :**
   - `StartFlow(const AFlowName: string; const AInput: string)` - Enregistre l'entrée de l'utilisateur.

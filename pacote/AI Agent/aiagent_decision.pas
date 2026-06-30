@@ -47,7 +47,7 @@ end;
 
 function TAIDecisionAgent.Decide(const AInput: string; out AOutput: string): Boolean;
 var
-  Item: TAIMapaDeMemoriaItem;
+  Item: TAIAgentMemoryMapItem;
   CanContinue: Boolean;
   Ctx: TAIFluxoEtapaContexto;
   LPrompt, ResponseText: string;
@@ -92,7 +92,7 @@ begin
     Item := BeginMemoryStep(Ctx.PedidoAtual);
 
     // Build Prompt
-    LPrompt := 'Você é um Agente Decisor.' + sLineBreak;
+    LPrompt := 'You are a Decision Agent.' + sLineBreak;
     if SystemPrompt <> '' then
       LPrompt := LPrompt + SystemPrompt + sLineBreak;
     
@@ -121,12 +121,12 @@ begin
       '    {"question": "Quais parâmetros mínimos cada ação precisa?", "answer": "...", "analysis": "...", "confidence": 0.9}' +
       '  ]' + sLineBreak +
       '}' + sLineBreak + sLineBreak +
-      '=== MAPA DE MEMÓRIA ATÉ AGORA ===' + sLineBreak + Ctx.ContextoAtual + sLineBreak +
+      '=== MEMORY MAP SO FAR ===' + sLineBreak + Ctx.ContextoAtual + sLineBreak +
       '=== PEDIDO RECEBIDO NESTA ETAPA ===' + sLineBreak + Ctx.PedidoAtual;
 
     if not Assigned(ChatGPT) then
     begin
-      SetError('ChatGPT não conectado ao Decisor.');
+      SetError('ChatGPT is not connected to the decision agent.');
       if Assigned(Item) then
         EndMemoryStep(Item, 'Erro de hardware', 'ChatGPT não conectado', 'ERROR', '');
       Exit;

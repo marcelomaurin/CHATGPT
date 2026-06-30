@@ -148,7 +148,7 @@ ICONS = {
         "........................",
         "........................"
     ],
-    'taimapadememoria': [
+    'taiagentmemorymap': [
         "........................",
         "......############......",
         ".....#pppppppppppp#.....",
@@ -350,7 +350,7 @@ def main():
         'taidecisionagent': 'aiagent_decision.pas',
         'taiactionbuilderagent': 'aiagent_actionbuilder.pas',
         'taiactionexecutor': 'aiagent_executor.pas',
-        'taimapadememoria': 'aiagent_memorymap.pas',
+        'taiagentmemorymap': 'aiagent_memorymap.pas',
         'taiagentsafety': 'aiagentsafety.pas',
         'taipipeline': 'aipipeline.pas',
         'taiwizardconfig': 'aiwizardconfig.pas'

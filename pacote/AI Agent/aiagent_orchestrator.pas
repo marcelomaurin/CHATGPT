@@ -14,7 +14,7 @@ type
   TAIAgentOrchestrator = class(TAIBaseComponent)
   private
     FChatGPT: TCHATGPT;
-    FMapaDeMemoria: TAIMapaDeMemoria;
+    FMemoryMap: TAIAgentMemoryMap;
     FCriarMapaAutomaticamente: Boolean;
     FRepassarMapaParaAgentes: Boolean;
     FClassifier: TAIClassifierAgent;
@@ -51,15 +51,17 @@ type
     procedure SetDecisionAgent(AValue: TAIDecisionAgent);
     procedure SetActionBuilder(AValue: TAIActionBuilderAgent);
     procedure SetExecutor(AValue: TAIActionExecutor);
+    procedure SetMemoryMap(AValue: TAIAgentMemoryMap);
   protected
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
+    property MapaDeMemoria: TAIAgentMemoryMap read FMemoryMap write SetMemoryMap;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function Run(const AInput: string): Boolean; virtual;
   published
     property ChatGPT: TCHATGPT read FChatGPT write FChatGPT;
-    property MapaDeMemoria: TAIMapaDeMemoria read FMapaDeMemoria write FMapaDeMemoria;
+    property MemoryMap: TAIAgentMemoryMap read FMemoryMap write SetMemoryMap;
     property CriarMapaAutomaticamente: Boolean read FCriarMapaAutomaticamente write FCriarMapaAutomaticamente default True;
     property RepassarMapaParaAgentes: Boolean read FRepassarMapaParaAgentes write FRepassarMapaParaAgentes default True;
     property Classifier: TAIClassifierAgent read FClassifier write SetClassifier;
@@ -127,7 +129,7 @@ begin
   if Operation = opRemove then
   begin
     if AComponent = FChatGPT then FChatGPT := nil;
-    if AComponent = FMapaDeMemoria then FMapaDeMemoria := nil;
+    if AComponent = FMemoryMap then FMemoryMap := nil;
     if AComponent = FClassifier then FClassifier := nil;
     if AComponent = FDecisionAgent then FDecisionAgent := nil;
     if AComponent = FActionBuilder then FActionBuilder := nil;
@@ -170,6 +172,20 @@ begin
     if FExecutor <> nil then FExecutor.FreeNotification(Self);
   end;
 end;
+procedure TAIAgentOrchestrator.SetMemoryMap(AValue: TAIAgentMemoryMap);
+begin
+  if FMemoryMap <> AValue then
+  begin
+    if Assigned(FMemoryMap) then
+      FMemoryMap.RemoveFreeNotification(Self);
+
+    FMemoryMap := AValue;
+
+    if Assigned(FMemoryMap) then
+      FMemoryMap.FreeNotification(Self);
+  end;
+end;
+
 
 function TAIAgentOrchestrator.DoFlowStage(
   AEtapa: TAIFluxoEtapa;
@@ -209,7 +225,7 @@ function TAIAgentOrchestrator.Run(const AInput: string): Boolean;
 var
   Ctx: TAIFluxoEtapaContexto;
   TempOutput: string;
-  StatusMapItem: TAIMapaDeMemoriaItem;
+  StatusMapItem: TAIAgentMemoryMapItem;
   HasLostInfo: Boolean;
   LostInfoStr: string;
 begin
@@ -217,12 +233,12 @@ begin
   ClearError;
 
   // 1. Manage Memory Map Auto creation
-  if (FMapaDeMemoria = nil) and FCriarMapaAutomaticamente then
+  if (FMemoryMap = nil) and FCriarMapaAutomaticamente then
   begin
-    FMapaDeMemoria := TAIMapaDeMemoria.Create(Self);
+    FMemoryMap := TAIAgentMemoryMap.Create(Self);
   end;
 
-  if FMapaDeMemoria = nil then
+  if FMemoryMap = nil then
   begin
     SetError('Mapa de Memória não está disponível e não foi possível criar automaticamente.');
     Exit;
@@ -231,19 +247,21 @@ begin
   // Repass map
   if FRepassarMapaParaAgentes then
   begin
-    if Assigned(FClassifier) then FClassifier.MapaDeMemoria := FMapaDeMemoria;
-    if Assigned(FDecisionAgent) then FDecisionAgent.MapaDeMemoria := FMapaDeMemoria;
-    if Assigned(FActionBuilder) then FActionBuilder.MapaDeMemoria := FMapaDeMemoria;
-    if Assigned(FExecutor) then FExecutor.MapaDeMemoria := FMapaDeMemoria;
+    if Assigned(FClassifier) then FClassifier.MemoryMap := FMemoryMap;
+    if Assigned(FDecisionAgent) then FDecisionAgent.MemoryMap := FMemoryMap;
+    if Assigned(FActionBuilder) then FActionBuilder.MemoryMap := FMemoryMap;
+    if Assigned(FExecutor) then FExecutor.MemoryMap := FMemoryMap;
   end;
 
   Ctx := TAIFluxoEtapaContexto.Create;
   try
-    Ctx.SessionId := FMapaDeMemoria.SessionId;
     Ctx.FlowName := 'Multi-Agent Orchestrator Flow';
     Ctx.PedidoOriginal := AInput;
     Ctx.PedidoAtual := AInput;
-    Ctx.MapaDeMemoria := FMapaDeMemoria;
+    Ctx.MemoryMap := FMemoryMap;
+
+    FMemoryMap.StartFlow(AInput, Ctx.FlowName);
+    Ctx.SessionId := FMemoryMap.SessionId;
 
     // Start Flow stage
     if not DoFlowStage(afeInicioFluxo, Ctx, FOnBeforeFlowStart, FOnAfterFlowStart) then
@@ -252,8 +270,6 @@ begin
         FOnFlowCanceled(Self, Ctx);
       Exit;
     end;
-
-    FMapaDeMemoria.StartFlow(AInput, Ctx.FlowName);
 
     // 2. Classifier
     if Assigned(FClassifier) then
@@ -324,6 +340,12 @@ begin
         Exit;
       end;
 
+      if not DoFlowStage(afeAntesExecutarAcao, Ctx, FOnBeforeActionExecute, nil) then
+      begin
+        if Assigned(FOnFlowCanceled) then FOnFlowCanceled(Self, Ctx);
+        Exit;
+      end;
+
       if not FExecutor.ExecutePlan(Ctx.PedidoAtual, TempOutput) then
       begin
         Ctx.MensagemErro := FExecutor.LastError;
@@ -332,14 +354,15 @@ begin
       end;
 
       Ctx.SaidaAtual := TempOutput;
+      DoFlowStage(afeDepoisExecutarAcao, Ctx, nil, FOnAfterActionExecute);
       DoFlowStage(afeDepoisExecutor, Ctx, nil, FOnAfterExecutor);
     end;
 
     // Check Info loss at final flow
-    StatusMapItem := FMapaDeMemoria.LastItem;
+    StatusMapItem := FMemoryMap.LastItem;
     if Assigned(StatusMapItem) then
     begin
-      HasLostInfo := FMapaDeMemoria.CheckInformationLoss(StatusMapItem, LostInfoStr);
+      HasLostInfo := FMemoryMap.CheckInformationLoss(StatusMapItem, LostInfoStr);
       if HasLostInfo then
       begin
         Ctx.Alertas.Add('Perda de informação detectada: ' + LostInfoStr);

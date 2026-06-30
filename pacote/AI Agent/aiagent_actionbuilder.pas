@@ -47,7 +47,7 @@ end;
 
 function TAIActionBuilderAgent.BuildActions(const AInput: string; out AOutput: string): Boolean;
 var
-  Item: TAIMapaDeMemoriaItem;
+  Item: TAIAgentMemoryMapItem;
   CanContinue: Boolean;
   Ctx: TAIFluxoEtapaContexto;
   LPrompt, ResponseText: string;

@@ -720,7 +720,7 @@ object frmMain: TfrmMain
     Left = 40
     Top = 100
   end
-  object FMapaDeMemoria: TAIMapaDeMemoria
+  object FMemoryMap: TAIAgentMemoryMap
     DetectInformationLoss = True
     StoreRawJSON = True
     Left = 120

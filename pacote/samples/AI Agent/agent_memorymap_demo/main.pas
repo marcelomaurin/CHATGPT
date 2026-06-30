@@ -94,7 +94,6 @@ begin
 
   { Wire components together }
   FOrchestrator.ChatGPT := FChatGPT;
-  FOrchestrator.MapaDeMemoria := FMapaDeMemoria;
   FOrchestrator.Classifier := FClassifier;
   FOrchestrator.DecisionAgent := FDecisionAgent;
   FOrchestrator.ActionBuilder := FActionBuilder;
@@ -239,15 +238,15 @@ end;
 procedure TfrmAgentMemoryMapDemo.OnFlowFinished(Sender: TObject; AContexto: TAIFluxoEtapaContexto);
 begin
   memErrors.Lines.Add('Fluxo encerrado com sucesso.');
-  if Assigned(FMapaDeMemoria) then
-    memMemoryMap.Text := FMapaDeMemoria.AsText;
+  if Assigned(FOrchestrator.MemoryMap) then
+    memMemoryMap.Text := FOrchestrator.MemoryMap.AsText;
 end;
 
 procedure TfrmAgentMemoryMapDemo.OnFlowError(Sender: TObject; AContexto: TAIFluxoEtapaContexto);
 begin
   memErrors.Lines.Add('ERRO no fluxo: ' + AContexto.MensagemErro);
-  if Assigned(FMapaDeMemoria) then
-    memMemoryMap.Text := FMapaDeMemoria.AsText;
+  if Assigned(FOrchestrator.MemoryMap) then
+    memMemoryMap.Text := FOrchestrator.MemoryMap.AsText;
 end;
 
 procedure TfrmAgentMemoryMapDemo.OnFlowStage(Sender: TObject; AContexto: TAIFluxoEtapaContexto);

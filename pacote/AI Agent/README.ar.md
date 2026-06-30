@@ -4,6 +4,8 @@
 
 ---
 
+> **التوافق:** تم الاحتفاظ مؤقتًا بالأسماء المستعارة القديمة `TAIMapaDeMemoria` و `TAIMapaDeMemoriaItem` و `TAIMapaDeMemoriaCollection` وخاصية `MapaDeMemoria` لتجنب كسر المشاريع الحالية.
+
 ## 📋 فهرس المكونات
 
 - [TAIAgent](#taiagent)
@@ -16,7 +18,7 @@
 - [TAIDecisionAgent](#taidecisionagent)
 - [TAIActionBuilderAgent](#taiactionbuilderagent)
 - [TAIActionExecutor](#taiactionexecutor)
-- [TAIMapaDeMemoria](#taimapadememoria)
+- [TAIAgentMemoryMap](#taimapadememoria)
 - [TAIAgentSafety](#taiagentsafety)
 - [TAIPipeline](#taipipeline)
 - [TAIWizardConfig](#taiwizardconfig)
@@ -111,7 +113,7 @@
 
 - **الخصائص (Published):**
   - `ChatGPT: TCHATGPT` - موصل LLM.
-  - `MapaDeMemoria: TAIMapaDeMemoria` - الذاكرة المشتركة للعمليات.
+  - `MemoryMap: TAIAgentMemoryMap` - الذاكرة المشتركة للعمليات.
   - `CriarMapaAutomaticamente: Boolean` - إنشاء خريطة ذاكرة مؤقتة تلقائيًا إذا لم تكن مرتبطة.
   - `Classifier: TAIClassifierAgent` - وكيل التصنيف المبدئي.
   - `DecisionAgent: TAIDecisionAgent` - وكيل التخطيط واتخاذ القرارات.
@@ -178,7 +180,7 @@
 
 - **الخصائص (Published):**
   - `ChatGPT: TCHATGPT` - موصل ChatGPT.
-  - `MapaDeMemoria: TAIMapaDeMemoria` - ذاكرة التدقيق.
+  - `MemoryMap: TAIAgentMemoryMap` - ذاكرة التدقيق.
   - `ForcarSimulacaoGlobal: Boolean` - في حال تفعيله، يتم منع أي تغيير مادي (وضع المحاكاة/العرض).
   - `AutoRegistrarNoMapa: Boolean` - تسجيل الخطوات المنطقية في خريطة الذاكرة تلقائيًا.
 - **الدوال (Public):**
@@ -190,14 +192,14 @@
 
 ---
 
-### TAIMapaDeMemoria
+### TAIAgentMemoryMap
 
 **الوظيفة:** سجل مستمر لحفظ وتدقيق دورة سير العمل المعرفي، مع ميزة الكشف التلقائي عن فقدان السياق والمعلومات الهامة.
 
 - **الخصائص (Published):**
   - `SessionId: string` - معرف الجلسة الفريد.
   - `FlowName: string` - اسم التدفق الحالي.
-  - `Items: TAIMapaDeMemoriaItem` - قائمة الخطوات المكتملة بالفعل.
+  - `Items: TAIAgentMemoryMapItem` - قائمة الخطوات المكتملة بالفعل.
   - `DetectInformationLoss: Boolean` - في حال تفعيله، يتم التحقق مما إذا كان النموذج قد أغفل معلمات حرجة أدخلها المستخدم في البداية.
 - **الدوال (Public):**
   - `StartFlow(const AFlowName: string; const AInput: string)` - تسجيل مدخلات المستخدم الأولية.

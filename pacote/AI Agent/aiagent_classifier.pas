@@ -41,7 +41,7 @@ end;
 
 function TAIClassifierAgent.Classify(const AInput: string; out AOutput: string): Boolean;
 var
-  Item: TAIMapaDeMemoriaItem;
+  Item: TAIAgentMemoryMapItem;
   CanContinue: Boolean;
   Ctx: TAIFluxoEtapaContexto;
   LPrompt, ResponseText: string;
@@ -83,7 +83,7 @@ begin
     Item := BeginMemoryStep(Ctx.PedidoAtual);
 
     // Build Prompt
-    LPrompt := 'Você é um Agente Classificador.' + sLineBreak;
+    LPrompt := 'You are a Classification Agent.' + sLineBreak;
     if SystemPrompt <> '' then
       LPrompt := LPrompt + SystemPrompt + sLineBreak;
     LPrompt := LPrompt + sLineBreak +
@@ -104,11 +104,11 @@ begin
       '    {"question": "Para quais agentes decisores esse pedido deve ir?", "answer": "...", "analysis": "...", "confidence": 0.9}' +
       '  ]' + sLineBreak +
       '}' + sLineBreak + sLineBreak +
-      '=== PEDIDO RECEBIDO ===' + sLineBreak + Ctx.PedidoAtual;
+      '=== RECEIVED REQUEST ===' + sLineBreak + Ctx.PedidoAtual;
 
     if not Assigned(ChatGPT) then
     begin
-      SetError('ChatGPT não conectado ao Classificador.');
+      SetError('ChatGPT is not connected to the classifier.');
       if Assigned(Item) then
         EndMemoryStep(Item, 'Erro de hardware', 'ChatGPT não conectado', 'ERROR', '');
       Exit;

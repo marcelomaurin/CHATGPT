@@ -92,8 +92,8 @@ type
     ClassificationPriority: string;
 
     // Pointers to memory map items to avoid circular dependencies
-    MapaItem: TObject; // Will hold TAIMapaDeMemoriaItem
-    MapaDeMemoria: TObject; // Will hold TAIMapaDeMemoria
+    MemoryMapItem: TObject; 
+    MemoryMap: TObject; 
 
     PodeContinuar: Boolean;
     CancelarFluxo: Boolean;
@@ -101,6 +101,9 @@ type
     ReexecutarEtapa: Boolean;
 
     MensagemErro: string;
+
+    property MapaItem: TObject read MemoryMapItem write MemoryMapItem;
+    property MapaDeMemoria: TObject read MemoryMap write MemoryMap;
 
     constructor Create;
     destructor Destroy; override;
@@ -161,8 +164,8 @@ begin
   ClassificationPriority := '';
   FParametros.Clear;
   FAlertas.Clear;
-  MapaItem := nil;
-  MapaDeMemoria := nil;
+  MemoryMapItem := nil;
+  MemoryMap := nil;
   PodeContinuar := True;
   CancelarFluxo := False;
   ForcarSimulacao := False;
@@ -177,25 +180,25 @@ begin
   SB := TStringBuilder.Create;
   try
     SB.AppendLine('=== AI FLOW STAGE CONTEXT ===');
-    SB.AppendLine(Format('Etapa: %d', [Ord(Etapa)]));
+    SB.AppendLine(Format('Stage: %d', [Ord(Etapa)]));
     SB.AppendLine('SessionId: ' + SessionId);
     SB.AppendLine('FlowName: ' + FlowName);
-    SB.AppendLine('NomeAgenteAtual: ' + NomeAgenteAtual);
-    SB.AppendLine(Format('TipoAgenteAtual: %d', [Ord(TipoAgenteAtual)]));
+    SB.AppendLine('CurrentAgentName: ' + NomeAgenteAtual);
+    SB.AppendLine(Format('CurrentAgentType: %d', [Ord(TipoAgenteAtual)]));
     SB.AppendLine('NomeProximoAgente: ' + NomeProximoAgente);
     SB.AppendLine(Format('TipoProximoAgente: %d', [Ord(TipoProximoAgente)]));
-    SB.AppendLine('PedidoOriginal: ' + PedidoOriginal);
-    SB.AppendLine('PedidoAtual: ' + PedidoAtual);
-    SB.AppendLine('AnaliseAtual: ' + AnaliseAtual);
-    SB.AppendLine('ExplicacaoAtual: ' + ExplicacaoAtual);
-    SB.AppendLine('AcaoTomada: ' + AcaoTomada);
-    SB.AppendLine('SaidaAtual: ' + SaidaAtual);
+    SB.AppendLine('OriginalRequest: ' + PedidoOriginal);
+    SB.AppendLine('CurrentRequest: ' + PedidoAtual);
+    SB.AppendLine('CurrentAnalysis: ' + AnaliseAtual);
+    SB.AppendLine('CurrentExplanation: ' + ExplicacaoAtual);
+    SB.AppendLine('ActionTaken: ' + AcaoTomada);
+    SB.AppendLine('CurrentOutput: ' + SaidaAtual);
     SB.AppendLine('PodeContinuar: ' + BoolToStr(PodeContinuar, True));
     SB.AppendLine('CancelarFluxo: ' + BoolToStr(CancelarFluxo, True));
     SB.AppendLine('ForcarSimulacao: ' + BoolToStr(ForcarSimulacao, True));
     SB.AppendLine('MensagemErro: ' + MensagemErro);
     if FAlertas.Count > 0 then
-      SB.AppendLine('Alertas: ' + FAlertas.CommaText);
+      SB.AppendLine('Warnings: ' + FAlertas.CommaText);
       Result := SB.ToString;
   finally
     SB.Free;

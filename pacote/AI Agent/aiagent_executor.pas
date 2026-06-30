@@ -12,7 +12,7 @@ type
   { TAIActionExecutor }
   TAIActionExecutor = class(TAIBaseComponent)
   private
-    FMapaDeMemoria: TAIMapaDeMemoria;
+    FMemoryMap: TAIAgentMemoryMap;
     FChatGPT: TCHATGPT;
     FNomeAgente: string;
     FTipoAgenteMapa: TAITipoAgenteMapa;
@@ -31,12 +31,14 @@ type
     FOnExecutionFailed: TAIFluxoEtapaEvent;
   protected
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+    procedure SetMemoryMap(AValue: TAIAgentMemoryMap);
   public
+    property MapaDeMemoria: TAIAgentMemoryMap read FMemoryMap write SetMemoryMap;
     constructor Create(AOwner: TComponent); override;
     function ExecutePlan(const AInputPlan: string; out AOutput: string): Boolean; virtual;
   published
     property ChatGPT: TCHATGPT read FChatGPT write FChatGPT;
-    property MapaDeMemoria: TAIMapaDeMemoria read FMapaDeMemoria write FMapaDeMemoria;
+    property MemoryMap: TAIAgentMemoryMap read FMemoryMap write SetMemoryMap;
     property NomeAgente: string read FNomeAgente write FNomeAgente;
     property TipoAgenteMapa: TAITipoAgenteMapa read FTipoAgenteMapa write FTipoAgenteMapa default tamExecutor;
     property ForcarSimulacaoGlobal: Boolean read FForcarSimulacaoGlobal write FForcarSimulacaoGlobal default False;
@@ -58,6 +60,21 @@ implementation
 
 { TAIActionExecutor }
 
+
+procedure TAIActionExecutor.SetMemoryMap(AValue: TAIAgentMemoryMap);
+begin
+  if FMemoryMap <> AValue then
+  begin
+    if Assigned(FMemoryMap) then
+      FMemoryMap.RemoveFreeNotification(Self);
+
+    FMemoryMap := AValue;
+
+    if Assigned(FMemoryMap) then
+      FMemoryMap.FreeNotification(Self);
+  end;
+end;
+
 constructor TAIActionExecutor.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -74,13 +91,13 @@ begin
   if Operation = opRemove then
   begin
     if AComponent = FChatGPT then FChatGPT := nil;
-    if AComponent = FMapaDeMemoria then FMapaDeMemoria := nil;
+    if AComponent = FMemoryMap then FMemoryMap := nil;
   end;
 end;
 
 function TAIActionExecutor.ExecutePlan(const AInputPlan: string; out AOutput: string): Boolean;
 var
-  Item: TAIMapaDeMemoriaItem;
+  Item: TAIAgentMemoryMapItem;
   CanContinue: Boolean;
   Ctx: TAIFluxoEtapaContexto;
   LPrompt, ResponseText: string;
@@ -131,7 +148,7 @@ begin
     end;
 
     // Build Prompt
-    LPrompt := 'Você é um Agente Executor de Ações.' + sLineBreak;
+    LPrompt := 'You are an Action Execution Agent.' + sLineBreak;
     LPrompt := LPrompt + sLineBreak +
       '=== DIRETRIZES DE RETORNO ===' + sLineBreak +
       'Simule ou execute as ações solicitadas e retorne o resultado de cada uma.' + sLineBreak +
@@ -150,8 +167,8 @@ begin
       '    {"question": "A execução foi concluída?", "answer": "...", "analysis": "...", "confidence": 0.9}' +
       '  ]' + sLineBreak +
       '}' + sLineBreak + sLineBreak +
-      '=== MAPA DE MEMÓRIA ATÉ AGORA ===' + sLineBreak + Ctx.ContextoAtual + sLineBreak +
-      '=== PLANO A EXECUTAR ===' + sLineBreak + Ctx.PedidoAtual;
+      '=== MEMORY MAP SO FAR ===' + sLineBreak + Ctx.ContextoAtual + sLineBreak +
+      '=== PLAN TO EXECUTE ===' + sLineBreak + Ctx.PedidoAtual;
 
     // Check if simulation is forced
     if Ctx.ForcarSimulacao then
