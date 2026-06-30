@@ -467,6 +467,8 @@ begin
 end;
 
 initialization
+  {$I taipipeline_icon.lrs}
+
   {$I aipipeline_icon.lrs}
 
 end.

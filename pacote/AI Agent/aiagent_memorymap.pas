@@ -5,7 +5,7 @@ unit aiagent_memorymap;
 interface
 
 uses
-  Classes, SysUtils, fpjson, jsonparser, TypInfo, aibase, aiagent_flowevents;
+  Classes, SysUtils, fpjson, jsonparser, TypInfo, aibase, aiagent_flowevents, LResources;
 
 type
   { Status of map step }
@@ -1012,5 +1012,8 @@ begin
     L.Free;
   end;
 end;
+
+initialization
+  {$I taimapadememoria_icon.lrs}
 
 end.

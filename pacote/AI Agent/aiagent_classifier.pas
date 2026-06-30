@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, fpjson, jsonparser, aibase, chatgpt,
-  aiagent_flowevents, aiagent_memorymap, aiagent_core;
+  aiagent_flowevents, aiagent_memorymap, aiagent_core, LResources;
 
 type
   { TAIClassifierAgent }
@@ -216,5 +216,8 @@ begin
     Ctx.Free;
   end;
 end;
+
+initialization
+  {$I taiclassifieragent_icon.lrs}
 
 end.

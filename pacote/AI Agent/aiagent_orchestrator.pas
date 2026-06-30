@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, aibase, chatgpt,
   aiagent_flowevents, aiagent_memorymap, aiagent_core,
-  aiagent_classifier, aiagent_decision, aiagent_actionbuilder, aiagent_executor;
+  aiagent_classifier, aiagent_decision, aiagent_actionbuilder, aiagent_executor, LResources;
 
 type
   { TAIAgentOrchestrator }
@@ -356,5 +356,8 @@ begin
     Ctx.Free;
   end;
 end;
+
+initialization
+  {$I taiagentorchestrator_icon.lrs}
 
 end.

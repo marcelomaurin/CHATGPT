@@ -321,6 +321,8 @@ begin
 end;
 
 initialization
+  {$I taiagentsafety_icon.lrs}
+
   {$I aiagentsafety_icon.lrs}
 
 end.
