@@ -75,3 +75,7 @@
 ## Chromium Capture Demo
 
 ![Chromium Capture Demo](chromium_capture_demo.jpg)
+
+## AI Agent Minimal Demo
+
+![AI Agent Minimal Demo](AI_Agent_Minimal_Demo.jpg)
