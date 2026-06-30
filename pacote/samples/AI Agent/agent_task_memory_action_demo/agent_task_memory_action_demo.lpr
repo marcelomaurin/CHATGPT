@@ -7,14 +7,21 @@ uses
   cthreads,
   {$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, main;
+  Forms, main, uCEFApplication;
 
 {$R *.res}
 
 begin
-  RequireDerivedFormResource:=True;
-  Application.Scaled:=True;
-  Application.Initialize;
-  Application.CreateForm(TfrmMain, frmMain);
-  Application.Run;
+  GlobalCEFApp := TCefApplication.Create;
+
+  if GlobalCEFApp.StartMainProcess then
+  begin
+    RequireDerivedFormResource:=True;
+    Application.Scaled:=True;
+    Application.Initialize;
+    Application.CreateForm(TfrmMain, frmMain);
+    Application.Run;
+  end;
+
+  GlobalCEFApp.Free;
 end.

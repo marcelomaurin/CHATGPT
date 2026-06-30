@@ -71,8 +71,7 @@ type
   { TfrmMain }
 
   TfrmMain = class(TForm)
-    AIAgentMemoryMap1: TAIAgentMemoryMap;
-    FMemoryMap: TAIMapaDeMemoria;
+    FMemoryMap: TAIAgentMemoryMap;
     { Credentials & Provider Panels }
     pnlHeader: TPanel;
     lblProvider: TLabel;
