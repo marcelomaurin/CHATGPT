@@ -71,6 +71,7 @@ type
   { TfrmMain }
 
   TfrmMain = class(TForm)
+    AIAgentMemoryMap1: TAIAgentMemoryMap;
     FMemoryMap: TAIMapaDeMemoria;
     { Credentials & Provider Panels }
     pnlHeader: TPanel;
@@ -433,36 +434,15 @@ end;
 procedure TfrmMain.LoadDefaultScenario;
 begin
   memPrompt.Text :=
-    'Gere um documento Word com um currículo profissional fictício e envie para o e-mail marcelomaurinmartins@gmail.com.' + sLineBreak + sLineBreak +
-    'Dados fictícios do currículo:' + sLineBreak + sLineBreak +
-    'Nome: Rafael Almeida Costa' + sLineBreak +
-    'Cargo desejado: Analista de Sistemas com foco em Inteligência Artificial' + sLineBreak +
-    'Cidade: Ribeirão Preto - SP' + sLineBreak +
-    'E-mail: rafael.almeida.demo@email.com' + sLineBreak +
-    'Telefone: (16) 98888-1234' + sLineBreak + sLineBreak +
-    'Resumo profissional:' + sLineBreak +
-    'Profissional com experiência em desenvolvimento de sistemas, automação de processos, banco de dados e integração com APIs de inteligência artificial.' + sLineBreak + sLineBreak +
-    'Experiências:' + sLineBreak +
-    '- Desenvolvedor Pascal/Lazarus na empresa Tech Saúde Sistemas, de 2021 a 2025.' + sLineBreak +
-    '- Analista de Suporte e Automação na empresa Ribeirão Soluções Digitais, de 2018 a 2021.' + sLineBreak + sLineBreak +
-    'Formação:' + sLineBreak +
-    '- Tecnologia em Análise e Desenvolvimento de Sistemas' + sLineBreak +
-    '- Pós-graduação em Inteligência Artificial Aplicada' + sLineBreak + sLineBreak +
-    'Competências:' + sLineBreak +
-    '- Lazarus/Free Pascal' + sLineBreak +
-    '- PostgreSQL' + sLineBreak +
-    '- Python' + sLineBreak +
-    '- Integração com APIs' + sLineBreak +
-    '- Automação de processos' + sLineBreak +
-    '- Documentação técnica' + sLineBreak + sLineBreak +
-    'Objetivo:' + sLineBreak +
-    'Criar um currículo profissional em formato Word e enviar o documento por e-mail.';
+    'Manda um email para o Joao.Silva@hotmail.com, com cópia para o rodolfo. ' +
+    'Mas primeiro Cria um cv meu , para isso pega meus dados do meu site ' +
+    'https://maurinsoft.com.br/wp/sobre-nos/ para criar meu cv.';
 
   cbProvider.ItemIndex := 0;
   cbProviderChange(nil);
 
-  edEmailDestino.Text := 'marcelomaurinmartins@gmail.com';
-  edAssuntoEmail.Text := 'Currículo Profissional - Rafael Almeida Costa';
+  edEmailDestino.Text := 'Joao.Silva@hotmail.com';
+  edAssuntoEmail.Text := 'Currículo Profissional';
 end;
 
 procedure TfrmMain.ConfigureChatGPT;
