@@ -333,6 +333,12 @@ Geração de dicionário de dados a partir de conexões de banco de dados (Postg
 
 Interface para geração e execução segura de consultas SQLite (SELECT) por meio de linguagem natural, integrada ao ChatGPT e dicionário de metadados da ZeosLib.
 
+### AI Agent Minimal Demo
+
+![AI Agent Minimal Demo](screenshots/AI_Agent_Minimal_Demo.jpg)
+
+Demonstração do fluxo clássico do orquestrador de agentes cognitivos.
+
 ---
 
 ## Limitações conhecidas
