@@ -771,4 +771,8 @@ object frmMain: TfrmMain
     Left = 680
     Top = 100
   end
+  object FMemoryMap: TAIMapaDeMemoria
+    Left = 233
+    Top = 313
+  end
 end
