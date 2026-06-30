@@ -205,7 +205,7 @@ begin
       Exit;
     end;
 
-    ResponseText := ChatGPT.Response;
+    ResponseText := CleanJSONResponse(ChatGPT.Response);
     AOutput := ResponseText;
 
     // Parse JSON

@@ -104,7 +104,35 @@ type
     property OnAgentError: TAIFluxoEtapaEvent read FOnAgentError write FOnAgentError;
   end;
 
+function CleanJSONResponse(const AResponse: string): string;
+
 implementation
+
+function CleanJSONResponse(const AResponse: string): string;
+var
+  S: string;
+  Len: Integer;
+begin
+  S := Trim(AResponse);
+  if (Length(S) >= 7) and (Copy(S, 1, 7) = '```json') then
+  begin
+    Delete(S, 1, 7);
+    S := Trim(S);
+  end
+  else if (Length(S) >= 3) and (Copy(S, 1, 3) = '```') then
+  begin
+    Delete(S, 1, 3);
+    S := Trim(S);
+  end;
+
+  Len := Length(S);
+  if (Len >= 3) and (Copy(S, Len - 2, 3) = '```') then
+  begin
+    Delete(S, Len - 2, 3);
+    S := Trim(S);
+  end;
+  Result := S;
+end;
 
 { TAICustomAgent }
 
