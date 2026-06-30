@@ -68,11 +68,7 @@ type
     function RunAction(const AParams: TStrings; ASimulate: Boolean): Boolean; override;
   end;
 
-  { TfrmMain }
   TfrmMain = class(TForm)
-    procedure FormCreate(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
-  private
     { Credentials & Provider Panels }
     pnlHeader: TPanel;
     lblProvider: TLabel;
@@ -165,7 +161,7 @@ type
     btnLimparLog: TButton;
     btnSalvarLog: TButton;
 
-    { Components instantiated }
+    { Components }
     FChatGPT: TCHATGPT;
     FMapaDeMemoria: TAIMapaDeMemoria;
     FClassifierAgent: TAIClassifierAgent;
@@ -173,32 +169,11 @@ type
     FTaskProcessorAgent: TAIDecisionAgent;
     FActionBuilderAgent: TAIActionBuilderAgent;
     FActionExecutor: TAIActionExecutor;
-
     FWordOutput: TAIWordOutput;
     FEmailClient: TAIEmailClient;
 
-    FCreateWordAction: TSampleCreateWordAction;
-    FSendEmailAction: TSampleSendEmailAction;
-    FRegisterResultAction: TSampleRegisterResultAction;
-
-    { In-memory tasks collection }
-    FTasks: Contnrs.TObjectList;
-
-    procedure CreateLayout;
-    procedure LoadDefaultScenario;
-    procedure ConfigureChatGPT;
-    procedure AddLog(const AMsg: string);
-    procedure RefreshTasksGrid;
-    procedure RefreshMemoryMapGrid;
-    function GetSelectedTask: TSampleTaskItem;
-    procedure CreateDefaultTasks;
-    function LoadTasksFromPlannerJSON(const AJSON: string): Boolean;
-    function CanExecuteTask(ATask: TSampleTaskItem; out AError: string): Boolean;
-    procedure ExecuteTaskFallback(ATask: TSampleTaskItem);
-    procedure ShowAgentStep(AItem: TAIMapaDeMemoriaItem);
-    function DispatchPreparedActions(const APreparedActionsJSON: string): Boolean;
-
-    { Button handlers }
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
     procedure btnGerarTarefasClick(Sender: TObject);
     procedure btnExecutarTarefaSelecionadaClick(Sender: TObject);
     procedure btnExecutarTodasClick(Sender: TObject);
@@ -216,6 +191,25 @@ type
     procedure btnAbrirArquivoWordClick(Sender: TObject);
     procedure btnSimularEnvioEmailClick(Sender: TObject);
     procedure btnEnviarEmailRealClick(Sender: TObject);
+
+  private
+    FCreateWordAction: TSampleCreateWordAction;
+    FSendEmailAction: TSampleSendEmailAction;
+    FRegisterResultAction: TSampleRegisterResultAction;
+    FTasks: Contnrs.TObjectList;
+
+    procedure LoadDefaultScenario;
+    procedure ConfigureChatGPT;
+    procedure AddLog(const AMsg: string);
+    procedure RefreshTasksGrid;
+    procedure RefreshMemoryMapGrid;
+    function GetSelectedTask: TSampleTaskItem;
+    procedure CreateDefaultTasks;
+    function LoadTasksFromPlannerJSON(const AJSON: string): Boolean;
+    function CanExecuteTask(ATask: TSampleTaskItem; out AError: string): Boolean;
+    procedure ExecuteTaskFallback(ATask: TSampleTaskItem);
+    procedure ShowAgentStep(AItem: TAIMapaDeMemoriaItem);
+    function DispatchPreparedActions(const APreparedActionsJSON: string): Boolean;
 
     { Events }
     procedure OnMapaAfterCreateStep(Sender: TObject; AItem: TAIMapaDeMemoriaItem);
@@ -384,17 +378,6 @@ begin
 
   FTasks := TObjectList.Create(True);
 
-  { Instantiate components }
-  FChatGPT := TCHATGPT.Create(Self);
-  FMapaDeMemoria := TAIMapaDeMemoria.Create(Self);
-  FClassifierAgent := TAIClassifierAgent.Create(Self);
-  FTaskPlannerAgent := TAIDecisionAgent.Create(Self);
-  FTaskProcessorAgent := TAIDecisionAgent.Create(Self);
-  FActionBuilderAgent := TAIActionBuilderAgent.Create(Self);
-  FActionExecutor := TAIActionExecutor.Create(Self);
-  FWordOutput := TAIWordOutput.Create(Self);
-  FEmailClient := TAIEmailClient.Create(Self);
-
   { Actions wiring }
   FCreateWordAction := TSampleCreateWordAction.Create(Self);
   FCreateWordAction.WordOutput := FWordOutput;
@@ -434,7 +417,6 @@ begin
   FMapaDeMemoria.OnInformationLossDetected := @OnMapaInformationLossDetected;
   FMapaDeMemoria.OnMemoryMapLog := @OnMapaLog;
 
-  CreateLayout;
   LoadDefaultScenario;
   AddLog('Sample inicializado e pronto.');
 end;
@@ -444,548 +426,7 @@ begin
   FTasks.Free;
 end;
 
-procedure TfrmMain.CreateLayout;
-var
-  pnlSep: TPanel;
-  i: Integer;
-begin
-  { Header Panel }
-  pnlHeader := TPanel.Create(Self);
-  pnlHeader.Parent := Self;
-  pnlHeader.Align := alTop;
-  pnlHeader.Height := 50;
-  pnlHeader.BevelOuter := bvNone;
-  pnlHeader.BorderWidth := 5;
 
-  lblProvider := TLabel.Create(Self);
-  lblProvider.Parent := pnlHeader;
-  lblProvider.Align := alLeft;
-  lblProvider.Caption := ' Provedor: ';
-  lblProvider.Layout := tlCenter;
-
-  cbProvider := TComboBox.Create(Self);
-  cbProvider.Parent := pnlHeader;
-  cbProvider.Align := alLeft;
-  cbProvider.Width := 100;
-  cbProvider.Items.Add('OpenAI');
-  cbProvider.Items.Add('Local (Ollama/LMStudio)');
-  cbProvider.Style := csDropDownList;
-  cbProvider.OnChange := @cbProviderChange;
-
-  lblModel := TLabel.Create(Self);
-  lblModel.Parent := pnlHeader;
-  lblModel.Align := alLeft;
-  lblModel.Caption := ' Modelo: ';
-  lblModel.Layout := tlCenter;
-
-  cbModel := TComboBox.Create(Self);
-  cbModel.Parent := pnlHeader;
-  cbModel.Align := alLeft;
-  cbModel.Width := 120;
-  cbModel.Items.Add('gpt-4o-mini');
-  cbModel.Items.Add('gpt-4o');
-  cbModel.Items.Add('llama3.2');
-  cbModel.Items.Add('deepseek-r1');
-  cbModel.Text := 'gpt-4o-mini';
-
-  lblToken := TLabel.Create(Self);
-  lblToken.Parent := pnlHeader;
-  lblToken.Align := alLeft;
-  lblToken.Caption := ' Token: ';
-  lblToken.Layout := tlCenter;
-
-  edtToken := TEdit.Create(Self);
-  edtToken.Parent := pnlHeader;
-  edtToken.Align := alLeft;
-  edtToken.Width := 150;
-  edtToken.PasswordChar := '*';
-
-  lblBaseURL := TLabel.Create(Self);
-  lblBaseURL.Parent := pnlHeader;
-  lblBaseURL.Align := alLeft;
-  lblBaseURL.Caption := ' Base URL: ';
-  lblBaseURL.Layout := tlCenter;
-
-  edtBaseURL := TEdit.Create(Self);
-  edtBaseURL.Parent := pnlHeader;
-  edtBaseURL.Align := alLeft;
-  edtBaseURL.Width := 180;
-  edtBaseURL.Text := 'https://api.openai.com/v1';
-
-  { PageControl }
-  pgMain := TPageControl.Create(Self);
-  pgMain.Parent := Self;
-  pgMain.Align := alClient;
-
-  tabPrompt := TTabSheet.Create(pgMain);
-  tabPrompt.PageControl := pgMain;
-  tabPrompt.Caption := 'Prompt';
-
-  tabTarefas := TTabSheet.Create(pgMain);
-  tabTarefas.PageControl := pgMain;
-  tabTarefas.Caption := 'Tarefas';
-
-  tabAgente := TTabSheet.Create(pgMain);
-  tabAgente.PageControl := pgMain;
-  tabAgente.Caption := 'Agente';
-
-  tabMapaMemoria := TTabSheet.Create(pgMain);
-  tabMapaMemoria.PageControl := pgMain;
-  tabMapaMemoria.Caption := 'Mapa de Memória';
-
-  tabResultado := TTabSheet.Create(pgMain);
-  tabResultado.PageControl := pgMain;
-  tabResultado.Caption := 'Resultado';
-
-  tabLog := TTabSheet.Create(pgMain);
-  tabLog.PageControl := pgMain;
-  tabLog.Caption := 'Log';
-
-  { Tab: Prompt }
-  gbPromptInput := TGroupBox.Create(Self);
-  gbPromptInput.Parent := tabPrompt;
-  gbPromptInput.Align := alClient;
-  gbPromptInput.Caption := 'Prompt de Entrada';
-
-  memPrompt := TMemo.Create(Self);
-  memPrompt.Parent := gbPromptInput;
-  memPrompt.Align := alClient;
-  memPrompt.ScrollBars := ssAutoVertical;
-
-  pnlPromptCommands := TPanel.Create(Self);
-  pnlPromptCommands.Parent := tabPrompt;
-  pnlPromptCommands.Align := alBottom;
-  pnlPromptCommands.Height := 80;
-  pnlPromptCommands.BevelOuter := bvNone;
-
-  btnGerarTarefas := TButton.Create(Self);
-  btnGerarTarefas.Parent := pnlPromptCommands;
-  btnGerarTarefas.Left := 10;
-  btnGerarTarefas.Top := 10;
-  btnGerarTarefas.Width := 150;
-  btnGerarTarefas.Height := 35;
-  btnGerarTarefas.Caption := 'Gerar Tarefas';
-  btnGerarTarefas.OnClick := @btnGerarTarefasClick;
-
-  btnLimparPrompt := TButton.Create(Self);
-  btnLimparPrompt.Parent := pnlPromptCommands;
-  btnLimparPrompt.Left := 170;
-  btnLimparPrompt.Top := 10;
-  btnLimparPrompt.Width := 120;
-  btnLimparPrompt.Height := 35;
-  btnLimparPrompt.Caption := 'Limpar';
-  btnLimparPrompt.OnClick := @btnLimparPromptClick;
-
-  chkModoSimulado := TCheckBox.Create(Self);
-  chkModoSimulado.Parent := pnlPromptCommands;
-  chkModoSimulado.Left := 310;
-  chkModoSimulado.Top := 10;
-  chkModoSimulado.Caption := 'Modo Simulado (Seguro)';
-  chkModoSimulado.Checked := True;
-
-  chkPermitirGerarWordReal := TCheckBox.Create(Self);
-  chkPermitirGerarWordReal.Parent := pnlPromptCommands;
-  chkPermitirGerarWordReal.Left := 310;
-  chkPermitirGerarWordReal.Top := 30;
-  chkPermitirGerarWordReal.Caption := 'Permitir Gerar Word Real';
-  chkPermitirGerarWordReal.Checked := False;
-
-  chkPermitirEnvioEmailReal := TCheckBox.Create(Self);
-  chkPermitirEnvioEmailReal.Parent := pnlPromptCommands;
-  chkPermitirEnvioEmailReal.Left := 310;
-  chkPermitirEnvioEmailReal.Top := 50;
-  chkPermitirEnvioEmailReal.Caption := 'Permitir Envio de E-mail Real';
-  chkPermitirEnvioEmailReal.Checked := False;
-
-  { Tab: Tarefas }
-  gridTarefas := TStringGrid.Create(Self);
-  gridTarefas.Parent := tabTarefas;
-  gridTarefas.Align := alTop;
-  gridTarefas.Height := 350;
-  gridTarefas.FixedCols := 0;
-  gridTarefas.ColCount := 9;
-  gridTarefas.RowCount := 1;
-  gridTarefas.Options := gridTarefas.Options + [goRowSelect];
-  gridTarefas.OnSelection := @gridTarefasSelection;
-
-  gridTarefas.Cells[0, 0] := 'Ordem';
-  gridTarefas.Cells[1, 0] := 'ID';
-  gridTarefas.Cells[2, 0] := 'Tipo';
-  gridTarefas.Cells[3, 0] := 'Descrição';
-  gridTarefas.Cells[4, 0] := 'Agente';
-  gridTarefas.Cells[5, 0] := 'Ação Sugerida';
-  gridTarefas.Cells[6, 0] := 'Status';
-  gridTarefas.Cells[7, 0] := 'Dependência';
-  gridTarefas.Cells[8, 0] := 'Resultado';
-
-  for i := 0 to gridTarefas.ColCount - 1 do
-    gridTarefas.ColWidths[i] := 110;
-  gridTarefas.ColWidths[3] := 250;
-
-  pnlTasksCommands := TPanel.Create(Self);
-  pnlTasksCommands.Parent := tabTarefas;
-  pnlTasksCommands.Align := alBottom;
-  pnlTasksCommands.Height := 50;
-  pnlTasksCommands.BevelOuter := bvNone;
-
-  btnExecutarTarefaSelecionada := TButton.Create(Self);
-  btnExecutarTarefaSelecionada.Parent := pnlTasksCommands;
-  btnExecutarTarefaSelecionada.Left := 10;
-  btnExecutarTarefaSelecionada.Top := 10;
-  btnExecutarTarefaSelecionada.Width := 180;
-  btnExecutarTarefaSelecionada.Height := 30;
-  btnExecutarTarefaSelecionada.Caption := 'Executar Selecionada';
-  btnExecutarTarefaSelecionada.OnClick := @btnExecutarTarefaSelecionadaClick;
-
-  btnExecutarTodas := TButton.Create(Self);
-  btnExecutarTodas.Parent := pnlTasksCommands;
-  btnExecutarTodas.Left := 200;
-  btnExecutarTodas.Top := 10;
-  btnExecutarTodas.Width := 150;
-  btnExecutarTodas.Height := 30;
-  btnExecutarTodas.Caption := 'Executar Todas';
-  btnExecutarTodas.OnClick := @btnExecutarTodasClick;
-
-  btnReprocessarTarefa := TButton.Create(Self);
-  btnReprocessarTarefa.Parent := pnlTasksCommands;
-  btnReprocessarTarefa.Left := 360;
-  btnReprocessarTarefa.Top := 10;
-  btnReprocessarTarefa.Width := 130;
-  btnReprocessarTarefa.Height := 30;
-  btnReprocessarTarefa.Caption := 'Reprocessar';
-  btnReprocessarTarefa.OnClick := @btnReprocessarTarefaClick;
-
-  btnCancelarTarefa := TButton.Create(Self);
-  btnCancelarTarefa.Parent := pnlTasksCommands;
-  btnCancelarTarefa.Left := 500;
-  btnCancelarTarefa.Top := 10;
-  btnCancelarTarefa.Width := 130;
-  btnCancelarTarefa.Height := 30;
-  btnCancelarTarefa.Caption := 'Cancelar';
-  btnCancelarTarefa.OnClick := @btnCancelarTarefaClick;
-
-  gbTaskDetail := TGroupBox.Create(Self);
-  gbTaskDetail.Parent := tabTarefas;
-  gbTaskDetail.Align := alClient;
-  gbTaskDetail.Caption := 'Detalhes da Tarefa Selecionada';
-
-  memDetalheTarefa := TMemo.Create(Self);
-  memDetalheTarefa.Parent := gbTaskDetail;
-  memDetalheTarefa.Align := alClient;
-  memDetalheTarefa.ReadOnly := True;
-  memDetalheTarefa.ScrollBars := ssAutoVertical;
-
-  { Tab: Agente (Auditor) }
-  pnlAgentAuditor := TPanel.Create(Self);
-  pnlAgentAuditor.Parent := tabAgente;
-  pnlAgentAuditor.Align := alClient;
-  pnlAgentAuditor.BevelOuter := bvNone;
-
-  gbAgentInput := TGroupBox.Create(Self);
-  gbAgentInput.Parent := pnlAgentAuditor;
-  gbAgentInput.Left := 10;
-  gbAgentInput.Top := 10;
-  gbAgentInput.Width := 380;
-  gbAgentInput.Height := 300;
-  gbAgentInput.Caption := 'Entrada Recebida pelo Agente';
-
-  memEntradaAgente := TMemo.Create(Self);
-  memEntradaAgente.Parent := gbAgentInput;
-  memEntradaAgente.Align := alClient;
-  memEntradaAgente.ReadOnly := True;
-  memEntradaAgente.ScrollBars := ssAutoVertical;
-
-  gbAgentQuestions := TGroupBox.Create(Self);
-  gbAgentQuestions.Parent := pnlAgentAuditor;
-  gbAgentQuestions.Left := 400;
-  gbAgentQuestions.Top := 10;
-  gbAgentQuestions.Width := 380;
-  gbAgentQuestions.Height := 300;
-  gbAgentQuestions.Caption := 'Perguntas e Respostas Internas';
-
-  memPerguntasAgente := TMemo.Create(Self);
-  memPerguntasAgente.Parent := gbAgentQuestions;
-  memPerguntasAgente.Align := alClient;
-  memPerguntasAgente.ReadOnly := True;
-  memPerguntasAgente.ScrollBars := ssAutoVertical;
-
-  gbAgentAnalysis := TGroupBox.Create(Self);
-  gbAgentAnalysis.Parent := pnlAgentAuditor;
-  gbAgentAnalysis.Left := 790;
-  gbAgentAnalysis.Top := 10;
-  gbAgentAnalysis.Width := 380;
-  gbAgentAnalysis.Height := 300;
-  gbAgentAnalysis.Caption := 'Análise e Raciocínio';
-
-  memAnaliseAgente := TMemo.Create(Self);
-  memAnaliseAgente.Parent := gbAgentAnalysis;
-  memAnaliseAgente.Align := alClient;
-  memAnaliseAgente.ReadOnly := True;
-  memAnaliseAgente.ScrollBars := ssAutoVertical;
-
-  gbAgentExplanation := TGroupBox.Create(Self);
-  gbAgentExplanation.Parent := pnlAgentAuditor;
-  gbAgentExplanation.Left := 10;
-  gbAgentExplanation.Top := 320;
-  gbAgentExplanation.Width := 380;
-  gbAgentExplanation.Height := 350;
-  gbAgentExplanation.Caption := 'Explicação do Rumo Tomado';
-
-  memExplicacaoAgente := TMemo.Create(Self);
-  memExplicacaoAgente.Parent := gbAgentExplanation;
-  memExplicacaoAgente.Align := alClient;
-  memExplicacaoAgente.ReadOnly := True;
-  memExplicacaoAgente.ScrollBars := ssAutoVertical;
-
-  gbAgentAction := TGroupBox.Create(Self);
-  gbAgentAction.Parent := pnlAgentAuditor;
-  gbAgentAction.Left := 400;
-  gbAgentAction.Top := 320;
-  gbAgentAction.Width := 380;
-  gbAgentAction.Height := 350;
-  gbAgentAction.Caption := 'Ação Tomada';
-
-  memAcaoTomada := TMemo.Create(Self);
-  memAcaoTomada.Parent := gbAgentAction;
-  memAcaoTomada.Align := alClient;
-  memAcaoTomada.ReadOnly := True;
-  memAcaoTomada.ScrollBars := ssAutoVertical;
-
-  gbAgentOutput := TGroupBox.Create(Self);
-  gbAgentOutput.Parent := pnlAgentAuditor;
-  gbAgentOutput.Left := 790;
-  gbAgentOutput.Top := 320;
-  gbAgentOutput.Width := 380;
-  gbAgentOutput.Height := 350;
-  gbAgentOutput.Caption := 'Saída Lógica do Agente (JSON)';
-
-  memSaidaAgente := TMemo.Create(Self);
-  memSaidaAgente.Parent := gbAgentOutput;
-  memSaidaAgente.Align := alClient;
-  memSaidaAgente.ReadOnly := True;
-  memSaidaAgente.ScrollBars := ssAutoVertical;
-
-  { Tab: Mapa de Memória }
-  gridMapaMemoria := TStringGrid.Create(Self);
-  gridMapaMemoria.Parent := tabMapaMemoria;
-  gridMapaMemoria.Align := alTop;
-  gridMapaMemoria.Height := 280;
-  gridMapaMemoria.FixedCols := 0;
-  gridMapaMemoria.ColCount := 9;
-  gridMapaMemoria.RowCount := 1;
-  gridMapaMemoria.Options := gridMapaMemoria.Options + [goRowSelect];
-  gridMapaMemoria.OnSelection := @gridMapaSelection;
-
-  gridMapaMemoria.Cells[0, 0] := 'Ordem';
-  gridMapaMemoria.Cells[1, 0] := 'Agente';
-  gridMapaMemoria.Cells[2, 0] := 'Tipo';
-  gridMapaMemoria.Cells[3, 0] := 'Status';
-  gridMapaMemoria.Cells[4, 0] := 'Pedido Recebido';
-  gridMapaMemoria.Cells[5, 0] := 'Análise';
-  gridMapaMemoria.Cells[6, 0] := 'Explicação';
-  gridMapaMemoria.Cells[7, 0] := 'Ação Tomada';
-  gridMapaMemoria.Cells[8, 0] := 'Perda Informação';
-
-  for i := 0 to gridMapaMemoria.ColCount - 1 do
-    gridMapaMemoria.ColWidths[i] := 110;
-  gridMapaMemoria.ColWidths[4] := 200;
-
-  pnlMapCommands := TPanel.Create(Self);
-  pnlMapCommands.Parent := tabMapaMemoria;
-  pnlMapCommands.Align := alBottom;
-  pnlMapCommands.Height := 50;
-  pnlMapCommands.BevelOuter := bvNone;
-
-  btnAtualizarMapa := TButton.Create(Self);
-  btnAtualizarMapa.Parent := pnlMapCommands;
-  btnAtualizarMapa.Left := 10;
-  btnAtualizarMapa.Top := 10;
-  btnAtualizarMapa.Width := 150;
-  btnAtualizarMapa.Height := 30;
-  btnAtualizarMapa.Caption := 'Atualizar Mapa';
-  btnAtualizarMapa.OnClick := @btnAtualizarMapaClick;
-
-  btnExportarMapaTexto := TButton.Create(Self);
-  btnExportarMapaTexto.Parent := pnlMapCommands;
-  btnExportarMapaTexto.Left := 170;
-  btnExportarMapaTexto.Top := 10;
-  btnExportarMapaTexto.Width := 150;
-  btnExportarMapaTexto.Height := 30;
-  btnExportarMapaTexto.Caption := 'Exportar TXT';
-  btnExportarMapaTexto.OnClick := @btnExportarMapaTextoClick;
-
-  btnExportarMapaJSON := TButton.Create(Self);
-  btnExportarMapaJSON.Parent := pnlMapCommands;
-  btnExportarMapaJSON.Left := 330;
-  btnExportarMapaJSON.Top := 10;
-  btnExportarMapaJSON.Width := 150;
-  btnExportarMapaJSON.Height := 30;
-  btnExportarMapaJSON.Caption := 'Exportar JSON';
-  btnExportarMapaJSON.OnClick := @btnExportarMapaJSONClick;
-
-  gbMapDetail := TGroupBox.Create(Self);
-  gbMapDetail.Parent := tabMapaMemoria;
-  gbMapDetail.Align := alLeft;
-  gbMapDetail.Width := 580;
-  gbMapDetail.Caption := 'Detalhes da Etapa do Mapa';
-
-  memMapaDetalhe := TMemo.Create(Self);
-  memMapaDetalhe.Parent := gbMapDetail;
-  memMapaDetalhe.Align := alClient;
-  memMapaDetalhe.ReadOnly := True;
-  memMapaDetalhe.ScrollBars := ssAutoVertical;
-
-  gbInfoLoss := TGroupBox.Create(Self);
-  gbInfoLoss.Parent := tabMapaMemoria;
-  gbInfoLoss.Align := alClient;
-  gbInfoLoss.Caption := 'Perdas de Informação Detectadas';
-
-  memPerdasInformacao := TMemo.Create(Self);
-  memPerdasInformacao.Parent := gbInfoLoss;
-  memPerdasInformacao.Align := alClient;
-  memPerdasInformacao.ReadOnly := True;
-  memPerdasInformacao.ScrollBars := ssAutoVertical;
-
-  { Tab: Resultado }
-  pnlResultLayout := TPanel.Create(Self);
-  pnlResultLayout.Parent := tabResultado;
-  pnlResultLayout.Align := alClient;
-  pnlResultLayout.BevelOuter := bvNone;
-
-  gbWordResult := TGroupBox.Create(Self);
-  gbWordResult.Parent := pnlResultLayout;
-  gbWordResult.Align := alLeft;
-  gbWordResult.Width := 580;
-  gbWordResult.Caption := 'Documento Word';
-
-  memConteudoCurriculo := TMemo.Create(Self);
-  memConteudoCurriculo.Parent := gbWordResult;
-  memConteudoCurriculo.Align := alClient;
-  memConteudoCurriculo.ScrollBars := ssAutoVertical;
-
-  pnlWordParams := TPanel.Create(Self);
-  pnlWordParams.Parent := gbWordResult;
-  pnlWordParams.Align := alBottom;
-  pnlWordParams.Height := 50;
-  pnlWordParams.BevelOuter := bvNone;
-
-  lblWordFile := TLabel.Create(Self);
-  lblWordFile.Parent := pnlWordParams;
-  lblWordFile.Left := 10;
-  lblWordFile.Top := 15;
-  lblWordFile.Caption := 'Arquivo Gerado:';
-
-  edArquivoWordGerado := TEdit.Create(Self);
-  edArquivoWordGerado.Parent := pnlWordParams;
-  edArquivoWordGerado.Left := 110;
-  edArquivoWordGerado.Top := 12;
-  edArquivoWordGerado.Width := 300;
-  edArquivoWordGerado.ReadOnly := True;
-
-  btnAbrirArquivoWord := TButton.Create(Self);
-  btnAbrirArquivoWord.Parent := pnlWordParams;
-  btnAbrirArquivoWord.Left := 420;
-  btnAbrirArquivoWord.Top := 10;
-  btnAbrirArquivoWord.Width := 130;
-  btnAbrirArquivoWord.Height := 30;
-  btnAbrirArquivoWord.Caption := 'Abrir Arquivo';
-  btnAbrirArquivoWord.OnClick := @btnAbrirArquivoWordClick;
-
-  gbEmailResult := TGroupBox.Create(Self);
-  gbEmailResult.Parent := pnlResultLayout;
-  gbEmailResult.Align := alClient;
-  gbEmailResult.Caption := 'E-mail';
-
-  pnlEmailParams := TPanel.Create(Self);
-  pnlEmailParams.Parent := gbEmailResult;
-  pnlEmailParams.Align := alTop;
-  pnlEmailParams.Height := 80;
-  pnlEmailParams.BevelOuter := bvNone;
-
-  lblEmailTo := TLabel.Create(Self);
-  lblEmailTo.Parent := pnlEmailParams;
-  lblEmailTo.Left := 10;
-  lblEmailTo.Top := 15;
-  lblEmailTo.Caption := 'Destinatário:';
-
-  edEmailDestino := TEdit.Create(Self);
-  edEmailDestino.Parent := pnlEmailParams;
-  edEmailDestino.Left := 90;
-  edEmailDestino.Top := 12;
-  edEmailDestino.Width := 300;
-
-  lblEmailSubject := TLabel.Create(Self);
-  lblEmailSubject.Parent := pnlEmailParams;
-  lblEmailSubject.Left := 10;
-  lblEmailSubject.Top := 45;
-  lblEmailSubject.Caption := 'Assunto:';
-
-  edAssuntoEmail := TEdit.Create(Self);
-  edAssuntoEmail.Parent := pnlEmailParams;
-  edAssuntoEmail.Left := 90;
-  edAssuntoEmail.Top := 42;
-  edAssuntoEmail.Width := 300;
-
-  memCorpoEmail := TMemo.Create(Self);
-  memCorpoEmail.Parent := gbEmailResult;
-  memCorpoEmail.Align := alClient;
-  memCorpoEmail.ScrollBars := ssAutoVertical;
-
-  pnlEmailCommands := TPanel.Create(Self);
-  pnlEmailCommands.Parent := gbEmailResult;
-  pnlEmailCommands.Align := alBottom;
-  pnlEmailCommands.Height := 50;
-  pnlEmailCommands.BevelOuter := bvNone;
-
-  btnSimularEnvioEmail := TButton.Create(Self);
-  btnSimularEnvioEmail.Parent := pnlEmailCommands;
-  btnSimularEnvioEmail.Left := 10;
-  btnSimularEnvioEmail.Top := 10;
-  btnSimularEnvioEmail.Width := 150;
-  btnSimularEnvioEmail.Height := 30;
-  btnSimularEnvioEmail.Caption := 'Simular Envio';
-  btnSimularEnvioEmail.OnClick := @btnSimularEnvioEmailClick;
-
-  btnEnviarEmailReal := TButton.Create(Self);
-  btnEnviarEmailReal.Parent := pnlEmailCommands;
-  btnEnviarEmailReal.Left := 170;
-  btnEnviarEmailReal.Top := 10;
-  btnEnviarEmailReal.Width := 150;
-  btnEnviarEmailReal.Height := 30;
-  btnEnviarEmailReal.Caption := 'Enviar Real';
-  btnEnviarEmailReal.OnClick := @btnEnviarEmailRealClick;
-
-  { Tab: Log }
-  memLog := TMemo.Create(Self);
-  memLog.Parent := tabLog;
-  memLog.Align := alClient;
-  memLog.ReadOnly := True;
-  memLog.ScrollBars := ssAutoVertical;
-
-  pnlLogCommands := TPanel.Create(Self);
-  pnlLogCommands.Parent := tabLog;
-  pnlLogCommands.Align := alBottom;
-  pnlLogCommands.Height := 50;
-  pnlLogCommands.BevelOuter := bvNone;
-
-  btnLimparLog := TButton.Create(Self);
-  btnLimparLog.Parent := pnlLogCommands;
-  btnLimparLog.Left := 10;
-  btnLimparLog.Top := 10;
-  btnLimparLog.Width := 120;
-  btnLimparLog.Height := 30;
-  btnLimparLog.Caption := 'Limpar Log';
-  btnLimparLog.OnClick := @btnLimparLogClick;
-
-  btnSalvarLog := TButton.Create(Self);
-  btnSalvarLog.Parent := pnlLogCommands;
-  btnSalvarLog.Left := 140;
-  btnSalvarLog.Top := 10;
-  btnSalvarLog.Width := 120;
-  btnSalvarLog.Height := 30;
-  btnSalvarLog.Caption := 'Salvar Log';
-  btnSalvarLog.OnClick := @btnSalvarLogClick;
-end;
 
 procedure TfrmMain.LoadDefaultScenario;
 begin

@@ -4,7 +4,754 @@ object frmMain: TfrmMain
   Top = 80
   Width = 1200
   Caption = 'IA Multi-Agent Task-Oriented Workflow Demo'
+  ClientHeight = 800
+  ClientWidth = 1200
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   LCLVersion = '2.2.0'
+  object pnlHeader: TPanel
+    Left = 0
+    Height = 50
+    Top = 0
+    Width = 1200
+    Align = alTop
+    BevelOuter = bvNone
+    BorderWidth = 5
+    ClientHeight = 50
+    ClientWidth = 1200
+    TabOrder = 0
+    object lblProvider: TLabel
+      Left = 5
+      Height = 40
+      Top = 5
+      Width = 60
+      Align = alLeft
+      Caption = ' Provedor: '
+      Layout = tlCenter
+    end
+    object cbProvider: TComboBox
+      Left = 65
+      Height = 23
+      Top = 13
+      Width = 100
+      ItemHeight = 15
+      Items.Strings = (
+        'OpenAI'
+        'Local (Ollama/LMStudio)'
+      )
+      OnChange = cbProviderChange
+      Style = csDropDownList
+      TabOrder = 0
+    end
+    object lblModel: TLabel
+      Left = 175
+      Height = 40
+      Top = 5
+      Width = 55
+      Align = alLeft
+      Caption = ' Modelo: '
+      Layout = tlCenter
+    end
+    object cbModel: TComboBox
+      Left = 230
+      Height = 23
+      Top = 13
+      Width = 120
+      ItemHeight = 15
+      Items.Strings = (
+        'gpt-4o-mini'
+        'gpt-4o'
+        'llama3.2'
+        'deepseek-r1'
+      )
+      TabOrder = 1
+      Text = 'gpt-4o-mini'
+    end
+    object lblToken: TLabel
+      Left = 360
+      Height = 40
+      Top = 5
+      Width = 45
+      Align = alLeft
+      Caption = ' Token: '
+      Layout = tlCenter
+    end
+    object edtToken: TEdit
+      Left = 410
+      Height = 23
+      Top = 13
+      Width = 150
+      EchoMode = emPassword
+      PasswordChar = '*'
+      TabOrder = 2
+    end
+    object lblBaseURL: TLabel
+      Left = 570
+      Height = 40
+      Top = 5
+      Width = 60
+      Align = alLeft
+      Caption = ' Base URL: '
+      Layout = tlCenter
+    end
+    object edtBaseURL: TEdit
+      Left = 630
+      Height = 23
+      Top = 13
+      Width = 180
+      TabOrder = 3
+      Text = 'https://api.openai.com/v1'
+    end
+  end
+  object pgMain: TPageControl
+    Left = 0
+    Height = 750
+    Top = 50
+    Width = 1200
+    ActivePage = tabPrompt
+    Align = alClient
+    TabIndex = 0
+    TabOrder = 1
+    object tabPrompt: TTabSheet
+      Caption = 'Prompt'
+      ClientHeight = 722
+      ClientWidth = 1192
+      object gbPromptInput: TGroupBox
+        Left = 0
+        Height = 642
+        Top = 0
+        Width = 1192
+        Align = alClient
+        Caption = 'Prompt de Entrada'
+        ClientHeight = 622
+        ClientWidth = 1188
+        TabOrder = 0
+        object memPrompt: TMemo
+          Left = 0
+          Height = 622
+          Top = 0
+          Width = 1188
+          Align = alClient
+          ScrollBars = ssAutoVertical
+          TabOrder = 0
+        end
+      end
+      object pnlPromptCommands: TPanel
+        Left = 0
+        Height = 80
+        Top = 642
+        Width = 1192
+        Align = alBottom
+        BevelOuter = bvNone
+        ClientHeight = 80
+        ClientWidth = 1192
+        TabOrder = 1
+        object btnGerarTarefas: TButton
+          Left = 10
+          Height = 35
+          Top = 10
+          Width = 150
+          Caption = 'Gerar Tarefas'
+          OnClick = btnGerarTarefasClick
+          TabOrder = 0
+        end
+        object btnLimparPrompt: TButton
+          Left = 170
+          Height = 35
+          Top = 10
+          Width = 120
+          Caption = 'Limpar'
+          OnClick = btnLimparPromptClick
+          TabOrder = 1
+        end
+        object chkModoSimulado: TCheckBox
+          Left = 310
+          Height = 19
+          Top = 10
+          Width = 149
+          Caption = 'Modo Simulado (Seguro)'
+          Checked = True
+          State = cbChecked
+          TabOrder = 2
+        end
+        object chkPermitirGerarWordReal: TCheckBox
+          Left = 310
+          Height = 19
+          Top = 30
+          Width = 156
+          Caption = 'Permitir Gerar Word Real'
+          TabOrder = 3
+        end
+        object chkPermitirEnvioEmailReal: TCheckBox
+          Left = 310
+          Height = 19
+          Top = 50
+          Width = 180
+          Caption = 'Permitir Envio de E-mail Real'
+          TabOrder = 4
+        end
+      end
+    end
+    object tabTarefas: TTabSheet
+      Caption = 'Tarefas'
+      ClientHeight = 722
+      ClientWidth = 1192
+      object gridTarefas: TStringGrid
+        Left = 0
+        Height = 350
+        Top = 0
+        Width = 1192
+        Align = alTop
+        ColCount = 9
+        FixedCols = 0
+        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goRowSelect, goSmoothScroll]
+        RowCount = 1
+        TabOrder = 0
+        OnSelection = gridTarefasSelection
+      end
+      object pnlTasksCommands: TPanel
+        Left = 0
+        Height = 50
+        Top = 350
+        Width = 1192
+        Align = alTop
+        BevelOuter = bvNone
+        ClientHeight = 50
+        ClientWidth = 1192
+        TabOrder = 1
+        object btnExecutarTarefaSelecionada: TButton
+          Left = 10
+          Height = 30
+          Top = 10
+          Width = 180
+          Caption = 'Executar Selecionada'
+          OnClick = btnExecutarTarefaSelecionadaClick
+          TabOrder = 0
+        end
+        object btnExecutarTodas: TButton
+          Left = 200
+          Height = 30
+          Top = 10
+          Width = 150
+          Caption = 'Executar Todas'
+          OnClick = btnExecutarTodasClick
+          TabOrder = 1
+        end
+        object btnReprocessarTarefa: TButton
+          Left = 360
+          Height = 30
+          Top = 10
+          Width = 130
+          Caption = 'Reprocessar'
+          OnClick = btnReprocessarTarefaClick
+          TabOrder = 2
+        end
+        object btnCancelarTarefa: TButton
+          Left = 500
+          Height = 30
+          Top = 10
+          Width = 130
+          Caption = 'Cancelar'
+          OnClick = btnCancelarTarefaClick
+          TabOrder = 3
+        end
+      end
+      object gbTaskDetail: TGroupBox
+        Left = 0
+        Height = 322
+        Top = 400
+        Width = 1192
+        Align = alClient
+        Caption = 'Detalhes da Tarefa Selecionada'
+        ClientHeight = 302
+        ClientWidth = 1188
+        TabOrder = 2
+        object memDetalheTarefa: TMemo
+          Left = 0
+          Height = 302
+          Top = 0
+          Width = 1188
+          Align = alClient
+          ReadOnly = True
+          ScrollBars = ssAutoVertical
+          TabOrder = 0
+        end
+      end
+    end
+    object tabAgente: TTabSheet
+      Caption = 'Agente'
+      ClientHeight = 722
+      ClientWidth = 1192
+      object pnlAgentAuditor: TPanel
+        Left = 0
+        Height = 722
+        Top = 0
+        Width = 1192
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 722
+        ClientWidth = 1192
+        TabOrder = 0
+        object gbAgentInput: TGroupBox
+          Left = 10
+          Height = 300
+          Top = 10
+          Width = 380
+          Caption = 'Entrada Recebida pelo Agente'
+          ClientHeight = 280
+          ClientWidth = 376
+          TabOrder = 0
+          object memEntradaAgente: TMemo
+            Left = 0
+            Height = 280
+            Top = 0
+            Width = 376
+            Align = alClient
+            ReadOnly = True
+            ScrollBars = ssAutoVertical
+            TabOrder = 0
+          end
+        end
+        object gbAgentQuestions: TGroupBox
+          Left = 400
+          Height = 300
+          Top = 10
+          Width = 380
+          Caption = 'Perguntas e Respostas Internas'
+          ClientHeight = 280
+          ClientWidth = 376
+          TabOrder = 1
+          object memPerguntasAgente: TMemo
+            Left = 0
+            Height = 280
+            Top = 0
+            Width = 376
+            Align = alClient
+            ReadOnly = True
+            ScrollBars = ssAutoVertical
+            TabOrder = 0
+          end
+        end
+        object gbAgentAnalysis: TGroupBox
+          Left = 790
+          Height = 300
+          Top = 10
+          Width = 380
+          Caption = 'Análise e Raciocínio'
+          ClientHeight = 280
+          ClientWidth = 376
+          TabOrder = 2
+          object memAnaliseAgente: TMemo
+            Left = 0
+            Height = 280
+            Top = 0
+            Width = 376
+            Align = alClient
+            ReadOnly = True
+            ScrollBars = ssAutoVertical
+            TabOrder = 0
+          end
+        end
+        object gbAgentExplanation: TGroupBox
+          Left = 10
+          Height = 380
+          Top = 320
+          Width = 380
+          Caption = 'Explicação do Rumo Tomado'
+          ClientHeight = 360
+          ClientWidth = 376
+          TabOrder = 3
+          object memExplicacaoAgente: TMemo
+            Left = 0
+            Height = 360
+            Top = 0
+            Width = 376
+            Align = alClient
+            ReadOnly = True
+            ScrollBars = ssAutoVertical
+            TabOrder = 0
+          end
+        end
+        object gbAgentAction: TGroupBox
+          Left = 400
+          Height = 380
+          Top = 320
+          Width = 380
+          Caption = 'Ação Tomada'
+          ClientHeight = 360
+          ClientWidth = 376
+          TabOrder = 4
+          object memAcaoTomada: TMemo
+            Left = 0
+            Height = 360
+            Top = 0
+            Width = 376
+            Align = alClient
+            ReadOnly = True
+            ScrollBars = ssAutoVertical
+            TabOrder = 0
+          end
+        end
+        object gbAgentOutput: TGroupBox
+          Left = 790
+          Height = 380
+          Top = 320
+          Width = 380
+          Caption = 'Saída Lógica do Agente (JSON)'
+          ClientHeight = 360
+          ClientWidth = 376
+          TabOrder = 5
+          object memSaidaAgente: TMemo
+            Left = 0
+            Height = 360
+            Top = 0
+            Width = 376
+            Align = alClient
+            ReadOnly = True
+            ScrollBars = ssAutoVertical
+            TabOrder = 0
+          end
+        end
+      end
+    end
+    object tabMapaMemoria: TTabSheet
+      Caption = 'Mapa de Memória'
+      ClientHeight = 722
+      ClientWidth = 1192
+      object gridMapaMemoria: TStringGrid
+        Left = 0
+        Height = 280
+        Top = 0
+        Width = 1192
+        Align = alTop
+        ColCount = 9
+        FixedCols = 0
+        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goRowSelect, goSmoothScroll]
+        RowCount = 1
+        TabOrder = 0
+        OnSelection = gridMapaSelection
+      end
+      object pnlMapCommands: TPanel
+        Left = 0
+        Height = 50
+        Top = 280
+        Width = 1192
+        Align = alTop
+        BevelOuter = bvNone
+        ClientHeight = 50
+        ClientWidth = 1192
+        TabOrder = 1
+        object btnAtualizarMapa: TButton
+          Left = 10
+          Height = 30
+          Top = 10
+          Width = 150
+          Caption = 'Atualizar Mapa'
+          OnClick = btnAtualizarMapaClick
+          TabOrder = 0
+        end
+        object btnExportarMapaTexto: TButton
+          Left = 170
+          Height = 30
+          Top = 10
+          Width = 150
+          Caption = 'Exportar TXT'
+          OnClick = btnExportarMapaTextoClick
+          TabOrder = 1
+        end
+        object btnExportarMapaJSON: TButton
+          Left = 330
+          Height = 30
+          Top = 10
+          Width = 150
+          Caption = 'Exportar JSON'
+          OnClick = btnExportarMapaJSONClick
+          TabOrder = 2
+        end
+      end
+      object gbMapDetail: TGroupBox
+        Left = 0
+        Height = 392
+        Top = 330
+        Width = 580
+        Align = alLeft
+        Caption = 'Detalhes da Etapa do Mapa'
+        ClientHeight = 372
+        ClientWidth = 576
+        TabOrder = 2
+        object memMapaDetalhe: TMemo
+          Left = 0
+          Height = 372
+          Top = 0
+          Width = 576
+          Align = alClient
+          ReadOnly = True
+          ScrollBars = ssAutoVertical
+          TabOrder = 0
+        end
+      end
+      object gbInfoLoss: TGroupBox
+        Left = 580
+        Height = 392
+        Top = 330
+        Width = 612
+        Align = alClient
+        Caption = 'Perdas de Informação Detectadas'
+        ClientHeight = 372
+        ClientWidth = 608
+        TabOrder = 3
+        object memPerdasInformacao: TMemo
+          Left = 0
+          Height = 372
+          Top = 0
+          Width = 608
+          Align = alClient
+          ReadOnly = True
+          ScrollBars = ssAutoVertical
+          TabOrder = 0
+        end
+      end
+    end
+    object tabResultado: TTabSheet
+      Caption = 'Resultado'
+      ClientHeight = 722
+      ClientWidth = 1192
+      object pnlResultLayout: TPanel
+        Left = 0
+        Height = 722
+        Top = 0
+        Width = 1192
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 722
+        ClientWidth = 1192
+        TabOrder = 0
+        object gbWordResult: TGroupBox
+          Left = 0
+          Height = 722
+          Top = 0
+          Width = 580
+          Align = alLeft
+          Caption = 'Documento Word'
+          ClientHeight = 702
+          ClientWidth = 576
+          TabOrder = 0
+          object memConteudoCurriculo: TMemo
+            Left = 0
+            Height = 652
+            Top = 0
+            Width = 576
+            Align = alClient
+            ScrollBars = ssAutoVertical
+            TabOrder = 0
+          end
+          object pnlWordParams: TPanel
+            Left = 0
+            Height = 50
+            Top = 652
+            Width = 576
+            Align = alBottom
+            BevelOuter = bvNone
+            ClientHeight = 50
+            ClientWidth = 576
+            TabOrder = 1
+            object lblWordFile: TLabel
+              Left = 10
+              Height = 15
+              Top = 18
+              Width = 90
+              Caption = 'Arquivo Gerado:'
+            end
+            object edArquivoWordGerado: TEdit
+              Left = 110
+              Height = 23
+              Top = 14
+              Width = 300
+              ReadOnly = True
+              TabOrder = 0
+            end
+            object btnAbrirArquivoWord: TButton
+              Left = 420
+              Height = 30
+              Top = 10
+              Width = 130
+              Caption = 'Abrir Arquivo'
+              OnClick = btnAbrirArquivoWordClick
+              TabOrder = 1
+            end
+          end
+        end
+        object gbEmailResult: TGroupBox
+          Left = 580
+          Height = 722
+          Top = 0
+          Width = 612
+          Align = alClient
+          Caption = 'E-mail'
+          ClientHeight = 702
+          ClientWidth = 608
+          TabOrder = 1
+          object pnlEmailParams: TPanel
+            Left = 0
+            Height = 80
+            Top = 0
+            Width = 608
+            Align = alTop
+            BevelOuter = bvNone
+            ClientHeight = 80
+            ClientWidth = 608
+            TabOrder = 0
+            object lblEmailTo: TLabel
+              Left = 10
+              Height = 15
+              Top = 18
+              Width = 66
+              Caption = 'Destinatário:'
+            end
+            object edEmailDestino: TEdit
+              Left = 90
+              Height = 23
+              Top = 14
+              Width = 300
+              TabOrder = 0
+            end
+            object lblEmailSubject: TLabel
+              Left = 10
+              Height = 15
+              Top = 48
+              Width = 46
+              Caption = 'Assunto:'
+            end
+            object edAssuntoEmail: TEdit
+              Left = 90
+              Height = 23
+              Top = 44
+              Width = 300
+              TabOrder = 1
+            end
+          end
+          object memCorpoEmail: TMemo
+            Left = 0
+            Height = 572
+            Top = 80
+            Width = 608
+            Align = alClient
+            ScrollBars = ssAutoVertical
+            TabOrder = 1
+          end
+          object pnlEmailCommands: TPanel
+            Left = 0
+            Height = 50
+            Top = 652
+            Width = 608
+            Align = alBottom
+            BevelOuter = bvNone
+            ClientHeight = 50
+            ClientWidth = 608
+            TabOrder = 2
+            object btnSimularEnvioEmail: TButton
+              Left = 10
+              Height = 30
+              Top = 10
+              Width = 150
+              Caption = 'Simular Envio'
+              OnClick = btnSimularEnvioEmailClick
+              TabOrder = 0
+            end
+            object btnEnviarEmailReal: TButton
+              Left = 170
+              Height = 30
+              Top = 10
+              Width = 150
+              Caption = 'Enviar Real'
+              OnClick = btnEnviarEmailRealClick
+              TabOrder = 1
+            end
+          end
+        end
+      end
+    end
+    object tabLog: TTabSheet
+      Caption = 'Log'
+      ClientHeight = 722
+      ClientWidth = 1192
+      object memLog: TMemo
+        Left = 0
+        Height = 672
+        Top = 0
+        Width = 1192
+        Align = alClient
+        ReadOnly = True
+        ScrollBars = ssAutoVertical
+        TabOrder = 0
+      end
+      object pnlLogCommands: TPanel
+        Left = 0
+        Height = 50
+        Top = 672
+        Width = 1192
+        Align = alBottom
+        BevelOuter = bvNone
+        ClientHeight = 50
+        ClientWidth = 1192
+        TabOrder = 1
+        object btnLimparLog: TButton
+          Left = 10
+          Height = 30
+          Top = 10
+          Width = 120
+          Caption = 'Limpar Log'
+          OnClick = btnLimparLogClick
+          TabOrder = 0
+        end
+        object btnSalvarLog: TButton
+          Left = 140
+          Height = 30
+          Top = 10
+          Width = 120
+          Caption = 'Salvar Log'
+          OnClick = btnSalvarLogClick
+          TabOrder = 1
+        end
+      end
+    end
+  end
+  object FChatGPT: TCHATGPT
+    Left = 40
+    Top = 100
+  end
+  object FMapaDeMemoria: TAIMapaDeMemoria
+    DetectInformationLoss = True
+    StoreRawJSON = True
+    Left = 120
+    Top = 100
+  end
+  object FClassifierAgent: TAIClassifierAgent
+    Left = 200
+    Top = 100
+  end
+  object FTaskPlannerAgent: TAIDecisionAgent
+    Left = 280
+    Top = 100
+  end
+  object FTaskProcessorAgent: TAIDecisionAgent
+    Left = 360
+    Top = 100
+  end
+  object FActionBuilderAgent: TAIActionBuilderAgent
+    Left = 440
+    Top = 100
+  end
+  object FActionExecutor: TAIActionExecutor
+    Left = 520
+    Top = 100
+  end
+  object FWordOutput: TAIWordOutput
+    Left = 600
+    Top = 100
+  end
+  object FEmailClient: TAIEmailClient
+    Left = 680
+    Top = 100
+  end
 end
