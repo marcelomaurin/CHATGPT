@@ -1026,8 +1026,8 @@ begin
   if not Assigned(FChatGPT) then
     Exit;
 
-  FChatGPT.TOKEN := edtToken.Text;
-  FChatGPT.CustomModel := cbModel.Text;
+  FChatGPT.TOKEN := WideString(edtToken.Text);
+  FChatGPT.CustomModel := WideString(cbModel.Text);
 
   BaseURL := Trim(edtBaseURL.Text);
 
@@ -1038,7 +1038,7 @@ begin
     if BaseURL = '' then
       BaseURL := 'https://api.openai.com/v1';
 
-    FChatGPT.URL := NormalizeChatEndpoint(BaseURL);
+    FChatGPT.URL := WideString(NormalizeChatEndpoint(BaseURL));
   end
   else
   begin
@@ -1047,7 +1047,7 @@ begin
     if BaseURL = '' then
       BaseURL := 'http://localhost:11434/v1';
 
-    FChatGPT.URL := NormalizeChatEndpoint(BaseURL);
+    FChatGPT.URL := WideString(NormalizeChatEndpoint(BaseURL));
   end;
 end;
 
@@ -2740,7 +2740,7 @@ begin
     Data := nil;
 
     try
-      Parser := TJSONParser.Create(AJSON);
+      Parser := TJSONParser.Create(AJSON, []);
       Data := Parser.Parse;
 
       if Data is TJSONObject then
