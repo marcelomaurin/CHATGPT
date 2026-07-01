@@ -31,6 +31,7 @@ type
   );
 
   { TSampleTaskItem }
+
   TSampleTaskItem = class
   public
     ID: string;
@@ -48,27 +49,39 @@ type
     destructor Destroy; override;
   end;
 
-  { Forward declaration for TfrmMain }
   TfrmMain = class;
 
-  { Actions declared locally inside the sample }
-  TSampleCreateWordAction = class(TAICustomAgentAction)
+  { TSampleCreateTextAction }
+
+  TSampleCreateTextAction = class(TAICustomAgentAction)
   public
-    WordOutput: TAIWordOutput;
+    MainForm: TfrmMain;
     LastGeneratedFile: string;
     LastContent: string;
     function RunAction(const AParams: TStrings; ASimulate: Boolean): Boolean; override;
   end;
 
+  { TSampleSendEmailAction }
+
   TSampleSendEmailAction = class(TAICustomAgentAction)
   public
+    MainForm: TfrmMain;
     EmailClient: TAIEmailClient;
-    AttachmentFileName: string;
+    GeneratedTextFileName: string;
+
+    SMTPHost: string;
+    SMTPPort: Integer;
+    SMTPUser: string;
+    SMTPPassword: string;
+
     function RunAction(const AParams: TStrings; ASimulate: Boolean): Boolean; override;
   end;
 
+  { TSampleRegisterResultAction }
+
   TSampleRegisterResultAction = class(TAICustomAgentAction)
   public
+    MainForm: TfrmMain;
     function RunAction(const AParams: TStrings; ASimulate: Boolean): Boolean; override;
   end;
 
@@ -76,6 +89,7 @@ type
 
   TfrmMain = class(TForm)
     FMemoryMap: TAIAgentMemoryMap;
+
     { Credentials & Provider Panels }
     pnlHeader: TPanel;
     lblProvider: TLabel;
@@ -199,6 +213,7 @@ type
 
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+
     procedure btnGerarTarefasClick(Sender: TObject);
     procedure btnExecutarTarefaSelecionadaClick(Sender: TObject);
     procedure btnExecutarTodasClick(Sender: TObject);
@@ -217,13 +232,13 @@ type
     procedure btnEnviarEmailRealClick(Sender: TObject);
     procedure btnBrowserNavigateClick(Sender: TObject);
 
-    // Browser Events
+    { Browser Events }
     procedure AIChromiumBrowser1LoadURL(Sender: TObject; const AURL: string; AIsMainFrame: Boolean);
     procedure AIChromiumBrowser1FinishedLoadURL(Sender: TObject; const AURL: string; AHttpStatusCode: Integer; AIsMainFrame: Boolean);
     procedure AIChromiumBrowser1DOMResult(Sender: TObject; const AKind: string; const ASelector: string; AIndex: Integer; ACount: Integer; const AJSON: string);
 
   private
-    FCreateWordAction: TSampleCreateWordAction;
+    FCreateTextAction: TSampleCreateTextAction;
     FSendEmailAction: TSampleSendEmailAction;
     FRegisterResultAction: TSampleRegisterResultAction;
     FTasks: Contnrs.TObjectList;
@@ -231,20 +246,30 @@ type
     FCapturedWebText: string;
     FWaitingForDOMText: Boolean;
     FWaitingForNavigation: Boolean;
+    FExpectedNavigationURL: string;
+
+    function ValidateProviderToken(out AErro: string): Boolean;
+    function SanitizeLLMError(const AError: string): string;
 
     procedure LoadDefaultScenario;
     procedure ConfigureChatGPT;
+    procedure ConfigureEmailAction;
     procedure AddLog(const AMsg: string);
     procedure RefreshTasksGrid;
     procedure RefreshMemoryMapGrid;
     function GetSelectedTask: TSampleTaskItem;
-    procedure CreateDefaultTasks;
     function LoadTasksFromPlannerJSON(const AJSON: string): Boolean;
     function CanExecuteTask(ATask: TSampleTaskItem; out AError: string): Boolean;
     procedure ShowAgentStep(AItem: TAIAgentMemoryMapItem);
     function DispatchPreparedActions(const APreparedActionsJSON: string): Boolean;
     function EnsureBrowser: Boolean;
     function ExtractURLFromPrompt(const APrompt: string): string;
+
+    function EnsureRuntimeObjects(out AErro: string): Boolean;
+    procedure WireRuntimeObjects;
+    function NormalizeChatEndpoint(const AURL: string): string;
+
+    procedure ResetTasksGrid;
 
     { Events }
     procedure OnMemoryMapAfterCreateStep(Sender: TObject; AItem: TAIAgentMemoryMapItem);
@@ -265,6 +290,74 @@ implementation
 uses
   TypInfo;
 
+function JSONValueToPlainText(AValue: TJSONData): string;
+begin
+  Result := '';
+
+  if not Assigned(AValue) then
+    Exit;
+
+  case AValue.JSONType of
+    jtString:
+      Result := AValue.AsString;
+    jtNumber,
+    jtBoolean:
+      Result := AValue.AsString;
+  else
+    Result := AValue.AsJSON;
+  end;
+end;
+
+function GetJSONArrayField(AObj: TJSONObject; const AName: string; out AField: TJSONArray): Boolean;
+var
+  Data: TJSONData;
+begin
+  Result := False;
+  AField := nil;
+
+  if not Assigned(AObj) then
+    Exit;
+
+  Data := AObj.Find(AName);
+
+  if Assigned(Data) and (Data is TJSONArray) then
+  begin
+    AField := TJSONArray(Data);
+    Result := True;
+  end;
+end;
+
+function LocalCleanJSONResponse(const AText: string): string;
+var
+  S: string;
+  P1, P2: Integer;
+begin
+  S := Trim(AText);
+
+  if Pos('```', S) = 1 then
+  begin
+    P1 := Pos('{', S);
+    P2 := LastDelimiter('}', S);
+
+    if (P1 > 0) and (P2 >= P1) then
+    begin
+      Result := Copy(S, P1, P2 - P1 + 1);
+      Exit;
+    end;
+
+    P1 := Pos('[', S);
+    P2 := LastDelimiter(']', S);
+
+    if (P1 > 0) and (P2 >= P1) then
+    begin
+      Result := Copy(S, P1, P2 - P1 + 1);
+      Exit;
+    end;
+  end;
+
+  Result := S;
+end;
+
 { TSampleTaskItem }
 
 constructor TSampleTaskItem.Create;
@@ -274,6 +367,13 @@ begin
   Status := stsPending;
   RawJSON := '';
   Resultado := '';
+  ID := '';
+  Ordem := 0;
+  Tipo := '';
+  Descricao := '';
+  Agente := '';
+  AcaoSugerida := '';
+  Dependencia := '';
 end;
 
 destructor TSampleTaskItem.Destroy;
@@ -282,43 +382,94 @@ begin
   inherited Destroy;
 end;
 
-{ TSampleCreateWordAction }
+{ TSampleCreateTextAction }
 
-function TSampleCreateWordAction.RunAction(const AParams: TStrings; ASimulate: Boolean): Boolean;
+function TSampleCreateTextAction.RunAction(const AParams: TStrings; ASimulate: Boolean): Boolean;
 var
-  FileName, Title, Content: string;
+  FileName, FullFileName, Title, Content: string;
+  SL: TStringList;
 begin
   Result := False;
-  FileName := AParams.Values['file_name'];
-  if FileName = '' then FileName := 'curriculo_rafael.docx';
-  Title := AParams.Values['title'];
-  if Title = '' then Title := 'Currículo Profissional - Rafael Almeida Costa';
+
+  if not Assigned(MainForm) then
+    Exit;
+
+  FileName := Trim(AParams.Values['file_name']);
+
+  if FileName = '' then
+    FileName := Trim(AParams.Values['filename']);
+
+  if FileName = '' then
+    FileName := 'texto_gerado_' + FormatDateTime('yyyymmdd_hhnnss', Now) + '.txt'
+  else
+    FileName := ChangeFileExt(ExtractFileName(FileName), '.txt');
+
+  Title := Trim(AParams.Values['title']);
+
+  if Title = '' then
+    Title := Trim(AParams.Values['titulo']);
+
+  if Title = '' then
+    Title := 'Texto gerado';
+
   Content := AParams.Values['content'];
-  if Content = '' then Content := 'Currículo';
+
+  if Trim(Content) = '' then
+    Content := AParams.Values['text'];
+
+  if Trim(Content) = '' then
+    Content := AParams.Values['body'];
+
+  if Trim(Content) = '' then
+    Content := AParams.Values['document_text'];
+
+  if Trim(Content) = '' then
+    Content := AParams.Values['curriculum_text'];
+
+  if Trim(Content) = '' then
+  begin
+    MainForm.AddLog('[CREATE_TEXT_DOCUMENT] ERRO: o agente não informou conteúdo real para gerar o texto.');
+    Exit;
+  end;
 
   LastGeneratedFile := FileName;
   LastContent := Content;
 
   try
-    WordOutput.FileName := 'output/' + FileName;
-    WordOutput.Title := Title;
-    
-    // Ensure file path inside project directory or simple temp folder
     ForceDirectories('output');
-    WordOutput.AddHeading(Title, 1);
-    WordOutput.AddParagraph(Content);
-    
-    // Write document
-    WordOutput.SaveWord;
-    
-    frmMain.AddLog(Format('[CREATE_WORD_DOCUMENT] (REAL) Documento "%s" gerado fisicamente.', [WordOutput.FileName]));
-    frmMain.edArquivoWordGerado.Text := WordOutput.FileName;
-    frmMain.memConteudoCurriculo.Text := Content;
+
+    FullFileName := 'output' + DirectorySeparator + FileName;
+
+    if Assigned(MainForm.memConteudoCurriculo) then
+    begin
+      MainForm.memConteudoCurriculo.Clear;
+      MainForm.memConteudoCurriculo.Lines.Add(Title);
+      MainForm.memConteudoCurriculo.Lines.Add(StringOfChar('=', Length(Title)));
+      MainForm.memConteudoCurriculo.Lines.Add('');
+      MainForm.memConteudoCurriculo.Lines.Add(Content);
+    end;
+
+    SL := TStringList.Create;
+    try
+      SL.Add(Title);
+      SL.Add(StringOfChar('=', Length(Title)));
+      SL.Add('');
+      SL.Add(Content);
+      SL.SaveToFile(FullFileName);
+    finally
+      SL.Free;
+    end;
+
+    if Assigned(MainForm.edArquivoWordGerado) then
+      MainForm.edArquivoWordGerado.Text := FullFileName;
+
+    MainForm.AddLog(Format('[CREATE_TEXT_DOCUMENT] Texto "%s" gerado fisicamente.', [FullFileName]));
+
     Result := True;
   except
     on E: Exception do
     begin
-      frmMain.AddLog('[CREATE_WORD_DOCUMENT] (ERRO) Falha ao criar Word real: ' + E.Message);
+      MainForm.AddLog('[CREATE_TEXT_DOCUMENT] ERRO: Falha ao gerar texto: ' + E.Message);
       Result := False;
     end;
   end;
@@ -331,43 +482,115 @@ var
   ToAddr, Subject, Body: string;
 begin
   Result := False;
-  ToAddr := AParams.Values['to'];
-  if ToAddr = '' then ToAddr := 'marcelomaurinmartins@gmail.com';
-  Subject := AParams.Values['subject'];
-  if Subject = '' then Subject := 'Currículo';
-  Body := AParams.Values['body'];
-  if Body = '' then Body := 'Segue currículo em anexo.';
 
-  if MessageDlg('Confirmação Manual', Format('Deseja realmente enviar o e-mail real para "%s"?', [ToAddr]), mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+  if not Assigned(MainForm) then
+    Exit;
+
+  if not Assigned(EmailClient) then
+  begin
+    MainForm.AddLog('[SEND_EMAIL] ERRO: EmailClient não foi inicializado.');
+    Exit;
+  end;
+
+  ToAddr := Trim(AParams.Values['to']);
+
+  if ToAddr = '' then
+    ToAddr := Trim(AParams.Values['email']);
+
+  if ToAddr = '' then
+    ToAddr := Trim(AParams.Values['recipient']);
+
+  if ToAddr = '' then
+    ToAddr := Trim(MainForm.edEmailDestino.Text);
+
+  if ToAddr = '' then
+  begin
+    MainForm.AddLog('[SEND_EMAIL] ERRO: destinatário não informado pelo agente nem pela tela.');
+    Exit;
+  end;
+
+  Subject := Trim(AParams.Values['subject']);
+
+  if Subject = '' then
+    Subject := Trim(AParams.Values['assunto']);
+
+  if Subject = '' then
+    Subject := Trim(MainForm.edAssuntoEmail.Text);
+
+  if Subject = '' then
+    Subject := 'Sem assunto';
+
+  Body := AParams.Values['body'];
+
+  if Trim(Body) = '' then
+    Body := AParams.Values['message'];
+
+  if Trim(Body) = '' then
+    Body := AParams.Values['corpo'];
+
+  if Trim(Body) = '' then
+    Body := MainForm.memCorpoEmail.Text;
+
+  if Trim(Body) = '' then
+  begin
+    if Assigned(MainForm.memConteudoCurriculo) then
+      Body := MainForm.memConteudoCurriculo.Text;
+  end;
+
+  if Trim(Body) = '' then
+  begin
+    MainForm.AddLog('[SEND_EMAIL] ERRO: corpo do e-mail não informado e nenhum texto gerado disponível.');
+    Exit;
+  end;
+
+  if GeneratedTextFileName <> '' then
+    Body := Body + sLineBreak + sLineBreak + 'Arquivo texto gerado localmente: ' + GeneratedTextFileName;
+
+  if MessageDlg(
+       'Confirmação Manual',
+       Format('Deseja realmente enviar o e-mail real para "%s"?', [ToAddr]),
+       mtConfirmation,
+       [mbYes, mbNo],
+       0
+     ) = mrYes then
   begin
     try
-      // Configure Email Client properties from UI fields
-      EmailClient.HostSMTP := frmMain.edSMTPHost.Text;
-      EmailClient.PortSMTP := StrToIntDef(frmMain.edSMTPPort.Text, 25);
-      EmailClient.Username := frmMain.edSMTPUser.Text;
-      EmailClient.Password := frmMain.edSMTPPassword.Text;
+      EmailClient.HostSMTP := SMTPHost;
+      EmailClient.PortSMTP := SMTPPort;
+      EmailClient.Username := SMTPUser;
+      EmailClient.Password := SMTPPassword;
 
-      // Include attachment path in the body as standard client does not support files attachment
-      if AttachmentFileName <> '' then
-        Body := Body + sLineBreak + sLineBreak + 'Anexo: ' + AttachmentFileName;
-      
+      if Trim(EmailClient.HostSMTP) = '' then
+      begin
+        MainForm.AddLog('[SEND_EMAIL] ERRO: servidor SMTP não informado.');
+        Exit;
+      end;
+
       EmailClient.SendEmail(ToAddr, Subject, Body);
-      frmMain.AddLog(Format('[SEND_EMAIL] (REAL) E-mail enviado com sucesso para "%s".', [ToAddr]));
-      frmMain.edEmailDestino.Text := ToAddr;
-      frmMain.edAssuntoEmail.Text := Subject;
-      frmMain.memCorpoEmail.Text := Body;
+
+      MainForm.AddLog(Format('[SEND_EMAIL] E-mail enviado com sucesso para "%s".', [ToAddr]));
+
+      if Assigned(MainForm.edEmailDestino) then
+        MainForm.edEmailDestino.Text := ToAddr;
+
+      if Assigned(MainForm.edAssuntoEmail) then
+        MainForm.edAssuntoEmail.Text := Subject;
+
+      if Assigned(MainForm.memCorpoEmail) then
+        MainForm.memCorpoEmail.Text := Body;
+
       Result := True;
     except
       on E: Exception do
       begin
-        frmMain.AddLog('[SEND_EMAIL] (ERRO) Falha ao enviar e-mail: ' + E.Message);
+        MainForm.AddLog('[SEND_EMAIL] ERRO: Falha ao enviar e-mail: ' + E.Message);
         Result := False;
       end;
     end;
   end
   else
   begin
-    frmMain.AddLog('[SEND_EMAIL] Envio cancelado pelo usuário.');
+    MainForm.AddLog('[SEND_EMAIL] Envio cancelado pelo usuário.');
     Result := False;
   end;
 end;
@@ -378,16 +601,34 @@ function TSampleRegisterResultAction.RunAction(const AParams: TStrings; ASimulat
 var
   StatusMsg: string;
 begin
+  Result := False;
+
+  if not Assigned(MainForm) then
+    Exit;
+
   StatusMsg := AParams.Values['status'];
-  if StatusMsg = '' then StatusMsg := 'Concluído com sucesso!';
-  
-  frmMain.AddLog('[REGISTER_RESULT] ' + StatusMsg);
+
+  if StatusMsg = '' then
+    StatusMsg := AParams.Values['message'];
+
+  if StatusMsg = '' then
+    StatusMsg := AParams.Values['resultado'];
+
+  if StatusMsg = '' then
+  begin
+    MainForm.AddLog('[REGISTER_RESULT] ERRO: status/resultado não informado pelo agente.');
+    Exit;
+  end;
+
+  MainForm.AddLog('[REGISTER_RESULT] ' + StatusMsg);
   Result := True;
 end;
 
 { TfrmMain }
 
 procedure TfrmMain.FormCreate(Sender: TObject);
+var
+  Erro: string;
 begin
   Position := poScreenCenter;
   Width := 1200;
@@ -396,96 +637,335 @@ begin
 
   FTasks := TObjectList.Create(True);
 
-  { Actions wiring }
-  FCreateWordAction := TSampleCreateWordAction.Create(Self);
-  FCreateWordAction.WordOutput := FWordOutput;
-  FCreateWordAction.MemoryMap := FMemoryMap;
+  if not EnsureRuntimeObjects(Erro) then
+  begin
+    ShowMessage('Erro ao inicializar objetos do sample: ' + Erro);
+    Exit;
+  end;
 
-  FSendEmailAction := TSampleSendEmailAction.Create(Self);
-  FSendEmailAction.EmailClient := FEmailClient;
-  FSendEmailAction.MemoryMap := FMemoryMap;
+  if Assigned(gbWordResult) then
+    gbWordResult.Caption := 'Resultado em Texto';
 
-  FRegisterResultAction := TSampleRegisterResultAction.Create(Self);
-  FRegisterResultAction.MemoryMap := FMemoryMap;
+  if Assigned(lblWordFile) then
+    lblWordFile.Caption := 'Arquivo texto gerado:';
 
-  { Setup agents configs }
-  FClassifierAgent.ChatGPT := FChatGPT;
-  FClassifierAgent.MemoryMap := FMemoryMap;
-  FClassifierAgent.NomeAgente := 'classifier_agent';
+  if Assigned(btnAbrirArquivoWord) then
+    btnAbrirArquivoWord.Caption := 'Abrir Texto';
 
-  FTaskPlannerAgent.ChatGPT := FChatGPT;
-  FTaskPlannerAgent.MemoryMap := FMemoryMap;
-  FTaskPlannerAgent.NomeAgente := 'task_planner_agent';
+  if Assigned(chkModoSimulado) then
+  begin
+    chkModoSimulado.Checked := False;
+    chkModoSimulado.Visible := False;
+  end;
 
-  FTaskProcessorAgent.ChatGPT := FChatGPT;
-  FTaskProcessorAgent.MemoryMap := FMemoryMap;
-  FTaskProcessorAgent.NomeAgente := 'task_processor_agent';
+  if Assigned(btnSimularEnvioEmail) then
+    btnSimularEnvioEmail.Visible := False;
 
-  FActionBuilderAgent.ChatGPT := FChatGPT;
-  FActionBuilderAgent.MemoryMap := FMemoryMap;
-  FActionBuilderAgent.NomeAgente := 'action_builder_agent';
+  if Assigned(chkPermitirGerarWordReal) then
+  begin
+    chkPermitirGerarWordReal.Caption := 'Permitir gerar arquivo texto real';
+    chkPermitirGerarWordReal.Checked := True;
+  end;
 
-  FActionExecutor.ChatGPT := FChatGPT;
-  FActionExecutor.MemoryMap := FMemoryMap;
-  FActionExecutor.NomeAgente := 'action_executor';
-
-  { Map events }
-  FMemoryMap.OnAfterCreateStep := @OnMemoryMapAfterCreateStep;
-  FMemoryMap.OnAfterCloseStep := @OnMemoryMapAfterCloseStep;
-  FMemoryMap.OnInformationLossDetected := @OnMemoryMapInformationLossDetected;
-  FMemoryMap.OnMemoryMapLog := @OnMemoryMapLog;
-
-  { Wire Chromium browser components }
-  AIChromiumBrowser1.ChromiumWindow := ChromiumWindow1;
-  AIChromiumBrowser1.MonitorDOMEvents := True;
-  AIChromiumBrowser1.OnLoadURL := @AIChromiumBrowser1LoadURL;
-  AIChromiumBrowser1.OnFinishedLoadURL := @AIChromiumBrowser1FinishedLoadURL;
-  AIChromiumBrowser1.OnDOMResult := @AIChromiumBrowser1DOMResult;
+  if Assigned(AIChromiumBrowser1) and Assigned(ChromiumWindow1) then
+  begin
+    AIChromiumBrowser1.ChromiumWindow := ChromiumWindow1;
+    AIChromiumBrowser1.MonitorDOMEvents := True;
+    AIChromiumBrowser1.OnLoadURL := @AIChromiumBrowser1LoadURL;
+    AIChromiumBrowser1.OnFinishedLoadURL := @AIChromiumBrowser1FinishedLoadURL;
+    AIChromiumBrowser1.OnDOMResult := @AIChromiumBrowser1DOMResult;
+  end
+  else
+    AddLog('Aviso: AIChromiumBrowser1 ou ChromiumWindow1 não foram encontrados no formulário.');
 
   FCapturedWebText := '';
   FWaitingForDOMText := False;
   FWaitingForNavigation := False;
+  FExpectedNavigationURL := '';
 
+  ResetTasksGrid;
   LoadDefaultScenario;
+
   AddLog('Sample inicializado e pronto.');
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
-  FTasks.Free;
+  FreeAndNil(FTasks);
 end;
 
+function TfrmMain.EnsureRuntimeObjects(out AErro: string): Boolean;
+begin
+  Result := False;
+  AErro := '';
 
+  try
+    if not Assigned(FChatGPT) then
+      FChatGPT := TCHATGPT.Create(Self);
+
+    if not Assigned(FMemoryMap) then
+      FMemoryMap := TAIAgentMemoryMap.Create(Self);
+
+    if not Assigned(FClassifierAgent) then
+      FClassifierAgent := TAIClassifierAgent.Create(Self);
+
+    if not Assigned(FTaskPlannerAgent) then
+      FTaskPlannerAgent := TAIDecisionAgent.Create(Self);
+
+    if not Assigned(FTaskProcessorAgent) then
+      FTaskProcessorAgent := TAIDecisionAgent.Create(Self);
+
+    if not Assigned(FActionBuilderAgent) then
+      FActionBuilderAgent := TAIActionBuilderAgent.Create(Self);
+
+    if not Assigned(FActionExecutor) then
+      FActionExecutor := TAIActionExecutor.Create(Self);
+
+    if not Assigned(FEmailClient) then
+      FEmailClient := TAIEmailClient.Create(Self);
+
+    if not Assigned(FCreateTextAction) then
+      FCreateTextAction := TSampleCreateTextAction.Create(Self);
+
+    if not Assigned(FSendEmailAction) then
+      FSendEmailAction := TSampleSendEmailAction.Create(Self);
+
+    if not Assigned(FRegisterResultAction) then
+      FRegisterResultAction := TSampleRegisterResultAction.Create(Self);
+
+    WireRuntimeObjects;
+
+    Result := True;
+  except
+    on E: Exception do
+    begin
+      AErro := E.Message;
+      Result := False;
+    end;
+  end;
+end;
+
+procedure TfrmMain.WireRuntimeObjects;
+begin
+  if Assigned(FCreateTextAction) then
+  begin
+    FCreateTextAction.MainForm := Self;
+    FCreateTextAction.MemoryMap := FMemoryMap;
+  end;
+
+  if Assigned(FSendEmailAction) then
+  begin
+    FSendEmailAction.MainForm := Self;
+    FSendEmailAction.EmailClient := FEmailClient;
+    FSendEmailAction.MemoryMap := FMemoryMap;
+  end;
+
+  if Assigned(FRegisterResultAction) then
+  begin
+    FRegisterResultAction.MainForm := Self;
+    FRegisterResultAction.MemoryMap := FMemoryMap;
+  end;
+
+  if Assigned(FClassifierAgent) then
+  begin
+    FClassifierAgent.ChatGPT := FChatGPT;
+    FClassifierAgent.MemoryMap := FMemoryMap;
+    FClassifierAgent.NomeAgente := 'classifier_agent';
+    FClassifierAgent.TipoAgenteMapa := tamClassificador;
+  end;
+
+  if Assigned(FTaskPlannerAgent) then
+  begin
+    FTaskPlannerAgent.ChatGPT := FChatGPT;
+    FTaskPlannerAgent.MemoryMap := FMemoryMap;
+    FTaskPlannerAgent.NomeAgente := 'task_planner_agent';
+    FTaskPlannerAgent.TipoAgenteMapa := tamDecisor;
+  end;
+
+  if Assigned(FTaskProcessorAgent) then
+  begin
+    FTaskProcessorAgent.ChatGPT := FChatGPT;
+    FTaskProcessorAgent.MemoryMap := FMemoryMap;
+    FTaskProcessorAgent.NomeAgente := 'task_processor_agent';
+    FTaskProcessorAgent.TipoAgenteMapa := tamDecisor;
+  end;
+
+  if Assigned(FActionBuilderAgent) then
+  begin
+    FActionBuilderAgent.ChatGPT := FChatGPT;
+    FActionBuilderAgent.MemoryMap := FMemoryMap;
+    FActionBuilderAgent.NomeAgente := 'action_builder_agent';
+    FActionBuilderAgent.TipoAgenteMapa := tamAjustadorAcao;
+  end;
+
+  if Assigned(FActionExecutor) then
+  begin
+    FActionExecutor.ChatGPT := FChatGPT;
+    FActionExecutor.MemoryMap := FMemoryMap;
+    FActionExecutor.NomeAgente := 'action_executor';
+  end;
+
+  if Assigned(FMemoryMap) then
+  begin
+    FMemoryMap.OnAfterCreateStep := @OnMemoryMapAfterCreateStep;
+    FMemoryMap.OnAfterCloseStep := @OnMemoryMapAfterCloseStep;
+    FMemoryMap.OnInformationLossDetected := @OnMemoryMapInformationLossDetected;
+    FMemoryMap.OnMemoryMapLog := @OnMemoryMapLog;
+  end;
+end;
+
+function TfrmMain.NormalizeChatEndpoint(const AURL: string): string;
+var
+  S, SL: string;
+begin
+  S := Trim(AURL);
+
+  while (S <> '') and (S[Length(S)] = '/') do
+    Delete(S, Length(S), 1);
+
+  SL := LowerCase(S);
+
+  if S = '' then
+    Result := ''
+  else if Pos('/chat/completions', SL) > 0 then
+    Result := S
+  else
+    Result := S + '/chat/completions';
+end;
+
+function TfrmMain.ValidateProviderToken(out AErro: string): Boolean;
+var
+  LToken: string;
+begin
+  Result := False;
+  AErro := '';
+  LToken := Trim(edtToken.Text);
+
+  if cbProvider.ItemIndex = 0 then
+  begin
+    if LToken = '' then
+    begin
+      AErro := 'Informe o token/API key antes de chamar a OpenAI.';
+      Exit;
+    end;
+
+    if Pos('sk-', LToken) <> 1 then
+    begin
+      AErro :=
+        'A chave informada não parece ser uma API key válida da OpenAI. ' +
+        'Ela deve começar com "sk-".';
+      Exit;
+    end;
+  end;
+
+  Result := True;
+end;
+
+function TfrmMain.SanitizeLLMError(const AError: string): string;
+var
+  S, L: string;
+begin
+  S := Trim(AError);
+  L := LowerCase(S);
+
+  if S = '' then
+  begin
+    Result := 'Erro não informado pelo componente LLM.';
+    Exit;
+  end;
+
+  if Pos('incorrect api key provided', L) > 0 then
+  begin
+    Result := 'API key inválida. Gere uma nova chave válida no provedor e atualize o campo Token.';
+    Exit;
+  end;
+
+  if Pos('invalid_api_key', L) > 0 then
+  begin
+    Result := 'API key inválida. Gere uma nova chave válida no provedor e atualize o campo Token.';
+    Exit;
+  end;
+
+  if Pos('401', L) > 0 then
+  begin
+    Result := 'Erro de autenticação no provedor de IA. Verifique o Token/API key.';
+    Exit;
+  end;
+
+  Result := S;
+end;
 
 procedure TfrmMain.LoadDefaultScenario;
 begin
-  memPrompt.Text :=
-    'Manda um email para o Joao.Silva@hotmail.com, com cópia para o rodolfo. ' +
-    'Mas primeiro Cria um cv meu , para isso pega meus dados do meu site ' +
-    'https://maurinsoft.com.br/wp/sobre-nos/ para criar meu cv.';
-
   cbProvider.ItemIndex := 0;
   cbProviderChange(nil);
 
-  edEmailDestino.Text := 'Joao.Silva@hotmail.com';
+  memPrompt.Text :=
+    'Acesse o site https://maurinsoft.com.br/wp/sobre-nos/ usando o Chromium integrado, ' +
+    'capture o conteúdo real da página e, com base somente nas informações reais capturadas, ' +
+    'gere um texto de currículo profissional em português. ' +
+    'O texto deve ser colocado no memConteudoCurriculo e salvo como arquivo .txt. ' +
+    'Depois prepare um e-mail para marcelomaurinmartins@gmail.com com o assunto "Currículo Profissional", ' +
+    'incluindo o texto do currículo no corpo da mensagem. ' +
+    'Não invente dados que não estejam no site. ' +
+    'Não gere documento Word. Gere somente texto. ' +
+    'Não envie o e-mail automaticamente sem confirmação manual.';
+
+  edEmailDestino.Text := 'marcelomaurinmartins@gmail.com';
   edAssuntoEmail.Text := 'Currículo Profissional';
+
+  memCorpoEmail.Clear;
+  memConteudoCurriculo.Clear;
+  edArquivoWordGerado.Clear;
 end;
 
 procedure TfrmMain.ConfigureChatGPT;
+var
+  BaseURL: string;
 begin
+  if not Assigned(FChatGPT) then
+    Exit;
+
   FChatGPT.TOKEN := edtToken.Text;
-  FChatGPT.URL := edtBaseURL.Text;
   FChatGPT.CustomModel := cbModel.Text;
-  
+
+  BaseURL := Trim(edtBaseURL.Text);
+
   if cbProvider.ItemIndex = 0 then
-    FChatGPT.Provider := AIP_OPENAI
+  begin
+    FChatGPT.Provider := AIP_OPENAI;
+
+    if BaseURL = '' then
+      BaseURL := 'https://api.openai.com/v1';
+
+    FChatGPT.URL := NormalizeChatEndpoint(BaseURL);
+  end
   else
+  begin
     FChatGPT.Provider := AIP_LOCAL;
+
+    if BaseURL = '' then
+      BaseURL := 'http://localhost:11434/v1';
+
+    FChatGPT.URL := NormalizeChatEndpoint(BaseURL);
+  end;
+end;
+
+procedure TfrmMain.ConfigureEmailAction;
+begin
+  if not Assigned(FSendEmailAction) then
+    Exit;
+
+  FSendEmailAction.SMTPHost := Trim(edSMTPHost.Text);
+  FSendEmailAction.SMTPPort := StrToIntDef(Trim(edSMTPPort.Text), 25);
+  FSendEmailAction.SMTPUser := Trim(edSMTPUser.Text);
+  FSendEmailAction.SMTPPassword := edSMTPPassword.Text;
 end;
 
 procedure TfrmMain.AddLog(const AMsg: string);
 begin
-  memLog.Lines.Add(Format('[%s] %s', [FormatDateTime('yyyy-mm-dd hh:nn:ss', Now), AMsg]));
+  if Assigned(memLog) then
+    memLog.Lines.Add(Format('[%s] %s', [FormatDateTime('yyyy-mm-dd hh:nn:ss', Now), AMsg]));
 end;
 
 procedure TfrmMain.cbProviderChange(Sender: TObject);
@@ -493,6 +973,7 @@ begin
   if cbProvider.ItemIndex = 0 then
   begin
     edtBaseURL.Text := 'https://api.openai.com/v1';
+
     cbModel.Clear;
     cbModel.Items.Add('gpt-4o-mini');
     cbModel.Items.Add('gpt-4o');
@@ -501,6 +982,7 @@ begin
   else
   begin
     edtBaseURL.Text := 'http://localhost:11434/v1';
+
     cbModel.Clear;
     cbModel.Items.Add('llama3.2');
     cbModel.Items.Add('deepseek-r1');
@@ -508,32 +990,25 @@ begin
   end;
 end;
 
-procedure TfrmMain.CreateDefaultTasks;
-var
-  T: TSampleTaskItem;
+procedure TfrmMain.ResetTasksGrid;
 begin
-  FTasks.Clear;
+  if Assigned(FTasks) then
+    FTasks.Clear;
 
-  T := TSampleTaskItem.Create;
-  T.ID := 'T001'; T.Ordem := 1; T.Tipo := 'analysis'; T.Descricao := 'Analisar pedido do usuário'; T.Agente := 'classifier_agent'; T.AcaoSugerida := 'ANALYZE_REQUEST'; T.Dependencia := ''; FTasks.Add(T);
-
-  T := TSampleTaskItem.Create;
-  T.ID := 'T002'; T.Ordem := 2; T.Tipo := 'content'; T.Descricao := 'Extrair e organizar dados do currículo'; T.Agente := 'task_processor_agent'; T.AcaoSugerida := 'EXTRACT_DATA'; T.Dependencia := 'T001'; FTasks.Add(T);
-
-  T := TSampleTaskItem.Create;
-  T.ID := 'T003'; T.Ordem := 3; T.Tipo := 'content'; T.Descricao := 'Gerar conteúdo textual do currículo'; T.Agente := 'task_processor_agent'; T.AcaoSugerida := 'GENERATE_TEXT'; T.Dependencia := 'T002'; FTasks.Add(T);
-
-  T := TSampleTaskItem.Create;
-  T.ID := 'T004'; T.Ordem := 4; T.Tipo := 'document'; T.Descricao := 'Criar documento Word com o currículo'; T.Agente := 'action_builder_agent'; T.AcaoSugerida := 'CREATE_WORD_DOCUMENT'; T.Dependencia := 'T003'; FTasks.Add(T);
-
-  T := TSampleTaskItem.Create;
-  T.ID := 'T005'; T.Ordem := 5; T.Tipo := 'email'; T.Descricao := 'Preparar e-mail'; T.Agente := 'task_processor_agent'; T.AcaoSugerida := 'PREPARE_EMAIL'; T.Dependencia := 'T004'; FTasks.Add(T);
-
-  T := TSampleTaskItem.Create;
-  T.ID := 'T006'; T.Ordem := 6; T.Tipo := 'email'; T.Descricao := 'Enviar e-mail com o documento anexado'; T.Agente := 'action_builder_agent'; T.AcaoSugerida := 'SEND_EMAIL'; T.Dependencia := 'T005'; FTasks.Add(T);
-
-  T := TSampleTaskItem.Create;
-  T.ID := 'T007'; T.Ordem := 7; T.Tipo := 'log'; T.Descricao := 'Registrar resultado final'; T.Agente := 'action_builder_agent'; T.AcaoSugerida := 'REGISTER_RESULT'; T.Dependencia := 'T006'; FTasks.Add(T);
+  if Assigned(gridTarefas) then
+  begin
+    gridTarefas.RowCount := 1;
+    gridTarefas.ColCount := 9;
+    gridTarefas.Cells[0, 0] := 'Ordem';
+    gridTarefas.Cells[1, 0] := 'ID';
+    gridTarefas.Cells[2, 0] := 'Tipo';
+    gridTarefas.Cells[3, 0] := 'Descrição';
+    gridTarefas.Cells[4, 0] := 'Agente';
+    gridTarefas.Cells[5, 0] := 'Ação';
+    gridTarefas.Cells[6, 0] := 'Status';
+    gridTarefas.Cells[7, 0] := 'Dependência';
+    gridTarefas.Cells[8, 0] := 'Resultado';
+  end;
 end;
 
 procedure TfrmMain.RefreshTasksGrid;
@@ -541,10 +1016,32 @@ var
   i: Integer;
   T: TSampleTaskItem;
 begin
+  if not Assigned(gridTarefas) then
+    Exit;
+
+  if not Assigned(FTasks) then
+  begin
+    ResetTasksGrid;
+    Exit;
+  end;
+
+  gridTarefas.ColCount := 9;
   gridTarefas.RowCount := FTasks.Count + 1;
+
+  gridTarefas.Cells[0, 0] := 'Ordem';
+  gridTarefas.Cells[1, 0] := 'ID';
+  gridTarefas.Cells[2, 0] := 'Tipo';
+  gridTarefas.Cells[3, 0] := 'Descrição';
+  gridTarefas.Cells[4, 0] := 'Agente';
+  gridTarefas.Cells[5, 0] := 'Ação';
+  gridTarefas.Cells[6, 0] := 'Status';
+  gridTarefas.Cells[7, 0] := 'Dependência';
+  gridTarefas.Cells[8, 0] := 'Resultado';
+
   for i := 0 to FTasks.Count - 1 do
   begin
     T := TSampleTaskItem(FTasks[i]);
+
     gridTarefas.Cells[0, i + 1] := IntToStr(T.Ordem);
     gridTarefas.Cells[1, i + 1] := T.ID;
     gridTarefas.Cells[2, i + 1] := T.Tipo;
@@ -562,10 +1059,21 @@ var
   i: Integer;
   Item: TAIAgentMemoryMapItem;
 begin
+  if not Assigned(gridMapaMemoria) then
+    Exit;
+
+  if (not Assigned(FMemoryMap)) or (not Assigned(FMemoryMap.Items)) then
+  begin
+    gridMapaMemoria.RowCount := 1;
+    Exit;
+  end;
+
   gridMapaMemoria.RowCount := FMemoryMap.Items.Count + 1;
+
   for i := 0 to FMemoryMap.Items.Count - 1 do
   begin
     Item := FMemoryMap.Items[i];
+
     gridMapaMemoria.Cells[0, i + 1] := IntToStr(Item.Ordem);
     gridMapaMemoria.Cells[1, i + 1] := Item.NomeAgente;
     gridMapaMemoria.Cells[2, i + 1] := GetEnumName(TypeInfo(TAITipoAgenteMapa), Ord(Item.TipoAgente));
@@ -585,10 +1093,16 @@ var
   i: Integer;
 begin
   Result := nil;
+
+  if (not Assigned(gridTarefas)) or (not Assigned(FTasks)) then
+    Exit;
+
   Row := gridTarefas.Row;
+
   if (Row > 0) and (Row <= FTasks.Count) then
   begin
     ID := gridTarefas.Cells[1, Row];
+
     for i := 0 to FTasks.Count - 1 do
     begin
       if TSampleTaskItem(FTasks[i]).ID = ID then
@@ -605,6 +1119,7 @@ var
   T: TSampleTaskItem;
 begin
   T := GetSelectedTask;
+
   if T <> nil then
   begin
     memDetalheTarefa.Clear;
@@ -617,6 +1132,7 @@ begin
     memDetalheTarefa.Lines.Add('Status: ' + GetEnumName(TypeInfo(TSampleTaskStatus), Ord(T.Status)));
     memDetalheTarefa.Lines.Add('Dependência: ' + T.Dependencia);
     memDetalheTarefa.Lines.Add('Resultado: ' + T.Resultado);
+
     if T.RawJSON <> '' then
       memDetalheTarefa.Lines.Add('JSON Bruto: ' + T.RawJSON);
   end;
@@ -627,18 +1143,27 @@ var
   Idx: Integer;
   Item: TAIAgentMemoryMapItem;
 begin
+  if (not Assigned(FMemoryMap)) or (not Assigned(FMemoryMap.Items)) then
+    Exit;
+
   Idx := ARow - 1;
+
   if (Idx >= 0) and (Idx < FMemoryMap.Items.Count) then
   begin
     Item := FMemoryMap.Items[Idx];
+
     memMapaDetalhe.Text := Item.AsText;
     memPerdasInformacao.Text := Item.InformacoesPerdidas.Text;
+
     ShowAgentStep(Item);
   end;
 end;
 
 procedure TfrmMain.ShowAgentStep(AItem: TAIAgentMemoryMapItem);
 begin
+  if not Assigned(AItem) then
+    Exit;
+
   memEntradaAgente.Text := AItem.PedidoRecebido;
   memPerguntasAgente.Text := AItem.PerguntasAnalises.AsText;
   memAnaliseAgente.Text := AItem.Analise;
@@ -649,14 +1174,21 @@ end;
 
 procedure TfrmMain.btnLimparPromptClick(Sender: TObject);
 begin
-  memPrompt.Clear;
+  if Assigned(memPrompt) then
+    memPrompt.Clear;
 end;
 
 procedure TfrmMain.btnGerarTarefasClick(Sender: TObject);
 var
-  LClassificacaoJSON, LPlannerInput, LTarefasJSON, LURL: string;
+  LClassificacaoJSON: string;
+  LPlannerInput: string;
+  LTarefasJSON: string;
+  LURL: string;
   PlannerSuccess: Boolean;
   StartTicks: QWord;
+  Erro: string;
+  ClassifierSuccess: Boolean;
+  PlannerAgentSuccess: Boolean;
 begin
   if Trim(memPrompt.Text) = '' then
   begin
@@ -664,112 +1196,305 @@ begin
     Exit;
   end;
 
+  if not EnsureRuntimeObjects(Erro) then
+  begin
+    AddLog('Erro ao preparar objetos do sample: ' + Erro);
+    ShowMessage('Erro ao preparar objetos do sample: ' + Erro);
+    Exit;
+  end;
+
+  if not ValidateProviderToken(Erro) then
+  begin
+    AddLog('Geração cancelada: ' + Erro);
+    ShowMessage(Erro);
+    Exit;
+  end;
+
   btnGerarTarefas.Enabled := False;
+
   try
     ConfigureChatGPT;
 
-    // Extract URL and capture real text first
+    ResetTasksGrid;
+
+    if Assigned(memDetalheTarefa) then
+      memDetalheTarefa.Clear;
+
+    if Assigned(memConteudoCurriculo) then
+      memConteudoCurriculo.Clear;
+
+    if Assigned(memCorpoEmail) then
+      memCorpoEmail.Clear;
+
+    if Assigned(edArquivoWordGerado) then
+      edArquivoWordGerado.Clear;
+
     FCapturedWebText := '';
+    FWaitingForDOMText := False;
+    FWaitingForNavigation := False;
+    FExpectedNavigationURL := '';
+
     LURL := ExtractURLFromPrompt(memPrompt.Text);
+
     if LURL <> '' then
     begin
       AddLog('URL detectada no prompt: ' + LURL);
-      if EnsureBrowser then
-      begin
-        edBrowserURL.Text := LURL;
-        FWaitingForNavigation := True;
-        AIChromiumBrowser1.Navigate(LURL);
-        pgMain.ActivePage := tabBrowser;
-        AddLog('Aguardando carregamento da página (max 15 segundos)...');
-        
-        StartTicks := GetTickCount64;
-        while FWaitingForNavigation and (GetTickCount64 - StartTicks < 15000) do
-        begin
-          Application.ProcessMessages;
-          Sleep(50);
-        end;
-        
-        if FWaitingForNavigation then
-        begin
-          AddLog('Aviso: Timeout aguardando o carregamento da página. Tentando capturar mesmo assim...');
-          FWaitingForNavigation := False;
-        end;
 
-        FWaitingForDOMText := True;
+      if not EnsureBrowser then
+      begin
+        AddLog('Erro: navegador não pôde ser inicializado. Não é possível capturar o conteúdo real da página.');
+        ShowMessage('Não foi possível inicializar o Chromium para capturar o conteúdo real do site.');
+        Exit;
+      end;
+
+      edBrowserURL.Text := LURL;
+      FExpectedNavigationURL := LURL;
+      FWaitingForNavigation := True;
+
+      pgMain.ActivePage := tabBrowser;
+
+      AddLog('Navegando para a URL real: ' + LURL);
+
+      try
+        AIChromiumBrowser1.Navigate(LURL);
+      except
+        on E: Exception do
+        begin
+          FWaitingForNavigation := False;
+          FExpectedNavigationURL := '';
+          AddLog('Erro ao navegar no Chromium: ' + E.Message);
+          ShowMessage('Erro ao navegar no Chromium. Veja o log.');
+          Exit;
+        end;
+      end;
+
+      AddLog('Aguardando carregamento da página real (max 15 segundos)...');
+
+      StartTicks := GetTickCount64;
+
+      while FWaitingForNavigation and (GetTickCount64 - StartTicks < 15000) do
+      begin
+        Application.ProcessMessages;
+        Sleep(50);
+      end;
+
+      if FWaitingForNavigation then
+      begin
+        FWaitingForNavigation := False;
+        FExpectedNavigationURL := '';
+        AddLog('Erro: timeout aguardando carregamento da URL real.');
+        ShowMessage('Timeout aguardando carregamento da página real no Chromium.');
+        Exit;
+      end;
+
+      FExpectedNavigationURL := '';
+
+      FWaitingForDOMText := True;
+
+      try
         AIChromiumBrowser1.CaptureText('body');
-        AddLog('Aguardando captura do texto da página (max 10 segundos)...');
-        
-        StartTicks := GetTickCount64;
-        while FWaitingForDOMText and (GetTickCount64 - StartTicks < 10000) do
+      except
+        on E: Exception do
         begin
-          Application.ProcessMessages;
-          Sleep(50);
-        end;
-        
-        if FWaitingForDOMText then
-        begin
-          AddLog('Aviso: Timeout aguardando a resposta do DOM.');
           FWaitingForDOMText := False;
+          AddLog('Erro ao solicitar captura do DOM: ' + E.Message);
+          ShowMessage('Erro ao capturar texto da página. Veja o log.');
+          Exit;
         end;
+      end;
+
+      AddLog('Aguardando captura do texto real da página (max 10 segundos)...');
+
+      StartTicks := GetTickCount64;
+
+      while FWaitingForDOMText and (GetTickCount64 - StartTicks < 10000) do
+      begin
+        Application.ProcessMessages;
+        Sleep(50);
+      end;
+
+      if FWaitingForDOMText then
+      begin
+        FWaitingForDOMText := False;
+        AddLog('Erro: timeout aguardando resposta do DOM.');
+        ShowMessage('Timeout aguardando captura do texto da página.');
+        Exit;
+      end;
+
+      if Trim(FCapturedWebText) = '' then
+      begin
+        AddLog('Erro: a página foi carregada, mas nenhum texto real foi capturado.');
+        ShowMessage('A página foi carregada, mas nenhum texto real foi capturado. O fluxo foi interrompido para não inventar dados.');
+        Exit;
+      end;
+
+      AddLog(Format('Conteúdo real capturado com sucesso. Tamanho: %d caracteres.', [Length(FCapturedWebText)]));
+    end;
+
+    AddLog('Iniciando fluxo real de geração de tarefas...');
+
+    try
+      FMemoryMap.StartFlow(memPrompt.Text, 'Geração de Tarefas');
+    except
+      on E: Exception do
+      begin
+        AddLog('Erro ao iniciar mapa de memória: ' + E.Message);
+        ShowMessage('Erro ao iniciar mapa de memória. Veja o log.');
+        Exit;
       end;
     end;
 
-    AddLog('Iniciando fluxo de geração de tarefas...');
-    FMemoryMap.StartFlow(memPrompt.Text, 'Geração de Tarefas');
-    CreateDefaultTasks;
+    AddLog('Classificando prompt via LLM...');
 
-    // 1. Classify Request
-    if edtToken.Text <> '' then
+    LPlannerInput := memPrompt.Text;
+
+    if Trim(FCapturedWebText) <> '' then
     begin
-      AddLog('Classificando prompt via LLM...');
-      
-      // Inject captured web text if present
-      LPlannerInput := memPrompt.Text;
-      if FCapturedWebText <> '' then
-        LPlannerInput := LPlannerInput + sLineBreak + 'CONTEUDO REAL CAPTURADO DO SITE:' + sLineBreak + FCapturedWebText;
+      LPlannerInput :=
+        LPlannerInput +
+        sLineBreak +
+        sLineBreak +
+        '=== CONTEUDO REAL CAPTURADO DO SITE ===' +
+        sLineBreak +
+        FCapturedWebText;
+    end;
 
-      if FClassifierAgent.Classify(LPlannerInput, LClassificacaoJSON) then
-      begin
-        AddLog('Classificação bem-sucedida.');
-        // 2. Plan Tasks
-        LPlannerInput := 'PROMPT ORIGINAL:' + sLineBreak + memPrompt.Text + sLineBreak + 'CLASSIFICACAO:' + sLineBreak + LClassificacaoJSON;
-        if FCapturedWebText <> '' then
-          LPlannerInput := LPlannerInput + sLineBreak + 'CONTEUDO REAL CAPTURADO DO SITE:' + sLineBreak + FCapturedWebText;
+    ClassifierSuccess := False;
+    LClassificacaoJSON := '';
 
-        AddLog('Planejando tarefas via LLM...');
-        if FTaskPlannerAgent.Decide(LPlannerInput, LTarefasJSON) then
-        begin
-          AddLog('Planejamento concluído pelo LLM.');
-          PlannerSuccess := LoadTasksFromPlannerJSON(LTarefasJSON);
-          if not PlannerSuccess then
-          begin
-            AddLog('Aviso: Falha ao carregar JSON do planejador. Usando tarefas locais.');
-            CreateDefaultTasks;
-          end;
-        end
-        else
-        begin
-          AddLog('Erro no planejador. Usando tarefas locais de fallback.');
-          CreateDefaultTasks;
-        end;
-      end
-      else
+    try
+      ClassifierSuccess := FClassifierAgent.Classify(LPlannerInput, LClassificacaoJSON);
+    except
+      on E: Exception do
       begin
-        AddLog('Erro no classificador. Usando tarefas locais de fallback.');
-        CreateDefaultTasks;
+        ClassifierSuccess := False;
+        AddLog('Exception no classificador: ' + E.Message);
       end;
-    end
-    else
+    end;
+
+    if not ClassifierSuccess then
     begin
-      AddLog('Nenhum token fornecido. Usando tarefas padrão (Fallback Local).');
-      CreateDefaultTasks;
+      AddLog('Erro no classificador: ' + SanitizeLLMError(FClassifierAgent.LastError));
+      ShowMessage('Não foi possível classificar o prompt. Veja o log.');
+      Exit;
+    end;
+
+    if Trim(LClassificacaoJSON) = '' then
+    begin
+      AddLog('Erro: classificador retornou sucesso, mas a classificação veio vazia.');
+      ShowMessage('Classificador retornou resposta vazia. Veja o log.');
+      Exit;
+    end;
+
+    AddLog('Classificação bem-sucedida.');
+
+    LPlannerInput :=
+      'PROMPT ORIGINAL:' +
+      sLineBreak +
+      memPrompt.Text +
+      sLineBreak +
+      sLineBreak +
+      'CLASSIFICACAO:' +
+      sLineBreak +
+      LClassificacaoJSON;
+
+    if Trim(FCapturedWebText) <> '' then
+    begin
+      LPlannerInput :=
+        LPlannerInput +
+        sLineBreak +
+        sLineBreak +
+        '=== CONTEUDO REAL CAPTURADO DO SITE ===' +
+        sLineBreak +
+        FCapturedWebText;
+    end;
+
+    LPlannerInput :=
+      LPlannerInput +
+      sLineBreak +
+      sLineBreak +
+      '=== INSTRUCOES OBRIGATORIAS PARA O PLANEJADOR ===' +
+      sLineBreak +
+      'Retorne exclusivamente JSON válido.' + sLineBreak +
+      'O JSON deve conter o campo "tasks" como array.' + sLineBreak +
+      'Cada item de "tasks" deve conter: id, order, type, description, agent, suggested_action, depends_on.' + sLineBreak +
+      'Não crie tarefa para gerar Word ou DOCX.' + sLineBreak +
+      'Para gerar texto, use suggested_action = "CREATE_TEXT_DOCUMENT".' + sLineBreak +
+      'Para enviar e-mail, use suggested_action = "SEND_EMAIL".' + sLineBreak +
+      'Não invente dados que não estejam no prompt ou no conteúdo real capturado.' + sLineBreak +
+      'Formato obrigatório preferencial:' + sLineBreak +
+      '{' + sLineBreak +
+      '  "tasks": [' + sLineBreak +
+      '    {' + sLineBreak +
+      '      "id": "T001",' + sLineBreak +
+      '      "order": 1,' + sLineBreak +
+      '      "type": "content",' + sLineBreak +
+      '      "description": "Gerar o texto do currículo com base no conteúdo real capturado",' + sLineBreak +
+      '      "agent": "task_processor_agent",' + sLineBreak +
+      '      "suggested_action": "CREATE_TEXT_DOCUMENT",' + sLineBreak +
+      '      "depends_on": ""' + sLineBreak +
+      '    }' + sLineBreak +
+      '  ]' + sLineBreak +
+      '}' + sLineBreak +
+      'Se ainda assim retornar action_plan/actions, cada action será tratada como tarefa operacional real.';
+
+    AddLog('Planejando tarefas via LLM...');
+
+    PlannerAgentSuccess := False;
+    LTarefasJSON := '';
+
+    try
+      PlannerAgentSuccess := FTaskPlannerAgent.Decide(LPlannerInput, LTarefasJSON);
+    except
+      on E: Exception do
+      begin
+        PlannerAgentSuccess := False;
+        AddLog('Exception no planejador: ' + E.Message);
+      end;
+    end;
+
+    if not PlannerAgentSuccess then
+    begin
+      AddLog('Erro no planejador: ' + SanitizeLLMError(FTaskPlannerAgent.LastError));
+      ShowMessage('Não foi possível planejar tarefas reais. Veja o log.');
+      Exit;
+    end;
+
+    if Trim(LTarefasJSON) = '' then
+    begin
+      AddLog('Erro: planejador retornou sucesso, mas o JSON de tarefas veio vazio.');
+      ShowMessage('Planejador retornou JSON vazio. Veja o log.');
+      Exit;
+    end;
+
+    AddLog('Planejamento concluído pelo LLM.');
+    AddLog('JSON bruto retornado pelo planejador: ' + Copy(LTarefasJSON, 1, 3000));
+
+    PlannerSuccess := LoadTasksFromPlannerJSON(LTarefasJSON);
+
+    if not PlannerSuccess then
+    begin
+      ShowMessage('O planejador retornou JSON inválido ou sem lista de tarefas/ações. Veja o log.');
+      Exit;
     end;
 
     RefreshTasksGrid;
     RefreshMemoryMapGrid;
+
+    if FTasks.Count > 0 then
+    begin
+      gridTarefas.Row := 1;
+      gridTarefasSelection(gridTarefas, 0, 1);
+    end;
+
     pgMain.ActivePage := tabTarefas;
 
+    AddLog(Format('Geração de tarefas concluída. Total de tarefas reais carregadas: %d.', [FTasks.Count]));
+
   finally
+    FWaitingForDOMText := False;
+    FWaitingForNavigation := False;
+    FExpectedNavigationURL := '';
     btnGerarTarefas.Enabled := True;
   end;
 end;
@@ -777,38 +1502,299 @@ end;
 function TfrmMain.LoadTasksFromPlannerJSON(const AJSON: string): Boolean;
 var
   JSONData: TJSONData;
-  Obj, TaskObj: TJSONObject;
+  TaskObj, ParamsObj: TJSONObject;
   Arr: TJSONArray;
-  i: Integer;
+  ItemData, ParamsData: TJSONData;
+  CleanJSON: string;
+  ArrayKind: string;
+  i, j: Integer;
   T: TSampleTaskItem;
-begin
-  Result := False;
-  try
-    JSONData := GetJSON(AJSON);
-    try
-      if JSONData is TJSONObject then
+  PreviousTaskID: string;
+
+  function FindPlannerArray(AData: TJSONData; out AArr: TJSONArray; out AKind: string): Boolean;
+  var
+    O: TJSONObject;
+    D: TJSONData;
+    K: Integer;
+    N: string;
+  begin
+    Result := False;
+    AArr := nil;
+    AKind := '';
+
+    if not Assigned(AData) then
+      Exit;
+
+    if AData is TJSONArray then
+    begin
+      AArr := TJSONArray(AData);
+      AKind := 'tasks';
+      Result := True;
+      Exit;
+    end;
+
+    if not (AData is TJSONObject) then
+      Exit;
+
+    O := TJSONObject(AData);
+
+    D := O.Find('tasks');
+    if Assigned(D) and (D is TJSONArray) then
+    begin
+      AArr := TJSONArray(D);
+      AKind := 'tasks';
+      Result := True;
+      Exit;
+    end;
+
+    D := O.Find('steps');
+    if Assigned(D) and (D is TJSONArray) then
+    begin
+      AArr := TJSONArray(D);
+      AKind := 'tasks';
+      Result := True;
+      Exit;
+    end;
+
+    D := O.Find('task_list');
+    if Assigned(D) and (D is TJSONArray) then
+    begin
+      AArr := TJSONArray(D);
+      AKind := 'tasks';
+      Result := True;
+      Exit;
+    end;
+
+    { O TAIDecisionAgent pode retornar plano de ações direto, sem tasks.
+      Isso não é fake: convertemos cada ação real em uma linha de tarefa operacional. }
+    D := O.Find('actions');
+    if Assigned(D) and (D is TJSONArray) then
+    begin
+      AArr := TJSONArray(D);
+      AKind := 'actions';
+      Result := True;
+      Exit;
+    end;
+
+    for K := 0 to O.Count - 1 do
+    begin
+      N := O.Names[K];
+
+      if SameText(N, 'plan') or
+         SameText(N, 'result') or
+         SameText(N, 'output') or
+         SameText(N, 'data') or
+         SameText(N, 'response') or
+         SameText(N, 'action_plan') or
+         SameText(N, 'task_plan') then
       begin
-        Obj := TJSONObject(JSONData);
-        Arr := Obj.Arrays['tasks'];
-        if Assigned(Arr) then
+        if FindPlannerArray(O.Items[K], AArr, AKind) then
         begin
-          FTasks.Clear;
-          for i := 0 to Arr.Count - 1 do
-          begin
-            TaskObj := Arr.Objects[i];
-            T := TSampleTaskItem.Create;
-            T.ID := TaskObj.Get('id', '');
-            T.Ordem := TaskObj.Get('order', i + 1);
-            T.Tipo := TaskObj.Get('type', '');
-            T.Descricao := TaskObj.Get('description', '');
-            T.Agente := TaskObj.Get('agent', 'task_processor_agent');
-            T.AcaoSugerida := TaskObj.Get('suggested_action', '');
-            T.Dependencia := TaskObj.Get('depends_on', '');
-            FTasks.Add(T);
-          end;
           Result := True;
+          Exit;
         end;
       end;
+    end;
+  end;
+
+  function GetJSONStr(AObj: TJSONObject; const AName, AAlt1, AAlt2: string): string;
+  var
+    D: TJSONData;
+  begin
+    Result := '';
+
+    if not Assigned(AObj) then
+      Exit;
+
+    D := AObj.Find(AName);
+
+    if (not Assigned(D)) and (AAlt1 <> '') then
+      D := AObj.Find(AAlt1);
+
+    if (not Assigned(D)) and (AAlt2 <> '') then
+      D := AObj.Find(AAlt2);
+
+    if Assigned(D) then
+      Result := Trim(JSONValueToPlainText(D));
+  end;
+
+  function GetJSONInt(AObj: TJSONObject; const AName, AAlt1: string; ADefault: Integer): Integer;
+  var
+    D: TJSONData;
+  begin
+    Result := ADefault;
+
+    if not Assigned(AObj) then
+      Exit;
+
+    D := AObj.Find(AName);
+
+    if (not Assigned(D)) and (AAlt1 <> '') then
+      D := AObj.Find(AAlt1);
+
+    if Assigned(D) then
+      Result := StrToIntDef(JSONValueToPlainText(D), ADefault);
+  end;
+
+begin
+  Result := False;
+
+  if Trim(AJSON) = '' then
+  begin
+    AddLog('JSON do planejador veio vazio.');
+    Exit;
+  end;
+
+  CleanJSON := LocalCleanJSONResponse(AJSON);
+
+  try
+    JSONData := GetJSON(CleanJSON);
+    try
+      Arr := nil;
+      ArrayKind := '';
+
+      if not FindPlannerArray(JSONData, Arr, ArrayKind) then
+      begin
+        AddLog('JSON do planejador não possui array "tasks", "steps", "task_list" ou "actions" em nenhum nível aceito.');
+        AddLog('JSON recebido: ' + Copy(CleanJSON, 1, 3000));
+        Exit;
+      end;
+
+      if not Assigned(Arr) then
+      begin
+        AddLog('Array do planejador não localizado.');
+        AddLog('JSON recebido: ' + Copy(CleanJSON, 1, 3000));
+        Exit;
+      end;
+
+      if Arr.Count = 0 then
+      begin
+        AddLog('Array do planejador veio vazio.');
+        AddLog('JSON recebido: ' + Copy(CleanJSON, 1, 3000));
+        Exit;
+      end;
+
+      FTasks.Clear;
+      PreviousTaskID := '';
+
+      for i := 0 to Arr.Count - 1 do
+      begin
+        ItemData := Arr.Items[i];
+
+        if not (ItemData is TJSONObject) then
+        begin
+          AddLog(Format('Item %d do array "%s" não é objeto JSON. Ignorado.', [i, ArrayKind]));
+          Continue;
+        end;
+
+        TaskObj := TJSONObject(ItemData);
+        T := TSampleTaskItem.Create;
+        try
+          if SameText(ArrayKind, 'actions') then
+          begin
+            T.ID := GetJSONStr(TaskObj, 'id', 'action_id', 'task_id');
+            T.Ordem := GetJSONInt(TaskObj, 'order', 'step_number', i + 1);
+            T.Tipo := 'action';
+            T.AcaoSugerida := GetJSONStr(TaskObj, 'action', 'name', 'action_name');
+            T.Descricao := GetJSONStr(TaskObj, 'description', 'descricao', '');
+
+            if T.Descricao = '' then
+              T.Descricao := 'Executar ação ' + T.AcaoSugerida;
+
+            T.Agente := GetJSONStr(TaskObj, 'agent', 'agente', 'assigned_agent');
+            if T.Agente = '' then
+              T.Agente := 'task_processor_agent';
+
+            T.Dependencia := GetJSONStr(TaskObj, 'depends_on', 'dependency', 'dependencia');
+
+            { Em plano de ações, preserve a ordem. SEND_EMAIL normalmente depende do texto gerado antes. }
+            if (T.Dependencia = '') and (PreviousTaskID <> '') then
+              T.Dependencia := PreviousTaskID;
+
+            ParamsData := TaskObj.Find('parameters');
+            if Assigned(ParamsData) and (ParamsData is TJSONObject) then
+            begin
+              ParamsObj := TJSONObject(ParamsData);
+              for j := 0 to ParamsObj.Count - 1 do
+                T.Params.Values[ParamsObj.Names[j]] := JSONValueToPlainText(ParamsObj.Items[j]);
+            end;
+          end
+          else
+          begin
+            T.ID := GetJSONStr(TaskObj, 'id', 'task_id', '');
+            T.Ordem := GetJSONInt(TaskObj, 'order', 'step_number', i + 1);
+            T.Tipo := GetJSONStr(TaskObj, 'type', 'tipo', 'category');
+            T.Descricao := GetJSONStr(TaskObj, 'description', 'descricao', 'task');
+
+            if T.Descricao = '' then
+              T.Descricao := GetJSONStr(TaskObj, 'instruction', 'objective', 'step');
+
+            T.Agente := GetJSONStr(TaskObj, 'agent', 'agente', 'assigned_agent');
+            if T.Agente = '' then
+              T.Agente := GetJSONStr(TaskObj, 'target_agent', 'responsible_agent', '');
+
+            T.AcaoSugerida := GetJSONStr(TaskObj, 'suggested_action', 'action', 'acao');
+            if T.AcaoSugerida = '' then
+              T.AcaoSugerida := GetJSONStr(TaskObj, 'action_name', 'operation', '');
+
+            T.Dependencia := GetJSONStr(TaskObj, 'depends_on', 'dependency', 'dependencia');
+            if T.Dependencia = '' then
+              T.Dependencia := GetJSONStr(TaskObj, 'depends', 'after', '');
+          end;
+
+          T.RawJSON := TaskObj.AsJSON;
+
+          if T.ID = '' then
+            T.ID := 'T' + Format('%.3d', [i + 1]);
+
+          if T.Ordem <= 0 then
+            T.Ordem := i + 1;
+
+          if T.Tipo = '' then
+            T.Tipo := 'task';
+
+          if T.Descricao = '' then
+          begin
+            AddLog(Format('Tarefa %s ignorada: descrição não informada.', [T.ID]));
+            FreeAndNil(T);
+            Continue;
+          end;
+
+          if T.Agente = '' then
+          begin
+            AddLog(Format('Tarefa %s ignorada: agent/agente não informado.', [T.ID]));
+            FreeAndNil(T);
+            Continue;
+          end;
+
+          if SameText(T.AcaoSugerida, 'CREATE_WORD_DOCUMENT') then
+            T.AcaoSugerida := 'CREATE_TEXT_DOCUMENT';
+
+          if SameText(T.AcaoSugerida, 'CREATE_TEXT_DOCUMENT') and
+             (T.Params.Values['content'] = '') and
+             (Trim(FCapturedWebText) <> '') then
+            T.Params.Values['content'] := FCapturedWebText;
+
+          FTasks.Add(T);
+          PreviousTaskID := T.ID;
+          T := nil;
+        except
+          on E: Exception do
+          begin
+            AddLog(Format('Erro ao carregar item %d do array "%s": %s', [i, ArrayKind, E.Message]));
+            T.Free;
+          end;
+        end;
+      end;
+
+      if FTasks.Count = 0 then
+      begin
+        AddLog('Nenhuma tarefa válida foi carregada do JSON do planejador.');
+        AddLog('JSON recebido: ' + Copy(CleanJSON, 1, 3000));
+        Exit;
+      end;
+
+      Result := True;
     finally
       JSONData.Free;
     end;
@@ -816,6 +1802,7 @@ begin
     on E: Exception do
     begin
       AddLog('Erro ao fazer parse do JSON do planejador: ' + E.Message);
+      AddLog('JSON recebido: ' + Copy(CleanJSON, 1, 3000));
       Result := False;
     end;
   end;
@@ -828,104 +1815,383 @@ var
 begin
   Result := True;
   AError := '';
-  if ATask.Dependencia = '' then Exit;
+
+  if not Assigned(ATask) then
+  begin
+    Result := False;
+    AError := 'Tarefa inválida.';
+    Exit;
+  end;
+
+  if ATask.Dependencia = '' then
+    Exit;
+
+  if not Assigned(FTasks) then
+  begin
+    Result := False;
+    AError := 'Lista de tarefas não foi inicializada.';
+    Exit;
+  end;
 
   for i := 0 to FTasks.Count - 1 do
   begin
     DepTask := TSampleTaskItem(FTasks[i]);
+
     if DepTask.ID = ATask.Dependencia then
     begin
-      if (DepTask.Status <> stsDone) then
+      if DepTask.Status <> stsDone then
       begin
         Result := False;
-        AError := Format('A tarefa dependente "%s" (%s) não foi concluída.', [DepTask.ID, DepTask.Descricao]);
+        AError := Format(
+          'A tarefa dependente "%s" (%s) não foi concluída.',
+          [DepTask.ID, DepTask.Descricao]
+        );
         Exit;
-      end;
+      end
+      else
+        Exit;
     end;
   end;
+
+  Result := False;
+  AError := Format('A tarefa dependente "%s" não foi encontrada.', [ATask.Dependencia]);
 end;
 
 procedure TfrmMain.btnExecutarTarefaSelecionadaClick(Sender: TObject);
 var
   T: TSampleTaskItem;
   Err: string;
-  LProcessorInput, ProcessorOutput, BuilderOutput, ExecutorOutput: string;
+  LProcessorInput: string;
+  ProcessorOutput: string;
+  BuilderInput: string;
+  BuilderOutput: string;
+  ExecutorOutput: string;
   ProcessSuccess: Boolean;
+  ActionBuildSuccess: Boolean;
+  ExecutorSuccess: Boolean;
+  DispatchSuccess: Boolean;
+  ErroRuntime: string;
+  i: Integer;
+  DepTask: TSampleTaskItem;
+  CompletedContext: string;
 begin
+  if not EnsureRuntimeObjects(ErroRuntime) then
+  begin
+    AddLog('Erro ao preparar objetos antes de executar tarefa: ' + ErroRuntime);
+    ShowMessage('Erro ao preparar objetos antes de executar tarefa: ' + ErroRuntime);
+    Exit;
+  end;
+
+  if not ValidateProviderToken(ErroRuntime) then
+  begin
+    AddLog('Execução cancelada: ' + ErroRuntime);
+    ShowMessage(ErroRuntime);
+    Exit;
+  end;
+
   T := GetSelectedTask;
+
   if T = nil then
   begin
     ShowMessage('Por favor, selecione uma tarefa no grid.');
     Exit;
   end;
 
-  if not CanExecuteTask(T, Err) then
+  if T.Status = stsCanceled then
   begin
-    ShowMessage(Err);
+    ShowMessage('Esta tarefa está cancelada. Reprocesse a tarefa antes de executar.');
+    AddLog(Format('Execução bloqueada: tarefa "%s" está cancelada.', [T.ID]));
     Exit;
   end;
 
-  AddLog(Format('Iniciando processamento da tarefa: %s (%s)...', [T.ID, T.Descricao]));
+  if T.Status = stsProcessing then
+  begin
+    ShowMessage('Esta tarefa já está em processamento.');
+    AddLog(Format('Execução bloqueada: tarefa "%s" já está em processamento.', [T.ID]));
+    Exit;
+  end;
+
+  if not CanExecuteTask(T, Err) then
+  begin
+    ShowMessage(Err);
+    AddLog('Execução bloqueada: ' + Err);
+    Exit;
+  end;
+
+  AddLog(Format('Iniciando processamento real da tarefa: %s (%s)...', [T.ID, T.Descricao]));
+
   T.Status := stsProcessing;
+  T.Resultado := '';
   RefreshTasksGrid;
+  Application.ProcessMessages;
 
   ConfigureChatGPT;
 
-  ProcessSuccess := False;
-  // If LLM is configured, call cognitive agents
-  if edtToken.Text <> '' then
-  begin
-    AddLog('Executando TaskProcessorAgent...');
-    LProcessorInput := Format('Tarefa a processar: %s. Descrição: %s. Dependência: %s', [T.ID, T.Descricao, T.Dependencia]);
-    if FCapturedWebText <> '' then
-      LProcessorInput := LProcessorInput + sLineBreak + 'CONTEUDO REAL CAPTURADO DO SITE:' + sLineBreak + FCapturedWebText;
+  CompletedContext := '';
 
-    if FTaskProcessorAgent.Decide(LProcessorInput, ProcessorOutput) then
+  if Assigned(FTasks) then
+  begin
+    for i := 0 to FTasks.Count - 1 do
     begin
-      T.Resultado := ProcessorOutput;
-      ProcessSuccess := True;
-      AddLog('Processamento cognitivo concluído.');
-      
-      // Check if action suggestion exists
-      if T.AcaoSugerida <> '' then
+      DepTask := TSampleTaskItem(FTasks[i]);
+
+      if (DepTask.Status = stsDone) and (Trim(DepTask.Resultado) <> '') then
       begin
-        AddLog('Gerando plano de ações...');
-        if FActionBuilderAgent.BuildActions(ProcessorOutput, BuilderOutput) then
-        begin
-          AddLog('Plano de ações gerado.');
-          AddLog('Analisando plano pelo Executor...');
-          if FActionExecutor.ExecutePlan(BuilderOutput, ExecutorOutput) then
-          begin
-            AddLog('Plano validado e simulado.');
-            DispatchPreparedActions(BuilderOutput);
-            T.Status := stsDone;
-          end
-          else
-          begin
-            AddLog('Falha no executor: ' + FActionExecutor.LastError);
-            T.Status := stsFailed;
-            T.Resultado := FActionExecutor.LastError;
-          end;
-        end
-        else
-        begin
-          AddLog('Falha no action builder.');
-          T.Status := stsFailed;
-        end;
-      end
-      else
-      begin
-        T.Status := stsDone;
+        CompletedContext :=
+          CompletedContext +
+          sLineBreak +
+          'TAREFA CONCLUÍDA: ' + DepTask.ID + sLineBreak +
+          'Descrição: ' + DepTask.Descricao + sLineBreak +
+          'Resultado: ' + DepTask.Resultado + sLineBreak;
       end;
+    end;
+  end;
+
+  LProcessorInput :=
+    '=== TAREFA SELECIONADA ===' + sLineBreak +
+    'ID: ' + T.ID + sLineBreak +
+    'Ordem: ' + IntToStr(T.Ordem) + sLineBreak +
+    'Tipo: ' + T.Tipo + sLineBreak +
+    'Descrição: ' + T.Descricao + sLineBreak +
+    'Agente responsável: ' + T.Agente + sLineBreak +
+    'Ação sugerida: ' + T.AcaoSugerida + sLineBreak +
+    'Dependência: ' + T.Dependencia + sLineBreak;
+
+  if Trim(T.RawJSON) <> '' then
+  begin
+    LProcessorInput :=
+      LProcessorInput +
+      sLineBreak +
+      '=== JSON ORIGINAL DA TAREFA ===' +
+      sLineBreak +
+      T.RawJSON +
+      sLineBreak;
+  end;
+
+  if Assigned(T.Params) and (T.Params.Count > 0) then
+  begin
+    LProcessorInput :=
+      LProcessorInput +
+      sLineBreak +
+      '=== PARAMETROS OPERACIONAIS DA TAREFA ===' +
+      sLineBreak +
+      T.Params.Text +
+      sLineBreak;
+  end;
+
+  if Trim(CompletedContext) <> '' then
+  begin
+    LProcessorInput :=
+      LProcessorInput +
+      sLineBreak +
+      '=== CONTEXTO DAS TAREFAS JÁ CONCLUÍDAS ===' +
+      sLineBreak +
+      CompletedContext +
+      sLineBreak;
+  end;
+
+  if Trim(FCapturedWebText) <> '' then
+  begin
+    LProcessorInput :=
+      LProcessorInput +
+      sLineBreak +
+      '=== CONTEÚDO REAL CAPTURADO DO SITE ===' +
+      sLineBreak +
+      FCapturedWebText +
+      sLineBreak;
+  end;
+
+  LProcessorInput :=
+    LProcessorInput +
+    sLineBreak +
+    '=== REGRAS OBRIGATÓRIAS ===' + sLineBreak +
+    'Execute somente a tarefa selecionada.' + sLineBreak +
+    'Não invente dados.' + sLineBreak +
+    'Use somente dados do prompt, do conteúdo real capturado e dos resultados das tarefas anteriores.' + sLineBreak +
+    'Se faltar informação essencial, retorne erro claro explicando o que faltou.' + sLineBreak +
+    'Se a tarefa for gerar currículo/texto, produza o texto final completo.' + sLineBreak +
+    'Se a tarefa for preparar e-mail, produza assunto, destinatário e corpo com base nos dados reais.';
+
+  ProcessSuccess := False;
+  ProcessorOutput := '';
+
+  AddLog('Executando TaskProcessorAgent...');
+
+  try
+    ProcessSuccess := FTaskProcessorAgent.Decide(LProcessorInput, ProcessorOutput);
+  except
+    on E: Exception do
+    begin
+      ProcessSuccess := False;
+      AddLog('Exception no TaskProcessorAgent: ' + E.Message);
     end;
   end;
 
   if not ProcessSuccess then
   begin
-    AddLog('Falha no processamento: LLM indisponível ou erro no processador cognitivo. Sem fallback local.');
     T.Status := stsFailed;
-    T.Resultado := 'Erro: Sem processamento cognitivo e sem fallback local.';
+    T.Resultado := SanitizeLLMError(FTaskProcessorAgent.LastError);
+
+    AddLog('Falha no TaskProcessorAgent: ' + T.Resultado);
+
+    RefreshTasksGrid;
+    RefreshMemoryMapGrid;
+    Exit;
   end;
+
+  if Trim(ProcessorOutput) = '' then
+  begin
+    T.Status := stsFailed;
+    T.Resultado := 'TaskProcessorAgent retornou resposta vazia.';
+
+    AddLog('Falha no processamento: resposta vazia do TaskProcessorAgent.');
+
+    RefreshTasksGrid;
+    RefreshMemoryMapGrid;
+    Exit;
+  end;
+
+  T.Resultado := ProcessorOutput;
+  AddLog('Processamento cognitivo concluído.');
+
+  if Trim(T.AcaoSugerida) = '' then
+  begin
+    T.Status := stsDone;
+    AddLog(Format('Tarefa "%s" concluída sem ação operacional.', [T.ID]));
+
+    RefreshTasksGrid;
+    RefreshMemoryMapGrid;
+    Exit;
+  end;
+
+  if SameText(T.AcaoSugerida, 'CREATE_WORD_DOCUMENT') then
+  begin
+    AddLog('Ação CREATE_WORD_DOCUMENT recusada: o sample agora gera somente texto.');
+    T.Status := stsFailed;
+    T.Resultado := 'Ação CREATE_WORD_DOCUMENT não é permitida. Use CREATE_TEXT_DOCUMENT.';
+
+    RefreshTasksGrid;
+    RefreshMemoryMapGrid;
+    Exit;
+  end;
+
+  BuilderInput :=
+    '=== RESULTADO DO PROCESSAMENTO DA TAREFA ===' + sLineBreak +
+    ProcessorOutput +
+    sLineBreak +
+    sLineBreak +
+    '=== AÇÃO OPERACIONAL SOLICITADA ===' + sLineBreak +
+    T.AcaoSugerida +
+    sLineBreak +
+    sLineBreak +
+    '=== REGRAS OBRIGATÓRIAS PARA O ACTION BUILDER ===' + sLineBreak +
+    'Retorne exclusivamente JSON válido.' + sLineBreak +
+    'O JSON deve conter o campo "actions" como array.' + sLineBreak +
+    'Cada item de "actions" deve conter "action" e "parameters".' + sLineBreak +
+    'Use somente uma das ações permitidas:' + sLineBreak +
+    '- CREATE_TEXT_DOCUMENT' + sLineBreak +
+    '- SEND_EMAIL' + sLineBreak +
+    '- REGISTER_RESULT' + sLineBreak +
+    'Não use CREATE_WORD_DOCUMENT.' + sLineBreak +
+    'Não gere DOCX, Word ou anexo fake.' + sLineBreak +
+    'Para CREATE_TEXT_DOCUMENT, parameters deve conter pelo menos "title" e "content".' + sLineBreak +
+    'Para SEND_EMAIL, parameters deve conter pelo menos "to", "subject" e "body".' + sLineBreak +
+    'Para REGISTER_RESULT, parameters deve conter "status" ou "message".';
+
+  AddLog('Gerando plano de ações pelo ActionBuilderAgent...');
+
+  ActionBuildSuccess := False;
+  BuilderOutput := '';
+
+  try
+    ActionBuildSuccess := FActionBuilderAgent.BuildActions(BuilderInput, BuilderOutput);
+  except
+    on E: Exception do
+    begin
+      ActionBuildSuccess := False;
+      AddLog('Exception no ActionBuilderAgent: ' + E.Message);
+    end;
+  end;
+
+  if not ActionBuildSuccess then
+  begin
+    T.Status := stsFailed;
+    T.Resultado := SanitizeLLMError(FActionBuilderAgent.LastError);
+
+    AddLog('Falha no ActionBuilderAgent: ' + T.Resultado);
+
+    RefreshTasksGrid;
+    RefreshMemoryMapGrid;
+    Exit;
+  end;
+
+  if Trim(BuilderOutput) = '' then
+  begin
+    T.Status := stsFailed;
+    T.Resultado := 'ActionBuilderAgent retornou plano de ações vazio.';
+
+    AddLog('Falha no ActionBuilderAgent: plano de ações vazio.');
+
+    RefreshTasksGrid;
+    RefreshMemoryMapGrid;
+    Exit;
+  end;
+
+  AddLog('Plano de ações gerado pelo ActionBuilderAgent.');
+
+  AddLog('Validando plano pelo ActionExecutor...');
+
+  ExecutorSuccess := False;
+  ExecutorOutput := '';
+
+  try
+    ExecutorSuccess := FActionExecutor.ExecutePlan(BuilderOutput, ExecutorOutput);
+  except
+    on E: Exception do
+    begin
+      ExecutorSuccess := False;
+      AddLog('Exception no ActionExecutor: ' + E.Message);
+    end;
+  end;
+
+  if not ExecutorSuccess then
+  begin
+    T.Status := stsFailed;
+    T.Resultado := SanitizeLLMError(FActionExecutor.LastError);
+
+    AddLog('Falha no ActionExecutor: ' + T.Resultado);
+
+    RefreshTasksGrid;
+    RefreshMemoryMapGrid;
+    Exit;
+  end;
+
+  AddLog('Plano validado pelo ActionExecutor.');
+
+  DispatchSuccess := DispatchPreparedActions(BuilderOutput);
+
+  if not DispatchSuccess then
+  begin
+    T.Status := stsFailed;
+    T.Resultado := 'Falha ao despachar ações reais preparadas pelo agente.';
+
+    AddLog('Falha ao despachar ações reais da tarefa.');
+
+    RefreshTasksGrid;
+    RefreshMemoryMapGrid;
+    Exit;
+  end;
+
+  T.Status := stsDone;
+  T.Resultado :=
+    ProcessorOutput +
+    sLineBreak +
+    sLineBreak +
+    '=== PLANO DE AÇÕES EXECUTADO ===' +
+    sLineBreak +
+    BuilderOutput;
+
+  AddLog(Format('Tarefa "%s" concluída com sucesso.', [T.ID]));
 
   RefreshTasksGrid;
   RefreshMemoryMapGrid;
@@ -936,57 +2202,157 @@ var
   JSONData: TJSONData;
   Obj, ActObj, ParamsObj: TJSONObject;
   ActionsArr: TJSONArray;
-  i, j: Integer;
+  ItemData: TJSONData;
+  ParamsData: TJSONData;
   ActionName: string;
   Params: TStringList;
+  CleanJSON: string;
+  i, j: Integer;
+  ActionOk: Boolean;
 begin
   Result := False;
+
+  if Trim(APreparedActionsJSON) = '' then
+  begin
+    AddLog('Plano de ações vazio. Nada a despachar.');
+    Exit;
+  end;
+
+  CleanJSON := LocalCleanJSONResponse(APreparedActionsJSON);
+
   try
-    JSONData := GetJSON(APreparedActionsJSON);
+    JSONData := GetJSON(CleanJSON);
     try
+      ActionsArr := nil;
+
       if JSONData is TJSONObject then
       begin
         Obj := TJSONObject(JSONData);
-        ActionsArr := Obj.Arrays['actions'];
-        if Assigned(ActionsArr) then
-        begin
-          Params := TStringList.Create;
-          try
-            for i := 0 to ActionsArr.Count - 1 do
-            begin
-              ActObj := ActionsArr.Objects[i];
-              ActionName := ActObj.Get('action', '');
-              Params.Clear;
-              
-              ParamsObj := ActObj.Objects['parameters'];
-              if Assigned(ParamsObj) then
-              begin
-                for j := 0 to ParamsObj.Count - 1 do
-                  Params.Values[ParamsObj.Names[j]] := ParamsObj.Items[j].AsString;
-              end;
 
-              if ActionName = 'CREATE_WORD_DOCUMENT' then
-                FCreateWordAction.RunAction(Params, False)
-              else if ActionName = 'SEND_EMAIL' then
-              begin
-                FSendEmailAction.AttachmentFileName := edArquivoWordGerado.Text;
-                FSendEmailAction.RunAction(Params, False);
-              end
-              else if ActionName = 'REGISTER_RESULT' then
-                FRegisterResultAction.RunAction(Params, False);
-            end;
-            Result := True;
-          finally
-            Params.Free;
-          end;
+        if not GetJSONArrayField(Obj, 'actions', ActionsArr) then
+        begin
+          AddLog('Plano de ações não possui array "actions".');
+          Exit;
         end;
+      end
+      else if JSONData is TJSONArray then
+        ActionsArr := TJSONArray(JSONData)
+      else
+      begin
+        AddLog('Plano de ações não é objeto nem array JSON.');
+        Exit;
+      end;
+
+      if not Assigned(ActionsArr) then
+      begin
+        AddLog('Array de ações não localizado.');
+        Exit;
+      end;
+
+      if ActionsArr.Count = 0 then
+      begin
+        AddLog('Array "actions" veio vazio.');
+        Exit;
+      end;
+
+      Params := TStringList.Create;
+      try
+        Result := True;
+
+        for i := 0 to ActionsArr.Count - 1 do
+        begin
+          ItemData := ActionsArr.Items[i];
+
+          if not (ItemData is TJSONObject) then
+          begin
+            AddLog(Format('Ação %d ignorada: item não é objeto JSON.', [i]));
+            Result := False;
+            Continue;
+          end;
+
+          ActObj := TJSONObject(ItemData);
+          ActionName := Trim(ActObj.Get('action', ''));
+
+          if ActionName = '' then
+            ActionName := Trim(ActObj.Get('name', ''));
+
+          if ActionName = '' then
+          begin
+            AddLog(Format('Ação %d sem campo "action/name".', [i]));
+            Result := False;
+            Continue;
+          end;
+
+          Params.Clear;
+
+          ParamsData := ActObj.Find('parameters');
+
+          if Assigned(ParamsData) then
+          begin
+            if ParamsData is TJSONObject then
+            begin
+              ParamsObj := TJSONObject(ParamsData);
+
+              for j := 0 to ParamsObj.Count - 1 do
+                Params.Values[ParamsObj.Names[j]] := JSONValueToPlainText(ParamsObj.Items[j]);
+            end
+            else
+            begin
+              AddLog(Format('Parâmetros da ação "%s" existem, mas não são objeto JSON.', [ActionName]));
+              Result := False;
+              Continue;
+            end;
+          end;
+
+          ActionOk := False;
+
+          if SameText(ActionName, 'CREATE_TEXT_DOCUMENT') then
+          begin
+            if Assigned(FCreateTextAction) then
+              ActionOk := FCreateTextAction.RunAction(Params, False)
+            else
+              AddLog('[DISPATCH] FCreateTextAction não inicializado.');
+          end
+          else if SameText(ActionName, 'SEND_EMAIL') then
+          begin
+            if Assigned(FSendEmailAction) then
+            begin
+              ConfigureEmailAction;
+              FSendEmailAction.GeneratedTextFileName := edArquivoWordGerado.Text;
+              ActionOk := FSendEmailAction.RunAction(Params, False);
+            end
+            else
+              AddLog('[DISPATCH] FSendEmailAction não inicializado.');
+          end
+          else if SameText(ActionName, 'REGISTER_RESULT') then
+          begin
+            if Assigned(FRegisterResultAction) then
+              ActionOk := FRegisterResultAction.RunAction(Params, False)
+            else
+              AddLog('[DISPATCH] FRegisterResultAction não inicializado.');
+          end
+          else
+          begin
+            AddLog('[DISPATCH] Ação desconhecida recusada: ' + ActionName);
+            ActionOk := False;
+          end;
+
+          if not ActionOk then
+            Result := False;
+        end;
+      finally
+        Params.Free;
       end;
     finally
       JSONData.Free;
     end;
   except
     on E: Exception do
+    begin
       AddLog('Falha ao despachar ações: ' + E.Message);
+      AddLog('JSON recebido: ' + Copy(CleanJSON, 1, 1000));
+      Result := False;
+    end;
   end;
 end;
 
@@ -996,9 +2362,13 @@ var
   T: TSampleTaskItem;
   Err: string;
 begin
+  if not Assigned(FTasks) then
+    Exit;
+
   for i := 0 to FTasks.Count - 1 do
   begin
     T := TSampleTaskItem(FTasks[i]);
+
     if (T.Status = stsPending) or (T.Status = stsFailed) then
     begin
       if CanExecuteTask(T, Err) then
@@ -1006,8 +2376,10 @@ begin
         gridTarefas.Row := i + 1;
         btnExecutarTarefaSelecionadaClick(nil);
         Application.ProcessMessages;
-        Sleep(500); // small delay for user visibility
-      end;
+        Sleep(500);
+      end
+      else
+        AddLog(Format('Tarefa "%s" aguardando dependência: %s', [T.ID, Err]));
     end;
   end;
 end;
@@ -1017,6 +2389,7 @@ var
   T: TSampleTaskItem;
 begin
   T := GetSelectedTask;
+
   if T <> nil then
   begin
     T.Status := stsPending;
@@ -1031,6 +2404,7 @@ var
   T: TSampleTaskItem;
 begin
   T := GetSelectedTask;
+
   if T <> nil then
   begin
     T.Status := stsCanceled;
@@ -1045,28 +2419,48 @@ begin
 end;
 
 procedure TfrmMain.btnExportarMapaTextoClick(Sender: TObject);
+var
+  Erro: string;
 begin
+  if not EnsureRuntimeObjects(Erro) then
+  begin
+    ShowMessage('Erro ao preparar mapa de memória: ' + Erro);
+    Exit;
+  end;
+
   ForceDirectories('output');
-  FMemoryMap.SaveToFile('output/memory_map.txt');
+  FMemoryMap.SaveToFile('output' + DirectorySeparator + 'memory_map.txt');
   ShowMessage('Mapa de Memória exportado como texto em output/memory_map.txt');
 end;
 
 procedure TfrmMain.btnExportarMapaJSONClick(Sender: TObject);
+var
+  Erro: string;
 begin
+  if not EnsureRuntimeObjects(Erro) then
+  begin
+    ShowMessage('Erro ao preparar mapa de memória: ' + Erro);
+    Exit;
+  end;
+
   ForceDirectories('output');
-  FMemoryMap.SaveToFile('output/memory_map.json');
+  FMemoryMap.SaveToFile('output' + DirectorySeparator + 'memory_map.json');
   ShowMessage('Mapa de Memória exportado como JSON em output/memory_map.json');
 end;
 
 procedure TfrmMain.btnLimparLogClick(Sender: TObject);
 begin
-  memLog.Clear;
+  if Assigned(memLog) then
+    memLog.Clear;
 end;
 
 procedure TfrmMain.btnSalvarLogClick(Sender: TObject);
 begin
   ForceDirectories('output');
-  memLog.Lines.SaveToFile('output/agent_task_memory_action_demo.log');
+
+  if Assigned(memLog) then
+    memLog.Lines.SaveToFile('output' + DirectorySeparator + 'agent_task_memory_action_demo.log');
+
   ShowMessage('Log salvo em output/agent_task_memory_action_demo.log');
 end;
 
@@ -1074,25 +2468,48 @@ procedure TfrmMain.btnAbrirArquivoWordClick(Sender: TObject);
 var
   Path: string;
 begin
-  Path := edArquivoWordGerado.Text;
-  if (Path = '') or (Pos('(Simulado)', Path) > 0) then
+  Path := Trim(edArquivoWordGerado.Text);
+
+  if Path = '' then
   begin
-    ShowMessage('Nenhum arquivo físico real foi gerado ainda.');
+    ShowMessage('Nenhum arquivo texto foi gerado ainda.');
     Exit;
   end;
+
+  if not FileExists(Path) then
+  begin
+    ShowMessage('Arquivo não encontrado: ' + Path);
+    Exit;
+  end;
+
   OpenURL('file:///' + ExpandFileName(Path));
 end;
 
 procedure TfrmMain.btnEnviarEmailRealClick(Sender: TObject);
 var
   Params: TStringList;
+  Erro: string;
 begin
+  if not EnsureRuntimeObjects(Erro) then
+  begin
+    ShowMessage('Erro ao preparar envio de e-mail: ' + Erro);
+    Exit;
+  end;
+
   Params := TStringList.Create;
   try
     Params.Values['to'] := edEmailDestino.Text;
     Params.Values['subject'] := edAssuntoEmail.Text;
     Params.Values['body'] := memCorpoEmail.Text;
-    FSendEmailAction.RunAction(Params, False);
+
+    if Assigned(FSendEmailAction) then
+    begin
+      ConfigureEmailAction;
+      FSendEmailAction.GeneratedTextFileName := edArquivoWordGerado.Text;
+      FSendEmailAction.RunAction(Params, False);
+    end
+    else
+      AddLog('FSendEmailAction não foi inicializado.');
   finally
     Params.Free;
   end;
@@ -1114,7 +2531,9 @@ procedure TfrmMain.AIChromiumBrowser1LoadURL(Sender: TObject; const AURL: string
 begin
   if AIsMainFrame then
   begin
-    lblBrowserStatus.Caption := 'Status: Carregando ' + AURL;
+    if Assigned(lblBrowserStatus) then
+      lblBrowserStatus.Caption := 'Status: Carregando ' + AURL;
+
     AddLog('Carregando URL: ' + AURL);
   end;
 end;
@@ -1123,9 +2542,23 @@ procedure TfrmMain.AIChromiumBrowser1FinishedLoadURL(Sender: TObject; const AURL
 begin
   if AIsMainFrame then
   begin
-    lblBrowserStatus.Caption := 'Status: Concluído ' + AURL;
+    if Assigned(lblBrowserStatus) then
+      lblBrowserStatus.Caption := 'Status: Concluído ' + AURL;
+
     AddLog(Format('Concluído carregamento de "%s" com status %d.', [AURL, AHttpStatusCode]));
-    FWaitingForNavigation := False;
+
+    if FWaitingForNavigation then
+    begin
+      if SameText(AURL, FExpectedNavigationURL) or
+         (Pos(LowerCase(FExpectedNavigationURL), LowerCase(AURL)) = 1) then
+      begin
+        FWaitingForNavigation := False;
+      end
+      else
+      begin
+        AddLog('Navegação intermediária ignorada: ' + AURL);
+      end;
+    end;
   end;
 end;
 
@@ -1138,50 +2571,92 @@ var
   ValueData: TJSONData;
 begin
   AddLog(Format('DOM Result recebido: kind=%s, selector=%s', [AKind, ASelector]));
-  
+
   if SameText(AKind, 'dom-get-property') and SameText(ASelector, 'body') then
   begin
-    // Parse value from JSON
     ValueText := '';
     Parser := nil;
     Data := nil;
+
     try
       Parser := TJSONParser.Create(AJSON);
       Data := Parser.Parse;
+
       if Data is TJSONObject then
       begin
         Obj := TJSONObject(Data);
         ValueData := Obj.Find('value');
-        if ValueData <> nil then
-          ValueText := ValueData.AsString;
+
+        if Assigned(ValueData) then
+          ValueText := JSONValueToPlainText(ValueData);
       end;
-    finally
-      Data.Free;
-      Parser.Free;
+    except
+      on E: Exception do
+      begin
+        AddLog('Erro ao interpretar retorno DOM: ' + E.Message);
+      end;
     end;
 
+    Data.Free;
+    Parser.Free;
+
     FCapturedWebText := ValueText;
+
     AddLog(Format('Texto real capturado da página. Tamanho: %d caracteres.', [Length(FCapturedWebText)]));
+
     FWaitingForDOMText := False;
   end;
 end;
 
 function TfrmMain.EnsureBrowser: Boolean;
 begin
-  Result := True;
-  if AIChromiumBrowser1.BrowserReady then
+  Result := False;
+
+  if not Assigned(AIChromiumBrowser1) then
+  begin
+    AddLog('Erro: AIChromiumBrowser1 não foi inicializado.');
     Exit;
+  end;
+
+  if not Assigned(ChromiumWindow1) then
+  begin
+    AddLog('Erro: ChromiumWindow1 não foi inicializado.');
+    Exit;
+  end;
+
+  if not Assigned(AIChromiumBrowser1.ChromiumWindow) then
+    AIChromiumBrowser1.ChromiumWindow := ChromiumWindow1;
+
+  if AIChromiumBrowser1.BrowserReady then
+  begin
+    Result := True;
+    Exit;
+  end;
 
   AddLog('Inicializando Chromium...');
-  Result := AIChromiumBrowser1.InitializeBrowser;
+
+  try
+    Result := AIChromiumBrowser1.InitializeBrowser;
+  except
+    on E: Exception do
+    begin
+      Result := False;
+      AddLog('Exception ao inicializar Chromium: ' + E.Message);
+    end;
+  end;
+
   if Result then
   begin
-    lblBrowserStatus.Caption := 'Status: Inicializando...';
+    if Assigned(lblBrowserStatus) then
+      lblBrowserStatus.Caption := 'Status: Inicializando...';
+
     AddLog('Inicialização do Chromium solicitada.');
   end
   else
   begin
-    lblBrowserStatus.Caption := 'Status: Erro na inicialização';
+    if Assigned(lblBrowserStatus) then
+      lblBrowserStatus.Caption := 'Status: Erro na inicialização';
+
     AddLog('Erro ao inicializar Chromium: ' + AIChromiumBrowser1.LastError);
   end;
 end;
@@ -1191,17 +2666,23 @@ var
   StartPos, EndPos: Integer;
 begin
   Result := '';
+
   StartPos := Pos('http://', APrompt);
+
   if StartPos = 0 then
     StartPos := Pos('https://', APrompt);
-  
+
   if StartPos > 0 then
   begin
     EndPos := StartPos;
+
     while (EndPos <= Length(APrompt)) and (APrompt[EndPos] > ' ') do
       Inc(EndPos);
-    
+
     Result := Copy(APrompt, StartPos, EndPos - StartPos);
+
+    while (Result <> '') and (Result[Length(Result)] in ['.', ',', ';', ')', ']', '}']) do
+      Delete(Result, Length(Result), 1);
   end;
 end;
 
@@ -1209,18 +2690,24 @@ end;
 
 procedure TfrmMain.OnMemoryMapAfterCreateStep(Sender: TObject; AItem: TAIAgentMemoryMapItem);
 begin
-  AddLog(Format('[MAPA] Criou etapa para o agente: %s', [AItem.NomeAgente]));
+  if Assigned(AItem) then
+    AddLog(Format('[MAPA] Criou etapa para o agente: %s', [AItem.NomeAgente]));
 end;
 
 procedure TfrmMain.OnMemoryMapAfterCloseStep(Sender: TObject; AItem: TAIAgentMemoryMapItem);
 begin
-  AddLog(Format('[MAPA] Fechou etapa do agente: %s. Ação: %s', [AItem.NomeAgente, AItem.AcaoTomada]));
+  if Assigned(AItem) then
+    AddLog(Format('[MAPA] Fechou etapa do agente: %s. Ação: %s', [AItem.NomeAgente, AItem.AcaoTomada]));
+
   RefreshMemoryMapGrid;
 end;
 
 procedure TfrmMain.OnMemoryMapInformationLossDetected(Sender: TObject; AItem: TAIAgentMemoryMapItem; const ALostInfo: string);
 begin
-  AddLog(Format('[MAPA - ATENÇÃO] Perda de informação na etapa %s: %s', [AItem.NomeAgente, ALostInfo]));
+  if Assigned(AItem) then
+    AddLog(Format('[MAPA - ATENÇÃO] Perda de informação na etapa %s: %s', [AItem.NomeAgente, ALostInfo]))
+  else
+    AddLog('[MAPA - ATENÇÃO] Perda de informação: ' + ALostInfo);
 end;
 
 procedure TfrmMain.OnMemoryMapLog(Sender: TObject; const AMessage: string);

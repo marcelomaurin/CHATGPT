@@ -604,7 +604,7 @@ object frmMain: TfrmMain
               Left = 10
               Height = 15
               Top = 78
-              Width = 60
+              Width = 61
               Caption = 'Host SMTP:'
             end
             object edSMTPHost: TEdit
@@ -619,7 +619,7 @@ object frmMain: TfrmMain
               Left = 300
               Height = 15
               Top = 78
-              Width = 62
+              Width = 64
               Caption = 'Porta SMTP:'
             end
             object edSMTPPort: TEdit
@@ -634,7 +634,7 @@ object frmMain: TfrmMain
               Left = 10
               Height = 15
               Top = 108
-              Width = 74
+              Width = 76
               Caption = 'Usuário SMTP:'
             end
             object edSMTPUser: TEdit
@@ -648,7 +648,7 @@ object frmMain: TfrmMain
               Left = 300
               Height = 15
               Top = 108
-              Width = 66
+              Width = 68
               Caption = 'Senha SMTP:'
             end
             object edSMTPPassword: TEdit
@@ -754,7 +754,7 @@ object frmMain: TfrmMain
           Left = 10
           Height = 15
           Top = 12
-          Width = 250
+          Width = 122
           Caption = 'Status: Não Inicializado'
         end
         object edBrowserURL: TEdit
