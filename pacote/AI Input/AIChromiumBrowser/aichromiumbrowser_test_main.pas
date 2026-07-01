@@ -1,4 +1,4 @@
-unit main;
+unit aichromiumbrowser_test_main;
 
 {$mode objfpc}{$H+}
 

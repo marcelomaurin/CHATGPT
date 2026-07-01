@@ -7,7 +7,7 @@ uses
   cthreads,
   {$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, main, uCEFApplication, aichromiumbrowser;
+  Forms, aichromiumbrowser_test_main, uCEFApplication, aichromiumbrowser;
 
 {$R *.res}
 

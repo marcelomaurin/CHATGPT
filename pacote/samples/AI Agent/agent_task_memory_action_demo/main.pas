@@ -1989,7 +1989,6 @@ var
   ProcessSuccess: Boolean;
   ActionBuildSuccess: Boolean;
   ExecutorSuccess: Boolean;
-  DispatchSuccess: Boolean;
   ErroRuntime: string;
   i: Integer;
   DepTask: TSampleTaskItem;
