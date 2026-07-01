@@ -118,7 +118,7 @@ type
     pnlPromptCommands: TPanel;
     btnGerarTarefas: TButton;
     btnLimparPrompt: TButton;
-    btnCenarioBrowser: TButton; // Tarefa 50
+    btnCenarioBrowser: TButton;
     chkModoSimulado: TCheckBox;
     chkPermitirGerarWordReal: TCheckBox;
     chkPermitirEnvioEmailReal: TCheckBox;
@@ -222,7 +222,7 @@ type
     procedure btnReprocessarTarefaClick(Sender: TObject);
     procedure btnCancelarTarefaClick(Sender: TObject);
     procedure btnLimparPromptClick(Sender: TObject);
-    procedure btnCenarioBrowserClick(Sender: TObject); // Tarefa 50
+    procedure btnCenarioBrowserClick(Sender: TObject);
     procedure cbProviderChange(Sender: TObject);
     procedure gridTarefasSelection(Sender: TObject; ACol, ARow: Integer);
     procedure gridMapaSelection(Sender: TObject; ACol, ARow: Integer);
@@ -244,8 +244,9 @@ type
     FCreateTextAction: TSampleCreateTextAction;
     FSendEmailAction: TSampleSendEmailAction;
     FRegisterResultAction: TSampleRegisterResultAction;
-    
+
     FBrowserNavigateAction: TAIBrowserNavigateAction;
+    FBrowserWaitSelectorAction: TAIBrowserWaitSelectorAction;
     FBrowserReadPageAction: TAIBrowserReadPageAction;
     FBrowserDOMListAction: TAIBrowserDOMListAction;
     FBrowserCaptureTextAction: TAIBrowserCaptureTextAction;
@@ -282,12 +283,13 @@ type
     function CanExecuteTask(ATask: TSampleTaskItem; out AError: string): Boolean;
     procedure ShowAgentStep(AItem: TAIAgentMemoryMapItem);
     function DispatchPreparedActions(const APreparedActionsJSON: string): Boolean;
+    function ContainsBrowserAction(const APreparedActionsJSON: string): Boolean;
     function EnsureBrowser: Boolean;
     function ExtractURLFromPrompt(const APrompt: string): string;
     function WaitBrowserDOMResult(ATimeoutMs: Integer): Boolean;
+    function WaitBrowserNavigation(ATimeoutMs: Integer): Boolean;
     procedure ActionExecutorBeforePreparedAction(Sender: TObject; const AActionName: string; AParams: TStrings; AExecutionContext: TStrings; var ACanExecute: Boolean);
     procedure ActionExecutorAfterPreparedAction(Sender: TObject; const AActionName: string; AParams: TStrings; AExecutionContext: TStrings; AResult: TStrings);
-
 
     function EnsureRuntimeObjects(out AErro: string): Boolean;
     procedure WireRuntimeObjects;
@@ -303,7 +305,6 @@ type
     procedure ActionExecutorBeforeActionExecute(Sender: TObject; const AActionName: string; AParams: TStrings; AExecutionContext: TStrings);
     procedure ActionExecutorAfterActionExecute(Sender: TObject; const AActionName: string; AParams: TStrings; AResult: TStrings; AExecutionContext: TStrings);
   public
-
   end;
 
 var
@@ -330,7 +331,11 @@ begin
     (Pos('informações capturadas do site', S) > 0) or
     (Pos('conteudo do curriculo', S) > 0) or
     (Pos('curriculo gerado', S) > 0) or
-    (Pos('informacoes capturadas do site', S) > 0);
+    (Pos('informacoes capturadas do site', S) > 0) or
+    (Pos('conteúdo gerado', S) > 0) or
+    (Pos('conteudo gerado', S) > 0) or
+    (Pos('resultado capturado', S) > 0) or
+    (Pos('texto gerado a partir', S) > 0);
 end;
 
 function JSONValueToPlainText(AValue: TJSONData): string;
@@ -457,19 +462,28 @@ begin
 
   Content := AParams.Values['content'];
 
-  if Trim(Content) = '' then
+  if IsEmptyOrPlaceholder(Content) then
     Content := AParams.Values['text'];
 
-  if Trim(Content) = '' then
+  if IsEmptyOrPlaceholder(Content) then
     Content := AParams.Values['body'];
 
-  if Trim(Content) = '' then
+  if IsEmptyOrPlaceholder(Content) then
     Content := AParams.Values['document_text'];
 
-  if Trim(Content) = '' then
+  if IsEmptyOrPlaceholder(Content) then
     Content := AParams.Values['curriculum_text'];
 
-  if Trim(Content) = '' then
+  if IsEmptyOrPlaceholder(Content) and Assigned(MainForm.FActionExecutor) then
+    Content := MainForm.FActionExecutor.ExecutionContext.Values['browser.last_result_text'];
+
+  if IsEmptyOrPlaceholder(Content) and Assigned(MainForm.FActionExecutor) then
+    Content := MainForm.FActionExecutor.ExecutionContext.Values['browser.last_text'];
+
+  if IsEmptyOrPlaceholder(Content) and Assigned(MainForm.memConteudoCurriculo) then
+    Content := MainForm.memConteudoCurriculo.Text;
+
+  if IsEmptyOrPlaceholder(Content) then
   begin
     MainForm.AddLog('[CREATE_TEXT_DOCUMENT] ERRO: o agente não informou conteúdo real para gerar o texto.');
     Exit;
@@ -477,6 +491,12 @@ begin
 
   LastGeneratedFile := FileName;
   LastContent := Content;
+
+  if ASimulate then
+  begin
+    MainForm.AddLog('[CREATE_TEXT_DOCUMENT] Simulação recusada: o sample deve executar ações reais.');
+    Exit(False);
+  end;
 
   try
     ForceDirectories('output');
@@ -565,23 +585,32 @@ begin
 
   Body := AParams.Values['body'];
 
-  if Trim(Body) = '' then
+  if IsEmptyOrPlaceholder(Body) then
     Body := AParams.Values['message'];
 
-  if Trim(Body) = '' then
+  if IsEmptyOrPlaceholder(Body) then
     Body := AParams.Values['corpo'];
+
+  if IsEmptyOrPlaceholder(Body) and Assigned(MainForm.FActionExecutor) then
+    Body := MainForm.FActionExecutor.ExecutionContext.Values['last_text_content'];
+
+  if IsEmptyOrPlaceholder(Body) and Assigned(MainForm.FActionExecutor) then
+    Body := MainForm.FActionExecutor.ExecutionContext.Values['browser.last_result_text'];
 
   if IsEmptyOrPlaceholder(Body) then
     Body := MainForm.memCorpoEmail.Text;
 
-  if IsEmptyOrPlaceholder(Body) then
-  begin
-    if Assigned(MainForm.memConteudoCurriculo) then
-      Body := MainForm.memConteudoCurriculo.Text;
-  end;
+  if IsEmptyOrPlaceholder(Body) and Assigned(MainForm.memConteudoCurriculo) then
+    Body := MainForm.memConteudoCurriculo.Text;
 
   if Assigned(MainForm.memCorpoEmail) then
     MainForm.memCorpoEmail.Text := Body;
+
+  if Assigned(MainForm.edEmailDestino) then
+    MainForm.edEmailDestino.Text := ToAddr;
+
+  if Assigned(MainForm.edAssuntoEmail) then
+    MainForm.edAssuntoEmail.Text := Subject;
 
   if IsEmptyOrPlaceholder(Body) then
   begin
@@ -591,6 +620,12 @@ begin
 
   if GeneratedTextFileName <> '' then
     Body := Body + sLineBreak + sLineBreak + 'Arquivo texto gerado localmente: ' + GeneratedTextFileName;
+
+  if ASimulate then
+  begin
+    MainForm.AddLog('[SEND_EMAIL] Simulação recusada: o sample não deve simular envio no executor real.');
+    Exit(False);
+  end;
 
   if MessageDlg(
        'Confirmação Manual',
@@ -728,6 +763,10 @@ begin
   FWaitingForDOMText := False;
   FWaitingForNavigation := False;
   FExpectedNavigationURL := '';
+  FLastBrowserDOMKind := '';
+  FLastBrowserDOMSelector := '';
+  FLastBrowserDOMJSON := '';
+  FWaitingBrowserDOM := False;
 
   ResetTasksGrid;
   LoadDefaultScenario;
@@ -781,22 +820,34 @@ begin
 
     if not Assigned(FBrowserNavigateAction) then
       FBrowserNavigateAction := TAIBrowserNavigateAction.Create(Self);
+
+    if not Assigned(FBrowserWaitSelectorAction) then
+      FBrowserWaitSelectorAction := TAIBrowserWaitSelectorAction.Create(Self);
+
     if not Assigned(FBrowserReadPageAction) then
       FBrowserReadPageAction := TAIBrowserReadPageAction.Create(Self);
+
     if not Assigned(FBrowserDOMListAction) then
       FBrowserDOMListAction := TAIBrowserDOMListAction.Create(Self);
+
     if not Assigned(FBrowserCaptureTextAction) then
       FBrowserCaptureTextAction := TAIBrowserCaptureTextAction.Create(Self);
+
     if not Assigned(FBrowserSetValueAction) then
       FBrowserSetValueAction := TAIBrowserSetValueAction.Create(Self);
+
     if not Assigned(FBrowserFocusAction) then
       FBrowserFocusAction := TAIBrowserFocusAction.Create(Self);
+
     if not Assigned(FBrowserClickAction) then
       FBrowserClickAction := TAIBrowserClickAction.Create(Self);
+
     if not Assigned(FBrowserPressEnterAction) then
       FBrowserPressEnterAction := TAIBrowserPressEnterAction.Create(Self);
+
     if not Assigned(FBrowserSubmitFormAction) then
       FBrowserSubmitFormAction := TAIBrowserSubmitFormAction.Create(Self);
+
     if not Assigned(FBrowserScreenshotAction) then
       FBrowserScreenshotAction := TAIBrowserScreenshotAction.Create(Self);
 
@@ -816,12 +867,14 @@ procedure TfrmMain.WireRuntimeObjects;
 begin
   if Assigned(FCreateTextAction) then
   begin
+    FCreateTextAction.ActionName := 'CREATE_TEXT_DOCUMENT';
     FCreateTextAction.MainForm := Self;
     FCreateTextAction.MemoryMap := FMemoryMap;
   end;
 
   if Assigned(FSendEmailAction) then
   begin
+    FSendEmailAction.ActionName := 'SEND_EMAIL';
     FSendEmailAction.MainForm := Self;
     FSendEmailAction.EmailClient := FEmailClient;
     FSendEmailAction.MemoryMap := FMemoryMap;
@@ -829,6 +882,7 @@ begin
 
   if Assigned(FRegisterResultAction) then
   begin
+    FRegisterResultAction.ActionName := 'REGISTER_RESULT';
     FRegisterResultAction.MainForm := Self;
     FRegisterResultAction.MemoryMap := FMemoryMap;
   end;
@@ -866,6 +920,7 @@ begin
   end;
 
   if Assigned(FBrowserNavigateAction) then FBrowserNavigateAction.Browser := AIChromiumBrowser1;
+  if Assigned(FBrowserWaitSelectorAction) then FBrowserWaitSelectorAction.Browser := AIChromiumBrowser1;
   if Assigned(FBrowserReadPageAction) then FBrowserReadPageAction.Browser := AIChromiumBrowser1;
   if Assigned(FBrowserDOMListAction) then FBrowserDOMListAction.Browser := AIChromiumBrowser1;
   if Assigned(FBrowserCaptureTextAction) then FBrowserCaptureTextAction.Browser := AIChromiumBrowser1;
@@ -877,6 +932,7 @@ begin
   if Assigned(FBrowserScreenshotAction) then FBrowserScreenshotAction.Browser := AIChromiumBrowser1;
 
   if Assigned(FBrowserNavigateAction) then FBrowserNavigateAction.MemoryMap := FMemoryMap;
+  if Assigned(FBrowserWaitSelectorAction) then FBrowserWaitSelectorAction.MemoryMap := FMemoryMap;
   if Assigned(FBrowserReadPageAction) then FBrowserReadPageAction.MemoryMap := FMemoryMap;
   if Assigned(FBrowserDOMListAction) then FBrowserDOMListAction.MemoryMap := FMemoryMap;
   if Assigned(FBrowserCaptureTextAction) then FBrowserCaptureTextAction.MemoryMap := FMemoryMap;
@@ -897,11 +953,11 @@ begin
     FActionExecutor.OnBeforePreparedAction := @ActionExecutorBeforePreparedAction;
     FActionExecutor.OnAfterPreparedAction := @ActionExecutorAfterPreparedAction;
 
-    // Register all actions
     FActionExecutor.RegisterAction(FCreateTextAction);
     FActionExecutor.RegisterAction(FSendEmailAction);
     FActionExecutor.RegisterAction(FRegisterResultAction);
     FActionExecutor.RegisterAction(FBrowserNavigateAction);
+    FActionExecutor.RegisterAction(FBrowserWaitSelectorAction);
     FActionExecutor.RegisterAction(FBrowserReadPageAction);
     FActionExecutor.RegisterAction(FBrowserDOMListAction);
     FActionExecutor.RegisterAction(FBrowserCaptureTextAction);
@@ -1009,14 +1065,17 @@ begin
   cbProviderChange(nil);
 
   memPrompt.Text :=
-    'Entre no https://pt.aliexpress.com/ ,  e pesquise por multimetro digital automático , busque o preço mais barato e envie o link do produto.';
+    'Entre no https://pt.aliexpress.com/ , e pesquise por multimetro digital automático, ' +
+    'busque o preço mais barato e envie o link do produto.';
 
-  //edEmailDestino.Text := 'marcelomaurinmartins@gmail.com';
-  //edAssuntoEmail.Text := 'Currículo Profissional';
+  if Assigned(memCorpoEmail) then
+    memCorpoEmail.Clear;
 
-  memCorpoEmail.Clear;
-  memConteudoCurriculo.Clear;
-  edArquivoWordGerado.Clear;
+  if Assigned(memConteudoCurriculo) then
+    memConteudoCurriculo.Clear;
+
+  if Assigned(edArquivoWordGerado) then
+    edArquivoWordGerado.Clear;
 end;
 
 procedure TfrmMain.ConfigureChatGPT;
@@ -1056,10 +1115,25 @@ begin
   if not Assigned(FSendEmailAction) then
     Exit;
 
-  FSendEmailAction.SMTPHost := Trim(edSMTPHost.Text);
-  FSendEmailAction.SMTPPort := StrToIntDef(Trim(edSMTPPort.Text), 25);
-  FSendEmailAction.SMTPUser := Trim(edSMTPUser.Text);
-  FSendEmailAction.SMTPPassword := edSMTPPassword.Text;
+  if Assigned(edSMTPHost) then
+    FSendEmailAction.SMTPHost := Trim(edSMTPHost.Text)
+  else
+    FSendEmailAction.SMTPHost := '';
+
+  if Assigned(edSMTPPort) then
+    FSendEmailAction.SMTPPort := StrToIntDef(Trim(edSMTPPort.Text), 25)
+  else
+    FSendEmailAction.SMTPPort := 25;
+
+  if Assigned(edSMTPUser) then
+    FSendEmailAction.SMTPUser := Trim(edSMTPUser.Text)
+  else
+    FSendEmailAction.SMTPUser := '';
+
+  if Assigned(edSMTPPassword) then
+    FSendEmailAction.SMTPPassword := edSMTPPassword.Text
+  else
+    FSendEmailAction.SMTPPassword := '';
 end;
 
 procedure TfrmMain.AddLog(const AMsg: string);
@@ -1235,6 +1309,13 @@ begin
 
     if T.RawJSON <> '' then
       memDetalheTarefa.Lines.Add('JSON Bruto: ' + T.RawJSON);
+
+    if Assigned(T.Params) and (T.Params.Count > 0) then
+    begin
+      memDetalheTarefa.Lines.Add('');
+      memDetalheTarefa.Lines.Add('Parâmetros:');
+      memDetalheTarefa.Lines.Add(T.Params.Text);
+    end;
   end;
 end;
 
@@ -1341,10 +1422,15 @@ begin
     if Assigned(edArquivoWordGerado) then
       edArquivoWordGerado.Clear;
 
+    if Assigned(FActionExecutor) then
+      FActionExecutor.ClearExecutionContext;
+
     FCapturedWebText := '';
     FWaitingForDOMText := False;
     FWaitingForNavigation := False;
     FExpectedNavigationURL := '';
+    FWaitingBrowserDOM := False;
+    FLastBrowserDOMJSON := '';
 
     LURL := ExtractURLFromPrompt(memPrompt.Text);
 
@@ -1435,12 +1521,10 @@ begin
 
       if Trim(FCapturedWebText) = '' then
       begin
-        AddLog('Erro: a página foi carregada, mas nenhum texto real foi capturado.');
-        ShowMessage('A página foi carregada, mas nenhum texto real foi capturado. O fluxo foi interrompido para não inventar dados.');
-        Exit;
-      end;
-
-      AddLog(Format('Conteúdo real capturado com sucesso. Tamanho: %d caracteres.', [Length(FCapturedWebText)]));
+        AddLog('Aviso: a página foi carregada, mas nenhum texto inicial foi capturado. O fluxo continuará com automação DOM.');
+      end
+      else
+        AddLog(Format('Conteúdo real capturado com sucesso. Tamanho: %d caracteres.', [Length(FCapturedWebText)]));
     end;
 
     AddLog('Iniciando fluxo real de geração de tarefas...');
@@ -1533,17 +1617,21 @@ begin
       'Não crie tarefa para gerar Word ou DOCX.' + sLineBreak +
       'Para gerar texto, use suggested_action = "CREATE_TEXT_DOCUMENT".' + sLineBreak +
       'Para enviar e-mail, use suggested_action = "SEND_EMAIL".' + sLineBreak +
-      'Não invente dados que não estejam no prompt ou no conteúdo real capturado.' + sLineBreak +
+      'Para navegação/interação no browser, use suggested_action com uma das ações BROWSER_* permitidas.' + sLineBreak +
+      'Ações browser permitidas: BROWSER_NAVIGATE, BROWSER_WAIT_SELECTOR, BROWSER_READ_PAGE, BROWSER_DOM_LIST, BROWSER_CAPTURE_TEXT, BROWSER_SET_VALUE, BROWSER_FOCUS, BROWSER_CLICK, BROWSER_PRESS_ENTER, BROWSER_SUBMIT_FORM, BROWSER_SCREENSHOT.' + sLineBreak +
+      'Antes de BROWSER_SET_VALUE, BROWSER_CLICK, BROWSER_PRESS_ENTER ou BROWSER_SUBMIT_FORM, gere tarefa anterior BROWSER_READ_PAGE ou BROWSER_DOM_LIST, exceto se o seletor CSS foi informado explicitamente.' + sLineBreak +
+      'Para pesquisar em site: navegue, aguarde seletor/campo, leia DOM, preencha campo, pressione Enter ou submeta, capture resultado.' + sLineBreak +
+      'Não invente dados que não estejam no prompt, no DOM lido ou no conteúdo real capturado.' + sLineBreak +
       'Formato obrigatório preferencial:' + sLineBreak +
       '{' + sLineBreak +
       '  "tasks": [' + sLineBreak +
       '    {' + sLineBreak +
       '      "id": "T001",' + sLineBreak +
       '      "order": 1,' + sLineBreak +
-      '      "type": "content",' + sLineBreak +
-      '      "description": "Gerar o texto do currículo com base no conteúdo real capturado",' + sLineBreak +
+      '      "type": "browser",' + sLineBreak +
+      '      "description": "Abrir a URL solicitada",' + sLineBreak +
       '      "agent": "task_processor_agent",' + sLineBreak +
-      '      "suggested_action": "CREATE_TEXT_DOCUMENT",' + sLineBreak +
+      '      "suggested_action": "BROWSER_NAVIGATE",' + sLineBreak +
       '      "depends_on": ""' + sLineBreak +
       '    }' + sLineBreak +
       '  ]' + sLineBreak +
@@ -1677,8 +1765,6 @@ var
       Exit;
     end;
 
-    { O TAIDecisionAgent pode retornar plano de ações direto, sem tasks.
-      Isso não é fake: convertemos cada ação real em uma linha de tarefa operacional. }
     D := O.Find('actions');
     if Assigned(D) and (D is TJSONArray) then
     begin
@@ -1819,8 +1905,7 @@ begin
 
             T.Dependencia := GetJSONStr(TaskObj, 'depends_on', 'dependency', 'dependencia');
 
-            { Em plano de ações, preserve a ordem. SEND_EMAIL normalmente depende do texto gerado antes. }
-            if (T.Dependencia = '') and (PreviousTaskID <> '') then
+            if (T.Dependencia = '') and (PreviousTaskID <> '') and SameText(T.AcaoSugerida, 'SEND_EMAIL') then
               T.Dependencia := PreviousTaskID;
 
             ParamsData := TaskObj.Find('parameters');
@@ -1852,6 +1937,14 @@ begin
             T.Dependencia := GetJSONStr(TaskObj, 'depends_on', 'dependency', 'dependencia');
             if T.Dependencia = '' then
               T.Dependencia := GetJSONStr(TaskObj, 'depends', 'after', '');
+
+            ParamsData := TaskObj.Find('parameters');
+            if Assigned(ParamsData) and (ParamsData is TJSONObject) then
+            begin
+              ParamsObj := TJSONObject(ParamsData);
+              for j := 0 to ParamsObj.Count - 1 do
+                T.Params.Values[ParamsObj.Names[j]] := JSONValueToPlainText(ParamsObj.Items[j]);
+            end;
           end;
 
           T.RawJSON := TaskObj.AsJSON;
@@ -1868,14 +1961,16 @@ begin
           if T.Descricao = '' then
           begin
             AddLog(Format('Tarefa %s ignorada: descrição não informada.', [T.ID]));
-            FreeAndNil(T);
+            T.Free;
+            T := nil;
             Continue;
           end;
 
           if T.Agente = '' then
           begin
             AddLog(Format('Tarefa %s ignorada: agent/agente não informado.', [T.ID]));
-            FreeAndNil(T);
+            T.Free;
+            T := nil;
             Continue;
           end;
 
@@ -1883,7 +1978,7 @@ begin
             T.AcaoSugerida := 'CREATE_TEXT_DOCUMENT';
 
           if SameText(T.AcaoSugerida, 'CREATE_TEXT_DOCUMENT') and
-             (T.Params.Values['content'] = '') and
+             IsEmptyOrPlaceholder(T.Params.Values['content']) and
              (Trim(FCapturedWebText) <> '') then
             T.Params.Values['content'] := FCapturedWebText;
 
@@ -2113,16 +2208,28 @@ begin
       sLineBreak;
   end;
 
+  if Assigned(FActionExecutor) and (FActionExecutor.ExecutionContext.Count > 0) then
+  begin
+    LProcessorInput :=
+      LProcessorInput +
+      sLineBreak +
+      '=== CONTEXTO DE EXECUÇÃO DO ACTION EXECUTOR ===' +
+      sLineBreak +
+      FActionExecutor.ExecutionContext.Text +
+      sLineBreak;
+  end;
+
   LProcessorInput :=
     LProcessorInput +
     sLineBreak +
     '=== REGRAS OBRIGATÓRIAS ===' + sLineBreak +
     'Execute somente a tarefa selecionada.' + sLineBreak +
     'Não invente dados.' + sLineBreak +
-    'Use somente dados do prompt, do conteúdo real capturado e dos resultados das tarefas anteriores.' + sLineBreak +
+    'Use somente dados do prompt, do conteúdo real capturado, do DOM/browser e dos resultados das tarefas anteriores.' + sLineBreak +
     'Se faltar informação essencial, retorne erro claro explicando o que faltou.' + sLineBreak +
-    'Se a tarefa for gerar currículo/texto, produza o texto final completo.' + sLineBreak +
-    'Se a tarefa for preparar e-mail, produza assunto, destinatário e corpo com base nos dados reais.';
+    'Se a tarefa for gerar currículo/texto/documento, produza o texto final completo.' + sLineBreak +
+    'Se a tarefa for preparar e-mail, produza assunto, destinatário e corpo com base nos dados reais.' + sLineBreak +
+    'Se a tarefa for BROWSER_*, preserve url, selector, value, index, timeout e objetivo da ação. Não invente resultado de navegação antes do executor DOM.';
 
   ProcessSuccess := False;
   ProcessorOutput := '';
@@ -2130,7 +2237,6 @@ begin
   AddLog('Executando TaskProcessorAgent.ProcessTask...');
 
   try
-    // Tarefa 25: Ajustar sample para chamar ProcessTask
     ProcessSuccess := FTaskProcessorAgent.ProcessTask(LProcessorInput, ProcessorOutput);
   except
     on E: Exception do
@@ -2143,7 +2249,6 @@ begin
   if not ProcessSuccess then
   begin
     T.Status := stsFailed;
-    // Tarefa 29: Ajustar log de erro do processador
     T.Resultado := SanitizeLLMError(FTaskProcessorAgent.LastError);
 
     AddLog('Falha no TaskProcessorAgent.ProcessTask: ' + T.Resultado);
@@ -2165,12 +2270,10 @@ begin
     Exit;
   end;
 
-  // Tarefa 26: Extrair result antes do ActionBuilder
   ProcessorResultText := '';
   if not FTaskProcessorAgent.ExtractTaskProcessResult(ProcessorOutput, ProcessorResultText) then
     ProcessorResultText := ProcessorOutput;
 
-  // Tarefa 28: Guardar JSON completo no detalhe da tarefa
   T.Resultado :=
     ProcessorResultText +
     sLineBreak +
@@ -2202,7 +2305,6 @@ begin
     Exit;
   end;
 
-  // Tarefa 27: Usar ProcessorResultText no BuilderInput
   BuilderInput :=
     '=== RESULTADO DO PROCESSAMENTO DA TAREFA ===' + sLineBreak +
     ProcessorResultText +
@@ -2212,6 +2314,17 @@ begin
     T.AcaoSugerida +
     sLineBreak +
     sLineBreak +
+    '=== PARAMETROS ORIGINAIS DA TAREFA ===' + sLineBreak +
+    T.Params.Text +
+    sLineBreak +
+    '=== CONTEXTO DE EXECUÇÃO DISPONÍVEL ===' + sLineBreak;
+
+  if Assigned(FActionExecutor) then
+    BuilderInput := BuilderInput + FActionExecutor.ExecutionContext.Text + sLineBreak;
+
+  BuilderInput :=
+    BuilderInput +
+    sLineBreak +
     '=== REGRAS OBRIGATÓRIAS PARA O ACTION BUILDER ===' + sLineBreak +
     'Retorne exclusivamente JSON válido.' + sLineBreak +
     'O JSON deve conter o campo "actions" como array.' + sLineBreak +
@@ -2220,11 +2333,30 @@ begin
     '- CREATE_TEXT_DOCUMENT' + sLineBreak +
     '- SEND_EMAIL' + sLineBreak +
     '- REGISTER_RESULT' + sLineBreak +
+    '- BROWSER_NAVIGATE' + sLineBreak +
+    '- BROWSER_WAIT_SELECTOR' + sLineBreak +
+    '- BROWSER_READ_PAGE' + sLineBreak +
+    '- BROWSER_DOM_LIST' + sLineBreak +
+    '- BROWSER_CAPTURE_TEXT' + sLineBreak +
+    '- BROWSER_SET_VALUE' + sLineBreak +
+    '- BROWSER_FOCUS' + sLineBreak +
+    '- BROWSER_CLICK' + sLineBreak +
+    '- BROWSER_PRESS_ENTER' + sLineBreak +
+    '- BROWSER_SUBMIT_FORM' + sLineBreak +
+    '- BROWSER_SCREENSHOT' + sLineBreak +
     'Não use CREATE_WORD_DOCUMENT.' + sLineBreak +
     'Não gere DOCX, Word ou anexo fake.' + sLineBreak +
     'Para CREATE_TEXT_DOCUMENT, parameters deve conter pelo menos "title" e "content".' + sLineBreak +
     'Para SEND_EMAIL, parameters deve conter pelo menos "to", "subject" e "body".' + sLineBreak +
-    'Para REGISTER_RESULT, parameters deve conter "status" ou "message".';
+    'Para REGISTER_RESULT, parameters deve conter "status" ou "message".' + sLineBreak +
+    'Para BROWSER_NAVIGATE, parameters deve conter "url".' + sLineBreak +
+    'Para BROWSER_WAIT_SELECTOR, parameters deve conter "selector" e opcionalmente "timeout".' + sLineBreak +
+    'Para BROWSER_READ_PAGE, parameters pode conter "selector" e "dom_list_selector".' + sLineBreak +
+    'Para BROWSER_DOM_LIST, parameters deve conter "selector".' + sLineBreak +
+    'Para BROWSER_SET_VALUE, parameters deve conter "selector", "value" e opcionalmente "index".' + sLineBreak +
+    'Para BROWSER_FOCUS, BROWSER_CLICK, BROWSER_PRESS_ENTER e BROWSER_SUBMIT_FORM, parameters deve conter "selector" e opcionalmente "index".' + sLineBreak +
+    'Para BROWSER_CAPTURE_TEXT, parameters deve conter "selector".' + sLineBreak +
+    'Se a ação for browser, preserve url, selector, index, timeout e value. Não invente seletor quando o DOM ainda não foi lido.';
 
   AddLog('Gerando plano de ações pelo ActionBuilderAgent...');
 
@@ -2266,14 +2398,12 @@ begin
   end;
 
   AddLog('Plano de ações gerado pelo ActionBuilderAgent.');
-
-  AddLog('Validando plano pelo ActionExecutor...');
+  AddLog('Validando/executando plano pelo ActionExecutor real...');
 
   ExecutorSuccess := False;
   ExecutorOutput := '';
 
   try
-    // Tarefa 47: Executar de verdade as ações preparadas
     ExecutorSuccess := FActionExecutor.ExecutePreparedActionsReal(BuilderOutput, ExecutorOutput);
   except
     on E: Exception do
@@ -2285,17 +2415,25 @@ begin
 
   if not ExecutorSuccess then
   begin
-    // Legacy fallback. Remover após estabilizar ExecutePreparedActionsReal (Tarefa 48)
-    AddLog('[FALLBACK] Falha ou sem ações registradas no Executor Real. Tentando legado DispatchPreparedActions...');
-    try
-      ExecutorSuccess := FActionExecutor.ExecutePlan(BuilderOutput, ExecutorOutput);
-      if ExecutorSuccess then
-        ExecutorSuccess := DispatchPreparedActions(BuilderOutput);
-    except
-      on E: Exception do
-      begin
-        ExecutorSuccess := False;
-        AddLog('Exception no fallback legado: ' + E.Message);
+    AddLog('[EXECUTOR REAL] Falhou: ' + SanitizeLLMError(FActionExecutor.LastError));
+
+    if ContainsBrowserAction(BuilderOutput) then
+    begin
+      AddLog('[EXECUTOR REAL] Plano contém BROWSER_*. Fallback legado não será usado.');
+    end
+    else
+    begin
+      AddLog('[FALLBACK] Falha no Executor Real. Tentando legado DispatchPreparedActions...');
+      try
+        ExecutorSuccess := FActionExecutor.ExecutePlan(BuilderOutput, ExecutorOutput);
+        if ExecutorSuccess then
+          ExecutorSuccess := DispatchPreparedActions(BuilderOutput);
+      except
+        on E: Exception do
+        begin
+          ExecutorSuccess := False;
+          AddLog('Exception no fallback legado: ' + E.Message);
+        end;
       end;
     end;
   end;
@@ -2345,6 +2483,12 @@ var
 begin
   Result := False;
 
+  if ContainsBrowserAction(APreparedActionsJSON) then
+  begin
+    AddLog('[DISPATCH] Plano contém ação BROWSER_*. Fallback legado recusado. Use ExecutePreparedActionsReal.');
+    Exit;
+  end;
+
   if Trim(APreparedActionsJSON) = '' then
   begin
     AddLog('Plano de ações vazio. Nada a despachar.');
@@ -2387,9 +2531,6 @@ begin
         AddLog('Array "actions" veio vazio.');
         Exit;
       end;
-
-      if Assigned(FActionExecutor) then
-        FActionExecutor.ClearExecutionContext;
 
       Params := TStringList.Create;
       try
@@ -2510,6 +2651,11 @@ begin
       Result := False;
     end;
   end;
+end;
+
+function TfrmMain.ContainsBrowserAction(const APreparedActionsJSON: string): Boolean;
+begin
+  Result := Pos('BROWSER_', UpperCase(APreparedActionsJSON)) > 0;
 end;
 
 procedure TfrmMain.btnExecutarTodasClick(Sender: TObject);
@@ -2705,7 +2851,8 @@ begin
 
     if FWaitingForNavigation then
     begin
-      if SameText(AURL, FExpectedNavigationURL) or
+      if (FExpectedNavigationURL = '') or
+         SameText(AURL, FExpectedNavigationURL) or
          (Pos(LowerCase(FExpectedNavigationURL), LowerCase(AURL)) = 1) then
       begin
         FWaitingForNavigation := False;
@@ -2734,35 +2881,40 @@ begin
   FWaitingBrowserDOM := False;
 
   ValueText := '';
-  if SameText(AKind, 'dom-get-property') and SameText(ASelector, 'body') then
-  begin
-    Parser := nil;
-    Data := nil;
 
-    try
-      Parser := TJSONParser.Create(AJSON, []);
-      Data := Parser.Parse;
+  Parser := nil;
+  Data := nil;
+  try
+    Parser := TJSONParser.Create(AJSON, []);
+    Data := Parser.Parse;
 
-      if Data is TJSONObject then
-      begin
-        Obj := TJSONObject(Data);
-        ValueData := Obj.Find('value');
+    if Data is TJSONObject then
+    begin
+      Obj := TJSONObject(Data);
+      ValueData := Obj.Find('value');
 
-        if Assigned(ValueData) then
-          ValueText := JSONValueToPlainText(ValueData);
-      end;
-    except
-      on E: Exception do
-      begin
-        AddLog('Erro ao interpretar retorno DOM: ' + E.Message);
-      end;
+      if Assigned(ValueData) then
+        ValueText := JSONValueToPlainText(ValueData);
     end;
+  except
+    on E: Exception do
+      AddLog('Erro ao interpretar retorno DOM: ' + E.Message);
+  end;
 
-    Data.Free;
-    Parser.Free;
+  Data.Free;
+  Parser.Free;
 
+  if (ValueText <> '') and
+     (SameText(AKind, 'dom-get-property') or SameText(AKind, 'capture-text') or SameText(AKind, 'text')) then
+  begin
     FCapturedWebText := ValueText;
     AddLog(Format('Texto real capturado da página. Tamanho: %d caracteres.', [Length(FCapturedWebText)]));
+    FWaitingForDOMText := False;
+  end;
+
+  if SameText(ASelector, 'body') and (ValueText <> '') then
+  begin
+    FCapturedWebText := ValueText;
     FWaitingForDOMText := False;
   end;
 
@@ -2771,8 +2923,12 @@ begin
     FActionExecutor.ExecutionContext.Values['browser.last_dom_kind'] := AKind;
     FActionExecutor.ExecutionContext.Values['browser.last_dom_selector'] := ASelector;
     FActionExecutor.ExecutionContext.Values['browser.last_dom_json'] := AJSON;
+
     if ValueText <> '' then
+    begin
       FActionExecutor.ExecutionContext.Values['browser.last_text'] := ValueText;
+      FActionExecutor.ExecutionContext.Values['browser.last_result_text'] := ValueText;
+    end;
   end;
 end;
 
@@ -2780,10 +2936,9 @@ function TfrmMain.WaitBrowserDOMResult(ATimeoutMs: Integer): Boolean;
 var
   StartTicks: QWord;
 begin
-  FWaitingBrowserDOM := True;
   StartTicks := GetTickCount64;
 
-  while FWaitingBrowserDOM and (GetTickCount64 - StartTicks < ATimeoutMs) do
+  while FWaitingBrowserDOM and (GetTickCount64 - StartTicks < QWord(ATimeoutMs)) do
   begin
     Application.ProcessMessages;
     Sleep(50);
@@ -2794,6 +2949,28 @@ begin
     FWaitingBrowserDOM := False;
     Exit(False);
   end;
+
+  Result := True;
+end;
+
+function TfrmMain.WaitBrowserNavigation(ATimeoutMs: Integer): Boolean;
+var
+  StartTicks: QWord;
+begin
+  StartTicks := GetTickCount64;
+
+  while FWaitingForNavigation and (GetTickCount64 - StartTicks < QWord(ATimeoutMs)) do
+  begin
+    Application.ProcessMessages;
+    Sleep(50);
+  end;
+
+  if FWaitingForNavigation then
+  begin
+    FWaitingForNavigation := False;
+    Exit(False);
+  end;
+
   Result := True;
 end;
 
@@ -2907,14 +3084,17 @@ end;
 procedure TfrmMain.ActionExecutorBeforeActionExecute(Sender: TObject; const AActionName: string; AParams: TStrings; AExecutionContext: TStrings);
 begin
   AddLog(Format('[EXECUTOR - ANTES] Resolvendo parâmetros para ação: %s', [AActionName]));
-  
+
   if SameText(AActionName, 'SEND_EMAIL') then
   begin
     if IsEmptyOrPlaceholder(AParams.Values['body']) then
     begin
       AParams.Values['body'] := AExecutionContext.Values['last_text_content'];
-      AddLog('[EXECUTOR] Substituído corpo de e-mail genérico pelo texto do currículo do contexto de execução.');
+      AddLog('[EXECUTOR] Substituído corpo de e-mail genérico pelo texto do contexto de execução.');
     end;
+
+    if IsEmptyOrPlaceholder(AParams.Values['body']) then
+      AParams.Values['body'] := AExecutionContext.Values['browser.last_result_text'];
 
     if Assigned(memCorpoEmail) then
       memCorpoEmail.Text := AParams.Values['body'];
@@ -2928,11 +3108,14 @@ end;
 procedure TfrmMain.ActionExecutorAfterActionExecute(Sender: TObject; const AActionName: string; AParams: TStrings; AResult: TStrings; AExecutionContext: TStrings);
 begin
   AddLog(Format('[EXECUTOR - DEPOIS] Ação concluída: %s', [AActionName]));
-  
+
   if SameText(AActionName, 'CREATE_TEXT_DOCUMENT') then
   begin
-    AExecutionContext.Values['last_text_content'] := AResult.Values['content'];
-    AExecutionContext.Values['last_text_filename'] := AResult.Values['filename'];
+    if Assigned(FCreateTextAction) then
+    begin
+      AExecutionContext.Values['last_text_content'] := FCreateTextAction.LastContent;
+      AExecutionContext.Values['last_text_filename'] := FCreateTextAction.LastGeneratedFile;
+    end;
     AddLog('[EXECUTOR] Publicado last_text_content e last_text_filename no contexto de execução.');
   end;
 end;
@@ -2949,6 +3132,26 @@ var
 begin
   AddLog(Format('[EXECUTOR REAL] Preparando para executar ação: %s', [AActionName]));
 
+  if SameText(AActionName, 'BROWSER_NAVIGATE') or
+     SameText(AActionName, 'BROWSER_WAIT_SELECTOR') or
+     SameText(AActionName, 'BROWSER_READ_PAGE') or
+     SameText(AActionName, 'BROWSER_DOM_LIST') or
+     SameText(AActionName, 'BROWSER_CAPTURE_TEXT') or
+     SameText(AActionName, 'BROWSER_SET_VALUE') or
+     SameText(AActionName, 'BROWSER_FOCUS') or
+     SameText(AActionName, 'BROWSER_CLICK') or
+     SameText(AActionName, 'BROWSER_PRESS_ENTER') or
+     SameText(AActionName, 'BROWSER_SUBMIT_FORM') or
+     SameText(AActionName, 'BROWSER_SCREENSHOT') then
+  begin
+    if not EnsureBrowser then
+    begin
+      AddLog('[EXECUTOR REAL] ERRO: Chromium não está pronto.');
+      ACanExecute := False;
+      Exit;
+    end;
+  end;
+
   if SameText(AActionName, 'BROWSER_NAVIGATE') then
   begin
     UrlStr := Trim(AParams.Values['url']);
@@ -2958,12 +3161,16 @@ begin
       ACanExecute := False;
       Exit;
     end;
+
+    FExpectedNavigationURL := UrlStr;
+    FWaitingForNavigation := True;
   end
   else if SameText(AActionName, 'BROWSER_SET_VALUE') or
           SameText(AActionName, 'BROWSER_CLICK') or
           SameText(AActionName, 'BROWSER_FOCUS') or
           SameText(AActionName, 'BROWSER_PRESS_ENTER') or
-          SameText(AActionName, 'BROWSER_SUBMIT_FORM') then
+          SameText(AActionName, 'BROWSER_SUBMIT_FORM') or
+          SameText(AActionName, 'BROWSER_WAIT_SELECTOR') then
   begin
     SelectorStr := Trim(AParams.Values['selector']);
     if SelectorStr = '' then
@@ -2974,13 +3181,43 @@ begin
     end;
   end;
 
+  if SameText(AActionName, 'BROWSER_READ_PAGE') or
+     SameText(AActionName, 'BROWSER_DOM_LIST') or
+     SameText(AActionName, 'BROWSER_CAPTURE_TEXT') then
+  begin
+    FWaitingBrowserDOM := True;
+    FLastBrowserDOMJSON := '';
+  end;
+
   if SameText(AActionName, 'CREATE_TEXT_DOCUMENT') then
   begin
+    if IsEmptyOrPlaceholder(AParams.Values['content']) and (AExecutionContext.Values['browser.last_result_text'] <> '') then
+    begin
+      AParams.Values['content'] := AExecutionContext.Values['browser.last_result_text'];
+      AddLog('[EXECUTOR REAL] Preenchido conteúdo do documento com o resultado capturado no browser.');
+    end;
+
     if IsEmptyOrPlaceholder(AParams.Values['content']) and (AExecutionContext.Values['browser.last_text'] <> '') then
     begin
       AParams.Values['content'] := AExecutionContext.Values['browser.last_text'];
-      AddLog('[EXECUTOR REAL] Preenchido conteúdo do documento com o resultado capturado no browser.');
+      AddLog('[EXECUTOR REAL] Preenchido conteúdo do documento com browser.last_text.');
     end;
+  end;
+
+  if SameText(AActionName, 'SEND_EMAIL') then
+  begin
+    ConfigureEmailAction;
+    if Assigned(FSendEmailAction) then
+      FSendEmailAction.GeneratedTextFileName := edArquivoWordGerado.Text;
+
+    if IsEmptyOrPlaceholder(AParams.Values['body']) then
+      AParams.Values['body'] := AExecutionContext.Values['last_text_content'];
+
+    if IsEmptyOrPlaceholder(AParams.Values['body']) then
+      AParams.Values['body'] := AExecutionContext.Values['browser.last_result_text'];
+
+    if Assigned(memCorpoEmail) then
+      memCorpoEmail.Text := AParams.Values['body'];
   end;
 end;
 
@@ -2997,29 +3234,45 @@ begin
   if SameText(AActionName, 'BROWSER_NAVIGATE') then
   begin
     AddLog('[EXECUTOR REAL] Aguardando carregamento da página...');
-    FWaitingForNavigation := True;
-    WaitBrowserDOMResult(15000); 
+    if not WaitBrowserNavigation(15000) then
+      AddLog('[EXECUTOR REAL] Aviso: timeout aguardando navegação.');
   end
   else if SameText(AActionName, 'BROWSER_READ_PAGE') or
           SameText(AActionName, 'BROWSER_DOM_LIST') or
           SameText(AActionName, 'BROWSER_CAPTURE_TEXT') then
   begin
     AddLog('[EXECUTOR REAL] Aguardando resultado assíncrono do DOM...');
-    WaitBrowserDOMResult(10000);
-    
-    if SameText(AActionName, 'BROWSER_CAPTURE_TEXT') then
+    if not WaitBrowserDOMResult(10000) then
+      AddLog('[EXECUTOR REAL] Aviso: timeout aguardando resultado DOM.');
+
+    if SameText(AActionName, 'BROWSER_CAPTURE_TEXT') or SameText(AActionName, 'BROWSER_READ_PAGE') then
     begin
-      AExecutionContext.Values['browser.last_result_text'] := FCapturedWebText;
-      AddLog('[EXECUTOR REAL] Registrado browser.last_result_text no ExecutionContext.');
+      if Trim(FCapturedWebText) <> '' then
+      begin
+        AExecutionContext.Values['browser.last_result_text'] := FCapturedWebText;
+        AExecutionContext.Values['browser.last_text'] := FCapturedWebText;
+        AddLog('[EXECUTOR REAL] Registrado browser.last_result_text no ExecutionContext.');
+      end;
     end;
   end
   else if SameText(AActionName, 'BROWSER_PRESS_ENTER') or
           SameText(AActionName, 'BROWSER_SUBMIT_FORM') then
   begin
     AddLog('[EXECUTOR REAL] Aguardando possível carregamento pós submissão...');
-    FWaitingForNavigation := True;
-    WaitBrowserDOMResult(10000);
+    Application.ProcessMessages;
+    Sleep(2000);
+    Application.ProcessMessages;
+  end
+  else if SameText(AActionName, 'CREATE_TEXT_DOCUMENT') then
+  begin
+    if Assigned(FCreateTextAction) then
+    begin
+      AExecutionContext.Values['last_text_content'] := FCreateTextAction.LastContent;
+      AExecutionContext.Values['last_text_filename'] := FCreateTextAction.LastGeneratedFile;
+      AddLog('[EXECUTOR REAL] Publicado texto gerado no contexto de execução.');
+    end;
   end;
 end;
 
 end.
+
