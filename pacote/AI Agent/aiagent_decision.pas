@@ -35,6 +35,13 @@ type
     function ValidateTaskProcessorOutput(const AJSON: string; out AError: string): Boolean;
     function BuildTaskProcessorRecoverPrompt(const AOriginalInput: string; const AMemoryContext: string; const AInvalidOutput: string; const AValidationError: string; const ASchemaText: string): string;
     function RecoverInvalidTaskProcessorOutput(const AOriginalInput: string; const AMemoryContext: string; const AInvalidOutput: string; const AValidationError: string; const ASchemaText: string; out ARecoveredOutput: string): Boolean;
+
+    // Replanner helper methods
+    function GetReplanTasksSchema: string;
+    function BuildReplanTasksPrompt(const AInput: string; const AMemoryContext: string; const ASchemaText: string): string;
+    function ValidateReplanTasksOutput(const AJSON: string; out AError: string): Boolean;
+    function BuildReplanTasksRecoverPrompt(const AOriginalInput: string; const AMemoryContext: string; const AInvalidOutput: string; const AValidationError: string; const ASchemaText: string): string;
+    function RecoverInvalidReplanTasksOutput(const AOriginalInput: string; const AMemoryContext: string; const AInvalidOutput: string; const AValidationError: string; const ASchemaText: string; out ARecoveredOutput: string): Boolean;
   public
     constructor Create(AOwner: TComponent); override;
     function Decide(const AInput: string; out AOutput: string): Boolean; virtual;
@@ -43,6 +50,7 @@ type
     function ProcessTask(const AInput: string; out AOutput: string): Boolean; virtual;
     // Tarefa 24: Criar helper para extrair result
     function ExtractTaskProcessResult(const AProcessorJSON: string; out AResultText: string): Boolean;
+    function ReplanTasks(const AInput: string; out AOutput: string): Boolean; virtual;
   published
     property OnBeforeDecision: TAIFluxoEtapaControlEvent read FOnBeforeDecision write FOnBeforeDecision;
     property OnAfterDecision: TAIFluxoEtapaEvent read FOnAfterDecision write FOnAfterDecision;
@@ -857,6 +865,280 @@ begin
       JSONData.Free;
     end;
   except
+  end;
+end;
+
+function TAIDecisionAgent.GetReplanTasksSchema: string;
+begin
+  Result :=
+    '{' + sLineBreak +
+    '  "needs_replan": true|false,' + sLineBreak +
+    '  "reason": "explanation of replan decision",' + sLineBreak +
+    '  "updated_tasks": [' + sLineBreak +
+    '    {' + sLineBreak +
+    '      "id": "T003",' + sLineBreak +
+    '      "order": 3,' + sLineBreak +
+    '      "type": "browser",' + sLineBreak +
+    '      "description": "...",' + sLineBreak +
+    '      "agent": "task_processor_agent",' + sLineBreak +
+    '      "suggested_action": "BROWSER_SET_VALUE",' + sLineBreak +
+    '      "depends_on": "T002",' + sLineBreak +
+    '      "parameters": {' + sLineBreak +
+    '        "selector": "input[name=\"q\"]",' + sLineBreak +
+    '        "value": "...",' + sLineBreak +
+    '        "index": "0"' + sLineBreak +
+    '      }' + sLineBreak +
+    '    }' + sLineBreak +
+    '  ],' + sLineBreak +
+    '  "tasks_to_cancel": ["T004", "T005"]' + sLineBreak +
+    '}';
+end;
+
+function TAIDecisionAgent.BuildReplanTasksPrompt(
+  const AInput: string;
+  const AMemoryContext: string;
+  const ASchemaText: string
+): string;
+var
+  LPromptText: string;
+begin
+  LPromptText :=
+    'Você é o ReplannerAgent.' + sLineBreak +
+    'Sua função é decidir se as próximas tarefas do plano precisam ser alteradas ou se novas tarefas precisam ser inseridas com base no DOM/texto realmente coletado.' + sLineBreak + sLineBreak +
+    'Regras Obrigatórias:' + sLineBreak +
+    '1. Só reescreva/atualize tarefas se houver evidência clara no DOM ou no texto capturado.' + sLineBreak +
+    '2. Se encontrar o campo de busca correto no DOM (ex: name="SearchText" ou name="q"), atualize as ações de preenchimento BROWSER_SET_VALUE e acionamento BROWSER_PRESS_ENTER com o seletor correspondente.' + sLineBreak +
+    '3. Se não encontrou o campo de forma confiável no DOM, insira uma nova tarefa BROWSER_DOM_LIST mais específica.' + sLineBreak +
+    '4. Se o plano atual ainda estiver válido e correto, retorne needs_replan=false e updated_tasks=[].' + sLineBreak +
+    '5. Cancele tarefas inúteis ou redundantes incluindo o ID delas em "tasks_to_cancel".' + sLineBreak +
+    '6. Retorne exclusivamente JSON no schema obrigatório.' + sLineBreak + sLineBreak +
+    '=== SCHEMA OBRIGATÓRIO ===' + sLineBreak +
+    ASchemaText + sLineBreak + sLineBreak +
+    '=== CONTEXTO DE MEMÓRIA (MAPA) ===' + sLineBreak +
+    AMemoryContext + sLineBreak + sLineBreak +
+    '=== ENTRADA DO REPLANEJADOR (OBJETIVO E RESULTADOS) ===' + sLineBreak +
+    AInput;
+
+  if SystemPrompt <> '' then
+    LPromptText := SystemPrompt + sLineBreak + sLineBreak + LPromptText;
+
+  Result := LPromptText;
+end;
+
+function TAIDecisionAgent.ValidateReplanTasksOutput(const AJSON: string; out AError: string): Boolean;
+var
+  JSONData: TJSONData;
+  Obj: TJSONObject;
+  NeedsReplanVal, UpdatedTasksVal, TasksToCancelVal: TJSONData;
+begin
+  Result := False;
+  AError := '';
+
+  try
+    JSONData := GetJSON(AJSON);
+    try
+      if not (JSONData is TJSONObject) then
+      begin
+        AError := 'O retorno não é um objeto JSON válido.';
+        Exit;
+      end;
+
+      Obj := TJSONObject(JSONData);
+      NeedsReplanVal := Obj.Find('needs_replan');
+      if not Assigned(NeedsReplanVal) then
+      begin
+        AError := 'O campo "needs_replan" está ausente no JSON.';
+        Exit;
+      end;
+
+      UpdatedTasksVal := Obj.Find('updated_tasks');
+      if Assigned(UpdatedTasksVal) and not (UpdatedTasksVal is TJSONArray) then
+      begin
+        AError := 'O campo "updated_tasks" deve ser um array.';
+        Exit;
+      end;
+
+      TasksToCancelVal := Obj.Find('tasks_to_cancel');
+      if Assigned(TasksToCancelVal) and not (TasksToCancelVal is TJSONArray) then
+      begin
+        AError := 'O campo "tasks_to_cancel" deve ser um array.';
+        Exit;
+      end;
+
+      Result := True;
+    finally
+      JSONData.Free;
+    end;
+  except
+    on E: Exception do
+      AError := 'Falha de parsing do JSON do replanejador: ' + E.Message;
+  end;
+end;
+
+function TAIDecisionAgent.BuildReplanTasksRecoverPrompt(
+  const AOriginalInput: string;
+  const AMemoryContext: string;
+  const AInvalidOutput: string;
+  const AValidationError: string;
+  const ASchemaText: string
+): string;
+begin
+  Result :=
+    'A resposta anterior gerada pelo replanejador era inválida ou fora do schema.' + sLineBreak +
+    'Erro de validação: ' + AValidationError + sLineBreak + sLineBreak +
+    'Por favor, corrija a resposta anterior para que ela obedeça estritamente ao schema do ReplannerAgent.' + sLineBreak + sLineBreak +
+    '=== SCHEMA ESPERADO ===' + sLineBreak +
+    ASchemaText + sLineBreak + sLineBreak +
+    '=== CONTEXTO DE MEMÓRIA (MAPA) ===' + sLineBreak +
+    AMemoryContext + sLineBreak + sLineBreak +
+    '=== RESPOSTA INVÁLIDA ANTERIOR ===' + sLineBreak +
+    AInvalidOutput + sLineBreak + sLineBreak +
+    '=== ENTRADA ORIGINAL ===' + sLineBreak +
+    AOriginalInput;
+end;
+
+function TAIDecisionAgent.RecoverInvalidReplanTasksOutput(
+  const AOriginalInput: string;
+  const AMemoryContext: string;
+  const AInvalidOutput: string;
+  const AValidationError: string;
+  const ASchemaText: string;
+  out ARecoveredOutput: string
+): Boolean;
+var
+  LPrompt: string;
+  ValidationError: string;
+begin
+  Result := False;
+  ARecoveredOutput := '';
+
+  LPrompt := BuildReplanTasksRecoverPrompt(
+    AOriginalInput,
+    AMemoryContext,
+    AInvalidOutput,
+    AValidationError,
+    ASchemaText
+  );
+
+  if not ChatGPT.SendQuestion(LPrompt) then
+    Exit;
+
+  ARecoveredOutput := CleanJSONResponse(ChatGPT.Response);
+
+  if ValidateReplanTasksOutput(ARecoveredOutput, ValidationError) then
+    Result := True;
+end;
+
+function TAIDecisionAgent.ReplanTasks(const AInput: string; out AOutput: string): Boolean;
+var
+  Item: TAIAgentMemoryMapItem;
+  Ctx: TAIFluxoEtapaContexto;
+  LPrompt: string;
+  ResponseText: string;
+  SchemaText: string;
+  ValidationError: string;
+  RecoveredText: string;
+  SafeInput: string;
+  SafeMemoryContext: string;
+  JSONData: TJSONData;
+  Obj: TJSONObject;
+  Confidence: Double;
+begin
+  Result := False;
+  AOutput := '';
+  ClearError;
+
+  if Trim(AInput) = '' then
+  begin
+    SetError('Input de replanejamento vazio.');
+    Exit;
+  end;
+
+  if not Assigned(ChatGPT) then
+  begin
+    SetError('ChatGPT is not connected to the agent.');
+    Exit;
+  end;
+
+  Ctx := TAIFluxoEtapaContexto.Create;
+  try
+    Ctx.SessionId := '';
+    if Assigned(MapaDeMemoria) then
+      Ctx.SessionId := MapaDeMemoria.SessionId;
+    Ctx.FlowName := 'Replanejamento de Tarefas';
+    Ctx.PedidoOriginal := AInput;
+    Ctx.PedidoAtual := AInput;
+    Ctx.NomeAgenteAtual := FNomeAgente;
+    Ctx.TipoAgenteAtual := FTipoAgenteMapa;
+
+    if Assigned(MapaDeMemoria) then
+      Ctx.ContextoAtual := MapaDeMemoria.BuildContextForAgent(FNomeAgente, FTipoAgenteMapa);
+
+    SafeInput := LimitTextForLLM(AInput, 30000);
+    SafeMemoryContext := LimitTextForLLM(Ctx.ContextoAtual, 15000);
+
+    Item := BeginMemoryStep(SafeInput);
+
+    SchemaText := GetReplanTasksSchema;
+    LPrompt := BuildReplanTasksPrompt(SafeInput, SafeMemoryContext, SchemaText);
+
+    if Length(LPrompt) > 60000 then
+      LPrompt := LimitTextForLLM(LPrompt, 60000);
+
+    if not ChatGPT.SendQuestion(LPrompt) then
+    begin
+      SetError('Network error while replanning tasks: ' + ChatGPT.LastError);
+      if Assigned(Item) then
+        EndMemoryStep(Item, 'Network error', ChatGPT.LastError, 'ERROR', '');
+      Exit;
+    end;
+
+    ResponseText := CleanJSONResponse(ChatGPT.Response);
+
+    if not ValidateReplanTasksOutput(ResponseText, ValidationError) then
+    begin
+      if FAutoRecoverInvalidProcessInput then
+      begin
+        if RecoverInvalidReplanTasksOutput(
+          SafeInput,
+          SafeMemoryContext,
+          ResponseText,
+          ValidationError,
+          SchemaText,
+          RecoveredText
+        ) then
+          ResponseText := RecoveredText;
+      end;
+    end;
+
+    if not ValidateReplanTasksOutput(ResponseText, ValidationError) then
+    begin
+      SetError('Replanner retornou saída fora do schema: ' + ValidationError);
+      if Assigned(Item) then
+        EndMemoryStep(Item, 'Validation error', ValidationError, 'ERROR', ResponseText);
+      Exit;
+    end;
+
+    JSONData := GetJSON(ResponseText);
+    try
+      Obj := TJSONObject(JSONData);
+      Ctx.SaidaAtual := ResponseText;
+      Confidence := Obj.Get('confidence', 0.95);
+
+      AOutput := ResponseText;
+      Result := True;
+
+      if Assigned(Item) then
+      begin
+        Item.SaidaGerada := AOutput;
+        Item.Confianca := Confidence;
+        EndMemoryStep(Item, 'Replan analysis', Obj.Get('reason', ''), 'TASK_REPLANNED', Ctx.SaidaAtual);
+      end;
+    finally
+      JSONData.Free;
+    end;
+  finally
+    Ctx.Free;
   end;
 end;
 

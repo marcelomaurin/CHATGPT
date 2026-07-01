@@ -291,6 +291,15 @@ type
     procedure ActionExecutorBeforePreparedAction(Sender: TObject; const AActionName: string; AParams: TStrings; AExecutionContext: TStrings; var ACanExecute: Boolean);
     procedure ActionExecutorAfterPreparedAction(Sender: TObject; const AActionName: string; AParams: TStrings; AExecutionContext: TStrings; AResult: TStrings);
 
+    { Replanning Helpers }
+    function CanTriggerReplan(ATask: TSampleTaskItem): Boolean;
+    function HasPendingTasksAfter(ATask: TSampleTaskItem): Boolean;
+    function BuildPendingTasksJSON(const AAfterOrder: Integer): string;
+    function BuildCompletedTasksSummary: string;
+    function ReplanPendingTasksIfNeeded(ACurrentTask: TSampleTaskItem): Boolean;
+    function ApplyReplanJSON(const AReplanJSON: string): Boolean;
+    procedure SortTasksByOrder;
+
     function EnsureRuntimeObjects(out AErro: string): Boolean;
     procedure WireRuntimeObjects;
     function NormalizeChatEndpoint(const AURL: string): string;
@@ -397,7 +406,7 @@ end;
 
 function IsBrowserActionName(const AActionName: string): Boolean;
 begin
-  Result := Pos('BROWSER_', UpperCase(Trim(AActionName))) = 1;
+  Result := (Pos('BROWSER_', UpperCase(Trim(AActionName))) = 1) or SameText(AActionName, 'REPLAN_FROM_DOM');
 end;
 
 function LocalCleanJSONResponse(const AText: string): string;
@@ -1642,10 +1651,11 @@ begin
       'Não crie tarefa para gerar Word ou DOCX.' + sLineBreak +
       'Para gerar texto, use suggested_action = "CREATE_TEXT_DOCUMENT".' + sLineBreak +
       'Para enviar e-mail, use suggested_action = "SEND_EMAIL".' + sLineBreak +
-      'Para navegação/interação no browser, use suggested_action com uma das ações BROWSER_* permitidas.' + sLineBreak +
-      'Ações browser permitidas: BROWSER_NAVIGATE, BROWSER_WAIT_SELECTOR, BROWSER_READ_PAGE, BROWSER_DOM_LIST, BROWSER_CAPTURE_TEXT, BROWSER_SET_VALUE, BROWSER_FOCUS, BROWSER_CLICK, BROWSER_PRESS_ENTER, BROWSER_SUBMIT_FORM, BROWSER_SCREENSHOT.' + sLineBreak +
+      'Para navegação/interação no browser, use suggested_action com uma das ações BROWSER_* permitidas ou REPLAN_FROM_DOM.' + sLineBreak +
+      'Ações browser permitidas: REPLAN_FROM_DOM, BROWSER_NAVIGATE, BROWSER_WAIT_SELECTOR, BROWSER_READ_PAGE, BROWSER_DOM_LIST, BROWSER_CAPTURE_TEXT, BROWSER_SET_VALUE, BROWSER_FOCUS, BROWSER_CLICK, BROWSER_PRESS_ENTER, BROWSER_SUBMIT_FORM, BROWSER_SCREENSHOT.' + sLineBreak +
+      'Sempre que ler o DOM com BROWSER_DOM_LIST, crie uma tarefa REPLAN_FROM_DOM em seguida para adequar os seletores reais.' + sLineBreak +
       'Antes de BROWSER_SET_VALUE, BROWSER_CLICK, BROWSER_PRESS_ENTER ou BROWSER_SUBMIT_FORM, gere tarefa anterior BROWSER_READ_PAGE ou BROWSER_DOM_LIST, exceto se o seletor CSS foi informado explicitamente.' + sLineBreak +
-      'Para pesquisar em site: navegue, aguarde seletor/campo, leia DOM, preencha campo, pressione Enter ou submeta, capture resultado.' + sLineBreak +
+      'Para pesquisar em site: navegue, aguarde seletor/campo, leia DOM, execute REPLAN_FROM_DOM, preencha campo, pressione Enter ou submeta, capture resultado.' + sLineBreak +
       'Não invente dados que não estejam no prompt, no DOM lido ou no conteúdo real capturado.' + sLineBreak +
       'Formato obrigatório preferencial:' + sLineBreak +
       '{' + sLineBreak +
@@ -2383,6 +2393,7 @@ begin
     '- CREATE_TEXT_DOCUMENT' + sLineBreak +
     '- SEND_EMAIL' + sLineBreak +
     '- REGISTER_RESULT' + sLineBreak +
+    '- REPLAN_FROM_DOM' + sLineBreak +
     '- BROWSER_NAVIGATE' + sLineBreak +
     '- BROWSER_WAIT_SELECTOR' + sLineBreak +
     '- BROWSER_READ_PAGE' + sLineBreak +
@@ -2512,6 +2523,13 @@ begin
     BuilderOutput;
 
   AddLog(Format('Tarefa "%s" concluída com sucesso.', [T.ID]));
+
+  if CanTriggerReplan(T) and HasPendingTasksAfter(T) then
+  begin
+    AddLog('[REPLAN] Verificando se tarefas futuras precisam ser reescritas com base no resultado atual...');
+    if not ReplanPendingTasksIfNeeded(T) then
+      AddLog('[REPLAN] Falha ao replanejar tarefas futuras. Fluxo continuará com plano atual.');
+  end;
 
   RefreshTasksGrid;
   RefreshMemoryMapGrid;
@@ -3321,6 +3339,305 @@ begin
       AExecutionContext.Values['last_text_filename'] := FCreateTextAction.LastGeneratedFile;
       AddLog('[EXECUTOR REAL] Publicado texto gerado no contexto de execução.');
     end;
+  end;
+end;
+
+function CompareTasks(Item1, Item2: Pointer): Integer;
+var
+  T1, T2: TSampleTaskItem;
+begin
+  T1 := TSampleTaskItem(Item1);
+  T2 := TSampleTaskItem(Item2);
+  if T1.Ordem < T2.Ordem then
+    Result := -1
+  else if T1.Ordem > T2.Ordem then
+    Result := 1
+  else
+    Result := 0;
+end;
+
+procedure TfrmMain.SortTasksByOrder;
+begin
+  if Assigned(FTasks) then
+    FTasks.Sort(@CompareTasks);
+end;
+
+function TfrmMain.CanTriggerReplan(ATask: TSampleTaskItem): Boolean;
+begin
+  Result := False;
+  if not Assigned(ATask) then
+    Exit;
+  Result :=
+    SameText(ATask.AcaoSugerida, 'BROWSER_DOM_LIST') or
+    SameText(ATask.AcaoSugerida, 'BROWSER_READ_PAGE') or
+    SameText(ATask.AcaoSugerida, 'BROWSER_CAPTURE_TEXT') or
+    SameText(ATask.AcaoSugerida, 'REPLAN_FROM_DOM');
+end;
+
+function TfrmMain.HasPendingTasksAfter(ATask: TSampleTaskItem): Boolean;
+var
+  I: Integer;
+  T: TSampleTaskItem;
+begin
+  Result := False;
+  if (not Assigned(ATask)) or (not Assigned(FTasks)) then
+    Exit;
+  for I := 0 to FTasks.Count - 1 do
+  begin
+    T := TSampleTaskItem(FTasks[I]);
+    if (T.Ordem > ATask.Ordem) and
+       ((T.Status = stsPending) or (T.Status = stsFailed)) then
+    begin
+      Result := True;
+      Exit;
+    end;
+  end;
+end;
+
+function TfrmMain.BuildPendingTasksJSON(const AAfterOrder: Integer): string;
+var
+  Arr: TJSONArray;
+  Obj, ParamsObj: TJSONObject;
+  I, J: Integer;
+  T: TSampleTaskItem;
+begin
+  Arr := TJSONArray.Create;
+  try
+    if Assigned(FTasks) then
+    begin
+      for I := 0 to FTasks.Count - 1 do
+      begin
+        T := TSampleTaskItem(FTasks[I]);
+        if (T.Ordem > AAfterOrder) and
+           ((T.Status = stsPending) or (T.Status = stsFailed)) then
+        begin
+          Obj := TJSONObject.Create;
+          Obj.Add('id', T.ID);
+          Obj.Add('order', T.Ordem);
+          Obj.Add('type', T.Tipo);
+          Obj.Add('description', T.Descricao);
+          Obj.Add('agent', T.Agente);
+          Obj.Add('suggested_action', T.AcaoSugerida);
+          Obj.Add('depends_on', T.Dependencia);
+
+          ParamsObj := TJSONObject.Create;
+          if Assigned(T.Params) then
+          begin
+            for J := 0 to T.Params.Count - 1 do
+              ParamsObj.Add(T.Params.Names[J], T.Params.ValueFromIndex[J]);
+          end;
+          Obj.Add('parameters', ParamsObj);
+          Arr.Add(Obj);
+        end;
+      end;
+    end;
+    Result := Arr.AsJSON;
+  finally
+    Arr.Free;
+  end;
+end;
+
+function TfrmMain.BuildCompletedTasksSummary: string;
+var
+  I: Integer;
+  T: TSampleTaskItem;
+begin
+  Result := '';
+  if not Assigned(FTasks) then
+    Exit;
+
+  for I := 0 to FTasks.Count - 1 do
+  begin
+    T := TSampleTaskItem(FTasks[I]);
+    if T.Status = stsDone then
+    begin
+      Result := Result + 'Tarefa ID: ' + T.ID + sLineBreak +
+                'Ação: ' + T.AcaoSugerida + sLineBreak +
+                'Descrição: ' + T.Descricao + sLineBreak +
+                'Resultado: ' + T.Resultado + sLineBreak + sLineBreak;
+    end;
+  end;
+end;
+
+function TfrmMain.ReplanPendingTasksIfNeeded(ACurrentTask: TSampleTaskItem): Boolean;
+var
+  ReplanInput: string;
+  ReplanOutput: string;
+  DOMText: string;
+begin
+  Result := False;
+  if not CanTriggerReplan(ACurrentTask) then
+    Exit(True);
+
+  if not HasPendingTasksAfter(ACurrentTask) then
+    Exit(True);
+
+  AddLog('[REPLAN] Iniciando análise de replanejamento com ReplannerAgent...');
+
+  DOMText := FActionExecutor.ExecutionContext.Values['browser.last_dom_json'];
+  if DOMText = '' then
+    DOMText := FActionExecutor.ExecutionContext.Text;
+
+  ReplanInput :=
+    '=== OBJETIVO ORIGINAL ===' + sLineBreak +
+    memPrompt.Text + sLineBreak + sLineBreak +
+    '=== TAREFAS JÁ CONCLUÍDAS ===' + sLineBreak +
+    BuildCompletedTasksSummary + sLineBreak +
+    '=== TAREFA RECÉM EXECUTADA ===' + sLineBreak +
+    'ID: ' + ACurrentTask.ID + sLineBreak +
+    'Ação: ' + ACurrentTask.AcaoSugerida + sLineBreak +
+    'Descrição: ' + ACurrentTask.Descricao + sLineBreak +
+    'Resultado: ' + ACurrentTask.Resultado + sLineBreak + sLineBreak +
+    '=== DOM/TEXTO CAPTURADO NO EXECUTION CONTEXT ===' + sLineBreak +
+    LimitSampleText(DOMText, 25000) + sLineBreak + sLineBreak +
+    '=== TAREFAS PENDENTES ATUAIS ===' + sLineBreak +
+    BuildPendingTasksJSON(ACurrentTask.Ordem);
+
+  ConfigureChatGPT;
+
+  if FTaskPlannerAgent.ReplanTasks(ReplanInput, ReplanOutput) then
+  begin
+    AddLog('[REPLAN] ReplannerAgent respondeu com sucesso.');
+    Result := ApplyReplanJSON(ReplanOutput);
+  end
+  else
+  begin
+    AddLog('[REPLAN] Falha na chamada ao ReplannerAgent: ' + FTaskPlannerAgent.LastError);
+  end;
+end;
+
+function TfrmMain.ApplyReplanJSON(const AReplanJSON: string): Boolean;
+var
+  JSONData: TJSONData;
+  Obj: TJSONObject;
+  UpdatedTasks: TJSONArray;
+  TasksToCancel: TJSONArray;
+  I, J, K: Integer;
+  TItemData: TJSONData;
+  TObj: TJSONObject;
+  CancelId: string;
+  FoundTask: TSampleTaskItem;
+  T: TSampleTaskItem;
+  NewId: string;
+  ParamsData: TJSONData;
+  ParamsObj: TJSONObject;
+begin
+  Result := False;
+  try
+    JSONData := GetJSON(AReplanJSON);
+    try
+      if not (JSONData is TJSONObject) then
+        Exit;
+
+      Obj := TJSONObject(JSONData);
+      if not Obj.Get('needs_replan', False) then
+      begin
+        AddLog('[REPLAN] IA decidiu manter tarefas futuras sem alteração.');
+        Exit(True);
+      end;
+
+      AddLog('[REPLAN] IA identificou necessidade de replanejamento. Razão: ' + Obj.Get('reason', ''));
+
+      // Cancelar tarefas indicadas
+      TasksToCancel := TJSONArray(Obj.Find('tasks_to_cancel'));
+      if Assigned(TasksToCancel) then
+      begin
+        for I := 0 to TasksToCancel.Count - 1 do
+        begin
+          CancelId := TasksToCancel.Items[I].AsString;
+          if CancelId <> '' then
+          begin
+            for J := 0 to FTasks.Count - 1 do
+            begin
+              T := TSampleTaskItem(FTasks[J]);
+              if SameText(T.ID, CancelId) then
+              begin
+                T.Status := stsCanceled;
+                AddLog('[REPLAN] Tarefa cancelada pela IA: ' + CancelId);
+              end;
+            end;
+          end;
+        end;
+      end;
+
+      // Atualizar ou inserir tarefas
+      UpdatedTasks := TJSONArray(Obj.Find('updated_tasks'));
+      if Assigned(UpdatedTasks) then
+      begin
+        for I := 0 to UpdatedTasks.Count - 1 do
+        begin
+          TItemData := UpdatedTasks.Items[I];
+          if TItemData is TJSONObject then
+          begin
+            TObj := TJSONObject(TItemData);
+            NewId := TObj.Get('id', '');
+            if NewId = '' then
+              Continue;
+
+            FoundTask := nil;
+            for J := 0 to FTasks.Count - 1 do
+            begin
+              T := TSampleTaskItem(FTasks[J]);
+              if SameText(T.ID, NewId) then
+              begin
+                FoundTask := T;
+                Break;
+              end;
+            end;
+
+            if not Assigned(FoundTask) then
+            begin
+              // Inserir nova tarefa
+              FoundTask := TSampleTaskItem.Create;
+              FoundTask.ID := NewId;
+              FoundTask.Status := stsPending;
+              FTasks.Add(FoundTask);
+              AddLog('[REPLAN] Nova tarefa inserida no plano: ' + NewId + ' (' + TObj.Get('description', '') + ')');
+            end
+            else
+            begin
+              AddLog('[REPLAN] Atualizando tarefa existente no plano: ' + NewId);
+            end;
+
+            FoundTask.Ordem := TObj.Get('order', FoundTask.Ordem);
+            FoundTask.Tipo := TObj.Get('type', FoundTask.Tipo);
+            FoundTask.Descricao := TObj.Get('description', FoundTask.Descricao);
+            FoundTask.Agente := TObj.Get('agent', FoundTask.Agente);
+            FoundTask.AcaoSugerida := TObj.Get('suggested_action', FoundTask.AcaoSugerida);
+            FoundTask.Dependencia := TObj.Get('depends_on', FoundTask.Dependencia);
+
+            // Atualiza parâmetros
+            if not Assigned(FoundTask.Params) then
+              FoundTask.Params := TStringList.Create;
+            FoundTask.Params.Clear;
+
+            ParamsData := TObj.Find('parameters');
+            if Assigned(ParamsData) and (ParamsData is TJSONObject) then
+            begin
+              ParamsObj := TJSONObject(ParamsData);
+              for K := 0 to ParamsObj.Count - 1 do
+              begin
+                FoundTask.Params.Values[ParamsObj.Names[K]] := ParamsObj.Items[K].AsString;
+              end;
+            end;
+
+            // Restaura status para pendente caso estivesse com erro
+            if FoundTask.Status = stsFailed then
+              FoundTask.Status := stsPending;
+
+            FoundTask.RawJSON := TObj.AsJSON;
+          end;
+        end;
+      end;
+
+      SortTasksByOrder;
+      Result := True;
+    finally
+      JSONData.Free;
+    end;
+  except
+    on E: Exception do
+      AddLog('[REPLAN] Erro ao aplicar JSON de replanejamento: ' + E.Message);
   end;
 end;
 
