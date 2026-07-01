@@ -225,6 +225,14 @@ Esta pasta contém os componentes do Lazarus sob a aba **AI Agent**, voltados à
 
 - **Métodos (Public):**
   - `BuildActions(const AInput: string; out AOutput: string): Boolean` - Preenche, higieniza e detalha os parâmetros das ações planejadas.
+  - `BuildActionsStrict(const AInput: string; out AOutput: string): Boolean` - Executa a montagem de ações de forma rígida, desabilitando a recuperação automática temporariamente.
+  - `BuildActionsWithRecovery(const AInput: string; out AOutput: string): Boolean` - Executa a montagem de ações com recuperação automática ativada.
+- **Propriedades (Published):**
+  - `AutoRecoverInvalidInput: Boolean` - Se verdadeiro, o agente tentará recuperar automaticamente saídas inválidas do LLM fora do schema esperado. Padrão: `True`.
+  - `MaxRecoverAttempts: Integer` - Quantidade máxima de tentativas de recuperação antes de retornar erro. Padrão: `1`.
+  - `LastRawOutput: string` - Guarda a última resposta JSON bruta do LLM (útil para depuração).
+  - `LastRecoveredOutput: string` - Guarda o último JSON recuperado com sucesso.
+  - `LastValidationError: string` - Guarda o último erro de validação encontrado antes de iniciar a recuperação.
 - **Eventos:**
   - `OnBeforeBuildAction: TAIFluxoEtapaControlEvent`
   - `OnAfterBuildAction: TAIFluxoEtapaEvent`
@@ -234,6 +242,16 @@ Esta pasta contém os componentes do Lazarus sob a aba **AI Agent**, voltados à
   - `OnAfterApplyDefaults: TAIFluxoEtapaEvent`
   - `OnMissingRequiredParameter: TAIFluxoEtapaEvent`
   - `OnUnsafeParameterDetected: TAIFluxoEtapaEvent`
+
+### Recuperação automática no ActionBuilder
+
+O `TAIActionBuilderAgent` valida automaticamente se a saída gerada pelo LLM está no formato correto e se contém o array de ações (`actions`). 
+Caso a saída seja inválida ou esteja fora do layout obrigatório:
+1. Ele intercepta o erro e armazena os detalhes no `LastValidationError`.
+2. Se `AutoRecoverInvalidInput` estiver ativo, o componente efetua uma nova chamada ao ChatGPT enviando o contexto acumulado do mapa de memória, o input original enviado ao Builder, a saída inválida anterior e o erro de validação encontrado.
+3. Solicita a reconstrução da intenção no formato obrigatório correto.
+4. Caso a recuperação obtenha sucesso, o JSON recuperado é armazenado em `LastRecoveredOutput` e repassado para o fluxo; caso contrário, gera um erro de validação completo detalhando a falha.
+
 
 ---
 

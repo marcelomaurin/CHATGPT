@@ -21,3 +21,8 @@ O envio real de e-mail através do `TAIEmailClient` não suporta anexos reais ne
 * Por padrão, a simulação está ativada.
 * Para habilitar a escrita real do arquivo Word, desmarque "Modo Simulado" e marque "Permitir Gerar Word Real".
 * Para habilitar o envio real do e-mail, desmarque "Modo Simulado" e marque "Permitir Envio de E-mail Real". Execuções reais de e-mail sempre exigem confirmação interativa do usuário por meio de caixa de diálogo.
+
+## Transformação Cognitiva em Ações Operacionais
+
+Durante o fluxo, a resposta estruturada das tarefas é repassada ao `TAIActionBuilderAgent`. A chamada utiliza o método `BuildActionsWithRecovery` para preencher, higienizar e estruturar os parâmetros das ações planejadas. Essa abordagem garante que, caso o LLM retorne um layout inválido ou fora do formato esperado, o próprio componente faça a recuperação automática da intenção lógica com base no mapa de memória.
+

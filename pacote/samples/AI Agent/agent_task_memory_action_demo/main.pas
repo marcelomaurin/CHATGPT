@@ -1444,7 +1444,7 @@ begin
     LTarefasJSON := '';
 
     try
-      PlannerAgentSuccess := FTaskPlannerAgent.Decide(LPlannerInput, LTarefasJSON);
+      PlannerAgentSuccess := FTaskPlannerAgent.DecideAsTaskList(LPlannerInput, LTarefasJSON);
     except
       on E: Exception do
       begin
@@ -2104,7 +2104,7 @@ begin
   BuilderOutput := '';
 
   try
-    ActionBuildSuccess := FActionBuilderAgent.BuildActions(BuilderInput, BuilderOutput);
+    ActionBuildSuccess := FActionBuilderAgent.BuildActionsWithRecovery(BuilderInput, BuilderOutput);
   except
     on E: Exception do
     begin
