@@ -105,9 +105,9 @@ object frmMain: TfrmMain
     Height = 750
     Top = 50
     Width = 1200
-    ActivePage = tabPrompt
+    ActivePage = tabResultado
     Align = alClient
-    TabIndex = 0
+    TabIndex = 4
     TabOrder = 1
     object tabPrompt: TTabSheet
       Caption = 'Prompt'

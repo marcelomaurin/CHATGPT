@@ -9,6 +9,21 @@ uses
   aiagent_flowevents, aiagent_memorymap, aiagent_core, LResources;
 
 type
+  TAIActionBeforeExecuteEvent = procedure(
+    Sender: TObject;
+    const AActionName: string;
+    AParams: TStrings;
+    AExecutionContext: TStrings
+  ) of object;
+
+  TAIActionAfterExecuteEvent = procedure(
+    Sender: TObject;
+    const AActionName: string;
+    AParams: TStrings;
+    AResult: TStrings;
+    AExecutionContext: TStrings
+  ) of object;
+
   { TAIActionExecutor }
   TAIActionExecutor = class(TAIBaseComponent)
   private
@@ -18,6 +33,7 @@ type
     FTipoAgenteMapa: TAITipoAgenteMapa;
     FForcarSimulacaoGlobal: Boolean;
     FAutoRegistrarNoMapa: Boolean;
+    FExecutionContext: TStringList;
     // Events
     FOnBeforeExecutePlan: TAIFluxoEtapaControlEvent;
     FOnAfterExecutePlan: TAIFluxoEtapaEvent;
@@ -29,13 +45,18 @@ type
     FOnAfterSimulation: TAIFluxoEtapaEvent;
     FOnExecutionBlocked: TAIFluxoEtapaEvent;
     FOnExecutionFailed: TAIFluxoEtapaEvent;
+    FOnBeforeActionExecute: TAIActionBeforeExecuteEvent;
+    FOnAfterActionExecute: TAIActionAfterExecuteEvent;
   protected
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     procedure SetMemoryMap(AValue: TAIAgentMemoryMap);
   public
     property MapaDeMemoria: TAIAgentMemoryMap read FMemoryMap write SetMemoryMap;
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure ClearExecutionContext;
     function ExecutePlan(const AInputPlan: string; out AOutput: string): Boolean; virtual;
+    property ExecutionContext: TStringList read FExecutionContext;
   published
     property ChatGPT: TCHATGPT read FChatGPT write FChatGPT;
     property MemoryMap: TAIAgentMemoryMap read FMemoryMap write SetMemoryMap;
@@ -54,6 +75,8 @@ type
     property OnAfterSimulation: TAIFluxoEtapaEvent read FOnAfterSimulation write FOnAfterSimulation;
     property OnExecutionBlocked: TAIFluxoEtapaEvent read FOnExecutionBlocked write FOnExecutionBlocked;
     property OnExecutionFailed: TAIFluxoEtapaEvent read FOnExecutionFailed write FOnExecutionFailed;
+    property OnBeforeActionExecute: TAIActionBeforeExecuteEvent read FOnBeforeActionExecute write FOnBeforeActionExecute;
+    property OnAfterActionExecute: TAIActionAfterExecuteEvent read FOnAfterActionExecute write FOnAfterActionExecute;
   end;
 
 implementation
@@ -83,6 +106,18 @@ begin
   FTipoAgenteMapa := tamExecutor;
   FForcarSimulacaoGlobal := False;
   FAutoRegistrarNoMapa := True;
+  FExecutionContext := TStringList.Create;
+end;
+
+destructor TAIActionExecutor.Destroy;
+begin
+  FExecutionContext.Free;
+  inherited Destroy;
+end;
+
+procedure TAIActionExecutor.ClearExecutionContext;
+begin
+  FExecutionContext.Clear;
 end;
 
 procedure TAIActionExecutor.Notification(AComponent: TComponent; Operation: TOperation);

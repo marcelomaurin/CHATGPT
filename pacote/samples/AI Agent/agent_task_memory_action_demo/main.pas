@@ -276,6 +276,8 @@ type
     procedure OnMemoryMapAfterCloseStep(Sender: TObject; AItem: TAIAgentMemoryMapItem);
     procedure OnMemoryMapInformationLossDetected(Sender: TObject; AItem: TAIAgentMemoryMapItem; const ALostInfo: string);
     procedure OnMemoryMapLog(Sender: TObject; const AMessage: string);
+    procedure ActionExecutorBeforeActionExecute(Sender: TObject; const AActionName: string; AParams: TStrings; AExecutionContext: TStrings);
+    procedure ActionExecutorAfterActionExecute(Sender: TObject; const AActionName: string; AParams: TStrings; AResult: TStrings; AExecutionContext: TStrings);
   public
 
   end;
@@ -289,6 +291,23 @@ implementation
 
 uses
   TypInfo;
+
+function IsEmptyOrPlaceholder(const AText: string): Boolean;
+var
+  S: string;
+begin
+  S := LowerCase(Trim(AText));
+
+  Result :=
+    (S = '') or
+    (Pos('conteúdo do currículo', S) > 0) or
+    (Pos('currículo gerado', S) > 0) or
+    (Pos('gerado a partir das informações', S) > 0) or
+    (Pos('informações capturadas do site', S) > 0) or
+    (Pos('conteudo do curriculo', S) > 0) or
+    (Pos('curriculo gerado', S) > 0) or
+    (Pos('informacoes capturadas do site', S) > 0);
+end;
 
 function JSONValueToPlainText(AValue: TJSONData): string;
 begin
@@ -528,16 +547,19 @@ begin
   if Trim(Body) = '' then
     Body := AParams.Values['corpo'];
 
-  if Trim(Body) = '' then
+  if IsEmptyOrPlaceholder(Body) then
     Body := MainForm.memCorpoEmail.Text;
 
-  if Trim(Body) = '' then
+  if IsEmptyOrPlaceholder(Body) then
   begin
     if Assigned(MainForm.memConteudoCurriculo) then
       Body := MainForm.memConteudoCurriculo.Text;
   end;
 
-  if Trim(Body) = '' then
+  if Assigned(MainForm.memCorpoEmail) then
+    MainForm.memCorpoEmail.Text := Body;
+
+  if IsEmptyOrPlaceholder(Body) then
   begin
     MainForm.AddLog('[SEND_EMAIL] ERRO: corpo do e-mail não informado e nenhum texto gerado disponível.');
     Exit;
@@ -803,6 +825,8 @@ begin
     FActionExecutor.ChatGPT := FChatGPT;
     FActionExecutor.MemoryMap := FMemoryMap;
     FActionExecutor.NomeAgente := 'action_executor';
+    FActionExecutor.OnBeforeActionExecute := @ActionExecutorBeforeActionExecute;
+    FActionExecutor.OnAfterActionExecute := @ActionExecutorAfterActionExecute;
   end;
 
   if Assigned(FMemoryMap) then
@@ -2206,6 +2230,7 @@ var
   ParamsData: TJSONData;
   ActionName: string;
   Params: TStringList;
+  ActionResultList: TStringList;
   CleanJSON: string;
   i, j: Integer;
   ActionOk: Boolean;
@@ -2254,6 +2279,9 @@ begin
         AddLog('Array "actions" veio vazio.');
         Exit;
       end;
+
+      if Assigned(FActionExecutor) then
+        FActionExecutor.ClearExecutionContext;
 
       Params := TStringList.Create;
       try
@@ -2304,6 +2332,9 @@ begin
             end;
           end;
 
+          if Assigned(FActionExecutor) and Assigned(FActionExecutor.OnBeforeActionExecute) then
+            FActionExecutor.OnBeforeActionExecute(FActionExecutor, ActionName, Params, FActionExecutor.ExecutionContext);
+
           ActionOk := False;
 
           if SameText(ActionName, 'CREATE_TEXT_DOCUMENT') then
@@ -2335,6 +2366,23 @@ begin
           begin
             AddLog('[DISPATCH] Ação desconhecida recusada: ' + ActionName);
             ActionOk := False;
+          end;
+
+          if ActionOk then
+          begin
+            ActionResultList := TStringList.Create;
+            try
+              if SameText(ActionName, 'CREATE_TEXT_DOCUMENT') then
+              begin
+                ActionResultList.Values['content'] := FCreateTextAction.LastContent;
+                ActionResultList.Values['filename'] := FCreateTextAction.LastGeneratedFile;
+              end;
+
+              if Assigned(FActionExecutor) and Assigned(FActionExecutor.OnAfterActionExecute) then
+                FActionExecutor.OnAfterActionExecute(FActionExecutor, ActionName, Params, ActionResultList, FActionExecutor.ExecutionContext);
+            finally
+              ActionResultList.Free;
+            end;
           end;
 
           if not ActionOk then
@@ -2713,6 +2761,39 @@ end;
 procedure TfrmMain.OnMemoryMapLog(Sender: TObject; const AMessage: string);
 begin
   AddLog('[MAPA - LOG] ' + AMessage);
+end;
+
+procedure TfrmMain.ActionExecutorBeforeActionExecute(Sender: TObject; const AActionName: string; AParams: TStrings; AExecutionContext: TStrings);
+begin
+  AddLog(Format('[EXECUTOR - ANTES] Resolvendo parâmetros para ação: %s', [AActionName]));
+  
+  if SameText(AActionName, 'SEND_EMAIL') then
+  begin
+    if IsEmptyOrPlaceholder(AParams.Values['body']) then
+    begin
+      AParams.Values['body'] := AExecutionContext.Values['last_text_content'];
+      AddLog('[EXECUTOR] Substituído corpo de e-mail genérico pelo texto do currículo do contexto de execução.');
+    end;
+
+    if Assigned(memCorpoEmail) then
+      memCorpoEmail.Text := AParams.Values['body'];
+    if Assigned(edEmailDestino) then
+      edEmailDestino.Text := AParams.Values['to'];
+    if Assigned(edAssuntoEmail) then
+      edAssuntoEmail.Text := AParams.Values['subject'];
+  end;
+end;
+
+procedure TfrmMain.ActionExecutorAfterActionExecute(Sender: TObject; const AActionName: string; AParams: TStrings; AResult: TStrings; AExecutionContext: TStrings);
+begin
+  AddLog(Format('[EXECUTOR - DEPOIS] Ação concluída: %s', [AActionName]));
+  
+  if SameText(AActionName, 'CREATE_TEXT_DOCUMENT') then
+  begin
+    AExecutionContext.Values['last_text_content'] := AResult.Values['content'];
+    AExecutionContext.Values['last_text_filename'] := AResult.Values['filename'];
+    AddLog('[EXECUTOR] Publicado last_text_content e last_text_filename no contexto de execução.');
+  end;
 end;
 
 end.
