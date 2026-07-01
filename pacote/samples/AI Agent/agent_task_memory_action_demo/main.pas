@@ -375,6 +375,31 @@ begin
   end;
 end;
 
+function LimitSampleText(const AText: string; AMaxChars: Integer): string;
+begin
+  if AMaxChars <= 0 then
+  begin
+    Result := '';
+    Exit;
+  end;
+
+  if Length(AText) <= AMaxChars then
+    Result := AText
+  else
+    Result :=
+      Copy(AText, 1, AMaxChars) +
+      sLineBreak +
+      sLineBreak +
+      '[CONTEÚDO CORTADO: texto original possuía ' +
+      IntToStr(Length(AText)) +
+      ' caracteres]';
+end;
+
+function IsBrowserActionName(const AActionName: string): Boolean;
+begin
+  Result := Pos('BROWSER_', UpperCase(Trim(AActionName))) = 1;
+end;
+
 function LocalCleanJSONResponse(const AText: string): string;
 var
   S: string;
@@ -2154,6 +2179,9 @@ begin
     end;
   end;
 
+  // Tarefa 2.5 — Limitar CompletedContext
+  CompletedContext := LimitSampleText(CompletedContext, 12000);
+
   LProcessorInput :=
     '=== TAREFA SELECIONADA ===' + sLineBreak +
     'ID: ' + T.ID + sLineBreak +
@@ -2197,14 +2225,15 @@ begin
       sLineBreak;
   end;
 
+  // Tarefa 2.3 — Limitar conteúdo capturado no LProcessorInput
   if Trim(FCapturedWebText) <> '' then
   begin
     LProcessorInput :=
       LProcessorInput +
       sLineBreak +
-      '=== CONTEÚDO REAL CAPTURADO DO SITE ===' +
+      '=== RESUMO DO CONTEÚDO REAL CAPTURADO DO SITE ===' +
       sLineBreak +
-      FCapturedWebText +
+      LimitSampleText(FCapturedWebText, 12000) +
       sLineBreak;
   end;
 
@@ -2234,15 +2263,36 @@ begin
   ProcessSuccess := False;
   ProcessorOutput := '';
 
-  AddLog('Executando TaskProcessorAgent.ProcessTask...');
+  if IsBrowserActionName(T.AcaoSugerida) then
+  begin
+    AddLog('Tarefa operacional de browser detectada. Pulando ProcessTask para evitar processamento LLM desnecessário.');
 
-  try
-    ProcessSuccess := FTaskProcessorAgent.ProcessTask(LProcessorInput, ProcessorOutput);
-  except
-    on E: Exception do
-    begin
-      ProcessSuccess := False;
-      AddLog('Exception no TaskProcessorAgent.ProcessTask: ' + E.Message);
+    ProcessorOutput :=
+      '{' +
+      '"confidence":1.0,' +
+      '"analysis":"Tarefa operacional de browser. Processamento cognitivo ignorado.",' +
+      '"explanation":"A ação já possui parâmetros operacionais e será enviada ao ActionBuilder.",' +
+      '"action_taken":"TASK_PROCESSED",' +
+      '"result_type":"browser_instruction",' +
+      '"result":"' + StringReplace(StringReplace(T.Descricao + ' ' + T.Params.Text, '\', '\\', [rfReplaceAll]), '"', '\"', [rfReplaceAll]) + '",' +
+      '"missing_information":"",' +
+      '"analysis_questions":[]' +
+      '}';
+
+    ProcessSuccess := True;
+  end
+  else
+  begin
+    AddLog('Executando TaskProcessorAgent.ProcessTask...');
+
+    try
+      ProcessSuccess := FTaskProcessorAgent.ProcessTask(LProcessorInput, ProcessorOutput);
+    except
+      on E: Exception do
+      begin
+        ProcessSuccess := False;
+        AddLog('Exception no TaskProcessorAgent.ProcessTask: ' + E.Message);
+      end;
     end;
   end;
 

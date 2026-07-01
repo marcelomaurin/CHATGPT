@@ -71,6 +71,26 @@ type
 
 implementation
 
+function LimitTextForLLM(const AText: string; AMaxChars: Integer): string;
+begin
+  if AMaxChars <= 0 then
+  begin
+    Result := '';
+    Exit;
+  end;
+
+  if Length(AText) <= AMaxChars then
+    Result := AText
+  else
+    Result :=
+      Copy(AText, 1, AMaxChars) +
+      sLineBreak +
+      sLineBreak +
+      '[TEXTO CORTADO: conteúdo original possuía ' +
+      IntToStr(Length(AText)) +
+      ' caracteres]';
+end;
+
 { TAIDecisionAgent }
 
 constructor TAIDecisionAgent.Create(AOwner: TComponent);
@@ -655,6 +675,9 @@ var
   QItemData: TJSONData;
   QObj: TJSONObject;
   i: Integer;
+  // Tarefa 1.2 — Adicionar variáveis seguras em ProcessTask
+  SafeInput: string;
+  SafeMemoryContext: string;
 begin
   Result := False;
   AOutput := '';
@@ -694,12 +717,20 @@ begin
     if Assigned(MapaDeMemoria) then
       Ctx.ContextoAtual := MapaDeMemoria.BuildContextForAgent(FNomeAgente, FTipoAgenteMapa);
 
-    // Tarefa 14: Registrar início no MemoryMap
-    Item := BeginMemoryStep(Ctx.PedidoAtual);
+    // Tarefa 1.3 — Limitar AInput e MemoryMap
+    SafeInput := LimitTextForLLM(AInput, 30000);
+    SafeMemoryContext := LimitTextForLLM(Ctx.ContextoAtual, 15000);
 
-    // Tarefa 15: Chamar ChatGPT com prompt de processamento
+    // Tarefa 1.4 — Registrar no MemoryMap usando entrada limitada
+    Item := BeginMemoryStep(SafeInput);
+
+    // Tarefa 1.5 — Montar prompt com entrada limitada
     SchemaText := GetTaskProcessorSchema;
-    LPrompt := BuildTaskProcessorPrompt(AInput, Ctx.ContextoAtual, SchemaText);
+    LPrompt := BuildTaskProcessorPrompt(SafeInput, SafeMemoryContext, SchemaText);
+
+    // Tarefa 1.6 — Limitar prompt final
+    if Length(LPrompt) > 60000 then
+      LPrompt := LimitTextForLLM(LPrompt, 60000);
 
     if not ChatGPT.SendQuestion(LPrompt) then
     begin
@@ -723,9 +754,10 @@ begin
       // Tarefa 18: Recuperar saída inválida
       if FAutoRecoverInvalidProcessInput then
       begin
+        // Tarefa 1.7 — Usar entrada limitada na recuperação
         if RecoverInvalidTaskProcessorOutput(
-          AInput,
-          Ctx.ContextoAtual,
+          SafeInput,
+          SafeMemoryContext,
           ResponseText,
           ValidationError,
           SchemaText,
@@ -794,10 +826,9 @@ begin
     finally
       JSONData.Free;
     end;
-  Ctx.Free;
-  except
+  // Tarefa 1.8 — Corrigir finalização do ProcessTask
+  finally
     Ctx.Free;
-    raise;
   end;
 end;
 
