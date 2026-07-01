@@ -199,12 +199,21 @@ Esta pasta contém os componentes do Lazarus sob a aba **AI Agent**, voltados à
 
 ### TAIDecisionAgent
 
-**Função:** Agente decisor responsável por criar planos lógicos de tarefas e caminhos operacionais de ações.
+**Função:** Agente decisor responsável por criar planos lógicos de tarefas e caminhos operacionais de ações. Também suporta processamento robusto e isolado de tarefas individuais, gerando saídas estruturadas contendo o campo de resultado final.
 
 > Herda de `TAICustomAgent`, portanto também possui integração com `TCHATGPT`, `SystemPrompt`, `MemoryMap`, auditoria automática e eventos comuns de execução.
 
 - **Métodos (Public):**
-  - `Decide(const AInput: string; out AOutput: string): Boolean` - Gera o plan de ação detalhado.
+  - `Decide(const AInput: string; out AOutput: string): Boolean` - Gera o plano de ação detalhado.
+  - `DecideAsTaskList(const AInput: string; out AOutput: string): Boolean` - Divide um prompt complexo em uma lista estruturada de tarefas (T001, T002...).
+  - `ProcessTask(const AInput: string; out AOutput: string): Boolean` - Executa cognitivamente uma tarefa isolada e retorna um JSON estruturado com o campo `"result"` (Tarefa 35).
+  - `ExtractTaskProcessResult(const AProcessorJSON: string; out AResultText: string): Boolean` - Helper para extrair o conteúdo textual limpo do campo `"result"`.
+- **Propriedades (Published):**
+  - `AutoRecoverInvalidProcessInput: Boolean` - Ativa a recuperação automática de saídas fora do schema no processador de tarefas. Padrão: `True`.
+  - `MaxProcessRecoverAttempts: Integer` - Número máximo de tentativas de recuperação para o processador de tarefas. Padrão: `1`.
+  - `LastProcessRawOutput: string` - Última resposta bruta do processador.
+  - `LastProcessRecoveredOutput: string` - Último JSON recuperado com sucesso pelo processador.
+  - `LastProcessValidationError: string` - Último erro de validação do processador.
 - **Eventos:**
   - `OnBeforeDecision: TAIFluxoEtapaControlEvent`
   - `OnAfterDecision: TAIFluxoEtapaEvent`

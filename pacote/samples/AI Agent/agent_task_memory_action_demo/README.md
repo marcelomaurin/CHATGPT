@@ -30,7 +30,7 @@ Durante o fluxo, a resposta estruturada das tarefas é repassada ao `TAIActionBu
 
 Este sample implementa um fluxo real de navegação e extração de dados usando o `AIChromiumBrowser` integrado e o novo `TAIActionExecutor` com registro dinâmico de ações:
 - **Fluxo do Pipeline**:
-  `Prompt` ➔ `TAIDecisionAgent (Planner)` ➔ `TAIActionBuilderAgent` ➔ `TAIActionExecutor` ➔ `AIChromiumBrowser (DOM Automation)`
+  `Prompt` ➔ `TaskPlannerAgent.DecideAsTaskList` ➔ `TaskProcessorAgent.ProcessTask` ➔ `ActionBuilderAgent.BuildActionsWithRecovery` ➔ `ActionExecutor.ExecutePreparedActionsReal` ➔ `AIChromiumBrowser (DOM Automation)`
 - **Ações Reais Executadas**:
   O executor real dispara ações de navegação (`BROWSER_NAVIGATE`), mapeamento do DOM (`BROWSER_READ_PAGE`), inserção de valores (`BROWSER_SET_VALUE`), pressionamento de teclas (`BROWSER_PRESS_ENTER`) e captura final de resultados (`BROWSER_CAPTURE_TEXT`) de forma assíncrona/bloqueante com tratamento seguro de seletores CSS.
 - **Botão Cenário Pesquisa Browser**:

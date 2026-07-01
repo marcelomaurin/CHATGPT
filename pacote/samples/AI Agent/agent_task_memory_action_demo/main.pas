@@ -1009,18 +1009,10 @@ begin
   cbProviderChange(nil);
 
   memPrompt.Text :=
-    'Acesse o site https://maurinsoft.com.br/wp/sobre-nos/ usando o Chromium integrado, ' +
-    'capture o conteúdo real da página e, com base somente nas informações reais capturadas, ' +
-    'gere um texto de currículo profissional em português. ' +
-    'O texto deve ser colocado no memConteudoCurriculo e salvo como arquivo .txt. ' +
-    'Depois prepare um e-mail para marcelomaurinmartins@gmail.com com o assunto "Currículo Profissional", ' +
-    'incluindo o texto do currículo no corpo da mensagem. ' +
-    'Não invente dados que não estejam no site. ' +
-    'Não gere documento Word. Gere somente texto. ' +
-    'Não envie o e-mail automaticamente sem confirmação manual.';
+    'Entre no https://pt.aliexpress.com/ ,  e pesquise por multimetro digital automático , busque o preço mais barato e envie o link do produto.';
 
-  edEmailDestino.Text := 'marcelomaurinmartins@gmail.com';
-  edAssuntoEmail.Text := 'Currículo Profissional';
+  //edEmailDestino.Text := 'marcelomaurinmartins@gmail.com';
+  //edAssuntoEmail.Text := 'Currículo Profissional';
 
   memCorpoEmail.Clear;
   memConteudoCurriculo.Clear;
@@ -1989,6 +1981,7 @@ var
   ProcessSuccess: Boolean;
   ActionBuildSuccess: Boolean;
   ExecutorSuccess: Boolean;
+  ProcessorResultText: string;
   ErroRuntime: string;
   i: Integer;
   DepTask: TSampleTaskItem;
@@ -2134,24 +2127,26 @@ begin
   ProcessSuccess := False;
   ProcessorOutput := '';
 
-  AddLog('Executando TaskProcessorAgent...');
+  AddLog('Executando TaskProcessorAgent.ProcessTask...');
 
   try
-    ProcessSuccess := FTaskProcessorAgent.Decide(LProcessorInput, ProcessorOutput);
+    // Tarefa 25: Ajustar sample para chamar ProcessTask
+    ProcessSuccess := FTaskProcessorAgent.ProcessTask(LProcessorInput, ProcessorOutput);
   except
     on E: Exception do
     begin
       ProcessSuccess := False;
-      AddLog('Exception no TaskProcessorAgent: ' + E.Message);
+      AddLog('Exception no TaskProcessorAgent.ProcessTask: ' + E.Message);
     end;
   end;
 
   if not ProcessSuccess then
   begin
     T.Status := stsFailed;
+    // Tarefa 29: Ajustar log de erro do processador
     T.Resultado := SanitizeLLMError(FTaskProcessorAgent.LastError);
 
-    AddLog('Falha no TaskProcessorAgent: ' + T.Resultado);
+    AddLog('Falha no TaskProcessorAgent.ProcessTask: ' + T.Resultado);
 
     RefreshTasksGrid;
     RefreshMemoryMapGrid;
@@ -2161,7 +2156,7 @@ begin
   if Trim(ProcessorOutput) = '' then
   begin
     T.Status := stsFailed;
-    T.Resultado := 'TaskProcessorAgent retornou resposta vazia.';
+    T.Resultado := 'TaskProcessorAgent.ProcessTask retornou resposta vazia.';
 
     AddLog('Falha no processamento: resposta vazia do TaskProcessorAgent.');
 
@@ -2170,7 +2165,20 @@ begin
     Exit;
   end;
 
-  T.Resultado := ProcessorOutput;
+  // Tarefa 26: Extrair result antes do ActionBuilder
+  ProcessorResultText := '';
+  if not FTaskProcessorAgent.ExtractTaskProcessResult(ProcessorOutput, ProcessorResultText) then
+    ProcessorResultText := ProcessorOutput;
+
+  // Tarefa 28: Guardar JSON completo no detalhe da tarefa
+  T.Resultado :=
+    ProcessorResultText +
+    sLineBreak +
+    sLineBreak +
+    '=== JSON DO PROCESSADOR ===' +
+    sLineBreak +
+    ProcessorOutput;
+
   AddLog('Processamento cognitivo concluído.');
 
   if Trim(T.AcaoSugerida) = '' then
@@ -2194,9 +2202,10 @@ begin
     Exit;
   end;
 
+  // Tarefa 27: Usar ProcessorResultText no BuilderInput
   BuilderInput :=
     '=== RESULTADO DO PROCESSAMENTO DA TAREFA ===' + sLineBreak +
-    ProcessorOutput +
+    ProcessorResultText +
     sLineBreak +
     sLineBreak +
     '=== AÇÃO OPERACIONAL SOLICITADA ===' + sLineBreak +

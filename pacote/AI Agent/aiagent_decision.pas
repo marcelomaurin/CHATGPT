@@ -20,10 +20,29 @@ type
     FOnAfterAddActionToPlan: TAIFluxoEtapaEvent;
     FOnInvalidActionSelected: TAIFluxoEtapaEvent;
     FOnDecisionLowConfidence: TAIFluxoEtapaEvent;
+
+    // Tarefa 2: Campos privados para recuperação do processamento
+    FAutoRecoverInvalidProcessInput: Boolean;
+    FMaxProcessRecoverAttempts: Integer;
+    FLastProcessRawOutput: string;
+    FLastProcessRecoveredOutput: string;
+    FLastProcessValidationError: string;
+
+    // Métodos auxiliares privados de processamento
+    function GetTaskProcessorSchema: string;
+    function BuildTaskProcessorPrompt(const AInput: string; const AMemoryContext: string; const ASchemaText: string): string;
+    function ValidateTaskProcessorInput(const AInput: string; out AError: string): Boolean;
+    function ValidateTaskProcessorOutput(const AJSON: string; out AError: string): Boolean;
+    function BuildTaskProcessorRecoverPrompt(const AOriginalInput: string; const AMemoryContext: string; const AInvalidOutput: string; const AValidationError: string; const ASchemaText: string): string;
+    function RecoverInvalidTaskProcessorOutput(const AOriginalInput: string; const AMemoryContext: string; const AInvalidOutput: string; const AValidationError: string; const ASchemaText: string; out ARecoveredOutput: string): Boolean;
   public
     constructor Create(AOwner: TComponent); override;
     function Decide(const AInput: string; out AOutput: string): Boolean; virtual;
     function DecideAsTaskList(const AInput: string; out AOutput: string): Boolean; virtual;
+    // Tarefa 1: Criar método ProcessTask na interface
+    function ProcessTask(const AInput: string; out AOutput: string): Boolean; virtual;
+    // Tarefa 24: Criar helper para extrair result
+    function ExtractTaskProcessResult(const AProcessorJSON: string; out AResultText: string): Boolean;
   published
     property OnBeforeDecision: TAIFluxoEtapaControlEvent read FOnBeforeDecision write FOnBeforeDecision;
     property OnAfterDecision: TAIFluxoEtapaEvent read FOnAfterDecision write FOnAfterDecision;
@@ -33,6 +52,21 @@ type
     property OnAfterAddActionToPlan: TAIFluxoEtapaEvent read FOnAfterAddActionToPlan write FOnAfterAddActionToPlan;
     property OnInvalidActionSelected: TAIFluxoEtapaEvent read FOnInvalidActionSelected write FOnInvalidActionSelected;
     property OnDecisionLowConfidence: TAIFluxoEtapaEvent read FOnDecisionLowConfidence write FOnDecisionLowConfidence;
+
+    // Tarefa 3: Criar propriedades publicadas
+    property AutoRecoverInvalidProcessInput: Boolean
+      read FAutoRecoverInvalidProcessInput
+      write FAutoRecoverInvalidProcessInput
+      default True;
+
+    property MaxProcessRecoverAttempts: Integer
+      read FMaxProcessRecoverAttempts
+      write FMaxProcessRecoverAttempts
+      default 1;
+
+    property LastProcessRawOutput: string read FLastProcessRawOutput;
+    property LastProcessRecoveredOutput: string read FLastProcessRecoveredOutput;
+    property LastProcessValidationError: string read FLastProcessValidationError;
   end;
 
 implementation
@@ -44,6 +78,13 @@ begin
   inherited Create(AOwner);
   FNomeAgente := 'DecisionAgent';
   FTipoAgenteMapa := tamDecisor;
+
+  // Tarefa 4: Inicializar propriedades no constructor
+  FAutoRecoverInvalidProcessInput := True;
+  FMaxProcessRecoverAttempts := 1;
+  FLastProcessRawOutput := '';
+  FLastProcessRecoveredOutput := '';
+  FLastProcessValidationError := '';
 end;
 
 function TAIDecisionAgent.Decide(const AInput: string; out AOutput: string): Boolean;
@@ -420,6 +461,371 @@ begin
       FOnAfterDecision(Self, Ctx);
   finally
     Ctx.Free;
+  end;
+end;
+
+function TAIDecisionAgent.GetTaskProcessorSchema: string;
+begin
+  Result :=
+    '{' + sLineBreak +
+    '  "confidence": 0.95,' + sLineBreak +
+    '  "analysis": "Análise da tarefa recebida",' + sLineBreak +
+    '  "explanation": "Explicação do processamento feito",' + sLineBreak +
+    '  "action_taken": "TASK_PROCESSED",' + sLineBreak +
+    '  "result_type": "text",' + sLineBreak +
+    '  "result": "Conteúdo final produzido pela tarefa",' + sLineBreak +
+    '  "missing_information": "",' + sLineBreak +
+    '  "analysis_questions": []' + sLineBreak +
+    '}';
+end;
+
+function TAIDecisionAgent.BuildTaskProcessorPrompt(
+  const AInput: string;
+  const AMemoryContext: string;
+  const ASchemaText: string
+): string;
+var
+  LPromptText: string;
+begin
+  LPromptText :=
+    'Você é um agente processador de tarefas.' + sLineBreak + sLineBreak +
+    'Analise a tarefa recebida.' + sLineBreak +
+    'Execute mentalmente somente a tarefa solicitada.' + sLineBreak +
+    'Não invente informações.' + sLineBreak +
+    'Use apenas:' + sLineBreak +
+    '1. o input recebido;' + sLineBreak +
+    '2. o mapa de memória;' + sLineBreak +
+    '3. resultados anteriores contidos no contexto.' + sLineBreak + sLineBreak +
+    '=== REGRAS DE PROCESSAMENTO POR TIPO DE TAREFA ===' + sLineBreak +
+    '1. Se a tarefa for de browser/DOM, não execute a ação no texto. Apenas analise a intenção e retorne em "result" o que deve ser feito, preservando seletores, URL, valor a inserir e ação esperada.' + sLineBreak +
+    '2. Se a tarefa for gerar texto, currículo, resumo ou relatório, o campo "result" deve conter o texto final completo.' + sLineBreak +
+    '3. Se a tarefa for preparar e-mail, o campo "result" deve conter destinatário, assunto e corpo sugerido, mas não deve enviar e-mail.' + sLineBreak + sLineBreak +
+    'Retorne exclusivamente JSON no schema obrigatório.' + sLineBreak + sLineBreak +
+    '=== SCHEMA OBRIGATÓRIO ===' + sLineBreak +
+    ASchemaText + sLineBreak + sLineBreak +
+    '=== CONTEXTO DE MEMÓRIA (MAPA) ===' + sLineBreak +
+    AMemoryContext + sLineBreak + sLineBreak +
+    '=== TAREFA RECEBIDA (INPUT) ===' + sLineBreak +
+    AInput;
+
+  if SystemPrompt <> '' then
+    LPromptText := SystemPrompt + sLineBreak + sLineBreak + LPromptText;
+
+  Result := LPromptText;
+end;
+
+function TAIDecisionAgent.ValidateTaskProcessorInput(const AInput: string; out AError: string): Boolean;
+begin
+  Result := False;
+  AError := '';
+
+  if Trim(AInput) = '' then
+  begin
+    AError := 'ProcessorInput vazio.';
+    Exit;
+  end;
+
+  if Length(Trim(AInput)) < 20 then
+  begin
+    AError := 'ProcessorInput muito curto.';
+    Exit;
+  end;
+
+  Result := True;
+end;
+
+function TAIDecisionAgent.ValidateTaskProcessorOutput(const AJSON: string; out AError: string): Boolean;
+var
+  JSONData: TJSONData;
+  Obj: TJSONObject;
+  ResVal: TJSONData;
+  QData: TJSONData;
+begin
+  Result := False;
+  AError := '';
+
+  try
+    JSONData := GetJSON(AJSON);
+    try
+      if not (JSONData is TJSONObject) then
+      begin
+        AError := 'O retorno não é um objeto JSON válido.';
+        Exit;
+      end;
+
+      Obj := TJSONObject(JSONData);
+      ResVal := Obj.Find('result');
+      if not Assigned(ResVal) then
+      begin
+        AError := 'O campo obrigatório "result" está ausente no JSON.';
+        Exit;
+      end;
+
+      if Trim(ResVal.AsString) = '' then
+      begin
+        AError := 'O campo "result" está vazio.';
+        Exit;
+      end;
+
+      QData := Obj.Find('analysis_questions');
+      if Assigned(QData) and not (QData is TJSONArray) then
+      begin
+        AError := 'O campo "analysis_questions" deve ser um array.';
+        Exit;
+      end;
+
+      Result := True;
+    finally
+      JSONData.Free;
+    end;
+  except
+    on E: Exception do
+      AError := 'Falha de parsing do JSON: ' + E.Message;
+  end;
+end;
+
+function TAIDecisionAgent.BuildTaskProcessorRecoverPrompt(
+  const AOriginalInput: string;
+  const AMemoryContext: string;
+  const AInvalidOutput: string;
+  const AValidationError: string;
+  const ASchemaText: string
+): string;
+begin
+  Result :=
+    'Você recebeu uma saída inválida ou fora do padrão esperado.' + sLineBreak + sLineBreak +
+    'O ProcessorInput original não estava vazio.' + sLineBreak +
+    'Analise o que está sendo pedido no ProcessorInput.' + sLineBreak +
+    'Use também o mapa de memória.' + sLineBreak +
+    'Não invente informações.' + sLineBreak +
+    'Erro de validação encontrado: ' + AValidationError + sLineBreak + sLineBreak +
+    '=== RETORNO INVÁLIDO ANTERIOR ===' + sLineBreak +
+    AInvalidOutput + sLineBreak + sLineBreak +
+    '=== SCHEMA OBRIGATÓRIO ===' + sLineBreak +
+    ASchemaText + sLineBreak + sLineBreak +
+    '=== CONTEXTO DE MEMÓRIA (MAPA) ===' + sLineBreak +
+    AMemoryContext + sLineBreak + sLineBreak +
+    '=== TAREFA ORIGINAL ===' + sLineBreak +
+    AOriginalInput + sLineBreak + sLineBreak +
+    'Converta a resposta para o schema obrigatório. Retorne somente JSON válido.';
+end;
+
+function TAIDecisionAgent.RecoverInvalidTaskProcessorOutput(
+  const AOriginalInput: string;
+  const AMemoryContext: string;
+  const AInvalidOutput: string;
+  const AValidationError: string;
+  const ASchemaText: string;
+  out ARecoveredOutput: string
+): Boolean;
+var
+  LPrompt, ResponseText: string;
+  LocalValidationError: string;
+begin
+  Result := False;
+  ARecoveredOutput := '';
+
+  LPrompt := BuildTaskProcessorRecoverPrompt(AOriginalInput, AMemoryContext, AInvalidOutput, AValidationError, ASchemaText);
+
+  if not ChatGPT.SendQuestion(LPrompt) then
+    Exit;
+
+  ResponseText := CleanJSONResponse(ChatGPT.Response);
+  if ValidateTaskProcessorOutput(ResponseText, LocalValidationError) then
+  begin
+    ARecoveredOutput := ResponseText;
+    Result := True;
+  end;
+end;
+
+function TAIDecisionAgent.ProcessTask(const AInput: string; out AOutput: string): Boolean;
+var
+  Item: TAIAgentMemoryMapItem;
+  Ctx: TAIFluxoEtapaContexto;
+  LPrompt: string;
+  ResponseText: string;
+  SchemaText: string;
+  ValidationError: string;
+  RecoveredText: string;
+  JSONData: TJSONData;
+  Obj: TJSONObject;
+  Data: TJSONData;
+  Confidence: Double;
+  QArr: TJSONArray;
+  QItemData: TJSONData;
+  QObj: TJSONObject;
+  i: Integer;
+begin
+  Result := False;
+  AOutput := '';
+  ClearError;
+
+  // Tarefa 8: Não chamar ChatGPT com input vazio ou inválido
+  if Trim(AInput) = '' then
+  begin
+    SetError('ProcessorInput vazio. Não há tarefa para processar.');
+    Exit;
+  end;
+
+  if not ValidateTaskProcessorInput(AInput, ValidationError) then
+  begin
+    SetError('ProcessorInput inválido: ' + ValidationError);
+    Exit;
+  end;
+
+  if not Assigned(ChatGPT) then
+  begin
+    SetError('ChatGPT is not connected to the decision agent.');
+    Exit;
+  end;
+
+  Ctx := TAIFluxoEtapaContexto.Create;
+  try
+    Ctx.SessionId := '';
+    if Assigned(MapaDeMemoria) then
+      Ctx.SessionId := MapaDeMemoria.SessionId;
+    Ctx.FlowName := 'Processamento de Tarefa';
+    Ctx.PedidoOriginal := AInput;
+    Ctx.PedidoAtual := AInput;
+    Ctx.NomeAgenteAtual := FNomeAgente;
+    Ctx.TipoAgenteAtual := FTipoAgenteMapa;
+
+    // Tarefa 13: Montar contexto com MemoryMap
+    if Assigned(MapaDeMemoria) then
+      Ctx.ContextoAtual := MapaDeMemoria.BuildContextForAgent(FNomeAgente, FTipoAgenteMapa);
+
+    // Tarefa 14: Registrar início no MemoryMap
+    Item := BeginMemoryStep(Ctx.PedidoAtual);
+
+    // Tarefa 15: Chamar ChatGPT com prompt de processamento
+    SchemaText := GetTaskProcessorSchema;
+    LPrompt := BuildTaskProcessorPrompt(AInput, Ctx.ContextoAtual, SchemaText);
+
+    if not ChatGPT.SendQuestion(LPrompt) then
+    begin
+      SetError('Network error while processing task: ' + ChatGPT.LastError);
+      if Assigned(Item) then
+        EndMemoryStep(Item, 'Network error', ChatGPT.LastError, 'ERROR', '');
+      Exit;
+    end;
+
+    // Tarefa 16: Salvar saída bruta
+    ResponseText := CleanJSONResponse(ChatGPT.Response);
+    FLastProcessRawOutput := ResponseText;
+    FLastProcessRecoveredOutput := '';
+    FLastProcessValidationError := '';
+
+    // Tarefa 17: Validar saída inicial
+    if not ValidateTaskProcessorOutput(ResponseText, ValidationError) then
+    begin
+      FLastProcessValidationError := ValidationError;
+
+      // Tarefa 18: Recuperar saída inválida
+      if FAutoRecoverInvalidProcessInput then
+      begin
+        if RecoverInvalidTaskProcessorOutput(
+          AInput,
+          Ctx.ContextoAtual,
+          ResponseText,
+          ValidationError,
+          SchemaText,
+          RecoveredText
+        ) then
+        begin
+          ResponseText := RecoveredText;
+          FLastProcessRecoveredOutput := RecoveredText;
+        end;
+      end;
+    end;
+
+    // Tarefa 19: Falhar se recuperação não corrigir
+    if not ValidateTaskProcessorOutput(ResponseText, ValidationError) then
+    begin
+      FLastProcessValidationError := ValidationError;
+      SetError('TaskProcessor retornou saída fora do schema esperado: ' + ValidationError);
+      if Assigned(Item) then
+        EndMemoryStep(Item, 'Validation error', ValidationError, 'ERROR', ResponseText);
+      Exit;
+    end;
+
+    // Tarefa 20: Extrair campos do JSON final
+    JSONData := GetJSON(ResponseText);
+    try
+      Obj := TJSONObject(JSONData);
+      Ctx.AnaliseAtual := Obj.Get('analysis', '');
+      Ctx.ExplicacaoAtual := Obj.Get('explanation', '');
+      Ctx.AcaoTomada := Obj.Get('action_taken', 'TASK_PROCESSED');
+      Ctx.SaidaAtual := ResponseText;
+      Confidence := Obj.Get('confidence', 0.95);
+
+      // Tarefa 21: Registrar perguntas com Find
+      Data := Obj.Find('analysis_questions');
+      if Assigned(Data) and (Data is TJSONArray) then
+      begin
+        QArr := TJSONArray(Data);
+        for i := 0 to QArr.Count - 1 do
+        begin
+          QItemData := QArr.Items[i];
+          if QItemData is TJSONObject then
+          begin
+            QObj := TJSONObject(QItemData);
+            if Assigned(Item) then
+              Item.AddPerguntaAnalise(
+                QObj.Get('question', ''),
+                QObj.Get('answer', ''),
+                QObj.Get('analysis', ''),
+                'ProcessorAgent',
+                QObj.Get('confidence', 1.0)
+              );
+          end;
+        end;
+      end;
+
+      AOutput := ResponseText;
+      Result := True;
+
+      // Tarefa 22: Registrar fim no MemoryMap
+      if Assigned(Item) then
+      begin
+        Item.SaidaGerada := AOutput;
+        Item.Confianca := Confidence;
+        EndMemoryStep(Item, Ctx.AnaliseAtual, Ctx.ExplicacaoAtual, Ctx.AcaoTomada, Ctx.SaidaAtual);
+      end;
+    finally
+      JSONData.Free;
+    end;
+  Ctx.Free;
+  except
+    Ctx.Free;
+    raise;
+  end;
+end;
+
+function TAIDecisionAgent.ExtractTaskProcessResult(const AProcessorJSON: string; out AResultText: string): Boolean;
+var
+  JSONData: TJSONData;
+  Obj: TJSONObject;
+  ResVal: TJSONData;
+begin
+  Result := False;
+  AResultText := '';
+  try
+    JSONData := GetJSON(AProcessorJSON);
+    try
+      if JSONData is TJSONObject then
+      begin
+        Obj := TJSONObject(JSONData);
+        ResVal := Obj.Find('result');
+        if Assigned(ResVal) then
+        begin
+          AResultText := ResVal.AsString;
+          Result := True;
+        end;
+      end;
+    finally
+      JSONData.Free;
+    end;
+  except
   end;
 end;
 
