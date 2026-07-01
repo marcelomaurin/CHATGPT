@@ -2731,27 +2731,34 @@ var
   i: Integer;
   T: TSampleTaskItem;
   Err: string;
+  ExecutedAny: Boolean;
 begin
   if not Assigned(FTasks) then
     Exit;
 
-  for i := 0 to FTasks.Count - 1 do
-  begin
-    T := TSampleTaskItem(FTasks[i]);
+  repeat
+    ExecutedAny := False;
 
-    if (T.Status = stsPending) or (T.Status = stsFailed) then
+    for i := 0 to FTasks.Count - 1 do
     begin
-      if CanExecuteTask(T, Err) then
+      T := TSampleTaskItem(FTasks[i]);
+
+      if (T.Status = stsPending) or (T.Status = stsFailed) then
       begin
-        gridTarefas.Row := i + 1;
-        btnExecutarTarefaSelecionadaClick(nil);
-        Application.ProcessMessages;
-        Sleep(500);
-      end
-      else
-        AddLog(Format('Tarefa "%s" aguardando dependência: %s', [T.ID, Err]));
+        if CanExecuteTask(T, Err) then
+        begin
+          gridTarefas.Row := i + 1;
+          btnExecutarTarefaSelecionadaClick(nil);
+          ExecutedAny := True;
+          Application.ProcessMessages;
+          Sleep(500);
+          Break;
+        end
+        else
+          AddLog(Format('Tarefa "%s" aguardando dependência: %s', [T.ID, Err]));
+      end;
     end;
-  end;
+  until not ExecutedAny;
 end;
 
 procedure TfrmMain.btnReprocessarTarefaClick(Sender: TObject);
