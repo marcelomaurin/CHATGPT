@@ -23,6 +23,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     function Decide(const AInput: string; out AOutput: string): Boolean; virtual;
+    function DecideAsTaskList(const AInput: string; out AOutput: string): Boolean; virtual;
   published
     property OnBeforeDecision: TAIFluxoEtapaControlEvent read FOnBeforeDecision write FOnBeforeDecision;
     property OnAfterDecision: TAIFluxoEtapaEvent read FOnAfterDecision write FOnAfterDecision;
@@ -235,6 +236,161 @@ begin
       Item.SaidaGerada := AOutput;
       Item.Confianca := Confidence;
       EndMemoryStep(Item, Ctx.AnaliseAtual, Ctx.ExplicacaoAtual, Ctx.AcaoTomada, Ctx.SaidaAtual);
+    end;
+
+    Result := True;
+
+    if Assigned(FOnAfterDecision) then
+      FOnAfterDecision(Self, Ctx);
+  finally
+    Ctx.Free;
+  end;
+end;
+
+function TAIDecisionAgent.DecideAsTaskList(const AInput: string; out AOutput: string): Boolean;
+var
+  Item: TAIAgentMemoryMapItem;
+  CanContinue: Boolean;
+  Ctx: TAIFluxoEtapaContexto;
+  LPrompt, ResponseText, CorrectPrompt: string;
+  JSONData: TJSONData;
+  Obj: TJSONObject;
+  HasTasks, HasActions: Boolean;
+  D: TJSONData;
+begin
+  Result := False;
+  AOutput := '';
+  ClearError;
+
+  Ctx := TAIFluxoEtapaContexto.Create;
+  try
+    Ctx.SessionId := '';
+    if Assigned(MapaDeMemoria) then
+      Ctx.SessionId := MapaDeMemoria.SessionId;
+    Ctx.FlowName := 'Planejamento de Tarefas';
+    Ctx.PedidoOriginal := AInput;
+    Ctx.PedidoAtual := AInput;
+    Ctx.NomeAgenteAtual := FNomeAgente;
+    Ctx.TipoAgenteAtual := FTipoAgenteMapa;
+
+    if Assigned(MapaDeMemoria) then
+      Ctx.ContextoAtual := MapaDeMemoria.BuildContextForAgent(FNomeAgente, FTipoAgenteMapa);
+
+    // Trigger BeforeDecision
+    CanContinue := True;
+    if Assigned(FOnBeforeDecision) then
+      FOnBeforeDecision(Self, Ctx, CanContinue);
+
+    if not CanContinue then
+    begin
+      SetError('Processo de decisão cancelado pelo evento OnBeforeDecision.');
+      Exit;
+    end;
+
+    // Begin Memory Map Step
+    Item := BeginMemoryStep(Ctx.PedidoAtual);
+
+    // Build Prompt
+    LPrompt := 'You are a Task Planner Agent.' + sLineBreak;
+    if SystemPrompt <> '' then
+      LPrompt := LPrompt + SystemPrompt + sLineBreak;
+    
+    LPrompt := LPrompt + sLineBreak +
+      '=== DIRETRIZES DE RETORNO ===' + sLineBreak +
+      'Você deve planejar a lista de tarefas necessárias para atender ao pedido.' + sLineBreak +
+      'Retorne EXCLUSIVAMENTE um objeto JSON no seguinte formato (schema de tarefas):' + sLineBreak +
+      '{' + sLineBreak +
+      '  "tasks": [' + sLineBreak +
+      '    {' + sLineBreak +
+      '      "id": "T001",' + sLineBreak +
+      '      "order": 1,' + sLineBreak +
+      '      "type": "content|action|condition",' + sLineBreak +
+      '      "description": "descrição da tarefa",' + sLineBreak +
+      '      "agent": "nome_do_agente",' + sLineBreak +
+      '      "suggested_action": "nome_da_acao",' + sLineBreak +
+      '      "depends_on": "ID_da_dependencia_se_houver_ou_vazio"' + sLineBreak +
+      '    }' + sLineBreak +
+      '  ]' + sLineBreak +
+      '}' + sLineBreak + sLineBreak +
+      '=== MEMORY MAP SO FAR ===' + sLineBreak + Ctx.ContextoAtual + sLineBreak +
+      '=== RECEIVED REQUEST ===' + sLineBreak + Ctx.PedidoAtual;
+
+    if not Assigned(ChatGPT) then
+    begin
+      SetError('ChatGPT is not connected to the decision agent.');
+      if Assigned(Item) then
+        EndMemoryStep(Item, 'Hardware error', 'ChatGPT is not connected', 'ERROR', '');
+      Exit;
+    end;
+
+    if not ChatGPT.SendQuestion(LPrompt) then
+    begin
+      SetError('Network error while deciding tasks: ' + ChatGPT.LastError);
+      if Assigned(Item) then
+        EndMemoryStep(Item, 'Network error', ChatGPT.LastError, 'ERROR', '');
+      Exit;
+    end;
+
+    ResponseText := CleanJSONResponse(ChatGPT.Response);
+
+    // Validate response
+    HasTasks := False;
+    HasActions := False;
+    try
+      JSONData := GetJSON(ResponseText);
+      try
+        if JSONData is TJSONObject then
+        begin
+          Obj := TJSONObject(JSONData);
+          D := Obj.Find('tasks');
+          if Assigned(D) and (D is TJSONArray) then
+            HasTasks := True;
+
+          D := Obj.Find('actions');
+          if Assigned(D) and (D is TJSONArray) then
+            HasActions := True;
+        end;
+      finally
+        JSONData.Free;
+      end;
+    except
+    end;
+
+    // Retry if actions returned instead of tasks
+    if HasActions and (not HasTasks) then
+    begin
+      CorrectPrompt := 'You previously returned a list of actions instead of a list of tasks.' + sLineBreak +
+        'Please correct your response to follow the tasks schema instead of the actions schema.' + sLineBreak +
+        'Schema correto:' + sLineBreak +
+        '{' + sLineBreak +
+        '  "tasks": [' + sLineBreak +
+        '    {' + sLineBreak +
+        '      "id": "T001",' + sLineBreak +
+        '      "order": 1,' + sLineBreak +
+        '      "type": "content|action|condition",' + sLineBreak +
+        '      "description": "descrição da tarefa",' + sLineBreak +
+        '      "agent": "nome_do_agente",' + sLineBreak +
+        '      "suggested_action": "nome_da_acao",' + sLineBreak +
+        '      "depends_on": "ID_da_dependencia_se_houver_ou_vazio"' + sLineBreak +
+        '    }' + sLineBreak +
+        '  ]' + sLineBreak +
+        '}' + sLineBreak + sLineBreak +
+        '=== RESPOSTA ANTERIOR INVÁLIDA ===' + sLineBreak + ResponseText + sLineBreak +
+        '=== MEMORY MAP ===' + sLineBreak + Ctx.ContextoAtual;
+
+      if ChatGPT.SendQuestion(CorrectPrompt) then
+      begin
+        ResponseText := CleanJSONResponse(ChatGPT.Response);
+      end;
+    end;
+
+    AOutput := ResponseText;
+    
+    if Assigned(Item) then
+    begin
+      Item.SaidaGerada := AOutput;
+      Item.Confianca := 1.0;
+      EndMemoryStep(Item, 'Planejamento de tarefas concluído', '', 'DECISION_TASKLIST_CREATED', AOutput);
     end;
 
     Result := True;
