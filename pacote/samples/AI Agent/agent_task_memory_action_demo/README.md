@@ -26,3 +26,13 @@ O envio real de e-mail através do `TAIEmailClient` não suporta anexos reais ne
 
 Durante o fluxo, a resposta estruturada das tarefas é repassada ao `TAIActionBuilderAgent`. A chamada utiliza o método `BuildActionsWithRecovery` para preencher, higienizar e estruturar os parâmetros das ações planejadas. Essa abordagem garante que, caso o LLM retorne um layout inválido ou fora do formato esperado, o próprio componente faça a recuperação automática da intenção lógica com base no mapa de memória.
 
+## Automação Real de Browser (Chromium Integration)
+
+Este sample implementa um fluxo real de navegação e extração de dados usando o `AIChromiumBrowser` integrado e o novo `TAIActionExecutor` com registro dinâmico de ações:
+- **Fluxo do Pipeline**:
+  `Prompt` ➔ `TAIDecisionAgent (Planner)` ➔ `TAIActionBuilderAgent` ➔ `TAIActionExecutor` ➔ `AIChromiumBrowser (DOM Automation)`
+- **Ações Reais Executadas**:
+  O executor real dispara ações de navegação (`BROWSER_NAVIGATE`), mapeamento do DOM (`BROWSER_READ_PAGE`), inserção de valores (`BROWSER_SET_VALUE`), pressionamento de teclas (`BROWSER_PRESS_ENTER`) e captura final de resultados (`BROWSER_CAPTURE_TEXT`) de forma assíncrona/bloqueante com tratamento seguro de seletores CSS.
+- **Botão Cenário Pesquisa Browser**:
+  Adicionado na aba **Prompt**, permite carregar de forma rápida o cenário de busca dinâmica no Google, servindo de base para validação dos seletores e inputs sob o pipeline de orquestração cognitiva.
+

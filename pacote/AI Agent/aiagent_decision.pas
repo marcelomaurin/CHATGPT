@@ -312,6 +312,27 @@ begin
       '    }' + sLineBreak +
       '  ]' + sLineBreak +
       '}' + sLineBreak + sLineBreak +
+      '=== DIRETRIZES BROWSER E AUTOMAÇÃO REAL ===' + sLineBreak +
+      'As ações sugeridas para automação de browser permitidas são:' + sLineBreak +
+      '- BROWSER_NAVIGATE (url)' + sLineBreak +
+      '- BROWSER_READ_PAGE (selector, dom_list_selector)' + sLineBreak +
+      '- BROWSER_DOM_LIST (selector)' + sLineBreak +
+      '- BROWSER_WAIT_SELECTOR (selector, timeout)' + sLineBreak +
+      '- BROWSER_SET_VALUE (selector, index, value)' + sLineBreak +
+      '- BROWSER_FOCUS (selector, index)' + sLineBreak +
+      '- BROWSER_CLICK (selector, index)' + sLineBreak +
+      '- BROWSER_PRESS_ENTER (selector, index)' + sLineBreak +
+      '- BROWSER_SUBMIT_FORM (selector, index)' + sLineBreak +
+      '- BROWSER_CAPTURE_TEXT (selector)' + sLineBreak +
+      '- BROWSER_SCREENSHOT (filename)' + sLineBreak + sLineBreak +
+      'REGRAS OBRIGATÓRIAS BROWSER:' + sLineBreak +
+      '1. Regra de Leitura Prévia: Antes de qualquer ação que manipula o DOM (como BROWSER_SET_VALUE, BROWSER_CLICK, BROWSER_PRESS_ENTER ou BROWSER_SUBMIT_FORM), gere OBRIGATORIAMENTE uma tarefa anterior do tipo BROWSER_READ_PAGE ou BROWSER_DOM_LIST, exceto se o seletor CSS específico foi fornecido explicitamente no pedido.' + sLineBreak +
+      '2. Fluxo para Pesquisa: Quando o pedido do usuário for realizar uma pesquisa/busca em um site:' + sLineBreak +
+      '   - Tarefa 1: Navegar até a URL (BROWSER_NAVIGATE)' + sLineBreak +
+      '   - Tarefa 2: Ler/Mapear a página (BROWSER_READ_PAGE ou BROWSER_DOM_LIST)' + sLineBreak +
+      '   - Tarefa 3: Preencher campo de busca (BROWSER_SET_VALUE)' + sLineBreak +
+      '   - Tarefa 4: Enviar busca (BROWSER_PRESS_ENTER ou BROWSER_SUBMIT_FORM)' + sLineBreak +
+      '   - Tarefa 5: Capturar texto dos resultados obtidos (BROWSER_CAPTURE_TEXT)' + sLineBreak + sLineBreak +
       '=== MEMORY MAP SO FAR ===' + sLineBreak + Ctx.ContextoAtual + sLineBreak +
       '=== RECEIVED REQUEST ===' + sLineBreak + Ctx.PedidoAtual;
 

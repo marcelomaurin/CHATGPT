@@ -79,6 +79,10 @@
         <UnitName Value="aiagent_actions"/>
       </Item>
       <Item>
+        <Filename Value="..\AI Agent\aiagent_browseractions.pas"/>
+        <UnitName Value="aiagent_browseractions"/>
+      </Item>
+      <Item>
         <Filename Value="..\AI Agent\aiagent_orchestrator.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiagent_orchestrator"/>

@@ -16,6 +16,7 @@ uses
   aiagent_actionbuilder,
   aiagent_executor,
   aiagent_actions,
+  aiagent_browseractions,
   aioutput_docs,
   aiemail,
   uCEFChromiumWindow,
@@ -117,6 +118,7 @@ type
     pnlPromptCommands: TPanel;
     btnGerarTarefas: TButton;
     btnLimparPrompt: TButton;
+    btnCenarioBrowser: TButton; // Tarefa 50
     chkModoSimulado: TCheckBox;
     chkPermitirGerarWordReal: TCheckBox;
     chkPermitirEnvioEmailReal: TCheckBox;
@@ -220,6 +222,7 @@ type
     procedure btnReprocessarTarefaClick(Sender: TObject);
     procedure btnCancelarTarefaClick(Sender: TObject);
     procedure btnLimparPromptClick(Sender: TObject);
+    procedure btnCenarioBrowserClick(Sender: TObject); // Tarefa 50
     procedure cbProviderChange(Sender: TObject);
     procedure gridTarefasSelection(Sender: TObject; ACol, ARow: Integer);
     procedure gridMapaSelection(Sender: TObject; ACol, ARow: Integer);
@@ -241,12 +244,29 @@ type
     FCreateTextAction: TSampleCreateTextAction;
     FSendEmailAction: TSampleSendEmailAction;
     FRegisterResultAction: TSampleRegisterResultAction;
+    
+    FBrowserNavigateAction: TAIBrowserNavigateAction;
+    FBrowserReadPageAction: TAIBrowserReadPageAction;
+    FBrowserDOMListAction: TAIBrowserDOMListAction;
+    FBrowserCaptureTextAction: TAIBrowserCaptureTextAction;
+    FBrowserSetValueAction: TAIBrowserSetValueAction;
+    FBrowserFocusAction: TAIBrowserFocusAction;
+    FBrowserClickAction: TAIBrowserClickAction;
+    FBrowserPressEnterAction: TAIBrowserPressEnterAction;
+    FBrowserSubmitFormAction: TAIBrowserSubmitFormAction;
+    FBrowserScreenshotAction: TAIBrowserScreenshotAction;
+
     FTasks: Contnrs.TObjectList;
 
     FCapturedWebText: string;
     FWaitingForDOMText: Boolean;
     FWaitingForNavigation: Boolean;
     FExpectedNavigationURL: string;
+
+    FLastBrowserDOMKind: string;
+    FLastBrowserDOMSelector: string;
+    FLastBrowserDOMJSON: string;
+    FWaitingBrowserDOM: Boolean;
 
     function ValidateProviderToken(out AErro: string): Boolean;
     function SanitizeLLMError(const AError: string): string;
@@ -264,6 +284,10 @@ type
     function DispatchPreparedActions(const APreparedActionsJSON: string): Boolean;
     function EnsureBrowser: Boolean;
     function ExtractURLFromPrompt(const APrompt: string): string;
+    function WaitBrowserDOMResult(ATimeoutMs: Integer): Boolean;
+    procedure ActionExecutorBeforePreparedAction(Sender: TObject; const AActionName: string; AParams: TStrings; AExecutionContext: TStrings; var ACanExecute: Boolean);
+    procedure ActionExecutorAfterPreparedAction(Sender: TObject; const AActionName: string; AParams: TStrings; AExecutionContext: TStrings; AResult: TStrings);
+
 
     function EnsureRuntimeObjects(out AErro: string): Boolean;
     procedure WireRuntimeObjects;
@@ -755,6 +779,27 @@ begin
     if not Assigned(FRegisterResultAction) then
       FRegisterResultAction := TSampleRegisterResultAction.Create(Self);
 
+    if not Assigned(FBrowserNavigateAction) then
+      FBrowserNavigateAction := TAIBrowserNavigateAction.Create(Self);
+    if not Assigned(FBrowserReadPageAction) then
+      FBrowserReadPageAction := TAIBrowserReadPageAction.Create(Self);
+    if not Assigned(FBrowserDOMListAction) then
+      FBrowserDOMListAction := TAIBrowserDOMListAction.Create(Self);
+    if not Assigned(FBrowserCaptureTextAction) then
+      FBrowserCaptureTextAction := TAIBrowserCaptureTextAction.Create(Self);
+    if not Assigned(FBrowserSetValueAction) then
+      FBrowserSetValueAction := TAIBrowserSetValueAction.Create(Self);
+    if not Assigned(FBrowserFocusAction) then
+      FBrowserFocusAction := TAIBrowserFocusAction.Create(Self);
+    if not Assigned(FBrowserClickAction) then
+      FBrowserClickAction := TAIBrowserClickAction.Create(Self);
+    if not Assigned(FBrowserPressEnterAction) then
+      FBrowserPressEnterAction := TAIBrowserPressEnterAction.Create(Self);
+    if not Assigned(FBrowserSubmitFormAction) then
+      FBrowserSubmitFormAction := TAIBrowserSubmitFormAction.Create(Self);
+    if not Assigned(FBrowserScreenshotAction) then
+      FBrowserScreenshotAction := TAIBrowserScreenshotAction.Create(Self);
+
     WireRuntimeObjects;
 
     Result := True;
@@ -820,6 +865,28 @@ begin
     FActionBuilderAgent.TipoAgenteMapa := tamAjustadorAcao;
   end;
 
+  if Assigned(FBrowserNavigateAction) then FBrowserNavigateAction.Browser := AIChromiumBrowser1;
+  if Assigned(FBrowserReadPageAction) then FBrowserReadPageAction.Browser := AIChromiumBrowser1;
+  if Assigned(FBrowserDOMListAction) then FBrowserDOMListAction.Browser := AIChromiumBrowser1;
+  if Assigned(FBrowserCaptureTextAction) then FBrowserCaptureTextAction.Browser := AIChromiumBrowser1;
+  if Assigned(FBrowserSetValueAction) then FBrowserSetValueAction.Browser := AIChromiumBrowser1;
+  if Assigned(FBrowserFocusAction) then FBrowserFocusAction.Browser := AIChromiumBrowser1;
+  if Assigned(FBrowserClickAction) then FBrowserClickAction.Browser := AIChromiumBrowser1;
+  if Assigned(FBrowserPressEnterAction) then FBrowserPressEnterAction.Browser := AIChromiumBrowser1;
+  if Assigned(FBrowserSubmitFormAction) then FBrowserSubmitFormAction.Browser := AIChromiumBrowser1;
+  if Assigned(FBrowserScreenshotAction) then FBrowserScreenshotAction.Browser := AIChromiumBrowser1;
+
+  if Assigned(FBrowserNavigateAction) then FBrowserNavigateAction.MemoryMap := FMemoryMap;
+  if Assigned(FBrowserReadPageAction) then FBrowserReadPageAction.MemoryMap := FMemoryMap;
+  if Assigned(FBrowserDOMListAction) then FBrowserDOMListAction.MemoryMap := FMemoryMap;
+  if Assigned(FBrowserCaptureTextAction) then FBrowserCaptureTextAction.MemoryMap := FMemoryMap;
+  if Assigned(FBrowserSetValueAction) then FBrowserSetValueAction.MemoryMap := FMemoryMap;
+  if Assigned(FBrowserFocusAction) then FBrowserFocusAction.MemoryMap := FMemoryMap;
+  if Assigned(FBrowserClickAction) then FBrowserClickAction.MemoryMap := FMemoryMap;
+  if Assigned(FBrowserPressEnterAction) then FBrowserPressEnterAction.MemoryMap := FMemoryMap;
+  if Assigned(FBrowserSubmitFormAction) then FBrowserSubmitFormAction.MemoryMap := FMemoryMap;
+  if Assigned(FBrowserScreenshotAction) then FBrowserScreenshotAction.MemoryMap := FMemoryMap;
+
   if Assigned(FActionExecutor) then
   begin
     FActionExecutor.ChatGPT := FChatGPT;
@@ -827,6 +894,23 @@ begin
     FActionExecutor.NomeAgente := 'action_executor';
     FActionExecutor.OnBeforeActionExecute := @ActionExecutorBeforeActionExecute;
     FActionExecutor.OnAfterActionExecute := @ActionExecutorAfterActionExecute;
+    FActionExecutor.OnBeforePreparedAction := @ActionExecutorBeforePreparedAction;
+    FActionExecutor.OnAfterPreparedAction := @ActionExecutorAfterPreparedAction;
+
+    // Register all actions
+    FActionExecutor.RegisterAction(FCreateTextAction);
+    FActionExecutor.RegisterAction(FSendEmailAction);
+    FActionExecutor.RegisterAction(FRegisterResultAction);
+    FActionExecutor.RegisterAction(FBrowserNavigateAction);
+    FActionExecutor.RegisterAction(FBrowserReadPageAction);
+    FActionExecutor.RegisterAction(FBrowserDOMListAction);
+    FActionExecutor.RegisterAction(FBrowserCaptureTextAction);
+    FActionExecutor.RegisterAction(FBrowserSetValueAction);
+    FActionExecutor.RegisterAction(FBrowserFocusAction);
+    FActionExecutor.RegisterAction(FBrowserClickAction);
+    FActionExecutor.RegisterAction(FBrowserPressEnterAction);
+    FActionExecutor.RegisterAction(FBrowserSubmitFormAction);
+    FActionExecutor.RegisterAction(FBrowserScreenshotAction);
   end;
 
   if Assigned(FMemoryMap) then
@@ -1200,6 +1284,18 @@ procedure TfrmMain.btnLimparPromptClick(Sender: TObject);
 begin
   if Assigned(memPrompt) then
     memPrompt.Clear;
+end;
+
+procedure TfrmMain.btnCenarioBrowserClick(Sender: TObject);
+begin
+  if Assigned(memPrompt) then
+  begin
+    memPrompt.Text :=
+      'Acesse o site https://www.google.com, aguarde a página carregar, ' +
+      'leia a página e liste os elementos do DOM para identificar o campo de busca. ' +
+      'Pesquise por "Componentes de IA Lazarus", submeta o formulário de busca e capture os resultados. ' +
+      'Gere um documento de texto com os resultados encontrados e salve localmente.';
+  end;
 end;
 
 procedure TfrmMain.btnGerarTarefasClick(Sender: TObject);
@@ -2169,12 +2265,30 @@ begin
   ExecutorOutput := '';
 
   try
-    ExecutorSuccess := FActionExecutor.ExecutePlan(BuilderOutput, ExecutorOutput);
+    // Tarefa 47: Executar de verdade as ações preparadas
+    ExecutorSuccess := FActionExecutor.ExecutePreparedActionsReal(BuilderOutput, ExecutorOutput);
   except
     on E: Exception do
     begin
       ExecutorSuccess := False;
-      AddLog('Exception no ActionExecutor: ' + E.Message);
+      AddLog('Exception no ActionExecutor real: ' + E.Message);
+    end;
+  end;
+
+  if not ExecutorSuccess then
+  begin
+    // Legacy fallback. Remover após estabilizar ExecutePreparedActionsReal (Tarefa 48)
+    AddLog('[FALLBACK] Falha ou sem ações registradas no Executor Real. Tentando legado DispatchPreparedActions...');
+    try
+      ExecutorSuccess := FActionExecutor.ExecutePlan(BuilderOutput, ExecutorOutput);
+      if ExecutorSuccess then
+        ExecutorSuccess := DispatchPreparedActions(BuilderOutput);
+    except
+      on E: Exception do
+      begin
+        ExecutorSuccess := False;
+        AddLog('Exception no fallback legado: ' + E.Message);
+      end;
     end;
   end;
 
@@ -2190,21 +2304,7 @@ begin
     Exit;
   end;
 
-  AddLog('Plano validado pelo ActionExecutor.');
-
-  DispatchSuccess := DispatchPreparedActions(BuilderOutput);
-
-  if not DispatchSuccess then
-  begin
-    T.Status := stsFailed;
-    T.Resultado := 'Falha ao despachar ações reais preparadas pelo agente.';
-
-    AddLog('Falha ao despachar ações reais da tarefa.');
-
-    RefreshTasksGrid;
-    RefreshMemoryMapGrid;
-    Exit;
-  end;
+  AddLog('Plano executado com sucesso pelo ActionExecutor real.');
 
   T.Status := stsDone;
   T.Resultado :=
@@ -2620,9 +2720,14 @@ var
 begin
   AddLog(Format('DOM Result recebido: kind=%s, selector=%s', [AKind, ASelector]));
 
+  FLastBrowserDOMKind := AKind;
+  FLastBrowserDOMSelector := ASelector;
+  FLastBrowserDOMJSON := AJSON;
+  FWaitingBrowserDOM := False;
+
+  ValueText := '';
   if SameText(AKind, 'dom-get-property') and SameText(ASelector, 'body') then
   begin
-    ValueText := '';
     Parser := nil;
     Data := nil;
 
@@ -2649,11 +2754,39 @@ begin
     Parser.Free;
 
     FCapturedWebText := ValueText;
-
     AddLog(Format('Texto real capturado da página. Tamanho: %d caracteres.', [Length(FCapturedWebText)]));
-
     FWaitingForDOMText := False;
   end;
+
+  if Assigned(FActionExecutor) then
+  begin
+    FActionExecutor.ExecutionContext.Values['browser.last_dom_kind'] := AKind;
+    FActionExecutor.ExecutionContext.Values['browser.last_dom_selector'] := ASelector;
+    FActionExecutor.ExecutionContext.Values['browser.last_dom_json'] := AJSON;
+    if ValueText <> '' then
+      FActionExecutor.ExecutionContext.Values['browser.last_text'] := ValueText;
+  end;
+end;
+
+function TfrmMain.WaitBrowserDOMResult(ATimeoutMs: Integer): Boolean;
+var
+  StartTicks: QWord;
+begin
+  FWaitingBrowserDOM := True;
+  StartTicks := GetTickCount64;
+
+  while FWaitingBrowserDOM and (GetTickCount64 - StartTicks < ATimeoutMs) do
+  begin
+    Application.ProcessMessages;
+    Sleep(50);
+  end;
+
+  if FWaitingBrowserDOM then
+  begin
+    FWaitingBrowserDOM := False;
+    Exit(False);
+  end;
+  Result := True;
 end;
 
 function TfrmMain.EnsureBrowser: Boolean;
@@ -2793,6 +2926,91 @@ begin
     AExecutionContext.Values['last_text_content'] := AResult.Values['content'];
     AExecutionContext.Values['last_text_filename'] := AResult.Values['filename'];
     AddLog('[EXECUTOR] Publicado last_text_content e last_text_filename no contexto de execução.');
+  end;
+end;
+
+procedure TfrmMain.ActionExecutorBeforePreparedAction(
+  Sender: TObject;
+  const AActionName: string;
+  AParams: TStrings;
+  AExecutionContext: TStrings;
+  var ACanExecute: Boolean
+);
+var
+  UrlStr, SelectorStr: string;
+begin
+  AddLog(Format('[EXECUTOR REAL] Preparando para executar ação: %s', [AActionName]));
+
+  if SameText(AActionName, 'BROWSER_NAVIGATE') then
+  begin
+    UrlStr := Trim(AParams.Values['url']);
+    if UrlStr = '' then
+    begin
+      AddLog('[EXECUTOR REAL] ERRO: URL está vazia.');
+      ACanExecute := False;
+      Exit;
+    end;
+  end
+  else if SameText(AActionName, 'BROWSER_SET_VALUE') or
+          SameText(AActionName, 'BROWSER_CLICK') or
+          SameText(AActionName, 'BROWSER_FOCUS') or
+          SameText(AActionName, 'BROWSER_PRESS_ENTER') or
+          SameText(AActionName, 'BROWSER_SUBMIT_FORM') then
+  begin
+    SelectorStr := Trim(AParams.Values['selector']);
+    if SelectorStr = '' then
+    begin
+      AddLog('[EXECUTOR REAL] ERRO: Seletor CSS vazio para ação interativa.');
+      ACanExecute := False;
+      Exit;
+    end;
+  end;
+
+  if SameText(AActionName, 'CREATE_TEXT_DOCUMENT') then
+  begin
+    if IsEmptyOrPlaceholder(AParams.Values['content']) and (AExecutionContext.Values['browser.last_text'] <> '') then
+    begin
+      AParams.Values['content'] := AExecutionContext.Values['browser.last_text'];
+      AddLog('[EXECUTOR REAL] Preenchido conteúdo do documento com o resultado capturado no browser.');
+    end;
+  end;
+end;
+
+procedure TfrmMain.ActionExecutorAfterPreparedAction(
+  Sender: TObject;
+  const AActionName: string;
+  AParams: TStrings;
+  AExecutionContext: TStrings;
+  AResult: TStrings
+);
+begin
+  AddLog(Format('[EXECUTOR REAL] Ação concluída com sucesso: %s', [AActionName]));
+
+  if SameText(AActionName, 'BROWSER_NAVIGATE') then
+  begin
+    AddLog('[EXECUTOR REAL] Aguardando carregamento da página...');
+    FWaitingForNavigation := True;
+    WaitBrowserDOMResult(15000); 
+  end
+  else if SameText(AActionName, 'BROWSER_READ_PAGE') or
+          SameText(AActionName, 'BROWSER_DOM_LIST') or
+          SameText(AActionName, 'BROWSER_CAPTURE_TEXT') then
+  begin
+    AddLog('[EXECUTOR REAL] Aguardando resultado assíncrono do DOM...');
+    WaitBrowserDOMResult(10000);
+    
+    if SameText(AActionName, 'BROWSER_CAPTURE_TEXT') then
+    begin
+      AExecutionContext.Values['browser.last_result_text'] := FCapturedWebText;
+      AddLog('[EXECUTOR REAL] Registrado browser.last_result_text no ExecutionContext.');
+    end;
+  end
+  else if SameText(AActionName, 'BROWSER_PRESS_ENTER') or
+          SameText(AActionName, 'BROWSER_SUBMIT_FORM') then
+  begin
+    AddLog('[EXECUTOR REAL] Aguardando possível carregamento pós submissão...');
+    FWaitingForNavigation := True;
+    WaitBrowserDOMResult(10000);
   end;
 end;
 

@@ -161,6 +161,15 @@ object frmMain: TfrmMain
           TabOrder = 1
           OnClick = btnLimparPromptClick
         end
+        object btnCenarioBrowser: TButton
+          Left = 300
+          Height = 35
+          Top = 10
+          Width = 200
+          Caption = 'Cenário Pesquisa Browser'
+          TabOrder = 2
+          OnClick = btnCenarioBrowserClick
+        end
       end
     end
     object tabTarefas: TTabSheet

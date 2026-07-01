@@ -257,18 +257,24 @@ Caso a saída seja inválida ou esteja fora do layout obrigatório:
 
 ### TAIActionExecutor
 
-**Função:** Executor de planos de ação. Pode operar em modo simulado ou real, registra execução no mapa de memória e permite interceptar etapas por eventos antes/depois da execução.
+**Função:** Executor de planos de ação. Pode operar em modo simulado ou real (usando o registro de ações reais do tipo `TAICustomAgentAction`), registra a execução detalhada no mapa de memória, compartilha um contexto de execução dinâmico (`ExecutionContext`) e dispara eventos de ciclo de vida antes/depois da execução das ações reais preparadas.
 
-- **Propriedades (Published):**
+- **Propriedades (Published/Public):**
   - `ChatGPT: TCHATGPT` - Conector ChatGPT.
   - `MemoryMap: TAIAgentMemoryMap` - Mapa de memória de auditoria.
   - `NomeAgente: string` - Identificador de auditoria do executor.
   - `TipoAgenteMapa: TAITipoAgenteMapa` - Tipo usado para registrar o executor no mapa de memória.
   - `ForcarSimulacaoGlobal: Boolean` - Se verdadeiro, nenhuma ação de hardware real será despachada, operando apenas de forma simulada.
   - `AutoRegistrarNoMapa: Boolean` - Loga automaticamente as etapas de execução no mapa.
+  - `ExecutionContext: TStringList` - Contexto compartilhado para troca de dados entre ações subsequentes (ex: `browser.last_text` ou `last_text_content`).
 - **Métodos (Public):**
-  - `ExecutePlan(const AInputPlan: string; out AOutput: string): Boolean` - Processa e despacha a lista estruturada de tarefas.
+  - `RegisterAction(AAction: TAICustomAgentAction)` - Registra uma ação concreta para execução real (ex: ações de e-mail, criação de arquivos ou automação do Chromium).
+  - `ClearExecutionContext` - Limpa os parâmetros do contexto de execução acumulados.
+  - `ExecutePlan(const AInputPlan: string; out AOutput: string): Boolean` - Simula ou processa textualmente o plano de ações via LLM.
+  - `ExecutePreparedActionsReal(const APreparedActionsJSON: string; out AOutput: string): Boolean` - Analisa o JSON de ações (array ou objeto) e executa de verdade cada uma delas se estiverem registradas, disparando os eventos de ciclo correspondentes.
 - **Eventos:**
+  - `OnBeforePreparedAction: TAIExecutorBeforePreparedActionEvent` - Disparado antes de rodar cada ação real. Permite modificar parâmetros de forma dinâmica ou cancelar a execução.
+  - `OnAfterPreparedAction: TAIExecutorAfterPreparedActionEvent` - Disparado após o sucesso de cada ação. Permite colher retornos das ações e salvá-los no `ExecutionContext`.
   - `OnBeforeExecutePlan: TAIFluxoEtapaControlEvent`
   - `OnAfterExecutePlan: TAIFluxoEtapaEvent`
   - `OnBeforeExecutePlanItem: TAIFluxoEtapaControlEvent`

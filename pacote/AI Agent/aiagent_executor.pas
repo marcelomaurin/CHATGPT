@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, fpjson, jsonparser, aibase, chatgpt,
-  aiagent_flowevents, aiagent_memorymap, aiagent_core, LResources;
+  aiagent_flowevents, aiagent_memorymap, aiagent_core, aiagent_actions, LResources;
 
 type
   TAIActionBeforeExecuteEvent = procedure(
@@ -24,6 +24,23 @@ type
     AExecutionContext: TStrings
   ) of object;
 
+  // New events for Fase 1 (Tarefa 9, 10)
+  TAIExecutorBeforePreparedActionEvent = procedure(
+    Sender: TObject;
+    const AActionName: string;
+    AParams: TStrings;
+    AExecutionContext: TStrings;
+    var ACanExecute: Boolean
+  ) of object;
+
+  TAIExecutorAfterPreparedActionEvent = procedure(
+    Sender: TObject;
+    const AActionName: string;
+    AParams: TStrings;
+    AExecutionContext: TStrings;
+    AResult: TStrings
+  ) of object;
+
   { TAIActionExecutor }
   TAIActionExecutor = class(TAIBaseComponent)
   private
@@ -34,6 +51,7 @@ type
     FForcarSimulacaoGlobal: Boolean;
     FAutoRegistrarNoMapa: Boolean;
     FExecutionContext: TStringList;
+    FRegisteredActions: TList; // Tarefa 2
     // Events
     FOnBeforeExecutePlan: TAIFluxoEtapaControlEvent;
     FOnAfterExecutePlan: TAIFluxoEtapaEvent;
@@ -47,16 +65,22 @@ type
     FOnExecutionFailed: TAIFluxoEtapaEvent;
     FOnBeforeActionExecute: TAIActionBeforeExecuteEvent;
     FOnAfterActionExecute: TAIActionAfterExecuteEvent;
+    FOnBeforePreparedAction: TAIExecutorBeforePreparedActionEvent; // Tarefa 9
+    FOnAfterPreparedAction: TAIExecutorAfterPreparedActionEvent; // Tarefa 10
+
+    function FindActionByName(const AActionName: string): TAICustomAgentAction; // Tarefa 6
   protected
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     procedure SetMemoryMap(AValue: TAIAgentMemoryMap);
   public
     property MapaDeMemoria: TAIAgentMemoryMap read FMemoryMap write SetMemoryMap;
     constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
-    procedure ClearExecutionContext;
+    destructor Destroy; override; // Tarefa 4
+    procedure ClearExecutionContext; // Tarefa 8
+    procedure RegisterAction(AAction: TAICustomAgentAction); // Tarefa 5
     function ExecutePlan(const AInputPlan: string; out AOutput: string): Boolean; virtual;
-    property ExecutionContext: TStringList read FExecutionContext;
+    function ExecutePreparedActionsReal(const APreparedActionsJSON: string; out AOutput: string): Boolean; // Tarefa 11
+    property ExecutionContext: TStringList read FExecutionContext; // Tarefa 7
   published
     property ChatGPT: TCHATGPT read FChatGPT write FChatGPT;
     property MemoryMap: TAIAgentMemoryMap read FMemoryMap write SetMemoryMap;
@@ -77,12 +101,13 @@ type
     property OnExecutionFailed: TAIFluxoEtapaEvent read FOnExecutionFailed write FOnExecutionFailed;
     property OnBeforeActionExecute: TAIActionBeforeExecuteEvent read FOnBeforeActionExecute write FOnBeforeActionExecute;
     property OnAfterActionExecute: TAIActionAfterExecuteEvent read FOnAfterActionExecute write FOnAfterActionExecute;
+    property OnBeforePreparedAction: TAIExecutorBeforePreparedActionEvent read FOnBeforePreparedAction write FOnBeforePreparedAction;
+    property OnAfterPreparedAction: TAIExecutorAfterPreparedActionEvent read FOnAfterPreparedAction write FOnAfterPreparedAction;
   end;
 
 implementation
 
 { TAIActionExecutor }
-
 
 procedure TAIActionExecutor.SetMemoryMap(AValue: TAIAgentMemoryMap);
 begin
@@ -107,17 +132,46 @@ begin
   FForcarSimulacaoGlobal := False;
   FAutoRegistrarNoMapa := True;
   FExecutionContext := TStringList.Create;
+  FRegisteredActions := TList.Create; // Tarefa 3
 end;
 
 destructor TAIActionExecutor.Destroy;
 begin
-  FExecutionContext.Free;
+  FreeAndNil(FRegisteredActions); // Tarefa 4
+  FreeAndNil(FExecutionContext);
   inherited Destroy;
 end;
 
 procedure TAIActionExecutor.ClearExecutionContext;
 begin
-  FExecutionContext.Clear;
+  if Assigned(FExecutionContext) then
+    FExecutionContext.Clear;
+end;
+
+procedure TAIActionExecutor.RegisterAction(AAction: TAICustomAgentAction);
+begin
+  if not Assigned(AAction) then
+    Exit;
+
+  if FRegisteredActions.IndexOf(AAction) < 0 then
+    FRegisteredActions.Add(AAction);
+end;
+
+function TAIActionExecutor.FindActionByName(const AActionName: string): TAICustomAgentAction;
+var
+  I: Integer;
+  A: TAICustomAgentAction;
+begin
+  Result := nil;
+  for I := 0 to FRegisteredActions.Count - 1 do
+  begin
+    A := TAICustomAgentAction(FRegisteredActions[I]);
+    if SameText(A.ActionName, AActionName) then
+    begin
+      Result := A;
+      Exit;
+    end;
+  end;
 end;
 
 procedure TAIActionExecutor.Notification(AComponent: TComponent; Operation: TOperation);
@@ -127,6 +181,184 @@ begin
   begin
     if AComponent = FChatGPT then FChatGPT := nil;
     if AComponent = FMemoryMap then FMemoryMap := nil;
+  end;
+end;
+
+function TAIActionExecutor.ExecutePreparedActionsReal(const APreparedActionsJSON: string; out AOutput: string): Boolean;
+var
+  JSONData: TJSONData;
+  Obj, ActObj, ParamsObj: TJSONObject;
+  ActionsArr: TJSONArray;
+  ItemData: TJSONData;
+  ParamsData: TJSONData;
+  ActionName: string;
+  Params: TStringList;
+  ActionResultList: TStringList;
+  CleanJSON: string;
+  i, j: Integer;
+  ActionOk: Boolean;
+  ActionObj: TAICustomAgentAction;
+  CanExecute: Boolean;
+  MemItem: TAIAgentMemoryMapItem;
+begin
+  Result := False;
+  AOutput := '';
+  ClearError;
+
+  // Tarefa 11
+  if Trim(APreparedActionsJSON) = '' then
+  begin
+    SetError('Plano de ações vazio.');
+    Exit;
+  end;
+
+  CleanJSON := CleanJSONResponse(APreparedActionsJSON);
+
+  try
+    JSONData := GetJSON(CleanJSON);
+    try
+      ActionsArr := nil;
+
+      // Tarefa 12 & 13
+      if JSONData is TJSONObject then
+      begin
+        Obj := TJSONObject(JSONData);
+        ParamsData := Obj.Find('actions');
+        if Assigned(ParamsData) and (ParamsData is TJSONArray) then
+          ActionsArr := TJSONArray(ParamsData)
+        else
+        begin
+          SetError('Plano de ações não possui array "actions" no objeto.');
+          Exit;
+        end;
+      end
+      else if JSONData is TJSONArray then
+        ActionsArr := TJSONArray(JSONData)
+      else
+      begin
+        SetError('Plano de ações não é objeto nem array JSON.');
+        Exit;
+      end;
+
+      if ActionsArr.Count = 0 then
+      begin
+        SetError('O array "actions" está vazio.');
+        Exit;
+      end;
+
+      Params := TStringList.Create;
+      try
+        Result := True;
+
+        for i := 0 to ActionsArr.Count - 1 do
+        begin
+          ItemData := ActionsArr.Items[i];
+          if not (ItemData is TJSONObject) then
+            Continue;
+
+          ActObj := TJSONObject(ItemData);
+          
+          // Tarefa 14
+          ActionName := Trim(ActObj.Get('action', ''));
+          if ActionName = '' then
+            ActionName := Trim(ActObj.Get('name', ''));
+
+          if ActionName = '' then
+          begin
+            SetError(Format('Ação %d sem campo "action/name".', [i]));
+            Result := False;
+            Exit;
+          end;
+
+          Params.Clear;
+          ParamsData := ActObj.Find('parameters');
+          if Assigned(ParamsData) and (ParamsData is TJSONObject) then
+          begin
+            ParamsObj := TJSONObject(ParamsData);
+            for j := 0 to ParamsObj.Count - 1 do
+              Params.Values[ParamsObj.Names[j]] := ParamsObj.Items[j].AsString;
+          end;
+
+          // Tarefa 15
+          ActionObj := FindActionByName(ActionName);
+          if not Assigned(ActionObj) then
+          begin
+            SetError('Ação não registrada: ' + ActionName);
+            Result := False;
+            Exit;
+          end;
+
+          // Tarefa 16 — Evento antes
+          CanExecute := True;
+          if Assigned(FOnBeforePreparedAction) then
+            FOnBeforePreparedAction(Self, ActionName, Params, FExecutionContext, CanExecute);
+
+          if not CanExecute then
+          begin
+            SetError('Ação bloqueada pelo evento: ' + ActionName);
+            Result := False;
+            Exit;
+          end;
+
+          // Tarefa 18 — Registrar início no MemoryMap
+          MemItem := nil;
+          if Assigned(MapaDeMemoria) and FAutoRegistrarNoMapa then
+          begin
+            MemItem := MapaDeMemoria.BeginAgentStep(FNomeAgente + '_' + ActionName, FTipoAgenteMapa, Params.Text, '');
+          end;
+
+          // Executar ação real
+          ActionOk := False;
+          try
+            ActionOk := ActionObj.RunAction(Params, FForcarSimulacaoGlobal);
+          except
+            on E: Exception do
+            begin
+              SetError(Format('Exception na ação "%s": %s', [ActionName, E.Message]));
+            end;
+          end;
+
+          // Tarefa 18 — Registrar conclusão no MemoryMap
+          if Assigned(MemItem) and Assigned(MapaDeMemoria) then
+          begin
+            if ActionOk then
+              MapaDeMemoria.EndAgentStep(MemItem, 'Ação executada com sucesso.', '', 'SUCCESS', '')
+            else
+              MapaDeMemoria.EndAgentStep(MemItem, 'Falha ao executar ação: ' + LastError, '', 'ERROR', '');
+          end;
+
+          // Tarefa 17 — Evento depois
+          if ActionOk then
+          begin
+            ActionResultList := TStringList.Create;
+            try
+              // If it has results properties from the specific actions, we could fetch them.
+              // We pass it to the event.
+              if Assigned(FOnAfterPreparedAction) then
+                FOnAfterPreparedAction(Self, ActionName, Params, FExecutionContext, ActionResultList);
+            finally
+              ActionResultList.Free;
+            end;
+          end;
+
+          if not ActionOk then
+          begin
+            Result := False;
+            Exit;
+          end;
+        end;
+      finally
+        Params.Free;
+      end;
+    except
+      on E: Exception do
+      begin
+        SetError('Erro ao executar plano preparado: ' + E.Message);
+        Result := False;
+      end;
+    end;
+  finally
+    JSONData.Free;
   end;
 end;
 

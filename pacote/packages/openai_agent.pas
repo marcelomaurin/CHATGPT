@@ -11,7 +11,7 @@ uses
   aiagent, aiagentsafety, aiagent_executors, aiwizardconfig, 
   frm_aiwizardconfig, aipipeline, aiagent_flowevents, aiagent_memorymap,
   aiagent_core, aiagent_classifier, aiagent_decision, aiagent_actionbuilder,
-  aiagent_executor, aiagent_actions, aiagent_orchestrator, LazarusPackageIntf;
+  aiagent_executor, aiagent_actions, aiagent_browseractions, aiagent_orchestrator, LazarusPackageIntf;
 
 implementation
 

@@ -122,6 +122,21 @@ begin
     'Analise o plano de ações gerado pelo decisor, corrija ou preencha parâmetros ausentes, e avalie a segurança deles.' + sLineBreak +
     'Retorne EXCLUSIVAMENTE um objeto JSON estruturado da seguinte forma:' + sLineBreak +
     ASchemaText + sLineBreak + sLineBreak +
+    '=== SCHEMAS ESPECÍFICOS DE AÇÕES BROWSER ===' + sLineBreak +
+    '- BROWSER_NAVIGATE: {"url": "http://..."}' + sLineBreak +
+    '- BROWSER_WAIT_SELECTOR: {"selector": "seletor_css", "timeout": 5000}' + sLineBreak +
+    '- BROWSER_READ_PAGE: {"selector": "body", "dom_list_selector": "input, textarea, button, form"}' + sLineBreak +
+    '- BROWSER_DOM_LIST: {"selector": "input, textarea"}' + sLineBreak +
+    '- BROWSER_CAPTURE_TEXT: {"selector": "seletor_css"}' + sLineBreak +
+    '- BROWSER_SET_VALUE: {"selector": "seletor_css", "index": 0, "value": "texto_a_preencher"}' + sLineBreak +
+    '- BROWSER_FOCUS: {"selector": "seletor_css", "index": 0}' + sLineBreak +
+    '- BROWSER_CLICK: {"selector": "seletor_css", "index": 0}' + sLineBreak +
+    '- BROWSER_PRESS_ENTER: {"selector": "seletor_css", "index": 0}' + sLineBreak +
+    '- BROWSER_SUBMIT_FORM: {"selector": "seletor_css", "index": 0}' + sLineBreak +
+    '- BROWSER_SCREENSHOT: {"filename": "caminho_arquivo.png"}' + sLineBreak + sLineBreak +
+    'REGRAS CRÍTICAS:' + sLineBreak +
+    '1. Para ações browser de interação (SET_VALUE, CLICK, etc.), preserve url, selector, index e value.' + sLineBreak +
+    '2. Não invente seletores sem base se o DOM não foi lido; se necessário, use seletores gerais ou gere uma ação de leitura prévia.' + sLineBreak +
     '=== MAPA DE MEMÓRIA ATÉ AGORA ===' + sLineBreak + AMemoryContext + sLineBreak +
     '=== PLANO ANTERIOR RECEBIDO ===' + sLineBreak + AInput;
 end;
@@ -232,6 +247,7 @@ begin
     '2. o mapa de memória;' + sLineBreak +
     '3. a resposta anterior inválida;' + sLineBreak +
     '4. o schema obrigatório.' + sLineBreak + sLineBreak +
+    'Se a ação for do browser, preserve url, selector, index e value. Não invente seletor quando o DOM não foi lido. Se não houver seletor seguro, gere BROWSER_DOM_LIST ou BROWSER_READ_PAGE antes.' + sLineBreak + sLineBreak +
     'Extraia o que realmente foi solicitado no BuilderInput.' + sLineBreak +
     'Converta para o schema obrigatório do ActionBuilder.' + sLineBreak +
     'Retorne somente JSON válido.' + sLineBreak + sLineBreak +

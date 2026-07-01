@@ -1,0 +1,433 @@
+unit aiagent_browseractions;
+
+{$mode objfpc}{$H+}
+
+interface
+
+uses
+  Classes, SysUtils, aiagent_actions, aichromiumbrowser;
+
+type
+  { TAIBrowserCustomAction }
+  TAIBrowserCustomAction = class(TAICustomAgentAction)
+  private
+    FBrowser: TAIChromiumBrowser;
+  protected
+    function CheckBrowser: Boolean; virtual;
+  public
+    property Browser: TAIChromiumBrowser read FBrowser write FBrowser;
+  end;
+
+  { TAIBrowserNavigateAction }
+  TAIBrowserNavigateAction = class(TAIBrowserCustomAction)
+  public
+    constructor Create(AOwner: TComponent); override;
+    function RunAction(const AParams: TStrings; ASimulate: Boolean): Boolean; override;
+  end;
+
+  { TAIBrowserWaitSelectorAction }
+  TAIBrowserWaitSelectorAction = class(TAIBrowserCustomAction)
+  public
+    constructor Create(AOwner: TComponent); override;
+    function RunAction(const AParams: TStrings; ASimulate: Boolean): Boolean; override;
+  end;
+
+  { TAIBrowserReadPageAction }
+  TAIBrowserReadPageAction = class(TAIBrowserCustomAction)
+  public
+    constructor Create(AOwner: TComponent); override;
+    function RunAction(const AParams: TStrings; ASimulate: Boolean): Boolean; override;
+  end;
+
+  { TAIBrowserDOMListAction }
+  TAIBrowserDOMListAction = class(TAIBrowserCustomAction)
+  public
+    constructor Create(AOwner: TComponent); override;
+    function RunAction(const AParams: TStrings; ASimulate: Boolean): Boolean; override;
+  end;
+
+  { TAIBrowserCaptureTextAction }
+  TAIBrowserCaptureTextAction = class(TAIBrowserCustomAction)
+  public
+    constructor Create(AOwner: TComponent); override;
+    function RunAction(const AParams: TStrings; ASimulate: Boolean): Boolean; override;
+  end;
+
+  { TAIBrowserSetValueAction }
+  TAIBrowserSetValueAction = class(TAIBrowserCustomAction)
+  public
+    constructor Create(AOwner: TComponent); override;
+    function RunAction(const AParams: TStrings; ASimulate: Boolean): Boolean; override;
+  end;
+
+  { TAIBrowserFocusAction }
+  TAIBrowserFocusAction = class(TAIBrowserCustomAction)
+  public
+    constructor Create(AOwner: TComponent); override;
+    function RunAction(const AParams: TStrings; ASimulate: Boolean): Boolean; override;
+  end;
+
+  { TAIBrowserClickAction }
+  TAIBrowserClickAction = class(TAIBrowserCustomAction)
+  public
+    constructor Create(AOwner: TComponent); override;
+    function RunAction(const AParams: TStrings; ASimulate: Boolean): Boolean; override;
+  end;
+
+  { TAIBrowserPressEnterAction }
+  TAIBrowserPressEnterAction = class(TAIBrowserCustomAction)
+  public
+    constructor Create(AOwner: TComponent); override;
+    function RunAction(const AParams: TStrings; ASimulate: Boolean): Boolean; override;
+  end;
+
+  { TAIBrowserSubmitFormAction }
+  TAIBrowserSubmitFormAction = class(TAIBrowserCustomAction)
+  public
+    constructor Create(AOwner: TComponent); override;
+    function RunAction(const AParams: TStrings; ASimulate: Boolean): Boolean; override;
+  end;
+
+  { TAIBrowserScreenshotAction }
+  TAIBrowserScreenshotAction = class(TAIBrowserCustomAction)
+  public
+    constructor Create(AOwner: TComponent); override;
+    function RunAction(const AParams: TStrings; ASimulate: Boolean): Boolean; override;
+  end;
+
+implementation
+
+{ TAIBrowserCustomAction }
+
+function TAIBrowserCustomAction.CheckBrowser: Boolean;
+begin
+  Result := Assigned(FBrowser);
+end;
+
+{ TAIBrowserNavigateAction }
+
+constructor TAIBrowserNavigateAction.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  ActionName := 'BROWSER_NAVIGATE';
+end;
+
+function TAIBrowserNavigateAction.RunAction(const AParams: TStrings; ASimulate: Boolean): Boolean;
+var
+  URL: string;
+begin
+  Result := False;
+  if not CheckBrowser then Exit;
+
+  URL := Trim(AParams.Values['url']);
+  if URL = '' then Exit;
+
+  if (not SameText(Copy(URL, 1, 7), 'http://')) and (not SameText(Copy(URL, 1, 8), 'https://')) then
+    Exit; // Tarefa 53 — Validar URL
+
+  if ASimulate then
+  begin
+    Result := True;
+    Exit;
+  end;
+
+  Browser.Navigate(URL);
+  Result := True;
+end;
+
+{ TAIBrowserWaitSelectorAction }
+
+constructor TAIBrowserWaitSelectorAction.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  ActionName := 'BROWSER_WAIT_SELECTOR';
+end;
+
+function TAIBrowserWaitSelectorAction.RunAction(const AParams: TStrings; ASimulate: Boolean): Boolean;
+var
+  Selector: string;
+  Timeout: Integer;
+begin
+  Result := False;
+  if not CheckBrowser then Exit;
+
+  Selector := Trim(AParams.Values['selector']);
+  if Selector = '' then Exit; // Tarefa 51 — Validar seletores perigosos
+
+  Timeout := StrToIntDef(AParams.Values['timeout'], 5000);
+
+  if ASimulate then
+  begin
+    Result := True;
+    Exit;
+  end;
+
+  Result := Browser.WaitForSelector(Selector, Timeout);
+end;
+
+{ TAIBrowserReadPageAction }
+
+constructor TAIBrowserReadPageAction.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  ActionName := 'BROWSER_READ_PAGE';
+end;
+
+function TAIBrowserReadPageAction.RunAction(const AParams: TStrings; ASimulate: Boolean): Boolean;
+var
+  Selector, DOMSelector: string;
+begin
+  Result := False;
+  if not CheckBrowser then Exit;
+
+  Selector := Trim(AParams.Values['selector']);
+  if Selector = '' then Selector := 'body';
+
+  DOMSelector := Trim(AParams.Values['dom_list_selector']);
+  if DOMSelector = '' then DOMSelector := 'input, textarea, button, form';
+
+  if ASimulate then
+  begin
+    Result := True;
+    Exit;
+  end;
+
+  // Realiza leitura do texto e depois lista elementos DOM relevantes
+  Result := Browser.CaptureText(Selector);
+  if Result then
+    Result := Browser.DOMList(DOMSelector);
+end;
+
+{ TAIBrowserDOMListAction }
+
+constructor TAIBrowserDOMListAction.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  ActionName := 'BROWSER_DOM_LIST';
+end;
+
+function TAIBrowserDOMListAction.RunAction(const AParams: TStrings; ASimulate: Boolean): Boolean;
+var
+  Selector: string;
+begin
+  Result := False;
+  if not CheckBrowser then Exit;
+
+  Selector := Trim(AParams.Values['selector']);
+  if Selector = '' then Selector := 'input, textarea, button, form';
+
+  if ASimulate then
+  begin
+    Result := True;
+    Exit;
+  end;
+
+  Result := Browser.DOMList(Selector);
+end;
+
+{ TAIBrowserCaptureTextAction }
+
+constructor TAIBrowserCaptureTextAction.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  ActionName := 'BROWSER_CAPTURE_TEXT';
+end;
+
+function TAIBrowserCaptureTextAction.RunAction(const AParams: TStrings; ASimulate: Boolean): Boolean;
+var
+  Selector: string;
+begin
+  Result := False;
+  if not CheckBrowser then Exit;
+
+  Selector := Trim(AParams.Values['selector']);
+  if Selector = '' then Selector := 'body';
+
+  if ASimulate then
+  begin
+    Result := True;
+    Exit;
+  end;
+
+  Result := Browser.CaptureText(Selector);
+end;
+
+{ TAIBrowserSetValueAction }
+
+constructor TAIBrowserSetValueAction.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  ActionName := 'BROWSER_SET_VALUE';
+end;
+
+function TAIBrowserSetValueAction.RunAction(const AParams: TStrings; ASimulate: Boolean): Boolean;
+var
+  Selector, Val: string;
+  Idx: Integer;
+begin
+  Result := False;
+  if not CheckBrowser then Exit;
+
+  Selector := Trim(AParams.Values['selector']);
+  if Selector = '' then Exit; // Tarefa 51
+
+  Val := AParams.Values['value'];
+  Idx := StrToIntDef(AParams.Values['index'], 0); // Tarefa 52 — Normalizar index
+
+  if ASimulate then
+  begin
+    Result := True;
+    Exit;
+  end;
+
+  Result := Browser.DOMSetValue(Selector, Idx, Val);
+end;
+
+{ TAIBrowserFocusAction }
+
+constructor TAIBrowserFocusAction.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  ActionName := 'BROWSER_FOCUS';
+end;
+
+function TAIBrowserFocusAction.RunAction(const AParams: TStrings; ASimulate: Boolean): Boolean;
+var
+  Selector: string;
+  Idx: Integer;
+begin
+  Result := False;
+  if not CheckBrowser then Exit;
+
+  Selector := Trim(AParams.Values['selector']);
+  if Selector = '' then Exit;
+
+  Idx := StrToIntDef(AParams.Values['index'], 0);
+
+  if ASimulate then
+  begin
+    Result := True;
+    Exit;
+  end;
+
+  Result := Browser.DOMFocus(Selector, Idx);
+end;
+
+{ TAIBrowserClickAction }
+
+constructor TAIBrowserClickAction.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  ActionName := 'BROWSER_CLICK';
+end;
+
+function TAIBrowserClickAction.RunAction(const AParams: TStrings; ASimulate: Boolean): Boolean;
+var
+  Selector: string;
+  Idx: Integer;
+begin
+  Result := False;
+  if not CheckBrowser then Exit;
+
+  Selector := Trim(AParams.Values['selector']);
+  if Selector = '' then Exit;
+
+  Idx := StrToIntDef(AParams.Values['index'], 0);
+
+  if ASimulate then
+  begin
+    Result := True;
+    Exit;
+  end;
+
+  Result := Browser.DOMClick(Selector, Idx);
+end;
+
+{ TAIBrowserPressEnterAction }
+
+constructor TAIBrowserPressEnterAction.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  ActionName := 'BROWSER_PRESS_ENTER';
+end;
+
+function TAIBrowserPressEnterAction.RunAction(const AParams: TStrings; ASimulate: Boolean): Boolean;
+var
+  Selector: string;
+  Idx: Integer;
+begin
+  Result := False;
+  if not CheckBrowser then Exit;
+
+  Selector := Trim(AParams.Values['selector']);
+  if Selector = '' then Exit;
+
+  Idx := StrToIntDef(AParams.Values['index'], 0);
+
+  if ASimulate then
+  begin
+    Result := True;
+    Exit;
+  end;
+
+  Result := Browser.DOMPressEnter(Selector, Idx);
+end;
+
+{ TAIBrowserSubmitFormAction }
+
+constructor TAIBrowserSubmitFormAction.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  ActionName := 'BROWSER_SUBMIT_FORM';
+end;
+
+function TAIBrowserSubmitFormAction.RunAction(const AParams: TStrings; ASimulate: Boolean): Boolean;
+var
+  Selector: string;
+  Idx: Integer;
+begin
+  Result := False;
+  if not CheckBrowser then Exit;
+
+  Selector := Trim(AParams.Values['selector']);
+  if Selector = '' then Exit;
+
+  Idx := StrToIntDef(AParams.Values['index'], 0);
+
+  if ASimulate then
+  begin
+    Result := True;
+    Exit;
+  end;
+
+  Result := Browser.DOMSubmitForm(Selector, Idx);
+end;
+
+{ TAIBrowserScreenshotAction }
+
+constructor TAIBrowserScreenshotAction.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  ActionName := 'BROWSER_SCREENSHOT';
+end;
+
+function TAIBrowserScreenshotAction.RunAction(const AParams: TStrings; ASimulate: Boolean): Boolean;
+var
+  FileName: string;
+begin
+  Result := False;
+  if not CheckBrowser then Exit;
+
+  FileName := Trim(AParams.Values['filename']);
+  if FileName = '' then Exit;
+
+  if ASimulate then
+  begin
+    Result := True;
+    Exit;
+  end;
+
+  Result := Browser.Screenshot(FileName);
+end;
+
+end.
