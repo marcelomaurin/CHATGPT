@@ -2808,7 +2808,7 @@ begin
     '"action_taken":"ACTION_PARAMETERS_PREPARED",' +
     '"actions":[' +
       '{' +
-        '"action":' + TJSONStringType(ActionName).AsJSON + ',' +
+        '"action":' + StringToJSONString(ActionName) + ',' +
         '"parameters":' + ParamsToJSON(ATask.Params) +
       '}' +
     '],' +
