@@ -22,6 +22,8 @@ uses
   uCEFChromiumWindow,
   aichromiumbrowser;
 
+function NormalizeTaskID(const AID: string): string;
+
 type
   TSampleTaskStatus = (
     stsPending,
@@ -290,6 +292,7 @@ type
     procedure EnsureEmailRecipient;
     procedure EnsureCaptureAfterSubmit;
     function FindTaskByID(const AID: string): TSampleTaskItem;
+    function ListTaskIDs: string;
     procedure NormalizeTaskPlan(const AReason: string);
     procedure RebuildLinearDependenciesFromOrder;
     procedure ValidateCurrentPlan;
@@ -341,6 +344,24 @@ implementation
 
 uses
   TypInfo;
+
+function NormalizeTaskID(const AID: string): string;
+var
+  I: Integer;
+  C: Char;
+begin
+  Result := '';
+
+  for I := 1 to Length(AID) do
+  begin
+    C := AID[I];
+
+    if C > ' ' then
+      Result := Result + C;
+  end;
+
+  Result := UpperCase(Trim(Result));
+end;
 
 function IsEmptyOrPlaceholder(const AText: string): Boolean;
 var
@@ -2247,29 +2268,29 @@ begin
   if ATask.Dependencia = '' then
     Exit;
 
-  if not Assigned(FTasks) then
+  DepTask := FindTaskByID(ATask.Dependencia);
+
+  if not Assigned(DepTask) then
   begin
     Result := False;
-    AError := 'Lista de tarefas não foi inicializada.';
+    AError := Format(
+      'A tarefa dependente "%s" não foi encontrada. IDs disponíveis: %s',
+      [ATask.Dependencia, ListTaskIDs]
+    );
     Exit;
   end;
 
-  DepTask := FindTaskByID(ATask.Dependencia);
-  if Assigned(DepTask) then
+  if DepTask.Status <> stsDone then
   begin
-    if DepTask.Status <> stsDone then
-    begin
-      Result := False;
-      AError := Format(
-        'A tarefa dependente "%s" (%s) não foi concluída.',
-        [DepTask.ID, DepTask.Descricao]
-      );
-      Exit;
-    end;
+    Result := False;
+    AError := Format(
+      'A tarefa dependente "%s" (%s) não foi concluída.',
+      [DepTask.ID, DepTask.Descricao]
+    );
+    Exit;
   end;
 
-  Result := False;
-  AError := Format('A tarefa dependente "%s" não foi encontrada.', [ATask.Dependencia]);
+  Result := True;
 end;
 
 procedure TfrmMain.btnExecutarTarefaSelecionadaClick(Sender: TObject);
@@ -3122,8 +3143,14 @@ function TfrmMain.FindTaskByID(const AID: string): TSampleTaskItem;
 var
   I: Integer;
   T: TSampleTaskItem;
+  WantedID: string;
 begin
   Result := nil;
+
+  WantedID := NormalizeTaskID(AID);
+
+  if WantedID = '' then
+    Exit;
 
   if not Assigned(FTasks) then
     Exit;
@@ -3131,11 +3158,33 @@ begin
   for I := 0 to FTasks.Count - 1 do
   begin
     T := TSampleTaskItem(FTasks[I]);
-    if SameText(T.ID, AID) then
+
+    if NormalizeTaskID(T.ID) = WantedID then
     begin
       Result := T;
       Exit;
     end;
+  end;
+end;
+
+function TfrmMain.ListTaskIDs: string;
+var
+  I: Integer;
+  T: TSampleTaskItem;
+begin
+  Result := '';
+
+  if not Assigned(FTasks) then
+    Exit;
+
+  for I := 0 to FTasks.Count - 1 do
+  begin
+    T := TSampleTaskItem(FTasks[I]);
+
+    if Result <> '' then
+      Result := Result + ', ';
+
+    Result := Result + '[' + T.ID + '/' + GetEnumName(TypeInfo(TSampleTaskStatus), Ord(T.Status)) + ']';
   end;
 end;
 
@@ -3188,6 +3237,7 @@ begin
 
   SortTasksByOrder;
   RefreshTasksGrid;
+  AddLog('[NORMALIZE] IDs após normalização: ' + ListTaskIDs);
 end;
 
 procedure TfrmMain.RebuildLinearDependenciesFromOrder;
@@ -3531,6 +3581,7 @@ begin
 
   NormalizeTaskPlan('Antes de executar todas');
   ValidateCurrentPlan;
+  AddLog('[EXECUTAR TODAS] IDs atuais: ' + ListTaskIDs);
 
   repeat
     ExecutedAny := False;
@@ -3545,6 +3596,7 @@ begin
         begin
           gridTarefas.Row := i + 1;
           btnExecutarTarefaSelecionadaClick(nil);
+          AddLog('[EXECUTAR TODAS] Após execução, IDs atuais: ' + ListTaskIDs);
           ExecutedAny := True;
           Application.ProcessMessages;
           Sleep(500);
@@ -4440,7 +4492,7 @@ begin
           if TItemData is TJSONObject then
           begin
             TObj := TJSONObject(TItemData);
-            NewId := TObj.Get('id', '');
+            NewId := NormalizeTaskID(TObj.Get('id', ''));
             if NewId = '' then
               Continue;
 
