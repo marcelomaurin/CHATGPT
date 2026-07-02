@@ -1199,10 +1199,9 @@ begin
   cbProviderChange(nil);
 
   memPrompt.Text :=
-    'Entre no site https://maurinsoft.com.br/wp/sobre-nos/ ' +
-    'pegue meu curriculo, analise e crie um resumo e mande para marcelomaurinmartins@gmail.com. ' +
-    'Não grave arquivo. Não gere TXT, DOCX ou Word. ' +
-    'Copie o texto do resumo diretamente no corpo do e-mail.';
+    'Entre no site https://maurinsoft.com.br/wp/sobre-nos/ pegue meu curriculo na pagina e crie um resumo profissional. '+
+    ' Mande este resumo profissional e mande para o email marcelomaurinmartins@gmail.com. Não grave arquivo. '+
+    ' Não gere TXT, DOCX ou Word. Copie o texto do resumo diretamente no corpo do e-mail.';
 
   if Assigned(memCorpoEmail) then
     memCorpoEmail.Clear;

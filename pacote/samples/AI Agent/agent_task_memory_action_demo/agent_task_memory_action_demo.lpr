@@ -7,7 +7,7 @@ uses
   cthreads,
   {$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, aiagent_decision, uCEFApplication;
+  Forms, main, aiagent_decision, uCEFApplication;
 
 {$R *.res}
 

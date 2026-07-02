@@ -1,0 +1,240 @@
+Texto gerado
+============
+
+Pular para o conteúdo
+
+Site de documentação da Maurinsoft
+
+Curriculos
+Curriculos
+ 
+Aulas e Projetos
+Aulas e Projetos
+ 
+Maurinsoft
+Maurinsoft
+ 
+login
+login
+Marcelo Maurin Martins – CV Online
+ Página inicial  - Marcelo Maurin Martins – CV Online
+
+Casado 52 anos
+
+Servidor Público | Professor Técnico | Analista Desenvolvedor de Soluções Integradas
+Software | Hardware | Automação | IA Aplicada | Sistemas Biomédicos
+
+WhatsApp: 16 98143-4112
+E-mail: marcelomaurinmartins@gmail.com
+Atendimento: apenas por WhatsApp. Peço, por gentileza, para não ligar.
+
+Lattes: lattes.cnpq.br/2032857307009594
+CV completo: https://maurinsoft.com.br/wp/sobre-nos/
+GitHub: https://github.com/MarceloMaurin
+GrabCAD: https://grabcad.com/marcelo.martins-3
+SourceForge: https://sourceforge.net/u/mmaurinmartins/profile
+Certificados: http://maurinsoft.com.br/index.php/sobre-nos/certificados/
+
+Perfil Profissional
+
+Profissional de Tecnologia da Informação com atuação em desenvolvimento de sistemas, automação, integração com equipamentos, banco de dados e inteligência artificial aplicada.
+
+Atuo como servidor público na Secretaria da Saúde de Ribeirão Preto, desenvolvendo soluções internas em PHP/Web, Lazarus/Object Pascal, banco de dados, automação de processos e IA aplicada.
+
+Também atuo como Professor Técnico da Secretaria da Educação do Estado de São Paulo, lecionando programação, banco de dados, lógica e desenvolvimento de projetos práticos para alunos do Ensino Médio Técnico.
+
+Meu diferencial está na integração entre software, hardware, dados e processos reais, com experiência em ambientes de saúde, varejo, ERP/CRM, PDV, automação comercial e sistemas internos.
+
+Objetivo Profissional
+
+Atuar na definição, documentação, desenvolvimento, manutenção e integração de soluções tecnológicas, especialmente em projetos que envolvam sistemas, automação, banco de dados, inteligência artificial aplicada, integração com equipamentos ou ambientes operacionais complexos.
+
+Experiência Atual
+Prefeitura Municipal de Ribeirão Preto — Secretaria da Saúde
+
+Servidor Público Estatutário
+Período: 08/2024 – atualmente
+Atuação: Técnico em Processamento de Dados / Desenvolvimento de aplicações internas
+
+Atuação no desenvolvimento de soluções tecnológicas para uso interno da Secretaria da Saúde de Ribeirão Preto.
+
+Principais projetos e atividades:
+
+Sistema de controle de filas;
+Sistema de controle de manutenção de equipamentos médicos;
+Desenvolvimento de aplicações internas em PHP/Web;
+Desenvolvimento de aplicações desktop em Lazarus/Object Pascal;
+Integração com banco de dados;
+Automação de processos administrativos;
+Apoio tecnológico a demandas da saúde pública;
+Desenvolvimento de soluções com inteligência artificial aplicada.
+Governo do Estado de São Paulo — Secretaria da Educação
+
+Professor Técnico Contratado
+Período: 01/2025 – atualmente
+Atuação: Ensino técnico profissionalizante
+
+Atuação como professor em cursos técnicos para alunos do Ensino Médio.
+
+Principais atividades:
+
+Ensino de lógica de programação;
+Ensino de programação;
+Ensino de banco de dados;
+Ensino de desenvolvimento de sistemas;
+Orientação de projetos práticos;
+Preparação de materiais e atividades técnicas;
+Apoio à formação profissional de alunos em tecnologia.
+Maurinsoft
+
+Proprietário / Desenvolvedor
+Atuação: Desenvolvimento, customização e integração de soluções em software
+
+Atuação em projetos próprios e sob demanda, com foco em desenvolvimento de sistemas, customização de software open source, automação, integração com equipamentos e publicação técnica.
+
+Foco de atuação:
+
+Sistemas desktop, web e Linux;
+Customização de software open source;
+Integração e projeto de equipamentos;
+Desenvolvimento em C/C++, Delphi, Lazarus/Object Pascal, PHP, Python e banco de dados;
+Publicação de projetos, artigos, materiais educacionais e soluções open source.
+Experiências Relevantes Anteriores
+
+Atuação em projetos e empresas nas áreas de desenvolvimento de sistemas, varejo, telecomunicações, automação comercial, integração com equipamentos e sistemas corporativos.
+
+COMLINK — Delphi / Office 365 / Python;
+TOTVS — Delphi;
+Zanthus — C ANSI;
+Burger King — prestador / C;
+Carrefour — prestador / C;
+ICATEL / TELEMÁTICA — Delphi / PGRWIN;
+Delsis / Nokia — projeto Media Gateway;
+IG — Discador IG e outros projetos;
+Agência Estado — Delphi / Oracle;
+Assobrav Volkswagen — Delphi / Oracle.
+
+Experiência consolidada em sistemas corporativos, automação comercial, integração com equipamentos, aplicações Windows/Linux, banco de dados e desenvolvimento de soluções para ambientes reais de operação.
+
+Formação
+Graduação em Sistemas Biomédicos — FATEC Ribeirão Preto
+
+Período: 2022 – 2026
+Status: em andamento
+Previsão de conclusão: 2026
+Conclusão estimada: 90%
+
+Formação voltada ao desenvolvimento, manutenção e integração de soluções aplicadas a equipamentos médicos/hospitalares, envolvendo eletrônica, mecânica, biofísica, bioquímica e informática aplicada.
+
+Pós-graduação em Inteligência Artificial — UNINOVE
+
+Conclusão: 2022
+
+Formação voltada à aplicação de inteligência artificial em sistemas, automação, análise de dados, agentes e soluções inteligentes.
+
+Graduação em Tecnologia da Informação — FATEC Taquaritinga
+
+Conclusão: 1999
+
+Formação superior em tecnologia, programação, banco de dados, análise de sistemas e desenvolvimento de software.
+
+Mecânico Industrial — ETEC
+
+Conclusão: 2015
+
+Formação técnica voltada à mecânica industrial, montagem, manutenção, projetos e compreensão de sistemas mecânicos aplicados.
+
+Competências Técnicas
+
+Desenvolvimento de sistemas:
+C, C++, C ANSI, Delphi, Lazarus/Object Pascal, PHP, Python, Java, WordPress, aplicações desktop, aplicações web e APIs.
+
+Banco de dados:
+PostgreSQL, MySQL, SQLite, Oracle, modelagem de dados, SQL e integração de sistemas com banco de dados.
+
+Automação e integração com equipamentos:
+Arduino, ESP32, Raspberry Pi, comunicação serial, I2C, Modbus, sensores, atuadores, balanças, impressoras térmicas, dispositivos externos e sistemas de PDV.
+
+Inteligência artificial e dados:
+Python, APIs da OpenAI, agentes, automação com IA, análise de dados, grafos, classificação, predição e integração de IA com sistemas internos.
+
+Projeto e prototipagem:
+SolidWorks, modelagem 3D, impressão 3D, peças técnicas, protótipos e integração mecânica/eletrônica/software.
+
+Sistemas e infraestrutura:
+Linux, Windows, serviços, aplicações desktop, aplicações web, integração com APIs, automação de processos e manutenção de sistemas internos.
+
+Projetos Representativos
+MNote2
+
+Editor e ambiente técnico open source desenvolvido em Lazarus/Free Pascal, com integração com Python, SQLite e IA.
+
+Demonstra: desenvolvimento desktop avançado, integração com IA, execução de scripts Python, banco de dados local e organização de projetos técnicos.
+
+Detalhes: GitHub.
+
+Doctor
+
+Plataforma de automação laboratorial com integração entre software, firmware, motores, sensores, comunicação serial/TCP-IP e aplicações biomédicas.
+
+Demonstra: integração entre software, hardware, automação e Sistemas Biomédicos.
+
+Detalhes: GitHub.
+
+srvSMS
+
+Servidor de envio de SMS com modem GSM, Linux, C, MySQL, SMSTools e servidor TCP Python.
+
+Demonstra: programação em C, serviços Linux, comunicação serial, integração com banco de dados e solução operacional real.
+
+Detalhes: GitHub.
+
+Projetos SolidWorks / Impressão 3D
+
+Modelos e peças técnicas publicados no GrabCAD, voltados a eletrônica, automação, suportes, caixas, protótipos e integração com dispositivos.
+
+Demonstra: projeto mecânico, modelagem 3D, impressão 3D e integração entre mecânica, eletrônica e software.
+
+Detalhes: GrabCAD.
+
+Projetos Open Source
+
+Projetos publicados desde 2006 envolvendo Linux, Windows, macOS, web, Java, Delphi, Lazarus, C, PHP, Python, automação e ferramentas técnicas.
+
+Demonstra: trajetória técnica, experiência prática e contribuição em software livre.
+
+Detalhes: GitHub e SourceForge.
+
+Inteligência Artificial Aplicada
+
+Experiência prática no uso de IA em projetos aplicados, especialmente na integração de agentes e modelos com sistemas existentes.
+
+Cases desenvolvidos:
+
+Agente de atendimento para chamados usando API da OpenAI;
+Ferramenta desktop semelhante ao Codex para análise local de informações e apoio à construção de projetos;
+Análise de grande volume de dados com grafos para cadeia de suprimentos;
+Predição para saneamento de materiais, com resultado aproximado de 90% para marca e 50% para referência/modelo;
+Integração de IA com sistemas internos, banco de dados e processos operacionais.
+Publicações e Conteúdo Técnico
+
+Autor de livro sobre Robótica/IoT, publicado em 2018, abordando Arduino, Raspberry Pi, SolidWorks, impressão 3D, placas eletrônicas, interfaces Windows em Lazarus/Delphi e interface web em PHP.
+
+Também produzo conteúdos técnicos em blog, artigos, vídeos e projetos open source.
+
+Blog/Site: maurinsoft.com.br;
+YouTube: canal com mais de 200 mil visualizações;
+LinkedIn: artigos sobre Python, robótica, programação e tecnologia;
+GitHub/SourceForge: projetos open source desde 2006;
+GrabCAD: projetos em SolidWorks e impressão 3D.
+Disponibilidade
+
+Disponibilidade para atuação remota, até 25 horas semanais, de segunda a sexta-feira, apenas no período da manhã.
+
+Possuo empresa aberta e também avalio contratação CLT, conforme oportunidade.
+
+Síntese Profissional
+
+Atuo na interseção entre desenvolvimento de sistemas, automação, inteligência artificial, saúde pública, Sistemas Biomédicos, ensino técnico e integração com equipamentos.
+
+Meu foco é desenvolver soluções aplicadas, funcionais e integradas para problemas reais, conectando sistemas, dados, equipamentos e processos.
