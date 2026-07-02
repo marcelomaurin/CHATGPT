@@ -46,6 +46,9 @@ type
     Resultado: string;
     RawJSON: string;
     Params: TStringList;
+    PlanVersion: Integer;
+    CreatedByReplan: Boolean;
+    ReplanReason: string;
     constructor Create;
     destructor Destroy; override;
   end;
@@ -284,6 +287,13 @@ type
     function ValidateJSONText(const AJSON: string; out AError: string): Boolean;
     procedure EnsureSubmitAfterSetValue;
     procedure FillSubmitParamsFromPreviousSetValue;
+    procedure EnsureEmailRecipient;
+    procedure EnsureCaptureAfterSubmit;
+    function FindTaskByID(const AID: string): TSampleTaskItem;
+    procedure NormalizeTaskPlan(const AReason: string);
+    procedure RebuildLinearDependenciesFromOrder;
+    procedure ValidateCurrentPlan;
+    function FuturePlanNeedsRepositionAfter(ATask: TSampleTaskItem; out AReason: string): Boolean;
     procedure ShowAgentStep(AItem: TAIAgentMemoryMapItem);
     function DispatchPreparedActions(const APreparedActionsJSON: string): Boolean;
     function ContainsBrowserAction(const APreparedActionsJSON: string): Boolean;
@@ -293,6 +303,7 @@ type
     function ExtractURLFromPrompt(const APrompt: string): string;
     function WaitBrowserDOMResult(ATimeoutMs: Integer): Boolean;
     function WaitBrowserNavigation(ATimeoutMs: Integer): Boolean;
+    function WaitBrowserReady(ATimeoutMs: Integer): Boolean;
     procedure ActionExecutorBeforePreparedAction(Sender: TObject; const AActionName: string; AParams: TStrings; AExecutionContext: TStrings; var ACanExecute: Boolean);
     procedure ActionExecutorAfterPreparedAction(Sender: TObject; const AActionName: string; AParams: TStrings; AExecutionContext: TStrings; AResult: TStrings);
 
@@ -461,6 +472,9 @@ begin
   Agente := '';
   AcaoSugerida := '';
   Dependencia := '';
+  PlanVersion := 1;
+  CreatedByReplan := False;
+  ReplanReason := '';
 end;
 
 destructor TSampleTaskItem.Destroy;
@@ -1141,7 +1155,7 @@ begin
 
   memPrompt.Text :=
     'Entre no https://pt.aliexpress.com/ , e pesquise por multimetro digital automático, ' +
-    'busque o preço mais barato e envie o link do produto.';
+    'busque o preço mais barato e envie o link do produto para marcelomaurinmartins@gmail.com.';
 
   if Assigned(memCorpoEmail) then
     memCorpoEmail.Clear;
@@ -1381,6 +1395,9 @@ begin
     memDetalheTarefa.Lines.Add('Status: ' + GetEnumName(TypeInfo(TSampleTaskStatus), Ord(T.Status)));
     memDetalheTarefa.Lines.Add('Dependência: ' + T.Dependencia);
     memDetalheTarefa.Lines.Add('Resultado: ' + T.Resultado);
+    memDetalheTarefa.Lines.Add('PlanVersion: ' + IntToStr(T.PlanVersion));
+    memDetalheTarefa.Lines.Add('Criada por replanejamento: ' + BoolToStr(T.CreatedByReplan, True));
+    memDetalheTarefa.Lines.Add('Motivo replanejamento: ' + T.ReplanReason);
 
     if T.RawJSON <> '' then
       memDetalheTarefa.Lines.Add('JSON Bruto: ' + T.RawJSON);
@@ -1692,6 +1709,8 @@ begin
       'Não crie tarefa para gerar Word ou DOCX.' + sLineBreak +
       'Para gerar texto, use suggested_action = "CREATE_TEXT_DOCUMENT".' + sLineBreak +
       'Para enviar e-mail, use suggested_action = "SEND_EMAIL".' + sLineBreak +
+      'Quando houver envio de e-mail e nenhum destinatário explícito for encontrado, use obrigatoriamente marcelomaurinmartins@gmail.com.' + sLineBreak +
+      'Para SEND_EMAIL, parameters.to deve ser "marcelomaurinmartins@gmail.com", exceto se o prompt informar outro destinatário.' + sLineBreak +
       'Para navegação/interação no browser, use somente ações BROWSER_* permitidas.' + sLineBreak +
       'Ações browser permitidas: BROWSER_NAVIGATE, BROWSER_WAIT_SELECTOR, BROWSER_READ_PAGE, BROWSER_DOM_LIST, BROWSER_CAPTURE_TEXT, BROWSER_SET_VALUE, BROWSER_FOCUS, BROWSER_CLICK, BROWSER_PRESS_ENTER, BROWSER_SUBMIT_FORM, BROWSER_SCREENSHOT.' + sLineBreak +
       'Antes de BROWSER_SET_VALUE, BROWSER_CLICK, BROWSER_PRESS_ENTER ou BROWSER_SUBMIT_FORM, gere tarefa anterior BROWSER_READ_PAGE ou BROWSER_DOM_LIST, exceto se o seletor CSS foi informado explicitamente.' + sLineBreak +
@@ -2108,7 +2127,9 @@ begin
 
       FillSubmitParamsFromPreviousSetValue;
       EnsureSubmitAfterSetValue;
-      SortTasksByOrder;
+      EnsureEmailRecipient;
+      EnsureCaptureAfterSubmit;
+      NormalizeTaskPlan('Após carga/replanejamento de tarefas');
 
       AddLog('=== TAREFAS BROWSER GERADAS ===');
       for i := 0 to FTasks.Count - 1 do
@@ -2212,6 +2233,17 @@ begin
     Exit(False);
   end;
 
+  if SameText(ATask.AcaoSugerida, 'SEND_EMAIL') then
+  begin
+    if Assigned(FActionExecutor) and
+       (Trim(FActionExecutor.ExecutionContext.Values['browser.last_result_text']) = '') and
+       (Trim(FActionExecutor.ExecutionContext.Values['last_text_content']) = '') then
+    begin
+      AError := 'SEND_EMAIL bloqueado: ainda não há resultado capturado nem texto gerado.';
+      Exit(False);
+    end;
+  end;
+
   if ATask.Dependencia = '' then
     Exit;
 
@@ -2222,23 +2254,17 @@ begin
     Exit;
   end;
 
-  for i := 0 to FTasks.Count - 1 do
+  DepTask := FindTaskByID(ATask.Dependencia);
+  if Assigned(DepTask) then
   begin
-    DepTask := TSampleTaskItem(FTasks[i]);
-
-    if DepTask.ID = ATask.Dependencia then
+    if DepTask.Status <> stsDone then
     begin
-      if DepTask.Status <> stsDone then
-      begin
-        Result := False;
-        AError := Format(
-          'A tarefa dependente "%s" (%s) não foi concluída.',
-          [DepTask.ID, DepTask.Descricao]
-        );
-        Exit;
-      end
-      else
-        Exit;
+      Result := False;
+      AError := Format(
+        'A tarefa dependente "%s" (%s) não foi concluída.',
+        [DepTask.ID, DepTask.Descricao]
+      );
+      Exit;
     end;
   end;
 
@@ -2698,6 +2724,12 @@ begin
 
   AddLog(Format('Tarefa "%s" concluída com sucesso.', [T.ID]));
 
+  if FuturePlanNeedsRepositionAfter(T, Err) then
+  begin
+    AddLog('[NORMALIZE] Plano futuro precisa ser reposicionado: ' + Err);
+    NormalizeTaskPlan('Após execução de ' + T.ID);
+  end;
+
   if CanTriggerReplan(T) and HasPendingTasksAfter(T) then
   begin
     AddLog('[REPLAN] Verificando se tarefas futuras precisam ser reescritas com base no resultado atual...');
@@ -2980,6 +3012,9 @@ begin
     ) then
       Continue;
 
+    if Trim(T.Params.Values['index']) = '' then
+      T.Params.Values['index'] := '0';
+
     if Trim(T.Params.Values['selector']) <> '' then
       Continue;
 
@@ -3000,6 +3035,393 @@ begin
       end;
     end;
   end;
+end;
+
+procedure TfrmMain.EnsureEmailRecipient;
+var
+  I: Integer;
+  T: TSampleTaskItem;
+begin
+  if not Assigned(FTasks) then
+    Exit;
+
+  for I := 0 to FTasks.Count - 1 do
+  begin
+    T := TSampleTaskItem(FTasks[I]);
+
+    if SameText(T.AcaoSugerida, 'SEND_EMAIL') then
+    begin
+      if Trim(T.Params.Values['to']) = '' then
+      begin
+        T.Params.Values['to'] := 'marcelomaurinmartins@gmail.com';
+        AddLog('[AUTO-FIX] SEND_EMAIL sem destinatário. Aplicado marcelomaurinmartins@gmail.com.');
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmMain.EnsureCaptureAfterSubmit;
+var
+  I, J: Integer;
+  T, NewTask, OtherTask: TSampleTaskItem;
+  HasCaptureAfter: Boolean;
+begin
+  if not Assigned(FTasks) then
+    Exit;
+
+  for I := 0 to FTasks.Count - 1 do
+  begin
+    T := TSampleTaskItem(FTasks[I]);
+
+    if not (SameText(T.AcaoSugerida, 'BROWSER_PRESS_ENTER') or SameText(T.AcaoSugerida, 'BROWSER_SUBMIT_FORM')) then
+      Continue;
+
+    HasCaptureAfter := False;
+
+    for J := 0 to FTasks.Count - 1 do
+    begin
+      NewTask := TSampleTaskItem(FTasks[J]);
+      if (NewTask.Ordem > T.Ordem) and
+         (NewTask.Status <> stsCanceled) and
+         (SameText(NewTask.AcaoSugerida, 'BROWSER_CAPTURE_TEXT') or SameText(NewTask.AcaoSugerida, 'BROWSER_READ_PAGE')) then
+      begin
+        HasCaptureAfter := True;
+        Break;
+      end;
+    end;
+
+    if not HasCaptureAfter then
+    begin
+      for J := 0 to FTasks.Count - 1 do
+      begin
+        OtherTask := TSampleTaskItem(FTasks[J]);
+        if OtherTask.Ordem > T.Ordem then
+          OtherTask.Ordem := OtherTask.Ordem + 1;
+      end;
+
+      NewTask := TSampleTaskItem.Create;
+      NewTask.ID := T.ID + '_CAPTURE';
+      NewTask.Ordem := T.Ordem + 1;
+      NewTask.Tipo := 'browser';
+      NewTask.Descricao := 'Capturar texto dos resultados da pesquisa.';
+      NewTask.Agente := 'task_processor_agent';
+      NewTask.AcaoSugerida := 'BROWSER_CAPTURE_TEXT';
+      NewTask.Dependencia := T.ID;
+      NewTask.Params.Values['selector'] := 'body';
+
+      FTasks.Add(NewTask);
+
+      AddLog('[AUTO-FIX] Criada tarefa automática de captura após ' + T.ID);
+    end;
+  end;
+
+  SortTasksByOrder;
+end;
+
+function TfrmMain.FindTaskByID(const AID: string): TSampleTaskItem;
+var
+  I: Integer;
+  T: TSampleTaskItem;
+begin
+  Result := nil;
+
+  if not Assigned(FTasks) then
+    Exit;
+
+  for I := 0 to FTasks.Count - 1 do
+  begin
+    T := TSampleTaskItem(FTasks[I]);
+    if SameText(T.ID, AID) then
+    begin
+      Result := T;
+      Exit;
+    end;
+  end;
+end;
+
+procedure TfrmMain.NormalizeTaskPlan(const AReason: string);
+var
+  I, NewOrder: Integer;
+  T, Dep: TSampleTaskItem;
+begin
+  AddLog('[NORMALIZE] Normalizando plano: ' + AReason);
+
+  SortTasksByOrder;
+
+  NewOrder := 1;
+  for I := 0 to FTasks.Count - 1 do
+  begin
+    T := TSampleTaskItem(FTasks[I]);
+
+    if T.Status <> stsCanceled then
+    begin
+      T.Ordem := NewOrder;
+      Inc(NewOrder);
+    end;
+  end;
+
+  RebuildLinearDependenciesFromOrder;
+
+  for I := 0 to FTasks.Count - 1 do
+  begin
+    T := TSampleTaskItem(FTasks[I]);
+    if T.Status = stsCanceled then
+      Continue;
+
+    if Trim(T.Dependencia) <> '' then
+    begin
+      Dep := FindTaskByID(T.Dependencia);
+
+      if not Assigned(Dep) then
+      begin
+        AddLog('[NORMALIZE] Dependência inexistente em ' + T.ID + ': ' + T.Dependencia);
+        T.Dependencia := '';
+      end
+      else if Dep.Status = stsCanceled then
+      begin
+        AddLog('[NORMALIZE] Tarefa ' + T.ID + ' dependia de tarefa cancelada: ' + Dep.ID);
+        T.Status := stsCanceled;
+        T.Resultado := 'Cancelada automaticamente porque dependia de tarefa cancelada: ' + Dep.ID;
+      end;
+    end;
+  end;
+
+  SortTasksByOrder;
+  RefreshTasksGrid;
+end;
+
+procedure TfrmMain.RebuildLinearDependenciesFromOrder;
+var
+  I: Integer;
+  T, PrevOperational, LastResultTask: TSampleTaskItem;
+begin
+  if not Assigned(FTasks) then
+    Exit;
+
+  PrevOperational := nil;
+  LastResultTask := nil;
+
+  SortTasksByOrder;
+
+  for I := 0 to FTasks.Count - 1 do
+  begin
+    T := TSampleTaskItem(FTasks[I]);
+
+    if T.Status = stsCanceled then
+      Continue;
+
+    if Pos('BROWSER_', UpperCase(T.AcaoSugerida)) = 1 then
+    begin
+      if Assigned(PrevOperational) then
+        T.Dependencia := PrevOperational.ID
+      else
+        T.Dependencia := '';
+
+      PrevOperational := T;
+
+      if SameText(T.AcaoSugerida, 'BROWSER_CAPTURE_TEXT') or
+         SameText(T.AcaoSugerida, 'BROWSER_READ_PAGE') then
+        LastResultTask := T;
+    end
+    else if SameText(T.AcaoSugerida, 'CREATE_TEXT_DOCUMENT') then
+    begin
+      if Assigned(LastResultTask) then
+        T.Dependencia := LastResultTask.ID;
+
+      LastResultTask := T;
+    end
+    else if SameText(T.AcaoSugerida, 'SEND_EMAIL') then
+    begin
+      if Assigned(LastResultTask) then
+        T.Dependencia := LastResultTask.ID;
+    end;
+  end;
+end;
+
+function TfrmMain.FuturePlanNeedsRepositionAfter(ATask: TSampleTaskItem; out AReason: string): Boolean;
+var
+  I, J: Integer;
+  T, NextTask: TSampleTaskItem;
+  HasSubmitAfter, HasCaptureAfter, HasEmailBeforeContent: Boolean;
+begin
+  Result := False;
+  AReason := '';
+
+  if not Assigned(FTasks) then
+    Exit;
+
+  for I := 0 to FTasks.Count - 1 do
+  begin
+    T := TSampleTaskItem(FTasks[I]);
+    if T.Status = stsCanceled then
+      Continue;
+
+    if SameText(T.AcaoSugerida, 'BROWSER_SET_VALUE') then
+    begin
+      HasSubmitAfter := False;
+      for J := 0 to FTasks.Count - 1 do
+      begin
+        NextTask := TSampleTaskItem(FTasks[J]);
+        if (NextTask.Ordem > T.Ordem) and
+           (NextTask.Status <> stsCanceled) and
+           (SameText(NextTask.AcaoSugerida, 'BROWSER_PRESS_ENTER') or SameText(NextTask.AcaoSugerida, 'BROWSER_SUBMIT_FORM')) then
+        begin
+          HasSubmitAfter := True;
+          Break;
+        end;
+      end;
+      if not HasSubmitAfter then
+      begin
+        Result := True;
+        AReason := 'Ação BROWSER_SET_VALUE sem ação de submissão seguinte.';
+        Exit;
+      end;
+    end;
+
+    if SameText(T.AcaoSugerida, 'BROWSER_PRESS_ENTER') or SameText(T.AcaoSugerida, 'BROWSER_SUBMIT_FORM') then
+    begin
+      HasCaptureAfter := False;
+      for J := 0 to FTasks.Count - 1 do
+      begin
+        NextTask := TSampleTaskItem(FTasks[J]);
+        if (NextTask.Ordem > T.Ordem) and
+           (NextTask.Status <> stsCanceled) and
+           (SameText(NextTask.AcaoSugerida, 'BROWSER_CAPTURE_TEXT') or SameText(NextTask.AcaoSugerida, 'BROWSER_READ_PAGE')) then
+        begin
+          HasCaptureAfter := True;
+          Break;
+        end;
+      end;
+      if not HasCaptureAfter then
+      begin
+        Result := True;
+        AReason := 'Ação de submissão sem ação de captura de texto seguinte.';
+        Exit;
+      end;
+    end;
+
+    if SameText(T.AcaoSugerida, 'SEND_EMAIL') then
+    begin
+      HasEmailBeforeContent := False;
+      for J := 0 to FTasks.Count - 1 do
+      begin
+        NextTask := TSampleTaskItem(FTasks[J]);
+        if (NextTask.Ordem > T.Ordem) and
+           (NextTask.Status <> stsCanceled) and
+           (SameText(NextTask.AcaoSugerida, 'BROWSER_CAPTURE_TEXT') or SameText(NextTask.AcaoSugerida, 'CREATE_TEXT_DOCUMENT')) then
+        begin
+          HasEmailBeforeContent := True;
+          Break;
+        end;
+      end;
+      if HasEmailBeforeContent then
+      begin
+        Result := True;
+        AReason := 'Ação SEND_EMAIL posicionada antes da captura ou geração de texto.';
+        Exit;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmMain.ValidateCurrentPlan;
+var
+  I, J: Integer;
+  T, NextTask, Dep: TSampleTaskItem;
+  HasDupOrder, HasSubmit, HasCapture: Boolean;
+begin
+  AddLog('=== INICIANDO VALIDAÇÃO DO PLANO DE TAREFAS ===');
+  if not Assigned(FTasks) or (FTasks.Count = 0) then
+  begin
+    AddLog('[VALIDATE] Sem tarefas no plano.');
+    Exit;
+  end;
+
+  HasDupOrder := False;
+  for I := 0 to FTasks.Count - 1 do
+  begin
+    T := TSampleTaskItem(FTasks[I]);
+    if T.Status = stsCanceled then
+      Continue;
+
+    for J := I + 1 to FTasks.Count - 1 do
+    begin
+      NextTask := TSampleTaskItem(FTasks[J]);
+      if (NextTask.Status <> stsCanceled) and (T.Ordem = NextTask.Ordem) then
+      begin
+        AddLog(Format('[VALIDATE] ERRO: Ordem duplicada (%d) nas tarefas %s e %s', [T.Ordem, T.ID, NextTask.ID]));
+        HasDupOrder := True;
+      end;
+    end;
+
+    if Trim(T.Dependencia) <> '' then
+    begin
+      Dep := FindTaskByID(T.Dependencia);
+      if not Assigned(Dep) then
+        AddLog(Format('[VALIDATE] ERRO: Tarefa %s aponta para dependência inexistente: %s', [T.ID, T.Dependencia]))
+      else if Dep.Status = stsCanceled then
+        AddLog(Format('[VALIDATE] ERRO: Tarefa %s aponta para dependência cancelada: %s', [T.ID, T.Dependencia]));
+    end;
+
+    if SameText(T.AcaoSugerida, 'BROWSER_NAVIGATE') and (Trim(T.Params.Values['url']) = '') then
+      AddLog(Format('[VALIDATE] ERRO: %s (BROWSER_NAVIGATE) sem parâmetro "url".', [T.ID]));
+
+    if (SameText(T.AcaoSugerida, 'BROWSER_SET_VALUE') or
+        SameText(T.AcaoSugerida, 'BROWSER_CLICK') or
+        SameText(T.AcaoSugerida, 'BROWSER_FOCUS') or
+        SameText(T.AcaoSugerida, 'BROWSER_PRESS_ENTER') or
+        SameText(T.AcaoSugerida, 'BROWSER_SUBMIT_FORM')) and (Trim(T.Params.Values['selector']) = '') then
+      AddLog(Format('[VALIDATE] ERRO: %s (%s) sem parâmetro "selector".', [T.ID, T.AcaoSugerida]));
+
+    if SameText(T.AcaoSugerida, 'BROWSER_SET_VALUE') and (Trim(T.Params.Values['value']) = '') then
+      AddLog(Format('[VALIDATE] ERRO: %s (BROWSER_SET_VALUE) sem parâmetro "value".', [T.ID]));
+
+    if SameText(T.AcaoSugerida, 'BROWSER_SET_VALUE') then
+    begin
+      HasSubmit := False;
+      for J := 0 to FTasks.Count - 1 do
+      begin
+        NextTask := TSampleTaskItem(FTasks[J]);
+        if (NextTask.Ordem > T.Ordem) and (NextTask.Status <> stsCanceled) and
+           (SameText(NextTask.AcaoSugerida, 'BROWSER_PRESS_ENTER') or SameText(NextTask.AcaoSugerida, 'BROWSER_SUBMIT_FORM')) then
+        begin
+          HasSubmit := True;
+          Break;
+        end;
+      end;
+      if not HasSubmit then
+        AddLog(Format('[VALIDATE] AVISO: %s (BROWSER_SET_VALUE) não possui submit posterior.', [T.ID]));
+    end;
+
+    if SameText(T.AcaoSugerida, 'BROWSER_PRESS_ENTER') or SameText(T.AcaoSugerida, 'BROWSER_SUBMIT_FORM') then
+    begin
+      HasCapture := False;
+      for J := 0 to FTasks.Count - 1 do
+      begin
+        NextTask := TSampleTaskItem(FTasks[J]);
+        if (NextTask.Ordem > T.Ordem) and (NextTask.Status <> stsCanceled) and
+           (SameText(NextTask.AcaoSugerida, 'BROWSER_CAPTURE_TEXT') or SameText(NextTask.AcaoSugerida, 'BROWSER_READ_PAGE')) then
+        begin
+          HasCapture := True;
+          Break;
+        end;
+      end;
+      if not HasCapture then
+        AddLog(Format('[VALIDATE] AVISO: %s (%s) não possui captura posterior.', [T.ID, T.AcaoSugerida]));
+    end;
+
+    if SameText(T.AcaoSugerida, 'SEND_EMAIL') then
+    begin
+      if Trim(T.Params.Values['to']) = '' then
+        AddLog(Format('[VALIDATE] ERRO: %s (SEND_EMAIL) sem parâmetro "to".', [T.ID]));
+      if Trim(T.Params.Values['subject']) = '' then
+        AddLog(Format('[VALIDATE] AVISO: %s (SEND_EMAIL) sem parâmetro "subject".', [T.ID]));
+      if Trim(T.Params.Values['body']) = '' then
+        AddLog(Format('[VALIDATE] AVISO: %s (SEND_EMAIL) sem parâmetro "body".', [T.ID]));
+    end;
+  end;
+
+  AddLog('=== VALIDAÇÃO DO PLANO DE TAREFAS CONCLUÍDA ===');
 end;
 
 function TfrmMain.ContainsBrowserAction(const APreparedActionsJSON: string): Boolean;
@@ -3106,6 +3528,9 @@ var
 begin
   if not Assigned(FTasks) then
     Exit;
+
+  NormalizeTaskPlan('Antes de executar todas');
+  ValidateCurrentPlan;
 
   repeat
     ExecutedAny := False;
@@ -3420,6 +3845,23 @@ begin
   Result := True;
 end;
 
+function TfrmMain.WaitBrowserReady(ATimeoutMs: Integer): Boolean;
+var
+  StartTicks: QWord;
+begin
+  StartTicks := GetTickCount64;
+
+  while Assigned(AIChromiumBrowser1) and
+        (not AIChromiumBrowser1.BrowserReady) and
+        (GetTickCount64 - StartTicks < QWord(ATimeoutMs)) do
+  begin
+    Application.ProcessMessages;
+    Sleep(50);
+  end;
+
+  Result := Assigned(AIChromiumBrowser1) and AIChromiumBrowser1.BrowserReady;
+end;
+
 function TfrmMain.EnsureBrowser: Boolean;
 begin
   Result := False;
@@ -3463,6 +3905,7 @@ begin
       lblBrowserStatus.Caption := 'Status: Inicializando...';
 
     AddLog('Inicialização do Chromium solicitada.');
+    Result := WaitBrowserReady(15000);
   end
   else
   begin
@@ -3625,6 +4068,16 @@ begin
       ACanExecute := False;
       Exit;
     end;
+
+    if Pos('BROWSER_', UpperCase(AActionName)) = 1 then
+    begin
+      if not SameText(AActionName, 'BROWSER_NAVIGATE') and
+         not SameText(AActionName, 'BROWSER_WAIT_SELECTOR') then
+      begin
+        AddLog('[EXECUTOR REAL] Aguardando seletor: ' + SelectorStr);
+        AIChromiumBrowser1.WaitForSelector(SelectorStr, 10000);
+      end;
+    end;
   end;
 
   if SameText(AActionName, 'BROWSER_PRESS_ENTER') or
@@ -3785,7 +4238,10 @@ begin
   Result :=
     SameText(ATask.AcaoSugerida, 'BROWSER_DOM_LIST') or
     SameText(ATask.AcaoSugerida, 'BROWSER_READ_PAGE') or
-    SameText(ATask.AcaoSugerida, 'BROWSER_CAPTURE_TEXT');
+    SameText(ATask.AcaoSugerida, 'BROWSER_CAPTURE_TEXT') or
+    SameText(ATask.AcaoSugerida, 'BROWSER_SET_VALUE') or
+    SameText(ATask.AcaoSugerida, 'BROWSER_PRESS_ENTER') or
+    SameText(ATask.AcaoSugerida, 'BROWSER_SUBMIT_FORM');
 end;
 
 function TfrmMain.HasPendingTasksAfter(ATask: TSampleTaskItem): Boolean;
@@ -3988,16 +4444,7 @@ begin
             if NewId = '' then
               Continue;
 
-            FoundTask := nil;
-            for J := 0 to FTasks.Count - 1 do
-            begin
-              T := TSampleTaskItem(FTasks[J]);
-              if SameText(T.ID, NewId) then
-              begin
-                FoundTask := T;
-                Break;
-              end;
-            end;
+            FoundTask := FindTaskByID(NewId);
 
             if not Assigned(FoundTask) then
             begin
@@ -4005,12 +4452,17 @@ begin
               FoundTask := TSampleTaskItem.Create;
               FoundTask.ID := NewId;
               FoundTask.Status := stsPending;
+              FoundTask.CreatedByReplan := True;
+              FoundTask.ReplanReason := Obj.Get('reason', '');
+              FoundTask.PlanVersion := 2;
               FTasks.Add(FoundTask);
               AddLog('[REPLAN] Nova tarefa inserida no plano: ' + NewId + ' (' + TObj.Get('description', '') + ')');
             end
             else
             begin
               AddLog('[REPLAN] Atualizando tarefa existente no plano: ' + NewId);
+              FoundTask.PlanVersion := FoundTask.PlanVersion + 1;
+              FoundTask.ReplanReason := Obj.Get('reason', '');
             end;
 
             FoundTask.Ordem := TObj.Get('order', FoundTask.Ordem);
@@ -4023,11 +4475,11 @@ begin
             // Atualiza parâmetros
             if not Assigned(FoundTask.Params) then
               FoundTask.Params := TStringList.Create;
-            FoundTask.Params.Clear;
 
             ParamsData := TObj.Find('parameters');
             if Assigned(ParamsData) and (ParamsData is TJSONObject) then
             begin
+              FoundTask.Params.Clear;
               ParamsObj := TJSONObject(ParamsData);
               for K := 0 to ParamsObj.Count - 1 do
               begin
@@ -4044,7 +4496,7 @@ begin
         end;
       end;
 
-      SortTasksByOrder;
+      NormalizeTaskPlan('Após ApplyReplanJSON');
       Result := True;
     finally
       JSONData.Free;

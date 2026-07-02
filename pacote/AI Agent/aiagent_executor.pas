@@ -336,6 +336,16 @@ begin
             end;
           end;
 
+          AOutput := AOutput + Format('Action=%s Result=%s', [ActionName, BoolToStr(ActionOk, True)]) + sLineBreak;
+
+          if not ActionOk then
+          begin
+            if ActionObj.LastError <> '' then
+              SetError('Falha na ação "' + ActionName + '": ' + ActionObj.LastError)
+            else if LastError = '' then
+              SetError('Falha na ação "' + ActionName + '" sem mensagem de erro.');
+          end;
+
           // Tarefa 18 — Registrar conclusão no MemoryMap
           if Assigned(MemItem) and Assigned(MapaDeMemoria) then
           begin

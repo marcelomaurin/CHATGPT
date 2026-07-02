@@ -120,7 +120,7 @@ end;
 
 function TAIBrowserCustomAction.CheckBrowser: Boolean;
 begin
-  Result := Assigned(FBrowser);
+  Result := Assigned(FBrowser) and FBrowser.BrowserReady;
 end;
 
 { TAIBrowserNavigateAction }
@@ -135,14 +135,25 @@ function TAIBrowserNavigateAction.RunAction(const AParams: TStrings; ASimulate: 
 var
   URL: string;
 begin
-  Result := False;
-  if not CheckBrowser then Exit;
+  SetError('');
+  if not CheckBrowser then
+  begin
+    SetError('Browser não associado ou não está pronto para a ação ' + ActionName);
+    Exit(False);
+  end;
 
   URL := Trim(AParams.Values['url']);
-  if URL = '' then Exit;
+  if URL = '' then
+  begin
+    SetError('URL vazia para navegação.');
+    Exit(False);
+  end;
 
   if (not SameText(Copy(URL, 1, 7), 'http://')) and (not SameText(Copy(URL, 1, 8), 'https://')) then
-    Exit; // Tarefa 53 — Validar URL
+  begin
+    SetError('URL inválida ou insegura para navegação: ' + URL);
+    Exit(False);
+  end;
 
   if ASimulate then
   begin
@@ -167,11 +178,19 @@ var
   Selector: string;
   Timeout: Integer;
 begin
-  Result := False;
-  if not CheckBrowser then Exit;
+  SetError('');
+  if not CheckBrowser then
+  begin
+    SetError('Browser não associado ou não está pronto para a ação ' + ActionName);
+    Exit(False);
+  end;
 
   Selector := Trim(AParams.Values['selector']);
-  if Selector = '' then Exit; // Tarefa 51 — Validar seletores perigosos
+  if Selector = '' then
+  begin
+    SetError('Selector vazio em BROWSER_WAIT_SELECTOR.');
+    Exit(False);
+  end;
 
   Timeout := StrToIntDef(AParams.Values['timeout'], 5000);
 
@@ -196,8 +215,12 @@ function TAIBrowserReadPageAction.RunAction(const AParams: TStrings; ASimulate: 
 var
   Selector, DOMSelector: string;
 begin
-  Result := False;
-  if not CheckBrowser then Exit;
+  SetError('');
+  if not CheckBrowser then
+  begin
+    SetError('Browser não associado ou não está pronto para a ação ' + ActionName);
+    Exit(False);
+  end;
 
   Selector := Trim(AParams.Values['selector']);
   if Selector = '' then Selector := 'body';
@@ -229,8 +252,12 @@ function TAIBrowserDOMListAction.RunAction(const AParams: TStrings; ASimulate: B
 var
   Selector: string;
 begin
-  Result := False;
-  if not CheckBrowser then Exit;
+  SetError('');
+  if not CheckBrowser then
+  begin
+    SetError('Browser não associado ou não está pronto para a ação ' + ActionName);
+    Exit(False);
+  end;
 
   Selector := Trim(AParams.Values['selector']);
   if Selector = '' then Selector := 'input, textarea, button, form';
@@ -256,8 +283,12 @@ function TAIBrowserCaptureTextAction.RunAction(const AParams: TStrings; ASimulat
 var
   Selector: string;
 begin
-  Result := False;
-  if not CheckBrowser then Exit;
+  SetError('');
+  if not CheckBrowser then
+  begin
+    SetError('Browser não associado ou não está pronto para a ação ' + ActionName);
+    Exit(False);
+  end;
 
   Selector := Trim(AParams.Values['selector']);
   if Selector = '' then Selector := 'body';
@@ -284,11 +315,19 @@ var
   Selector, Val: string;
   Idx: Integer;
 begin
-  Result := False;
-  if not CheckBrowser then Exit;
+  SetError('');
+  if not CheckBrowser then
+  begin
+    SetError('Browser não associado ou não está pronto para a ação ' + ActionName);
+    Exit(False);
+  end;
 
   Selector := Trim(AParams.Values['selector']);
-  if Selector = '' then Exit; // Tarefa 51
+  if Selector = '' then
+  begin
+    SetError('Selector vazio para preenchimento de campo (BROWSER_SET_VALUE).');
+    Exit(False);
+  end;
 
   Val := AParams.Values['value'];
   Idx := StrToIntDef(AParams.Values['index'], 0); // Tarefa 52 — Normalizar index
@@ -315,11 +354,19 @@ var
   Selector: string;
   Idx: Integer;
 begin
-  Result := False;
-  if not CheckBrowser then Exit;
+  SetError('');
+  if not CheckBrowser then
+  begin
+    SetError('Browser não associado ou não está pronto para a ação ' + ActionName);
+    Exit(False);
+  end;
 
   Selector := Trim(AParams.Values['selector']);
-  if Selector = '' then Exit;
+  if Selector = '' then
+  begin
+    SetError('Selector vazio para BROWSER_FOCUS.');
+    Exit(False);
+  end;
 
   Idx := StrToIntDef(AParams.Values['index'], 0);
 
@@ -345,11 +392,19 @@ var
   Selector: string;
   Idx: Integer;
 begin
-  Result := False;
-  if not CheckBrowser then Exit;
+  SetError('');
+  if not CheckBrowser then
+  begin
+    SetError('Browser não associado ou não está pronto para a ação ' + ActionName);
+    Exit(False);
+  end;
 
   Selector := Trim(AParams.Values['selector']);
-  if Selector = '' then Exit;
+  if Selector = '' then
+  begin
+    SetError('Selector vazio para BROWSER_CLICK.');
+    Exit(False);
+  end;
 
   Idx := StrToIntDef(AParams.Values['index'], 0);
 
@@ -376,11 +431,19 @@ var
   Idx: Integer;
   JSScript: string;
 begin
-  Result := False;
-  if not CheckBrowser then Exit;
+  SetError('');
+  if not CheckBrowser then
+  begin
+    SetError('Browser não associado ou não está pronto para a ação ' + ActionName);
+    Exit(False);
+  end;
 
   Selector := Trim(AParams.Values['selector']);
-  if Selector = '' then Exit;
+  if Selector = '' then
+  begin
+    SetError('Selector vazio para BROWSER_PRESS_ENTER.');
+    Exit(False);
+  end;
 
   Idx := StrToIntDef(AParams.Values['index'], 0);
 
@@ -447,11 +510,19 @@ var
   Idx: Integer;
   JSScript: string;
 begin
-  Result := False;
-  if not CheckBrowser then Exit;
+  SetError('');
+  if not CheckBrowser then
+  begin
+    SetError('Browser não associado ou não está pronto para a ação ' + ActionName);
+    Exit(False);
+  end;
 
   Selector := Trim(AParams.Values['selector']);
-  if Selector = '' then Exit;
+  if Selector = '' then
+  begin
+    SetError('Selector vazio para BROWSER_SUBMIT_FORM.');
+    Exit(False);
+  end;
 
   Idx := StrToIntDef(AParams.Values['index'], 0);
 
@@ -504,11 +575,19 @@ function TAIBrowserScreenshotAction.RunAction(const AParams: TStrings; ASimulate
 var
   FileName: string;
 begin
-  Result := False;
-  if not CheckBrowser then Exit;
+  SetError('');
+  if not CheckBrowser then
+  begin
+    SetError('Browser não associado ou não está pronto para a ação ' + ActionName);
+    Exit(False);
+  end;
 
   FileName := Trim(AParams.Values['filename']);
-  if FileName = '' then Exit;
+  if FileName = '' then
+  begin
+    SetError('Nome de arquivo vazio para captura de tela (BROWSER_SCREENSHOT).');
+    Exit(False);
+  end;
 
   if ASimulate then
   begin

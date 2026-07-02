@@ -13,6 +13,7 @@ type
   private
     FMemoryMap: TAIAgentMemoryMap;
     FActionName: string;
+    FLastError: string;
     // Events
     FOnBeforeRun: TAIFluxoEtapaControlEvent;
     FOnAfterRun: TAIFluxoEtapaEvent;
@@ -27,9 +28,11 @@ type
     FOnActionBlocked: TAIFluxoEtapaEvent;
     FOnActionError: TAIFluxoEtapaEvent;
   protected
+    procedure SetError(const AMsg: string);
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     procedure SetMemoryMap(AValue: TAIAgentMemoryMap);
   public
+    property LastError: string read FLastError;
     property MapaDeMemoria: TAIAgentMemoryMap read FMemoryMap write SetMemoryMap;
     constructor Create(AOwner: TComponent); override;
     function RunAction(const AParams: TStrings; ASimulate: Boolean): Boolean; virtual;
@@ -75,6 +78,12 @@ begin
   inherited Create(AOwner);
   FActionName := '';
   FMemoryMap := nil;
+  FLastError := '';
+end;
+
+procedure TAICustomAgentAction.SetError(const AMsg: string);
+begin
+  FLastError := AMsg;
 end;
 
 procedure TAICustomAgentAction.Notification(AComponent: TComponent; Operation: TOperation);
