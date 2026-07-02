@@ -372,6 +372,8 @@ begin
 
   Result :=
     (S = '') or
+
+    // Placeholders genéricos/documento
     (Pos('conteúdo do currículo', S) > 0) or
     (Pos('currículo gerado', S) > 0) or
     (Pos('gerado a partir das informações', S) > 0) or
@@ -382,7 +384,19 @@ begin
     (Pos('conteúdo gerado', S) > 0) or
     (Pos('conteudo gerado', S) > 0) or
     (Pos('resultado capturado', S) > 0) or
-    (Pos('texto gerado a partir', S) > 0);
+    (Pos('texto gerado a partir', S) > 0) or
+
+    // Placeholders específicos do fluxo de resumo por e-mail
+    (Pos('resumo gerado do currículo', S) > 0) or
+    (Pos('resumo gerado do curriculo', S) > 0) or
+    (Pos('texto do currículo capturado', S) > 0) or
+    (Pos('texto do curriculo capturado', S) > 0) or
+    (Pos('texto do currículo', S) > 0) or
+    (Pos('texto do curriculo', S) > 0) or
+    (Pos('[email]', S) > 0) or
+    (Pos('[seu nome]', S) > 0) or
+    (Pos('prezado destinatário', S) > 0) or
+    (Pos('prezado destinatario', S) > 0);
 end;
 
 function JSONValueToPlainText(AValue: TJSONData): string;
@@ -647,6 +661,15 @@ begin
     Exit;
   end;
 
+  if SameText(ToAddr, '[EMAIL]') or
+     (Pos('[', ToAddr) > 0) or
+     (Pos(']', ToAddr) > 0) or
+     (Pos('@', ToAddr) = 0) then
+  begin
+    MainForm.AddLog('[SEND_EMAIL] ERRO: destinatário inválido ou placeholder: ' + ToAddr);
+    Exit(False);
+  end;
+
   Subject := Trim(AParams.Values['subject']);
 
   if Subject = '' then
@@ -710,8 +733,8 @@ begin
     Exit(False);
   end;
 
-  if GeneratedTextFileName <> '' then
-    Body := Body + sLineBreak + sLineBreak + 'Arquivo texto gerado localmente: ' + GeneratedTextFileName;
+  //if GeneratedTextFileName <> '' then
+  //  Body := Body + sLineBreak + sLineBreak + 'Arquivo texto gerado localmente: ' + GeneratedTextFileName;
 
   if ASimulate then
   begin
@@ -1176,8 +1199,10 @@ begin
   cbProviderChange(nil);
 
   memPrompt.Text :=
-    'Entre no https://pt.aliexpress.com/ , e pesquise por multimetro digital automático, ' +
-    'busque o preço mais barato e envie o link do produto para marcelomaurinmartins@gmail.com.';
+    'Entre no site https://maurinsoft.com.br/wp/sobre-nos/ ' +
+    'pegue meu curriculo, analise e crie um resumo e mande para marcelomaurinmartins@gmail.com. ' +
+    'Não grave arquivo. Não gere TXT, DOCX ou Word. ' +
+    'Copie o texto do resumo diretamente no corpo do e-mail.';
 
   if Assigned(memCorpoEmail) then
     memCorpoEmail.Clear;
@@ -1390,7 +1415,7 @@ begin
 
     for i := 0 to FTasks.Count - 1 do
     begin
-      if TSampleTaskItem(FTasks[i]).ID = ID then
+      if NormalizeTaskID(TSampleTaskItem(FTasks[i]).ID) = NormalizeTaskID(ID) then
       begin
         Result := TSampleTaskItem(FTasks[i]);
         Exit;
@@ -1478,10 +1503,10 @@ begin
   if Assigned(memPrompt) then
   begin
     memPrompt.Text :=
-      'Acesse o site https://www.google.com, aguarde a página carregar, ' +
-      'leia a página e liste os elementos do DOM para identificar o campo de busca. ' +
-      'Pesquise por "Componentes de IA Lazarus", submeta o formulário de busca e capture os resultados. ' +
-      'Gere um documento de texto com os resultados encontrados e salve localmente.';
+      'Entre no site https://maurinsoft.com.br/wp/sobre-nos/ ' +
+      'pegue meu curriculo, analise e crie um resumo e mande para marcelomaurinmartins@gmail.com. ' +
+      'Não grave arquivo. Não gere TXT, DOCX ou Word. ' +
+      'Copie o texto do resumo diretamente no corpo do e-mail.';
   end;
 end;
 
@@ -1738,6 +1763,10 @@ begin
       'Antes de BROWSER_SET_VALUE, BROWSER_CLICK, BROWSER_PRESS_ENTER ou BROWSER_SUBMIT_FORM, gere tarefa anterior BROWSER_READ_PAGE ou BROWSER_DOM_LIST, exceto se o seletor CSS foi informado explicitamente.' + sLineBreak +
       'Para pesquisar em site: navegue, aguarde seletor/campo, leia DOM, preencha campo com BROWSER_SET_VALUE, depois gere obrigatoriamente BROWSER_PRESS_ENTER usando o mesmo selector/index, e por fim BROWSER_CAPTURE_TEXT.' + sLineBreak +
       'Não invente dados que não estejam no prompt, no DOM lido ou no conteúdo real capturado.' + sLineBreak +
+      'Se o usuário pedir resumo e envio por e-mail, NÃO gere CREATE_TEXT_DOCUMENT.' + sLineBreak +
+      'Resumo para e-mail deve ser colocado diretamente em parameters.body da ação SEND_EMAIL.' + sLineBreak +
+      'Não grave TXT, DOCX, Word ou arquivo local quando o usuário pedir apenas envio por e-mail.' + sLineBreak +
+      'Para currículo capturado de site, primeiro capture o texto com BROWSER_CAPTURE_TEXT, depois gere o resumo e envie o resumo no corpo do e-mail.' + sLineBreak +
       'Formato obrigatório preferencial:' + sLineBreak +
       '{' + sLineBreak +
       '  "tasks": [' + sLineBreak +
@@ -2095,6 +2124,22 @@ begin
 
           if SameText(T.AcaoSugerida, 'CREATE_WORD_DOCUMENT') then
             T.AcaoSugerida := 'CREATE_TEXT_DOCUMENT';
+
+          if SameText(T.AcaoSugerida, 'CREATE_SUMMARY') or
+             SameText(T.AcaoSugerida, 'SUMMARIZE_TEXT') or
+             SameText(T.AcaoSugerida, 'ANALYZE_TEXT') or
+             SameText(T.AcaoSugerida, 'RESUME_TEXT') then
+          begin
+            AddLog('[AUTO-FIX] ' + T.AcaoSugerida +
+                   ' convertido para tarefa cognitiva sem ação operacional.');
+
+            T.Tipo := 'content';
+            T.AcaoSugerida := '';
+
+            if Trim(T.Params.Values['instruction']) = '' then
+              T.Params.Values['instruction'] :=
+                'Analise o currículo capturado e gere um resumo profissional para ser enviado no corpo do e-mail.';
+          end;
 
           if SameText(T.AcaoSugerida, 'CREATE_TEXT_DOCUMENT') and
              IsEmptyOrPlaceholder(T.Params.Values['content']) and
@@ -2563,6 +2608,19 @@ begin
 
   if Trim(T.AcaoSugerida) = '' then
   begin
+    if Assigned(FActionExecutor) and (Trim(ProcessorResultText) <> '') then
+    begin
+      FActionExecutor.ExecutionContext.Values['last_text_content'] := ProcessorResultText;
+      FActionExecutor.ExecutionContext.Values['last_summary_text'] := ProcessorResultText;
+      AddLog('[PROCESSOR] Resumo publicado no contexto para uso no SEND_EMAIL.');
+    end;
+
+    if Assigned(memConteudoCurriculo) then
+      memConteudoCurriculo.Text := ProcessorResultText;
+
+    if Assigned(memCorpoEmail) then
+      memCorpoEmail.Text := ProcessorResultText;
+
     T.Status := stsDone;
     AddLog(Format('Tarefa "%s" concluída sem ação operacional.', [T.ID]));
 
@@ -2646,11 +2704,44 @@ begin
 
     if SameText(T.AcaoSugerida, 'SEND_EMAIL') then
     begin
-      if IsEmptyOrPlaceholder(T.Params.Values['body']) then
-        T.Params.Values['body'] := ProcessorResultText;
-
       if Trim(T.Params.Values['to']) = '' then
         T.Params.Values['to'] := 'marcelomaurinmartins@gmail.com';
+
+      if SameText(Trim(T.Params.Values['to']), '[EMAIL]') or
+         (Pos('[', T.Params.Values['to']) > 0) or
+         (Pos(']', T.Params.Values['to']) > 0) or
+         (Pos('@', T.Params.Values['to']) = 0) then
+      begin
+        AddLog('[AUTO-FIX] Destinatário inválido substituído por marcelomaurinmartins@gmail.com.');
+        T.Params.Values['to'] := 'marcelomaurinmartins@gmail.com';
+      end;
+
+      if Trim(T.Params.Values['subject']) = '' then
+        T.Params.Values['subject'] := 'Resumo profissional - Marcelo Maurin Martins';
+
+      if IsEmptyOrPlaceholder(T.Params.Values['body']) and (Trim(ProcessorResultText) <> '') then
+        T.Params.Values['body'] := ProcessorResultText;
+
+      if IsEmptyOrPlaceholder(T.Params.Values['body']) and Assigned(FActionExecutor) then
+        T.Params.Values['body'] := FActionExecutor.ExecutionContext.Values['last_summary_text'];
+
+      if IsEmptyOrPlaceholder(T.Params.Values['body']) and Assigned(FActionExecutor) then
+        T.Params.Values['body'] := FActionExecutor.ExecutionContext.Values['last_text_content'];
+
+      if IsEmptyOrPlaceholder(T.Params.Values['body']) and Assigned(FActionExecutor) then
+        T.Params.Values['body'] := FActionExecutor.ExecutionContext.Values['browser.last_result_text'];
+
+      if Assigned(memCorpoEmail) then
+        memCorpoEmail.Text := T.Params.Values['body'];
+
+      if Assigned(edEmailDestino) then
+        edEmailDestino.Text := T.Params.Values['to'];
+
+      if Assigned(edAssuntoEmail) then
+        edAssuntoEmail.Text := T.Params.Values['subject'];
+
+      if Assigned(FSendEmailAction) then
+        FSendEmailAction.GeneratedTextFileName := '';
     end;
 
     BuilderOutput := BuildSingleActionJSON(T);
@@ -4229,8 +4320,27 @@ begin
   if SameText(AActionName, 'SEND_EMAIL') then
   begin
     ConfigureEmailAction;
+
     if Assigned(FSendEmailAction) then
-      FSendEmailAction.GeneratedTextFileName := edArquivoWordGerado.Text;
+      FSendEmailAction.GeneratedTextFileName := '';
+
+    if Trim(AParams.Values['to']) = '' then
+      AParams.Values['to'] := 'marcelomaurinmartins@gmail.com';
+
+    if SameText(Trim(AParams.Values['to']), '[EMAIL]') or
+       (Pos('[', AParams.Values['to']) > 0) or
+       (Pos(']', AParams.Values['to']) > 0) or
+       (Pos('@', AParams.Values['to']) = 0) then
+    begin
+      AddLog('[EXECUTOR REAL] Destinatário inválido substituído por marcelomaurinmartins@gmail.com.');
+      AParams.Values['to'] := 'marcelomaurinmartins@gmail.com';
+    end;
+
+    if Trim(AParams.Values['subject']) = '' then
+      AParams.Values['subject'] := 'Resumo profissional - Marcelo Maurin Martins';
+
+    if IsEmptyOrPlaceholder(AParams.Values['body']) then
+      AParams.Values['body'] := AExecutionContext.Values['last_summary_text'];
 
     if IsEmptyOrPlaceholder(AParams.Values['body']) then
       AParams.Values['body'] := AExecutionContext.Values['last_text_content'];
@@ -4240,6 +4350,12 @@ begin
 
     if Assigned(memCorpoEmail) then
       memCorpoEmail.Text := AParams.Values['body'];
+
+    if Assigned(edEmailDestino) then
+      edEmailDestino.Text := AParams.Values['to'];
+
+    if Assigned(edAssuntoEmail) then
+      edAssuntoEmail.Text := AParams.Values['subject'];
   end;
 end;
 
