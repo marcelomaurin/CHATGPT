@@ -1,5 +1,20 @@
 # Sample: agent_task_memory_action_demo
 
+## Traduções disponíveis
+
+- [Português](README.md)
+- [English](README.en.md)
+- [Français](README.fr.md)
+- [日本語](README.ja.md)
+- [Deutsch](README.de.md)
+- [Русский](README.ru.md)
+- [中文](README.zh.md)
+- [Español](README.es.md)
+- [Italiano](README.it.md)
+- [العربية](README.ar.md)
+
+---
+
 Este sample demonstra um fluxo multiagente orientado por tarefas, com memória de execução, planejamento via LLM, processamento cognitivo, automação real de navegador Chromium, preparação de ações e envio de e-mail.
 
 A ideia central é transformar um prompt livre do usuário em uma sequência auditável de tarefas. Cada tarefa possui ID, ordem, tipo, descrição, agente responsável, ação sugerida, dependência, parâmetros, status e resultado. O usuário pode executar uma tarefa individualmente ou executar o plano inteiro.
@@ -166,17 +181,7 @@ Componente base de comunicação com o modelo de IA. Ele recebe token, modelo, p
 
 ### `TAIAgentMemoryMap`
 
-Registra o caminho completo da execução. Cada agente cria uma etapa no mapa com:
-
-- entrada recebida;
-- análise;
-- explicação;
-- ação tomada;
-- perguntas internas;
-- saída;
-- perda de informação detectada.
-
-O mapa pode ser visualizado na aba **Mapa de Memória** e exportado em texto ou JSON.
+Registra o caminho completo da execução. Cada agente cria uma etapa no mapa com entrada recebida, análise, explicação, ação tomada, perguntas internas, saída e perda de informação detectada.
 
 ### `TAIClassifierAgent`
 
@@ -200,11 +205,7 @@ Executa ações preparadas. No sample, ele registra ações customizadas e açõ
 
 ### `TAICustomAgentAction`
 
-Classe base usada pelas ações customizadas do sample:
-
-- `TSampleCreateTextAction`;
-- `TSampleSendEmailAction`;
-- `TSampleRegisterResultAction`.
+Classe base usada pelas ações customizadas do sample: `TSampleCreateTextAction`, `TSampleSendEmailAction` e `TSampleRegisterResultAction`.
 
 ### `TAIEmailClient`
 
@@ -238,33 +239,13 @@ O sample registra várias ações reais de browser no executor:
 
 ## Abas da interface
 
-### Prompt
-
-Entrada principal do usuário. Também contém os campos de configuração do provedor de IA.
-
-### Tarefas
-
-Mostra o plano gerado pelo LLM. Cada linha representa uma tarefa com status e dependência. Permite executar uma tarefa selecionada ou todas as tarefas.
-
-### Agente
-
-Exibe a auditoria da etapa atual: entrada, perguntas internas, análise, explicação, ação tomada e saída do agente.
-
-### Mapa de Memória
-
-Mostra todas as etapas registradas pelo `TAIAgentMemoryMap`. Também permite exportar o mapa.
-
-### Resultado
-
-Mostra o texto final gerado e os dados do e-mail. No cenário padrão, o resumo profissional deve aparecer no corpo do e-mail.
-
-### Log
-
-Mostra o rastreamento cronológico de toda a execução.
-
-### Navegador Chromium
-
-Mostra o navegador real usado pelo sample para abrir páginas e capturar conteúdo.
+- **Prompt**: entrada principal e configuração do provedor.
+- **Tarefas**: lista de tarefas planejadas pelo LLM.
+- **Agente**: auditoria da etapa atual.
+- **Mapa de Memória**: histórico estruturado do fluxo.
+- **Resultado**: texto gerado e dados do e-mail.
+- **Log**: rastreamento cronológico da execução.
+- **Navegador Chromium**: navegador real usado para abrir páginas e capturar conteúdo.
 
 ---
 
@@ -281,13 +262,11 @@ O `FActionExecutor.ExecutionContext` funciona como memória operacional comparti
 - `last_summary_text`;
 - `last_text_filename`.
 
-Esse contexto evita que uma tarefa perca o resultado da tarefa anterior. Por exemplo, depois da captura do `body`, a tarefa de resumo pode usar `browser.last_result_text`; depois do resumo, o envio de e-mail pode usar `last_summary_text`.
+Esse contexto evita que uma tarefa perca o resultado da tarefa anterior. Depois da captura do `body`, a tarefa de resumo pode usar `browser.last_result_text`; depois do resumo, o envio de e-mail pode usar `last_summary_text`.
 
 ---
 
 ## Exemplo de plano esperado para o prompt padrão
-
-Um plano típico para o cenário de currículo pode ser:
 
 ```json
 {
@@ -369,42 +348,12 @@ Prompt
 
 ## Segurança e validações
 
-O sample possui validações importantes:
-
-- bloqueia destinatário vazio ou placeholder;
-- bloqueia corpo de e-mail vazio;
-- bloqueia corpo de e-mail com placeholder;
-- exige confirmação manual antes do envio real;
-- valida URL para `BROWSER_NAVIGATE`;
-- valida seletor para ações interativas;
-- valida valor em `BROWSER_SET_VALUE`;
-- aguarda carregamento de página e retorno assíncrono do DOM;
-- recusa ações desconhecidas;
-- evita usar fallback legado para ações de browser quando o executor real está disponível.
-
----
-
-## Observações técnicas
-
-- O sample usa `TObjectList` para armazenar as tarefas em memória.
-- O grid de tarefas é reconstruído a cada atualização de status.
-- O mapa de memória é atualizado por eventos do `TAIAgentMemoryMap`.
-- As ações de browser são assíncronas, por isso o sample usa rotinas de espera como `WaitBrowserNavigation`, `WaitBrowserDOMResult` e `WaitBrowserReady`.
-- O envio de e-mail usa SMTP configurado na tela.
-- O fluxo foi desenhado para ser auditável: cada etapa deixa rastros no log e no mapa de memória.
+O sample bloqueia destinatário vazio ou placeholder, corpo de e-mail vazio, corpo com placeholder, ações desconhecidas e parâmetros mínimos ausentes. O envio real exige confirmação manual. A automação de navegador valida URL, seletor, valor de input e aguarda carregamento de página e retorno assíncrono do DOM.
 
 ---
 
 ## Resultado esperado
 
-Ao executar o cenário padrão corretamente, o usuário deve ver:
-
-1. tarefas geradas na aba **Tarefas**;
-2. navegação real no Chromium;
-3. conteúdo da página capturado;
-4. resumo profissional exibido em **Resultado em Texto**;
-5. corpo do e-mail preenchido com o mesmo resumo;
-6. log detalhado de todas as etapas;
-7. mapa de memória com a trilha dos agentes.
+Ao executar o cenário padrão corretamente, o usuário deve ver tarefas geradas, navegação real no Chromium, conteúdo da página capturado, resumo profissional exibido em **Resultado em Texto**, corpo do e-mail preenchido com o mesmo resumo, log detalhado e mapa de memória com a trilha dos agentes.
 
 O ponto mais importante do cenário é que o e-mail deve receber o **resumo real gerado**, não uma tag de marcação como `<resumo_gerado>` nem um texto genérico.
