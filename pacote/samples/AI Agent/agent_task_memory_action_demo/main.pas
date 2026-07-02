@@ -284,6 +284,8 @@ type
     procedure ShowAgentStep(AItem: TAIAgentMemoryMapItem);
     function DispatchPreparedActions(const APreparedActionsJSON: string): Boolean;
     function ContainsBrowserAction(const APreparedActionsJSON: string): Boolean;
+    function ParamsToJSON(AParams: TStrings): string;
+    function BuildSingleActionJSON(ATask: TSampleTaskItem): string;
     function EnsureBrowser: Boolean;
     function ExtractURLFromPrompt(const APrompt: string): string;
     function WaitBrowserDOMResult(ATimeoutMs: Integer): Boolean;
@@ -650,6 +652,23 @@ begin
   begin
     MainForm.AddLog('[SEND_EMAIL] ERRO: corpo do e-mail não informado e nenhum texto gerado disponível.');
     Exit;
+  end;
+
+  if (Pos('[link_aqui]', LowerCase(Body)) > 0) or
+     (Pos('link_aqui', LowerCase(Body)) > 0) or
+     (Pos('[preco_aqui]', LowerCase(Body)) > 0) or
+     (Pos('preco_aqui', LowerCase(Body)) > 0) then
+  begin
+    MainForm.AddLog('[SEND_EMAIL] ERRO: corpo do e-mail ainda contém placeholder. Envio bloqueado.');
+    Exit(False);
+  end;
+
+  if (Pos('http://', LowerCase(Body)) = 0) and
+     (Pos('https://', LowerCase(Body)) = 0) and
+     (Pos('link', LowerCase(Body)) > 0) then
+  begin
+    MainForm.AddLog('[SEND_EMAIL] ERRO: o corpo promete link, mas nenhuma URL real foi encontrada. Envio bloqueado.');
+    Exit(False);
   end;
 
   if GeneratedTextFileName <> '' then
@@ -2419,18 +2438,31 @@ begin
     'Para BROWSER_CAPTURE_TEXT, parameters deve conter "selector".' + sLineBreak +
     'Se a ação for browser, preserve url, selector, index, timeout e value. Não invente seletor quando o DOM ainda não foi lido.';
 
-  AddLog('Gerando plano de ações pelo ActionBuilderAgent...');
-
   ActionBuildSuccess := False;
   BuilderOutput := '';
 
-  try
-    ActionBuildSuccess := FActionBuilderAgent.BuildActionsWithRecovery(BuilderInput, BuilderOutput);
-  except
-    on E: Exception do
-    begin
-      ActionBuildSuccess := False;
-      AddLog('Exception no ActionBuilderAgent: ' + E.Message);
+  if IsBrowserActionName(T.AcaoSugerida) and
+     (Pos('BROWSER_', UpperCase(Trim(T.AcaoSugerida))) = 1) then
+  begin
+    AddLog('Tarefa BROWSER_* detectada. Montando ação única sem ActionBuilder para evitar SEND_EMAIL prematuro.');
+
+    BuilderOutput := BuildSingleActionJSON(T);
+    ActionBuildSuccess := True;
+
+    AddLog('Plano determinístico gerado: uma única ação ' + T.AcaoSugerida + '.');
+  end
+  else
+  begin
+    AddLog('Gerando plano de ações pelo ActionBuilderAgent...');
+
+    try
+      ActionBuildSuccess := FActionBuilderAgent.BuildActionsWithRecovery(BuilderInput, BuilderOutput);
+    except
+      on E: Exception do
+      begin
+        ActionBuildSuccess := False;
+        AddLog('Exception no ActionBuilderAgent: ' + E.Message);
+      end;
     end;
   end;
 
@@ -2724,6 +2756,64 @@ end;
 function TfrmMain.ContainsBrowserAction(const APreparedActionsJSON: string): Boolean;
 begin
   Result := Pos('BROWSER_', UpperCase(APreparedActionsJSON)) > 0;
+end;
+
+function TfrmMain.ParamsToJSON(AParams: TStrings): string;
+var
+  Obj: TJSONObject;
+  i, ExistingIndex: Integer;
+  Key, Value: string;
+begin
+  Obj := TJSONObject.Create;
+  try
+    if Assigned(AParams) then
+    begin
+      for i := 0 to AParams.Count - 1 do
+      begin
+        Key := Trim(AParams.Names[i]);
+
+        if Key = '' then
+          Continue;
+
+        Value := AParams.ValueFromIndex[i];
+
+        ExistingIndex := Obj.IndexOfName(Key);
+        if ExistingIndex >= 0 then
+          Obj.Delete(ExistingIndex);
+
+        Obj.Add(Key, Value);
+      end;
+    end;
+
+    Result := Obj.AsJSON;
+  finally
+    Obj.Free;
+  end;
+end;
+
+function TfrmMain.BuildSingleActionJSON(ATask: TSampleTaskItem): string;
+var
+  ActionName: string;
+begin
+  if not Assigned(ATask) then
+    Exit('{"actions":[]}');
+
+  ActionName := Trim(ATask.AcaoSugerida);
+
+  Result :=
+    '{' +
+    '"confidence":1.0,' +
+    '"analysis":"Ação montada deterministicamente a partir da tarefa selecionada.",' +
+    '"explanation":"O ActionBuilder foi ignorado para evitar expansão indevida do plano e execução prematura de ações como SEND_EMAIL.",' +
+    '"action_taken":"ACTION_PARAMETERS_PREPARED",' +
+    '"actions":[' +
+      '{' +
+        '"action":' + TJSONStringType(ActionName).AsJSON + ',' +
+        '"parameters":' + ParamsToJSON(ATask.Params) +
+      '}' +
+    '],' +
+    '"analysis_questions":[]' +
+    '}';
 end;
 
 procedure TfrmMain.btnExecutarTodasClick(Sender: TObject);
