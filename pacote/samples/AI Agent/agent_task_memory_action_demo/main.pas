@@ -281,6 +281,9 @@ type
     function GetSelectedTask: TSampleTaskItem;
     function LoadTasksFromPlannerJSON(const AJSON: string): Boolean;
     function CanExecuteTask(ATask: TSampleTaskItem; out AError: string): Boolean;
+    function ValidateJSONText(const AJSON: string; out AError: string): Boolean;
+    procedure EnsureSubmitAfterSetValue;
+    procedure FillSubmitParamsFromPreviousSetValue;
     procedure ShowAgentStep(AItem: TAIAgentMemoryMapItem);
     function DispatchPreparedActions(const APreparedActionsJSON: string): Boolean;
     function ContainsBrowserAction(const APreparedActionsJSON: string): Boolean;
@@ -763,6 +766,9 @@ end;
 procedure TfrmMain.FormCreate(Sender: TObject);
 var
   Erro: string;
+  TestTask: TSampleTaskItem;
+  TestJSON: string;
+  TestErr: string;
 begin
   Position := poScreenCenter;
   Width := 1200;
@@ -823,6 +829,22 @@ begin
 
   ResetTasksGrid;
   LoadDefaultScenario;
+
+  // Teste manual de BuildSingleActionJSON (Tarefa 14)
+  TestTask := TSampleTaskItem.Create;
+  try
+    TestTask.AcaoSugerida := 'BROWSER_NAVIGATE';
+    TestTask.Params.Values['url'] := 'https://www.google.com';
+    TestJSON := BuildSingleActionJSON(TestTask);
+    AddLog('=== TESTE MANUAL BuildSingleActionJSON ===');
+    AddLog(TestJSON);
+    if ValidateJSONText(TestJSON, TestErr) then
+      AddLog('-> JSON Válido!')
+    else
+      AddLog('-> JSON Inválido: ' + TestErr);
+  finally
+    TestTask.Free;
+  end;
 
   AddLog('Sample inicializado e pronto.');
 end;
@@ -1666,15 +1688,14 @@ begin
       sLineBreak +
       'Retorne exclusivamente JSON válido.' + sLineBreak +
       'O JSON deve conter o campo "tasks" como array.' + sLineBreak +
-      'Cada item de "tasks" deve conter: id, order, type, description, agent, suggested_action, depends_on.' + sLineBreak +
+      'Cada item de "tasks" deve conter: id, order, type, description, agent, suggested_action, depends_on e parameters.' + sLineBreak +
       'Não crie tarefa para gerar Word ou DOCX.' + sLineBreak +
       'Para gerar texto, use suggested_action = "CREATE_TEXT_DOCUMENT".' + sLineBreak +
       'Para enviar e-mail, use suggested_action = "SEND_EMAIL".' + sLineBreak +
-      'Para navegação/interação no browser, use suggested_action com uma das ações BROWSER_* permitidas ou REPLAN_FROM_DOM.' + sLineBreak +
-      'Ações browser permitidas: REPLAN_FROM_DOM, BROWSER_NAVIGATE, BROWSER_WAIT_SELECTOR, BROWSER_READ_PAGE, BROWSER_DOM_LIST, BROWSER_CAPTURE_TEXT, BROWSER_SET_VALUE, BROWSER_FOCUS, BROWSER_CLICK, BROWSER_PRESS_ENTER, BROWSER_SUBMIT_FORM, BROWSER_SCREENSHOT.' + sLineBreak +
-      'Sempre que ler o DOM com BROWSER_DOM_LIST, crie uma tarefa REPLAN_FROM_DOM em seguida para adequar os seletores reais.' + sLineBreak +
+      'Para navegação/interação no browser, use somente ações BROWSER_* permitidas.' + sLineBreak +
+      'Ações browser permitidas: BROWSER_NAVIGATE, BROWSER_WAIT_SELECTOR, BROWSER_READ_PAGE, BROWSER_DOM_LIST, BROWSER_CAPTURE_TEXT, BROWSER_SET_VALUE, BROWSER_FOCUS, BROWSER_CLICK, BROWSER_PRESS_ENTER, BROWSER_SUBMIT_FORM, BROWSER_SCREENSHOT.' + sLineBreak +
       'Antes de BROWSER_SET_VALUE, BROWSER_CLICK, BROWSER_PRESS_ENTER ou BROWSER_SUBMIT_FORM, gere tarefa anterior BROWSER_READ_PAGE ou BROWSER_DOM_LIST, exceto se o seletor CSS foi informado explicitamente.' + sLineBreak +
-      'Para pesquisar em site: navegue, aguarde seletor/campo, leia DOM, execute REPLAN_FROM_DOM, preencha campo, pressione Enter ou submeta, capture resultado.' + sLineBreak +
+      'Para pesquisar em site: navegue, aguarde seletor/campo, leia DOM, preencha campo com BROWSER_SET_VALUE, depois gere obrigatoriamente BROWSER_PRESS_ENTER usando o mesmo selector/index, e por fim BROWSER_CAPTURE_TEXT.' + sLineBreak +
       'Não invente dados que não estejam no prompt, no DOM lido ou no conteúdo real capturado.' + sLineBreak +
       'Formato obrigatório preferencial:' + sLineBreak +
       '{' + sLineBreak +
@@ -1686,7 +1707,10 @@ begin
       '      "description": "Abrir a URL solicitada",' + sLineBreak +
       '      "agent": "task_processor_agent",' + sLineBreak +
       '      "suggested_action": "BROWSER_NAVIGATE",' + sLineBreak +
-      '      "depends_on": ""' + sLineBreak +
+      '      "depends_on": "",' + sLineBreak +
+      '      "parameters": {' + sLineBreak +
+      '        "url": "https://exemplo.com"' + sLineBreak +
+      '      }' + sLineBreak +
       '    }' + sLineBreak +
       '  ]' + sLineBreak +
       '}' + sLineBreak +
@@ -2036,6 +2060,33 @@ begin
              (Trim(FCapturedWebText) <> '') then
             T.Params.Values['content'] := FCapturedWebText;
 
+          if SameText(T.AcaoSugerida, 'BROWSER_NAVIGATE') then
+          begin
+            if Trim(T.Params.Values['url']) = '' then
+              T.Params.Values['url'] := ExtractURLFromPrompt(memPrompt.Text);
+          end;
+
+          if SameText(T.AcaoSugerida, 'BROWSER_READ_PAGE') then
+          begin
+            if Trim(T.Params.Values['selector']) = '' then
+              T.Params.Values['selector'] := 'body';
+
+            if Trim(T.Params.Values['dom_list_selector']) = '' then
+              T.Params.Values['dom_list_selector'] := 'input, textarea, button, form';
+          end;
+
+          if SameText(T.AcaoSugerida, 'BROWSER_DOM_LIST') then
+          begin
+            if Trim(T.Params.Values['selector']) = '' then
+              T.Params.Values['selector'] := 'input, textarea, button, form';
+          end;
+
+          if SameText(T.AcaoSugerida, 'BROWSER_CAPTURE_TEXT') then
+          begin
+            if Trim(T.Params.Values['selector']) = '' then
+              T.Params.Values['selector'] := 'body';
+          end;
+
           FTasks.Add(T);
           PreviousTaskID := T.ID;
           T := nil;
@@ -2055,6 +2106,18 @@ begin
         Exit;
       end;
 
+      FillSubmitParamsFromPreviousSetValue;
+      EnsureSubmitAfterSetValue;
+      SortTasksByOrder;
+
+      AddLog('=== TAREFAS BROWSER GERADAS ===');
+      for i := 0 to FTasks.Count - 1 do
+      begin
+        T := TSampleTaskItem(FTasks[i]);
+        if Pos('BROWSER_', UpperCase(T.AcaoSugerida)) = 1 then
+          AddLog(T.ID + ' -> ' + T.AcaoSugerida + ' params=' + T.Params.Text);
+      end;
+
       Result := True;
     finally
       JSONData.Free;
@@ -2064,6 +2127,29 @@ begin
     begin
       AddLog('Erro ao fazer parse do JSON do planejador: ' + E.Message);
       AddLog('JSON recebido: ' + Copy(CleanJSON, 1, 3000));
+      Result := False;
+    end;
+  end;
+end;
+
+function TfrmMain.ValidateJSONText(const AJSON: string; out AError: string): Boolean;
+var
+  D: TJSONData;
+begin
+  Result := False;
+  AError := '';
+
+  try
+    D := GetJSON(AJSON);
+    try
+      Result := True;
+    finally
+      D.Free;
+    end;
+  except
+    on E: Exception do
+    begin
+      AError := E.Message;
       Result := False;
     end;
   end;
@@ -2082,6 +2168,48 @@ begin
     Result := False;
     AError := 'Tarefa inválida.';
     Exit;
+  end;
+
+  if SameText(ATask.AcaoSugerida, 'BROWSER_NAVIGATE') and
+     (Trim(ATask.Params.Values['url']) = '') then
+  begin
+    AError := 'BROWSER_NAVIGATE sem parâmetro url.';
+    Exit(False);
+  end;
+
+  if SameText(ATask.AcaoSugerida, 'BROWSER_SET_VALUE') and
+     (Trim(ATask.Params.Values['selector']) = '') then
+  begin
+    AError := 'BROWSER_SET_VALUE sem selector.';
+    Exit(False);
+  end;
+
+  if SameText(ATask.AcaoSugerida, 'BROWSER_SET_VALUE') and
+     (Trim(ATask.Params.Values['value']) = '') then
+  begin
+    AError := 'BROWSER_SET_VALUE sem value.';
+    Exit(False);
+  end;
+
+  if SameText(ATask.AcaoSugerida, 'BROWSER_CLICK') and
+     (Trim(ATask.Params.Values['selector']) = '') then
+  begin
+    AError := 'BROWSER_CLICK sem selector.';
+    Exit(False);
+  end;
+
+  if SameText(ATask.AcaoSugerida, 'BROWSER_PRESS_ENTER') and
+     (Trim(ATask.Params.Values['selector']) = '') then
+  begin
+    AError := 'BROWSER_PRESS_ENTER sem selector.';
+    Exit(False);
+  end;
+
+  if SameText(ATask.AcaoSugerida, 'BROWSER_SUBMIT_FORM') and
+     (Trim(ATask.Params.Values['selector']) = '') then
+  begin
+    AError := 'BROWSER_SUBMIT_FORM sem selector.';
+    Exit(False);
   end;
 
   if ATask.Dependencia = '' then
@@ -2135,6 +2263,7 @@ var
   i: Integer;
   DepTask: TSampleTaskItem;
   CompletedContext: string;
+  LJSONError: string;
 begin
   if not EnsureRuntimeObjects(ErroRuntime) then
   begin
@@ -2412,7 +2541,6 @@ begin
     '- CREATE_TEXT_DOCUMENT' + sLineBreak +
     '- SEND_EMAIL' + sLineBreak +
     '- REGISTER_RESULT' + sLineBreak +
-    '- REPLAN_FROM_DOM' + sLineBreak +
     '- BROWSER_NAVIGATE' + sLineBreak +
     '- BROWSER_WAIT_SELECTOR' + sLineBreak +
     '- BROWSER_READ_PAGE' + sLineBreak +
@@ -2491,6 +2619,20 @@ begin
   end;
 
   AddLog('Plano de ações gerado pelo ActionBuilderAgent.');
+  AddLog('=== BUILDER OUTPUT ENVIADO AO EXECUTOR ===');
+  AddLog(Copy(BuilderOutput, 1, 5000));
+
+  if not ValidateJSONText(BuilderOutput, LJSONError) then
+  begin
+    T.Status := stsFailed;
+    T.Resultado := 'BuilderOutput inválido: ' + LJSONError;
+    AddLog('[VALIDAÇÃO JSON] BuilderOutput inválido: ' + LJSONError);
+    AddLog('[VALIDAÇÃO JSON] Conteúdo: ' + Copy(BuilderOutput, 1, 5000));
+    RefreshTasksGrid;
+    RefreshMemoryMapGrid;
+    Exit;
+  end;
+
   AddLog('Validando/executando plano pelo ActionExecutor real...');
 
   ExecutorSuccess := False;
@@ -2753,6 +2895,113 @@ begin
   end;
 end;
 
+procedure TfrmMain.EnsureSubmitAfterSetValue;
+var
+  I, J, MaxOrder: Integer;
+  T, NewTask: TSampleTaskItem;
+  HasSubmitAfter: Boolean;
+begin
+  if not Assigned(FTasks) then
+    Exit;
+
+  MaxOrder := 0;
+  for I := 0 to FTasks.Count - 1 do
+  begin
+    T := TSampleTaskItem(FTasks[I]);
+    if T.Ordem > MaxOrder then
+      MaxOrder := T.Ordem;
+  end;
+
+  for I := 0 to FTasks.Count - 1 do
+  begin
+    T := TSampleTaskItem(FTasks[I]);
+
+    if not SameText(T.AcaoSugerida, 'BROWSER_SET_VALUE') then
+      Continue;
+
+    HasSubmitAfter := False;
+
+    for J := 0 to FTasks.Count - 1 do
+    begin
+      NewTask := TSampleTaskItem(FTasks[J]);
+
+      if (NewTask.Ordem > T.Ordem) and
+         (
+           SameText(NewTask.AcaoSugerida, 'BROWSER_PRESS_ENTER') or
+           SameText(NewTask.AcaoSugerida, 'BROWSER_SUBMIT_FORM')
+         ) then
+      begin
+        HasSubmitAfter := True;
+        Break;
+      end;
+    end;
+
+    if not HasSubmitAfter then
+    begin
+      NewTask := TSampleTaskItem.Create;
+      NewTask.ID := T.ID + '_SUBMIT';
+      Inc(MaxOrder);
+      NewTask.Ordem := MaxOrder;
+      NewTask.Tipo := 'browser';
+      NewTask.Descricao := 'Submeter pesquisa após preencher o campo.';
+      NewTask.Agente := 'task_processor_agent';
+      NewTask.AcaoSugerida := 'BROWSER_PRESS_ENTER';
+      NewTask.Dependencia := T.ID;
+      NewTask.Params.Values['selector'] := T.Params.Values['selector'];
+      NewTask.Params.Values['index'] := T.Params.Values['index'];
+
+      if Trim(NewTask.Params.Values['index']) = '' then
+        NewTask.Params.Values['index'] := '0';
+
+      FTasks.Add(NewTask);
+
+      AddLog('[AUTO-FIX] Criada tarefa automática de submit após ' + T.ID);
+    end;
+  end;
+
+  SortTasksByOrder;
+end;
+
+procedure TfrmMain.FillSubmitParamsFromPreviousSetValue;
+var
+  I, J: Integer;
+  T, Prev: TSampleTaskItem;
+begin
+  if not Assigned(FTasks) then
+    Exit;
+
+  for I := 0 to FTasks.Count - 1 do
+  begin
+    T := TSampleTaskItem(FTasks[I]);
+
+    if not (
+      SameText(T.AcaoSugerida, 'BROWSER_PRESS_ENTER') or
+      SameText(T.AcaoSugerida, 'BROWSER_SUBMIT_FORM')
+    ) then
+      Continue;
+
+    if Trim(T.Params.Values['selector']) <> '' then
+      Continue;
+
+    for J := I - 1 downto 0 do
+    begin
+      Prev := TSampleTaskItem(FTasks[J]);
+
+      if SameText(Prev.AcaoSugerida, 'BROWSER_SET_VALUE') then
+      begin
+        T.Params.Values['selector'] := Prev.Params.Values['selector'];
+        T.Params.Values['index'] := Prev.Params.Values['index'];
+
+        if Trim(T.Params.Values['index']) = '' then
+          T.Params.Values['index'] := '0';
+
+        AddLog('[AUTO-FIX] Submit herdou selector da tarefa ' + Prev.ID);
+        Break;
+      end;
+    end;
+  end;
+end;
+
 function TfrmMain.ContainsBrowserAction(const APreparedActionsJSON: string): Boolean;
 begin
   Result := Pos('BROWSER_', UpperCase(APreparedActionsJSON)) > 0;
@@ -2793,27 +3042,59 @@ end;
 
 function TfrmMain.BuildSingleActionJSON(ATask: TSampleTaskItem): string;
 var
-  ActionName: string;
+  Root: TJSONObject;
+  ActionsArr: TJSONArray;
+  ActionObj: TJSONObject;
+  ParamsObj: TJSONObject;
+  QuestionsArr: TJSONArray;
+  I: Integer;
+  Key, Value: string;
 begin
   if not Assigned(ATask) then
-    Exit('{"actions":[]}');
+  begin
+    Result := '{"actions":[]}';
+    Exit;
+  end;
 
-  ActionName := Trim(ATask.AcaoSugerida);
+  Root := TJSONObject.Create;
+  try
+    Root.Add('confidence', 1.0);
+    Root.Add('analysis', 'Ação montada deterministicamente a partir da tarefa selecionada.');
+    Root.Add('explanation', 'O ActionBuilder foi ignorado para evitar alteração indevida da ação original.');
+    Root.Add('action_taken', 'ACTION_PARAMETERS_PREPARED');
 
-  Result :=
-    '{' +
-    '"confidence":1.0,' +
-    '"analysis":"Ação montada deterministicamente a partir da tarefa selecionada.",' +
-    '"explanation":"O ActionBuilder foi ignorado para evitar expansão indevida do plano e execução prematura de ações como SEND_EMAIL.",' +
-    '"action_taken":"ACTION_PARAMETERS_PREPARED",' +
-    '"actions":[' +
-      '{' +
-        '"action":' + StringToJSONString(ActionName) + ',' +
-        '"parameters":' + ParamsToJSON(ATask.Params) +
-      '}' +
-    '],' +
-    '"analysis_questions":[]' +
-    '}';
+    ActionsArr := TJSONArray.Create;
+    ActionObj := TJSONObject.Create;
+
+    ActionObj.Add('action', Trim(ATask.AcaoSugerida));
+
+    ParamsObj := TJSONObject.Create;
+
+    if Assigned(ATask.Params) then
+    begin
+      for I := 0 to ATask.Params.Count - 1 do
+      begin
+        Key := Trim(ATask.Params.Names[I]);
+        if Key = '' then
+          Continue;
+
+        Value := ATask.Params.ValueFromIndex[I];
+        ParamsObj.Add(Key, Value);
+      end;
+    end;
+
+    ActionObj.Add('parameters', ParamsObj);
+    ActionsArr.Add(ActionObj);
+
+    Root.Add('actions', ActionsArr);
+
+    QuestionsArr := TJSONArray.Create;
+    Root.Add('analysis_questions', QuestionsArr);
+
+    Result := Root.AsJSON;
+  finally
+    Root.Free;
+  end;
 end;
 
 procedure TfrmMain.btnExecutarTodasClick(Sender: TObject);
@@ -3346,6 +3627,14 @@ begin
     end;
   end;
 
+  if SameText(AActionName, 'BROWSER_PRESS_ENTER') or
+     SameText(AActionName, 'BROWSER_SUBMIT_FORM') then
+  begin
+    AddLog('[SUBMIT] URL antes: ' + AIChromiumBrowser1.URL);
+    FExpectedNavigationURL := '';
+    FWaitingForNavigation := True;
+  end;
+
   if SameText(AActionName, 'BROWSER_READ_PAGE') or
      SameText(AActionName, 'BROWSER_DOM_LIST') or
      SameText(AActionName, 'BROWSER_CAPTURE_TEXT') then
@@ -3423,10 +3712,39 @@ begin
   else if SameText(AActionName, 'BROWSER_PRESS_ENTER') or
           SameText(AActionName, 'BROWSER_SUBMIT_FORM') then
   begin
-    AddLog('[EXECUTOR REAL] Aguardando possível carregamento pós submissão...');
-    Application.ProcessMessages;
-    Sleep(2000);
-    Application.ProcessMessages;
+    AddLog('[EXECUTOR REAL] Aguardando carregamento pós submissão...');
+
+    if not WaitBrowserNavigation(15000) then
+    begin
+      AddLog('[EXECUTOR REAL] Aviso: nenhuma navegação detectada após submit. Aguardando estabilização curta.');
+      Application.ProcessMessages;
+      Sleep(2000);
+      Application.ProcessMessages;
+    end;
+
+    AddLog('[SUBMIT] URL depois: ' + AIChromiumBrowser1.URL);
+
+    try
+      FWaitingBrowserDOM := True;
+      FLastBrowserDOMJSON := '';
+      AIChromiumBrowser1.CaptureText('body');
+
+      if WaitBrowserDOMResult(10000) then
+      begin
+        AddLog('[EXECUTOR REAL] Texto da página pós-submit capturado.');
+        if Trim(FCapturedWebText) <> '' then
+        begin
+          AExecutionContext.Values['browser.last_result_text'] := FCapturedWebText;
+          AExecutionContext.Values['browser.last_text'] := FCapturedWebText;
+          AddLog('[EXECUTOR REAL] Registrado browser.last_result_text/browser.last_text no ExecutionContext.');
+        end;
+      end
+      else
+        AddLog('[EXECUTOR REAL] Aviso: timeout capturando texto pós-submit.');
+    except
+      on E: Exception do
+        AddLog('[EXECUTOR REAL] Erro ao capturar resultado pós-submit: ' + E.Message);
+    end;
   end
   else if SameText(AActionName, 'CREATE_TEXT_DOCUMENT') then
   begin
@@ -3467,8 +3785,7 @@ begin
   Result :=
     SameText(ATask.AcaoSugerida, 'BROWSER_DOM_LIST') or
     SameText(ATask.AcaoSugerida, 'BROWSER_READ_PAGE') or
-    SameText(ATask.AcaoSugerida, 'BROWSER_CAPTURE_TEXT') or
-    SameText(ATask.AcaoSugerida, 'REPLAN_FROM_DOM');
+    SameText(ATask.AcaoSugerida, 'BROWSER_CAPTURE_TEXT');
 end;
 
 function TfrmMain.HasPendingTasksAfter(ATask: TSampleTaskItem): Boolean;

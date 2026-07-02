@@ -216,6 +216,21 @@ begin
 
   try
     JSONData := GetJSON(CleanJSON);
+  except
+    on E: Exception do
+    begin
+      SetError(
+        'JSON inválido recebido pelo ExecutePreparedActionsReal: ' +
+        E.Message +
+        sLineBreak +
+        'Trecho recebido: ' +
+        Copy(CleanJSON, 1, 1000)
+      );
+      Exit(False);
+    end;
+  end;
+
+  try
     try
       ActionsArr := nil;
 
@@ -283,7 +298,10 @@ begin
           ActionObj := FindActionByName(ActionName);
           if not Assigned(ActionObj) then
           begin
-            SetError('Ação não registrada: ' + ActionName);
+            SetError(
+              'Ação não registrada no executor: ' + ActionName +
+              '. Verifique WireRuntimeObjects/RegisterAction.'
+            );
             Result := False;
             Exit;
           end;

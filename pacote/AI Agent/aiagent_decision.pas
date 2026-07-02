@@ -890,7 +890,7 @@ begin
     '      }' + sLineBreak +
     '    }' + sLineBreak +
     '  ],' + sLineBreak +
-    '  "tasks_to_cancel": ["T004", "T005"]' + sLineBreak +
+    '  "tasks_to_cancel": []' + sLineBreak +
     '}';
 end;
 
@@ -911,7 +911,9 @@ begin
     '3. Se não encontrou o campo de forma confiável no DOM, insira uma nova tarefa BROWSER_DOM_LIST mais específica.' + sLineBreak +
     '4. Se o plano atual ainda estiver válido e correto, retorne needs_replan=false e updated_tasks=[].' + sLineBreak +
     '5. Cancele tarefas inúteis ou redundantes incluindo o ID delas em "tasks_to_cancel".' + sLineBreak +
-    '6. Retorne exclusivamente JSON no schema obrigatório.' + sLineBreak + sLineBreak +
+    '6. Retorne exclusivamente JSON no schema obrigatório.' + sLineBreak +
+    '7. Se o objetivo original for pesquisa/busca, NÃO cancele tarefas de BROWSER_PRESS_ENTER, BROWSER_SUBMIT_FORM ou BROWSER_CAPTURE_TEXT. Apenas atualize seus seletores/parâmetros se necessário.' + sLineBreak +
+    '8. Se atualizar uma tarefa BROWSER_SET_VALUE, também atualize ou preserve a tarefa seguinte BROWSER_PRESS_ENTER/BROWSER_SUBMIT_FORM usando o mesmo selector e index.' + sLineBreak + sLineBreak +
     '=== SCHEMA OBRIGATÓRIO ===' + sLineBreak +
     ASchemaText + sLineBreak + sLineBreak +
     '=== CONTEXTO DE MEMÓRIA (MAPA) ===' + sLineBreak +

@@ -97,6 +97,25 @@ type
 
 implementation
 
+function LocalEscapeJSString(const S: string): string;
+var
+  i: Integer;
+begin
+  Result := '';
+  for i := 1 to Length(S) do
+  begin
+    case S[i] of
+      '\': Result := Result + '\\';
+      '''': Result := Result + '\''';
+      '"': Result := Result + '\"';
+      #13: Result := Result + '\r';
+      #10: Result := Result + '\n';
+      #09: Result := Result + '\t';
+      else Result := Result + S[i];
+    end;
+  end;
+end;
+
 { TAIBrowserCustomAction }
 
 function TAIBrowserCustomAction.CheckBrowser: Boolean;
@@ -355,6 +374,7 @@ function TAIBrowserPressEnterAction.RunAction(const AParams: TStrings; ASimulate
 var
   Selector: string;
   Idx: Integer;
+  JSScript: string;
 begin
   Result := False;
   if not CheckBrowser then Exit;
@@ -370,7 +390,47 @@ begin
     Exit;
   end;
 
-  Result := Browser.DOMPressEnter(Selector, Idx);
+  JSScript :=
+    '(function() {' +
+    '  try {' +
+    '    var list = document.querySelectorAll("' + LocalEscapeJSString(Selector) + '");' +
+    '    var el = list[' + IntToStr(Idx) + '];' +
+    '    if (!el) {' +
+    '      return JSON.stringify({ ok:false, error: "element not found", selector: "' + LocalEscapeJSString(Selector) + '" });' +
+    '    }' +
+    '    el.focus();' +
+    '    ["keydown", "keypress", "keyup"].forEach(function(type) {' +
+    '      var ev = new KeyboardEvent(type, {' +
+    '        key: "Enter",' +
+    '        code: "Enter",' +
+    '        keyCode: 13,' +
+    '        which: 13,' +
+    '        bubbles: true,' +
+    '        cancelable: true' +
+    '      });' +
+    '      el.dispatchEvent(ev);' +
+    '    });' +
+    '    var form = el.form || el.closest("form");' +
+    '    if (form) {' +
+    '      if (form.requestSubmit) {' +
+    '        form.requestSubmit();' +
+    '        return JSON.stringify({ ok:true, method: "requestSubmit" });' +
+    '      }' +
+    '      form.submit();' +
+    '      return JSON.stringify({ ok:true, method: "form.submit" });' +
+    '    }' +
+    '    var btn = document.querySelector(''button[type="submit"], input[type="submit"]'');' +
+    '    if (btn) {' +
+    '      btn.click();' +
+    '      return JSON.stringify({ ok:true, method: "submit_button_click" });' +
+    '    }' +
+    '    return JSON.stringify({ ok:true, method: "enter_events_only" });' +
+    '  } catch(e) {' +
+    '    return JSON.stringify({ ok:false, error: e.message });' +
+    '  }' +
+    '})();';
+
+  Result := Browser.ExecuteJavaScript(JSScript);
 end;
 
 { TAIBrowserSubmitFormAction }
@@ -385,6 +445,7 @@ function TAIBrowserSubmitFormAction.RunAction(const AParams: TStrings; ASimulate
 var
   Selector: string;
   Idx: Integer;
+  JSScript: string;
 begin
   Result := False;
   if not CheckBrowser then Exit;
@@ -400,7 +461,35 @@ begin
     Exit;
   end;
 
-  Result := Browser.DOMSubmitForm(Selector, Idx);
+  JSScript :=
+    '(function() {' +
+    '  try {' +
+    '    var list = document.querySelectorAll("' + LocalEscapeJSString(Selector) + '");' +
+    '    var el = list[' + IntToStr(Idx) + '];' +
+    '    if (!el) {' +
+    '      return JSON.stringify({ ok:false, error: "element not found", selector: "' + LocalEscapeJSString(Selector) + '" });' +
+    '    }' +
+    '    var form = el.form || el.closest("form");' +
+    '    if (form) {' +
+    '      if (form.requestSubmit) {' +
+    '        form.requestSubmit();' +
+    '        return JSON.stringify({ ok:true, method: "requestSubmit" });' +
+    '      }' +
+    '      form.submit();' +
+    '      return JSON.stringify({ ok:true, method: "form.submit" });' +
+    '    }' +
+    '    var btn = document.querySelector(''button[type="submit"], input[type="submit"]'');' +
+    '    if (btn) {' +
+    '      btn.click();' +
+    '      return JSON.stringify({ ok:true, method: "submit_button_click" });' +
+    '    }' +
+    '    return JSON.stringify({ ok:false, error: "form or submit button not found" });' +
+    '  } catch(e) {' +
+    '    return JSON.stringify({ ok:false, error: e.message });' +
+    '  }' +
+    '})();';
+
+  Result := Browser.ExecuteJavaScript(JSScript);
 end;
 
 { TAIBrowserScreenshotAction }

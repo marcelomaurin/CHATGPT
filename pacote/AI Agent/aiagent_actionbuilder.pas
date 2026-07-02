@@ -216,13 +216,16 @@ begin
       end;
 
       ParamsData := ItemObj.Find('parameters');
-      if Assigned(ParamsData) then
+      if not Assigned(ParamsData) then
       begin
-        if not (ParamsData is TJSONObject) then
-        begin
-          AError := Format('O campo "parameters" do item %d não é um objeto', [I]);
-          Exit;
-        end;
+        AError := Format('O campo "parameters" do item %d está ausente', [I]);
+        Exit;
+      end;
+
+      if not (ParamsData is TJSONObject) then
+      begin
+        AError := Format('O campo "parameters" do item %d não é um objeto', [I]);
+        Exit;
       end;
     end;
 
