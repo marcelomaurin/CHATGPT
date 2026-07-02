@@ -1,0 +1,60 @@
+Currículo Profissional - Marcelo Maurin Martins
+================================================
+
+Marcelo Maurin Martins
+
+Casado, 52 anos
+
+Servidor Público | Professor Técnico | Analista Desenvolvedor de Soluções Integradas
+Software | Hardware | Automação | IA Aplicada | Sistemas Biomédicos
+
+WhatsApp: [DADO_NUMERICO]
+E-mail: [EMAIL]
+
+**Perfil Profissional**
+Profissional de Tecnologia da Informação com atuação em desenvolvimento de sistemas, automação, integração com equipamentos, banco de dados e inteligência artificial aplicada. Atuo como servidor público na Secretaria da Saúde de Ribeirão Preto, desenvolvendo soluções internas em PHP/Web, Lazarus/Object Pascal, banco de dados, automação de processos e IA aplicada. Também atuo como Professor Técnico da Secretaria da Educação do Estado de São Paulo, lecionando programação, banco de dados, lógica e desenvolvimento de projetos práticos para alunos do Ensino Médio Técnico.
+
+**Objetivo Profissional**
+Atuar na definição, documentação, desenvolvimento, manutenção e integração de soluções tecnológicas, especialmente em projetos que envolvam sistemas, automação, banco de dados, inteligência artificial aplicada, integração com equipamentos ou ambientes operacionais complexos.
+
+**Experiência Atual**
+Prefeitura Municipal de Ribeirão Preto — Secretaria da Saúde
+Servidor Público Estatutário (08/2024 – atualmente)
+Atuação: Técnico em Processamento de Dados / Desenvolvimento de aplicações internas
+
+**Principais projetos e atividades:**
+- Sistema de controle de filas;
+- Sistema de controle de manutenção de equipamentos médicos;
+- Desenvolvimento de aplicações internas em PHP/Web;
+- Desenvolvimento de aplicações desktop em Lazarus/Object Pascal;
+- Integração com banco de dados;
+- Automação de processos administrativos;
+- Apoio tecnológico a demandas da saúde pública;
+- Desenvolvimento de soluções com inteligência artificial aplicada.
+
+**Governo do Estado de São Paulo — Secretaria da Educação**
+Professor Técnico Contratado (01/2025 – atualmente)
+Atuação: Ensino técnico profissionalizante
+
+**Principais atividades:**
+- Ensino de lógica de programação;
+- Ensino de programação;
+- Ensino de banco de dados;
+- Ensino de desenvolvimento de sistemas;
+- Orientação de projetos práticos;
+- Preparação de materiais e atividades técnicas;
+- Apoio à formação profissional de alunos em tecnologia.
+
+**Formação**
+- Graduação em Sistemas Biomédicos — FATEC Ribeirão Preto (2022 – 2026, em andamento)
+- Pós-graduação em Inteligência Artificial — UNINOVE (2022)
+- Graduação em Tecnologia da Informação — FATEC Taquaritinga (1999)
+- Mecânico Industrial — ETEC (2015)
+
+**Competências Técnicas**
+- Desenvolvimento de sistemas: C, C++, C ANSI, Delphi, Lazarus/Object Pascal, PHP, Python, Java, WordPress.
+- Banco de dados: PostgreSQL, MySQL, SQLite, Oracle.
+- Automação e integração com equipamentos: Arduino, ESP32, Raspberry Pi.
+
+**Disponibilidade**
+Atuação remota, até 25 horas semanais, de segunda a sexta-feira, apenas no período da manhã.

@@ -293,6 +293,7 @@ type
     procedure EnsureCaptureAfterSubmit;
     function FindTaskByID(const AID: string): TSampleTaskItem;
     function ListTaskIDs: string;
+    function ProcessorMissingInformation(const AProcessorJSON: string): string;
     procedure NormalizeTaskPlan(const AReason: string);
     procedure RebuildLinearDependenciesFromOrder;
     procedure ValidateCurrentPlan;
@@ -2280,6 +2281,16 @@ begin
     Exit;
   end;
 
+  if DepTask.Status = stsCanceled then
+  begin
+    Result := False;
+    AError := Format(
+      'A tarefa dependente "%s" foi cancelada. A tarefa atual não pode executar.',
+      [DepTask.ID]
+    );
+    Exit;
+  end;
+
   if DepTask.Status <> stsDone then
   begin
     Result := False;
@@ -2539,6 +2550,17 @@ begin
 
   AddLog('Processamento cognitivo concluído.');
 
+  Err := ProcessorMissingInformation(ProcessorOutput);
+  if (Err <> '') and SameText(T.AcaoSugerida, 'SEND_EMAIL') then
+  begin
+    T.Status := stsFailed;
+    T.Resultado := 'Não é possível enviar e-mail ainda. Informação faltante: ' + Err;
+    AddLog('[PROCESSOR] SEND_EMAIL bloqueado por informação faltante: ' + Err);
+    RefreshTasksGrid;
+    RefreshMemoryMapGrid;
+    Exit;
+  end;
+
   if Trim(T.AcaoSugerida) = '' then
   begin
     T.Status := stsDone;
@@ -2616,8 +2638,26 @@ begin
   ActionBuildSuccess := False;
   BuilderOutput := '';
 
-  if IsBrowserActionName(T.AcaoSugerida) and
-     (Pos('BROWSER_', UpperCase(Trim(T.AcaoSugerida))) = 1) then
+  if SameText(T.AcaoSugerida, 'SEND_EMAIL') or
+     SameText(T.AcaoSugerida, 'CREATE_TEXT_DOCUMENT') or
+     SameText(T.AcaoSugerida, 'REGISTER_RESULT') then
+  begin
+    AddLog('Ação operacional direta detectada. Montando ação única sem permitir troca pelo ActionBuilder.');
+
+    if SameText(T.AcaoSugerida, 'SEND_EMAIL') then
+    begin
+      if IsEmptyOrPlaceholder(T.Params.Values['body']) then
+        T.Params.Values['body'] := ProcessorResultText;
+
+      if Trim(T.Params.Values['to']) = '' then
+        T.Params.Values['to'] := 'marcelomaurinmartins@gmail.com';
+    end;
+
+    BuilderOutput := BuildSingleActionJSON(T);
+    ActionBuildSuccess := True;
+  end
+  else if IsBrowserActionName(T.AcaoSugerida) and
+          (Pos('BROWSER_', UpperCase(Trim(T.AcaoSugerida))) = 1) then
   begin
     AddLog('Tarefa BROWSER_* detectada. Montando ação única sem ActionBuilder para evitar SEND_EMAIL prematuro.');
 
@@ -3185,6 +3225,29 @@ begin
       Result := Result + ', ';
 
     Result := Result + '[' + T.ID + '/' + GetEnumName(TypeInfo(TSampleTaskStatus), Ord(T.Status)) + ']';
+  end;
+end;
+
+function TfrmMain.ProcessorMissingInformation(const AProcessorJSON: string): string;
+var
+  D: TJSONData;
+  O: TJSONObject;
+begin
+  Result := '';
+
+  try
+    D := GetJSON(AProcessorJSON);
+    try
+      if D is TJSONObject then
+      begin
+        O := TJSONObject(D);
+        Result := Trim(O.Get('missing_information', ''));
+      end;
+    finally
+      D.Free;
+    end;
+  except
+    Result := '';
   end;
 end;
 
@@ -4474,6 +4537,11 @@ begin
               T := TSampleTaskItem(FTasks[J]);
               if SameText(T.ID, CancelId) then
               begin
+                if T.Status = stsDone then
+                begin
+                  AddLog('[REPLAN] Cancelamento ignorado: tarefa já concluída não pode ser cancelada: ' + T.ID);
+                  Continue;
+                end;
                 T.Status := stsCanceled;
                 AddLog('[REPLAN] Tarefa cancelada pela IA: ' + CancelId);
               end;
@@ -4512,6 +4580,11 @@ begin
             end
             else
             begin
+              if FoundTask.Status = stsDone then
+              begin
+                AddLog('[REPLAN] Atualização ignorada: tarefa já concluída não pode ser alterada: ' + FoundTask.ID);
+                Continue;
+              end;
               AddLog('[REPLAN] Atualizando tarefa existente no plano: ' + NewId);
               FoundTask.PlanVersion := FoundTask.PlanVersion + 1;
               FoundTask.ReplanReason := Obj.Get('reason', '');

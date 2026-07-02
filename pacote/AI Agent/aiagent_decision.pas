@@ -497,12 +497,13 @@ begin
   Result :=
     '{' + sLineBreak +
     '  "confidence": 0.95,' + sLineBreak +
-    '  "analysis": "Análise da tarefa recebida",' + sLineBreak +
-    '  "explanation": "Explicação do processamento feito",' + sLineBreak +
+    '  "analysis": "Análise objetiva da tarefa recebida",' + sLineBreak +
+    '  "explanation": "Explicação curta do processamento feito",' + sLineBreak +
     '  "action_taken": "TASK_PROCESSED",' + sLineBreak +
-    '  "result_type": "text",' + sLineBreak +
-    '  "result": "Conteúdo final produzido pela tarefa",' + sLineBreak +
+    '  "result_type": "text|email_draft|browser_instruction|error",' + sLineBreak +
+    '  "result": "Resultado final da tarefa, ou rascunho estruturado, ou motivo objetivo da impossibilidade",' + sLineBreak +
     '  "missing_information": "",' + sLineBreak +
+    '  "preserved_action": "nome da ação sugerida original se existir",' + sLineBreak +
     '  "analysis_questions": []' + sLineBreak +
     '}';
 end;
@@ -516,19 +517,16 @@ var
   LPromptText: string;
 begin
   LPromptText :=
-    'Você é um agente processador de tarefas.' + sLineBreak + sLineBreak +
-    'Analise a tarefa recebida.' + sLineBreak +
-    'Execute mentalmente somente a tarefa solicitada.' + sLineBreak +
-    'Não invente informações.' + sLineBreak +
-    'Use apenas:' + sLineBreak +
-    '1. o input recebido;' + sLineBreak +
-    '2. o mapa de memória;' + sLineBreak +
-    '3. resultados anteriores contidos no contexto.' + sLineBreak + sLineBreak +
-    '=== REGRAS DE PROCESSAMENTO POR TIPO DE TAREFA ===' + sLineBreak +
-    '1. Se a tarefa for de browser/DOM, não execute a ação no texto. Apenas analise a intenção e retorne em "result" o que deve ser feito, preservando seletores, URL, valor a inserir e ação esperada.' + sLineBreak +
-    '2. Se a tarefa for gerar texto, currículo, resumo ou relatório, o campo "result" deve conter o texto final completo.' + sLineBreak +
-    '3. Se a tarefa for preparar e-mail, o campo "result" deve conter destinatário, assunto e corpo sugerido, mas não deve enviar e-mail.' + sLineBreak + sLineBreak +
-    'Retorne exclusivamente JSON no schema obrigatório.' + sLineBreak + sLineBreak +
+    'Você é um agente processador de UMA tarefa específica.' + sLineBreak +
+    'Sua função é converter a tarefa recebida em uma resposta JSON válida no schema obrigatório.' + sLineBreak +
+    'Você NÃO deve executar outras tarefas.' + sLineBreak +
+    'Você NÃO deve alterar a ação sugerida.' + sLineBreak +
+    'Você NÃO deve criar plano de ações.' + sLineBreak +
+    'Você NÃO deve chamar SEND_EMAIL, BROWSER_* ou REGISTER_RESULT diretamente.' + sLineBreak +
+    'Você deve apenas processar semanticamente a tarefa selecionada e retornar o resultado no campo "result".' + sLineBreak +
+    'Use o mapa de memória somente como contexto auxiliar.' + sLineBreak +
+    'Use os resultados anteriores somente se estiverem presentes no input ou no mapa.' + sLineBreak +
+    'Não invente link, preço, produto, e-mail ou conteúdo que não esteja no contexto.' + sLineBreak + sLineBreak +
     '=== SCHEMA OBRIGATÓRIO ===' + sLineBreak +
     ASchemaText + sLineBreak + sLineBreak +
     '=== CONTEXTO DE MEMÓRIA (MAPA) ===' + sLineBreak +
@@ -550,12 +548,6 @@ begin
   if Trim(AInput) = '' then
   begin
     AError := 'ProcessorInput vazio.';
-    Exit;
-  end;
-
-  if Length(Trim(AInput)) < 20 then
-  begin
-    AError := 'ProcessorInput muito curto.';
     Exit;
   end;
 
@@ -698,10 +690,10 @@ begin
     Exit;
   end;
 
+  ValidationError := '';
   if not ValidateTaskProcessorInput(AInput, ValidationError) then
   begin
-    SetError('ProcessorInput inválido: ' + ValidationError);
-    Exit;
+    FLastProcessValidationError := 'Aviso no input: ' + ValidationError;
   end;
 
   if not Assigned(ChatGPT) then
@@ -759,21 +751,23 @@ begin
     begin
       FLastProcessValidationError := ValidationError;
 
-      // Tarefa 18: Recuperar saída inválida
       if FAutoRecoverInvalidProcessInput then
       begin
-        // Tarefa 1.7 — Usar entrada limitada na recuperação
-        if RecoverInvalidTaskProcessorOutput(
-          SafeInput,
-          SafeMemoryContext,
-          ResponseText,
-          ValidationError,
-          SchemaText,
-          RecoveredText
-        ) then
+        for i := 1 to FMaxProcessRecoverAttempts do
         begin
-          ResponseText := RecoveredText;
-          FLastProcessRecoveredOutput := RecoveredText;
+          if RecoverInvalidTaskProcessorOutput(
+            SafeInput,
+            SafeMemoryContext,
+            ResponseText,
+            ValidationError,
+            SchemaText,
+            RecoveredText
+          ) then
+          begin
+            ResponseText := RecoveredText;
+            FLastProcessRecoveredOutput := RecoveredText;
+            Break;
+          end;
         end;
       end;
     end;
