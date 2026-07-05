@@ -68,20 +68,29 @@ object frmMain: TfrmMain
       Left = 15
       Height = 23
       Top = 75
-      Width = 214
+      Width = 150
       ItemHeight = 15
       Style = csDropDownList
       TabOrder = 2
     end
+    object btnRefreshPorts: TButton
+      Left = 175
+      Height = 25
+      Top = 74
+      Width = 70
+      Caption = 'Refresh'
+      TabOrder = 4
+      OnClick = btnRefreshPortsClick
+    end
     object lblRegister: TLabel
-      Left = 250
+      Left = 260
       Height = 15
       Top = 55
-      Width = 63
+      Width = 62
       Caption = 'Registrador:'
     end
     object edtRegister: TEdit
-      Left = 250
+      Left = 260
       Height = 23
       Top = 75
       Width = 120

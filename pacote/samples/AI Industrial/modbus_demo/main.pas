@@ -31,11 +31,13 @@ type
     AIListSerialDevices1: TAIListSerialDevices;
     edtRegister: TEdit;
     lblRegister: TLabel;
+    btnRefreshPorts: TButton;
     
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnRunClick(Sender: TObject);
     procedure btnClearLogClick(Sender: TObject);
+    procedure btnRefreshPortsClick(Sender: TObject);
   private
     procedure AddLog(const AMsg: string);
     procedure RefreshSerialPorts;
@@ -125,6 +127,12 @@ end;
 procedure TfrmMain.btnClearLogClick(Sender: TObject);
 begin
   memoLog.Clear;
+end;
+
+procedure TfrmMain.btnRefreshPortsClick(Sender: TObject);
+begin
+  AddLog('Recarregando portas seriais...');
+  RefreshSerialPorts;
 end;
 
 procedure TfrmMain.AddLog(const AMsg: string);
