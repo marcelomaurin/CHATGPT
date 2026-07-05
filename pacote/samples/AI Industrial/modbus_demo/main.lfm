@@ -58,20 +58,35 @@ object frmMain: TfrmMain
       OnClick = btnClearLogClick
     end
     object Label1: TLabel
-      Left = 112
+      Left = 15
       Height = 15
-      Top = 48
+      Top = 55
       Width = 62
       Caption = 'Porta Serial:'
     end
     object cbSerial: TComboBox
-      Left = 112
+      Left = 15
       Height = 23
-      Top = 67
+      Top = 75
       Width = 214
       ItemHeight = 15
+      Style = csDropDownList
       TabOrder = 2
-      Text = 'cbSerial'
+    end
+    object lblRegister: TLabel
+      Left = 250
+      Height = 15
+      Top = 55
+      Width = 62
+      Caption = 'Registrador:'
+    end
+    object edtRegister: TEdit
+      Left = 250
+      Height = 23
+      Top = 75
+      Width = 120
+      TabOrder = 3
+      Text = '10'
     end
   end
   object PageControl1: TPageControl
@@ -99,10 +114,18 @@ object frmMain: TfrmMain
         Top = 10
         Width = 772
         Align = alClient
-        BorderSpacing.Around = 10
+        ReadOnly = True
         ScrollBars = ssAutoBoth
         TabOrder = 0
       end
     end
+  end
+  object AIModbusClient1: TAIModbusClient
+    Left = 400
+    Top = 30
+  end
+  object AIListSerialDevices1: TAIListSerialDevices
+    Left = 450
+    Top = 30
   end
 end

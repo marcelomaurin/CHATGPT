@@ -25,14 +25,18 @@ type
     tsMapaPinout: TTabSheet;
     tsOper: TTabSheet;
     tsLog: TTabSheet;
+    
+    // Non-visual and visual components on the form
+    AIModbusClient1: TAIModbusClient;
+    AIListSerialDevices1: TAIListSerialDevices;
+    edtRegister: TEdit;
+    lblRegister: TLabel;
+    
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnRunClick(Sender: TObject);
     procedure btnClearLogClick(Sender: TObject);
   private
-    FAIModbus: TAIModbusClient;
-    FSerialDevices: TAIListSerialDevices;
-    FEditRegister: TEdit;
     procedure AddLog(const AMsg: string);
     procedure RefreshSerialPorts;
   public
@@ -50,31 +54,21 @@ implementation
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
-  AddLog('Modbus RTU Demo (aimodbus) initialized.');
-  FAIModbus := TAIModbusClient.Create(Self);
-  FAIModbus.ProtocolType := mbRTU;
-  
-  FSerialDevices := TAIListSerialDevices.Create(Self);
+  AddLog('Modbus RTU Demo (aimodbus) initialized with Form components.');
+  AIModbusClient1.ProtocolType := mbRTU;
   RefreshSerialPorts;
-  
-  FEditRegister := TEdit.Create(Self);
-  FEditRegister.Parent := pnlTop;
-  FEditRegister.Left := 350;
-  FEditRegister.Top := 67;
-  FEditRegister.Width := 100;
-  FEditRegister.Text := '10'; // Default Modbus Register
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
-  // Handled by LCL Owner auto-free.
+  // Handled automatically by owner form
 end;
 
 procedure TfrmMain.RefreshSerialPorts;
 begin
-  FSerialDevices.Refresh;
+  AIListSerialDevices1.Refresh;
   cbSerial.Items.Clear;
-  FSerialDevices.GetDeviceNames(cbSerial.Items);
+  AIListSerialDevices1.GetDeviceNames(cbSerial.Items);
   if cbSerial.Items.Count > 0 then
     cbSerial.ItemIndex := 0
   else
@@ -88,31 +82,30 @@ begin
   lblStatus.Caption := 'Status: Processing...';
   AddLog('--- Starting Modbus RTU Execution ---');
   try
-    FAIModbus.DeviceName := cbSerial.Text;
-    FAIModbus.BaudRate := 9600;
+    AIModbusClient1.DeviceName := cbSerial.Text;
+    AIModbusClient1.BaudRate := 9600;
     
     AddLog('Modbus RTU Client Properties:');
-    AddLog('  DeviceName: ' + FAIModbus.DeviceName);
-    AddLog('  BaudRate: ' + IntToStr(FAIModbus.BaudRate));
+    AddLog('  DeviceName: ' + AIModbusClient1.DeviceName);
+    AddLog('  BaudRate: ' + IntToStr(AIModbusClient1.BaudRate));
     
     AddLog('Connecting to Modbus RTU Slave...');
     try
-      if FAIModbus.Connect then
+      if AIModbusClient1.Connect then
       begin
         AddLog('Modbus RTU Connected.');
         
-        // Example read operation
-        AddLog('Reading holding register: ' + FEditRegister.Text);
-        if FAIModbus.ReadHoldingRegisters(1, StrToIntDef(FEditRegister.Text, 10), 1, Data) then
+        AddLog('Reading holding register: ' + edtRegister.Text);
+        if AIModbusClient1.ReadHoldingRegisters(1, StrToIntDef(edtRegister.Text, 10), 1, Data) then
           AddLog('Read value: ' + IntToStr(Data[0]))
         else
-          AddLog('Read failed: ' + FAIModbus.LastError);
+          AddLog('Read failed: ' + AIModbusClient1.LastError);
           
-        FAIModbus.Disconnect;
+        AIModbusClient1.Disconnect;
         AddLog('Disconnected.');
       end
       else
-        AddLog('Failed to connect: ' + FAIModbus.LastError);
+        AddLog('Failed to connect: ' + AIModbusClient1.LastError);
     except
       on E: Exception do AddLog('Exception: ' + E.Message);
     end;
