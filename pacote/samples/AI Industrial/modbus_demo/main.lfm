@@ -77,7 +77,7 @@ object frmMain: TfrmMain
       Left = 250
       Height = 15
       Top = 55
-      Width = 62
+      Width = 63
       Caption = 'Registrador:'
     end
     object edtRegister: TEdit
@@ -109,10 +109,10 @@ object frmMain: TfrmMain
       ClientHeight = 402
       ClientWidth = 792
       object memoLog: TMemo
-        Left = 10
-        Height = 382
-        Top = 10
-        Width = 772
+        Left = 0
+        Height = 402
+        Top = 0
+        Width = 792
         Align = alClient
         ReadOnly = True
         ScrollBars = ssAutoBoth
@@ -121,11 +121,19 @@ object frmMain: TfrmMain
     end
   end
   object AIModbusClient1: TAIModbusClient
+    Prompt = 'Component TAIModbusClient connects to PLCs/industrial equipment via Modbus TCP/RTU. '#13#10'Properties: ProtocolType: TModbusProtocol (mbTCP, mbRTU), IPAddress: string, Port: Integer (default 502), DeviceName: string, BaudRate: Integer, Active: Boolean. '#13#10'Methods: Connect, Disconnect, ReadHoldingRegisters, WriteSingleRegister. '#13#10'AI Agent: Use this to read sensor states or write actuator commands in industrial automation.'
+    IPAddress = '192.168.1.100'
+    DeviceName = 'COM1'
     Left = 400
     Top = 30
   end
   object AIListSerialDevices1: TAIListSerialDevices
-    Left = 450
+    Prompt = 'Component TAIListSerialDevices queries and aggregates available serial hardware interfaces (COM/tty) on Windows and Linux/macOS. Methods: Refresh, GetDeviceNames(AList: TStrings).'
+    Devices = <>
+    AutoRefresh = True
+    OnlyAvailable = True
+    ProbeOpenable = True
+    Left = 520
     Top = 30
   end
 end

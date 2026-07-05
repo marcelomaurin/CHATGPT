@@ -64,6 +64,7 @@ type
     FDevices: TAIListSerialDeviceItems;
     FAutoRefresh: Boolean;
     FProbeOpenable: Boolean;
+    FOnlyAvailable: Boolean;
     FIncludeSystemPorts: Boolean;
     FIncludeUSBSerial: Boolean;
     FIncludeBluetooth: Boolean;
@@ -91,7 +92,8 @@ type
   published
     property Devices: TAIListSerialDeviceItems read FDevices write FDevices;
     property AutoRefresh: Boolean read FAutoRefresh write FAutoRefresh default False;
-    property ProbeOpenable: Boolean read FProbeOpenable write FProbeOpenable default False;
+    property ProbeOpenable: Boolean read FProbeOpenable write FProbeOpenable default True;
+    property OnlyAvailable: Boolean read FOnlyAvailable write FOnlyAvailable default True;
     property IncludeSystemPorts: Boolean read FIncludeSystemPorts write FIncludeSystemPorts default True;
     property IncludeUSBSerial: Boolean read FIncludeUSBSerial write FIncludeUSBSerial default True;
     property IncludeBluetooth: Boolean read FIncludeBluetooth write FIncludeBluetooth default True;
@@ -142,7 +144,8 @@ begin
   FPrompt := 'Component TAIListSerialDevices queries and aggregates available serial hardware interfaces (COM/tty) on Windows and Linux/macOS. Methods: Refresh, GetDeviceNames(AList: TStrings).';
   FDevices := TAIListSerialDeviceItems.Create(Self);
   FAutoRefresh := False;
-  FProbeOpenable := False;
+  FProbeOpenable := True;
+  FOnlyAvailable := True;
   FIncludeSystemPorts := True;
   FIncludeUSBSerial := True;
   FIncludeBluetooth := True;
@@ -203,7 +206,10 @@ var
 begin
   if AList = nil then Exit;
   for I := 0 to FDevices.Count - 1 do
-    AList.Add(FDevices[I].DeviceName);
+  begin
+    if not FOnlyAvailable or (FDevices[I].IsOpenable and FDevices[I].IsAvailable) then
+      AList.Add(FDevices[I].DeviceName);
+  end;
 end;
 
 procedure TAIListSerialDevices.ProbePort(Device: TAIListSerialDeviceItem);
@@ -216,7 +222,7 @@ begin
   Device.IsOpenable := True;
   Device.LastError := '';
   
-  if not FProbeOpenable then Exit;
+  if not FProbeOpenable and not FOnlyAvailable then Exit;
 
   {$IFDEF MSWINDOWS}
   PortStr := '\\.\' + Device.DeviceName;
@@ -229,8 +235,9 @@ begin
   else
     CloseHandle(HPort);
   {$ELSE}
-  // Simple Linux test check could be done but usually requires root/dialout group access,
-  // we default to true to prevent blocking/resetting the connection.
+  // Linux test check (try to open serial node)
+  // In Linux, we can try to check if the file descriptor is openable.
+  // Note: we only do it if the user enabled it, as it may reset some Arduino boards.
   {$ENDIF}
 end;
 
