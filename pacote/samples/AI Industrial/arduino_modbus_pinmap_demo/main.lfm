@@ -106,6 +106,7 @@ object frmMain: TfrmMain
         'Arduino Nano'
         'Arduino Uno'
         'Arduino Mega'
+        'ESP32'
       )
       Style = csDropDownList
       TabOrder = 3

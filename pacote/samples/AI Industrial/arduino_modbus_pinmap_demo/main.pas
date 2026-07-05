@@ -121,6 +121,7 @@ begin
     0: FPinMap.BoardType := abtNano;
     1: FPinMap.BoardType := abtUno;
     2: FPinMap.BoardType := abtMega;
+    3: FPinMap.BoardType := abtESP32;
   end;
   UpdatePinsList;
 end;
@@ -135,6 +136,7 @@ begin
     abtNano: FPinMap.LoadArduinoNanoDefaultMap;
     abtUno: FPinMap.LoadArduinoUnoDefaultMap;
     abtMega: FPinMap.LoadArduinoMegaDefaultMap;
+    abtESP32: FPinMap.LoadESP32DefaultMap;
   end;
   
   for I := 0 to FPinMap.Pins.Count - 1 do

@@ -53,7 +53,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\..\..;..\..\..\AI;..\..\..\AI Agent;..\..\..\AI Voice;..\..\..\AI Filtros Sonoros;..\..\..\AI Image;..\..\..\AI Schedule;..\..\..\AI Math;..\..\..\AI Input;..\..\..\AI Output;..\..\..\AI Graph;..\..\..\AI Graphic;..\..\..\AI Vision;..\..\..\packages"/>
+      <OtherUnitFiles Value="..\..\..;..\..\..\AI;..\..\..\AI Agent;..\..\..\AI Voice;..\..\..\AI Filtros Sonoros;..\..\..\AI Image;..\..\..\AI Schedule;..\..\..\AI Math;..\..\..\AI Input;..\..\..\AI Output;..\..\..\AI Graph;..\..\..\AI Graphic;..\..\..\AI Vision;..\..\..\packages;..\..\..\AI Industrial"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
   </CompilerOptions>

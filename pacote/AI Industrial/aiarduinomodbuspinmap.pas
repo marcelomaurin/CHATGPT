@@ -93,6 +93,7 @@ type
     procedure LoadArduinoNanoDefaultMap;
     procedure LoadArduinoUnoDefaultMap;
     procedure LoadArduinoMegaDefaultMap;
+    procedure LoadESP32DefaultMap;
 
     function Connect: Boolean;
     procedure Disconnect;
@@ -415,6 +416,48 @@ begin
     Item := FPins.Add;
     Item.Name := 'A' + IntToStr(I);
     Item.PinNumber := 54 + I;
+    Item.Mode := apmInput;
+    Item.Kind := apkAnalog;
+    Item.CanPWM := False;
+    Item.CanAnalog := True;
+    Item.Reserved := False;
+    Item.ModeRegister := 10 + Item.PinNumber;
+    Item.DigitalRegister := 50 + Item.PinNumber;
+    Item.AnalogRegister := 100 + I;
+    Item.PWMRegister := -1;
+  end;
+end;
+
+procedure TAIArduinoModbusPinMap.LoadESP32DefaultMap;
+var
+  Item: TAIArduinoPinMapItem;
+  I: Integer;
+  GPIOPins: array[0..17] of Integer = (2, 4, 5, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23, 25, 26, 27, 32);
+  AnalogPins: array[0..5] of Integer = (33, 34, 35, 36, 39, 32);
+begin
+  ClearMap;
+  
+  for I := 0 to High(GPIOPins) do
+  begin
+    Item := FPins.Add;
+    Item.Name := 'GPIO' + IntToStr(GPIOPins[I]);
+    Item.PinNumber := GPIOPins[I];
+    Item.Mode := apmInput;
+    Item.Kind := apkDigital;
+    Item.CanPWM := True;
+    Item.CanAnalog := False;
+    Item.Reserved := False;
+    Item.ModeRegister := 10 + Item.PinNumber;
+    Item.DigitalRegister := 50 + Item.PinNumber;
+    Item.AnalogRegister := -1;
+    Item.PWMRegister := 150 + Item.PinNumber;
+  end;
+
+  for I := 0 to High(AnalogPins) do
+  begin
+    Item := FPins.Add;
+    Item.Name := 'ADC' + IntToStr(I);
+    Item.PinNumber := AnalogPins[I];
     Item.Mode := apmInput;
     Item.Kind := apkAnalog;
     Item.CanPWM := False;
