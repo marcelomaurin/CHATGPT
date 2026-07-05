@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  ComCtrls, aibase, aimodbus;
+  ComCtrls, aibase, aimodbus, ailistserialdevices;
 
 type
 
@@ -30,8 +30,11 @@ type
     procedure btnRunClick(Sender: TObject);
     procedure btnClearLogClick(Sender: TObject);
   private
-    FAIModbus: TAIModbusClient; FEditIP: TEdit; FEditRegister: TEdit;
+    FAIModbus: TAIModbusClient;
+    FSerialDevices: TAIListSerialDevices;
+    FEditRegister: TEdit;
     procedure AddLog(const AMsg: string);
+    procedure RefreshSerialPorts;
   public
 
   end;
@@ -47,22 +50,19 @@ implementation
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
-  AddLog('Modbus Demo (aimodbus) initialized.');
+  AddLog('Modbus RTU Demo (aimodbus) initialized.');
   FAIModbus := TAIModbusClient.Create(Self);
+  FAIModbus.ProtocolType := mbRTU;
   
-  FEditIP := TEdit.Create(Self);
-  FEditIP.Parent := pnlTop;
-  FEditIP.Left := 15;
-  FEditIP.Top := 115;
-  FEditIP.Width := 200;
-  FEditIP.Text := '192.168.1.100';
+  FSerialDevices := TAIListSerialDevices.Create(Self);
+  RefreshSerialPorts;
   
   FEditRegister := TEdit.Create(Self);
   FEditRegister.Parent := pnlTop;
-  FEditRegister.Left := 230;
-  FEditRegister.Top := 115;
+  FEditRegister.Left := 350;
+  FEditRegister.Top := 67;
   FEditRegister.Width := 100;
-  FEditRegister.Text := '40001';
+  FEditRegister.Text := '10'; // Default Modbus Register
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
@@ -70,25 +70,44 @@ begin
   // Handled by LCL Owner auto-free.
 end;
 
+procedure TfrmMain.RefreshSerialPorts;
+begin
+  FSerialDevices.Refresh;
+  cbSerial.Items.Clear;
+  FSerialDevices.GetDeviceNames(cbSerial.Items);
+  if cbSerial.Items.Count > 0 then
+    cbSerial.ItemIndex := 0
+  else
+    AddLog('Nenhuma porta serial encontrada.');
+end;
+
 procedure TfrmMain.btnRunClick(Sender: TObject);
+var
+  Data: array[0..0] of Word;
 begin
   lblStatus.Caption := 'Status: Processing...';
-  AddLog('--- Starting Execution ---');
+  AddLog('--- Starting Modbus RTU Execution ---');
   try
-  FAIModbus.IPAddress := FEditIP.Text;
-  FAIModbus.Port := 502;
-  
-  AddLog('Modbus TCP Client Properties:');
-  AddLog('  IPAddress: ' + FAIModbus.IPAddress);
-  AddLog('  Port: ' + IntToStr(FAIModbus.Port));
-  
-
-    AddLog('Connecting to physical PLC Modbus endpoint: ' + FAIModbus.IPAddress);
+    FAIModbus.DeviceName := cbSerial.Text;
+    FAIModbus.BaudRate := 9600;
+    
+    AddLog('Modbus RTU Client Properties:');
+    AddLog('  DeviceName: ' + FAIModbus.DeviceName);
+    AddLog('  BaudRate: ' + IntToStr(FAIModbus.BaudRate));
+    
+    AddLog('Connecting to Modbus RTU Slave...');
     try
       if FAIModbus.Connect then
       begin
-        AddLog('TCP Modbus Link Connected.');
-        // Read/Write operations
+        AddLog('Modbus RTU Connected.');
+        
+        // Example read operation
+        AddLog('Reading holding register: ' + FEditRegister.Text);
+        if FAIModbus.ReadHoldingRegisters(1, StrToIntDef(FEditRegister.Text, 10), 1, Data) then
+          AddLog('Read value: ' + IntToStr(Data[0]))
+        else
+          AddLog('Read failed: ' + FAIModbus.LastError);
+          
         FAIModbus.Disconnect;
         AddLog('Disconnected.');
       end
