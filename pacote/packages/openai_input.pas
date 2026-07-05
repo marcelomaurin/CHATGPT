@@ -8,14 +8,15 @@ unit openai_input;
 interface
 
 uses
-  aiinput, aicapturesource, aiwebserver, aisockets, aiserial, aiemail, 
-  aimessenger, aichromiumbrowser, LazarusPackageIntf;
+  aiinput, aiaudio, aicapturesource, aiwebserver, aisockets, aiserial, 
+  aiemail, aimessenger, aichromiumbrowser, LazarusPackageIntf;
 
 implementation
 
 procedure Register;
 begin
   RegisterUnit('aiinput', @aiinput.Register);
+  RegisterUnit('aiaudio', @aiaudio.Register);
   RegisterUnit('aicapturesource', @aicapturesource.Register);
   RegisterUnit('aiwebserver', @aiwebserver.Register);
   RegisterUnit('aisockets', @aisockets.Register);

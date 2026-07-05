@@ -93,6 +93,9 @@
         <PackageName Value="openai_core"/>
       </Item>
       <Item>
+        <PackageName Value="openai_ml"/>
+      </Item>
+      <Item>
         <PackageName Value="openai_input"/>
       </Item>
       <Item>

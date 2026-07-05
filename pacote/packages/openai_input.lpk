@@ -22,6 +22,11 @@
         <UnitName Value="aiinput"/>
       </Item>
       <Item>
+        <Filename Value="..\AI Input\AIAudio\aiaudio.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiaudio"/>
+      </Item>
+      <Item>
         <Filename Value="..\AI Input\AICaptureSource\aicapturesource.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aicapturesource"/>
