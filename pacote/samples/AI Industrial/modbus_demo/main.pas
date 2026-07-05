@@ -82,17 +82,7 @@ begin
   AddLog('  IPAddress: ' + FAIModbus.IPAddress);
   AddLog('  Port: ' + IntToStr(FAIModbus.Port));
   
-  if chkSimulation.Checked then
-  begin
-    AddLog('Simulating Modbus TCP Register exchange...');
-    AddLog('Connecting to slave Unit ID: 1');
-    AddLog('Connected to: ' + FAIModbus.IPAddress);
-    AddLog('Read Holding Register ' + FEditRegister.Text + ' -> Value: 1424');
-    AddLog('Write single register ' + FEditRegister.Text + ' = 1500 -> OK');
-    AddLog('Modbus Simulation complete.');
-  end
-  else
-  begin
+
     AddLog('Connecting to physical PLC Modbus endpoint: ' + FAIModbus.IPAddress);
     try
       if FAIModbus.Connect then
@@ -107,7 +97,7 @@ begin
     except
       on E: Exception do AddLog('Exception: ' + E.Message);
     end;
-  end;
+
     lblStatus.Caption := 'Status: Completed Successfully';
   except
     on E: Exception do

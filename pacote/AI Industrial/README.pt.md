@@ -11,7 +11,9 @@ Fornece conexões industriais com CLP (Profinet/Profibus), brokers IoT MQTT, com
 | Componente | Descrição | Propriedades Importantes | Métodos Principais | Papel do Agente de IA |
 |---|---|---|---|---|
 | **TAIPOSPrinter** | Impressora Esc/POS térmica. | `DevicePath, Active` | `PrintText, PrintBarcode` | Emitir relatórios impressos e comprovantes em bobina de papel. |
-| **TAIModbusClient** | Cliente Modbus industrial (TCP/RTU). | `Host, Port, Mode, Active` | `ReadHoldingRegisters, WriteRegister` | Leitura de registradores sensores de temperatura, pressão e estado físico. |
+| **TAIModbusClient** | Cliente Modbus industrial (TCP/RTU). | `IPAddress, Port, ProtocolType, DeviceName, BaudRate, Active` | `Connect, Disconnect, ReadHoldingRegisters, WriteSingleRegister` | Leitura de registradores sensores de temperatura, pressão e estado físico. |
+| **TAIArduinoModbusPinMap** | Mapeador lógico de pinos de Arduino/ESP32 para Modbus. | `BoardType, ModbusClient, CommandMap, Pins, SlaveID, AutoConnect` | `Connect, Disconnect, SetPinMode, ReadPin, WritePin, SetPWM, ReadAnalog, SetupPins` | Fornecer uma interface lógica simplificada baseada em pinos (ex: D13, A0) mapeada para registradores Modbus. |
+| **TAIModbusCommandMap** | Filtro de códigos de função Modbus permitidos/customizados. | `Commands, AllowCustomCommands, StrictValidation` | `IsValidFunctionCode, LoadDefaultModbusCommands, AddCustomCommand` | Validar e gerenciar códigos de função Modbus padrão e específicos do usuário. |
 | **TAIMQTTClient** | Cliente de Rede IoT MQTT. | `Host, Port, Active` | `ConnectBroker, Publish, Subscribe` | Sincronizar telemetria IoT com brokers (ex: HiveMQ) sem travar a UI. |
 | **TAIIndustrialBridge** | Ponte dinâmica Profinet/Profibus CLP. | `IPAddress, Rack, Slot, Active` | `ConnectBridge, ReadBytes, WriteBytes` | Controlar e ler estado físico de pontes automatizadas industriais (S7). |
 

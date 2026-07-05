@@ -1,96 +1,72 @@
 object frmMain: TfrmMain
-  Left = 320
-  Height = 560
-  Top = 180
-  Width = 750
-  Caption = 'Arduino Modbus PinMap Demo'
-  ClientHeight = 560
-  ClientWidth = 750
+  Left = 280
+  Height = 650
+  Top = 150
+  Width = 980
+  Caption = 'Arduino Modbus PinMap evolved Demo'
+  ClientHeight = 650
+  ClientWidth = 980
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   LCLVersion = '4.4.0.0'
   object pnlLeft: TPanel
     Left = 10
-    Height = 540
+    Height = 630
     Top = 10
-    Width = 320
+    Width = 280
     Align = alLeft
     BorderSpacing.Around = 10
-    ClientHeight = 540
-    ClientWidth = 320
+    ClientHeight = 630
+    ClientWidth = 280
     TabOrder = 0
     object lblTitle: TLabel
       Left = 10
       Height = 20
       Top = 10
-      Width = 300
-      Caption = 'Arduino Modbus PinMap Demo'
+      Width = 260
+      Caption = 'Arduino PinMap RTU'
       Font.Height = -15
       Font.Name = 'Segoe UI'
       Font.Style = [fsBold]
       ParentColor = False
       ParentFont = False
     end
-    object lblProtocol: TLabel
-      Left = 10
-      Height = 15
-      Top = 45
-      Width = 48
-      Caption = 'Protocol:'
-      ParentColor = False
-    end
-    object cbProtocol: TComboBox
-      Left = 10
-      Height = 23
-      Top = 65
-      Width = 300
-      ItemHeight = 15
-      ItemIndex = 0
-      Items.Strings = (
-        'Modbus TCP'
-        'Modbus RTU'
-      )
-      Style = csDropDownList
-      TabOrder = 0
-      Text = 'Modbus TCP'
-      OnChange = cbProtocolChange
-    end
     object lblDevice: TLabel
       Left = 10
       Height = 15
-      Top = 95
-      Width = 58
-      Caption = 'IP Address:'
+      Top = 45
+      Width = 59
+      Caption = 'Serial Port:'
       ParentColor = False
     end
     object edtDevice: TEdit
       Left = 10
       Height = 23
-      Top = 115
-      Width = 300
-      TabOrder = 1
-      Text = '192.168.1.100'
+      Top = 65
+      Width = 260
+      TabOrder = 0
+      Text = 'COM3'
     end
     object lblPort: TLabel
       Left = 10
       Height = 15
-      Top = 145
-      Width = 25
-      Caption = 'Port:'
+      Top = 95
+      Width = 57
+      Caption = 'Baud Rate:'
       ParentColor = False
     end
     object edtPort: TEdit
       Left = 10
       Height = 23
-      Top = 165
-      Width = 300
-      TabOrder = 2
-      Text = '502'
+      Top = 115
+      Width = 260
+      TabOrder = 1
+      Text = '9600'
     end
     object lblBoard: TLabel
       Left = 10
       Height = 15
-      Top = 195
+      Top = 145
       Width = 62
       Caption = 'Board Type:'
       ParentColor = False
@@ -98,10 +74,9 @@ object frmMain: TfrmMain
     object cbBoard: TComboBox
       Left = 10
       Height = 23
-      Top = 215
-      Width = 300
+      Top = 165
+      Width = 260
       ItemHeight = 15
-      ItemIndex = 0
       Items.Strings = (
         'Arduino Nano'
         'Arduino Uno'
@@ -109,164 +84,375 @@ object frmMain: TfrmMain
         'ESP32'
       )
       Style = csDropDownList
-      TabOrder = 3
-      Text = 'Arduino Nano'
+      TabOrder = 2
       OnChange = cbBoardChange
     end
     object btnConnect: TButton
       Left = 10
       Height = 30
-      Top = 250
-      Width = 145
+      Top = 205
+      Width = 125
       Caption = 'Connect'
-      TabOrder = 4
+      TabOrder = 3
       OnClick = btnConnectClick
     end
     object btnDisconnect: TButton
-      Left = 165
+      Left = 145
       Height = 30
-      Top = 250
-      Width = 145
+      Top = 205
+      Width = 125
       Caption = 'Disconnect'
-      TabOrder = 5
+      TabOrder = 4
       OnClick = btnDisconnectClick
     end
-    object lblPinSection: TLabel
-      Left = 10
-      Height = 17
-      Top = 295
-      Width = 300
-      Caption = 'Pin Control:'
-      Font.Height = -13
-      Font.Name = 'Segoe UI'
-      Font.Style = [fsBold]
-      ParentColor = False
-      ParentFont = False
-    end
-    object lblPins: TLabel
-      Left = 10
-      Height = 15
-      Top = 320
-      Width = 24
-      Caption = 'Pin:'
-      ParentColor = False
-    end
-    object cbPins: TComboBox
-      Left = 10
-      Height = 23
-      Top = 340
-      Width = 145
-      ItemHeight = 15
-      Style = csDropDownList
-      TabOrder = 6
-    end
-    object lblMode: TLabel
-      Left = 165
-      Height = 15
-      Top = 320
-      Width = 34
-      Caption = 'Mode:'
-      ParentColor = False
-    end
-    object cbMode: TComboBox
-      Left = 165
-      Height = 23
-      Top = 340
-      Width = 145
-      ItemHeight = 15
-      ItemIndex = 1
-      Items.Strings = (
-        'Disabled'
-        'Input'
-        'InputPullup'
-        'Output'
-        'PWM'
-      )
-      Style = csDropDownList
-      TabOrder = 7
-      Text = 'Input'
-    end
-    object btnSetMode: TButton
-      Left = 10
-      Height = 25
-      Top = 370
-      Width = 300
-      Caption = 'Set Pin Mode'
-      TabOrder = 8
-      OnClick = btnSetModeClick
-    end
-    object lblValue: TLabel
-      Left = 10
-      Height = 15
-      Top = 405
-      Width = 71
-      Caption = 'Value / PWM:'
-      ParentColor = False
-    end
-    object edtValue: TEdit
-      Left = 10
-      Height = 23
-      Top = 425
-      Width = 300
-      TabOrder = 9
-      Text = '0'
-    end
-    object btnWriteDigital: TButton
-      Left = 10
-      Height = 25
-      Top = 455
-      Width = 145
-      Caption = 'Write Digital'
-      TabOrder = 10
-      OnClick = btnWriteDigitalClick
-    end
-    object btnReadDigital: TButton
-      Left = 165
-      Height = 25
-      Top = 455
-      Width = 145
-      Caption = 'Read Digital'
-      TabOrder = 11
-      OnClick = btnReadDigitalClick
-    end
-    object btnReadAnalog: TButton
-      Left = 10
-      Height = 25
-      Top = 490
-      Width = 145
-      Caption = 'Read Analog'
-      TabOrder = 12
-      OnClick = btnReadAnalogClick
-    end
-    object btnWritePWM: TButton
-      Left = 165
-      Height = 25
-      Top = 490
-      Width = 145
-      Caption = 'Write PWM'
-      TabOrder = 13
-      OnClick = btnWritePWMClick
+    object pnlPinEdit: TPanel
+      Left = 5
+      Height = 370
+      Top = 250
+      Width = 270
+      Caption = ''
+      ClientHeight = 370
+      ClientWidth = 270
+      TabOrder = 5
+      object lblPinEditTitle: TLabel
+        Left = 10
+        Height = 15
+        Top = 5
+        Width = 120
+        Caption = 'Selected Pin Settings'
+        Font.Style = [fsBold]
+        ParentColor = False
+      end
+      object lblPinTag: TLabel
+        Left = 10
+        Height = 15
+        Top = 25
+        Width = 21
+        Caption = 'Tag:'
+        ParentColor = False
+      end
+      object edtPinTag: TEdit
+        Left = 10
+        Height = 23
+        Top = 42
+        Width = 110
+        TabOrder = 0
+      end
+      object lblPinGroup: TLabel
+        Left = 135
+        Height = 15
+        Top = 25
+        Width = 36
+        Caption = 'Group:'
+        ParentColor = False
+      end
+      object edtPinGroup: TEdit
+        Left = 135
+        Height = 23
+        Top = 42
+        Width = 120
+        TabOrder = 1
+      end
+      object lblPinShortName: TLabel
+        Left = 10
+        Height = 15
+        Top = 70
+        Width = 63
+        Caption = 'Short Name:'
+        ParentColor = False
+      end
+      object edtPinShortName: TEdit
+        Left = 10
+        Height = 23
+        Top = 87
+        Width = 245
+        TabOrder = 2
+      end
+      object lblPinDirection: TLabel
+        Left = 10
+        Height = 15
+        Top = 115
+        Width = 51
+        Caption = 'Direction:'
+        ParentColor = False
+      end
+      object cbPinDirection: TComboBox
+        Left = 10
+        Height = 23
+        Top = 132
+        Width = 110
+        Style = csDropDownList
+        TabOrder = 3
+      end
+      object lblPinPullMode: TLabel
+        Left = 135
+        Height = 15
+        Top = 115
+        Width = 57
+        Caption = 'Pull Mode:'
+        ParentColor = False
+      end
+      object cbPinPullMode: TComboBox
+        Left = 135
+        Height = 23
+        Top = 132
+        Width = 120
+        Style = csDropDownList
+        TabOrder = 4
+      end
+      object lblPinPolarity: TLabel
+        Left = 10
+        Height = 15
+        Top = 160
+        Width = 43
+        Caption = 'Polarity:'
+        ParentColor = False
+      end
+      object cbPinPolarity: TComboBox
+        Left = 10
+        Height = 23
+        Top = 177
+        Width = 110
+        Style = csDropDownList
+        TabOrder = 5
+      end
+      object lblPinContactType: TLabel
+        Left = 135
+        Height = 15
+        Top = 160
+        Width = 71
+        Caption = 'Contact Type:'
+        ParentColor = False
+      end
+      object cbPinContactType: TComboBox
+        Left = 135
+        Height = 23
+        Top = 177
+        Width = 120
+        Style = csDropDownList
+        TabOrder = 6
+      end
+      object chkSetupEnabled: TCheckBox
+        Left = 10
+        Height = 19
+        Top = 210
+        Width = 113
+        Caption = 'Setup Enabled'
+        TabOrder = 7
+      end
+      object chkNotifyOnChange: TCheckBox
+        Left = 135
+        Height = 19
+        Top = 210
+        Width = 120
+        Caption = 'Notify On Change'
+        TabOrder = 8
+      end
+      object lblDefaultValue: TLabel
+        Left = 10
+        Height = 15
+        Top = 235
+        Width = 110
+        Caption = 'Default / Write Value:'
+        ParentColor = False
+      end
+      object edtDefaultValue: TEdit
+        Left = 10
+        Height = 23
+        Top = 255
+        Width = 245
+        TabOrder = 9
+        Text = '0'
+      end
+      object btnApplyPinSettings: TButton
+        Left = 10
+        Height = 28
+        Top = 285
+        Width = 245
+        Caption = 'Apply Pin Settings'
+        TabOrder = 10
+        OnClick = btnApplyPinSettingsClick
+      end
     end
   end
   object pnlRight: TPanel
-    Left = 340
-    Height = 540
+    Left = 300
+    Height = 630
     Top = 10
-    Width = 400
+    Width = 670
     Align = alClient
     BorderSpacing.Around = 10
-    ClientHeight = 540
-    ClientWidth = 400
+    ClientHeight = 630
+    ClientWidth = 670
     TabOrder = 1
-    object memoLog: TMemo
+    object PageControl1: TPageControl
       Left = 1
-      Height = 538
+      Height = 628
       Top = 1
-      Width = 398
+      Width = 668
+      ActivePage = tsPins
       Align = alClient
-      ReadOnly = True
-      ScrollBars = ssAutoBoth
+      TabIndex = 0
       TabOrder = 0
+      object tsPins: TTabSheet
+        Caption = 'Arduino Pinout Map'
+        ClientHeight = 600
+        ClientWidth = 660
+        object sgPins: TStringGrid
+          Left = 5
+          Height = 480
+          Top = 5
+          Width = 650
+          Align = alTop
+          ColCount = 15
+          FixedCols = 0
+          RowCount = 1
+          TabOrder = 0
+          OnSelectCell = sgPinsSelectCell
+        end
+        object pnlPinActions: TPanel
+          Left = 5
+          Height = 100
+          Top = 490
+          Width = 650
+          Align = alBottom
+          ClientHeight = 100
+          ClientWidth = 650
+          TabOrder = 1
+          object btnSetupPins: TButton
+            Left = 10
+            Height = 30
+            Top = 10
+            Width = 120
+            Caption = 'Setup Pins'
+            TabOrder = 0
+            OnClick = btnSetupPinsClick
+          end
+          object btnReadSelected: TButton
+            Left = 140
+            Height = 30
+            Top = 10
+            Width = 120
+            Caption = 'Read Selected'
+            TabOrder = 1
+            OnClick = btnReadSelectedClick
+          end
+          object btnWriteSelected: TButton
+            Left = 270
+            Height = 30
+            Top = 10
+            Width = 120
+            Caption = 'Write Selected'
+            TabOrder = 2
+            OnClick = btnWriteSelectedClick
+          end
+          object btnReadGroup: TButton
+            Left = 10
+            Height = 30
+            Top = 50
+            Width = 120
+            Caption = 'Read Group'
+            TabOrder = 3
+            OnClick = btnReadGroupClick
+          end
+          object btnWriteGroup: TButton
+            Left = 140
+            Height = 30
+            Top = 50
+            Width = 120
+            Caption = 'Write Group'
+            TabOrder = 4
+            OnClick = btnWriteGroupClick
+          end
+          object btnExportPinsAI: TButton
+            Left = 270
+            Height = 30
+            Top = 50
+            Width = 120
+            Caption = 'Export AI Prompt'
+            TabOrder = 5
+            OnClick = btnExportPinsAIClick
+          end
+        end
+      end
+      object tsCommands: TTabSheet
+        Caption = 'Modbus Commands'
+        ClientHeight = 600
+        ClientWidth = 660
+        object sgCommands: TStringGrid
+          Left = 5
+          Height = 480
+          Top = 5
+          Width = 650
+          Align = alTop
+          ColCount = 9
+          FixedCols = 0
+          RowCount = 1
+          TabOrder = 0
+        end
+        object pnlCommandActions: TPanel
+          Left = 5
+          Height = 100
+          Top = 490
+          Width = 650
+          Align = alBottom
+          ClientHeight = 100
+          ClientWidth = 650
+          TabOrder = 1
+          object btnLoadStandardCommands: TButton
+            Left = 10
+            Height = 30
+            Top = 15
+            Width = 140
+            Caption = 'Load Standard'
+            TabOrder = 0
+            OnClick = btnLoadStandardCommandsClick
+          end
+          object btnAddCustomCommand: TButton
+            Left = 160
+            Height = 30
+            Top = 15
+            Width = 140
+            Caption = 'Add Custom'
+            TabOrder = 1
+            OnClick = btnAddCustomCommandClick
+          end
+          object btnToggleCommand: TButton
+            Left = 310
+            Height = 30
+            Top = 15
+            Width = 140
+            Caption = 'Enable/Disable'
+            TabOrder = 2
+            OnClick = btnToggleCommandClick
+          end
+          object btnExportCommandsAI: TButton
+            Left = 460
+            Height = 30
+            Top = 15
+            Width = 140
+            Caption = 'Export AI Context'
+            TabOrder = 3
+            OnClick = btnExportCommandsAIClick
+          end
+        end
+      end
+      object tsLog: TTabSheet
+        Caption = 'Execution Log'
+        ClientHeight = 600
+        ClientWidth = 660
+        object memoLog: TMemo
+          Left = 10
+          Height = 580
+          Top = 10
+          Width = 640
+          Align = alClient
+          BorderSpacing.Around = 10
+          ReadOnly = True
+          ScrollBars = ssAutoBoth
+          TabOrder = 0
+        end
+      end
     end
   end
 end

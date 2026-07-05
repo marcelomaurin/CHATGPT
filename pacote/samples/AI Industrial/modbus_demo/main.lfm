@@ -32,9 +32,9 @@ object frmMain: TfrmMain
       ParentFont = False
     end
     object lblStatus: TLabel
-      Left = 15
+      Left = 584
       Height = 15
-      Top = 50
+      Top = 15
       Width = 70
       Caption = 'Status: Ready'
       ParentColor = False
@@ -58,16 +58,16 @@ object frmMain: TfrmMain
       OnClick = btnClearLogClick
     end
     object Label1: TLabel
-      Left = 18
+      Left = 112
       Height = 15
-      Top = 76
+      Top = 48
       Width = 62
       Caption = 'Porta Serial:'
     end
     object cbSerial: TComboBox
-      Left = 18
+      Left = 112
       Height = 23
-      Top = 95
+      Top = 67
       Width = 214
       ItemHeight = 15
       TabOrder = 2

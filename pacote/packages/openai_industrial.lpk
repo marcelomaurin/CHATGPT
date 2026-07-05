@@ -22,6 +22,11 @@
         <UnitName Value="aiarduinomodbuspinmap"/>
       </Item>
       <Item>
+        <Filename Value="..\AI Industrial\aimodbuscommandmap.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aimodbuscommandmap"/>
+      </Item>
+      <Item>
         <Filename Value="..\AI Industrial\aimodbus.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aimodbus"/>
