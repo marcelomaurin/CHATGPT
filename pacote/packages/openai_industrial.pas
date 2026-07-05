@@ -9,7 +9,7 @@ interface
 
 uses
   aiarduinomodbuspinmap, aimodbus, aimqtt, aiposprinter, aiindustrial, 
-  LazarusPackageIntf;
+  aimodbuscommandmap, LazarusPackageIntf;
 
 implementation
 
@@ -20,6 +20,7 @@ begin
   RegisterUnit('aimqtt', @aimqtt.Register);
   RegisterUnit('aiposprinter', @aiposprinter.Register);
   RegisterUnit('aiindustrial', @aiindustrial.Register);
+  RegisterUnit('aimodbuscommandmap', @aimodbuscommandmap.Register);
 end;
 
 initialization

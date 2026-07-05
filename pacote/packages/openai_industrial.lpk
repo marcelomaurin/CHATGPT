@@ -22,11 +22,6 @@
         <UnitName Value="aiarduinomodbuspinmap"/>
       </Item>
       <Item>
-        <Filename Value="..\AI Industrial\aimodbuscommandmap.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="aimodbuscommandmap"/>
-      </Item>
-      <Item>
         <Filename Value="..\AI Industrial\aimodbus.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aimodbus"/>
@@ -46,13 +41,15 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiindustrial"/>
       </Item>
+      <Item>
+        <Filename Value="..\AI Industrial\aimodbuscommandmap.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aimodbuscommandmap"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>
         <PackageName Value="openai_core"/>
-      </Item>
-      <Item>
-        <PackageName Value="openai_input"/>
       </Item>
       <Item>
         <PackageName Value="LCL"/>
