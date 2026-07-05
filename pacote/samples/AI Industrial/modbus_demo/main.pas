@@ -65,14 +65,23 @@ begin
 end;
 
 procedure TfrmMain.RefreshSerialPorts;
+var
+  I: Integer;
+  Dev: TAIListSerialDeviceItem;
 begin
+  AIListSerialDevices1.ProbeOpenable := True;
   AIListSerialDevices1.Refresh;
   cbSerial.Items.Clear;
-  AIListSerialDevices1.GetDeviceNames(cbSerial.Items);
+  for I := 0 to AIListSerialDevices1.Devices.Count - 1 do
+  begin
+    Dev := AIListSerialDevices1.Devices[I];
+    if Dev.IsOpenable and Dev.IsAvailable then
+      cbSerial.Items.Add(Dev.DeviceName);
+  end;
   if cbSerial.Items.Count > 0 then
     cbSerial.ItemIndex := 0
   else
-    AddLog('Nenhuma porta serial encontrada.');
+    AddLog('Nenhuma porta serial disponível encontrada.');
 end;
 
 procedure TfrmMain.btnRunClick(Sender: TObject);
