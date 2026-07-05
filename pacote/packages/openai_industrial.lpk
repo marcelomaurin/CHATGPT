@@ -17,6 +17,11 @@
     <License Value="OPEN SOURCE GPL3"/>
     <Files>
       <Item>
+        <Filename Value="..\AI Industrial\aiarduinomodbuspinmap.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiarduinomodbuspinmap"/>
+      </Item>
+      <Item>
         <Filename Value="..\AI Industrial\aimodbus.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aimodbus"/>

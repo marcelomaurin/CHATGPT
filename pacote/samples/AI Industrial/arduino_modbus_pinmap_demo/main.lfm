@@ -1,0 +1,271 @@
+object frmMain: TfrmMain
+  Left = 320
+  Height = 560
+  Top = 180
+  Width = 750
+  Caption = 'Arduino Modbus PinMap Demo'
+  ClientHeight = 560
+  ClientWidth = 750
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '4.4.0.0'
+  object pnlLeft: TPanel
+    Left = 10
+    Height = 540
+    Top = 10
+    Width = 320
+    Align = alLeft
+    BorderSpacing.Around = 10
+    ClientHeight = 540
+    ClientWidth = 320
+    TabOrder = 0
+    object lblTitle: TLabel
+      Left = 10
+      Height = 20
+      Top = 10
+      Width = 300
+      Caption = 'Arduino Modbus PinMap Demo'
+      Font.Height = -15
+      Font.Name = 'Segoe UI'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object lblProtocol: TLabel
+      Left = 10
+      Height = 15
+      Top = 45
+      Width = 48
+      Caption = 'Protocol:'
+      ParentColor = False
+    end
+    object cbProtocol: TComboBox
+      Left = 10
+      Height = 23
+      Top = 65
+      Width = 300
+      ItemHeight = 15
+      ItemIndex = 0
+      Items.Strings = (
+        'Modbus TCP'
+        'Modbus RTU'
+      )
+      Style = csDropDownList
+      TabOrder = 0
+      Text = 'Modbus TCP'
+      OnChange = cbProtocolChange
+    end
+    object lblDevice: TLabel
+      Left = 10
+      Height = 15
+      Top = 95
+      Width = 58
+      Caption = 'IP Address:'
+      ParentColor = False
+    end
+    object edtDevice: TEdit
+      Left = 10
+      Height = 23
+      Top = 115
+      Width = 300
+      TabOrder = 1
+      Text = '192.168.1.100'
+    end
+    object lblPort: TLabel
+      Left = 10
+      Height = 15
+      Top = 145
+      Width = 25
+      Caption = 'Port:'
+      ParentColor = False
+    end
+    object edtPort: TEdit
+      Left = 10
+      Height = 23
+      Top = 165
+      Width = 300
+      TabOrder = 2
+      Text = '502'
+    end
+    object lblBoard: TLabel
+      Left = 10
+      Height = 15
+      Top = 195
+      Width = 62
+      Caption = 'Board Type:'
+      ParentColor = False
+    end
+    object cbBoard: TComboBox
+      Left = 10
+      Height = 23
+      Top = 215
+      Width = 300
+      ItemHeight = 15
+      ItemIndex = 0
+      Items.Strings = (
+        'Arduino Nano'
+        'Arduino Uno'
+        'Arduino Mega'
+      )
+      Style = csDropDownList
+      TabOrder = 3
+      Text = 'Arduino Nano'
+      OnChange = cbBoardChange
+    end
+    object btnConnect: TButton
+      Left = 10
+      Height = 30
+      Top = 250
+      Width = 145
+      Caption = 'Connect'
+      TabOrder = 4
+      OnClick = btnConnectClick
+    end
+    object btnDisconnect: TButton
+      Left = 165
+      Height = 30
+      Top = 250
+      Width = 145
+      Caption = 'Disconnect'
+      TabOrder = 5
+      OnClick = btnDisconnectClick
+    end
+    object lblPinSection: TLabel
+      Left = 10
+      Height = 17
+      Top = 295
+      Width = 300
+      Caption = 'Pin Control:'
+      Font.Height = -13
+      Font.Name = 'Segoe UI'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object lblPins: TLabel
+      Left = 10
+      Height = 15
+      Top = 320
+      Width = 24
+      Caption = 'Pin:'
+      ParentColor = False
+    end
+    object cbPins: TComboBox
+      Left = 10
+      Height = 23
+      Top = 340
+      Width = 145
+      ItemHeight = 15
+      Style = csDropDownList
+      TabOrder = 6
+    end
+    object lblMode: TLabel
+      Left = 165
+      Height = 15
+      Top = 320
+      Width = 34
+      Caption = 'Mode:'
+      ParentColor = False
+    end
+    object cbMode: TComboBox
+      Left = 165
+      Height = 23
+      Top = 340
+      Width = 145
+      ItemHeight = 15
+      ItemIndex = 1
+      Items.Strings = (
+        'Disabled'
+        'Input'
+        'InputPullup'
+        'Output'
+        'PWM'
+      )
+      Style = csDropDownList
+      TabOrder = 7
+      Text = 'Input'
+    end
+    object btnSetMode: TButton
+      Left = 10
+      Height = 25
+      Top = 370
+      Width = 300
+      Caption = 'Set Pin Mode'
+      TabOrder = 8
+      OnClick = btnSetModeClick
+    end
+    object lblValue: TLabel
+      Left = 10
+      Height = 15
+      Top = 405
+      Width = 71
+      Caption = 'Value / PWM:'
+      ParentColor = False
+    end
+    object edtValue: TEdit
+      Left = 10
+      Height = 23
+      Top = 425
+      Width = 300
+      TabOrder = 9
+      Text = '0'
+    end
+    object btnWriteDigital: TButton
+      Left = 10
+      Height = 25
+      Top = 455
+      Width = 145
+      Caption = 'Write Digital'
+      TabOrder = 10
+      OnClick = btnWriteDigitalClick
+    end
+    object btnReadDigital: TButton
+      Left = 165
+      Height = 25
+      Top = 455
+      Width = 145
+      Caption = 'Read Digital'
+      TabOrder = 11
+      OnClick = btnReadDigitalClick
+    end
+    object btnReadAnalog: TButton
+      Left = 10
+      Height = 25
+      Top = 490
+      Width = 145
+      Caption = 'Read Analog'
+      TabOrder = 12
+      OnClick = btnReadAnalogClick
+    end
+    object btnWritePWM: TButton
+      Left = 165
+      Height = 25
+      Top = 490
+      Width = 145
+      Caption = 'Write PWM'
+      TabOrder = 13
+      OnClick = btnWritePWMClick
+    end
+  end
+  object pnlRight: TPanel
+    Left = 340
+    Height = 540
+    Top = 10
+    Width = 400
+    Align = alClient
+    BorderSpacing.Around = 10
+    ClientHeight = 540
+    ClientWidth = 400
+    TabOrder = 1
+    object memoLog: TMemo
+      Left = 1
+      Height = 538
+      Top = 1
+      Width = 398
+      Align = alClient
+      ReadOnly = True
+      ScrollBars = ssAutoBoth
+      TabOrder = 0
+    end
+  end
+end

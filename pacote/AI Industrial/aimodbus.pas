@@ -37,6 +37,7 @@ type
     function ResolveHost(const AHost: string; var AAddr): Boolean;
     function SocketWrite(const ABuffer; ALength: Integer): Integer;
     function SocketRead(var ABuffer; ALength: Integer): Integer;
+    function SerialReadBytes(var ABuffer; ALength: Integer; TimeoutMs: Integer = 500): Integer;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -58,9 +59,27 @@ procedure Register;
 
 implementation
 
+function MB_CRC16(const ABuf: array of Byte; ALen: Integer): Word;
+var
+  I, J: Integer;
+begin
+  Result := $FFFF;
+  for I := 0 to ALen - 1 do
+  begin
+    Result := Result xor ABuf[I];
+    for J := 0 to 7 do
+    begin
+      if (Result and 1) <> 0 then
+        Result := (Result shr 1) xor $A001
+      else
+        Result := Result shr 1;
+    end;
+  end;
+end;
+
 procedure Register;
 begin
-  RegisterComponents('AI Automation', [TAIModbusClient]);
+  RegisterComponents('AI Industrial', [TAIModbusClient]);
 end;
 
 constructor TAIModbusClient.Create(AOwner: TComponent);
@@ -146,6 +165,30 @@ begin
     Result := fprecv(FSocket, @ABuffer, ALength, 0)
   else
     Result := -1;
+end;
+
+function TAIModbusClient.SerialReadBytes(var ABuffer; ALength: Integer; TimeoutMs: Integer = 500): Integer;
+var
+  BytesRead, TotalRead: Integer;
+  StartTime: QWord;
+  PBuf: PByte;
+begin
+  TotalRead := 0;
+  PBuf := @ABuffer;
+  StartTime := GetTickCount64;
+  while (TotalRead < ALength) and (GetTickCount64 - StartTime < Cardinal(TimeoutMs)) do
+  begin
+    BytesRead := SerRead(FSerialHandle, PBuf[TotalRead], ALength - TotalRead);
+    if BytesRead > 0 then
+    begin
+      TotalRead := TotalRead + BytesRead;
+    end
+    else
+    begin
+      Sleep(10);
+    end;
+  end;
+  Result := TotalRead;
 end;
 
 procedure TAIModbusClient.SetActive(AValue: Boolean);
@@ -257,66 +300,145 @@ function TAIModbusClient.ReadHoldingRegisters(SlaveID, Address, Count: Integer; 
 var
   Frame: array[0..11] of Byte;
   Response: array[0..255] of Byte;
-  BytesRead, I: Integer;
+  BytesRead, I, ByteCount: Integer;
+  CRC, ExpectedCRC: Word;
 begin
   Result := False;
   ClearError;
-  if not FActive or (FProtocolType <> mbTCP) or (FSocket = TSocket(-1)) then
+  if not FActive then
   begin
-    SetError('Modbus client not active or not using TCP.');
+    SetError('Modbus client not active.');
     Exit;
   end;
   
-  Inc(FTransactionID);
-  
-  // MBAP Header (Modbus TCP)
-  Frame[0] := Hi(FTransactionID);
-  Frame[1] := Lo(FTransactionID);
-  Frame[2] := 0; // Protocol ID Hi
-  Frame[3] := 0; // Protocol ID Lo
-  Frame[4] := 0; // Length Hi
-  Frame[5] := 6; // Length Lo (UnitID + FunctCode + Address + Count = 6 bytes)
-  Frame[6] := SlaveID;
-  
-  // Modbus PDU
-  Frame[7] := 3; // Function Code: Read Holding Registers
-  Frame[8] := Hi(Address);
-  Frame[9] := Lo(Address);
-  Frame[10] := Hi(Count);
-  Frame[11] := Lo(Count);
-  
-  try
-    if SocketWrite(Frame[0], 12) <> 12 then
+  if FProtocolType = mbTCP then
+  begin
+    if FSocket = TSocket(-1) then
     begin
-      SetError('Modbus TCP Write failed.');
+      SetError('Modbus client socket not open.');
       Exit;
     end;
     
-    // Read MBAP Header of Response (7 bytes)
-    BytesRead := SocketRead(Response[0], 7);
-    if BytesRead = 7 then
-    begin
-      // Read remainder data: [FunctCode:1] [ByteCount:1] [RegisterValues:2*Count]
-      BytesRead := SocketRead(Response[7], 2 + Count * 2);
-      if (BytesRead = 2 + Count * 2) and (Response[7] = 3) then
+    Inc(FTransactionID);
+    
+    // MBAP Header (Modbus TCP)
+    Frame[0] := Hi(FTransactionID);
+    Frame[1] := Lo(FTransactionID);
+    Frame[2] := 0; // Protocol ID Hi
+    Frame[3] := 0; // Protocol ID Lo
+    Frame[4] := 0; // Length Hi
+    Frame[5] := 6; // Length Lo (UnitID + FunctCode + Address + Count = 6 bytes)
+    Frame[6] := SlaveID;
+    
+    // Modbus PDU
+    Frame[7] := 3; // Function Code: Read Holding Registers
+    Frame[8] := Hi(Address);
+    Frame[9] := Lo(Address);
+    Frame[10] := Hi(Count);
+    Frame[11] := Lo(Count);
+    
+    try
+      if SocketWrite(Frame[0], 12) <> 12 then
       begin
-        for I := 0 to Count - 1 do
+        SetError('Modbus TCP Write failed.');
+        Exit;
+      end;
+      
+      // Read MBAP Header of Response (7 bytes)
+      BytesRead := SocketRead(Response[0], 7);
+      if BytesRead = 7 then
+      begin
+        // Read remainder data: [FunctCode:1] [ByteCount:1] [RegisterValues:2*Count]
+        BytesRead := SocketRead(Response[7], 2 + Count * 2);
+        if (BytesRead = 2 + Count * 2) and (Response[7] = 3) then
         begin
-          if I <= High(AData) then
-            AData[I] := (Response[9 + I * 2] shl 8) or Response[9 + I * 2 + 1];
-        end;
-        FLastResult := 'Modbus Registers Read Succeeded';
-        FLastSuccess := True;
-        Result := True;
+          for I := 0 to Count - 1 do
+          begin
+            if I <= High(AData) then
+              AData[I] := (Response[9 + I * 2] shl 8) or Response[9 + I * 2 + 1];
+          end;
+          FLastResult := 'Modbus Registers Read Succeeded';
+          FLastSuccess := True;
+          Result := True;
+        end
+        else
+          SetError('Modbus TCP Read Exception or mismatch.');
       end
       else
-        SetError('Modbus TCP Read Exception or mismatch.');
-    end
-    else
-      SetError('Modbus TCP Header Read failed.');
-  except
-    on E: Exception do
-      SetError('Modbus Read Holding Registers Exception: ' + E.Message);
+        SetError('Modbus TCP Header Read failed.');
+    except
+      on E: Exception do
+        SetError('Modbus Read Holding Registers Exception: ' + E.Message);
+    end;
+  end
+  else
+  begin
+    if FSerialHandle = 0 then
+    begin
+      SetError('Modbus client serial port not open.');
+      Exit;
+    end;
+    
+    Frame[0] := SlaveID;
+    Frame[1] := 3; // Function Code
+    Frame[2] := Hi(Address);
+    Frame[3] := Lo(Address);
+    Frame[4] := Hi(Count);
+    Frame[5] := Lo(Count);
+    CRC := MB_CRC16(Frame, 6);
+    Frame[6] := Lo(CRC);
+    Frame[7] := Hi(CRC);
+    
+    try
+      if SerWrite(FSerialHandle, Frame[0], 8) <> 8 then
+      begin
+        SetError('Modbus RTU serial write failed.');
+        Exit;
+      end;
+      
+      BytesRead := SerialReadBytes(Response[0], 3);
+      if BytesRead = 3 then
+      begin
+        if Response[1] = $83 then
+        begin
+          SerialReadBytes(Response[3], 2);
+          SetError('Modbus RTU Exception: ' + IntToStr(Response[2]));
+          Exit;
+        end
+        else if (Response[0] = SlaveID) and (Response[1] = 3) then
+        begin
+          ByteCount := Response[2];
+          BytesRead := SerialReadBytes(Response[3], ByteCount + 2);
+          if BytesRead = ByteCount + 2 then
+          begin
+            CRC := MB_CRC16(Response, 3 + ByteCount);
+            ExpectedCRC := (Response[3 + ByteCount + 1] shl 8) or Response[3 + ByteCount];
+            if CRC = ExpectedCRC then
+            begin
+              for I := 0 to Count - 1 do
+              begin
+                if I <= High(AData) then
+                  AData[I] := (Response[3 + I * 2] shl 8) or Response[3 + I * 2 + 1];
+              end;
+              FLastResult := 'Modbus RTU Registers Read Succeeded';
+              FLastSuccess := True;
+              Result := True;
+            end
+            else
+              SetError('Modbus RTU CRC mismatch.');
+          end
+          else
+            SetError('Modbus RTU response timeout/incomplete.');
+        end
+        else
+          SetError('Modbus RTU response header mismatch.');
+      end
+      else
+        SetError('Modbus RTU response timeout/no header.');
+    except
+      on E: Exception do
+        SetError('Modbus Read Holding Registers Exception: ' + E.Message);
+    end;
   end;
 end;
 
@@ -325,60 +447,133 @@ var
   Frame: array[0..11] of Byte;
   Response: array[0..255] of Byte;
   BytesRead: Integer;
+  CRC, ExpectedCRC: Word;
 begin
   Result := False;
   ClearError;
-  if not FActive or (FProtocolType <> mbTCP) or (FSocket = TSocket(-1)) then
+  if not FActive then
   begin
-    SetError('Modbus client not active or not using TCP.');
+    SetError('Modbus client not active.');
     Exit;
   end;
   
-  Inc(FTransactionID);
-  
-  // MBAP Header
-  Frame[0] := Hi(FTransactionID);
-  Frame[1] := Lo(FTransactionID);
-  Frame[2] := 0;
-  Frame[3] := 0;
-  Frame[4] := 0;
-  Frame[5] := 6; // UnitID + FunctCode + Address + Value = 6 bytes
-  Frame[6] := SlaveID;
-  
-  // PDU
-  Frame[7] := 6; // Function Code: Write Single Register
-  Frame[8] := Hi(Address);
-  Frame[9] := Lo(Address);
-  Frame[10] := Hi(Value);
-  Frame[11] := Lo(Value);
-  
-  try
-    if SocketWrite(Frame[0], 12) <> 12 then
+  if FProtocolType = mbTCP then
+  begin
+    if FSocket = TSocket(-1) then
     begin
-      SetError('Modbus TCP Write failed.');
+      SetError('Modbus client socket not open.');
       Exit;
     end;
     
-    // Read Response Header
-    BytesRead := SocketRead(Response[0], 7);
-    if BytesRead = 7 then
-    begin
-      // Read remainder response payload: [FunctCode:1] [Address:2] [Value:2]
-      BytesRead := SocketRead(Response[7], 5);
-      if (BytesRead = 5) and (Response[7] = 6) then
+    Inc(FTransactionID);
+    
+    // MBAP Header
+    Frame[0] := Hi(FTransactionID);
+    Frame[1] := Lo(FTransactionID);
+    Frame[2] := 0;
+    Frame[3] := 0;
+    Frame[4] := 0;
+    Frame[5] := 6; // UnitID + FunctCode + Address + Value = 6 bytes
+    Frame[6] := SlaveID;
+    
+    // PDU
+    Frame[7] := 6; // Function Code: Write Single Register
+    Frame[8] := Hi(Address);
+    Frame[9] := Lo(Address);
+    Frame[10] := Hi(Value);
+    Frame[11] := Lo(Value);
+    
+    try
+      if SocketWrite(Frame[0], 12) <> 12 then
       begin
-        FLastResult := 'Modbus Single Register Write Succeeded';
-        FLastSuccess := True;
-        Result := True;
+        SetError('Modbus TCP Write failed.');
+        Exit;
+      end;
+      
+      // Read Response Header
+      BytesRead := SocketRead(Response[0], 7);
+      if BytesRead = 7 then
+      begin
+        // Read remainder response payload: [FunctCode:1] [Address:2] [Value:2]
+        BytesRead := SocketRead(Response[7], 5);
+        if (BytesRead = 5) and (Response[7] = 6) then
+        begin
+          FLastResult := 'Modbus Single Register Write Succeeded';
+          FLastSuccess := True;
+          Result := True;
+        end
+        else
+          SetError('Modbus TCP Write Single Register Response mismatch.');
       end
       else
-        SetError('Modbus TCP Write Single Register Response mismatch.');
-    end
-    else
-      SetError('Modbus TCP Header Read failed.');
-  except
-    on E: Exception do
-      SetError('Modbus Write Register Exception: ' + E.Message);
+        SetError('Modbus TCP Header Read failed.');
+    except
+      on E: Exception do
+        SetError('Modbus Write Register Exception: ' + E.Message);
+    end;
+  end
+  else
+  begin
+    if FSerialHandle = 0 then
+    begin
+      SetError('Modbus client serial port not open.');
+      Exit;
+    end;
+    
+    Frame[0] := SlaveID;
+    Frame[1] := 6; // Function Code
+    Frame[2] := Hi(Address);
+    Frame[3] := Lo(Address);
+    Frame[4] := Hi(Value);
+    Frame[5] := Lo(Value);
+    CRC := MB_CRC16(Frame, 6);
+    Frame[6] := Lo(CRC);
+    Frame[7] := Hi(CRC);
+    
+    try
+      if SerWrite(FSerialHandle, Frame[0], 8) <> 8 then
+      begin
+        SetError('Modbus RTU serial write failed.');
+        Exit;
+      end;
+      
+      BytesRead := SerialReadBytes(Response[0], 3);
+      if BytesRead = 3 then
+      begin
+        if Response[1] = $86 then
+        begin
+          SerialReadBytes(Response[3], 2);
+          SetError('Modbus RTU Exception: ' + IntToStr(Response[2]));
+          Exit;
+        end
+        else if (Response[0] = SlaveID) and (Response[1] = 6) then
+        begin
+          BytesRead := SerialReadBytes(Response[3], 5);
+          if BytesRead = 5 then
+          begin
+            CRC := MB_CRC16(Response, 6);
+            ExpectedCRC := (Response[7] shl 8) or Response[6];
+            if CRC = ExpectedCRC then
+            begin
+              FLastResult := 'Modbus RTU Single Register Write Succeeded';
+              FLastSuccess := True;
+              Result := True;
+            end
+            else
+              SetError('Modbus RTU CRC mismatch.');
+          end
+          else
+            SetError('Modbus RTU response timeout/incomplete.');
+        end
+        else
+          SetError('Modbus RTU response header mismatch.');
+      end
+      else
+        SetError('Modbus RTU response timeout/no header.');
+    except
+      on E: Exception do
+        SetError('Modbus Write Register Exception: ' + E.Message);
+    end;
   end;
 end;
 
