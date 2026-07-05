@@ -39,13 +39,23 @@ object frmMain: TfrmMain
       Caption = 'Serial Port:'
       ParentColor = False
     end
-    object edtDevice: TEdit
+    object cbSerialDevice: TComboBox
       Left = 10
       Height = 23
       Top = 65
-      Width = 260
+      Width = 175
+      ItemHeight = 15
+      Style = csDropDownList
       TabOrder = 0
-      Text = 'COM3'
+    end
+    object btnRefreshPorts: TButton
+      Left = 195
+      Height = 25
+      Top = 64
+      Width = 75
+      Caption = 'Refresh'
+      TabOrder = 11
+      OnClick = btnRefreshPortsClick
     end
     object lblPort: TLabel
       Left = 10

@@ -51,6 +51,11 @@
         <UnitName Value="aiserial"/>
       </Item>
       <Item>
+        <Filename Value="..\AI Input\AISerial\ailistserialdevices.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="ailistserialdevices"/>
+      </Item>
+      <Item>
         <Filename Value="..\AI Input\AIEmail\aiemail.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiemail"/>

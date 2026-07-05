@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
   ComCtrls, Grids, ValEdit, typinfo,
-  aimodbus, aiarduinomodbuspinmap, aimodbuscommandmap;
+  aimodbus, aiarduinomodbuspinmap, aimodbuscommandmap, ailistserialdevices;
 
 type
 
@@ -18,7 +18,8 @@ type
     pnlRight: TPanel;
     lblTitle: TLabel;
     lblDevice: TLabel;
-    edtDevice: TEdit;
+    cbSerialDevice: TComboBox;
+    btnRefreshPorts: TButton;
     lblPort: TLabel;
     edtPort: TEdit;
     lblBoard: TLabel;
@@ -93,6 +94,7 @@ type
     procedure btnAddCustomCommandClick(Sender: TObject);
     procedure btnToggleCommandClick(Sender: TObject);
     procedure btnExportCommandsAIClick(Sender: TObject);
+    procedure btnRefreshPortsClick(Sender: TObject);
     
     procedure PinStateChangedHandler(Sender: TObject; Pin: TAIArduinoPinMapItem; OldValue, NewValue: Integer; Source: TArduinoPinChangeSource);
     procedure PinModeChangedHandler(Sender: TObject; Pin: TAIArduinoPinMapItem; OldMode, NewMode: TArduinoPinMode);
@@ -101,11 +103,13 @@ type
     FModbusClient: TAIModbusClient;
     FPinMap: TAIArduinoModbusPinMap;
     FCommandMap: TAIModbusCommandMap;
+    FSerialDevices: TAIListSerialDevices;
     
     procedure Log(const Msg: string);
     procedure UpdatePinsGrid;
     procedure UpdateCommandsGrid;
     procedure PopulateComboBoxes;
+    procedure RefreshSerialPorts;
   public
 
   end;
@@ -131,12 +135,15 @@ begin
   FPinMap.ModbusClient := FModbusClient;
   FPinMap.CommandMap := FCommandMap;
   
+  FSerialDevices := TAIListSerialDevices.Create(Self);
+  
   // Set events
   FPinMap.OnPinStateChanged := @PinStateChangedHandler;
   FPinMap.OnPinModeChanged := @PinModeChangedHandler;
   FPinMap.OnPinError := @PinErrorHandler;
 
   PopulateComboBoxes;
+  RefreshSerialPorts;
   
   cbBoard.ItemIndex := 0; // Nano
   FPinMap.BoardType := abtNano;
@@ -150,6 +157,23 @@ end;
 procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
   // Handled by Self ownership
+end;
+
+procedure TfrmMain.RefreshSerialPorts;
+begin
+  FSerialDevices.Refresh;
+  cbSerialDevice.Items.Clear;
+  FSerialDevices.GetDeviceNames(cbSerialDevice.Items);
+  if cbSerialDevice.Items.Count > 0 then
+    cbSerialDevice.ItemIndex := 0
+  else
+    Log('No serial ports detected.');
+end;
+
+procedure TfrmMain.btnRefreshPortsClick(Sender: TObject);
+begin
+  Log('Refreshing serial ports list...');
+  RefreshSerialPorts;
 end;
 
 procedure TfrmMain.PopulateComboBoxes;
@@ -343,7 +367,7 @@ end;
 
 procedure TfrmMain.btnConnectClick(Sender: TObject);
 begin
-  FModbusClient.DeviceName := edtDevice.Text;
+  FModbusClient.DeviceName := cbSerialDevice.Text;
   FModbusClient.BaudRate := StrToIntDef(edtPort.Text, 9600);
   
   Log('Connecting to: ' + FModbusClient.DeviceName + ' @ ' + IntToStr(FModbusClient.BaudRate));
