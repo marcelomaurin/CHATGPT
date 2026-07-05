@@ -6,20 +6,25 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  aibase, aimodbus;
+  ComCtrls, aibase, aimodbus;
 
 type
 
   { TfrmMain }
 
   TfrmMain = class(TForm)
+    cbSerial: TComboBox;
+    Label1: TLabel;
+    memoLog: TMemo;
+    PageControl1: TPageControl;
     pnlTop: TPanel;
     lblTitle: TLabel;
     lblStatus: TLabel;
-    chkSimulation: TCheckBox;
     btnRun: TButton;
     btnClearLog: TButton;
-    memoLog: TMemo;
+    tsMapaPinout: TTabSheet;
+    tsOper: TTabSheet;
+    tsLog: TTabSheet;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnRunClick(Sender: TObject);
