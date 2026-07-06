@@ -11,12 +11,12 @@ object frmMain: TfrmMain
   OnDestroy = FormDestroy
   object pnlTop: TPanel
     Left = 10
-    Height = 150
+    Height = 60
     Top = 10
     Width = 780
     Align = alTop
     BorderSpacing.Around = 10
-    ClientHeight = 150
+    ClientHeight = 60
     ClientWidth = 780
     TabOrder = 0
     object lblTitle: TLabel
@@ -32,76 +32,27 @@ object frmMain: TfrmMain
       ParentFont = False
     end
     object lblStatus: TLabel
-      Left = 584
+      Left = 400
       Height = 15
-      Top = 15
-      Width = 70
-      Caption = 'Status: Ready'
+      Top = 22
+      Width = 110
+      Caption = 'Status: Desconectado'
       ParentColor = False
     end
-    object btnRun: TButton
-      Left = 488
-      Height = 30
-      Top = 112
-      Width = 150
-      Caption = 'Execute Test'
-      TabOrder = 0
-      OnClick = btnRunClick
-    end
     object btnClearLog: TButton
-      Left = 648
+      Left = 660
       Height = 30
-      Top = 112
-      Width = 120
-      Caption = 'Clear Log'
-      TabOrder = 1
+      Top = 15
+      Width = 100
+      Caption = 'Limpar Log'
+      TabOrder = 0
       OnClick = btnClearLogClick
-    end
-    object Label1: TLabel
-      Left = 15
-      Height = 15
-      Top = 55
-      Width = 62
-      Caption = 'Porta Serial:'
-    end
-    object cbSerial: TComboBox
-      Left = 15
-      Height = 23
-      Top = 75
-      Width = 150
-      ItemHeight = 15
-      Style = csDropDownList
-      TabOrder = 2
-    end
-    object btnRefreshPorts: TButton
-      Left = 175
-      Height = 25
-      Top = 74
-      Width = 70
-      Caption = 'Refresh'
-      TabOrder = 4
-      OnClick = btnRefreshPortsClick
-    end
-    object lblRegister: TLabel
-      Left = 260
-      Height = 15
-      Top = 55
-      Width = 62
-      Caption = 'Registrador:'
-    end
-    object edtRegister: TEdit
-      Left = 260
-      Height = 23
-      Top = 75
-      Width = 120
-      TabOrder = 3
-      Text = '10'
     end
   end
   object PageControl1: TPageControl
     Left = 0
-    Height = 430
-    Top = 170
+    Height = 520
+    Top = 80
     Width = 800
     ActivePage = tsOper
     Align = alClient
@@ -109,17 +60,303 @@ object frmMain: TfrmMain
     TabOrder = 1
     object tsOper: TTabSheet
       Caption = 'Operação'
+      ClientHeight = 492
+      ClientWidth = 792
+      object gbConnection: TGroupBox
+        Left = 10
+        Height = 472
+        Top = 10
+        Width = 320
+        Align = alLeft
+        BorderSpacing.Around = 10
+        Caption = ' Conexão '
+        ClientHeight = 452
+        ClientWidth = 316
+        TabOrder = 0
+        object rgProtocol: TRadioGroup
+          Left = 10
+          Height = 55
+          Top = 5
+          Width = 296
+          Align = alTop
+          AutoFill = True
+          BorderSpacing.Around = 5
+          Caption = ' Protocolo '
+          ChildSizing.LeftRightSpacing = 6
+          ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+          ChildSizing.EnlargeVertical = crsHomogenousChildResize
+          ChildSizing.ShrinkHorizontal = crsScaleChilds
+          ChildSizing.ShrinkVertical = crsScaleChilds
+          ChildSizing.Layout = cclLeftToRightThenTopToBottom
+          ChildSizing.ControlsPerLine = 2
+          ClientHeight = 35
+          ClientWidth = 292
+          Columns = 2
+          ItemIndex = 0
+          Items.Strings = (
+            'RTU'
+            'TCP'
+          )
+          TabOrder = 0
+          OnClick = rgProtocolClick
+        end
+        object pnlTCP: TPanel
+          Left = 10
+          Height = 110
+          Top = 70
+          Width = 296
+          Align = alTop
+          BorderSpacing.Around = 5
+          BevelOuter = bvNone
+          ClientHeight = 110
+          ClientWidth = 296
+          TabOrder = 1
+          object lblIPAddress: TLabel
+            Left = 10
+            Height = 15
+            Top = 5
+            Width = 63
+            Caption = 'Endereço IP:'
+            ParentColor = False
+          end
+          object edtIPAddress: TEdit
+            Left = 10
+            Height = 23
+            Top = 25
+            Width = 276
+            TabOrder = 0
+            Text = '127.0.0.1'
+          end
+          object lblPort: TLabel
+            Left = 10
+            Height = 15
+            Top = 55
+            Width = 31
+            Caption = 'Porta:'
+            ParentColor = False
+          end
+          object edtPort: TEdit
+            Left = 10
+            Height = 23
+            Top = 75
+            Width = 100
+            TabOrder = 1
+            Text = '502'
+          end
+        end
+        object pnlRTU: TPanel
+          Left = 10
+          Height = 160
+          Top = 185
+          Width = 296
+          Align = alTop
+          BorderSpacing.Around = 5
+          BevelOuter = bvNone
+          ClientHeight = 160
+          ClientWidth = 296
+          TabOrder = 2
+          object lblSerialPort: TLabel
+            Left = 10
+            Height = 15
+            Top = 5
+            Width = 62
+            Caption = 'Porta Serial:'
+            ParentColor = False
+          end
+          object cbSerial: TComboBox
+            Left = 10
+            Height = 23
+            Top = 25
+            Width = 190
+            ItemHeight = 15
+            Style = csDropDownList
+            TabOrder = 0
+          end
+          object btnRefreshPorts: TButton
+            Left = 210
+            Height = 25
+            Top = 24
+            Width = 76
+            Caption = 'Atualizar'
+            TabOrder = 1
+            OnClick = btnRefreshPortsClick
+          end
+          object lblBaudRate: TLabel
+            Left = 10
+            Height = 15
+            Top = 60
+            Width = 54
+            Caption = 'Baud Rate:'
+            ParentColor = False
+          end
+          object cbBaudRate: TComboBox
+            Left = 10
+            Height = 23
+            Top = 80
+            Width = 276
+            ItemHeight = 15
+            Items.Strings = (
+              '9600'
+              '19200'
+              '57600'
+              '115200'
+            )
+            Style = csDropDownList
+            TabOrder = 2
+          end
+        end
+        object btnConnect: TButton
+          Left = 10
+          Height = 35
+          Top = 350
+          Width = 140
+          Caption = 'Conectar'
+          TabOrder = 3
+          OnClick = btnConnectClick
+        end
+        object btnDisconnect: TButton
+          Left = 166
+          Height = 35
+          Top = 350
+          Width = 140
+          Caption = 'Desconectar'
+          TabOrder = 4
+          OnClick = btnDisconnectClick
+        end
+      end
+      object gbOperations: TGroupBox
+        Left = 340
+        Height = 472
+        Top = 10
+        Width = 442
+        Align = alClient
+        BorderSpacing.Around = 10
+        Caption = ' Operações '
+        ClientHeight = 452
+        ClientWidth = 438
+        TabOrder = 1
+        object lblSlaveID: TLabel
+          Left = 20
+          Height = 15
+          Top = 15
+          Width = 45
+          Caption = 'Slave ID:'
+          ParentColor = False
+        end
+        object spSlaveID: TSpinEdit
+          Left = 20
+          Height = 23
+          Top = 35
+          Width = 120
+          MaxValue = 247
+          MinValue = 1
+          TabOrder = 0
+          Value = 1
+        end
+        object lblAddress: TLabel
+          Left = 20
+          Height = 15
+          Top = 75
+          Width = 52
+          Caption = 'Endereço:'
+          ParentColor = False
+        end
+        object spAddress: TSpinEdit
+          Left = 20
+          Height = 23
+          Top = 95
+          Width = 120
+          MaxValue = 65535
+          TabOrder = 1
+          Value = 10
+        end
+        object lblCount: TLabel
+          Left = 160
+          Height = 15
+          Top = 75
+          Width = 65
+          Caption = 'Quantidade:'
+          ParentColor = False
+        end
+        object spCount: TSpinEdit
+          Left = 160
+          Height = 23
+          Top = 95
+          Width = 120
+          MaxValue = 125
+          MinValue = 1
+          TabOrder = 2
+          Value = 1
+        end
+        object lblValue: TLabel
+          Left = 20
+          Height = 15
+          Top = 140
+          Width = 83
+          Caption = 'Valor (Escrita):'
+          ParentColor = False
+        end
+        object spValue: TSpinEdit
+          Left = 20
+          Height = 23
+          Top = 160
+          Width = 120
+          MaxValue = 65535
+          TabOrder = 3
+          Value = 0
+        end
+        object chkAllowWrite: TCheckBox
+          Left = 20
+          Height = 19
+          Top = 205
+          Width = 231
+          Caption = 'Permitir escrita em registradores'
+          TabOrder = 4
+        end
+        object btnRead: TButton
+          Left = 20
+          Height = 35
+          Top = 250
+          Width = 180
+          Caption = 'Ler Holding Registers'
+          TabOrder = 5
+          OnClick = btnReadClick
+        end
+        object btnWrite: TButton
+          Left = 210
+          Height = 35
+          Top = 250
+          Width = 180
+          Caption = 'Escrever Single Register'
+          TabOrder = 6
+          OnClick = btnWriteClick
+        end
+      end
     end
     object tsMapaPinout: TTabSheet
       Caption = 'Pinout'
+      ClientHeight = 492
+      ClientWidth = 792
+      object StringGridPinout: TStringGrid
+        Left = 10
+        Height = 472
+        Top = 10
+        Width = 772
+        Align = alClient
+        BorderSpacing.Around = 10
+        ColCount = 7
+        DefaultColWidth = 100
+        RowCount = 10
+        TabOrder = 0
+      end
     end
     object tsLog: TTabSheet
       Caption = 'Log'
-      ClientHeight = 402
+      ClientHeight = 492
       ClientWidth = 792
       object memoLog: TMemo
         Left = 0
-        Height = 402
+        Height = 492
         Top = 0
         Width = 792
         Align = alClient
@@ -130,19 +367,17 @@ object frmMain: TfrmMain
     end
   end
   object AIModbusClient1: TAIModbusClient
-    Prompt = 'Component TAIModbusClient connects to PLCs/industrial equipment via Modbus TCP/RTU. '#13#10'Properties: ProtocolType: TModbusProtocol (mbTCP, mbRTU), IPAddress: string, Port: Integer (default 502), DeviceName: string, BaudRate: Integer, Active: Boolean. '#13#10'Methods: Connect, Disconnect, ReadHoldingRegisters, WriteSingleRegister. '#13#10'AI Agent: Use this to read sensor states or write actuator commands in industrial automation.'
-    IPAddress = '192.168.1.100'
+    IPAddress = '127.0.0.1'
     DeviceName = 'COM1'
-    Left = 400
-    Top = 30
+    Left = 460
+    Top = 12
   end
   object AIListSerialDevices1: TAIListSerialDevices
-    Prompt = 'Component TAIListSerialDevices queries and aggregates available serial hardware interfaces (COM/tty) on Windows and Linux/macOS. Methods: Refresh, GetDeviceNames(AList: TStrings).'
     Devices = <>
     AutoRefresh = True
     OnlyAvailable = True
     ProbeOpenable = True
-    Left = 520
-    Top = 30
+    Left = 560
+    Top = 12
   end
 end

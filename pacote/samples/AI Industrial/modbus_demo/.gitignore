@@ -1,0 +1,12 @@
+# Keep the official sample binary
+!modbus_demo.exe
+
+# Ignore Lazarus/FPC temporary files
+*.o
+*.ppu
+*.compiled
+*.bak
+*.dbg
+*.or
+backup/
+lib/

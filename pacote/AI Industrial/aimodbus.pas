@@ -33,25 +33,35 @@ type
     FSocket: TSocket;
     FSerialHandle: TSerialHandle;
     FTransactionID: Word;
+    FTimeoutMs: Integer;
     procedure SetActive(AValue: Boolean);
     function ResolveHost(const AHost: string; var AAddr): Boolean;
     function SocketWrite(const ABuffer; ALength: Integer): Integer;
     function SocketRead(var ABuffer; ALength: Integer): Integer;
+    function SocketReadExact(var ABuffer; ALength: Integer): Boolean;
     function SerialReadBytes(var ABuffer; ALength: Integer; TimeoutMs: Integer = 500): Integer;
+    procedure UnpackBits(const Src: array of Byte; SrcIndex: Integer; Count: Integer; var Dest: array of Boolean);
+    function ExecuteTransaction(SlaveID, FunctCode: Byte; const RequestPDU: array of Byte; RequestPDULen: Integer; out ResponsePDU: array of Byte; var ResponsePDULen: Integer): Boolean;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     
     function Connect: Boolean;
     procedure Disconnect;
+    function ReadCoils(SlaveID, Address, Count: Integer; out AData: array of Boolean): Boolean;
+    function ReadDiscreteInputs(SlaveID, Address, Count: Integer; out AData: array of Boolean): Boolean;
     function ReadHoldingRegisters(SlaveID, Address, Count: Integer; out AData: array of Word): Boolean;
+    function ReadInputRegisters(SlaveID, Address, Count: Integer; out AData: array of Word): Boolean;
+    function WriteSingleCoil(SlaveID, Address: Integer; Value: Boolean): Boolean;
     function WriteSingleRegister(SlaveID, Address, Value: Integer): Boolean;
+    function WriteMultipleRegisters(SlaveID, Address: Integer; const Values: array of Word): Boolean;
   published
     property ProtocolType: TModbusProtocol read FProtocolType write FProtocolType default mbTCP;
     property IPAddress: string read FIPAddress write FIPAddress;
     property Port: Integer read FPort write FPort default 502; // Modbus default port
     property DeviceName: string read FDeviceName write FDeviceName;
     property BaudRate: Integer read FBaudRate write FBaudRate default 9600;
+    property TimeoutMs: Integer read FTimeoutMs write FTimeoutMs default 1000;
     property Active: Boolean read FActive write SetActive default False;
   end;
 
@@ -99,6 +109,7 @@ begin
   FSocket := TSocket(-1);
   FSerialHandle := 0;
   FTransactionID := 0;
+  FTimeoutMs := 1000;
   ClearError;
 end;
 
@@ -208,6 +219,11 @@ function TAIModbusClient.Connect: Boolean;
 var
   Addr: TInetSockAddr;
   Res: Integer;
+  {$IFDEF WINDOWS}
+  TimeoutVal: DWORD;
+  {$ELSE}
+  TimeoutVal: TTimeVal;
+  {$ENDIF}
 begin
   Result := False;
   ClearError;
@@ -222,6 +238,18 @@ begin
         SetError('Could not create socket.');
         Exit;
       end;
+      
+      // Set receive and send timeouts
+      {$IFDEF WINDOWS}
+      TimeoutVal := FTimeoutMs;
+      fpsetsockopt(FSocket, $FFFF, $1006, @TimeoutVal, SizeOf(TimeoutVal));
+      fpsetsockopt(FSocket, $FFFF, $1007, @TimeoutVal, SizeOf(TimeoutVal));
+      {$ELSE}
+      TimeoutVal.tv_sec := FTimeoutMs div 1000;
+      TimeoutVal.tv_usec := (FTimeoutMs mod 1000) * 1000;
+      fpsetsockopt(FSocket, 1, 20, @TimeoutVal, SizeOf(TimeoutVal));
+      fpsetsockopt(FSocket, 1, 21, @TimeoutVal, SizeOf(TimeoutVal));
+      {$ENDIF}
       
       Addr.sin_family := AF_INET;
       Addr.sin_port := htons(FPort);
@@ -300,158 +328,62 @@ begin
   end;
 end;
 
-function TAIModbusClient.ReadHoldingRegisters(SlaveID, Address, Count: Integer; out AData: array of Word): Boolean;
+function TAIModbusClient.SocketReadExact(var ABuffer; ALength: Integer): Boolean;
 var
-  Frame: array[0..11] of Byte;
-  Response: array[0..255] of Byte;
-  BytesRead, I, ByteCount: Integer;
-  CRC, ExpectedCRC: Word;
+  TotalRead, BytesRead: Integer;
+  PBuf: PByte;
+  StartTime: QWord;
 begin
   Result := False;
-  ClearError;
-  if not FActive then
+  TotalRead := 0;
+  PBuf := @ABuffer;
+  StartTime := GetTickCount64;
+  while TotalRead < ALength do
   begin
-    SetError('Modbus client not active.');
-    Exit;
+    BytesRead := SocketRead(PBuf[TotalRead], ALength - TotalRead);
+    if BytesRead > 0 then
+    begin
+      TotalRead := TotalRead + BytesRead;
+      StartTime := GetTickCount64;
+    end
+    else if BytesRead < 0 then
+    begin
+      Exit(False);
+    end;
+    
+    if GetTickCount64 - StartTime > Cardinal(FTimeoutMs) then
+    begin
+      SetError('Socket read timeout.');
+      Exit(False);
+    end;
+    
+    if BytesRead = 0 then
+    begin
+      Exit(False);
+    end;
+    Sleep(5);
   end;
-  
-  if FProtocolType = mbTCP then
+  Result := True;
+end;
+
+procedure TAIModbusClient.UnpackBits(const Src: array of Byte; SrcIndex: Integer; Count: Integer; var Dest: array of Boolean);
+var
+  I: Integer;
+begin
+  for I := 0 to Count - 1 do
   begin
-    if FSocket = TSocket(-1) then
-    begin
-      SetError('Modbus client socket not open.');
-      Exit;
-    end;
-    
-    Inc(FTransactionID);
-    
-    // MBAP Header (Modbus TCP)
-    Frame[0] := Hi(FTransactionID);
-    Frame[1] := Lo(FTransactionID);
-    Frame[2] := 0; // Protocol ID Hi
-    Frame[3] := 0; // Protocol ID Lo
-    Frame[4] := 0; // Length Hi
-    Frame[5] := 6; // Length Lo (UnitID + FunctCode + Address + Count = 6 bytes)
-    Frame[6] := SlaveID;
-    
-    // Modbus PDU
-    Frame[7] := 3; // Function Code: Read Holding Registers
-    Frame[8] := Hi(Address);
-    Frame[9] := Lo(Address);
-    Frame[10] := Hi(Count);
-    Frame[11] := Lo(Count);
-    
-    try
-      if SocketWrite(Frame[0], 12) <> 12 then
-      begin
-        SetError('Modbus TCP Write failed.');
-        Exit;
-      end;
-      
-      // Read MBAP Header of Response (7 bytes)
-      BytesRead := SocketRead(Response[0], 7);
-      if BytesRead = 7 then
-      begin
-        // Read remainder data: [FunctCode:1] [ByteCount:1] [RegisterValues:2*Count]
-        BytesRead := SocketRead(Response[7], 2 + Count * 2);
-        if (BytesRead = 2 + Count * 2) and (Response[7] = 3) then
-        begin
-          for I := 0 to Count - 1 do
-          begin
-            if I <= High(AData) then
-              AData[I] := (Response[9 + I * 2] shl 8) or Response[9 + I * 2 + 1];
-          end;
-          FLastResult := 'Modbus Registers Read Succeeded';
-          FLastSuccess := True;
-          Result := True;
-        end
-        else
-          SetError('Modbus TCP Read Exception or mismatch.');
-      end
-      else
-        SetError('Modbus TCP Header Read failed.');
-    except
-      on E: Exception do
-        SetError('Modbus Read Holding Registers Exception: ' + E.Message);
-    end;
-  end
-  else
-  begin
-    if FSerialHandle = 0 then
-    begin
-      SetError('Modbus client serial port not open.');
-      Exit;
-    end;
-    
-    Frame[0] := SlaveID;
-    Frame[1] := 3; // Function Code
-    Frame[2] := Hi(Address);
-    Frame[3] := Lo(Address);
-    Frame[4] := Hi(Count);
-    Frame[5] := Lo(Count);
-    CRC := MB_CRC16(Frame, 6);
-    Frame[6] := Lo(CRC);
-    Frame[7] := Hi(CRC);
-    
-    try
-      if SerWrite(FSerialHandle, Frame[0], 8) <> 8 then
-      begin
-        SetError('Modbus RTU serial write failed.');
-        Exit;
-      end;
-      
-      BytesRead := SerialReadBytes(Response[0], 3);
-      if BytesRead = 3 then
-      begin
-        if Response[1] = $83 then
-        begin
-          SerialReadBytes(Response[3], 2);
-          SetError('Modbus RTU Exception: ' + IntToStr(Response[2]));
-          Exit;
-        end
-        else if (Response[0] = SlaveID) and (Response[1] = 3) then
-        begin
-          ByteCount := Response[2];
-          BytesRead := SerialReadBytes(Response[3], ByteCount + 2);
-          if BytesRead = ByteCount + 2 then
-          begin
-            CRC := MB_CRC16(Response, 3 + ByteCount);
-            ExpectedCRC := (Response[3 + ByteCount + 1] shl 8) or Response[3 + ByteCount];
-            if CRC = ExpectedCRC then
-            begin
-              for I := 0 to Count - 1 do
-              begin
-                if I <= High(AData) then
-                  AData[I] := (Response[3 + I * 2] shl 8) or Response[3 + I * 2 + 1];
-              end;
-              FLastResult := 'Modbus RTU Registers Read Succeeded';
-              FLastSuccess := True;
-              Result := True;
-            end
-            else
-              SetError('Modbus RTU CRC mismatch.');
-          end
-          else
-            SetError('Modbus RTU response timeout/incomplete.');
-        end
-        else
-          SetError('Modbus RTU response header mismatch.');
-      end
-      else
-        SetError('Modbus RTU response timeout/no header.');
-    except
-      on E: Exception do
-        SetError('Modbus Read Holding Registers Exception: ' + E.Message);
-    end;
+    if I <= High(Dest) then
+      Dest[I] := ((Src[SrcIndex + (I div 8)] shr (I mod 8)) and 1) <> 0;
   end;
 end;
 
-function TAIModbusClient.WriteSingleRegister(SlaveID, Address, Value: Integer): Boolean;
+function TAIModbusClient.ExecuteTransaction(SlaveID, FunctCode: Byte; const RequestPDU: array of Byte; RequestPDULen: Integer; out ResponsePDU: array of Byte; var ResponsePDULen: Integer): Boolean;
 var
-  Frame: array[0..11] of Byte;
-  Response: array[0..255] of Byte;
-  BytesRead: Integer;
+  Frame: array[0..259] of Byte;
+  Response: array[0..259] of Byte;
+  BytesRead, I, ExpectedLen: Integer;
   CRC, ExpectedCRC: Word;
+  ByteCount: Byte;
 begin
   Result := False;
   ClearError;
@@ -474,111 +406,308 @@ begin
     // MBAP Header
     Frame[0] := Hi(FTransactionID);
     Frame[1] := Lo(FTransactionID);
-    Frame[2] := 0;
-    Frame[3] := 0;
-    Frame[4] := 0;
-    Frame[5] := 6; // UnitID + FunctCode + Address + Value = 6 bytes
+    Frame[2] := 0; // Protocol ID Hi
+    Frame[3] := 0; // Protocol ID Lo
+    Frame[4] := Hi(RequestPDULen + 1);
+    Frame[5] := Lo(RequestPDULen + 1);
     Frame[6] := SlaveID;
     
-    // PDU
-    Frame[7] := 6; // Function Code: Write Single Register
-    Frame[8] := Hi(Address);
-    Frame[9] := Lo(Address);
-    Frame[10] := Hi(Value);
-    Frame[11] := Lo(Value);
-    
+    // Copy PDU
+    for I := 0 to RequestPDULen - 1 do
+      Frame[7 + I] := RequestPDU[I];
+      
     try
-      if SocketWrite(Frame[0], 12) <> 12 then
+      if SocketWrite(Frame[0], 7 + RequestPDULen) <> (7 + RequestPDULen) then
       begin
-        SetError('Modbus TCP Write failed.');
+        SetError('Modbus TCP write failed.');
         Exit;
       end;
       
-      // Read Response Header
-      BytesRead := SocketRead(Response[0], 7);
-      if BytesRead = 7 then
+      // Read 7 bytes MBAP header
+      if not SocketReadExact(Response[0], 7) then
       begin
-        // Read remainder response payload: [FunctCode:1] [Address:2] [Value:2]
-        BytesRead := SocketRead(Response[7], 5);
-        if (BytesRead = 5) and (Response[7] = 6) then
-        begin
-          FLastResult := 'Modbus Single Register Write Succeeded';
-          FLastSuccess := True;
-          Result := True;
-        end
-        else
-          SetError('Modbus TCP Write Single Register Response mismatch.');
-      end
-      else
-        SetError('Modbus TCP Header Read failed.');
+        SetError('Modbus TCP read header failed/timeout.');
+        Exit;
+      end;
+      
+      ExpectedLen := (Response[4] shl 8) or Response[5];
+      if (ExpectedLen < 2) or (ExpectedLen > 250) then
+      begin
+        SetError('Modbus TCP invalid response length: ' + IntToStr(ExpectedLen));
+        Exit;
+      end;
+      
+      // Read remainder (Length - 1 bytes)
+      if not SocketReadExact(Response[7], ExpectedLen - 1) then
+      begin
+        SetError('Modbus TCP read payload failed/timeout.');
+        Exit;
+      end;
+      
+      // Check exception
+      if Response[7] = (FunctCode or $80) then
+      begin
+        SetError('Modbus TCP Exception: function=' + Format('%.2x', [FunctCode]) + ' exception=' + Format('%.2x', [Response[8]]));
+        Exit;
+      end;
+      
+      if Response[7] <> FunctCode then
+      begin
+        SetError('Modbus TCP function mismatch: expected ' + IntToStr(FunctCode) + ', got ' + IntToStr(Response[7]));
+        Exit;
+      end;
+      
+      ResponsePDULen := ExpectedLen - 1;
+      for I := 0 to ResponsePDULen - 1 do
+        ResponsePDU[I] := Response[7 + I];
+        
+      Result := True;
     except
-      on E: Exception do
-        SetError('Modbus Write Register Exception: ' + E.Message);
+      on E: Exception do SetError('Modbus TCP Exception: ' + E.Message);
     end;
   end
   else
   begin
+    // Modbus RTU
     if FSerialHandle = 0 then
     begin
       SetError('Modbus client serial port not open.');
       Exit;
     end;
     
+    // Flush serial input buffer
+    SerFlushInput(FSerialHandle);
+    
     Frame[0] := SlaveID;
-    Frame[1] := 6; // Function Code
-    Frame[2] := Hi(Address);
-    Frame[3] := Lo(Address);
-    Frame[4] := Hi(Value);
-    Frame[5] := Lo(Value);
-    CRC := MB_CRC16(Frame, 6);
-    Frame[6] := Lo(CRC);
-    Frame[7] := Hi(CRC);
+    for I := 0 to RequestPDULen - 1 do
+      Frame[1 + I] := RequestPDU[I];
+      
+    CRC := MB_CRC16(Frame, 1 + RequestPDULen);
+    Frame[1 + RequestPDULen] := Lo(CRC);
+    Frame[1 + RequestPDULen + 1] := Hi(CRC);
     
     try
-      if SerWrite(FSerialHandle, Frame[0], 8) <> 8 then
+      if SerWrite(FSerialHandle, Frame[0], 3 + RequestPDULen) <> (3 + RequestPDULen) then
       begin
         SetError('Modbus RTU serial write failed.');
         Exit;
       end;
       
-      BytesRead := SerialReadBytes(Response[0], 3);
-      if BytesRead = 3 then
+      // Read first 3 bytes: [SlaveID] [FuncCode] [ByteCount/ExceptionCode/AddrHi]
+      if SerialReadBytes(Response[0], 3, FTimeoutMs) <> 3 then
       begin
-        if Response[1] = $86 then
+        SetError('Modbus RTU response timeout/no header.');
+        Exit;
+      end;
+      
+      if Response[0] <> SlaveID then
+      begin
+        SetError('Modbus RTU slave ID mismatch.');
+        Exit;
+      end;
+      
+      if Response[1] = (FunctCode or $80) then
+      begin
+        // Exception response (5 bytes total, we already read 3)
+        if SerialReadBytes(Response[3], 2, FTimeoutMs) <> 2 then
         begin
-          SerialReadBytes(Response[3], 2);
-          SetError('Modbus RTU Exception: ' + IntToStr(Response[2]));
+          SetError('Modbus RTU exception response timeout.');
           Exit;
-        end
-        else if (Response[0] = SlaveID) and (Response[1] = 6) then
-        begin
-          BytesRead := SerialReadBytes(Response[3], 5);
-          if BytesRead = 5 then
-          begin
-            CRC := MB_CRC16(Response, 6);
-            ExpectedCRC := (Response[7] shl 8) or Response[6];
-            if CRC = ExpectedCRC then
-            begin
-              FLastResult := 'Modbus RTU Single Register Write Succeeded';
-              FLastSuccess := True;
-              Result := True;
-            end
-            else
-              SetError('Modbus RTU CRC mismatch.');
-          end
-          else
-            SetError('Modbus RTU response timeout/incomplete.');
-        end
+        end;
+        CRC := MB_CRC16(Response, 3);
+        ExpectedCRC := (Response[4] shl 8) or Response[3];
+        if CRC = ExpectedCRC then
+          SetError('Modbus RTU Exception: function=' + Format('%.2x', [FunctCode]) + ' exception=' + Format('%.2x', [Response[2]]))
         else
-          SetError('Modbus RTU response header mismatch.');
+          SetError('Modbus RTU exception CRC mismatch.');
+        Exit;
+      end;
+      
+      if Response[1] <> FunctCode then
+      begin
+        SetError('Modbus RTU function mismatch: expected ' + IntToStr(FunctCode) + ', got ' + IntToStr(Response[1]));
+        Exit;
+      end;
+      
+      // Determine remaining bytes to read
+      if FunctCode in [1, 2, 3, 4] then
+      begin
+        ByteCount := Response[2];
+        // Read ByteCount + 2 (CRC) bytes
+        if SerialReadBytes(Response[3], ByteCount + 2, FTimeoutMs) <> (ByteCount + 2) then
+        begin
+          SetError('Modbus RTU response payload timeout.');
+          Exit;
+        end;
+        CRC := MB_CRC16(Response, 3 + ByteCount);
+        ExpectedCRC := (Response[3 + ByteCount + 1] shl 8) or Response[3 + ByteCount];
+        if CRC <> ExpectedCRC then
+        begin
+          SetError('Modbus RTU CRC mismatch.');
+          Exit;
+        end;
+        ResponsePDULen := 2 + ByteCount; // FunctCode + ByteCount + data
       end
       else
-        SetError('Modbus RTU response timeout/no header.');
+      begin
+        // FC05, FC06, FC16 have 8 bytes response total. We read 3, need to read 5 more.
+        if SerialReadBytes(Response[3], 5, FTimeoutMs) <> 5 then
+        begin
+          SetError('Modbus RTU response payload timeout.');
+          Exit;
+        end;
+        CRC := MB_CRC16(Response, 6);
+        ExpectedCRC := (Response[7] shl 8) or Response[6];
+        if CRC <> ExpectedCRC then
+        begin
+          SetError('Modbus RTU CRC mismatch.');
+          Exit;
+        end;
+        ResponsePDULen := 5; // FunctCode + Addr/Count (4 bytes)
+      end;
+      
+      for I := 0 to ResponsePDULen - 1 do
+        ResponsePDU[I] := Response[1 + I];
+        
+      Result := True;
     except
-      on E: Exception do
-        SetError('Modbus Write Register Exception: ' + E.Message);
+      on E: Exception do SetError('Modbus RTU Exception: ' + E.Message);
     end;
   end;
+end;
+
+function TAIModbusClient.ReadCoils(SlaveID, Address, Count: Integer; out AData: array of Boolean): Boolean;
+var
+  Req: array[0..4] of Byte;
+  Resp: array[0..255] of Byte;
+  RespLen: Integer;
+begin
+  Req[0] := 1; // Function code
+  Req[1] := Hi(Address);
+  Req[2] := Lo(Address);
+  Req[3] := Hi(Count);
+  Req[4] := Lo(Count);
+  Result := ExecuteTransaction(SlaveID, 1, Req, 5, Resp, RespLen);
+  if Result then
+    UnpackBits(Resp, 2, Count, AData);
+end;
+
+function TAIModbusClient.ReadDiscreteInputs(SlaveID, Address, Count: Integer; out AData: array of Boolean): Boolean;
+var
+  Req: array[0..4] of Byte;
+  Resp: array[0..255] of Byte;
+  RespLen: Integer;
+begin
+  Req[0] := 2; // Function code
+  Req[1] := Hi(Address);
+  Req[2] := Lo(Address);
+  Req[3] := Hi(Count);
+  Req[4] := Lo(Count);
+  Result := ExecuteTransaction(SlaveID, 2, Req, 5, Resp, RespLen);
+  if Result then
+    UnpackBits(Resp, 2, Count, AData);
+end;
+
+function TAIModbusClient.ReadHoldingRegisters(SlaveID, Address, Count: Integer; out AData: array of Word): Boolean;
+var
+  Req: array[0..4] of Byte;
+  Resp: array[0..255] of Byte;
+  RespLen, I: Integer;
+begin
+  Req[0] := 3; // Function code
+  Req[1] := Hi(Address);
+  Req[2] := Lo(Address);
+  Req[3] := Hi(Count);
+  Req[4] := Lo(Count);
+  Result := ExecuteTransaction(SlaveID, 3, Req, 5, Resp, RespLen);
+  if Result then
+  begin
+    for I := 0 to Count - 1 do
+    begin
+      if I <= High(AData) then
+        AData[I] := (Resp[2 + I * 2] shl 8) or Resp[2 + I * 2 + 1];
+    end;
+  end;
+end;
+
+function TAIModbusClient.ReadInputRegisters(SlaveID, Address, Count: Integer; out AData: array of Word): Boolean;
+var
+  Req: array[0..4] of Byte;
+  Resp: array[0..255] of Byte;
+  RespLen, I: Integer;
+begin
+  Req[0] := 4; // Function code
+  Req[1] := Hi(Address);
+  Req[2] := Lo(Address);
+  Req[3] := Hi(Count);
+  Req[4] := Lo(Count);
+  Result := ExecuteTransaction(SlaveID, 4, Req, 5, Resp, RespLen);
+  if Result then
+  begin
+    for I := 0 to Count - 1 do
+    begin
+      if I <= High(AData) then
+        AData[I] := (Resp[2 + I * 2] shl 8) or Resp[2 + I * 2 + 1];
+    end;
+  end;
+end;
+
+function TAIModbusClient.WriteSingleCoil(SlaveID, Address: Integer; Value: Boolean): Boolean;
+var
+  Req: array[0..4] of Byte;
+  Resp: array[0..255] of Byte;
+  RespLen: Integer;
+begin
+  Req[0] := 5; // Function code
+  Req[1] := Hi(Address);
+  Req[2] := Lo(Address);
+  if Value then
+  begin
+    Req[3] := $FF;
+    Req[4] := $00;
+  end
+  else
+  begin
+    Req[3] := $00;
+    Req[4] := $00;
+  end;
+  Result := ExecuteTransaction(SlaveID, 5, Req, 5, Resp, RespLen);
+end;
+
+function TAIModbusClient.WriteSingleRegister(SlaveID, Address, Value: Integer): Boolean;
+var
+  Req: array[0..4] of Byte;
+  Resp: array[0..255] of Byte;
+  RespLen: Integer;
+begin
+  Req[0] := 6; // Function code
+  Req[1] := Hi(Address);
+  Req[2] := Lo(Address);
+  Req[3] := Hi(Value);
+  Req[4] := Lo(Value);
+  Result := ExecuteTransaction(SlaveID, 6, Req, 5, Resp, RespLen);
+end;
+
+function TAIModbusClient.WriteMultipleRegisters(SlaveID, Address: Integer; const Values: array of Word): Boolean;
+var
+  Req: array[0..255] of Byte;
+  Resp: array[0..255] of Byte;
+  RespLen, Count, ByteCount, I: Integer;
+begin
+  Count := Length(Values);
+  ByteCount := Count * 2;
+  Req[0] := 16; // Function code
+  Req[1] := Hi(Address);
+  Req[2] := Lo(Address);
+  Req[3] := Hi(Count);
+  Req[4] := Lo(Count);
+  Req[5] := ByteCount;
+  for I := 0 to Count - 1 do
+  begin
+    Req[6 + I * 2] := Hi(Values[I]);
+    Req[6 + I * 2 + 1] := Lo(Values[I]);
+  end;
+  Result := ExecuteTransaction(SlaveID, 16, Req, 6 + ByteCount, Resp, RespLen);
 end;
 
 initialization

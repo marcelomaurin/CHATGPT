@@ -28,6 +28,8 @@
 
 # Delphi compiler-generated binaries (safe to delete)
 *.exe
+!pacote/samples/AI Industrial/modbus_demo/modbus_demo.exe
+!pacote/samples/AI\ Industrial/modbus_demo/modbus_demo.exe
 *.dll
 *.bpl
 *.bpi
