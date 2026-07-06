@@ -54,30 +54,30 @@ object frmMain: TfrmMain
     Height = 520
     Top = 80
     Width = 800
-    ActivePage = tsMapaPinout
+    ActivePage = tsConfig
     Align = alClient
-    TabIndex = 1
+    TabIndex = 0
     TabOrder = 1
-    object tsOper: TTabSheet
-      Caption = 'Operação'
+    object tsConfig: TTabSheet
+      Caption = 'Configuração'
       ClientHeight = 492
       ClientWidth = 792
       object gbConnection: TGroupBox
         Left = 10
         Height = 472
         Top = 10
-        Width = 320
-        Align = alLeft
+        Width = 772
+        Align = alClient
         BorderSpacing.Around = 10
         Caption = ' Conexão '
         ClientHeight = 452
-        ClientWidth = 316
+        ClientWidth = 768
         TabOrder = 0
         object rgProtocol: TRadioGroup
           Left = 5
           Height = 55
           Top = 5
-          Width = 306
+          Width = 758
           Align = alTop
           AutoFill = True
           BorderSpacing.Around = 5
@@ -90,7 +90,7 @@ object frmMain: TfrmMain
           ChildSizing.Layout = cclLeftToRightThenTopToBottom
           ChildSizing.ControlsPerLine = 2
           ClientHeight = 35
-          ClientWidth = 302
+          ClientWidth = 754
           Columns = 2
           ItemIndex = 0
           Items.Strings = (
@@ -104,12 +104,12 @@ object frmMain: TfrmMain
           Left = 5
           Height = 110
           Top = 65
-          Width = 306
+          Width = 758
           Align = alTop
           BorderSpacing.Around = 5
           BevelOuter = bvNone
           ClientHeight = 110
-          ClientWidth = 306
+          ClientWidth = 758
           TabOrder = 1
           object lblIPAddress: TLabel
             Left = 10
@@ -148,12 +148,12 @@ object frmMain: TfrmMain
           Left = 5
           Height = 160
           Top = 180
-          Width = 306
+          Width = 758
           Align = alTop
           BorderSpacing.Around = 5
           BevelOuter = bvNone
           ClientHeight = 160
-          ClientWidth = 306
+          ClientWidth = 758
           TabOrder = 2
           object lblSerialPort: TLabel
             Left = 10
@@ -224,17 +224,22 @@ object frmMain: TfrmMain
           OnClick = btnDisconnectClick
         end
       end
+    end
+    object tsManip: TTabSheet
+      Caption = 'Manipulação'
+      ClientHeight = 492
+      ClientWidth = 792
       object gbOperations: TGroupBox
-        Left = 340
+        Left = 10
         Height = 472
         Top = 10
-        Width = 442
+        Width = 772
         Align = alClient
         BorderSpacing.Around = 10
         Caption = ' Operações '
         ClientHeight = 452
-        ClientWidth = 438
-        TabOrder = 1
+        ClientWidth = 768
+        TabOrder = 0
         object lblSlaveID: TLabel
           Left = 20
           Height = 15
@@ -340,13 +345,176 @@ object frmMain: TfrmMain
         Left = 10
         Height = 472
         Top = 10
-        Width = 772
-        Align = alClient
+        Width = 520
+        Align = alLeft
         BorderSpacing.Around = 10
         ColCount = 7
         DefaultColWidth = 100
         RowCount = 10
         TabOrder = 0
+        OnSelection = StringGridPinoutSelection
+      end
+      object pnlCrud: TPanel
+        Left = 540
+        Height = 472
+        Top = 10
+        Width = 242
+        Align = alClient
+        BorderSpacing.Around = 10
+        BevelOuter = bvNone
+        ClientHeight = 472
+        ClientWidth = 242
+        TabOrder = 1
+        object lblPin: TLabel
+          Left = 10
+          Height = 15
+          Top = 5
+          Width = 27
+          Caption = 'Pino:'
+          ParentColor = False
+        end
+        object edtPin: TEdit
+          Left = 10
+          Height = 23
+          Top = 20
+          Width = 220
+          TabOrder = 0
+        end
+        object lblCoil: TLabel
+          Left = 10
+          Height = 15
+          Top = 45
+          Width = 24
+          Caption = 'Coil:'
+          ParentColor = False
+        end
+        object edtCoil: TEdit
+          Left = 10
+          Height = 23
+          Top = 60
+          Width = 220
+          TabOrder = 1
+        end
+        object lblDI: TLabel
+          Left = 10
+          Height = 15
+          Top = 85
+          Width = 14
+          Caption = 'DI:'
+          ParentColor = False
+        end
+        object edtDI: TEdit
+          Left = 10
+          Height = 23
+          Top = 100
+          Width = 220
+          TabOrder = 2
+        end
+        object lblHRMode: TLabel
+          Left = 10
+          Height = 15
+          Top = 125
+          Width = 50
+          Caption = 'HR Modo:'
+          ParentColor = False
+        end
+        object edtHRMode: TEdit
+          Left = 10
+          Height = 23
+          Top = 140
+          Width = 220
+          TabOrder = 3
+        end
+        object lblHRPWM: TLabel
+          Left = 10
+          Height = 15
+          Top = 165
+          Width = 47
+          Caption = 'HR PWM:'
+          ParentColor = False
+        end
+        object edtHRPWM: TEdit
+          Left = 10
+          Height = 23
+          Top = 180
+          Width = 220
+          TabOrder = 4
+        end
+        object lblIR: TLabel
+          Left = 10
+          Height = 15
+          Top = 205
+          Width = 13
+          Caption = 'IR:'
+          ParentColor = False
+        end
+        object edtIR: TEdit
+          Left = 10
+          Height = 23
+          Top = 220
+          Width = 220
+          TabOrder = 5
+        end
+        object lblObs: TLabel
+          Left = 10
+          Height = 15
+          Top = 245
+          Width = 65
+          Caption = 'Observação:'
+          ParentColor = False
+        end
+        object edtObs: TEdit
+          Left = 10
+          Height = 23
+          Top = 260
+          Width = 220
+          TabOrder = 6
+        end
+        object btnAddPin: TButton
+          Left = 10
+          Height = 25
+          Top = 295
+          Width = 100
+          Caption = 'Adicionar'
+          TabOrder = 7
+          OnClick = btnAddPinClick
+        end
+        object btnUpdatePin: TButton
+          Left = 120
+          Height = 25
+          Top = 295
+          Width = 100
+          Caption = 'Atualizar'
+          TabOrder = 8
+          OnClick = btnUpdatePinClick
+        end
+        object btnDeletePin: TButton
+          Left = 10
+          Height = 25
+          Top = 330
+          Width = 210
+          Caption = 'Excluir'
+          TabOrder = 9
+          OnClick = btnDeletePinClick
+        end
+        object btnSaveJSON: TButton
+          Left = 10
+          Height = 25
+          Top = 370
+          Width = 210
+          Caption = 'Salvar JSON'
+          TabOrder = 10
+          OnClick = btnSaveJSONClick
+        end
+        object btnLoadJSON: TButton
+          Left = 10
+          Height = 25
+          Top = 405
+          Width = 210
+          Caption = 'Carregar JSON'
+          TabOrder = 11
+          OnClick = btnLoadJSONClick
+        end
       end
     end
     object tsLog: TTabSheet
@@ -364,6 +532,18 @@ object frmMain: TfrmMain
         TabOrder = 0
       end
     end
+  end
+  object OpenDialog1: TOpenDialog
+    DefaultExt = '.json'
+    Filter = 'JSON files|*.json|All files|*.*'
+    Left = 640
+    Top = 12
+  end
+  object SaveDialog1: TSaveDialog
+    DefaultExt = '.json'
+    Filter = 'JSON files|*.json|All files|*.*'
+    Left = 700
+    Top = 12
   end
   object AIModbusClient1: TAIModbusClient
     Prompt = 'Component TAIModbusClient connects to PLCs/industrial equipment via Modbus TCP/RTU. '#13#10'Properties: ProtocolType: TModbusProtocol (mbTCP, mbRTU), IPAddress: string, Port: Integer (default 502), DeviceName: string, BaudRate: Integer, Active: Boolean. '#13#10'Methods: Connect, Disconnect, ReadHoldingRegisters, WriteSingleRegister. '#13#10'AI Agent: Use this to read sensor states or write actuator commands in industrial automation.'

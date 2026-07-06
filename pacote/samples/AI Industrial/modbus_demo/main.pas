@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  ComCtrls, Grids, Spin, aibase, aimodbus, ailistserialdevices;
+  ComCtrls, Grids, Spin, aibase, aimodbus, ailistserialdevices, fpjson, jsonparser;
 
 type
 
@@ -20,7 +20,8 @@ type
     lblStatus: TLabel;
     btnClearLog: TButton;
     tsMapaPinout: TTabSheet;
-    tsOper: TTabSheet;
+    tsConfig: TTabSheet;
+    tsManip: TTabSheet;
     tsLog: TTabSheet;
     
     // Components
@@ -60,6 +61,30 @@ type
     
     // Pinout Grid
     StringGridPinout: TStringGrid;
+    pnlCrud: TPanel;
+    lblPin: TLabel;
+    edtPin: TEdit;
+    lblCoil: TLabel;
+    edtCoil: TEdit;
+    lblDI: TLabel;
+    edtDI: TEdit;
+    lblHRMode: TLabel;
+    edtHRMode: TEdit;
+    lblHRPWM: TLabel;
+    edtHRPWM: TEdit;
+    lblIR: TLabel;
+    edtIR: TEdit;
+    lblObs: TLabel;
+    edtObs: TEdit;
+    
+    btnAddPin: TButton;
+    btnUpdatePin: TButton;
+    btnDeletePin: TButton;
+    btnSaveJSON: TButton;
+    btnLoadJSON: TButton;
+    
+    OpenDialog1: TOpenDialog;
+    SaveDialog1: TSaveDialog;
     
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -70,6 +95,13 @@ type
     procedure btnReadClick(Sender: TObject);
     procedure btnWriteClick(Sender: TObject);
     procedure rgProtocolClick(Sender: TObject);
+    
+    procedure btnAddPinClick(Sender: TObject);
+    procedure btnUpdatePinClick(Sender: TObject);
+    procedure btnDeletePinClick(Sender: TObject);
+    procedure btnSaveJSONClick(Sender: TObject);
+    procedure btnLoadJSONClick(Sender: TObject);
+    procedure StringGridPinoutSelection(Sender: TObject; aCol, aRow: Integer);
   private
     procedure AddLog(const AMsg: string);
     procedure RefreshSerialPorts;
@@ -365,6 +397,166 @@ end;
 procedure TfrmMain.AddLog(const AMsg: string);
 begin
   memoLog.Lines.Add(AMsg);
+end;
+
+procedure TfrmMain.btnAddPinClick(Sender: TObject);
+var
+  RowIdx: Integer;
+begin
+  if Trim(edtPin.Text) = '' then
+  begin
+    ShowMessage('Por favor, informe ao menos o nome do pino.');
+    Exit;
+  end;
+  StringGridPinout.RowCount := StringGridPinout.RowCount + 1;
+  RowIdx := StringGridPinout.RowCount - 1;
+  StringGridPinout.Cells[0, RowIdx] := edtPin.Text;
+  StringGridPinout.Cells[1, RowIdx] := edtCoil.Text;
+  StringGridPinout.Cells[2, RowIdx] := edtDI.Text;
+  StringGridPinout.Cells[3, RowIdx] := edtHRMode.Text;
+  StringGridPinout.Cells[4, RowIdx] := edtHRPWM.Text;
+  StringGridPinout.Cells[5, RowIdx] := edtIR.Text;
+  StringGridPinout.Cells[6, RowIdx] := edtObs.Text;
+  AddLog('Pino adicionado: ' + edtPin.Text);
+end;
+
+procedure TfrmMain.btnUpdatePinClick(Sender: TObject);
+var
+  RowIdx: Integer;
+begin
+  RowIdx := StringGridPinout.Row;
+  if (RowIdx < 1) or (RowIdx >= StringGridPinout.RowCount) then
+  begin
+    ShowMessage('Por favor, selecione uma linha válida na tabela.');
+    Exit;
+  end;
+  if Trim(edtPin.Text) = '' then
+  begin
+    ShowMessage('O nome do pino não pode ser vazio.');
+    Exit;
+  end;
+  StringGridPinout.Cells[0, RowIdx] := edtPin.Text;
+  StringGridPinout.Cells[1, RowIdx] := edtCoil.Text;
+  StringGridPinout.Cells[2, RowIdx] := edtDI.Text;
+  StringGridPinout.Cells[3, RowIdx] := edtHRMode.Text;
+  StringGridPinout.Cells[4, RowIdx] := edtHRPWM.Text;
+  StringGridPinout.Cells[5, RowIdx] := edtIR.Text;
+  StringGridPinout.Cells[6, RowIdx] := edtObs.Text;
+  AddLog('Pino atualizado: ' + edtPin.Text);
+end;
+
+procedure TfrmMain.btnDeletePinClick(Sender: TObject);
+var
+  RowIdx: Integer;
+begin
+  RowIdx := StringGridPinout.Row;
+  if (RowIdx < 1) or (RowIdx >= StringGridPinout.RowCount) then
+  begin
+    ShowMessage('Por favor, selecione uma linha válida na tabela.');
+    Exit;
+  end;
+  AddLog('Removendo pino: ' + StringGridPinout.Cells[0, RowIdx]);
+  StringGridPinout.DeleteRow(RowIdx);
+  if StringGridPinout.RowCount = 1 then
+    StringGridPinout.RowCount := 2; // Keep at least one empty data row
+end;
+
+procedure TfrmMain.StringGridPinoutSelection(Sender: TObject; aCol, aRow: Integer);
+begin
+  if (aRow >= 1) and (aRow < StringGridPinout.RowCount) then
+  begin
+    edtPin.Text := StringGridPinout.Cells[0, aRow];
+    edtCoil.Text := StringGridPinout.Cells[1, aRow];
+    edtDI.Text := StringGridPinout.Cells[2, aRow];
+    edtHRMode.Text := StringGridPinout.Cells[3, aRow];
+    edtHRPWM.Text := StringGridPinout.Cells[4, aRow];
+    edtIR.Text := StringGridPinout.Cells[5, aRow];
+    edtObs.Text := StringGridPinout.Cells[6, aRow];
+  end;
+end;
+
+procedure TfrmMain.btnSaveJSONClick(Sender: TObject);
+var
+  JSONArray: TJSONArray;
+  JSONObject: TJSONObject;
+  I: Integer;
+  JSONFile: TStringList;
+begin
+  if not SaveDialog1.Execute then Exit;
+  
+  JSONArray := TJSONArray.Create;
+  try
+    for I := 1 to StringGridPinout.RowCount - 1 do
+    begin
+      if Trim(StringGridPinout.Cells[0, I]) <> '' then
+      begin
+        JSONObject := TJSONObject.Create;
+        JSONObject.Add('pin', StringGridPinout.Cells[0, I]);
+        JSONObject.Add('coil', StringGridPinout.Cells[1, I]);
+        JSONObject.Add('di', StringGridPinout.Cells[2, I]);
+        JSONObject.Add('hr_mode', StringGridPinout.Cells[3, I]);
+        JSONObject.Add('hr_pwm', StringGridPinout.Cells[4, I]);
+        JSONObject.Add('ir', StringGridPinout.Cells[5, I]);
+        JSONObject.Add('observation', StringGridPinout.Cells[6, I]);
+        JSONArray.Add(JSONObject);
+      end;
+    end;
+    
+    JSONFile := TStringList.Create;
+    try
+      JSONFile.Text := JSONArray.FormatJSON();
+      JSONFile.SaveToFile(SaveDialog1.FileName);
+      AddLog('Configurações salvas em JSON com sucesso: ' + SaveDialog1.FileName);
+    finally
+      JSONFile.Free;
+    end;
+  finally
+    JSONArray.Free;
+  end;
+end;
+
+procedure TfrmMain.btnLoadJSONClick(Sender: TObject);
+var
+  JSONFile: TStringList;
+  JSONData: TJSONData;
+  JSONArray: TJSONArray;
+  JSONObject: TJSONObject;
+  I, RowIdx: Integer;
+begin
+  if not OpenDialog1.Execute then Exit;
+  
+  JSONFile := TStringList.Create;
+  try
+    JSONFile.LoadFromFile(OpenDialog1.FileName);
+    JSONData := GetJSON(JSONFile.Text);
+    try
+      if JSONData.JSONType = jtArray then
+      begin
+        JSONArray := TJSONArray(JSONData);
+        StringGridPinout.RowCount := 1; // Clear and keep header
+        for I := 0 to JSONArray.Count - 1 do
+        begin
+          JSONObject := TJSONObject(JSONArray.Items[I]);
+          StringGridPinout.RowCount := StringGridPinout.RowCount + 1;
+          RowIdx := StringGridPinout.RowCount - 1;
+          StringGridPinout.Cells[0, RowIdx] := JSONObject.Get('pin', '');
+          StringGridPinout.Cells[1, RowIdx] := JSONObject.Get('coil', '');
+          StringGridPinout.Cells[2, RowIdx] := JSONObject.Get('di', '');
+          StringGridPinout.Cells[3, RowIdx] := JSONObject.Get('hr_mode', '');
+          StringGridPinout.Cells[4, RowIdx] := JSONObject.Get('hr_pwm', '');
+          StringGridPinout.Cells[5, RowIdx] := JSONObject.Get('ir', '');
+          StringGridPinout.Cells[6, RowIdx] := JSONObject.Get('observation', '');
+        end;
+        AddLog('Configurações carregadas do JSON com sucesso: ' + OpenDialog1.FileName);
+      end
+      else
+        ShowMessage('Arquivo JSON inválido (deve ser um array).');
+    finally
+      JSONData.Free;
+    end;
+  finally
+    JSONFile.Free;
+  end;
 end;
 
 end.
