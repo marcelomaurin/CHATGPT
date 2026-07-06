@@ -5,9 +5,12 @@ unit ailistserialdevices;
 interface
 
 uses
-  Classes, SysUtils, Registry, aibase
+  Classes, SysUtils, ExtCtrls, aibase
   {$IFDEF MSWINDOWS}
-  , Windows
+  , Registry, Windows
+  {$ENDIF}
+  {$IFDEF UNIX}
+  , BaseUnix
   {$ENDIF}
   ;
 
@@ -32,11 +35,14 @@ type
     FIsAvailable: Boolean;
     FIsOpenable: Boolean;
     FLastError: string;
+  public
+    constructor Create(ACollection: TCollection); override;
   published
     property DeviceName: string read FDeviceName write FDeviceName;
     property DisplayName: string read FDisplayName write FDisplayName;
     property Description: string read FDescription write FDescription;
     property PortKind: TSerialPortKind read FPortKind write FPortKind default spkUnknown;
+    property Kind: TSerialPortKind read FPortKind write FPortKind default spkUnknown;
     property IsAvailable: Boolean read FIsAvailable write FIsAvailable default True;
     property IsOpenable: Boolean read FIsOpenable write FIsOpenable default True;
     property LastError: string read FLastError write FLastError;
@@ -68,12 +74,18 @@ type
     FIncludeSystemPorts: Boolean;
     FIncludeUSBSerial: Boolean;
     FIncludeBluetooth: Boolean;
+    FAutoRefreshIntervalMs: Integer;
+    FRefreshTimer: TTimer;
     
     FOnBeforeRefresh: TNotifyEvent;
     FOnAfterRefresh: TNotifyEvent;
     FOnDeviceFound: TSerialDeviceFoundEvent;
     FOnError: TSerialDeviceErrorEvent;
 
+    procedure SetAutoRefresh(AValue: Boolean);
+    procedure SetAutoRefreshIntervalMs(AValue: Integer);
+    procedure DoAutoRefreshTimer(Sender: TObject);
+    function ShouldInclude(AKind: TSerialPortKind): Boolean;
     procedure DoDeviceFound(Device: TAIListSerialDeviceItem);
     procedure DoError(const AMsg: string);
     procedure QueryWindowsSerialPorts;
@@ -85,14 +97,17 @@ type
 
     procedure Refresh;
     procedure Clear;
-    procedure GetDeviceNames(AList: TStrings);
+    procedure GetDeviceNames(AList: TStrings; AClearList: Boolean = True);
     function Count: Integer;
     function HasDevices: Boolean;
     function FindByDeviceName(const ADeviceName: string): TAIListSerialDeviceItem;
   published
     property Devices: TAIListSerialDeviceItems read FDevices write FDevices;
-    property AutoRefresh: Boolean read FAutoRefresh write FAutoRefresh default False;
-    property ProbeOpenable: Boolean read FProbeOpenable write FProbeOpenable default True;
+    property AutoRefresh: Boolean read FAutoRefresh write SetAutoRefresh default False;
+    property AutoRefreshIntervalMs: Integer read FAutoRefreshIntervalMs write SetAutoRefreshIntervalMs default 3000;
+    // When True, the component may open the serial port to check if it is usable.
+    // Warning: opening Arduino Nano/Uno serial ports may toggle DTR and reset the board.
+    property ProbeOpenable: Boolean read FProbeOpenable write FProbeOpenable default False;
     property OnlyAvailable: Boolean read FOnlyAvailable write FOnlyAvailable default True;
     property IncludeSystemPorts: Boolean read FIncludeSystemPorts write FIncludeSystemPorts default True;
     property IncludeUSBSerial: Boolean read FIncludeUSBSerial write FIncludeUSBSerial default True;
@@ -112,6 +127,16 @@ implementation
 procedure Register;
 begin
   RegisterComponents('AI Communication', [TAIListSerialDevices]);
+end;
+
+{ TAIListSerialDeviceItem }
+
+constructor TAIListSerialDeviceItem.Create(ACollection: TCollection);
+begin
+  inherited Create(ACollection);
+  FIsAvailable := True;
+  FIsOpenable := True;
+  FLastError := '';
 end;
 
 { TAIListSerialDeviceItems }
@@ -144,17 +169,70 @@ begin
   FPrompt := 'Component TAIListSerialDevices queries and aggregates available serial hardware interfaces (COM/tty) on Windows and Linux/macOS. Methods: Refresh, GetDeviceNames(AList: TStrings).';
   FDevices := TAIListSerialDeviceItems.Create(Self);
   FAutoRefresh := False;
-  FProbeOpenable := True;
+  FProbeOpenable := False; // Default False to prevent Arduino reset
   FOnlyAvailable := True;
   FIncludeSystemPorts := True;
   FIncludeUSBSerial := True;
   FIncludeBluetooth := True;
+  FAutoRefreshIntervalMs := 3000;
+  
+  FRefreshTimer := TTimer.Create(Self);
+  FRefreshTimer.Enabled := False;
+  FRefreshTimer.Interval := FAutoRefreshIntervalMs;
+  FRefreshTimer.OnTimer := @DoAutoRefreshTimer;
 end;
 
 destructor TAIListSerialDevices.Destroy;
 begin
+  if FRefreshTimer <> nil then
+  begin
+    FRefreshTimer.Enabled := False;
+    FRefreshTimer.Free;
+    FRefreshTimer := nil;
+  end;
   FDevices.Free;
   inherited Destroy;
+end;
+
+procedure TAIListSerialDevices.SetAutoRefresh(AValue: Boolean);
+begin
+  if FAutoRefresh = AValue then Exit;
+  FAutoRefresh := AValue;
+  if FRefreshTimer <> nil then
+  begin
+    if not (csDesigning in ComponentState) then
+      FRefreshTimer.Enabled := FAutoRefresh
+    else
+      FRefreshTimer.Enabled := False;
+  end;
+end;
+
+procedure TAIListSerialDevices.SetAutoRefreshIntervalMs(AValue: Integer);
+begin
+  if FAutoRefreshIntervalMs = AValue then Exit;
+  FAutoRefreshIntervalMs := AValue;
+  if FRefreshTimer <> nil then
+    FRefreshTimer.Interval := FAutoRefreshIntervalMs;
+end;
+
+procedure TAIListSerialDevices.DoAutoRefreshTimer(Sender: TObject);
+begin
+  if not (csDesigning in ComponentState) then
+    Refresh;
+end;
+
+function TAIListSerialDevices.ShouldInclude(AKind: TSerialPortKind): Boolean;
+begin
+  case AKind of
+    spkUSBSerial:
+      Result := FIncludeUSBSerial;
+    spkSystem:
+      Result := FIncludeSystemPorts;
+    spkBluetooth:
+      Result := FIncludeBluetooth;
+  else
+    Result := True;
+  end;
 end;
 
 procedure TAIListSerialDevices.DoDeviceFound(Device: TAIListSerialDeviceItem);
@@ -200,11 +278,13 @@ begin
   end;
 end;
 
-procedure TAIListSerialDevices.GetDeviceNames(AList: TStrings);
+procedure TAIListSerialDevices.GetDeviceNames(AList: TStrings; AClearList: Boolean = True);
 var
   I: Integer;
 begin
   if AList = nil then Exit;
+  if AClearList then
+    AList.Clear;
   for I := 0 to FDevices.Count - 1 do
   begin
     if not FOnlyAvailable or (FDevices[I].IsOpenable and FDevices[I].IsAvailable) then
@@ -222,7 +302,7 @@ begin
   Device.IsOpenable := True;
   Device.LastError := '';
   
-  if not FProbeOpenable and not FOnlyAvailable then Exit;
+  if not FProbeOpenable then Exit;
 
   {$IFDEF MSWINDOWS}
   PortStr := '\\.\' + Device.DeviceName;
@@ -235,9 +315,7 @@ begin
   else
     CloseHandle(HPort);
   {$ELSE}
-  // Linux test check (try to open serial node)
-  // In Linux, we can try to check if the file descriptor is openable.
-  // Note: we only do it if the user enabled it, as it may reset some Arduino boards.
+  // Unix/Linux/macOS serial checking can be added if needed, or left empty
   {$ENDIF}
 end;
 
@@ -248,6 +326,8 @@ var
   I: Integer;
   DeviceName, PortValue: string;
   Item: TAIListSerialDeviceItem;
+  Kind: TSerialPortKind;
+  DevUpper: string;
 begin
   Reg := TRegistry.Create(KEY_READ);
   ValueList := TStringList.Create;
@@ -262,28 +342,33 @@ begin
         PortValue := Reg.ReadString(DeviceName);
         if PortValue <> '' then
         begin
-          Item := FDevices.Add;
-          Item.DeviceName := PortValue;
-          Item.Description := DeviceName;
-          
-          if Pos('USBSER', UpperCase(DeviceName)) > 0 then
-          begin
-            Item.PortKind := spkUSBSerial;
-            Item.DisplayName := 'USB Serial Device (' + PortValue + ')';
-          end
-          else if Pos('BTHNUM', UpperCase(DeviceName)) > 0 then
-          begin
-            Item.PortKind := spkBluetooth;
-            Item.DisplayName := 'Bluetooth Link (' + PortValue + ')';
-          end
+          DevUpper := UpperCase(DeviceName);
+          if (Pos('USBSER', DevUpper) > 0) or (Pos('VCP', DevUpper) > 0) or
+             (Pos('SILABSER', DevUpper) > 0) or (Pos('CH34', DevUpper) > 0) or
+             (Pos('PROLIFIC', DevUpper) > 0) then
+            Kind := spkUSBSerial
+          else if (Pos('BTHNUM', DevUpper) > 0) or (Pos('BTHMODEM', DevUpper) > 0) then
+            Kind := spkBluetooth
           else
+            Kind := spkSystem;
+
+          if ShouldInclude(Kind) then
           begin
-            Item.PortKind := spkSystem;
-            Item.DisplayName := 'Serial Port (' + PortValue + ')';
+            Item := FDevices.Add;
+            Item.DeviceName := PortValue;
+            Item.Description := DeviceName;
+            Item.PortKind := Kind;
+            
+            case Kind of
+              spkUSBSerial: Item.DisplayName := 'USB Serial Device (' + PortValue + ')';
+              spkBluetooth: Item.DisplayName := 'Bluetooth Link (' + PortValue + ')';
+            else
+              Item.DisplayName := 'Serial Port (' + PortValue + ')';
+            end;
+            
+            ProbePort(Item);
+            DoDeviceFound(Item);
           end;
-          
-          ProbePort(Item);
-          DoDeviceFound(Item);
         end;
       end;
     end;
@@ -302,6 +387,7 @@ var
   
   procedure AddPath(const APath, APrefix: string; AKind: TSerialPortKind);
   begin
+    if not ShouldInclude(AKind) then Exit;
     if FindFirst(APath, faAnyFile, SR) = 0 then
     begin
       repeat
@@ -311,7 +397,7 @@ var
           Item.DeviceName := APrefix + SR.Name;
           Item.DisplayName := SR.Name;
           Item.PortKind := AKind;
-          Item.Description := 'Linux serial device node';
+          Item.Description := 'Unix serial device node';
           ProbePort(Item);
           DoDeviceFound(Item);
         end;
@@ -321,32 +407,43 @@ var
   end;
 
 begin
-  // USB serials (ex: /dev/ttyUSB0)
-  if FIncludeUSBSerial then
-  begin
-    AddPath('/dev/ttyUSB*', '/dev/', spkUSBSerial);
-    AddPath('/dev/ttyACM*', '/dev/', spkUSBSerial);
-  end;
+  {$IFDEF DARWIN}
+  // macOS / Darwin ports
+  AddPath('/dev/cu.usbserial*', '/dev/', spkUSBSerial);
+  AddPath('/dev/cu.usbmodem*', '/dev/', spkUSBSerial);
+  AddPath('/dev/tty.usbserial*', '/dev/', spkUSBSerial);
+  AddPath('/dev/tty.usbmodem*', '/dev/', spkUSBSerial);
+  {$ELSE}
+  // Linux USB serials
+  AddPath('/dev/ttyUSB*', '/dev/', spkUSBSerial);
+  AddPath('/dev/ttyACM*', '/dev/', spkUSBSerial);
   
-  // Standard/System ports
-  if FIncludeSystemPorts then
-  begin
-    AddPath('/dev/ttyS*', '/dev/', spkSystem);
-  end;
+  // Linux Standard/System ports
+  AddPath('/dev/ttyS*', '/dev/', spkSystem);
+  {$ENDIF}
 end;
 
 procedure TAIListSerialDevices.Refresh;
 begin
+  ClearError;
   if Assigned(FOnBeforeRefresh) then
     FOnBeforeRefresh(Self);
 
-  Clear;
+  try
+    Clear;
 
-  {$IFDEF MSWINDOWS}
-  QueryWindowsSerialPorts;
-  {$ELSE}
-  QueryLinuxSerialPorts;
-  {$ENDIF}
+    {$IFDEF MSWINDOWS}
+    QueryWindowsSerialPorts;
+    {$ELSE}
+    QueryLinuxSerialPorts;
+    {$ENDIF}
+  except
+    on E: Exception do
+    begin
+      SetError(E.Message);
+      DoError('Refresh Error: ' + E.Message);
+    end;
+  end;
 
   if Assigned(FOnAfterRefresh) then
     FOnAfterRefresh(Self);

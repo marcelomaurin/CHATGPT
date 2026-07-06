@@ -42,6 +42,8 @@ type
     function SerialReadBytes(var ABuffer; ALength: Integer; TimeoutMs: Integer = 500): Integer;
     procedure UnpackBits(const Src: array of Byte; SrcIndex: Integer; Count: Integer; var Dest: array of Boolean);
     function ExecuteTransaction(SlaveID, FunctCode: Byte; const RequestPDU: array of Byte; RequestPDULen: Integer; out ResponsePDU: array of Byte; var ResponsePDULen: Integer): Boolean;
+    function NormalizeSerialDeviceName(const AName: string): string;
+    function IsSerialHandleValid(AHandle: TSerialHandle): Boolean;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -205,6 +207,24 @@ begin
   end;
   Result := TotalRead;
 end;
+function TAIModbusClient.NormalizeSerialDeviceName(const AName: string): string;
+begin
+  {$IFDEF MSWINDOWS}
+  if SameText(Copy(AName, 1, 3), 'COM') and (StrToIntDef(Copy(AName, 4, MaxInt), 0) >= 10) then
+    Result := '\\.\' + AName
+  else
+  {$ENDIF}
+    Result := AName;
+end;
+
+function TAIModbusClient.IsSerialHandleValid(AHandle: TSerialHandle): Boolean;
+begin
+  {$IFDEF MSWINDOWS}
+  Result := (AHandle <> 0) and (AHandle <> TSerialHandle(-1));
+  {$ELSE}
+  Result := AHandle > 0;
+  {$ENDIF}
+end;
 
 procedure TAIModbusClient.SetActive(AValue: Boolean);
 begin
@@ -278,8 +298,8 @@ begin
     end
     else
     begin
-      FSerialHandle := SerOpen(FDeviceName);
-      if FSerialHandle <> 0 then
+      FSerialHandle := SerOpen(NormalizeSerialDeviceName(FDeviceName));
+      if IsSerialHandleValid(FSerialHandle) then
       begin
         SerSetParams(FSerialHandle, FBaudRate, 8, NoneParity, 1, []);
         FActive := True;
@@ -312,7 +332,7 @@ begin
     end
     else
     begin
-      if FSerialHandle <> 0 then
+      if IsSerialHandleValid(FSerialHandle) then
       begin
         SerClose(FSerialHandle);
         FSerialHandle := 0;
@@ -469,7 +489,7 @@ begin
   else
   begin
     // Modbus RTU
-    if FSerialHandle = 0 then
+    if not IsSerialHandleValid(FSerialHandle) then
     begin
       SetError('Modbus client serial port not open.');
       Exit;

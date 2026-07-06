@@ -125,6 +125,10 @@ end;
 procedure TfrmMain.RefreshSerialPorts;
 begin
   AIListSerialDevices1.OnlyAvailable := True;
+  AIListSerialDevices1.ProbeOpenable := False;
+  AIListSerialDevices1.IncludeUSBSerial := True;
+  AIListSerialDevices1.IncludeBluetooth := False;
+  AIListSerialDevices1.IncludeSystemPorts := False;
   AIListSerialDevices1.Refresh;
   cbSerial.Items.Clear;
   AIListSerialDevices1.GetDeviceNames(cbSerial.Items);
