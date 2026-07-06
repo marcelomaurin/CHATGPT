@@ -35,7 +35,7 @@ object frmMain: TfrmMain
       Left = 400
       Height = 15
       Top = 22
-      Width = 110
+      Width = 113
       Caption = 'Status: Desconectado'
       ParentColor = False
     end
@@ -54,9 +54,9 @@ object frmMain: TfrmMain
     Height = 520
     Top = 80
     Width = 800
-    ActivePage = tsOper
+    ActivePage = tsMapaPinout
     Align = alClient
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 1
     object tsOper: TTabSheet
       Caption = 'Operação'
@@ -74,10 +74,10 @@ object frmMain: TfrmMain
         ClientWidth = 316
         TabOrder = 0
         object rgProtocol: TRadioGroup
-          Left = 10
+          Left = 5
           Height = 55
           Top = 5
-          Width = 296
+          Width = 306
           Align = alTop
           AutoFill = True
           BorderSpacing.Around = 5
@@ -90,7 +90,7 @@ object frmMain: TfrmMain
           ChildSizing.Layout = cclLeftToRightThenTopToBottom
           ChildSizing.ControlsPerLine = 2
           ClientHeight = 35
-          ClientWidth = 292
+          ClientWidth = 302
           Columns = 2
           ItemIndex = 0
           Items.Strings = (
@@ -101,21 +101,21 @@ object frmMain: TfrmMain
           OnClick = rgProtocolClick
         end
         object pnlTCP: TPanel
-          Left = 10
+          Left = 5
           Height = 110
-          Top = 70
-          Width = 296
+          Top = 65
+          Width = 306
           Align = alTop
           BorderSpacing.Around = 5
           BevelOuter = bvNone
           ClientHeight = 110
-          ClientWidth = 296
+          ClientWidth = 306
           TabOrder = 1
           object lblIPAddress: TLabel
             Left = 10
             Height = 15
             Top = 5
-            Width = 63
+            Width = 65
             Caption = 'Endereço IP:'
             ParentColor = False
           end
@@ -145,15 +145,15 @@ object frmMain: TfrmMain
           end
         end
         object pnlRTU: TPanel
-          Left = 10
+          Left = 5
           Height = 160
-          Top = 185
-          Width = 296
+          Top = 180
+          Width = 306
           Align = alTop
           BorderSpacing.Around = 5
           BevelOuter = bvNone
           ClientHeight = 160
-          ClientWidth = 296
+          ClientWidth = 306
           TabOrder = 2
           object lblSerialPort: TLabel
             Left = 10
@@ -185,7 +185,7 @@ object frmMain: TfrmMain
             Left = 10
             Height = 15
             Top = 60
-            Width = 54
+            Width = 56
             Caption = 'Baud Rate:'
             ParentColor = False
           end
@@ -239,7 +239,7 @@ object frmMain: TfrmMain
           Left = 20
           Height = 15
           Top = 15
-          Width = 45
+          Width = 44
           Caption = 'Slave ID:'
           ParentColor = False
         end
@@ -292,7 +292,7 @@ object frmMain: TfrmMain
           Left = 20
           Height = 15
           Top = 140
-          Width = 83
+          Width = 75
           Caption = 'Valor (Escrita):'
           ParentColor = False
         end
@@ -303,13 +303,12 @@ object frmMain: TfrmMain
           Width = 120
           MaxValue = 65535
           TabOrder = 3
-          Value = 0
         end
         object chkAllowWrite: TCheckBox
           Left = 20
           Height = 19
           Top = 205
-          Width = 231
+          Width = 188
           Caption = 'Permitir escrita em registradores'
           TabOrder = 4
         end
@@ -367,15 +366,16 @@ object frmMain: TfrmMain
     end
   end
   object AIModbusClient1: TAIModbusClient
+    Prompt = 'Component TAIModbusClient connects to PLCs/industrial equipment via Modbus TCP/RTU. '#13#10'Properties: ProtocolType: TModbusProtocol (mbTCP, mbRTU), IPAddress: string, Port: Integer (default 502), DeviceName: string, BaudRate: Integer, Active: Boolean. '#13#10'Methods: Connect, Disconnect, ReadHoldingRegisters, WriteSingleRegister. '#13#10'AI Agent: Use this to read sensor states or write actuator commands in industrial automation.'
     IPAddress = '127.0.0.1'
     DeviceName = 'COM1'
     Left = 460
     Top = 12
   end
   object AIListSerialDevices1: TAIListSerialDevices
+    Prompt = 'Component TAIListSerialDevices queries and aggregates available serial hardware interfaces (COM/tty) on Windows and Linux/macOS. Methods: Refresh, GetDeviceNames(AList: TStrings).'
     Devices = <>
     AutoRefresh = True
-    OnlyAvailable = True
     ProbeOpenable = True
     Left = 560
     Top = 12
