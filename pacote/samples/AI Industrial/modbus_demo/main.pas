@@ -343,6 +343,11 @@ begin
   begin
     AddLog('Escrita concluída com sucesso.');
     lblStatus.Caption := 'Status: Operação concluída';
+  end
+  else
+  begin
+    AddLog('Erro na escrita: ' + AIModbusClient1.LastError);
+    lblStatus.Caption := 'Status: Falha na operação';
   end;
 end;
 
