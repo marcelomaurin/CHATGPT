@@ -119,6 +119,11 @@ type
   end;
   TDetectedDeviceArray = array of TDetectedDevice;
 
+function NaturalCompare(const Str1, Str2: string): Integer;
+procedure SortAndDeduplicate(var ADevices: TDetectedDeviceArray);
+function ExtractUsbSerialFromInstanceId(const AInstanceId: string): string;
+
+type
   { TAIListSerialDevices }
 
   TAIListSerialDevices = class(TAIBaseComponent)
