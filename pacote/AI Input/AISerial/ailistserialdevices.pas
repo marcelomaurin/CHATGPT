@@ -858,6 +858,8 @@ var
   DevUpper: string;
   Kind: TSerialPortKind;
   Item: TDetectedDevice;
+  TempArr: TDetectedDeviceArray;
+  Idx, J, FoundIdx: Integer;
 {$ENDIF}
 begin
   {$IFDEF MSWINDOWS}
@@ -923,6 +925,35 @@ begin
   end;
   ValueList.Free;
   Reg.Free;
+
+  // Deduplicacao mantendo o registro mais rico (ex. SetupAPI sobre o Registry cru)
+  if Length(ADetected) > 1 then
+  begin
+    TempArr := nil;
+    for Idx := 0 to Length(ADetected) - 1 do
+    begin
+      FoundIdx := -1;
+      for J := 0 to Length(TempArr) - 1 do
+      begin
+        if SameText(TempArr[J].DeviceName, ADetected[Idx].DeviceName) then
+        begin
+          FoundIdx := J;
+          Break;
+        end;
+      end;
+      if FoundIdx = -1 then
+      begin
+        SetLength(TempArr, Length(TempArr) + 1);
+        TempArr[Length(TempArr) - 1] := ADetected[Idx];
+      end
+      else
+      begin
+        if (TempArr[FoundIdx].InstanceID = '') and (ADetected[Idx].InstanceID <> '') then
+          TempArr[FoundIdx] := ADetected[Idx];
+      end;
+    end;
+    ADetected := TempArr;
+  end;
   {$ENDIF}
 end;
 
