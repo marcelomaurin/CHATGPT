@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  aibase, aiwebserver;
+  aiwebserver;
 
 type
 
@@ -14,18 +14,24 @@ type
 
   TfrmMain = class(TForm)
     pnlTop: TPanel;
-    lblTitle: TLabel;
-    lblStatus: TLabel;
-    chkSimulation: TCheckBox;
-    btnRun: TButton;
+    grpConfig: TGroupBox;
+    lblPort: TLabel;
+    editPort: TEdit;
+    grpActions: TGroupBox;
+    btnStartServer: TButton;
+    btnStopServer: TButton;
     btnClearLog: TButton;
+    lblStatus: TLabel;
     memoLog: TMemo;
+    AIWebAPIServer1: TAIWebAPIServer;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure btnRunClick(Sender: TObject);
+    procedure btnStartServerClick(Sender: TObject);
+    procedure btnStopServerClick(Sender: TObject);
     procedure btnClearLogClick(Sender: TObject);
+    procedure OnAPIRequest(Sender: TObject; const ARoute, AMethod, AContent: string;
+      out AResponse: string; out AResponseCode: Integer);
   private
-    FAIWebServer: TAIWebAPIServer; FEditPort: TEdit;
     procedure AddLog(const AMsg: string);
   public
 
@@ -42,68 +48,59 @@ implementation
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
-  AddLog('Webserver Demo (aiwebserver) initialized.');
-  FAIWebServer := TAIWebAPIServer.Create(Self);
-  
-  FEditPort := TEdit.Create(Self);
-  FEditPort.Parent := pnlTop;
-  FEditPort.Left := 15;
-  FEditPort.Top := 115;
-  FEditPort.Width := 100;
-  FEditPort.Text := '8086';
+  AddLog('Web Server Demo initialized.');
+  AddLog('Configure port and click "Start Web Server" to begin listening.');
+  AIWebAPIServer1.OnRequestReceived := @OnAPIRequest;
+  btnStartServer.Enabled := True;
+  btnStopServer.Enabled := False;
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
-  // Handled by LCL Owner auto-free.
+  if Assigned(AIWebAPIServer1) then
+    AIWebAPIServer1.StopServer;
 end;
 
-procedure TfrmMain.btnRunClick(Sender: TObject);
+procedure TfrmMain.btnStartServerClick(Sender: TObject);
 begin
-  lblStatus.Caption := 'Status: Processing...';
-  AddLog('--- Starting Execution ---');
+  lblStatus.Caption := 'Status: Starting Server...';
+  AddLog('--- Starting Embedded HTTP Server ---');
   try
-  FAIWebServer.Port := StrToInt(FEditPort.Text);
-  FAIWebServer.Active := True;
-  
-  AddLog('Web Server Component Properties:');
-  AddLog('  Port: ' + IntToStr(FAIWebServer.Port));
-  AddLog('  Active: ' + BoolToStr(FAIWebServer.Active, True));
-  
-  if chkSimulation.Checked then
-  begin
-    AddLog('Running in Simulated Mode...');
-    AddLog('Web API server listening on http://localhost:' + FEditPort.Text);
-    AddLog('Method GetJSONEndpointResponse called: Returns standard OK status.');
-    FAIWebServer.Active := False;
-    AddLog('Server stopped.');
-  end
-  else
-  begin
-    AddLog('Starting real HTTP Web Server on port ' + FEditPort.Text);
-    try
-      if FAIWebServer.StartServer then
-      begin
-        AddLog('Web Server running. Press browser to test.');
-        Sleep(1000);
-        FAIWebServer.StopServer;
-        AddLog('Web Server stopped.');
-      end
-      else
-        AddLog('Failed to start server: ' + FAIWebServer.LastError);
-    except
-      on E: Exception do AddLog('Exception: ' + E.Message);
+    AIWebAPIServer1.Port := StrToIntDef(editPort.Text, 8086);
+    
+    AddLog('Target Port: ' + IntToStr(AIWebAPIServer1.Port));
+    
+    if AIWebAPIServer1.StartServer then
+    begin
+      AddLog('SUCCESS: HTTP Server running on http://localhost:' + IntToStr(AIWebAPIServer1.Port));
+      AddLog('Open your browser and test routes (e.g., http://localhost:' + IntToStr(AIWebAPIServer1.Port) + '/test)');
+      lblStatus.Caption := 'Status: Web Server Running';
+      btnStartServer.Enabled := False;
+      btnStopServer.Enabled := True;
+    end
+    else
+    begin
+      AddLog('ERROR: Failed to start web server. Check port availability.');
+      lblStatus.Caption := 'Status: Startup Failed';
     end;
-  end;
-    lblStatus.Caption := 'Status: Completed Successfully';
   except
     on E: Exception do
     begin
-      AddLog('Critical Error: ' + E.Message);
-      lblStatus.Caption := 'Status: Execution Error';
+      AddLog('Exception: ' + E.Message);
+      lblStatus.Caption := 'Status: Server Exception';
     end;
   end;
-  AddLog('--- Execution Finished ---');
+  AddLog('-------------------------------------');
+end;
+
+procedure TfrmMain.btnStopServerClick(Sender: TObject);
+begin
+  AddLog('Stopping Web Server...');
+  AIWebAPIServer1.StopServer;
+  btnStartServer.Enabled := True;
+  btnStopServer.Enabled := False;
+  lblStatus.Caption := 'Status: Server Stopped';
+  AddLog('Web Server stopped.');
 end;
 
 procedure TfrmMain.btnClearLogClick(Sender: TObject);
@@ -111,9 +108,21 @@ begin
   memoLog.Clear;
 end;
 
+procedure TfrmMain.OnAPIRequest(Sender: TObject; const ARoute, AMethod, AContent: string;
+  out AResponse: string; out AResponseCode: Integer);
+begin
+  AddLog(Format('[HTTP REQUEST] Route: "%s" | Method: "%s" | ContentLength: %d', 
+    [ARoute, AMethod, Length(AContent)]));
+  if AContent <> '' then
+    AddLog('  Body: ' + AContent);
+    
+  AResponse := '{"status": "ok", "route": "' + ARoute + '", "method": "' + AMethod + '", "message": "Request processed successfully by Lazarus Embedded Web Server"}';
+  AResponseCode := 200;
+end;
+
 procedure TfrmMain.AddLog(const AMsg: string);
 begin
-  memoLog.Lines.Add(AMsg);
+  memoLog.Lines.Add(FormatDateTime('hh:nn:ss.zzz', Now) + ' - ' + AMsg);
 end;
 
 end.
