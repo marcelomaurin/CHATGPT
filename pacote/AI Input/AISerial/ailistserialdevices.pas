@@ -153,6 +153,7 @@ type
     procedure QueryWindowsSerialPorts(var ADetected: TDetectedDeviceArray);
     procedure QueryWindowsSetupAPI(var ADetected: TDetectedDeviceArray);
     procedure QueryLinuxSerialPorts(var ADetected: TDetectedDeviceArray);
+    procedure EnrichLinuxMetadata(var ADetected: TDetectedDeviceArray);
     procedure ProbePort(Device: TAIListSerialDeviceItem);
     procedure IdentifyByVIDPID(Device: TAIListSerialDeviceItem);
   public
@@ -1146,10 +1147,92 @@ begin
   AddPath('/dev/ttyTHS*', '/dev/', spkSystem);
 
   {$IFDEF UNIX}
-  EnrichLinuxMetadata;
+  EnrichLinuxMetadata(ADetected);
   {$ENDIF}
   {$ENDIF}
 end;
+
+procedure TAIListSerialDevices.EnrichLinuxMetadata(var ADetected: TDetectedDeviceArray);
+{$IFDEF UNIX}
+var
+  I, Limit: Integer;
+  DevName, SysPath, ParentDir, DriverLink: string;
+  FoundVendor: Boolean;
+
+  function ReadSysFile(const AFileName: string): string;
+  var
+    F: TextFile;
+    Line: string;
+  begin
+    Result := '';
+    if FileExists(AFileName) then
+    begin
+      try
+        AssignFile(F, AFileName);
+        Reset(F);
+        if not Eof(F) then
+        begin
+          Readln(F, Line);
+          Result := Trim(Line);
+        end;
+        CloseFile(F);
+      except
+        // Ignore file errors
+      end;
+    end;
+  end;
+
+begin
+  for I := 0 to Length(ADetected) - 1 do
+  begin
+    DevName := ExtractFileName(ADetected[I].DeviceName);
+    SysPath := '/sys/class/tty/' + DevName;
+
+    if DirectoryExists(SysPath) then
+    begin
+      ParentDir := SysPath + '/device';
+      FoundVendor := False;
+      Limit := 0;
+      
+      while (Length(ParentDir) > 10) and (Limit < 5) do
+      begin
+        if FileExists(ParentDir + '/idVendor') then
+        begin
+          ADetected[I].VID := ReadSysFile(ParentDir + '/idVendor');
+          ADetected[I].PID := ReadSysFile(ParentDir + '/idProduct');
+          ADetected[I].SerialNumber := ReadSysFile(ParentDir + '/serial');
+          ADetected[I].Manufacturer := ReadSysFile(ParentDir + '/manufacturer');
+          ADetected[I].LocationInfo := ReadSysFile(ParentDir + '/devpath');
+          ADetected[I].LocationPath := ParentDir;
+          
+          DriverLink := ParentDir + '/driver';
+          if DirectoryExists(DriverLink) then
+            ADetected[I].DriverService := ExtractFileName(ResolveSymlink(DriverLink));
+            
+          FoundVendor := True;
+          Break;
+        end;
+        ParentDir := ExpandFileName(ParentDir + '/..');
+        Inc(Limit);
+      end;
+      
+      if not FoundVendor then
+      begin
+        if DirectoryExists(SysPath + '/device') then
+        begin
+          ADetected[I].LocationPath := ExpandFileName(SysPath + '/device');
+          DriverLink := SysPath + '/device/driver';
+          if DirectoryExists(DriverLink) then
+            ADetected[I].DriverService := ExtractFileName(ResolveSymlink(DriverLink));
+        end;
+      end;
+    end;
+  end;
+end;
+{$ELSE}
+begin
+end;
+{$ENDIF}
 
 procedure TAIListSerialDevices.Refresh;
 var
