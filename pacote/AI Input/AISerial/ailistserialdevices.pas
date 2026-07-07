@@ -282,13 +282,18 @@ begin
     end;
   end;
 
-  // Deduplicate
+  // Deduplicate prioritizing richer metadata
   if Length(ADevices) > 1 then
   begin
     UniqueCount := 1;
     for I := 1 to Length(ADevices) - 1 do
     begin
-      if not SameText(ADevices[I].DeviceName, ADevices[UniqueCount - 1].DeviceName) then
+      if SameText(ADevices[I].DeviceName, ADevices[UniqueCount - 1].DeviceName) then
+      begin
+        if (ADevices[UniqueCount - 1].InstanceID = '') and (ADevices[I].InstanceID <> '') then
+          ADevices[UniqueCount - 1] := ADevices[I];
+      end
+      else
       begin
         ADevices[UniqueCount] := ADevices[I];
         Inc(UniqueCount);
