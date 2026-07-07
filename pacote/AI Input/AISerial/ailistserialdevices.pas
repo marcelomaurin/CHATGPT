@@ -812,6 +812,8 @@ procedure TAIListSerialDevices.IdentifyByVIDPID(Device: TAIListSerialDeviceItem)
 var
   MfgUpper: string;
 begin
+  Device.VID := UpperCase(Trim(Device.VID));
+  Device.PID := UpperCase(Trim(Device.PID));
   Device.Confidence := 0;
 
   if SameText(Device.VID, '2341') or SameText(Device.VID, '2A03') then
