@@ -1,0 +1,9 @@
+Free Pascal Compiler version 3.2.2 [2026/02/20] for x86_64
+(1002) Target OS: Win64 for x64
+(3104) Compiling AISerial_Test.lpr
+(3104) Compiling main.pas
+(3104) Compiling ailistserialdevices.pas
+(9022) Compiling resource P:\maurinsoft\CHATGPT\pacote\AI Input\AISerial\lib\x86_64-win64\AISerial_Test.obj
+(9015) Linking P:\maurinsoft\CHATGPT\pacote\AI Input\AISerial\AISerial_Test.exe
+(1008) 1432 lines compiled, 6.3 sec, 1940288 bytes code, 129796 bytes data
+Compilation successful.
