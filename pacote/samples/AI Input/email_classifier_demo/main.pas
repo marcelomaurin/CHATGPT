@@ -14,6 +14,8 @@ type
 
   TfrmMain = class(TForm)
     pnlTop: TPanel;
+    grpConfig: TGroupBox;
+    grpActions: TGroupBox;
     lblTitle: TLabel;
     lblHostSMTP: TLabel;
     editHostSMTP: TEdit;

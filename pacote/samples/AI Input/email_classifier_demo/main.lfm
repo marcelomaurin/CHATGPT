@@ -19,162 +19,171 @@ object frmMain: TfrmMain
     ClientHeight = 220
     ClientWidth = 830
     TabOrder = 0
-    object lblTitle: TLabel
-      Left = 15
-      Height = 25
+    object grpConfig: TGroupBox
+      Left = 10
+      Height = 160
       Top = 10
-      Width = 434
-      Caption = 'Real Email Client && Classifier Demo (TAIEmailClient)'
-      Font.Height = -18
-      Font.Name = 'Segoe UI'
-      Font.Style = [fsBold]
-      ParentColor = False
-    end
-    object lblHostSMTP: TLabel
-      Left = 15
-      Height = 15
-      Top = 45
-      Width = 90
-      Caption = 'SMTP Server Host'
-      ParentColor = False
-    end
-    object editHostSMTP: TEdit
-      Left = 15
-      Height = 23
-      Top = 65
-      Width = 160
+      Width = 470
+      Caption = ' Configurações de Conexão '
+      ClientHeight = 140
+      ClientWidth = 466
       TabOrder = 0
-      Text = 'smtp.gmail.com'
+      object lblHostSMTP: TLabel
+        Left = 10
+        Height = 15
+        Top = 10
+        Width = 90
+        Caption = 'SMTP Server Host'
+        ParentColor = False
+      end
+      object editHostSMTP: TEdit
+        Left = 10
+        Height = 23
+        Top = 30
+        Width = 140
+        TabOrder = 0
+        Text = 'smtp.gmail.com'
+      end
+      object lblPortSMTP: TLabel
+        Left = 160
+        Height = 15
+        Top = 10
+        Width = 56
+        Caption = 'SMTP Port'
+        ParentColor = False
+      end
+      object editPortSMTP: TEdit
+        Left = 160
+        Height = 23
+        Top = 30
+        Width = 50
+        TabOrder = 1
+        Text = '25'
+      end
+      object lblHostPOP3: TLabel
+        Left = 220
+        Height = 15
+        Top = 10
+        Width = 91
+        Caption = 'POP3 Server Host'
+        ParentColor = False
+      end
+      object editHostPOP3: TEdit
+        Left = 220
+        Height = 23
+        Top = 30
+        Width = 140
+        TabOrder = 2
+        Text = 'pop.gmail.com'
+      end
+      object lblPortPOP3: TLabel
+        Left = 370
+        Height = 15
+        Top = 10
+        Width = 57
+        Caption = 'POP3 Port'
+        ParentColor = False
+      end
+      object editPortPOP3: TEdit
+        Left = 370
+        Height = 23
+        Top = 30
+        Width = 50
+        TabOrder = 3
+        Text = '110'
+      end
+      object lblUser: TLabel
+        Left = 10
+        Height = 15
+        Top = 70
+        Width = 53
+        Caption = 'Username'
+        ParentColor = False
+      end
+      object editUser: TEdit
+        Left = 10
+        Height = 23
+        Top = 90
+        Width = 200
+        TabOrder = 4
+        Text = 'user@example.com'
+      end
+      object lblPass: TLabel
+        Left = 220
+        Height = 15
+        Top = 70
+        Width = 50
+        Caption = 'Password'
+        ParentColor = False
+      end
+      object editPass: TEdit
+        Left = 220
+        Height = 23
+        Top = 90
+        Width = 200
+        EchoMode = emPassword
+        PasswordChar = '*'
+        TabOrder = 5
+        Text = ''
+      end
     end
-    object lblPortSMTP: TLabel
-      Left = 185
-      Height = 15
-      Top = 45
-      Width = 56
-      Caption = 'SMTP Port'
-      ParentColor = False
-    end
-    object editPortSMTP: TEdit
-      Left = 185
-      Height = 23
-      Top = 65
-      Width = 60
+    object grpActions: TGroupBox
+      Left = 490
+      Height = 160
+      Top = 10
+      Width = 330
+      Caption = ' Ações '
+      ClientHeight = 140
+      ClientWidth = 326
       TabOrder = 1
-      Text = '25'
-    end
-    object lblHostPOP3: TLabel
-      Left = 255
-      Height = 15
-      Top = 45
-      Width = 91
-      Caption = 'POP3 Server Host'
-      ParentColor = False
-    end
-    object editHostPOP3: TEdit
-      Left = 255
-      Height = 23
-      Top = 65
-      Width = 160
-      TabOrder = 2
-      Text = 'pop.gmail.com'
-    end
-    object lblPortPOP3: TLabel
-      Left = 425
-      Height = 15
-      Top = 45
-      Width = 57
-      Caption = 'POP3 Port'
-      ParentColor = False
-    end
-    object editPortPOP3: TEdit
-      Left = 425
-      Height = 23
-      Top = 65
-      Width = 60
-      TabOrder = 3
-      Text = '110'
-    end
-    object lblUser: TLabel
-      Left = 15
-      Height = 15
-      Top = 95
-      Width = 53
-      Caption = 'Username'
-      ParentColor = False
-    end
-    object editUser: TEdit
-      Left = 15
-      Height = 23
-      Top = 115
-      Width = 230
-      TabOrder = 4
-      Text = 'user@example.com'
-    end
-    object lblPass: TLabel
-      Left = 255
-      Height = 15
-      Top = 95
-      Width = 50
-      Caption = 'Password'
-      ParentColor = False
-    end
-    object editPass: TEdit
-      Left = 255
-      Height = 23
-      Top = 115
-      Width = 230
-      EchoMode = emPassword
-      PasswordChar = '*'
-      TabOrder = 5
-      Text = ''
-    end
-    object lblTo: TLabel
-      Left = 500
-      Height = 15
-      Top = 95
-      Width = 115
-      Caption = 'Recipient (Test Send)'
-      ParentColor = False
-    end
-    object editTo: TEdit
-      Left = 500
-      Height = 23
-      Top = 115
-      Width = 230
-      TabOrder = 6
-      Text = 'receiver@example.com'
-    end
-    object btnSend: TButton
-      Left = 15
-      Height = 30
-      Top = 150
-      Width = 180
-      Caption = '1. Send Test Email'
-      OnClick = btnSendClick
-      TabOrder = 7
-    end
-    object btnFetch: TButton
-      Left = 205
-      Height = 30
-      Top = 150
-      Width = 220
-      Caption = '2. Fetch && Classify Real Emails'
-      OnClick = btnFetchClick
-      TabOrder = 8
-    end
-    object btnClearLog: TButton
-      Left = 435
-      Height = 30
-      Top = 150
-      Width = 100
-      Caption = 'Clear Log'
-      OnClick = btnClearLogClick
-      TabOrder = 9
+      object lblTo: TLabel
+        Left = 10
+        Height = 15
+        Top = 10
+        Width = 115
+        Caption = 'Recipient (Test Send)'
+        ParentColor = False
+      end
+      object editTo: TEdit
+        Left = 10
+        Height = 23
+        Top = 30
+        Width = 300
+        TabOrder = 0
+        Text = 'receiver@example.com'
+      end
+      object btnSend: TButton
+        Left = 10
+        Height = 30
+        Top = 70
+        Width = 140
+        Caption = '1. Send Test Email'
+        OnClick = btnSendClick
+        TabOrder = 1
+      end
+      object btnFetch: TButton
+        Left = 160
+        Height = 30
+        Top = 70
+        Width = 150
+        Caption = '2. Fetch && Classify'
+        OnClick = btnFetchClick
+        TabOrder = 2
+      end
+      object btnClearLog: TButton
+        Left = 10
+        Height = 30
+        Top = 110
+        Width = 140
+        Caption = 'Clear Log'
+        OnClick = btnClearLogClick
+        TabOrder = 3
+      end
     end
     object lblStatus: TLabel
       Left = 15
       Height = 15
-      Top = 195
+      Top = 185
       Width = 400
       Caption = 'Status: Ready'
       Font.Style = [fsBold]
