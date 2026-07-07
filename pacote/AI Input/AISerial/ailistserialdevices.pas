@@ -1173,7 +1173,13 @@ begin
                         (FDevices[J].PortKind <> Detected[I].PortKind) or
                         (FDevices[J].IsAvailable <> Detected[I].IsAvailable) or
                         (FDevices[J].VID <> Detected[I].VID) or
-                        (FDevices[J].PID <> Detected[I].PID);
+                        (FDevices[J].PID <> Detected[I].PID) or
+                        (FDevices[J].InstanceID <> Detected[I].InstanceID) or
+                        (FDevices[J].LocationInfo <> Detected[I].LocationInfo) or
+                        (FDevices[J].LocationPath <> Detected[I].LocationPath) or
+                        (FDevices[J].DriverService <> Detected[I].DriverService) or
+                        (FDevices[J].SerialNumber <> Detected[I].SerialNumber) or
+                        (FDevices[J].Manufacturer <> Detected[I].Manufacturer);
 
           FDevices[J].DisplayName := Detected[I].DisplayName;
           FDevices[J].Description := Detected[I].Description;
@@ -1181,6 +1187,12 @@ begin
           FDevices[J].IsAvailable := Detected[I].IsAvailable;
           FDevices[J].VID := Detected[I].VID;
           FDevices[J].PID := Detected[I].PID;
+          FDevices[J].InstanceID := Detected[I].InstanceID;
+          FDevices[J].LocationInfo := Detected[I].LocationInfo;
+          FDevices[J].LocationPath := Detected[I].LocationPath;
+          FDevices[J].DriverService := Detected[I].DriverService;
+          FDevices[J].SerialNumber := Detected[I].SerialNumber;
+          FDevices[J].Manufacturer := Detected[I].Manufacturer;
           
           IdentifyByVIDPID(FDevices[J]);
           
@@ -1220,6 +1232,12 @@ begin
         NewItem.IsAvailable := Detected[I].IsAvailable;
         NewItem.VID := Detected[I].VID;
         NewItem.PID := Detected[I].PID;
+        NewItem.InstanceID := Detected[I].InstanceID;
+        NewItem.LocationInfo := Detected[I].LocationInfo;
+        NewItem.LocationPath := Detected[I].LocationPath;
+        NewItem.DriverService := Detected[I].DriverService;
+        NewItem.SerialNumber := Detected[I].SerialNumber;
+        NewItem.Manufacturer := Detected[I].Manufacturer;
         NewItem.State := sdsDetected;
         
         IdentifyByVIDPID(NewItem);
