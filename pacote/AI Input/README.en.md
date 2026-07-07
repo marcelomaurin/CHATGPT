@@ -22,6 +22,7 @@ Maps and captures real-world data (keyboard, mouse, cameras, MQTT brokers, socke
 | **TAIMessenger** | WhatsApp and SMS REST gateway. | `SMSApiURL, WhatsAppApiURL, WhatsAppToken` | `SendSMS, SendWhatsApp` | Dispatch instant alerts directly to mobile devices. |
 | **TAIChromiumBrowser** | Embedded Web Browser panel. | `URL, ShowAddressBar` | `Navigate, GoBack, Reload` | Render web UIs and extract raw HTML content for web scraping. |
 | **TAIOSInputCapture** | Global OS desktop event logger. | `TrackMouse, TrackKeyboard, Active` | `CaptureScreen` | Capture screen screenshots and capture global keyboard/mouse deltas. |
+| **TAIListSerialDevices**| Serial port enumerator and identifier. | `ProbeOpenable, AutoRefresh, AutoRefreshIntervalMs` | `Refresh` | Provide rich hardware metadata (VID, PID, driver, serial number, manufacturer) of connected Arduinos and devices for AI. |
 
 ### 💻 Lazarus Code Example (TAIInputData)
 

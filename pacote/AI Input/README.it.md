@@ -22,6 +22,7 @@ Mappa e acquisisce dati del mondo reale (tastiera, mouse, telecamere, broker MQT
 | **TAIMessenger** | Gateway WhatsApp e SMS via REST. | `SMSApiURL, WhatsAppApiURL, WhatsAppToken` | `SendSMS, SendWhatsApp` | Inviare notifiche push istantanee su dispositivi mobili. |
 | **TAIChromiumBrowser** | Pannello Browser Web integrato. | `URL, ShowAddressBar` | `Navigate, GoBack, Reload` | Visualizzare pagine web ed estrarre il codice sorgente HTML. |
 | **TAIOSInputCapture** | Acquisitore di eventi globale del sistema operativo. | `TrackMouse, TrackKeyboard, Active` | `CaptureScreen` | Catturare screenshot dello schermo e loggare tasti globali. |
+| **TAIListSerialDevices**| Enumeratore e identificatore di porte seriali. | `ProbeOpenable, AutoRefresh, AutoRefreshIntervalMs` | `Refresh` | Fornire ricchi metadati hardware (VID, PID, driver, numero di serie, produttore) di Arduino e dispositivi collegati all'IA. |
 
 ### 💻 Esempio di Codice Lazarus (TAIInputData)
 
