@@ -391,6 +391,19 @@ begin
             (SetupDiGetDeviceInstanceIdW <> nil);
 end;
 
+function GetDevPropStr(DevInfo: THandle; DevData: PSP_DEVINFO_DATA; Prop: DWORD): string;
+var
+  Buf: array[0..1023] of WideChar;
+begin
+  Result := '';
+  FillChar(Buf, SizeOf(Buf), 0);
+  if SetupDiGetDeviceRegistryPropertyW(DevInfo, DevData, Prop, nil,
+       PByte(@Buf), SizeOf(Buf) - 2, nil) then
+    Result := UTF8Encode(WideString(PWideChar(@Buf)));
+  // Para REG_MULTI_SZ (ex.: SPDRP_LOCATION_PATHS) retorna apenas a 1a string,
+  // pois PWideChar para no primeiro #0 — comportamento desejado.
+end;
+
 procedure QueryWindowsSetupAPI(var ADetected: TDetectedDeviceArray);
 var
   DevInfo: THandle;
