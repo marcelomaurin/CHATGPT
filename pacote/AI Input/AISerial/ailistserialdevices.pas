@@ -77,6 +77,10 @@ type
     property SerialNumber: string read FSerialNumber write FSerialNumber;
     property Protocol: string read FProtocol write FProtocol;
     property Confidence: Integer read FConfidence write FConfidence default 0;
+    property InstanceID: string read FInstanceID write FInstanceID;
+    property LocationInfo: string read FLocationInfo write FLocationInfo;
+    property LocationPath: string read FLocationPath write FLocationPath;
+    property DriverService: string read FDriverService write FDriverService;
   end;
 
   { TAIListSerialDeviceItems }
