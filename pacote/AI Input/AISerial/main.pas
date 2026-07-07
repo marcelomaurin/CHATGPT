@@ -53,7 +53,7 @@ begin
   FAIListSerialDevices.OnDeviceIdentified := @OnDeviceIdentified;
 
   // Setup StringGrid
-  gridDevices.ColCount := 11;
+  gridDevices.ColCount := 16;
   gridDevices.RowCount := 1;
   gridDevices.Cells[0, 0] := 'Porta';
   gridDevices.Cells[1, 0] := 'Nome';
@@ -66,6 +66,11 @@ begin
   gridDevices.Cells[8, 0] := 'Produto';
   gridDevices.Cells[9, 0] := 'Confiança';
   gridDevices.Cells[10, 0] := 'Erro';
+  gridDevices.Cells[11, 0] := 'ID Instância';
+  gridDevices.Cells[12, 0] := 'Info Local';
+  gridDevices.Cells[13, 0] := 'Caminho Local';
+  gridDevices.Cells[14, 0] := 'Serviço Driver';
+  gridDevices.Cells[15, 0] := 'Serial USB';
 
   // Apply default values
   chkProbeOpenable.Checked := FAIListSerialDevices.ProbeOpenable;
@@ -171,6 +176,11 @@ begin
     gridDevices.Cells[8, I + 1] := Device.Product;
     gridDevices.Cells[9, I + 1] := IntToStr(Device.Confidence);
     gridDevices.Cells[10, I + 1] := Device.LastError;
+    gridDevices.Cells[11, I + 1] := Device.InstanceID;
+    gridDevices.Cells[12, I + 1] := Device.LocationInfo;
+    gridDevices.Cells[13, I + 1] := Device.LocationPath;
+    gridDevices.Cells[14, I + 1] := Device.DriverService;
+    gridDevices.Cells[15, I + 1] := Device.SerialNumber;
   end;
 end;
 
