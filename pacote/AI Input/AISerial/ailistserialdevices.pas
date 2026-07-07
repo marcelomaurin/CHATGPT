@@ -538,6 +538,10 @@ begin
   FSerialNumber := '';
   FProtocol := '';
   FConfidence := 0;
+  FInstanceID := '';
+  FLocationInfo := '';
+  FLocationPath := '';
+  FDriverService := '';
 end;
 
 { TAIListSerialDeviceItems }
