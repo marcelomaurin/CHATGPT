@@ -15,7 +15,7 @@ uses
     netdb,
     {$ENDIF}
   {$ENDIF}
-  Math, LResources;
+  Math, LResources, base64;
 
 type
   { TAIEmailClient }
@@ -192,6 +192,14 @@ begin
     begin
       // Fallback to HELO
       if not ExecuteSMTPCommand(Sock, 'HELO AI_Client'#13#10, '250') then Exit;
+    end;
+    
+    // AUTH LOGIN if Username is provided
+    if FUsername <> '' then
+    begin
+      if not ExecuteSMTPCommand(Sock, 'AUTH LOGIN'#13#10, '334') then Exit;
+      if not ExecuteSMTPCommand(Sock, EncodeStringBase64(FUsername) + #13#10, '334') then Exit;
+      if not ExecuteSMTPCommand(Sock, EncodeStringBase64(FPassword) + #13#10, '235') then Exit;
     end;
     
     // MAIL FROM
