@@ -863,9 +863,8 @@ begin
   {$IFDEF MSWINDOWS}
   // Try SetupAPI first
   QueryWindowsSetupAPI(ADetected);
-  if Length(ADetected) > 0 then Exit;
 
-  // Fallback to Registry if SetupAPI did not return any ports
+  // Uniao com o registro: captura portas virtuais fora da classe Ports
   Reg := TRegistry.Create(KEY_READ);
   ValueList := TStringList.Create;
   try
