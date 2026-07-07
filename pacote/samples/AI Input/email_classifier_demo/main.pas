@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  aibase, aiemail;
+  aiemail;
 
 type
 
@@ -15,18 +15,34 @@ type
   TfrmMain = class(TForm)
     pnlTop: TPanel;
     lblTitle: TLabel;
-    lblStatus: TLabel;
-    chkSimulation: TCheckBox;
-    btnRun: TButton;
+    lblHostSMTP: TLabel;
+    editHostSMTP: TEdit;
+    lblPortSMTP: TLabel;
+    editPortSMTP: TEdit;
+    lblHostPOP3: TLabel;
+    editHostPOP3: TEdit;
+    lblPortPOP3: TLabel;
+    editPortPOP3: TEdit;
+    lblUser: TLabel;
+    editUser: TEdit;
+    lblPass: TLabel;
+    editPass: TEdit;
+    lblTo: TLabel;
+    editTo: TEdit;
+    btnSend: TButton;
+    btnFetch: TButton;
     btnClearLog: TButton;
+    lblStatus: TLabel;
     memoLog: TMemo;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure btnRunClick(Sender: TObject);
+    procedure btnSendClick(Sender: TObject);
+    procedure btnFetchClick(Sender: TObject);
     procedure btnClearLogClick(Sender: TObject);
   private
-    FAIEmail: TAIEmailClient; FEditHost: TEdit; FEditUser: TEdit;
+    FAIEmail: TAIEmailClient;
     procedure AddLog(const AMsg: string);
+    function ClassifyEmailText(const ASubject: string): string;
   public
 
   end;
@@ -42,75 +58,112 @@ implementation
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
-  AddLog('Email Classifier Demo (aiemail) initialized.');
   FAIEmail := TAIEmailClient.Create(Self);
-  
-  FEditHost := TEdit.Create(Self);
-  FEditHost.Parent := pnlTop;
-  FEditHost.Left := 15;
-  FEditHost.Top := 115;
-  FEditHost.Width := 200;
-  FEditHost.Text := 'mail.server.com';
-  
-  FEditUser := TEdit.Create(Self);
-  FEditUser.Parent := pnlTop;
-  FEditUser.Left := 230;
-  FEditUser.Top := 115;
-  FEditUser.Width := 150;
-  FEditUser.Text := 'user@server.com';
+  AddLog('Email Client & Classifier Demo initialized.');
+  AddLog('Please configure your SMTP/POP3 settings above.');
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
-  // Handled by LCL Owner auto-free.
+  // Managed by owner auto-free
 end;
 
-procedure TfrmMain.btnRunClick(Sender: TObject);
+function TfrmMain.ClassifyEmailText(const ASubject: string): string;
+var
+  S: string;
 begin
-  lblStatus.Caption := 'Status: Processing...';
-  AddLog('--- Starting Execution ---');
-  try
-  FAIEmail.HostSMTP := FEditHost.Text;
-  FAIEmail.HostPOP3 := FEditHost.Text;
-  FAIEmail.Username := FEditUser.Text;
-  FAIEmail.Password := 'password';
-  
-  AddLog('Email Ingestion Properties:');
-  AddLog('  SMTP Server: ' + FAIEmail.HostSMTP);
-  AddLog('  POP3 Server: ' + FAIEmail.HostPOP3);
-  AddLog('  User: ' + FAIEmail.Username);
-  
-  if chkSimulation.Checked then
-  begin
-    AddLog('Running in Simulated Ingestion Mode...');
-    AddLog('Fetched 3 new emails:');
-    AddLog('  1. Subject: "Alert: Server Disk Space 92%" -> Class: Urgent Support');
-    AddLog('  2. Subject: "Invoices for May" -> Class: Billing');
-    AddLog('  3. Subject: "Win a new smartphone today!" -> Class: Spam');
-    AddLog('Fetch completed (Simulated).');
-  end
+  S := LowerCase(ASubject);
+  if (Pos('urgent', S) > 0) or (Pos('alerta', S) > 0) or (Pos('urgente', S) > 0) or (Pos('critico', S) > 0) then
+    Result := 'URGENT SUPPORT'
+  else if (Pos('invoice', S) > 0) or (Pos('fatura', S) > 0) or (Pos('pagamento', S) > 0) or (Pos('cobranca', S) > 0) or (Pos('boleto', S) > 0) then
+    Result := 'BILLING / INVOICE'
+  else if (Pos('win', S) > 0) or (Pos('promo', S) > 0) or (Pos('oferta', S) > 0) or (Pos('desconto', S) > 0) or (Pos('sorteio', S) > 0) or (Pos('gratis', S) > 0) then
+    Result := 'SPAM / ADVERTISING'
   else
-  begin
-    AddLog('Connecting to: ' + FAIEmail.HostPOP3);
-    try
-      // Method SendEmail / FetchEmails
-      if FAIEmail.SendEmail('receiver@test.com', 'Test Subject', 'Body text') then
-        AddLog('Sent test email successfully.')
-      else
-        AddLog('Failed to send email. Check configuration/server.');
-    except
-      on E: Exception do AddLog('Exception: ' + E.Message);
+    Result := 'GENERAL INQUIRY';
+end;
+
+procedure TfrmMain.btnSendClick(Sender: TObject);
+begin
+  lblStatus.Caption := 'Status: Sending Email...';
+  AddLog('--- Sending Test Email ---');
+  try
+    FAIEmail.HostSMTP := editHostSMTP.Text;
+    FAIEmail.PortSMTP := StrToIntDef(editPortSMTP.Text, 25);
+    FAIEmail.Username := editUser.Text;
+    FAIEmail.Password := editPass.Text;
+
+    AddLog('SMTP Target Server: ' + FAIEmail.HostSMTP + ':' + IntToStr(FAIEmail.PortSMTP));
+    AddLog('SMTP User: ' + FAIEmail.Username);
+    AddLog('Sending to: ' + editTo.Text);
+
+    if FAIEmail.SendEmail(editTo.Text, 'Test Subject from Lazarus AI Suite', 'Hello! This is a test email sent in real-time from the Lazarus AI Suite.') then
+    begin
+      AddLog('SUCCESS: Email sent successfully!');
+      lblStatus.Caption := 'Status: Email Sent successfully';
+    end
+    else
+    begin
+      AddLog('ERROR: Failed to send email. Check SMTP server parameters, authentication, or network port.');
+      lblStatus.Caption := 'Status: Sending Failed';
     end;
-  end;
-    lblStatus.Caption := 'Status: Completed Successfully';
   except
     on E: Exception do
     begin
-      AddLog('Critical Error: ' + E.Message);
-      lblStatus.Caption := 'Status: Execution Error';
+      AddLog('Exception: ' + E.Message);
+      lblStatus.Caption := 'Status: SMTP Exception';
     end;
   end;
-  AddLog('--- Execution Finished ---');
+  AddLog('--------------------------');
+end;
+
+procedure TfrmMain.btnFetchClick(Sender: TObject);
+var
+  Emails: TStrings;
+  I: Integer;
+  EmailLine: string;
+  Classification: string;
+begin
+  lblStatus.Caption := 'Status: Fetching Emails...';
+  AddLog('--- Fetching & Classifying Emails ---');
+  Emails := nil;
+  try
+    FAIEmail.HostPOP3 := editHostPOP3.Text;
+    FAIEmail.PortPOP3 := StrToIntDef(editPortPOP3.Text, 110);
+    FAIEmail.Username := editUser.Text;
+    FAIEmail.Password := editPass.Text;
+
+    AddLog('POP3 Target Server: ' + FAIEmail.HostPOP3 + ':' + IntToStr(FAIEmail.PortPOP3));
+    AddLog('POP3 User: ' + FAIEmail.Username);
+
+    if FAIEmail.FetchEmails(Emails) then
+    begin
+      if Assigned(Emails) then
+      begin
+        AddLog('Connection Successful! Fetched ' + IntToStr(Emails.Count) + ' email headers.');
+        for I := 0 to Emails.Count - 1 do
+        begin
+          EmailLine := Emails[I];
+          Classification := ClassifyEmailText(EmailLine);
+          AddLog(Format('%s => Classification: [%s]', [EmailLine, Classification]));
+        end;
+        Emails.Free;
+      end;
+      lblStatus.Caption := 'Status: Fetch && Classify Completed';
+    end
+    else
+    begin
+      AddLog('ERROR: Failed to fetch emails from POP3 server. Check connection details, credentials, or network port.');
+      lblStatus.Caption := 'Status: Fetch Failed';
+    end;
+  except
+    on E: Exception do
+    begin
+      AddLog('Exception: ' + E.Message);
+      lblStatus.Caption := 'Status: POP3 Exception';
+    end;
+  end;
+  AddLog('-------------------------------------');
 end;
 
 procedure TfrmMain.btnClearLogClick(Sender: TObject);
@@ -120,7 +173,7 @@ end;
 
 procedure TfrmMain.AddLog(const AMsg: string);
 begin
-  memoLog.Lines.Add(AMsg);
+  memoLog.Lines.Add(FormatDateTime('hh:nn:ss.zzz', Now) + ' - ' + AMsg);
 end;
 
 end.
