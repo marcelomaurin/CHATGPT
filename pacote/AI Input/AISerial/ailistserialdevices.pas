@@ -808,43 +808,67 @@ begin
 end;
 
 procedure TAIListSerialDevices.IdentifyByVIDPID(Device: TAIListSerialDeviceItem);
+var
+  MfgUpper: string;
 begin
   Device.Confidence := 0;
 
   if SameText(Device.VID, '2341') or SameText(Device.VID, '2A03') then
   begin
     Device.PortKind := spkArduinoCompatible;
-    Device.Manufacturer := 'Arduino';
-    Device.Product := 'Arduino Compatible';
+    if Device.Manufacturer = '' then Device.Manufacturer := 'Arduino';
+    if Device.Product = '' then Device.Product := 'Arduino Compatible';
     Device.Confidence := 80;
-    Exit;
   end;
 
   if SameText(Device.VID, '1A86') then
   begin
     Device.PortKind := spkUSBSerial;
-    Device.Manufacturer := 'WCH';
-    Device.Product := 'CH340/CH341 USB Serial';
+    if Device.Manufacturer = '' then Device.Manufacturer := 'WCH';
+    if Device.Product = '' then Device.Product := 'CH340/CH341 USB Serial';
     Device.Confidence := 70;
-    Exit;
   end;
 
   if SameText(Device.VID, '10C4') then
   begin
     Device.PortKind := spkUSBSerial;
-    Device.Manufacturer := 'Silicon Labs';
-    Device.Product := 'CP210x USB Serial';
+    if Device.Manufacturer = '' then Device.Manufacturer := 'Silicon Labs';
+    if Device.Product = '' then Device.Product := 'CP210x USB Serial';
     Device.Confidence := 70;
-    Exit;
   end;
 
   if SameText(Device.VID, '0403') then
   begin
     Device.PortKind := spkUSBSerial;
-    Device.Manufacturer := 'FTDI';
-    Device.Product := 'FTDI USB Serial';
+    if Device.Manufacturer = '' then Device.Manufacturer := 'FTDI';
+    if Device.Product = '' then Device.Product := 'FTDI USB Serial';
     Device.Confidence := 70;
-    Exit;
+  end;
+
+  // Se ja temos metadados ricos de fabricante conhecidos, dar um bonus de confianca
+  MfgUpper := UpperCase(Device.Manufacturer);
+  if (MfgUpper <> '') and (Device.Confidence > 0) then
+  begin
+    if (Pos('ARDUINO', MfgUpper) > 0) or (Pos('FTDI', MfgUpper) > 0) or
+       (Pos('WCH', MfgUpper) > 0) or (Pos('SILICON LABS', MfgUpper) > 0) or
+       (Pos('PROLIFIC', MfgUpper) > 0) then
+      Device.Confidence := Device.Confidence + 15;
+  end;
+
+  // Fallback para identificacao baseada em strings de fabricante se VID/PID vazio
+  if (Device.Confidence = 0) and (MfgUpper <> '') then
+  begin
+    if (Pos('ARDUINO', MfgUpper) > 0) then
+    begin
+      Device.PortKind := spkArduinoCompatible;
+      Device.Confidence := 60;
+    end
+    else if (Pos('FTDI', MfgUpper) > 0) or (Pos('SILICON LABS', MfgUpper) > 0) or
+            (Pos('WCH', MfgUpper) > 0) or (Pos('PROLIFIC', MfgUpper) > 0) then
+    begin
+      Device.PortKind := spkUSBSerial;
+      Device.Confidence := 50;
+    end;
   end;
 end;
 
