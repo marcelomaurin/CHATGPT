@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  aibase, aiserial;
+  aiserial;
 
 type
 
@@ -14,18 +14,24 @@ type
 
   TfrmMain = class(TForm)
     pnlTop: TPanel;
-    lblTitle: TLabel;
-    lblStatus: TLabel;
-    chkSimulation: TCheckBox;
-    btnRun: TButton;
+    grpConfig: TGroupBox;
+    lblPort: TLabel;
+    editPort: TEdit;
+    lblBaud: TLabel;
+    editBaud: TEdit;
+    grpActions: TGroupBox;
+    lblCommand: TLabel;
+    editCommand: TEdit;
+    btnSendAT: TButton;
     btnClearLog: TButton;
+    lblStatus: TLabel;
     memoLog: TMemo;
+    AISerialModem1: TAISerialModem;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure btnRunClick(Sender: TObject);
+    procedure btnSendATClick(Sender: TObject);
     procedure btnClearLogClick(Sender: TObject);
   private
-    FAISerial: TAISerialModem; FEditPort: TEdit;
     procedure AddLog(const AMsg: string);
   public
 
@@ -42,77 +48,62 @@ implementation
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
-  AddLog('Serial Demo (aiserial) initialized.');
-  FAISerial := TAISerialModem.Create(Self);
-  
-  FEditPort := TEdit.Create(Self);
-  FEditPort.Parent := pnlTop;
-  FEditPort.Left := 15;
-  FEditPort.Top := 115;
-  FEditPort.Width := 150;
-  FEditPort.Text := 'COM3';
+  AddLog('Serial Demo initialized.');
+  AddLog('Please configure your Serial Port settings above.');
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
-  // Handled by LCL Owner auto-free.
+  // Handled by LCL Owner auto-free
 end;
 
-procedure TfrmMain.btnRunClick(Sender: TObject);
+procedure TfrmMain.btnSendATClick(Sender: TObject);
 var
-  SimResponse: string;
+  Response: string;
 begin
-  lblStatus.Caption := 'Status: Processing...';
-  AddLog('--- Starting Execution ---');
+  lblStatus.Caption := 'Status: Connecting...';
+  AddLog('--- Starting Serial Communication ---');
   try
-  FAISerial.DeviceName := FEditPort.Text;
-  FAISerial.BaudRate := 9600;
-  FAISerial.Prompt := 'Serial communication';
-  
-  AddLog('Serial Component Properties:');
-  AddLog('  Port: ' + FAISerial.DeviceName);
-  AddLog('  BaudRate: ' + IntToStr(FAISerial.BaudRate));
-  
-  if chkSimulation.Checked then
-  begin
-    AddLog('Simulating Connection...');
-    AddLog('Connected to Port: ' + FAISerial.DeviceName);
-    // Method 1: Send Data
-    AddLog('Sent command AT to Port');
-    // Method 2: Receive Data
-    AddLog('Received response: OK');
-    AddLog('Simulation complete.');
-  end
-  else
-  begin
-    AddLog('Connecting to physical serial port: ' + FAISerial.DeviceName);
-    try
-      if FAISerial.OpenPort then
+    AISerialModem1.DeviceName := editPort.Text;
+    AISerialModem1.BaudRate := StrToIntDef(editBaud.Text, 9600);
+
+    AddLog('Target Port: ' + AISerialModem1.DeviceName);
+    AddLog('Baud Rate: ' + IntToStr(AISerialModem1.BaudRate));
+    AddLog('Sending Command: ' + editCommand.Text);
+
+    if AISerialModem1.OpenPort then
+    begin
+      AddLog('SUCCESS: Serial port opened.');
+      lblStatus.Caption := 'Status: Sending command...';
+      
+      if AISerialModem1.SendATCommand(editCommand.Text, Response) then
       begin
-        AddLog('Connection opened.');
-        FAISerial.WriteText('AT'#13#10);
-        AddLog('Sent: AT');
-        Sleep(200);
-        FAISerial.ReadText(SimResponse);
-        AddLog('Received: ' + SimResponse);
-        FAISerial.ClosePort;
-        AddLog('Connection closed.');
+        AddLog('Sent command successfully.');
+        AddLog('Response: ' + Response);
+        lblStatus.Caption := 'Status: Execution Completed';
       end
       else
-        AddLog('Connection failed: ' + FAISerial.LastError);
-    except
-      on E: Exception do AddLog('Exception: ' + E.Message);
+      begin
+        AddLog('ERROR: Failed to receive expected response from device.');
+        lblStatus.Caption := 'Status: Send Failed';
+      end;
+      
+      AISerialModem1.ClosePort;
+      AddLog('Serial port closed.');
+    end
+    else
+    begin
+      AddLog('ERROR: Failed to open serial port: ' + AISerialModem1.LastError);
+      lblStatus.Caption := 'Status: Open Port Failed';
     end;
-  end;
-    lblStatus.Caption := 'Status: Completed Successfully';
   except
     on E: Exception do
     begin
-      AddLog('Critical Error: ' + E.Message);
-      lblStatus.Caption := 'Status: Execution Error';
+      AddLog('Exception: ' + E.Message);
+      lblStatus.Caption := 'Status: Exception Occurred';
     end;
   end;
-  AddLog('--- Execution Finished ---');
+  AddLog('-------------------------------------');
 end;
 
 procedure TfrmMain.btnClearLogClick(Sender: TObject);
@@ -122,7 +113,7 @@ end;
 
 procedure TfrmMain.AddLog(const AMsg: string);
 begin
-  memoLog.Lines.Add(AMsg);
+  memoLog.Lines.Add(FormatDateTime('hh:nn:ss.zzz', Now) + ' - ' + AMsg);
 end;
 
 end.
