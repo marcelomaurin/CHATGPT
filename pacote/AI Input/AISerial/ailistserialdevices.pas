@@ -404,6 +404,23 @@ begin
   // pois PWideChar para no primeiro #0 — comportamento desejado.
 end;
 
+function ExtractUsbSerialFromInstanceId(const AInstanceId: string): string;
+var
+  P1, P2: Integer;
+  Seg: string;
+begin
+  // Formato: BUS\VID_xxxx&PID_xxxx\SEGMENTO
+  // Se SEGMENTO contem '&', foi gerado pelo Windows (chip sem serial, ex. CH340) -> retorna ''
+  Result := '';
+  P1 := Pos('\', AInstanceId);
+  if P1 = 0 then Exit;
+  P2 := Pos('\', AInstanceId, P1 + 1);
+  if P2 = 0 then Exit;
+  Seg := Copy(AInstanceId, P2 + 1, MaxInt);
+  if (Seg <> '') and (Pos('&', Seg) = 0) then
+    Result := Seg;
+end;
+
 procedure QueryWindowsSetupAPI(var ADetected: TDetectedDeviceArray);
 var
   DevInfo: THandle;
