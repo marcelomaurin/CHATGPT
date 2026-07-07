@@ -1,6 +1,19 @@
 # AI Simulation Components - Lazarus AI Suite
 
-Esta pasta contém a suíte de componentes voltada para a criação de simulações baseadas em agentes, mapas celulares 2D, regras de negócios comportamentais, eventos dinâmicos e renderização nativa de grade.
+Esta pasta contém a suíte de componentes voltada para a criação de **simulações computacionais de ambientes reais ou controlados**, baseadas em agentes, mapas celulares 2D, regras comportamentais, eventos dinâmicos, movimentação, evolução e renderização nativa de grade.
+
+> **Importante:** neste projeto, **AI Simulation** não significa componente falso, mock ou resultado inventado. Esta área representa motores de simulação usados para modelar cenários reais ou didáticos, gerar dados, testar estratégias e treinar/validar comportamentos de IA antes da aplicação em ambientes reais.
+
+A proposta é permitir simulações como:
+
+- movimentação de robôs, veículos ou agentes em uma grade 2D;
+- filas de atendimento, fluxo de pessoas, serviços e recursos;
+- movimentação em armazéns, logística e rotas;
+- contaminação, propagação, ocupação de espaços e interação entre entidades;
+- treinamento de agentes por regras, evolução, métricas e ciclos repetidos;
+- criação de cenários controlados para testar decisões de IA com segurança.
+
+Assim, **AI Simulation** deve ser entendida como uma área legítima de simulação de ambientes e comportamentos, não como simulação de funcionamento de componentes incompletos. Componentes de outras áreas que não tenham backend real devem retornar erro claro, e não gerar resultado artificial.
 
 ---
 
@@ -21,6 +34,16 @@ Esta pasta contém a suíte de componentes voltada para a criação de simulaç�
 13. **`TAIScenarioConfig`**: Utilitário de persistência (JSON) para salvar, carregar ou capturar layouts inteiros da grade e entidades em execução.
 14. **`TAIScenarioGenerator`**: Conector com o componente `TCHATGPT` para geração rápida de cenários baseada em descrições em linguagem natural.
 15. **`TAISimulationExporter`**: Utilitário para exportar relatórios, históricos e métricas em arquivos CSV, JSON ou TXT.
+
+---
+
+## Diferença entre AI Simulation e componente simulado
+
+| Termo | Significado correto no projeto |
+|---|---|
+| **AI Simulation** | Área para criar ambientes simulados reais/controlados, úteis para treinamento e validação de IA. |
+| **Componente simulado/fake** | Componente que finge executar algo real e retorna sucesso ou dados artificiais. Isso não deve ser usado como comportamento de produção. |
+| **Placeholder** | Estrutura ainda incompleta. Deve ser documentada como incompleta e retornar indisponibilidade ou erro claro quando chamada. |
 
 ---
 
