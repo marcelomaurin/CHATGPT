@@ -846,6 +846,14 @@ begin
     Device.Confidence := 70;
   end;
 
+  if SameText(Device.VID, '067B') then
+  begin
+    Device.PortKind := spkUSBSerial;
+    if Device.Manufacturer = '' then Device.Manufacturer := 'Prolific';
+    if Device.Product = '' then Device.Product := 'PL2303 USB Serial';
+    Device.Confidence := 70;
+  end;
+
   // Se ja temos metadados ricos de fabricante conhecidos, dar um bonus de confianca
   MfgUpper := UpperCase(Device.Manufacturer);
   if (MfgUpper <> '') and (Device.Confidence > 0) then
