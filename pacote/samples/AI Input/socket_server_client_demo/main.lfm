@@ -11,70 +11,171 @@ object frmMain: TfrmMain
   LCLVersion = '3.0.0.3'
   object pnlTop: TPanel
     Left = 10
-    Height = 150
+    Height = 220
     Top = 10
     Width = 780
     Align = alTop
     BorderSpacing.Around = 10
-    ClientHeight = 150
+    ClientHeight = 220
     ClientWidth = 780
     TabOrder = 0
-    object lblTitle: TLabel
-      Left = 15
-      Height = 25
-      Top = 15
-      Width = 500
-      Caption = 'Socket Server Client Demo (aisockets)'
-      Font.Height = -18
-      Font.Name = 'Segoe UI'
-      Font.Style = [fsBold]
-      ParentColor = False
+    object grpServer: TGroupBox
+      Left = 10
+      Height = 110
+      Top = 10
+      Width = 180
+      Caption = ' TCP Server Configuration '
+      ClientHeight = 90
+      ClientWidth = 176
+      TabOrder = 0
+      object lblServerPort: TLabel
+        Left = 10
+        Height = 15
+        Top = 10
+        Width = 80
+        Caption = 'Listen Port'
+        ParentColor = False
+      end
+      object editServerPort: TEdit
+        Left = 10
+        Height = 23
+        Top = 30
+        Width = 140
+        TabOrder = 0
+        Text = '8085'
+      end
+    end
+    object grpClient: TGroupBox
+      Left = 200
+      Height = 110
+      Top = 10
+      Width = 340
+      Caption = ' TCP Client Configuration '
+      ClientHeight = 90
+      ClientWidth = 336
+      TabOrder = 1
+      object lblClientHost: TLabel
+        Left = 10
+        Height = 15
+        Top = 10
+        Width = 80
+        Caption = 'Server Host'
+        ParentColor = False
+      end
+      object editClientHost: TEdit
+        Left = 10
+        Height = 23
+        Top = 30
+        Width = 140
+        TabOrder = 0
+        Text = '127.0.0.1'
+      end
+      object lblClientPort: TLabel
+        Left = 170
+        Height = 15
+        Top = 10
+        Width = 57
+        Caption = 'Server Port'
+        ParentColor = False
+      end
+      object editClientPort: TEdit
+        Left = 170
+        Height = 23
+        Top = 30
+        Width = 140
+        TabOrder = 1
+        Text = '8085'
+      end
+    end
+    object grpActions: TGroupBox
+      Left = 550
+      Height = 110
+      Top = 10
+      Width = 220
+      Caption = ' Control Actions '
+      ClientHeight = 90
+      ClientWidth = 216
+      TabOrder = 2
+      object btnStartServer: TButton
+        Left = 10
+        Height = 25
+        Top = 5
+        Width = 190
+        Caption = '1. Start Server'
+        OnClick = btnStartServerClick
+        TabOrder = 0
+      end
+      object btnConnectClient: TButton
+        Left = 10
+        Height = 25
+        Top = 35
+        Width = 190
+        Caption = '2. Connect Client && Send'
+        OnClick = btnConnectClientClick
+        TabOrder = 1
+      end
+      object btnStopAll: TButton
+        Left = 10
+        Height = 25
+        Top = 65
+        Width = 90
+        Caption = 'Stop All'
+        OnClick = btnStopAllClick
+        TabOrder = 2
+      end
+      object btnClearLog: TButton
+        Left = 110
+        Height = 25
+        Top = 65
+        Width = 90
+        Caption = 'Clear Log'
+        OnClick = btnClearLogClick
+        TabOrder = 3
+      end
     end
     object lblStatus: TLabel
       Left = 15
       Height = 15
-      Top = 50
+      Top = 140
       Width = 400
       Caption = 'Status: Ready'
+      Font.Style = [fsBold]
       ParentColor = False
     end
-    object chkSimulation: TCheckBox
+    object lblCustomText: TLabel
       Left = 15
-      Height = 19
-      Top = 80
-      Width = 150
-      Caption = 'Simulation Mode'
-      Checked = True
-      State = cbChecked
-      TabOrder = 0
+      Height = 15
+      Top = 160
+      Width = 100
+      Caption = 'Message to Send'
+      ParentColor = False
     end
-    object btnRun: TButton
-      Left = 200
-      Height = 30
-      Top = 75
-      Width = 150
-      Caption = 'Execute Test'
-      OnClick = btnRunClick
-      TabOrder = 1
-    end
-    object btnClearLog: TButton
-      Left = 360
-      Height = 30
-      Top = 75
-      Width = 120
-      Caption = 'Clear Log'
-      OnClick = btnClearLogClick
-      TabOrder = 2
+    object editCustomText: TEdit
+      Left = 130
+      Height = 23
+      Top = 156
+      Width = 630
+      TabOrder = 3
+      Text = 'Hello Server! Real-time message from Lazarus AI Sockets.'
     end
   end
   object memoLog: TMemo
     Left = 10
-    Height = 410
-    Top = 180
+    Height = 350
+    Top = 240
     Width = 780
     Align = alClient
     BorderSpacing.Around = 10
+    Font.Name = 'Consolas'
     ScrollBars = ssAutoBoth
     TabOrder = 1
+  end
+  object AISocketServer: TAISocketTCP
+    Left = 350
+    Top = 135
+  end
+  object AISocketClient: TAISocketTCP
+    Left = 410
+    Top = 135
   end
 end

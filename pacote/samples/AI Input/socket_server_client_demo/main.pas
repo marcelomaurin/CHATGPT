@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  aibase, aisockets;
+  aisockets;
 
 type
 
@@ -14,18 +14,33 @@ type
 
   TfrmMain = class(TForm)
     pnlTop: TPanel;
-    lblTitle: TLabel;
-    lblStatus: TLabel;
-    chkSimulation: TCheckBox;
-    btnRun: TButton;
+    grpServer: TGroupBox;
+    lblServerPort: TLabel;
+    editServerPort: TEdit;
+    grpClient: TGroupBox;
+    lblClientHost: TLabel;
+    editClientHost: TEdit;
+    lblClientPort: TLabel;
+    editClientPort: TEdit;
+    grpActions: TGroupBox;
+    btnStartServer: TButton;
+    btnConnectClient: TButton;
+    btnStopAll: TButton;
     btnClearLog: TButton;
+    lblStatus: TLabel;
+    lblCustomText: TLabel;
+    editCustomText: TEdit;
     memoLog: TMemo;
+    AISocketServer: TAISocketTCP;
+    AISocketClient: TAISocketTCP;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure btnRunClick(Sender: TObject);
+    procedure btnStartServerClick(Sender: TObject);
+    procedure btnConnectClientClick(Sender: TObject);
+    procedure btnStopAllClick(Sender: TObject);
     procedure btnClearLogClick(Sender: TObject);
+    procedure OnServerDataReceived(Sender: TObject; const AData: string; const AFromIP: string);
   private
-    FAISocketServer: TAISocketTCP; FAISocketClient: TAISocketTCP; FEditPort: TEdit;
     procedure AddLog(const AMsg: string);
   public
 
@@ -42,82 +57,98 @@ implementation
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
-  AddLog('Socket Server Client Demo (aisockets) initialized.');
-  FAISocketServer := TAISocketTCP.Create(Self);
-  FAISocketClient := TAISocketTCP.Create(Self);
-  
-  FEditPort := TEdit.Create(Self);
-  FEditPort.Parent := pnlTop;
-  FEditPort.Left := 15;
-  FEditPort.Top := 115;
-  FEditPort.Width := 100;
-  FEditPort.Text := '8085';
+  AddLog('Socket TCP Server/Client Demo initialized.');
+  AddLog('Please configure and start the server first.');
+  AISocketServer.OnDataReceived := @OnServerDataReceived;
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
-  // Handled by LCL Owner auto-free.
+  if Assigned(AISocketClient) then
+    AISocketClient.Disconnect;
+  if Assigned(AISocketServer) then
+    AISocketServer.Disconnect;
 end;
 
-procedure TfrmMain.btnRunClick(Sender: TObject);
+procedure TfrmMain.btnStartServerClick(Sender: TObject);
 begin
-  lblStatus.Caption := 'Status: Processing...';
-  AddLog('--- Starting Execution ---');
+  lblStatus.Caption := 'Status: Starting Server...';
+  AddLog('--- Starting TCP Server ---');
   try
-  FAISocketServer.Port := StrToInt(FEditPort.Text);
-  FAISocketServer.Mode := smServer;
-  FAISocketClient.Host := '127.0.0.1';
-  FAISocketClient.Port := StrToInt(FEditPort.Text);
-  FAISocketClient.Mode := smClient;
-  
-  AddLog('Socket TCP Server/Client Properties:');
-  AddLog('  Server Port: ' + IntToStr(FAISocketServer.Port));
-  AddLog('  Client Host: ' + FAISocketClient.Host);
-  
-  if chkSimulation.Checked then
-  begin
-    AddLog('Simulating TCP Server/Client flow...');
-    AddLog('TCP Server listening on port ' + FEditPort.Text);
-    AddLog('TCP Client connected to ' + FAISocketClient.Host + ':' + FEditPort.Text);
-    AddLog('Client Sent: "Hello Server!"');
-    AddLog('Server Received: "Hello Server!"');
-    AddLog('Server Sent: "Welcome Client!"');
-    AddLog('Client Received: "Welcome Client!"');
-    AddLog('Simulated Socket communication SUCCESS.');
-  end
-  else
-  begin
-    AddLog('Opening real socket server and client connection...');
-    try
-      if FAISocketServer.Connect then
-      begin
-        AddLog('Server is listening.');
-        if FAISocketClient.Connect then
-        begin
-          AddLog('Client connected.');
-          FAISocketClient.SendText('Hello Server!');
-          Sleep(100);
-          FAISocketClient.Disconnect;
-          AddLog('Client disconnected.');
-        end;
-        FAISocketServer.Disconnect;
-        AddLog('Server stopped.');
-      end
-      else
-        AddLog('Server failed to listen.');
-    except
-      on E: Exception do AddLog('Exception: ' + E.Message);
+    AISocketServer.Port := StrToIntDef(editServerPort.Text, 8085);
+    AISocketServer.Mode := smServer;
+    
+    AddLog('Server configuration: Port ' + IntToStr(AISocketServer.Port));
+    
+    if AISocketServer.Connect then
+    begin
+      AddLog('SUCCESS: TCP Server is listening in the background.');
+      lblStatus.Caption := 'Status: Server Running';
+      btnStartServer.Enabled := False;
+    end
+    else
+    begin
+      AddLog('ERROR: Failed to start TCP Server. Port may be in use.');
+      lblStatus.Caption := 'Status: Start Server Failed';
     end;
-  end;
-    lblStatus.Caption := 'Status: Completed Successfully';
   except
     on E: Exception do
     begin
-      AddLog('Critical Error: ' + E.Message);
-      lblStatus.Caption := 'Status: Execution Error';
+      AddLog('Exception: ' + E.Message);
+      lblStatus.Caption := 'Status: Server Exception';
     end;
   end;
-  AddLog('--- Execution Finished ---');
+  AddLog('---------------------------');
+end;
+
+procedure TfrmMain.btnConnectClientClick(Sender: TObject);
+begin
+  lblStatus.Caption := 'Status: Client Connecting...';
+  AddLog('--- Client: Connecting & Sending ---');
+  try
+    AISocketClient.Host := editClientHost.Text;
+    AISocketClient.Port := StrToIntDef(editClientPort.Text, 8085);
+    AISocketClient.Mode := smClient;
+    
+    AddLog('Connecting to: ' + AISocketClient.Host + ':' + IntToStr(AISocketClient.Port));
+    
+    if AISocketClient.Connect then
+    begin
+      AddLog('SUCCESS: TCP Client connected to server.');
+      AddLog('Sending: "' + editCustomText.Text + '"');
+      
+      if AISocketClient.SendText(editCustomText.Text) then
+        AddLog('Sent text successfully.')
+      else
+        AddLog('ERROR: Send failed.');
+        
+      AISocketClient.Disconnect;
+      AddLog('Client disconnected.');
+      lblStatus.Caption := 'Status: Client Sent Message';
+    end
+    else
+    begin
+      AddLog('ERROR: Client failed to connect to ' + AISocketClient.Host + ':' + IntToStr(AISocketClient.Port));
+      lblStatus.Caption := 'Status: Connection Failed';
+    end;
+  except
+    on E: Exception do
+    begin
+      AddLog('Exception: ' + E.Message);
+      lblStatus.Caption := 'Status: Client Exception';
+    end;
+  end;
+  AddLog('------------------------------------');
+end;
+
+procedure TfrmMain.btnStopAllClick(Sender: TObject);
+begin
+  AddLog('Stopping Server and disconnecting Client...');
+  AISocketClient.Disconnect;
+  AISocketServer.Disconnect;
+  btnStartServer.Enabled := True;
+  lblStatus.Caption := 'Status: Stopped';
+  AddLog('All sockets stopped.');
 end;
 
 procedure TfrmMain.btnClearLogClick(Sender: TObject);
@@ -125,9 +156,14 @@ begin
   memoLog.Clear;
 end;
 
+procedure TfrmMain.OnServerDataReceived(Sender: TObject; const AData: string; const AFromIP: string);
+begin
+  AddLog(Format('[SERVER RECEIVED] Data: "%s" from IP: %s', [AData, AFromIP]));
+end;
+
 procedure TfrmMain.AddLog(const AMsg: string);
 begin
-  memoLog.Lines.Add(AMsg);
+  memoLog.Lines.Add(FormatDateTime('hh:nn:ss.zzz', Now) + ' - ' + AMsg);
 end;
 
 end.

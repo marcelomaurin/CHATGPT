@@ -32,6 +32,7 @@ type
     FMode: TSocketMode;
     FOnDataReceived: TSocketDataEvent;
     FSocket: TSocket;
+    FServerThread: TThread;
     FLastError: string;
     procedure SetActive(AValue: Boolean);
     function ResolveHost(const AHost: string; var AAddr): Boolean;
@@ -87,6 +88,106 @@ procedure Register;
 
 implementation
 
+type
+  { TTCPServerThread }
+
+  TTCPServerThread = class(TThread)
+  private
+    FPort: Integer;
+    FOnDataReceived: TSocketDataEvent;
+    FOwner: TComponent;
+    ReceivedData: string;
+    ReceivedFrom: string;
+    procedure DoDataReceived;
+  protected
+    procedure Execute; override;
+  public
+    FListenSocket: TSocket;
+    constructor Create(AOwner: TComponent; APort: Integer; AEvent: TSocketDataEvent);
+  end;
+
+{ TTCPServerThread }
+
+constructor TTCPServerThread.Create(AOwner: TComponent; APort: Integer; AEvent: TSocketDataEvent);
+begin
+  inherited Create(True);
+  FOwner := AOwner;
+  FPort := APort;
+  FOnDataReceived := AEvent;
+  FListenSocket := TSocket(-1);
+  FreeOnTerminate := False;
+end;
+
+procedure TTCPServerThread.DoDataReceived;
+begin
+  if Assigned(FOnDataReceived) then
+    FOnDataReceived(FOwner, ReceivedData, ReceivedFrom);
+end;
+
+procedure TTCPServerThread.Execute;
+var
+  ClientSocket: TSocket;
+  Addr, ClientAddr: TInetSockAddr;
+  AddrLen: TSockLen;
+  Buffer: array[0..1023] of Char;
+  BytesRead: Integer;
+  OptVal: Integer;
+begin
+  FListenSocket := fpSocket(AF_INET, SOCK_STREAM, 0);
+  if FListenSocket = TSocket(-1) then Exit;
+  
+  OptVal := 1;
+  fpsetsockopt(FListenSocket, SOL_SOCKET, SO_REUSEADDR, @OptVal, SizeOf(OptVal));
+  
+  Addr.sin_family := AF_INET;
+  Addr.sin_port := htons(FPort);
+  Addr.sin_addr.s_addr := INADDR_ANY;
+  
+  if fpBind(FListenSocket, @Addr, SizeOf(Addr)) < 0 then
+  begin
+    sockets.CloseSocket(FListenSocket);
+    FListenSocket := TSocket(-1);
+    Exit;
+  end;
+  
+  if fpListen(FListenSocket, 5) < 0 then
+  begin
+    sockets.CloseSocket(FListenSocket);
+    FListenSocket := TSocket(-1);
+    Exit;
+  end;
+  
+  while not Terminated do
+  begin
+    AddrLen := SizeOf(ClientAddr);
+    ClientSocket := fpAccept(FListenSocket, @ClientAddr, @AddrLen);
+    if ClientSocket <> TSocket(-1) then
+    begin
+      while not Terminated do
+      begin
+        FillChar(Buffer, SizeOf(Buffer), 0);
+        BytesRead := fprecv(ClientSocket, @Buffer[0], SizeOf(Buffer) - 1, 0);
+        if BytesRead > 0 then
+        begin
+          ReceivedData := StrPas(Buffer);
+          ReceivedFrom := NetAddrToStr(ClientAddr.sin_addr);
+          Synchronize(@DoDataReceived);
+        end
+        else
+          Break;
+      end;
+      sockets.CloseSocket(ClientSocket);
+    end;
+    Sleep(10);
+  end;
+  
+  if FListenSocket <> TSocket(-1) then
+  begin
+    sockets.CloseSocket(FListenSocket);
+    FListenSocket := TSocket(-1);
+  end;
+end;
+
 procedure Register;
 begin
   RegisterComponents('AI Communication', [TAISocketTCP, TAISocketUDP]);
@@ -103,6 +204,7 @@ begin
   FActive := False;
   FMode := smClient;
   FSocket := TSocket(-1);
+  FServerThread := nil;
   FLastError := '';
 end;
 
@@ -176,18 +278,17 @@ begin
   Result := False;
   FLastError := '';
   
-  FSocket := fpSocket(AF_INET, SOCK_STREAM, 0);
-  if FSocket = TSocket(-1) then
-  begin
-    FLastError := 'Could not create socket.';
-    Exit;
-  end;
-  
-  Addr.sin_family := AF_INET;
-  Addr.sin_port := htons(FPort);
-  
   if FMode = smClient then
   begin
+    FSocket := fpSocket(AF_INET, SOCK_STREAM, 0);
+    if FSocket = TSocket(-1) then
+    begin
+      FLastError := 'Could not create socket.';
+      Exit;
+    end;
+    
+    Addr.sin_family := AF_INET;
+    Addr.sin_port := htons(FPort);
     if not ResolveHost(FHost, Addr.sin_addr) then
     begin
       sockets.CloseSocket(FSocket);
@@ -207,15 +308,40 @@ begin
     
     FActive := True;
     Result := True;
+  end
+  else
+  begin
+    if Assigned(FServerThread) then Exit(True);
+    FServerThread := TTCPServerThread.Create(Self, FPort, FOnDataReceived);
+    FServerThread.Start;
+    FActive := True;
+    Result := True;
   end;
 end;
 
 procedure TAISocketTCP.Disconnect;
 begin
-  if FSocket <> TSocket(-1) then
+  if FMode = smClient then
   begin
-    sockets.CloseSocket(FSocket);
-    FSocket := TSocket(-1);
+    if FSocket <> TSocket(-1) then
+    begin
+      sockets.CloseSocket(FSocket);
+      FSocket := TSocket(-1);
+    end;
+  end
+  else
+  begin
+    if Assigned(FServerThread) then
+    begin
+      FServerThread.Terminate;
+      if TTCPServerThread(FServerThread).FListenSocket <> TSocket(-1) then
+      begin
+        sockets.CloseSocket(TTCPServerThread(FServerThread).FListenSocket);
+        TTCPServerThread(FServerThread).FListenSocket := TSocket(-1);
+      end;
+      FServerThread.Free;
+      FServerThread := nil;
+    end;
   end;
   FActive := False;
 end;
@@ -368,6 +494,7 @@ begin
   FActive := False;
 end;
 
+// Removed FHost check - lets connect directly
 function TAISocketUDP.SendText(const AText: string): Boolean;
 var
   Addr: TInetSockAddr;
