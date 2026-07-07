@@ -151,6 +151,7 @@ type
     procedure DoDeviceRemoved(const ADeviceName: string);
     procedure DoError(const AMsg: string);
     procedure QueryWindowsSerialPorts(var ADetected: TDetectedDeviceArray);
+    procedure QueryWindowsSetupAPI(var ADetected: TDetectedDeviceArray);
     procedure QueryLinuxSerialPorts(var ADetected: TDetectedDeviceArray);
     procedure ProbePort(Device: TAIListSerialDeviceItem);
     procedure IdentifyByVIDPID(Device: TAIListSerialDeviceItem);
@@ -309,10 +310,8 @@ end;
 
 {$IFDEF MSWINDOWS}
 const
-  GUID_DEVINTERFACE_COMPORT: TGUID = '{86e0d1e0-8089-11d0-9ce4-08002b114960}';
   GUID_DEVCLASS_PORTS: TGUID = '{4d36e978-e325-11ce-bfc1-08002be10318}';
   DIGCF_PRESENT = $00000002;
-  DIGCF_DEVICEINTERFACE = $00000010;
   SPDRP_FRIENDLYNAME = $0000000C;
   SPDRP_HARDWAREID = $00000001;
   SPDRP_SERVICE              = $00000004;
@@ -329,23 +328,7 @@ type
   end;
   PSP_DEVINFO_DATA = ^SP_DEVINFO_DATA;
 
-  SP_DEVICE_INTERFACE_DATA = record
-    cbSize: DWORD;
-    InterfaceClassGuid: TGUID;
-    Flags: DWORD;
-    Reserved: ULONG_PTR;
-  end;
-  PSP_DEVICE_INTERFACE_DATA = ^SP_DEVICE_INTERFACE_DATA;
-
-  SP_DEVICE_INTERFACE_DETAIL_DATA_W = record
-    cbSize: DWORD;
-    DevicePath: array[0..0] of WideChar;
-  end;
-  PSP_DEVICE_INTERFACE_DETAIL_DATA_W = ^SP_DEVICE_INTERFACE_DETAIL_DATA_W;
-
   TSetupDiGetClassDevsW = function(ClassGuid: PGUID; Enumerator: PWideChar; hwndParent: HWND; Flags: DWORD): THandle; stdcall;
-  TSetupDiEnumDeviceInterfaces = function(DeviceInfoSet: THandle; DeviceInfoData: PSP_DEVINFO_DATA; const InterfaceClassGuid: TGUID; MemberIndex: DWORD; DeviceInterfaceData: PSP_DEVICE_INTERFACE_DATA): BOOL; stdcall;
-  TSetupDiGetDeviceInterfaceDetailW = function(DeviceInfoSet: THandle; DeviceInterfaceData: PSP_DEVICE_INTERFACE_DATA; DeviceInterfaceDetailData: PSP_DEVICE_INTERFACE_DETAIL_DATA_W; DeviceInterfaceDetailDataSize: DWORD; RequiredSize: PDWORD; DeviceInfoData: PSP_DEVINFO_DATA): BOOL; stdcall;
   TSetupDiGetDeviceRegistryPropertyW = function(DeviceInfoSet: THandle; DeviceInfoData: PSP_DEVINFO_DATA; Property_: DWORD; PropertyRegDataType: PDWORD; PropertyBuffer: PByte; PropertyBufferSize: DWORD; RequiredSize: PDWORD): BOOL; stdcall;
   TSetupDiDestroyDeviceInfoList = function(DeviceInfoSet: THandle): BOOL; stdcall;
   TSetupDiOpenDevRegKey = function(DeviceInfoSet: THandle; DeviceInfoData: PSP_DEVINFO_DATA; Scope, HwProfile, KeyType: DWORD; samDesired: REGSAM): HKEY; stdcall;
@@ -358,8 +341,6 @@ type
 var
   SetupAPILib: THandle = 0;
   SetupDiGetClassDevsW: TSetupDiGetClassDevsW = nil;
-  SetupDiEnumDeviceInterfaces: TSetupDiEnumDeviceInterfaces = nil;
-  SetupDiGetDeviceInterfaceDetailW: TSetupDiGetDeviceInterfaceDetailW = nil;
   SetupDiGetDeviceRegistryPropertyW: TSetupDiGetDeviceRegistryPropertyW = nil;
   SetupDiDestroyDeviceInfoList: TSetupDiDestroyDeviceInfoList = nil;
   SetupDiOpenDevRegKey: TSetupDiOpenDevRegKey = nil;
@@ -373,8 +354,6 @@ begin
   if SetupAPILib <> 0 then
   begin
     SetupDiGetClassDevsW := TSetupDiGetClassDevsW(GetProcAddress(SetupAPILib, 'SetupDiGetClassDevsW'));
-    SetupDiEnumDeviceInterfaces := TSetupDiEnumDeviceInterfaces(GetProcAddress(SetupAPILib, 'SetupDiEnumDeviceInterfaces'));
-    SetupDiGetDeviceInterfaceDetailW := TSetupDiGetDeviceInterfaceDetailW(GetProcAddress(SetupAPILib, 'SetupDiGetDeviceInterfaceDetailW'));
     SetupDiGetDeviceRegistryPropertyW := TSetupDiGetDeviceRegistryPropertyW(GetProcAddress(SetupAPILib, 'SetupDiGetDeviceRegistryPropertyW'));
     SetupDiDestroyDeviceInfoList := TSetupDiDestroyDeviceInfoList(GetProcAddress(SetupAPILib, 'SetupDiDestroyDeviceInfoList'));
     SetupDiOpenDevRegKey := TSetupDiOpenDevRegKey(GetProcAddress(SetupAPILib, 'SetupDiOpenDevRegKey'));
@@ -382,8 +361,6 @@ begin
     SetupDiGetDeviceInstanceIdW := TSetupDiGetDeviceInstanceIdW(GetProcAddress(SetupAPILib, 'SetupDiGetDeviceInstanceIdW'));
   end;
   Result := (SetupDiGetClassDevsW <> nil) and 
-            (SetupDiEnumDeviceInterfaces <> nil) and 
-            (SetupDiGetDeviceInterfaceDetailW <> nil) and 
             (SetupDiGetDeviceRegistryPropertyW <> nil) and 
             (SetupDiDestroyDeviceInfoList <> nil) and
             (SetupDiOpenDevRegKey <> nil) and
@@ -421,22 +398,20 @@ begin
     Result := Seg;
 end;
 
-procedure QueryWindowsSetupAPI(var ADetected: TDetectedDeviceArray);
+{$ENDIF}
+
+procedure TAIListSerialDevices.QueryWindowsSetupAPI(var ADetected: TDetectedDeviceArray);
+{$IFDEF MSWINDOWS}
 var
   DevInfo: THandle;
   DevInfoData: SP_DEVINFO_DATA;
-  InterfaceData: SP_DEVICE_INTERFACE_DATA;
-  DetailData: PSP_DEVICE_INTERFACE_DETAIL_DATA_W;
   MemberIndex: DWORD;
-  ReqSize: DWORD;
-  FriendlyName: array[0..511] of WideChar;
-  HardwareID: array[0..1023] of WideChar;
   PortName: array[0..255] of WideChar;
   RegKey: HKEY;
   ValType: DWORD;
   ValSize: DWORD;
-  FriendlyStr, HardwareIDStr, PortStr: string;
-  PStart, PEnd: Integer;
+  PortStr, FriendlyStr, HardwareIDStr, InstId, SvcStr: string;
+  InstBuf: array[0..511] of WideChar;
   Kind: TSerialPortKind;
   Item: TDetectedDevice;
   VIDStr, PIDStr: string;
@@ -444,104 +419,83 @@ var
 begin
   if not LoadSetupAPI then Exit;
 
-  DevInfo := SetupDiGetClassDevsW(@GUID_DEVINTERFACE_COMPORT, nil, 0, DIGCF_PRESENT or DIGCF_DEVICEINTERFACE);
+  DevInfo := SetupDiGetClassDevsW(@GUID_DEVCLASS_PORTS, nil, 0, DIGCF_PRESENT);
   if DevInfo = THandle(INVALID_HANDLE_VALUE) then Exit;
 
   try
     MemberIndex := 0;
-    InterfaceData.cbSize := SizeOf(SP_DEVICE_INTERFACE_DATA);
-    while SetupDiEnumDeviceInterfaces(DevInfo, nil, GUID_DEVINTERFACE_COMPORT, MemberIndex, @InterfaceData) do
+    DevInfoData.cbSize := SizeOf(SP_DEVINFO_DATA);
+    while SetupDiEnumDeviceInfo(DevInfo, MemberIndex, @DevInfoData) do
     begin
-      DevInfoData.cbSize := SizeOf(SP_DEVINFO_DATA);
-      ReqSize := 0;
-      SetupDiGetDeviceInterfaceDetailW(DevInfo, @InterfaceData, nil, 0, @ReqSize, @DevInfoData);
-      if ReqSize > 0 then
+      // Nome da porta (COMx) via chave de registro do device
+      PortStr := '';
+      RegKey := SetupDiOpenDevRegKey(DevInfo, @DevInfoData,
+        1 {DICS_FLAG_GLOBAL}, 0, 1 {DIREG_DEV}, KEY_READ);
+      if RegKey <> HKEY(INVALID_HANDLE_VALUE) then
       begin
-        DetailData := GetMem(ReqSize);
-        try
-          DetailData^.cbSize := SizeOf(SP_DEVICE_INTERFACE_DETAIL_DATA_W);
-          if SetupDiGetDeviceInterfaceDetailW(DevInfo, @InterfaceData, DetailData, ReqSize, @ReqSize, @DevInfoData) then
-          begin
-            PortStr := '';
-            RegKey := SetupDiOpenDevRegKey(DevInfo, @DevInfoData, 1 {DICS_FLAG_GLOBAL}, 0, 1 {DIREG_DEV}, KEY_READ);
-            if RegKey <> HKEY(INVALID_HANDLE_VALUE) then
-            begin
-              ValSize := SizeOf(PortName);
-              if RegQueryValueExW(RegKey, 'PortName', nil, @ValType, PByte(@PortName), @ValSize) = ERROR_SUCCESS then
-              begin
-                PortStr := PWideChar(@PortName);
-              end;
-              RegCloseKey(RegKey);
-            end;
+        ValSize := SizeOf(PortName);
+        FillChar(PortName, SizeOf(PortName), 0);
+        if RegQueryValueExW(RegKey, 'PortName', nil, @ValType,
+             PByte(@PortName), @ValSize) = ERROR_SUCCESS then
+          PortStr := UTF8Encode(WideString(PWideChar(@PortName)));
+        RegCloseKey(RegKey);
+      end;
 
-            FriendlyStr := '';
-            if SetupDiGetDeviceRegistryPropertyW(DevInfo, @DevInfoData, SPDRP_FRIENDLYNAME, nil, PByte(@FriendlyName), SizeOf(FriendlyName), nil) then
-            begin
-              FriendlyStr := PWideChar(@FriendlyName);
-            end;
+      // Classe Ports inclui LPT: manter apenas COMx
+      if (PortStr <> '') and (Pos('COM', UpperCase(PortStr)) = 1) then
+      begin
+        FriendlyStr   := GetDevPropStr(DevInfo, @DevInfoData, SPDRP_FRIENDLYNAME);
+        HardwareIDStr := UpperCase(GetDevPropStr(DevInfo, @DevInfoData, SPDRP_HARDWAREID));
+        SvcStr        := GetDevPropStr(DevInfo, @DevInfoData, SPDRP_SERVICE);
 
-            if PortStr = '' then
-            begin
-              PStart := Pos('(COM', FriendlyStr);
-              if PStart > 0 then
-              begin
-                PEnd := Pos(')', FriendlyStr);
-                if PEnd > PStart then
-                begin
-                  PortStr := Copy(FriendlyStr, PStart + 1, PEnd - PStart - 1);
-                end;
-              end;
-            end;
+        InstId := '';
+        FillChar(InstBuf, SizeOf(InstBuf), 0);
+        if SetupDiGetDeviceInstanceIdW(DevInfo, @DevInfoData,
+             @InstBuf[0], Length(InstBuf) - 1, nil) then
+          InstId := UTF8Encode(WideString(PWideChar(@InstBuf)));
 
-            if PortStr <> '' then
-            begin
-              HardwareIDStr := '';
-              if SetupDiGetDeviceRegistryPropertyW(DevInfo, @DevInfoData, SPDRP_HARDWAREID, nil, PByte(@HardwareID), SizeOf(HardwareID), nil) then
-              begin
-                HardwareIDStr := PWideChar(@HardwareID);
-              end;
+        VIDStr := '';
+        PIDStr := '';
+        PVID := Pos('VID_', HardwareIDStr);
+        if PVID > 0 then VIDStr := Copy(HardwareIDStr, PVID + 4, 4);
+        PPID := Pos('PID_', HardwareIDStr);
+        if PPID > 0 then PIDStr := Copy(HardwareIDStr, PPID + 4, 4);
 
-               Kind := spkSystem;
-              HardwareIDStr := UpperCase(HardwareIDStr);
-              
-              VIDStr := '';
-              PIDStr := '';
-              PVID := Pos('VID_', HardwareIDStr);
-              if PVID > 0 then
-                VIDStr := Copy(HardwareIDStr, PVID + 4, 4);
-              PPID := Pos('PID_', HardwareIDStr);
-              if PPID > 0 then
-                PIDStr := Copy(HardwareIDStr, PPID + 4, 4);
+        Kind := spkSystem;
+        if (Pos('USB', HardwareIDStr) > 0) or (Pos('FTDIBUS', HardwareIDStr) > 0) then
+        begin
+          if (VIDStr = '2341') or (VIDStr = '2A03') then
+            Kind := spkArduinoCompatible
+          else
+            Kind := spkUSBSerial;
+        end
+        else if (Pos('BTHENUM', HardwareIDStr) > 0) or
+                (Pos('BTHMODEM', HardwareIDStr) > 0) or
+                (Pos('BLUETOOTH', HardwareIDStr) > 0) then
+          Kind := spkBluetooth;
 
-              if (Pos('USB', HardwareIDStr) > 0) or (Pos('FTDIBUS', HardwareIDStr) > 0) then
-              begin
-                if (Pos('VID_2341', HardwareIDStr) > 0) or (Pos('VID_2A03', HardwareIDStr) > 0) then
-                  Kind := spkArduinoCompatible
-                else
-                  Kind := spkUSBSerial;
-              end
-              else if (Pos('BTHENUM', HardwareIDStr) > 0) or (Pos('BTHMODEM', HardwareIDStr) > 0) or (Pos('BLUETOOTH', HardwareIDStr) > 0) then
-              begin
-                Kind := spkBluetooth;
-              end;
+        if ShouldInclude(Kind) then
+        begin
+          Item := Default(TDetectedDevice);
+          Item.DeviceName := PortStr;
+          if FriendlyStr <> '' then
+            Item.DisplayName := FriendlyStr
+          else
+            Item.DisplayName := PortStr;
+          Item.Description   := HardwareIDStr;
+          Item.PortKind      := Kind;
+          Item.IsAvailable   := True;
+          Item.VID           := VIDStr;
+          Item.PID           := PIDStr;
+          Item.InstanceID    := InstId;
+          Item.LocationInfo  := GetDevPropStr(DevInfo, @DevInfoData, SPDRP_LOCATION_INFORMATION);
+          Item.LocationPath  := GetDevPropStr(DevInfo, @DevInfoData, SPDRP_LOCATION_PATHS);
+          Item.DriverService := SvcStr;
+          Item.SerialNumber  := ExtractUsbSerialFromInstanceId(InstId);
+          Item.Manufacturer  := GetDevPropStr(DevInfo, @DevInfoData, SPDRP_MFG);
 
-              Item.DeviceName := PortStr;
-              if FriendlyStr <> '' then
-                Item.DisplayName := FriendlyStr
-              else
-                Item.DisplayName := PortStr;
-              Item.Description := HardwareIDStr;
-              Item.PortKind := Kind;
-              Item.IsAvailable := True;
-              Item.VID := VIDStr;
-              Item.PID := PIDStr;
-
-              SetLength(ADetected, Length(ADetected) + 1);
-              ADetected[Length(ADetected) - 1] := Item;
-            end;
-          end;
-        finally
-          FreeMem(DetailData);
+          SetLength(ADetected, Length(ADetected) + 1);
+          ADetected[Length(ADetected) - 1] := Item;
         end;
       end;
       Inc(MemberIndex);
@@ -549,6 +503,9 @@ begin
   finally
     SetupDiDestroyDeviceInfoList(DevInfo);
   end;
+end;
+{$ELSE}
+begin
 end;
 {$ENDIF}
 
