@@ -36,13 +36,13 @@ type
     btnClearLog: TButton;
     lblStatus: TLabel;
     memoLog: TMemo;
+    AIEmailClient1: TAIEmailClient;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnSendClick(Sender: TObject);
     procedure btnFetchClick(Sender: TObject);
     procedure btnClearLogClick(Sender: TObject);
   private
-    FAIEmail: TAIEmailClient;
     procedure AddLog(const AMsg: string);
     function ClassifyEmailText(const ASubject: string): string;
   public
@@ -60,7 +60,6 @@ implementation
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
-  FAIEmail := TAIEmailClient.Create(Self);
   AddLog('Email Client & Classifier Demo initialized.');
   AddLog('Please configure your SMTP/POP3 settings above.');
 end;
@@ -90,16 +89,16 @@ begin
   lblStatus.Caption := 'Status: Sending Email...';
   AddLog('--- Sending Test Email ---');
   try
-    FAIEmail.HostSMTP := editHostSMTP.Text;
-    FAIEmail.PortSMTP := StrToIntDef(editPortSMTP.Text, 25);
-    FAIEmail.Username := editUser.Text;
-    FAIEmail.Password := editPass.Text;
+    AIEmailClient1.HostSMTP := editHostSMTP.Text;
+    AIEmailClient1.PortSMTP := StrToIntDef(editPortSMTP.Text, 25);
+    AIEmailClient1.Username := editUser.Text;
+    AIEmailClient1.Password := editPass.Text;
 
-    AddLog('SMTP Target Server: ' + FAIEmail.HostSMTP + ':' + IntToStr(FAIEmail.PortSMTP));
-    AddLog('SMTP User: ' + FAIEmail.Username);
+    AddLog('SMTP Target Server: ' + AIEmailClient1.HostSMTP + ':' + IntToStr(AIEmailClient1.PortSMTP));
+    AddLog('SMTP User: ' + AIEmailClient1.Username);
     AddLog('Sending to: ' + editTo.Text);
 
-    if FAIEmail.SendEmail(editTo.Text, 'Test Subject from Lazarus AI Suite', 'Hello! This is a test email sent in real-time from the Lazarus AI Suite.') then
+    if AIEmailClient1.SendEmail(editTo.Text, 'Test Subject from Lazarus AI Suite', 'Hello! This is a test email sent in real-time from the Lazarus AI Suite.') then
     begin
       AddLog('SUCCESS: Email sent successfully!');
       lblStatus.Caption := 'Status: Email Sent successfully';
@@ -130,15 +129,15 @@ begin
   AddLog('--- Fetching & Classifying Emails ---');
   Emails := nil;
   try
-    FAIEmail.HostPOP3 := editHostPOP3.Text;
-    FAIEmail.PortPOP3 := StrToIntDef(editPortPOP3.Text, 110);
-    FAIEmail.Username := editUser.Text;
-    FAIEmail.Password := editPass.Text;
+    AIEmailClient1.HostPOP3 := editHostPOP3.Text;
+    AIEmailClient1.PortPOP3 := StrToIntDef(editPortPOP3.Text, 110);
+    AIEmailClient1.Username := editUser.Text;
+    AIEmailClient1.Password := editPass.Text;
 
-    AddLog('POP3 Target Server: ' + FAIEmail.HostPOP3 + ':' + IntToStr(FAIEmail.PortPOP3));
-    AddLog('POP3 User: ' + FAIEmail.Username);
+    AddLog('POP3 Target Server: ' + AIEmailClient1.HostPOP3 + ':' + IntToStr(AIEmailClient1.PortPOP3));
+    AddLog('POP3 User: ' + AIEmailClient1.Username);
 
-    if FAIEmail.FetchEmails(Emails) then
+    if AIEmailClient1.FetchEmails(Emails) then
     begin
       if Assigned(Emails) then
       begin

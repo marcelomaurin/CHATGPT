@@ -201,4 +201,8 @@ object frmMain: TfrmMain
     ScrollBars = ssAutoBoth
     TabOrder = 1
   end
+  object AIEmailClient1: TAIEmailClient
+    Left = 460
+    Top = 195
+  end
 end
