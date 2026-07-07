@@ -335,6 +335,11 @@ type
   TSetupDiGetDeviceRegistryPropertyW = function(DeviceInfoSet: THandle; DeviceInfoData: PSP_DEVINFO_DATA; Property_: DWORD; PropertyRegDataType: PDWORD; PropertyBuffer: PByte; PropertyBufferSize: DWORD; RequiredSize: PDWORD): BOOL; stdcall;
   TSetupDiDestroyDeviceInfoList = function(DeviceInfoSet: THandle): BOOL; stdcall;
   TSetupDiOpenDevRegKey = function(DeviceInfoSet: THandle; DeviceInfoData: PSP_DEVINFO_DATA; Scope, HwProfile, KeyType: DWORD; samDesired: REGSAM): HKEY; stdcall;
+  TSetupDiEnumDeviceInfo = function(DeviceInfoSet: THandle; MemberIndex: DWORD;
+    DeviceInfoData: PSP_DEVINFO_DATA): BOOL; stdcall;
+  TSetupDiGetDeviceInstanceIdW = function(DeviceInfoSet: THandle;
+    DeviceInfoData: PSP_DEVINFO_DATA; DeviceInstanceId: PWideChar;
+    DeviceInstanceIdSize: DWORD; RequiredSize: PDWORD): BOOL; stdcall;
 
 var
   SetupAPILib: THandle = 0;
