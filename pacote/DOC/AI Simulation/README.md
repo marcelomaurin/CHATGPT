@@ -2,7 +2,20 @@
 
 This directory documents the **AI Simulation** components in the Lazarus AI Suite. These components implement a complete 2D cellular grid simulation engine using 100% pure Lazarus/Free Pascal code, with no external dependencies.
 
-The simulation engine supports discrete-time multi-agent worlds with configurable rules, movement strategies, genetic evolution, scenario persistence, and statistical export.
+The simulation engine supports discrete-time multi-agent worlds with configurable rules, movement strategies, genetic evolution, scenario persistence, rendering and statistical export.
+
+> **Important:** in this project, **AI Simulation** does not mean fake components, mocked results or artificial success messages. This layer is dedicated to computational simulation of real or controlled environments, allowing developers to model movement, queues, agents, resources, propagation, logistics and other scenarios used to train, validate or test AI behavior safely before applying it to real systems.
+
+Typical use cases include:
+
+- robot, vehicle or agent movement on a 2D grid;
+- service queues, people flow and resource allocation;
+- warehouse movement, logistics and route testing;
+- contamination, propagation, occupation and interaction models;
+- rule-based, evolutionary or statistical agent training;
+- safe validation of AI decisions in repeatable scenarios.
+
+Therefore, **AI Simulation** is a legitimate simulation domain inside the suite. It must not be confused with simulated/fake behavior in unrelated components. Components outside this layer that do not have a real backend should report clear unavailability/errors instead of generating artificial results.
 
 ## Table of Components
 
@@ -23,6 +36,16 @@ The simulation engine supports discrete-time multi-agent worlds with configurabl
 | **Scenario Config** | `TAIScenarioConfig` | Save/load layouts as JSON | `SaveToFile`, `LoadFromFile` |
 | **Scenario Generator** | `TAIScenarioGenerator` | LLM-based scenario generation | `GenerateFromPrompt` |
 | **Simulation Exporter** | `TAISimulationExporter` | Export results to CSV/TXT/JSON | `ExportToCSV`, `ExportToJSON` |
+
+---
+
+## AI Simulation vs. Fake Component Simulation
+
+| Term | Correct meaning in this project |
+|---|---|
+| **AI Simulation** | A simulation layer for modeling real or controlled environments, useful for AI training, testing and validation. |
+| **Fake/simulated component** | A component that pretends to execute a real operation and returns artificial success/data. This must not be used as production behavior. |
+| **Placeholder** | An incomplete structure. It must be documented as incomplete and should return a clear unsupported/unavailable error when called. |
 
 ---
 
