@@ -202,23 +202,25 @@ Use esta classificação para documentação, README de abas, samples e planejam
 
 ## AI Simulation
 
+> **Observação de escopo:** `AI Simulation` é uma área para simular ambientes reais ou controlados, como movimento de agentes, robôs, filas, logística, propagação, ocupação de espaços e cenários de treinamento/validação de IA. Não significa componente fake, mock ou retorno artificial de sucesso. Componentes incompletos fora desta área devem retornar erro/indisponibilidade clara, não simular funcionamento real.
+
 | Componente | Unit | Pacote | Status | Observação |
 |---|---|---|---|---|
-| `TAIGridWorld` | `aigridworld.pas` | `openai_simulation` | Experimental | Mundo 2D baseado em grade |
-| `TAIGridCell` | `aigridcell.pas` | `openai_simulation` | Experimental | Tipo auxiliar de representação de célula |
-| `TAIGridBuffer` | `aigridbuffer.pas` | `openai_simulation` | Experimental | Tipo auxiliar de duplo buffer |
-| `TAISimEntity` | `aisimentity.pas` | `openai_simulation` | Experimental | Entidade ativa base de simulação |
-| `TAIEntityFactory` | `aientityfactory.pas` | `openai_simulation` | Experimental | Fábrica de criação de agentes |
-| `TAISimulationEngine` | `aisimulationengine.pas` | `openai_simulation` | Experimental | Motor de ciclo principal da simulação |
-| `TAIRuleEngine` | `airuleengine.pas` | `openai_simulation` | Experimental | Motor de gerenciamento de regras comportamentais |
-| `TAITriggerEngine` | `aitriggerengine.pas` | `openai_simulation` | Experimental | Motor de eventos e loggers |
-| `TAIMovementEngine` | `aimovementengine.pas` | `openai_simulation` | Experimental | Motor de caminhada e busca 2D |
-| `TAIEvolutionEngine` | `aievolutionengine.pas` | `openai_simulation` | Experimental | Mecanismos de mutação e adaptação genética |
-| `TAISimulationStats` | `aisimulationstats.pas` | `openai_simulation` | Experimental | Coletor de métricas e ciclo de execução |
+| `TAIGridWorld` | `aigridworld.pas` | `openai_simulation` | Experimental | Mundo 2D baseado em grade para simular ambientes, obstáculos, agentes e posições |
+| `TAIGridCell` | `aigridcell.pas` | `openai_simulation` | Experimental | Tipo auxiliar de representação de célula, terreno, ocupação e custo de movimento |
+| `TAIGridBuffer` | `aigridbuffer.pas` | `openai_simulation` | Experimental | Tipo auxiliar de duplo buffer para atualização controlada por ciclos |
+| `TAISimEntity` | `aisimentity.pas` | `openai_simulation` | Experimental | Entidade/agente ativo da simulação, usado para modelar objetos, pessoas, robôs ou recursos |
+| `TAIEntityFactory` | `aientityfactory.pas` | `openai_simulation` | Experimental | Fábrica de criação de agentes e entidades de cenário |
+| `TAISimulationEngine` | `aisimulationengine.pas` | `openai_simulation` | Experimental | Motor de ciclo principal para executar, pausar, avançar e controlar a simulação |
+| `TAIRuleEngine` | `airuleengine.pas` | `openai_simulation` | Experimental | Motor de regras comportamentais para agentes e ambientes simulados |
+| `TAITriggerEngine` | `aitriggerengine.pas` | `openai_simulation` | Experimental | Motor de eventos da simulação, como início/fim de ciclo, movimento e colisões lógicas |
+| `TAIMovementEngine` | `aimovementengine.pas` | `openai_simulation` | Experimental | Motor de movimento 2D para caminhada, busca, fuga, rotas e deslocamento de agentes |
+| `TAIEvolutionEngine` | `aievolutionengine.pas` | `openai_simulation` | Experimental | Mecanismos de mutação, seleção e adaptação para treinamento/evolução de comportamentos |
+| `TAISimulationStats` | `aisimulationstats.pas` | `openai_simulation` | Experimental | Coletor de métricas para avaliar ciclos, agentes, eventos e resultados da simulação |
 | `TAIGridRenderer2D` | `aigridrenderer2d.pas` | `openai_simulation` | Experimental | Desenho nativo 2D da simulação em TCanvas |
-| `TAIScenarioConfig` | `aiscenarioconfig.pas` | `openai_simulation` | Experimental | Salvar/carregar layouts em JSON |
-| `TAIScenarioGenerator` | `aiscenariogenerator.pas` | `openai_simulation` | Experimental | Criador de cenários baseado em prompt com ChatGPT |
-| `TAISimulationExporter` | `aisimulationexporter.pas` | `openai_simulation` | Experimental | Exportador de relatórios (CSV, TXT, JSON) |
+| `TAIScenarioConfig` | `aiscenarioconfig.pas` | `openai_simulation` | Experimental | Salvar/carregar cenários, layouts, agentes e parâmetros em JSON |
+| `TAIScenarioGenerator` | `aiscenariogenerator.pas` | `openai_simulation` | Experimental | Criador de cenários baseado em prompt com ChatGPT para testes e treinamento controlado |
+| `TAISimulationExporter` | `aisimulationexporter.pas` | `openai_simulation` | Experimental | Exportador de relatórios, métricas e datasets da simulação em CSV, TXT e JSON |
 
 ---
 
@@ -237,10 +239,3 @@ Use esta classificação para documentação, README de abas, samples e planejam
 ---
 
 ## Legacy
-
-| Componente/Pacote | Caminho | Status | Observação |
-|---|---|---|---|
-| `openai.lpk` | `pacote/openai.lpk` | Removed (v2.0.0) | Pacote legado removido completamente; utilizar pacotes modulares em `pacote/packages/` |
-| `TAICameraInput` | `AI Input/aicamera.pas` | Removed (v1.9.0) | Substituído por `TAICaptureSource` (cskCameraLocal) |
-| `TAICFTVIP` | `AI Input/aicftvip.pas` | Removed (v1.9.0) | Substituído por `TAICaptureSource` (cskCameraIPSnapshot) |
-| `TAIOSInputCapture` | `AI Input/aioscapture.pas` | Removed (v1.9.0) | Substituído por `TAICaptureSource` (cskScreen) |
