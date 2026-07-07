@@ -364,13 +364,17 @@ begin
     SetupDiGetDeviceRegistryPropertyW := TSetupDiGetDeviceRegistryPropertyW(GetProcAddress(SetupAPILib, 'SetupDiGetDeviceRegistryPropertyW'));
     SetupDiDestroyDeviceInfoList := TSetupDiDestroyDeviceInfoList(GetProcAddress(SetupAPILib, 'SetupDiDestroyDeviceInfoList'));
     SetupDiOpenDevRegKey := TSetupDiOpenDevRegKey(GetProcAddress(SetupAPILib, 'SetupDiOpenDevRegKey'));
+    SetupDiEnumDeviceInfo := TSetupDiEnumDeviceInfo(GetProcAddress(SetupAPILib, 'SetupDiEnumDeviceInfo'));
+    SetupDiGetDeviceInstanceIdW := TSetupDiGetDeviceInstanceIdW(GetProcAddress(SetupAPILib, 'SetupDiGetDeviceInstanceIdW'));
   end;
   Result := (SetupDiGetClassDevsW <> nil) and 
             (SetupDiEnumDeviceInterfaces <> nil) and 
             (SetupDiGetDeviceInterfaceDetailW <> nil) and 
             (SetupDiGetDeviceRegistryPropertyW <> nil) and 
             (SetupDiDestroyDeviceInfoList <> nil) and
-            (SetupDiOpenDevRegKey <> nil);
+            (SetupDiOpenDevRegKey <> nil) and
+            (SetupDiEnumDeviceInfo <> nil) and
+            (SetupDiGetDeviceInstanceIdW <> nil);
 end;
 
 procedure QueryWindowsSetupAPI(var ADetected: TDetectedDeviceArray);
