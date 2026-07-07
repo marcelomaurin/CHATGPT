@@ -4,7 +4,7 @@ Esta pasta contém a suíte de componentes voltada para a criação de **simula�
 
 ## Objetivo da área
 
-A área **AI Simulation** tem como objetivo fornecer motores de simulação para criar cenários controlados onde uma IA possa ser treinada, testada ou validada antes de atuar em um ambiente real.
+A área **AI Simulation** fornece motores de simulação para criar cenários controlados onde uma IA possa ser treinada, testada ou validada antes de atuar em um ambiente real.
 
 Ela deve ser usada quando o projeto precisar:
 
@@ -14,8 +14,6 @@ Ela deve ser usada quando o projeto precisar:
 - simular filas, fluxo de pessoas, logística, propagação ou ocupação de espaço;
 - gerar métricas e históricos para análise ou treinamento de IA;
 - repetir cenários com regras conhecidas para comparar estratégias.
-
-Fora desse contexto, componentes incompletos de outras áreas não devem retornar dados artificiais. Eles devem informar erro, indisponibilidade ou recurso ainda não implementado.
 
 ---
 
@@ -47,8 +45,6 @@ Fora desse contexto, componentes incompletos de outras áreas não devem retorna
 | Testar algoritmo de movimentação | Sim |
 | Gerar dataset sintético a partir de regras conhecidas | Sim |
 | Simular fluxo de pessoas, fila, logística ou contaminação | Sim |
-| Fingir que um componente externo funcionou sem backend real | Não |
-| Retornar sucesso artificial em componente incompleto | Não |
 
 ---
 
