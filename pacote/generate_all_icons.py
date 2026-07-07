@@ -130,45 +130,56 @@ icons_config = {
     ],
     
     # AI Input
-    'AI Input/aiinput_icon.lrs': [
+    'AI Input/AIInput/aiinput_icon.lrs': [
         ('taiinputdata', C_INPUT, 'IN'),
     ],
-    'AI Input/aicapturesource_icon.lrs': [
+    'AI Input/AICaptureSource/aicapturesource_icon.lrs': [
         ('taicapturesource', C_INPUT, 'CS'),
     ],
-    'AI Input/aiaudio_icon.lrs': [
+    'AI Input/AIAudio/aiaudio_icon.lrs': [
         ('taiaudioinput', C_INPUT, 'AD'),
     ],
-    'AI Input/aiwebserver_icon.lrs': [
+    'AI Input/AIWebServer/aiwebserver_icon.lrs': [
         ('taiwebapiserver', C_INPUT, 'WS'),
     ],
-    'AI Input/aisockets_icon.lrs': [
+    'AI Input/AISockets/aisockets_icon.lrs': [
         ('taisockettcp', C_INPUT, 'TC'),
         ('taisocketudp', C_INPUT, 'UD'),
     ],
-    'AI Input/aiserial_icon.lrs': [
+    'AI Input/AISerial/aiserial_icon.lrs': [
         ('taiserialmodem', C_INPUT, 'SR'),
+        ('tailistserialdevices', C_INPUT, 'SD'),
     ],
-    'AI Input/aiposprinter_icon.lrs': [
+    'AI Input/AIUSB/aiusb_icon.lrs': [
+        ('taiusb', C_INPUT, 'UB'),
+    ],
+    'AI Industrial/aiposprinter_icon.lrs': [
         ('taiposprinter', C_INPUT, 'PR'),
     ],
-    'AI Input/aimodbus_icon.lrs': [
+    'AI Industrial/aimodbus_icon.lrs': [
         ('taimodbusclient', C_INPUT, 'MB'),
     ],
-    'AI Input/aimqtt_icon.lrs': [
+    'AI Industrial/aimqtt_icon.lrs': [
         ('taimqttclient', C_INPUT, 'MQ'),
     ],
-    'AI Input/aiemail_icon.lrs': [
+    'AI Input/AIEmail/aiemail_icon.lrs': [
         ('taiemailclient', C_INPUT, 'EM'),
     ],
-    'AI Input/aimessenger_icon.lrs': [
+    'AI Input/AIMessenger/aimessenger_icon.lrs': [
         ('taimessenger', C_INPUT, 'MS'),
     ],
-    'AI Input/aiindustrial_icon.lrs': [
+    'AI Industrial/aiindustrial_icon.lrs': [
         ('taiindustrialbridge', C_INPUT, 'ID'),
     ],
-    'AI Input/aichromiumbrowser_icon.lrs': [
+    'AI Input/AIChromiumBrowser/aichromiumbrowser_icon.lrs': [
         ('taichromiumbrowser', C_INPUT, 'CR'),
+    ],
+    'AI Input/AIKinect/aikinect_icon.lrs': [
+        ('taikinectsensor', C_INPUT, 'KS'),
+        ('taikinectcolorstream', C_INPUT, 'KC'),
+        ('taikinectdepthstream', C_INPUT, 'KD'),
+        ('taikinectskeleton', C_INPUT, 'KK'),
+        ('taikinectaudio', C_INPUT, 'KA'),
     ],
     
     # AI Output
@@ -414,24 +425,31 @@ def main():
         ('AI Agent/aiagent.pas', 'aiagent_icon.lrs'),
         ('AI Agent/aiagentsafety.pas', 'aiagentsafety_icon.lrs'),
         ('AI Math/numps.pas', 'numps_icon.lrs'),
-        ('AI Input/aiinput.pas', 'aiinput_icon.lrs'),
-        ('AI Input/aicapturesource.pas', 'aicapturesource_icon.lrs'),
-        ('AI Input/aiaudio.pas', 'aiaudio_icon.lrs'),
-        ('AI Input/aiwebserver.pas', 'aiwebserver_icon.lrs'),
-        ('AI Input/aisockets.pas', 'aisockets_icon.lrs'),
-        ('AI Input/aiserial.pas', 'aiserial_icon.lrs'),
-        ('AI Input/aiposprinter.pas', 'aiposprinter_icon.lrs'),
-        ('AI Input/aimodbus.pas', 'aimodbus_icon.lrs'),
-        ('AI Input/aimqtt.pas', 'aimqtt_icon.lrs'),
-        ('AI Input/aiemail.pas', 'aiemail_icon.lrs'),
-        ('AI Input/aimessenger.pas', 'aimessenger_icon.lrs'),
-        ('AI Input/aiindustrial.pas', 'aiindustrial_icon.lrs'),
-        ('AI Input/aichromiumbrowser.pas', 'aichromiumbrowser_icon.lrs'),
+        ('AI Input/AIInput/aiinput.pas', 'aiinput_icon.lrs'),
+        ('AI Input/AICaptureSource/aicapturesource.pas', 'aicapturesource_icon.lrs'),
+        ('AI Input/AIAudio/aiaudio.pas', 'aiaudio_icon.lrs'),
+        ('AI Input/AIWebServer/aiwebserver.pas', 'aiwebserver_icon.lrs'),
+        ('AI Input/AISockets/aisockets.pas', 'aisockets_icon.lrs'),
+        ('AI Input/AISerial/aiserial.pas', 'aiserial_icon.lrs'),
+        ('AI Input/AISerial/ailistserialdevices.pas', 'aiserial_icon.lrs'),
+        ('AI Input/AIUSB/aiusb.pas', 'aiusb_icon.lrs'),
+        ('AI Industrial/aiposprinter.pas', 'aiposprinter_icon.lrs'),
+        ('AI Industrial/aimodbus.pas', 'aimodbus_icon.lrs'),
+        ('AI Industrial/aimqtt.pas', 'aimqtt_icon.lrs'),
+        ('AI Input/AIEmail/aiemail.pas', 'aiemail_icon.lrs'),
+        ('AI Input/AIMessenger/aimessenger.pas', 'aimessenger_icon.lrs'),
+        ('AI Industrial/aiindustrial.pas', 'aiindustrial_icon.lrs'),
+        ('AI Input/AIChromiumBrowser/aichromiumbrowser.pas', 'aichromiumbrowser_icon.lrs'),
+        ('AI Input/AIKinect/aikinectsensor.pas', 'aikinect_icon.lrs'),
+        ('AI Input/AIKinect/aikinectcolor.pas', 'aikinect_icon.lrs'),
+        ('AI Input/AIKinect/aikinectdepth.pas', 'aikinect_icon.lrs'),
+        ('AI Input/AIKinect/aikinectskeleton.pas', 'aikinect_icon.lrs'),
+        ('AI Input/AIKinect/aikinectaudio.pas', 'aikinect_icon.lrs'),
         ('AI Output/aioutput.pas', 'aioutput_icon.lrs'),
         ('AI Output/aioutput_docs.pas', 'aioutput_docs_icon.lrs'),
         ('AI Voice/aivoicesynthesizer.pas', 'aivoicesynthesizer_icon.lrs'),
-        ('AI/aiproject.pas', 'aiproject_icon.lrs'),
-        ('AI/aipipeline.pas', 'aipipeline_icon.lrs'),
+        ('AI Project/aiproject.pas', 'aiproject_icon.lrs'),
+        ('AI Agent/aipipeline.pas', 'aipipeline_icon.lrs'),
         ('AI/aipromptbuilder.pas', 'aipromptbuilder_icon.lrs'),
         ('AI Graph/aigraphmap.pas', 'aigraphmap_icon.lrs'),
         ('AI Graph/aitrainingexporter.pas', 'aitrainingexporter_icon.lrs'),
@@ -439,7 +457,7 @@ def main():
         ('AI Graph/aitrainingreport.pas', 'aitrainingreport_icon.lrs'),
         ('AI Graph/aigraphvisualizer.pas', 'aigraphvisualizer_icon.lrs'),
         ('AI/aimodelregistry.pas', 'aimodelregistry_icon.lrs'),
-        ('AI/aiwizardconfig.pas', 'aiwizardconfig_icon.lrs'),
+        ('AI Agent/aiwizardconfig.pas', 'aiwizardconfig_icon.lrs'),
         ('AI/matrizcomponent.pas', 'matrizcomponent_icon.lrs'),
         ('python/aipythonruntime.pas', 'aipythonruntime_icon.lrs'),
         ('AI Files/aidisktreescanner.pas', 'aidisktreescanner_icon.lrs'),

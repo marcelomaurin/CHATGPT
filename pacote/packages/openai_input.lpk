@@ -9,7 +9,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\AI Agent;..\AI Voice;..\AI Filtros Sonoros;..\AI Image;..\AI Schedule;..\AI Math;..\AI Input;..\AI Input\AIAudio;..\AI Input\AICaptureSource;..\AI Input\AIChromiumBrowser;..\AI Input\AIEmail;..\AI Input\AIInput;..\AI Input\AIMessenger;..\AI Input\AISerial;..\AI Input\AISockets;..\AI Input\AIWebServer;..\AI Output;..\AI Graph;..\AI Graphic;..\AI Vision;.."/>
+        <OtherUnitFiles Value="..\AI Agent;..\AI Voice;..\AI Filtros Sonoros;..\AI Image;..\AI Schedule;..\AI Math;..\AI Input;..\AI Input\AIAudio;..\AI Input\AICaptureSource;..\AI Input\AIChromiumBrowser;..\AI Input\AIEmail;..\AI Input\AIInput;..\AI Input\AIMessenger;..\AI Input\AISerial;..\AI Input\AISockets;..\AI Input\AIWebServer;..\AI Input\AIUSB;..\AI Input\AIKinect;..\AI Output;..\AI Graph;..\AI Graphic;..\AI Vision;.."/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
@@ -56,6 +56,10 @@
         <UnitName Value="ailistserialdevices"/>
       </Item>
       <Item>
+        <Filename Value="..\AI Input\AISerial\aiserialfingerprint.pas"/>
+        <UnitName Value="aiserialfingerprint"/>
+      </Item>
+      <Item>
         <Filename Value="..\AI Input\AIEmail\aiemail.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiemail"/>
@@ -69,6 +73,56 @@
         <Filename Value="..\AI Input\AIChromiumBrowser\aichromiumbrowser.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aichromiumbrowser"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Input\AIUSB\aiusb.pas"/>
+        <UnitName Value="aiusb"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Input\AIUSB\aiusb_register.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiusb_register"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Input\AIKinect\aikinect_types.pas"/>
+        <UnitName Value="aikinect_types"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Input\AIKinect\aikinect_backend.pas"/>
+        <UnitName Value="aikinect_backend"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Input\AIKinect\aikinect_freenect.pas"/>
+        <UnitName Value="aikinect_freenect"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Input\AIKinect\aikinect_sdk10.pas"/>
+        <UnitName Value="aikinect_sdk10"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Input\AIKinect\aikinectsensor.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aikinectsensor"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Input\AIKinect\aikinectcolor.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aikinectcolor"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Input\AIKinect\aikinectdepth.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aikinectdepth"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Input\AIKinect\aikinectskeleton.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aikinectskeleton"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Input\AIKinect\aikinectaudio.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aikinectaudio"/>
       </Item>
     </Files>
     <RequiredPkgs>

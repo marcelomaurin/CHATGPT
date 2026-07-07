@@ -1,0 +1,63 @@
+object frmMain: TfrmMain
+  Left = 250
+  Height = 450
+  Top = 150
+  Width = 800
+  Caption = 'AISerial Test'
+  ClientHeight = 450
+  ClientWidth = 800
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  object pnlTop: TPanel
+    Left = 0
+    Height = 50
+    Top = 0
+    Width = 800
+    Align = alTop
+    ClientHeight = 50
+    ClientWidth = 800
+    TabOrder = 0
+    object btnRefresh: TButton
+      Left = 10
+      Height = 30
+      Top = 10
+      Width = 100
+      Caption = 'Refresh'
+      OnClick = btnRefreshClick
+      TabOrder = 0
+    end
+    object chkAutoRefresh: TCheckBox
+      Left = 130
+      Height = 19
+      Top = 15
+      Width = 95
+      Caption = 'Auto Refresh'
+      OnChange = chkAutoRefreshChange
+      TabOrder = 1
+    end
+    object chkProbeOpenable: TCheckBox
+      Left = 250
+      Height = 19
+      Top = 15
+      Width = 105
+      Caption = 'Probe Openable'
+      OnChange = chkProbeOpenableChange
+      TabOrder = 2
+    end
+  end
+  object gridDevices: TStringGrid
+    Left = 0
+    Height = 400
+    Top = 50
+    Width = 800
+    Align = alClient
+    FixedCols = 0
+    TabOrder = 1
+  end
+  object timerAutoRefresh: TTimer
+    Enabled = False
+    OnTimer = timerAutoRefreshTimer
+    Left = 380
+    Top = 10
+  end
+end

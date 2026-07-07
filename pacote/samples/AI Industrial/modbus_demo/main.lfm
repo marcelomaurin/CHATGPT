@@ -414,7 +414,7 @@ object frmMain: TfrmMain
           Left = 10
           Height = 15
           Top = 125
-          Width = 50
+          Width = 54
           Caption = 'HR Modo:'
           ParentColor = False
         end
@@ -429,7 +429,7 @@ object frmMain: TfrmMain
           Left = 10
           Height = 15
           Top = 165
-          Width = 47
+          Width = 51
           Caption = 'HR PWM:'
           ParentColor = False
         end

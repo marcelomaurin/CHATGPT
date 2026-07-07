@@ -20,6 +20,12 @@ Este documento descreve o estado atual de maturidade, a categoria operacional e 
 | **TAIExcelOutput** | `ccOutput` | Beta | Gera planilhas `.xlsx`. **Nota de Compatibilidade:** As planilhas geradas utilizam marcação XML/HTML perfeitamente compatível e interpretável pelo Excel/LibreOffice Calc. |
 | **TAITXTOutput** | `ccOutput` | Beta | Geração de arquivos de texto plano simplificados. |
 | **TAIModbusClient** | `ccInput` | Experimental | Cliente para comunicação industrial Modbus (TCP/RTU). Permite monitorar registradores físicos. |
+| **TAIUSB** / **TAIListUSBDevices** | `ccInput` | Beta | Lista e monitora a conexão de dispositivos USB locais. Utiliza consulta nativa ao registro no Windows para compatibilidade total e SysFS no Linux. |
+| **TAIKinectSensor** | `ccInput` | Experimental | Componente hub para conectar o sensor Microsoft Kinect v1 (Xbox 360). Controla motor de inclinação, LED e acelerômetro. |
+| **TAIKinectColorStream** | `ccInput` | Experimental | Fluxo de vídeo RGB/IR em tempo real do sensor Kinect. |
+| **TAIKinectDepthStream** | `ccInput` | Experimental | Fluxo de profundidade em milímetros com exportador PLY de nuvem de pontos do Kinect. |
+| **TAIKinectSkeleton** | `ccInput` | Experimental | Stub para rastreamento de esqueleto corporal do Kinect. |
+| **TAIKinectAudio** | `ccInput` | Experimental | Stub para captura de áudio e beamforming (direção de som) do Kinect. |
 | **TAIMQTTClient** | `ccInput` | Experimental | Cliente leve IoT baseada em MQTT para publicação e recebimento de tópicos em tempo real com thread dedicada. |
 | **TAIIndustrialBridge**| `ccInput`| Experimental | Ponte de baixo nível para integração com PLCs Siemens/Profinet/Profibus. |
 | **TAIVoiceSynthesizer**| `ccOutput`| Experimental | Sintetizador de voz de texto para fala (usando APIs nativas do SO). |

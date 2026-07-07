@@ -109,6 +109,11 @@ Use esta classificação para documentação, README de abas, samples e planejam
 | `TAIMessenger` | `aimessenger.pas` | `openai_input` | Beta | WhatsApp e SMS |
 | `TAIIndustrialBridge` | `aiindustrial.pas` | `openai_industrial` | Beta | Ponte Profinet/Profibus para CLPs |
 | `TAIChromiumBrowser` | `aichromiumbrowser.pas` | `openai_input` | Beta/Experimental | Navegador Chromium real baseado em CEF4Delphi `TChromiumWindow`; substitui a renderização anterior via `TIpHtmlPanel`. |
+| `TAIKinectSensor` | `aikinectsensor.pas` | `openai_input` | Experimental | Conexão, tilt, LED e acelerômetro do Kinect v1 |
+| `TAIKinectColorStream` | `aikinectcolor.pas` | `openai_input` | Experimental | Fluxo RGB/IR do Kinect, compatível com o pipeline de frames da suíte |
+| `TAIKinectDepthStream` | `aikinectdepth.pas` | `openai_input` | Experimental | Profundidade em mm, mapa colorizado e nuvem de pontos (PLY) |
+| `TAIKinectSkeleton` | `aikinectskeleton.pas` | `openai_input` | Placeholder | Esqueleto 20 juntas via Kinect SDK 1.8 (Windows) — fase 2 |
+| `TAIKinectAudio` | `aikinectaudio.pas` | `openai_input` | Placeholder | Array de microfones + direção da fonte sonora — fase 2 |
 
 ---
 

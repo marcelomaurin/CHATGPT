@@ -12,7 +12,7 @@ uses
   {$IFDEF UNIX}
   , BaseUnix
   {$ENDIF}
-  ;
+  , LResources;
 
 type
   TSerialPortKind = (
@@ -22,6 +22,17 @@ type
     spkBluetooth,
     spkVirtual,
     spkArduinoCompatible
+  );
+
+  TSerialDeviceState = (
+    sdsUnknown,
+    sdsDetected,
+    sdsIdentifying,
+    sdsIdentified,
+    sdsReady,
+    sdsBusy,
+    sdsError,
+    sdsDisconnected
   );
 
   { TAIListSerialDeviceItem }
@@ -35,6 +46,14 @@ type
     FIsAvailable: Boolean;
     FIsOpenable: Boolean;
     FLastError: string;
+    FState: TSerialDeviceState;
+    FVID: string;
+    FPID: string;
+    FManufacturer: string;
+    FProduct: string;
+    FSerialNumber: string;
+    FProtocol: string;
+    FConfidence: Integer;
   public
     constructor Create(ACollection: TCollection); override;
     property Kind: TSerialPortKind read FPortKind write FPortKind;
@@ -46,6 +65,14 @@ type
     property IsAvailable: Boolean read FIsAvailable write FIsAvailable default True;
     property IsOpenable: Boolean read FIsOpenable write FIsOpenable default True;
     property LastError: string read FLastError write FLastError;
+    property State: TSerialDeviceState read FState write FState default sdsUnknown;
+    property VID: string read FVID write FVID;
+    property PID: string read FPID write FPID;
+    property Manufacturer: string read FManufacturer write FManufacturer;
+    property Product: string read FProduct write FProduct;
+    property SerialNumber: string read FSerialNumber write FSerialNumber;
+    property Protocol: string read FProtocol write FProtocol;
+    property Confidence: Integer read FConfidence write FConfidence default 0;
   end;
 
   { TAIListSerialDeviceItems }
@@ -63,6 +90,8 @@ type
   TSerialDeviceFoundEvent = procedure(Sender: TObject; Device: TAIListSerialDeviceItem) of object;
   TSerialDeviceRemovedEvent = procedure(Sender: TObject; const ADeviceName: string) of object;
   TSerialDeviceErrorEvent = procedure(Sender: TObject; const AMessage: string) of object;
+  TSerialDeviceChangedEvent = procedure(Sender: TObject; Device: TAIListSerialDeviceItem) of object;
+  TSerialDeviceIdentifiedEvent = procedure(Sender: TObject; Device: TAIListSerialDeviceItem) of object;
 
   // Temporary helper structure for detected ports
   TDetectedDevice = record
@@ -71,6 +100,8 @@ type
     Description: string;
     PortKind: TSerialPortKind;
     IsAvailable: Boolean;
+    VID: string;
+    PID: string;
   end;
   TDetectedDeviceArray = array of TDetectedDevice;
 
@@ -94,6 +125,8 @@ type
     FOnDeviceFound: TSerialDeviceFoundEvent;
     FOnDeviceRemoved: TSerialDeviceRemovedEvent;
     FOnError: TSerialDeviceErrorEvent;
+    FOnDeviceChanged: TSerialDeviceChangedEvent;
+    FOnDeviceIdentified: TSerialDeviceIdentifiedEvent;
 
     procedure SetDevices(AValue: TAIListSerialDeviceItems);
     procedure SetAutoRefresh(AValue: Boolean);
@@ -106,6 +139,7 @@ type
     procedure QueryWindowsSerialPorts(var ADetected: TDetectedDeviceArray);
     procedure QueryLinuxSerialPorts(var ADetected: TDetectedDeviceArray);
     procedure ProbePort(Device: TAIListSerialDeviceItem);
+    procedure IdentifyByVIDPID(Device: TAIListSerialDeviceItem);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -135,6 +169,8 @@ type
     property OnDeviceFound: TSerialDeviceFoundEvent read FOnDeviceFound write FOnDeviceFound;
     property OnDeviceRemoved: TSerialDeviceRemovedEvent read FOnDeviceRemoved write FOnDeviceRemoved;
     property OnError: TSerialDeviceErrorEvent read FOnError write FOnError;
+    property OnDeviceChanged: TSerialDeviceChangedEvent read FOnDeviceChanged write FOnDeviceChanged;
+    property OnDeviceIdentified: TSerialDeviceIdentifiedEvent read FOnDeviceIdentified write FOnDeviceIdentified;
   end;
 
 procedure Register;
@@ -343,6 +379,8 @@ var
   PStart, PEnd: Integer;
   Kind: TSerialPortKind;
   Item: TDetectedDevice;
+  VIDStr, PIDStr: string;
+  PVID, PPID: Integer;
 begin
   if not LoadSetupAPI then Exit;
 
@@ -403,9 +441,18 @@ begin
                 HardwareIDStr := PWideChar(@HardwareID);
               end;
 
-              Kind := spkSystem;
+               Kind := spkSystem;
               HardwareIDStr := UpperCase(HardwareIDStr);
               
+              VIDStr := '';
+              PIDStr := '';
+              PVID := Pos('VID_', HardwareIDStr);
+              if PVID > 0 then
+                VIDStr := Copy(HardwareIDStr, PVID + 4, 4);
+              PPID := Pos('PID_', HardwareIDStr);
+              if PPID > 0 then
+                PIDStr := Copy(HardwareIDStr, PPID + 4, 4);
+
               if (Pos('USB', HardwareIDStr) > 0) or (Pos('FTDIBUS', HardwareIDStr) > 0) then
               begin
                 if (Pos('VID_2341', HardwareIDStr) > 0) or (Pos('VID_2A03', HardwareIDStr) > 0) then
@@ -426,6 +473,8 @@ begin
               Item.Description := HardwareIDStr;
               Item.PortKind := Kind;
               Item.IsAvailable := True;
+              Item.VID := VIDStr;
+              Item.PID := PIDStr;
 
               SetLength(ADetected, Length(ADetected) + 1);
               ADetected[Length(ADetected) - 1] := Item;
@@ -451,6 +500,14 @@ begin
   FIsAvailable := True;
   FIsOpenable := True;
   FLastError := '';
+  FState := sdsUnknown;
+  FVID := '';
+  FPID := '';
+  FManufacturer := '';
+  FProduct := '';
+  FSerialNumber := '';
+  FProtocol := '';
+  FConfidence := 0;
 end;
 
 { TAIListSerialDeviceItems }
@@ -632,59 +689,142 @@ var
   Err: Integer;
 {$ENDIF}
 begin
-  Device.IsOpenable := True;
-  Device.IsAvailable := True;
   Device.LastError := '';
-  
-  if not FProbeOpenable then Exit;
+
+  if not FProbeOpenable then
+  begin
+    Device.IsOpenable := True;
+    Exit;
+  end;
+
+  Device.IsOpenable := False;
 
   {$IFDEF MSWINDOWS}
   PortStr := '\\.\' + Device.DeviceName;
-  HPort := CreateFile(PChar(PortStr), GENERIC_READ or GENERIC_WRITE, 0, nil, OPEN_EXISTING, 0, 0);
+
+  HPort := CreateFile(
+    PChar(PortStr),
+    GENERIC_READ or GENERIC_WRITE,
+    0,
+    nil,
+    OPEN_EXISTING,
+    0,
+    0
+  );
+
   if HPort = INVALID_HANDLE_VALUE then
   begin
     Err := GetLastError;
-    Device.IsOpenable := False;
+
     case Err of
       ERROR_ACCESS_DENIED:
-        Device.LastError := 'Port busy or access denied (in use)';
+        begin
+          Device.IsAvailable := True;
+          Device.LastError := 'Port busy or access denied';
+        end;
+
       ERROR_FILE_NOT_FOUND:
         begin
           Device.IsAvailable := False;
           Device.LastError := 'Port does not exist';
         end;
-    else
-      Device.LastError := SysErrorMessage(Err);
+
+      else
+        begin
+          Device.IsAvailable := False;
+          Device.LastError := SysErrorMessage(Err);
+        end;
     end;
   end
   else
+  begin
+    Device.IsAvailable := True;
+    Device.IsOpenable := True;
     CloseHandle(HPort);
+  end;
   {$ENDIF}
+
   {$IFDEF UNIX}
   FD := FpOpen(Device.DeviceName, O_RDWR or O_NOCTTY or O_NONBLOCK);
+
   if FD < 0 then
   begin
     Err := fpGetErrno;
-    Device.IsOpenable := False;
+
     case Err of
       ESysEBUSY:
-        Device.LastError := 'Port busy (in use)';
+        begin
+          Device.IsAvailable := True;
+          Device.LastError := 'Port busy';
+        end;
+
       ESysEACCES:
-        Device.LastError := 'Access denied (permission error - try adding user to dialout group)';
+        begin
+          Device.IsAvailable := True;
+          Device.LastError := 'Access denied - check dialout/uucp permissions';
+        end;
+
       ESysENOENT:
         begin
           Device.IsAvailable := False;
           Device.LastError := 'Device node does not exist';
         end;
-    else
-      Device.LastError := 'Error opening port: ' + IntToStr(Err) + ' - ' + SysErrorMessage(Err);
+
+      else
+        begin
+          Device.IsAvailable := False;
+          Device.LastError := 'Error opening port: ' + IntToStr(Err) + ' - ' + SysErrorMessage(Err);
+        end;
     end;
   end
   else
   begin
+    Device.IsAvailable := True;
+    Device.IsOpenable := True;
     FpClose(FD);
   end;
   {$ENDIF}
+end;
+
+procedure TAIListSerialDevices.IdentifyByVIDPID(Device: TAIListSerialDeviceItem);
+begin
+  Device.Confidence := 0;
+
+  if SameText(Device.VID, '2341') or SameText(Device.VID, '2A03') then
+  begin
+    Device.PortKind := spkArduinoCompatible;
+    Device.Manufacturer := 'Arduino';
+    Device.Product := 'Arduino Compatible';
+    Device.Confidence := 80;
+    Exit;
+  end;
+
+  if SameText(Device.VID, '1A86') then
+  begin
+    Device.PortKind := spkUSBSerial;
+    Device.Manufacturer := 'WCH';
+    Device.Product := 'CH340/CH341 USB Serial';
+    Device.Confidence := 70;
+    Exit;
+  end;
+
+  if SameText(Device.VID, '10C4') then
+  begin
+    Device.PortKind := spkUSBSerial;
+    Device.Manufacturer := 'Silicon Labs';
+    Device.Product := 'CP210x USB Serial';
+    Device.Confidence := 70;
+    Exit;
+  end;
+
+  if SameText(Device.VID, '0403') then
+  begin
+    Device.PortKind := spkUSBSerial;
+    Device.Manufacturer := 'FTDI';
+    Device.Product := 'FTDI USB Serial';
+    Device.Confidence := 70;
+    Exit;
+  end;
 end;
 
 procedure TAIListSerialDevices.QueryWindowsSerialPorts(var ADetected: TDetectedDeviceArray);
@@ -737,6 +877,8 @@ begin
                 Item.Description := DeviceName;
                 Item.PortKind := Kind;
                 Item.IsAvailable := True;
+                Item.VID := '';
+                Item.PID := '';
                 
                 case Kind of
                   spkUSBSerial: Item.DisplayName := 'USB Serial Device (' + PortValue + ')';
@@ -807,6 +949,8 @@ var
             Item.PortKind := KindVal;
             Item.Description := 'Unix serial device node';
             Item.IsAvailable := IsAvailableVal;
+            Item.VID := '';
+            Item.PID := '';
 
             SetLength(ADetected, Length(ADetected) + 1);
             ADetected[Length(ADetected) - 1] := Item;
@@ -880,6 +1024,8 @@ var
                 begin
                   VID := LowerCase(VID);
                   PID := LowerCase(PID);
+                  ADetected[I].VID := VID;
+                  ADetected[I].PID := PID;
                   if (VID = '2341') or (VID = '2a03') then
                   begin
                     ADetected[I].PortKind := spkArduinoCompatible;
@@ -937,6 +1083,9 @@ var
   Found: Boolean;
   NewItem: TAIListSerialDeviceItem;
   ActiveDevices: array of Boolean;
+  OldCount: Integer;
+  HasChanged: Boolean;
+  PrevState: TSerialDeviceState;
 begin
   ClearError;
   if Assigned(FOnBeforeRefresh) then
@@ -953,24 +1102,59 @@ begin
 
     SortAndDeduplicate(Detected);
 
-    SetLength(ActiveDevices, FDevices.Count);
-    for I := 0 to FDevices.Count - 1 do
+    OldCount := FDevices.Count;
+    SetLength(ActiveDevices, OldCount);
+    for I := 0 to OldCount - 1 do
       ActiveDevices[I] := False;
 
     for I := 0 to Length(Detected) - 1 do
     begin
       Found := False;
-      for J := 0 to FDevices.Count - 1 do
+      for J := 0 to OldCount - 1 do
       begin
         if SameText(FDevices[J].DeviceName, Detected[I].DeviceName) then
         begin
           Found := True;
           ActiveDevices[J] := True;
+          
+          HasChanged := (FDevices[J].DisplayName <> Detected[I].DisplayName) or
+                        (FDevices[J].Description <> Detected[I].Description) or
+                        (FDevices[J].PortKind <> Detected[I].PortKind) or
+                        (FDevices[J].IsAvailable <> Detected[I].IsAvailable) or
+                        (FDevices[J].VID <> Detected[I].VID) or
+                        (FDevices[J].PID <> Detected[I].PID);
+
+          FDevices[J].DisplayName := Detected[I].DisplayName;
           FDevices[J].Description := Detected[I].Description;
           FDevices[J].PortKind := Detected[I].PortKind;
           FDevices[J].IsAvailable := Detected[I].IsAvailable;
+          FDevices[J].VID := Detected[I].VID;
+          FDevices[J].PID := Detected[I].PID;
           
+          IdentifyByVIDPID(FDevices[J]);
+          
+          PrevState := FDevices[J].State;
           ProbePort(FDevices[J]);
+
+          if FDevices[J].IsAvailable then
+          begin
+            if FDevices[J].IsOpenable then
+              FDevices[J].State := sdsReady
+            else
+              FDevices[J].State := sdsBusy;
+          end
+          else
+            FDevices[J].State := sdsError;
+
+          if FDevices[J].State <> PrevState then
+            HasChanged := True;
+
+          if HasChanged then
+          begin
+            if Assigned(FOnDeviceChanged) then
+              FOnDeviceChanged(Self, FDevices[J]);
+          end;
+          
           Break;
         end;
       end;
@@ -983,13 +1167,34 @@ begin
         NewItem.Description := Detected[I].Description;
         NewItem.PortKind := Detected[I].PortKind;
         NewItem.IsAvailable := Detected[I].IsAvailable;
+        NewItem.VID := Detected[I].VID;
+        NewItem.PID := Detected[I].PID;
+        NewItem.State := sdsDetected;
         
+        IdentifyByVIDPID(NewItem);
+        if NewItem.Confidence > 0 then
+        begin
+          NewItem.State := sdsIdentified;
+          if Assigned(FOnDeviceIdentified) then
+            FOnDeviceIdentified(Self, NewItem);
+        end;
+
         ProbePort(NewItem);
+        if NewItem.IsAvailable then
+        begin
+          if NewItem.IsOpenable then
+            NewItem.State := sdsReady
+          else
+            NewItem.State := sdsBusy;
+        end
+        else
+          NewItem.State := sdsError;
+          
         DoDeviceFound(NewItem);
       end;
     end;
 
-    for I := FDevices.Count - 1 downto 0 do
+    for I := OldCount - 1 downto 0 do
     begin
       if not ActiveDevices[I] then
       begin
@@ -1021,5 +1226,8 @@ begin
   if Assigned(FOnAfterRefresh) then
     FOnAfterRefresh(Self);
 end;
+
+initialization
+  {$I aiserial_icon.lrs}
 
 end.

@@ -1,0 +1,57 @@
+object frmMain: TfrmMain
+  Left = 320
+  Height = 500
+  Top = 150
+  Width = 800
+  Caption = 'Kinect Capture Demo'
+  ClientHeight = 500
+  ClientWidth = 800
+  Color = 2960685
+  LCLVersion = '4.4.0.0'
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  object pnlControl: TPanel
+    Left = 0
+    Height = 500
+    Top = 0
+    Width = 150
+    Align = alLeft
+    BevelOuter = bvNone
+    ClientHeight = 500
+    ClientWidth = 150
+    Color = 2302755
+    ParentBackground = False
+    ParentColor = False
+    TabOrder = 0
+    object btnOpen: TButton
+      Left = 15
+      Height = 40
+      Top = 20
+      Width = 120
+      Caption = 'Conectar'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 0
+      OnClick = btnOpenClick
+    end
+    object btnClose: TButton
+      Left = 15
+      Height = 40
+      Top = 80
+      Width = 120
+      Caption = 'Desconectar'
+      Enabled = False
+      TabOrder = 1
+      OnClick = btnCloseClick
+    end
+  end
+  object imgColor: TImage
+    Left = 150
+    Height = 500
+    Top = 0
+    Width = 650
+    Align = alClient
+    Proportional = True
+    Stretch = True
+  end
+end

@@ -9,8 +9,10 @@ interface
 
 uses
   aiinput, aiaudio, aicapturesource, aiwebserver, aisockets, aiserial, 
-  ailistserialdevices, aiemail, aimessenger, aichromiumbrowser, 
-  LazarusPackageIntf;
+  ailistserialdevices, aiserialfingerprint, aiemail, aimessenger, 
+  aichromiumbrowser, aiusb, aiusb_register, aikinect_types, aikinect_backend, 
+  aikinect_freenect, aikinect_sdk10, aikinectsensor, aikinectcolor, 
+  aikinectdepth, aikinectskeleton, aikinectaudio, LazarusPackageIntf;
 
 implementation
 
@@ -26,6 +28,12 @@ begin
   RegisterUnit('aiemail', @aiemail.Register);
   RegisterUnit('aimessenger', @aimessenger.Register);
   RegisterUnit('aichromiumbrowser', @aichromiumbrowser.Register);
+  RegisterUnit('aiusb_register', @aiusb_register.Register);
+  RegisterUnit('aikinectsensor', @aikinectsensor.Register);
+  RegisterUnit('aikinectcolor', @aikinectcolor.Register);
+  RegisterUnit('aikinectdepth', @aikinectdepth.Register);
+  RegisterUnit('aikinectskeleton', @aikinectskeleton.Register);
+  RegisterUnit('aikinectaudio', @aikinectaudio.Register);
 end;
 
 initialization
