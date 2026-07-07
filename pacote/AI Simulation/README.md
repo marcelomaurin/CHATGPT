@@ -2,18 +2,20 @@
 
 Esta pasta contém a suíte de componentes voltada para a criação de **simulações computacionais de ambientes reais ou controlados**, baseadas em agentes, mapas celulares 2D, regras comportamentais, eventos dinâmicos, movimentação, evolução e renderização nativa de grade.
 
-> **Importante:** neste projeto, **AI Simulation** não significa componente falso, mock ou resultado inventado. Esta área representa motores de simulação usados para modelar cenários reais ou didáticos, gerar dados, testar estratégias e treinar/validar comportamentos de IA antes da aplicação em ambientes reais.
+## Objetivo da área
 
-A proposta é permitir simulações como:
+A área **AI Simulation** tem como objetivo fornecer motores de simulação para criar cenários controlados onde uma IA possa ser treinada, testada ou validada antes de atuar em um ambiente real.
 
-- movimentação de robôs, veículos ou agentes em uma grade 2D;
-- filas de atendimento, fluxo de pessoas, serviços e recursos;
-- movimentação em armazéns, logística e rotas;
-- contaminação, propagação, ocupação de espaços e interação entre entidades;
-- treinamento de agentes por regras, evolução, métricas e ciclos repetidos;
-- criação de cenários controlados para testar decisões de IA com segurança.
+Ela deve ser usada quando o projeto precisar:
 
-Assim, **AI Simulation** deve ser entendida como uma área legítima de simulação de ambientes e comportamentos, não como simulação de funcionamento de componentes incompletos. Componentes de outras áreas que não tenham backend real devem retornar erro claro, e não gerar resultado artificial.
+- representar um ambiente em grade 2D;
+- controlar agentes, entidades, recursos, obstáculos e posições;
+- testar movimentação, busca, fuga, rotas ou colisões lógicas;
+- simular filas, fluxo de pessoas, logística, propagação ou ocupação de espaço;
+- gerar métricas e históricos para análise ou treinamento de IA;
+- repetir cenários com regras conhecidas para comparar estratégias.
+
+Fora desse contexto, componentes incompletos de outras áreas não devem retornar dados artificiais. Eles devem informar erro, indisponibilidade ou recurso ainda não implementado.
 
 ---
 
@@ -37,13 +39,16 @@ Assim, **AI Simulation** deve ser entendida como uma área legítima de simulaç
 
 ---
 
-## Diferença entre AI Simulation e componente simulado
+## Critério de uso
 
-| Termo | Significado correto no projeto |
+| Situação | Usar AI Simulation? |
 |---|---|
-| **AI Simulation** | Área para criar ambientes simulados reais/controlados, úteis para treinamento e validação de IA. |
-| **Componente simulado/fake** | Componente que finge executar algo real e retorna sucesso ou dados artificiais. Isso não deve ser usado como comportamento de produção. |
-| **Placeholder** | Estrutura ainda incompleta. Deve ser documentada como incompleta e retornar indisponibilidade ou erro claro quando chamada. |
+| Treinar agente em ambiente controlado | Sim |
+| Testar algoritmo de movimentação | Sim |
+| Gerar dataset sintético a partir de regras conhecidas | Sim |
+| Simular fluxo de pessoas, fila, logística ou contaminação | Sim |
+| Fingir que um componente externo funcionou sem backend real | Não |
+| Retornar sucesso artificial em componente incompleto | Não |
 
 ---
 
