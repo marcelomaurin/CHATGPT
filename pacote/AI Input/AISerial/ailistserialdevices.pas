@@ -54,6 +54,10 @@ type
     FSerialNumber: string;
     FProtocol: string;
     FConfidence: Integer;
+    FInstanceID: string;
+    FLocationInfo: string;
+    FLocationPath: string;
+    FDriverService: string;
   public
     constructor Create(ACollection: TCollection); override;
     property Kind: TSerialPortKind read FPortKind write FPortKind;
