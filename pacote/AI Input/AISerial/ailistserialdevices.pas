@@ -349,6 +349,8 @@ var
   SetupDiGetDeviceRegistryPropertyW: TSetupDiGetDeviceRegistryPropertyW = nil;
   SetupDiDestroyDeviceInfoList: TSetupDiDestroyDeviceInfoList = nil;
   SetupDiOpenDevRegKey: TSetupDiOpenDevRegKey = nil;
+  SetupDiEnumDeviceInfo: TSetupDiEnumDeviceInfo = nil;
+  SetupDiGetDeviceInstanceIdW: TSetupDiGetDeviceInstanceIdW = nil;
 
 function LoadSetupAPI: Boolean;
 begin
