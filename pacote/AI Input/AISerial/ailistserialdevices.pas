@@ -102,6 +102,12 @@ type
     IsAvailable: Boolean;
     VID: string;
     PID: string;
+    InstanceID: string;
+    LocationInfo: string;
+    LocationPath: string;
+    DriverService: string;
+    SerialNumber: string;
+    Manufacturer: string;
   end;
   TDetectedDeviceArray = array of TDetectedDevice;
 
