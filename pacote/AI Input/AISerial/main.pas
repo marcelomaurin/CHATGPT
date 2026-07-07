@@ -53,6 +53,7 @@ begin
   FAIListSerialDevices.OnDeviceIdentified := @OnDeviceIdentified;
 
   // Setup StringGrid
+  gridDevices.Options := gridDevices.Options + [goColSizing];
   gridDevices.ColCount := 16;
   gridDevices.RowCount := 1;
   gridDevices.Cells[0, 0] := 'Porta';
