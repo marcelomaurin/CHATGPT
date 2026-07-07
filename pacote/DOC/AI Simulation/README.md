@@ -1,21 +1,21 @@
 # AI Simulation Layer
 
-This directory documents the **AI Simulation** components in the Lazarus AI Suite. These components implement a complete 2D cellular grid simulation engine using 100% pure Lazarus/Free Pascal code, with no external dependencies.
+This directory documents the **AI Simulation** components in the Lazarus AI Suite. These components implement a 2D cellular grid simulation engine using pure Lazarus/Free Pascal code.
 
-The simulation engine supports discrete-time multi-agent worlds with configurable rules, movement strategies, genetic evolution, scenario persistence, rendering and statistical export.
+The simulation engine supports discrete-time multi-agent worlds with configurable rules, movement strategies, scenario persistence, rendering and statistical export.
 
-> **Important:** in this project, **AI Simulation** does not mean fake components, mocked results or artificial success messages. This layer is dedicated to computational simulation of real or controlled environments, allowing developers to model movement, queues, agents, resources, propagation, logistics and other scenarios used to train, validate or test AI behavior safely before applying it to real systems.
+## Purpose
+
+The **AI Simulation** layer provides simulation engines for creating controlled scenarios where AI behavior can be trained, tested or validated before being applied to real environments.
 
 Typical use cases include:
 
 - robot, vehicle or agent movement on a 2D grid;
 - service queues, people flow and resource allocation;
 - warehouse movement, logistics and route testing;
-- contamination, propagation, occupation and interaction models;
-- rule-based, evolutionary or statistical agent training;
-- safe validation of AI decisions in repeatable scenarios.
-
-Therefore, **AI Simulation** is a legitimate simulation domain inside the suite. It must not be confused with simulated/fake behavior in unrelated components. Components outside this layer that do not have a real backend should report clear unavailability/errors instead of generating artificial results.
+- space occupation and interaction models;
+- rule-based or statistical agent training;
+- repeatable scenarios for comparing AI strategies.
 
 ## Table of Components
 
@@ -36,16 +36,6 @@ Therefore, **AI Simulation** is a legitimate simulation domain inside the suite.
 | **Scenario Config** | `TAIScenarioConfig` | Save/load layouts as JSON | `SaveToFile`, `LoadFromFile` |
 | **Scenario Generator** | `TAIScenarioGenerator` | LLM-based scenario generation | `GenerateFromPrompt` |
 | **Simulation Exporter** | `TAISimulationExporter` | Export results to CSV/TXT/JSON | `ExportToCSV`, `ExportToJSON` |
-
----
-
-## AI Simulation vs. Fake Component Simulation
-
-| Term | Correct meaning in this project |
-|---|---|
-| **AI Simulation** | A simulation layer for modeling real or controlled environments, useful for AI training, testing and validation. |
-| **Fake/simulated component** | A component that pretends to execute a real operation and returns artificial success/data. This must not be used as production behavior. |
-| **Placeholder** | An incomplete structure. It must be documented as incomplete and should return a clear unsupported/unavailable error when called. |
 
 ---
 
@@ -74,18 +64,17 @@ end;
 ### 2. Registering a Behavioral Rule
 
 ```pascal
-procedure TForm1.OnHungerCondition(Sender: TObject; AEntity: TAISimEntity; AWorld: TAIGridWorld; var AResult: Boolean);
+procedure TForm1.OnLowEnergyCondition(Sender: TObject; AEntity: TAISimEntity; AWorld: TAIGridWorld; var AResult: Boolean);
 begin
   AResult := AEntity.Energy < 20;
 end;
 
-procedure TForm1.OnHungerAction(Sender: TObject; AEntity: TAISimEntity; AWorld: TAIGridWorld);
+procedure TForm1.OnLowEnergyAction(Sender: TObject; AEntity: TAISimEntity; AWorld: TAIGridWorld);
 begin
-  AEntity.Energy := AEntity.Energy - 1; // starving
+  AEntity.Energy := AEntity.Energy - 1;
 end;
 
-// Registration
-RuleEngine.RegisterRule('Hunger', 10, @OnHungerCondition, @OnHungerAction);
+RuleEngine.RegisterRule('LowEnergy', 10, @OnLowEnergyCondition, @OnLowEnergyAction);
 ```
 
 ### 3. Exporting Simulation Results
