@@ -17,6 +17,12 @@ Ela deve ser usada quando o projeto precisar:
 
 ---
 
+## Projeto de demonstração
+
+O projeto [`animais`](https://github.com/marcelomaurin/animais) é um demo externo do pacote `openai_simulation`. Ele deve ser usado como referência prática para validar o uso dos componentes da aba **AI Simulation** em um cenário aplicado com agentes, entidades, regras, movimentação, eventos e métricas.
+
+---
+
 ## Componentes Disponíveis (Aba `AI Simulation`)
 
 ### 1. `TAIGridWorld` — mundo 2D da simulação
