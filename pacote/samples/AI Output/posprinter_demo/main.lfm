@@ -6,9 +6,9 @@ object frmMain: TfrmMain
   Caption = 'Posprinter Demo (aiposprinter)'
   ClientHeight = 600
   ClientWidth = 800
+  LCLVersion = '4.4.0.0'
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  LCLVersion = '3.0.0.3'
   object pnlTop: TPanel
     Left = 10
     Height = 150
@@ -23,30 +23,21 @@ object frmMain: TfrmMain
       Left = 15
       Height = 25
       Top = 15
-      Width = 500
+      Width = 264
       Caption = 'Posprinter Demo (aiposprinter)'
       Font.Height = -18
       Font.Name = 'Segoe UI'
       Font.Style = [fsBold]
       ParentColor = False
+      ParentFont = False
     end
     object lblStatus: TLabel
       Left = 15
       Height = 15
       Top = 50
-      Width = 400
+      Width = 70
       Caption = 'Status: Ready'
       ParentColor = False
-    end
-    object chkSimulation: TCheckBox
-      Left = 15
-      Height = 19
-      Top = 80
-      Width = 150
-      Caption = 'Simulation Mode'
-      Checked = True
-      State = cbChecked
-      TabOrder = 0
     end
     object btnRun: TButton
       Left = 200
@@ -54,8 +45,8 @@ object frmMain: TfrmMain
       Top = 75
       Width = 150
       Caption = 'Execute Test'
+      TabOrder = 0
       OnClick = btnRunClick
-      TabOrder = 1
     end
     object btnClearLog: TButton
       Left = 360
@@ -63,14 +54,14 @@ object frmMain: TfrmMain
       Top = 75
       Width = 120
       Caption = 'Clear Log'
+      TabOrder = 1
       OnClick = btnClearLogClick
-      TabOrder = 2
     end
   end
   object memoLog: TMemo
     Left = 10
-    Height = 410
-    Top = 180
+    Height = 420
+    Top = 170
     Width = 780
     Align = alClient
     BorderSpacing.Around = 10

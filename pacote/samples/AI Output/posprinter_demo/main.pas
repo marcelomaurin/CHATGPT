@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  aibase, aiposprinter;
+  aibase, aiposprinter, imp_generico;
 
 type
 
@@ -30,6 +30,7 @@ type
     // Dynamic controls
     cmbModel: TComboBox;
     cmbInterface: TComboBox;
+    cmbProtocol: TComboBox;
     edtDevice: TEdit;
     edtPort: TEdit;
     
@@ -66,7 +67,7 @@ implementation
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 var
-  lblModel, lblInterface, lblDevice, lblPort: TLabel;
+  lblModel, lblInterface, lblProtocol, lblDevice, lblPort: TLabel;
 begin
   pnlTop.Height := 200;
   AddLog('Posprinter Demo (aiposprinter) initialized.');
@@ -82,19 +83,25 @@ begin
   
   lblInterface := TLabel.Create(Self);
   lblInterface.Parent := pnlTop;
-  lblInterface.Left := 310;
+  lblInterface.Left := 300;
   lblInterface.Top := 50;
   lblInterface.Caption := 'Interface:';
+
+  lblProtocol := TLabel.Create(Self);
+  lblProtocol.Parent := pnlTop;
+  lblProtocol.Left := 410;
+  lblProtocol.Top := 50;
+  lblProtocol.Caption := 'Protocol:';
   
   lblDevice := TLabel.Create(Self);
   lblDevice.Parent := pnlTop;
-  lblDevice.Left := 440;
+  lblDevice.Left := 520;
   lblDevice.Top := 50;
   lblDevice.Caption := 'Port/IP:';
 
   lblPort := TLabel.Create(Self);
   lblPort.Parent := pnlTop;
-  lblPort.Left := 570;
+  lblPort.Left := 650;
   lblPort.Top := 50;
   lblPort.Caption := 'Baud/Port:';
 
@@ -103,7 +110,7 @@ begin
   cmbModel.Parent := pnlTop;
   cmbModel.Left := 180;
   cmbModel.Top := 70;
-  cmbModel.Width := 120;
+  cmbModel.Width := 110;
   cmbModel.Style := csDropDownList;
   cmbModel.Items.Add('Elgin i9 (80mm)');
   cmbModel.Items.Add('QR203 (58mm)');
@@ -112,25 +119,38 @@ begin
 
   cmbInterface := TComboBox.Create(Self);
   cmbInterface.Parent := pnlTop;
-  cmbInterface.Left := 310;
+  cmbInterface.Left := 300;
   cmbInterface.Top := 70;
-  cmbInterface.Width := 120;
+  cmbInterface.Width := 100;
   cmbInterface.Style := csDropDownList;
   cmbInterface.Items.Add('Serial (COM)');
   cmbInterface.Items.Add('Ethernet (TCP)');
   cmbInterface.ItemIndex := 1; // Ethernet default
   cmbInterface.OnChange := @cmbInterfaceChange;
 
+  cmbProtocol := TComboBox.Create(Self);
+  cmbProtocol.Parent := pnlTop;
+  cmbProtocol.Left := 410;
+  cmbProtocol.Top := 70;
+  cmbProtocol.Width := 100;
+  cmbProtocol.Style := csDropDownList;
+  cmbProtocol.Items.Add('ESC/POS');
+  cmbProtocol.Items.Add('Native OS');
+  cmbProtocol.Items.Add('EPL');
+  cmbProtocol.Items.Add('ZPL');
+  cmbProtocol.Items.Add('TSPL');
+  cmbProtocol.ItemIndex := 0; // ESC/POS default
+
   edtDevice := TEdit.Create(Self);
   edtDevice.Parent := pnlTop;
-  edtDevice.Left := 440;
+  edtDevice.Left := 520;
   edtDevice.Top := 70;
   edtDevice.Width := 120;
   edtDevice.Text := '127.0.0.1';
 
   edtPort := TEdit.Create(Self);
   edtPort.Parent := pnlTop;
-  edtPort.Left := 570;
+  edtPort.Left := 650;
   edtPort.Top := 70;
   edtPort.Width := 80;
   edtPort.Text := '9100';
@@ -222,6 +242,8 @@ begin
     2: FAIPosPrinter.PrinterModel := pmElginL42DT;
   end;
 
+  FAIPosPrinter.Protocol := TPrinterProtocol(cmbProtocol.ItemIndex);
+
   if cmbInterface.ItemIndex = 0 then
   begin
     FAIPosPrinter.InterfaceType := piSerial;
@@ -261,72 +283,72 @@ begin
     begin
       AddLog('Simulating printing:');
       AddLog('  Model: ' + cmbModel.Text);
+      AddLog('  Protocol: ' + cmbProtocol.Text);
       
-      if FAIPosPrinter.PrinterModel = pmElginL42DT then
-      begin
-        LogHexBytes('Clear Buffer (N)', #13#10'N'#10);
-        AddLog('  A10,10,0,4,1,1,N,"DAILY PRODUCTION SUMMARY"');
-        AddLog('  A10,40,0,4,1,1,N,"COMPLETED SUCCESSFULLY"');
-        AddLog('  A10,70,0,4,1,1,N,"-------------------------"');
-        AddLog('  A10,100,0,4,1,1,N,"Count: 100 units"');
-        AddLog('  b10,130,Q,m2,g3,"Hello World"');
-        LogHexBytes('Print label (P1)', 'P1'#10);
-      end
-      else
-      begin
-        LogHexBytes('Init Command', #27'@');
-        LogHexBytes('Center Align', #27'a'#1);
-        AddLog('  Print text: "DAILY PRODUCTION SUMMARY"');
-        LogHexBytes('Bold Enable', #27'E'#1);
-        AddLog('  Print bold text: "COMPLETED SUCCESSFULLY"');
-        LogHexBytes('Normal Restore', #27'E'#0);
-        AddLog('  Print text: "-------------------------"');
-        AddLog('  Print text: "Count: 100 units"');
-        
-        // QR Code Simulation
-        if FAIPosPrinter.PrinterModel = pmElginI9 then
-          LogHexBytes('Store/Print QR code', #29'(k'#4#0'1C'#49#0#29'(k'#3#0'1E'#6#29'(k' + Chr(15) + #0 + '1P0Hello World'#29'(k'#3#0'1Q0')
-        else
-          LogHexBytes('Chinese Mini QR code', #29'k'#11#3#1 + Chr(11) + 'Hello World');
+      case FAIPosPrinter.Protocol of
+        ppNative:
+        begin
+          AddLog('Simulating Native OS Canvas Printing:');
+          AddLog('  Canvas.TextOut: "DAILY PRODUCTION SUMMARY"');
+          AddLog('  Canvas.TextOut: "COMPLETED SUCCESSFULLY"');
+          AddLog('  Canvas.TextOut: "-------------------------"');
+          AddLog('  Canvas.TextOut: "Count: 100 units"');
+          AddLog('  Canvas.TextOut: "[QR Code: Hello World]"');
+          AddLog('  Document sent to OS Print Spooler.');
+        end;
+        ppEpl:
+        begin
+          LogHexBytes('Clear Buffer (N)', #13#10'N'#10);
+          AddLog('  A10,10,0,4,1,1,N,"DAILY PRODUCTION SUMMARY"');
+          AddLog('  A10,40,0,4,1,1,N,"COMPLETED SUCCESSFULLY"');
+          AddLog('  A10,70,0,4,1,1,N,"-------------------------"');
+          AddLog('  A10,100,0,4,1,1,N,"Count: 100 units"');
+          AddLog('  b10,130,Q,m2,g3,"Hello World"');
+          LogHexBytes('Print label (P1)', 'P1'#10);
+        end;
+        ppZpl:
+        begin
+          AddLog('  ^XA');
+          AddLog('  ^FO10,10^ADN,18,10^FDDAILY PRODUCTION SUMMARY^FS');
+          AddLog('  ^FO10,40^ADN,18,10^FDCOMPLETED SUCCESSFULLY^FS');
+          AddLog('  ^FO10,70^ADN,18,10^FD-------------------------^FS');
+          AddLog('  ^FO10,100^ADN,18,10^FDCount: 100 units^FS');
+          AddLog('  ^FO10,130^BQN,2,4^FDQA,Hello World^FS');
+          AddLog('  ^XZ');
+        end;
+        ppTspl:
+        begin
+          AddLog('  SIZE 4,3');
+          AddLog('  GAP 0,0');
+          AddLog('  CLS');
+          AddLog('  TEXT 10,10,"4",0,1,1,"DAILY PRODUCTION SUMMARY"');
+          AddLog('  TEXT 10,40,"4",0,1,1,"COMPLETED SUCCESSFULLY"');
+          AddLog('  TEXT 10,70,"4",0,1,1,"-------------------------"');
+          AddLog('  TEXT 10,100,"4",0,1,1,"Count: 100 units"');
+          AddLog('  QRCODE 10,130,L,4,A,0,"Hello World"');
+          AddLog('  PRINT 1,1');
+        end;
+        else // ppEscPos
+        begin
+          LogHexBytes('Init Command', #27'@');
+          LogHexBytes('Center Align', #27'a'#1);
+          AddLog('  Print text: "DAILY PRODUCTION SUMMARY"');
+          LogHexBytes('Bold Enable', #27'E'#1);
+          AddLog('  Print bold text: "COMPLETED SUCCESSFULLY"');
+          LogHexBytes('Normal Restore', #27'E'#0);
+          AddLog('  Print text: "-------------------------"');
+          AddLog('  Print text: "Count: 100 units"');
           
-        LogHexBytes('Cutter (Guilhotina)', #29'VB'#3);
+          if FAIPosPrinter.PrinterModel = pmElginI9 then
+            LogHexBytes('Store/Print QR code', #29'(k'#4#0'1C'#49#0#29'(k'#3#0'1E'#6#29'(k' + Chr(15) + #0 + '1P0Hello World'#29'(k'#3#0'1Q0')
+          else
+            LogHexBytes('Chinese Mini QR code', #29'k'#11#3#1 + Chr(11) + 'Hello World');
+            
+          LogHexBytes('Cutter (Guilhotina)', #29'VB'#3);
+        end;
       end;
       AddLog('Simulation complete.');
-    end
-    else
-    begin
-      AddLog('Connecting to printer...');
-      if FAIPosPrinter.OpenConnection then
-      begin
-        if FAIPosPrinter.PrinterModel = pmElginL42DT then
-        begin
-          FAIPosPrinter.PrintTextLine('DAILY PRODUCTION SUMMARY');
-          FAIPosPrinter.PrintTextLine('Status: SUCCESS');
-          FAIPosPrinter.PrintTextLine('Count: 100 units');
-          FAIPosPrinter.PrintQRCode('https://github.com/marcelomaurin/CHATGPT');
-          FAIPosPrinter.CutPaper; // Triggers 'P1' in L42DT driver
-        end
-        else
-        begin
-          FAIPosPrinter.AlignCenter;
-          FAIPosPrinter.SetBold(True);
-          FAIPosPrinter.PrintTextLine('DAILY PRODUCTION SUMMARY');
-          FAIPosPrinter.SetBold(False);
-          FAIPosPrinter.PrintTextLine('------------------------');
-          FAIPosPrinter.PrintTextLine('Status: SUCCESS');
-          FAIPosPrinter.PrintTextLine('Count: 100 units');
-          FAIPosPrinter.PrintQRCode('https://github.com/marcelomaurin/CHATGPT');
-          FAIPosPrinter.PrintTextLine('');
-          FAIPosPrinter.PrintTextLine('');
-          FAIPosPrinter.CutPaper;
-        end;
-        FAIPosPrinter.CloseConnection;
-        AddLog('Printed successfully.');
-      end
-      else
-        AddLog('Could not connect: ' + FAIPosPrinter.LastError);
     end;
-    lblStatus.Caption := 'Status: Completed Successfully';
   except
     on E: Exception do
     begin
@@ -343,39 +365,18 @@ begin
   ApplySettings;
   if chkSimulation.Checked then
   begin
-    if FAIPosPrinter.PrinterModel = pmElginL42DT then
-    begin
-      AddLog('  Note: Bold style is simulated by printer fonts in L42DT.');
-      AddLog('  A10,10,0,4,1,1,N,"THIS IS BOLD STYLE"');
-    end
-    else
-    begin
-      LogHexBytes('Bold command', #27'E'#1);
-      AddLog('  Simulated Bold Text: "THIS IS BOLD"');
-      LogHexBytes('Normal command', #27'E'#0);
-    end;
-  end
-  else
-  begin
-    if FAIPosPrinter.OpenConnection then
-    begin
-      if FAIPosPrinter.PrinterModel = pmElginL42DT then
-      begin
-        FAIPosPrinter.PrintTextLine('THIS IS TEXT');
-        FAIPosPrinter.CutPaper;
-      end
+    case FAIPosPrinter.Protocol of
+      ppNative: AddLog('  Canvas.Font.Style := [fsBold]');
+      ppEpl:    AddLog('  Note: Multipliers/Fonts simulated for bold.');
+      ppZpl:    AddLog('  Note: Styled fonts simulated.');
+      ppTspl:   AddLog('  Note: TSPL text sizes simulated.');
       else
       begin
-        FAIPosPrinter.SetBold(True);
-        FAIPosPrinter.PrintTextLine('THIS IS BOLD');
-        FAIPosPrinter.SetBold(False);
-        FAIPosPrinter.PrintTextLine('This is normal text');
+        LogHexBytes('Bold command', #27'E'#1);
+        AddLog('  Simulated Bold Text: "THIS IS BOLD"');
+        LogHexBytes('Normal command', #27'E'#0);
       end;
-      FAIPosPrinter.CloseConnection;
-      AddLog('Sent text style test command.');
-    end
-    else
-      AddLog('Could not connect: ' + FAIPosPrinter.LastError);
+    end;
   end;
 end;
 
@@ -385,23 +386,13 @@ begin
   ApplySettings;
   if chkSimulation.Checked then
   begin
-    if FAIPosPrinter.PrinterModel = pmElginL42DT then
-      AddLog('  Simulated EPL2 Barcode: B10,10,0,3,3,6,80,B,"123456"')
-    else
-      LogHexBytes('Barcode command (Code 39)', #29'h'#80#29'w'#3#29'H'#2#29'k'#4'123456'#0);
-  end
-  else
-  begin
-    if FAIPosPrinter.OpenConnection then
-    begin
-      FAIPosPrinter.PrintBarcode('123456');
-      if FAIPosPrinter.PrinterModel = pmElginL42DT then
-        FAIPosPrinter.CutPaper;
-      FAIPosPrinter.CloseConnection;
-      AddLog('Sent barcode test command.');
-    end
-    else
-      AddLog('Could not connect: ' + FAIPosPrinter.LastError);
+    case FAIPosPrinter.Protocol of
+      ppNative: AddLog('  Canvas.TextOut: "[Barcode: 123456]"');
+      ppEpl:    AddLog('  Simulated EPL2 Barcode: B10,10,0,3,3,6,80,B,"123456"');
+      ppZpl:    AddLog('  Simulated ZPL Barcode: ^FO10,10^BY3^BCN,80,Y,N,N^FD123456^FS');
+      ppTspl:   AddLog('  Simulated TSPL Barcode: BARCODE 10,10,"128",80,1,0,3,6,"123456"');
+      else      LogHexBytes('Barcode command (Code 39)', #29'h'#80#29'w'#3#29'H'#2#29'k'#4'123456'#0);
+    end;
   end;
 end;
 
@@ -411,25 +402,19 @@ begin
   ApplySettings;
   if chkSimulation.Checked then
   begin
-    if FAIPosPrinter.PrinterModel = pmElginL42DT then
-      AddLog('  Simulated EPL2 QR Code: b10,10,Q,m2,g3,"https://google.com"')
-    else if FAIPosPrinter.PrinterModel = pmElginI9 then
-      LogHexBytes('Store/Print QR code', #29'(k'#4#0'1C'#49#0#29'(k'#3#0'1E'#6#29'(k' + Chr(18) + #0 + '1P0https://google.com'#29'(k'#3#0'1Q0')
-    else
-      LogHexBytes('Chinese Mini QR code', #29'k'#11#3#1 + Chr(18) + 'https://google.com');
-  end
-  else
-  begin
-    if FAIPosPrinter.OpenConnection then
-    begin
-      FAIPosPrinter.PrintQRCode('https://google.com');
-      if FAIPosPrinter.PrinterModel = pmElginL42DT then
-        FAIPosPrinter.CutPaper;
-      FAIPosPrinter.CloseConnection;
-      AddLog('Sent QR code test command.');
-    end
-    else
-      AddLog('Could not connect: ' + FAIPosPrinter.LastError);
+    case FAIPosPrinter.Protocol of
+      ppNative: AddLog('  Canvas.TextOut: "[QR Code: https://google.com]"');
+      ppEpl:    AddLog('  Simulated EPL2 QR Code: b10,10,Q,m2,g3,"https://google.com"');
+      ppZpl:    AddLog('  Simulated ZPL QR Code: ^FO10,10^BQN,2,4^FDQA,https://google.com^FS');
+      ppTspl:   AddLog('  Simulated TSPL QR Code: QRCODE 10,10,L,4,A,0,"https://google.com"');
+      else
+      begin
+        if FAIPosPrinter.PrinterModel = pmElginI9 then
+          LogHexBytes('Store/Print QR code', #29'(k'#4#0'1C'#49#0#29'(k'#3#0'1E'#6#29'(k' + Chr(18) + #0 + '1P0https://google.com'#29'(k'#3#0'1Q0')
+        else
+          LogHexBytes('Chinese Mini QR code', #29'k'#11#3#1 + Chr(18) + 'https://google.com');
+      end;
+    end;
   end;
 end;
 
@@ -439,23 +424,19 @@ begin
   ApplySettings;
   if chkSimulation.Checked then
   begin
-    if FAIPosPrinter.PrinterModel = pmElginL42DT then
-      AddLog('  Simulated EPL2 Print command: P1')
-    else if FAIPosPrinter.PrinterModel = pmElginI9 then
-      LogHexBytes('Guillotine command', #29'VB'#3)
-    else
-      AddLog('  Note: QR203 model does not support paper cut.');
-  end
-  else
-  begin
-    if FAIPosPrinter.OpenConnection then
-    begin
-      FAIPosPrinter.CutPaper;
-      FAIPosPrinter.CloseConnection;
-      AddLog('Sent cut/print command.');
-    end
-    else
-      AddLog('Could not connect: ' + FAIPosPrinter.LastError);
+    case FAIPosPrinter.Protocol of
+      ppNative: AddLog('  Simulated Native OS canvas print finished.');
+      ppEpl:    AddLog('  Simulated EPL2 Print command: P1');
+      ppZpl:    AddLog('  Simulated ZPL End command: ^XZ');
+      ppTspl:   AddLog('  Simulated TSPL Print command: PRINT 1,1');
+      else
+      begin
+        if FAIPosPrinter.PrinterModel = pmElginI9 then
+          LogHexBytes('Guillotine command', #29'VB'#3)
+        else
+          AddLog('  Note: QR203 model does not support paper cut.');
+      end;
+    end;
   end;
 end;
 
@@ -465,21 +446,15 @@ begin
   ApplySettings;
   if chkSimulation.Checked then
   begin
-    if FAIPosPrinter.PrinterModel = pmElginI9 then
-      LogHexBytes('Cash Drawer kick command', #16#20#1#0#8)
-    else
-      AddLog('  Note: Only Elgin i9 model supports drawer kick.');
-  end
-  else
-  begin
-    if FAIPosPrinter.OpenConnection then
+    if FAIPosPrinter.Protocol = ppEscPos then
     begin
-      FAIPosPrinter.OpenDrawer;
-      FAIPosPrinter.CloseConnection;
-      AddLog('Sent drawer kick command.');
+      if FAIPosPrinter.PrinterModel = pmElginI9 then
+        LogHexBytes('Cash Drawer kick command', #16#20#1#0#8)
+      else
+        AddLog('  Note: Only Elgin i9 model supports drawer kick.');
     end
     else
-      AddLog('Could not connect: ' + FAIPosPrinter.LastError);
+      AddLog('  Note: Cash Drawer is only supported in ESC/POS mode.');
   end;
 end;
 
@@ -489,23 +464,17 @@ begin
   ApplySettings;
   if chkSimulation.Checked then
   begin
-    if FAIPosPrinter.PrinterModel = pmElginI9 then
-      LogHexBytes('Beep command', #27'(A'#5#0'add'#1'dd')
-    else if FAIPosPrinter.PrinterModel = pmQR203 then
-      LogHexBytes('Standard Bell beep', #7)
-    else
-      AddLog('  Note: Elgin L42DT does not support beep command.');
-  end
-  else
-  begin
-    if FAIPosPrinter.OpenConnection then
+    if FAIPosPrinter.Protocol = ppEscPos then
     begin
-      FAIPosPrinter.Beep;
-      FAIPosPrinter.CloseConnection;
-      AddLog('Sent beep command.');
+      if FAIPosPrinter.PrinterModel = pmElginI9 then
+        LogHexBytes('Beep command', #27'(A'#5#0'add'#1'dd')
+      else if FAIPosPrinter.PrinterModel = pmQR203 then
+        LogHexBytes('Standard Bell beep', #7)
+      else
+        AddLog('  Note: Elgin L42DT does not support beep command.');
     end
     else
-      AddLog('Could not connect: ' + FAIPosPrinter.LastError);
+      AddLog('  Note: Beep is only supported in ESC/POS mode.');
   end;
 end;
 

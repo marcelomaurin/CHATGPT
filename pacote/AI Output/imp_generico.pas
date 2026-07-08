@@ -16,12 +16,15 @@ const
   ESC = #27;
 
 type
+  TPrinterProtocol = (ppEscPos, ppNative, ppEpl, ppZpl, ppTspl);
+
   { TIMP_GENERICO }
 
   TIMP_GENERICO = class
   protected
     FColuna: Integer;
     FSerial: string;
+    FProtocol: TPrinterProtocol;
     function GetSerial: string; virtual;
     procedure SetSerial(const AValue: string); virtual;
   public
@@ -47,6 +50,7 @@ type
 
     property Serial: string read GetSerial write SetSerial;
     property Coluna: Integer read FColuna write FColuna;
+    property Protocol: TPrinterProtocol read FProtocol write FProtocol;
   end;
 
 implementation
@@ -57,6 +61,7 @@ constructor TIMP_GENERICO.Create;
 begin
   FColuna := 48;
   FSerial := '';
+  FProtocol := ppEscPos;
 end;
 
 function TIMP_GENERICO.GetSerial: string;

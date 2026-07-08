@@ -37,9 +37,12 @@ type
     FActive: Boolean;
     FLastError: string;
     FDriver: TIMP_GENERICO;
+    FProtocol: TPrinterProtocol;
+    FPageLines: TStringList;
     
     procedure SetActive(AValue: Boolean);
     procedure SetPrinterModel(AValue: TPrinterModel);
+    procedure SetProtocol(AValue: TPrinterProtocol);
     function ResolveHost(const AHost: string; var AAddr): Boolean;
     procedure InitDriver;
   public
@@ -51,6 +54,9 @@ type
     function SendRawBytes(const ABytes: array of Byte): Boolean;
     function SendRawString(const AStr: string): Boolean;
     
+    // Page lines clearing
+    procedure ClearPage;
+    
     function PrintText(const AText: string): Boolean;
     function PrintTextLine(const AText: string): Boolean;
     function SetBold(const ABold: Boolean): Boolean;
@@ -60,6 +66,7 @@ type
     function AlignCenter: Boolean;
     function AlignLeft: Boolean;
     function AlignRight: Boolean;
+    // Guilhotina / print trigger
     function CutPaper: Boolean;
     function OpenDrawer: Boolean;
     function PrintBarcode(const ACode: string; H: Byte = 80; R: Byte = 3; I: Byte = 2): Boolean;
@@ -69,6 +76,7 @@ type
     property Prompt: string read FPrompt write FPrompt;
     property InterfaceType: TPrinterInterface read FInterfaceType write FInterfaceType default piSerial;
     property PrinterModel: TPrinterModel read FPrinterModel write SetPrinterModel default pmElginI9;
+    property Protocol: TPrinterProtocol read FProtocol write SetProtocol default ppEscPos;
     property DeviceName: string read FDeviceName write FDeviceName;
     property Host: string read FHost write FHost;
     property Port: Integer read FPort write FPort default 9100;
@@ -80,6 +88,8 @@ type
 procedure Register;
 
 implementation
+
+uses Printers;
 
 procedure Register;
 begin
@@ -94,6 +104,8 @@ begin
   FPrompt := 'Component TAIPOSPrinter handles ESC/POS receipt printers via serial or ethernet sockets.';
   FInterfaceType := piSerial;
   FPrinterModel := pmElginI9;
+  FProtocol := ppEscPos;
+  FPageLines := TStringList.Create;
   FDeviceName := 'COM1';
   FHost := '192.168.1.100';
   FPort := 9100;
@@ -111,6 +123,7 @@ begin
   CloseConnection;
   if Assigned(FDriver) then
     FDriver.Free;
+  FPageLines.Free;
   inherited Destroy;
 end;
 
@@ -126,6 +139,16 @@ begin
     pmQR203:        FDriver := TIMP_QR203.Create;
     pmElginL42DT:   FDriver := TIMP_ELGINL42DT.Create;
   end;
+  if Assigned(FDriver) then
+    FDriver.Protocol := FProtocol;
+end;
+
+procedure TAIPOSPrinter.SetProtocol(AValue: TPrinterProtocol);
+begin
+  if FProtocol = AValue then Exit;
+  FProtocol := AValue;
+  if Assigned(FDriver) then
+    FDriver.Protocol := FProtocol;
 end;
 
 procedure TAIPOSPrinter.SetPrinterModel(AValue: TPrinterModel);
@@ -318,20 +341,38 @@ end;
 
 function TAIPOSPrinter.PrintText(const AText: string): Boolean;
 begin
-  Result := SendRawString(AText);
+  if FProtocol = ppNative then
+  begin
+    FPageLines.Add(AText);
+    Result := True;
+  end
+  else
+    Result := SendRawString(AText);
 end;
 
 function TAIPOSPrinter.PrintTextLine(const AText: string): Boolean;
 begin
-  if Assigned(FDriver) then
+  if FProtocol = ppNative then
+  begin
+    FPageLines.Add(AText);
+    Result := True;
+  end
+  else if Assigned(FDriver) then
     Result := SendRawString(FDriver.LineText(AText))
   else
     Result := SendRawString(AText + #10);
 end;
 
+procedure TAIPOSPrinter.ClearPage;
+begin
+  FPageLines.Clear;
+end;
+
 function TAIPOSPrinter.SetBold(const ABold: Boolean): Boolean;
 begin
-  if Assigned(FDriver) then
+  if FProtocol = ppNative then
+    Result := True
+  else if Assigned(FDriver) then
   begin
     if ABold then
       Result := SendRawString(FDriver.Negrito)
@@ -345,7 +386,9 @@ end;
 // Alias to match old API if needed
 function TAIPOSPrinter.SetNormal: Boolean;
 begin
-  if Assigned(FDriver) then
+  if FProtocol = ppNative then
+    Result := True
+  else if Assigned(FDriver) then
     Result := SendRawString(FDriver.Normal)
   else
     Result := False;
@@ -353,7 +396,9 @@ end;
 
 function TAIPOSPrinter.SetDoubleText: Boolean;
 begin
-  if Assigned(FDriver) then
+  if FProtocol = ppNative then
+    Result := True
+  else if Assigned(FDriver) then
     Result := SendRawString(FDriver.DoubleTexto)
   else
     Result := False;
@@ -361,7 +406,9 @@ end;
 
 function TAIPOSPrinter.SetUnderline(const AUnderline: Boolean): Boolean;
 begin
-  if Assigned(FDriver) then
+  if FProtocol = ppNative then
+    Result := True
+  else if Assigned(FDriver) then
   begin
     if AUnderline then
       Result := SendRawString(FDriver.Sublinhado)
@@ -374,7 +421,9 @@ end;
 
 function TAIPOSPrinter.AlignCenter: Boolean;
 begin
-  if Assigned(FDriver) then
+  if FProtocol = ppNative then
+    Result := True
+  else if Assigned(FDriver) then
     Result := SendRawString(FDriver.Centralizado)
   else
     Result := False;
@@ -383,7 +432,9 @@ end;
 // AlignLeft / AlignRight support
 function TAIPOSPrinter.AlignLeft: Boolean;
 begin
-  if Assigned(FDriver) then
+  if FProtocol = ppNative then
+    Result := True
+  else if Assigned(FDriver) then
     Result := SendRawString(FDriver.AlinhadoEsquerda)
   else
     Result := False;
@@ -391,15 +442,45 @@ end;
 
 function TAIPOSPrinter.AlignRight: Boolean;
 begin
-  if Assigned(FDriver) then
+  if FProtocol = ppNative then
+    Result := True
+  else if Assigned(FDriver) then
     Result := SendRawString(FDriver.AlinhadoDireita)
   else
     Result := False;
 end;
 
 function TAIPOSPrinter.CutPaper: Boolean;
+var
+  I, Y: Integer;
 begin
-  if Assigned(FDriver) then
+  if FProtocol = ppNative then
+  begin
+    Result := True;
+    try
+      if FPageLines.Count > 0 then
+      begin
+        Printer.BeginDoc;
+        Printer.Canvas.Font.Name := 'Courier New';
+        Printer.Canvas.Font.Size := 10;
+        Y := 20;
+        for I := 0 to FPageLines.Count - 1 do
+        begin
+          Printer.Canvas.TextOut(20, Y, FPageLines[I]);
+          Y := Y + Printer.Canvas.TextHeight(FPageLines[I]) + 5;
+        end;
+        Printer.EndDoc;
+        FPageLines.Clear;
+      end;
+    except
+      on E: Exception do
+      begin
+        Result := False;
+        FLastError := 'Native Print Error: ' + E.Message;
+      end;
+    end;
+  end
+  else if Assigned(FDriver) then
     Result := SendRawString(FDriver.Guilhotina)
   else
     Result := False;
@@ -408,7 +489,9 @@ end;
 // OpenDrawer support
 function TAIPOSPrinter.OpenDrawer: Boolean;
 begin
-  if Assigned(FDriver) then
+  if FProtocol = ppNative then
+    Result := True
+  else if Assigned(FDriver) then
     Result := SendRawString(FDriver.AcionaGaveta)
   else
     Result := False;
@@ -417,7 +500,12 @@ end;
 // PrintBarcode / PrintQRCode / Beep
 function TAIPOSPrinter.PrintBarcode(const ACode: string; H: Byte = 80; R: Byte = 3; I: Byte = 2): Boolean;
 begin
-  if Assigned(FDriver) then
+  if FProtocol = ppNative then
+  begin
+    FPageLines.Add('[Barcode: ' + ACode + ']');
+    Result := True;
+  end
+  else if Assigned(FDriver) then
     Result := SendRawString(FDriver.Barra1D(ACode, H, R, I))
   else
     Result := False;
@@ -425,7 +513,12 @@ end;
 
 function TAIPOSPrinter.PrintQRCode(const ACode: string): Boolean;
 begin
-  if Assigned(FDriver) then
+  if FProtocol = ppNative then
+  begin
+    FPageLines.Add('[QR Code: ' + ACode + ']');
+    Result := True;
+  end
+  else if Assigned(FDriver) then
     Result := SendRawString(FDriver.Barra2D(ACode))
   else
     Result := False;
@@ -433,7 +526,9 @@ end;
 
 function TAIPOSPrinter.Beep: Boolean;
 begin
-  if Assigned(FDriver) then
+  if FProtocol = ppNative then
+    Result := True
+  else if Assigned(FDriver) then
     Result := SendRawString(FDriver.Beep)
   else
     Result := False;

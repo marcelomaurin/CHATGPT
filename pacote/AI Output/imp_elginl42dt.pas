@@ -17,7 +17,6 @@ type
     constructor Create; override;
     
     function NewLine: string; override;
-    // EPL2 / PPLB specific commands
     function InitPrint: string; override;
     function LineText(const Info: string): string; override;
     function Beep: string; override;
@@ -27,7 +26,7 @@ type
     function Sublinhado: string; override;
     function DoubleTexto: string; override;
     
-    function Guilhotina: string; override; // Map to EPL 'P1' (Print)
+    function Guilhotina: string; override; 
     function AcionaGaveta: string; override;
     
     function Barra1D(const Info: string; H: Byte; R: Byte; I: Byte): string; override;
@@ -47,82 +46,194 @@ end;
 
 function TIMP_ELGINL42DT.NewLine: string;
 begin
-  // In EPL, lines are separated by LF, and we increase Y offset
   Inc(FYPos, 30);
   Result := '';
 end;
+
+type
+  TByteArray = array of Byte;
 
 function TIMP_ELGINL42DT.InitPrint: string;
 begin
   FYPos := 10;
-  // 'N' clears the image buffer
-  Result := CR + LF + 'N' + LF;
+  case FProtocol of
+    ppZpl:
+      Result := '^XA' + LF;
+    ppTspl:
+      Result := 'SIZE 4,3' + LF + 'GAP 0,0' + LF + 'CLS' + LF;
+    ppEscPos:
+      Result := ESC + '@';
+    ppNative:
+      Result := '';
+    else // ppEpl / Default
+      Result := CR + LF + 'N' + LF;
+  end;
 end;
 
 function TIMP_ELGINL42DT.LineText(const Info: string): string;
 begin
-  // EPL command: A x, y, rotation, font, horiz_mult, vert_mult, reverse, "data"
-  Result := Format('A10,%d,0,4,1,1,N,"%s"' + LF, [FYPos, Info]);
-  Inc(FYPos, 30);
+  case FProtocol of
+    ppZpl:
+    begin
+      Result := Format('^FO10,%d^ADN,18,10^FD%s^FS' + LF, [FYPos, Info]);
+      Inc(FYPos, 30);
+    end;
+    ppTspl:
+    begin
+      Result := Format('TEXT 10,%d,"4",0,1,1,"%s"' + LF, [FYPos, Info]);
+      Inc(FYPos, 30);
+    end;
+    ppEscPos:
+    begin
+      Result := Info + LF;
+    end;
+    ppNative:
+    begin
+      Result := ''; // Handled by printer canvas drawing
+    end;
+    else // ppEpl
+    begin
+      Result := Format('A10,%d,0,4,1,1,N,"%s"' + LF, [FYPos, Info]);
+      Inc(FYPos, 30);
+    end;
+  end;
 end;
 
 function TIMP_ELGINL42DT.Beep: string;
 begin
-  Result := ''; // Not standard in EPL
+  case FProtocol of
+    ppEscPos: Result := ESC + '(A' + #5 + #0 + 'add' + #1 + 'dd';
+    ppNative: Result := '';
+    else Result := '';
+  end;
 end;
 
 function TIMP_ELGINL42DT.Negrito: string;
 begin
-  // In EPL, we can use a larger font (e.g. font 5) to simulate bold
-  Result := '';
+  case FProtocol of
+    ppEscPos: Result := ESC + 'E' + #1;
+    else Result := '';
+  end;
 end;
 
 function TIMP_ELGINL42DT.Normal: string;
 begin
-  Result := '';
+  case FProtocol of
+    ppEscPos: Result := ESC + 'E' + #0 + ESC + '-' + #0 + #29 + '!' + #0;
+    else Result := '';
+  end;
 end;
 
 function TIMP_ELGINL42DT.Sublinhado: string;
 begin
-  Result := '';
+  case FProtocol of
+    ppEscPos: Result := ESC + '-' + #2;
+    else Result := '';
+  end;
 end;
 
 function TIMP_ELGINL42DT.DoubleTexto: string;
 begin
-  // EPL double text can be done via multipliers, but standard receipt-style is inline.
-  // We return empty as multipliers are set on a per-command basis.
-  Result := '';
+  case FProtocol of
+    ppEscPos: Result := #29 + '!' + #17;
+    else Result := '';
+  end;
 end;
 
 function TIMP_ELGINL42DT.Guilhotina: string;
 begin
-  // EPL2 command to print label: P1 (Print 1 copy)
-  Result := 'P1' + LF;
+  case FProtocol of
+    ppZpl:    Result := '^XZ' + LF;
+    ppTspl:   Result := 'PRINT 1,1' + LF;
+    ppEscPos: Result := #29 + 'V' + 'B' + #3;
+    ppNative: Result := '';
+    else // ppEpl
+      Result := 'P1' + LF;
+  end;
 end;
 
 function TIMP_ELGINL42DT.AcionaGaveta: string;
 begin
-  Result := ''; // Label printers do not support cash drawers
+  case FProtocol of
+    ppEscPos: Result := #16 + #20 + #1 + #0 + #8;
+    else Result := '';
+  end;
 end;
 
 function TIMP_ELGINL42DT.Barra1D(const Info: string; H: Byte; R: Byte; I: Byte): string;
 var
   HRIPos: string;
 begin
-  // HRI characters print position
-  if I = 0 then HRIPos := 'N' else HRIPos := 'B';
-  // EPL barcode: B x, y, rotation, barcode_type, narrow_bar, wide_bar, height, human_readable, "data"
-  // barcode_type '3' = Code 39
-  Result := Format('B10,%d,0,3,%d,%d,%d,%s,"%s"' + LF, [FYPos, R, R * 2, H, HRIPos, Info]);
-  Inc(FYPos, H + 20);
+  case FProtocol of
+    ppZpl:
+    begin
+      if I = 0 then HRIPos := 'N' else HRIPos := 'Y';
+      Result := Format('^FO10,%d^BY%d^BCN,%d,%s,N,N^FD%s^FS' + LF, [FYPos, R, H, HRIPos, Info]);
+      Inc(FYPos, H + 20);
+    end;
+    ppTspl:
+    begin
+      Result := Format('BARCODE 10,%d,"128",%d,1,0,%d,%d,"%s"' + LF, [FYPos, H, R, R * 2, Info]);
+      Inc(FYPos, H + 20);
+    end;
+    ppEscPos:
+    begin
+      Result := ESC + 'a' + #1 + 
+                #29 + 'h' + Chr(H) + 
+                #29 + 'w' + Chr(R) + 
+                #29 + 'H' + Chr(I) + 
+                #29 + 'k' + #4 + Info + #0;
+    end;
+    ppNative:
+    begin
+      Result := '';
+    end;
+    else // ppEpl
+    begin
+      if I = 0 then HRIPos := 'N' else HRIPos := 'B';
+      Result := Format('B10,%d,0,3,%d,%d,%d,%s,"%s"' + LF, [FYPos, R, R * 2, H, HRIPos, Info]);
+      Inc(FYPos, H + 20);
+    end;
+  end;
 end;
 
 function TIMP_ELGINL42DT.Barra2D(const Info: string): string;
+var
+  Len: Integer;
+  PL, PH: Byte;
 begin
-  // EPL2 QR Code: b x, y, Q, [parameters], "data"
-  // Q = QR Code, m2 = Model 2, g3 = error correction level M
-  Result := Format('b10,%d,Q,m2,g3,"%s"' + LF, [FYPos, Info]);
-  Inc(FYPos, 120);
+  case FProtocol of
+    ppZpl:
+    begin
+      Result := Format('^FO10,%d^BQN,2,4^FDQA,%s^FS' + LF, [FYPos, Info]);
+      Inc(FYPos, 120);
+    end;
+    ppTspl:
+    begin
+      Result := Format('QRCODE 10,%d,L,4,A,0,"%s"' + LF, [FYPos, Info]);
+      Inc(FYPos, 120);
+    end;
+    ppEscPos:
+    begin
+      Len := Length(Info) + 3;
+      PL := Len mod 256;
+      PH := Len div 256;
+      Result := #29 + '(k' + #4 + #0 + #49 + #67 + #49 + #0 + // Model 2
+                #29 + '(k' + #3 + #0 + #49 + #69 + #6 +  // Size (Module width)
+                #29 + '(k' + #3 + #0 + #49 + #70 + #48 + // EC Level M
+                #29 + '(k' + Chr(PL) + Chr(PH) + #49 + #80 + #48 + Info + // Store data
+                #29 + '(k' + #3 + #0 + #49 + #81 + #48;  // Print symbol
+    end;
+    ppNative:
+    begin
+      Result := '';
+    end;
+    else // ppEpl
+    begin
+      Result := Format('b10,%d,Q,m2,g3,"%s"' + LF, [FYPos, Info]);
+      Inc(FYPos, 120);
+    end;
+  end;
 end;
 
 end.
