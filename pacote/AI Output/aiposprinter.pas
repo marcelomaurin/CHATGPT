@@ -222,6 +222,13 @@ begin
   Result := False;
   FLastError := '';
   
+  if FProtocol = ppNative then
+  begin
+    FActive := True;
+    Result := True;
+    Exit;
+  end;
+  
   if FInterfaceType = piSerial then
   begin
     FSerialHandle := SerOpen(FDeviceName);
@@ -275,6 +282,12 @@ end;
 procedure TAIPOSPrinter.CloseConnection;
 begin
   if not FActive then Exit;
+  
+  if FProtocol = ppNative then
+  begin
+    FActive := False;
+    Exit;
+  end;
   
   if FInterfaceType = piSerial then
   begin

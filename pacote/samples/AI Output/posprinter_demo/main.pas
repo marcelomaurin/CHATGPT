@@ -42,6 +42,7 @@ type
     btnBeep: TButton;
     
     procedure cmbInterfaceChange(Sender: TObject);
+    procedure cmbProtocolChange(Sender: TObject);
     procedure btnBoldTextClick(Sender: TObject);
     procedure btnBarcodeClick(Sender: TObject);
     procedure btnQRCodeClick(Sender: TObject);
@@ -140,6 +141,7 @@ begin
   cmbProtocol.Items.Add('ZPL');
   cmbProtocol.Items.Add('TSPL');
   cmbProtocol.ItemIndex := 0; // ESC/POS default
+  cmbProtocol.OnChange := @cmbProtocolChange;
 
   edtDevice := TEdit.Create(Self);
   edtDevice.Parent := pnlTop;
@@ -232,6 +234,16 @@ begin
     edtDevice.Text := '127.0.0.1';
     edtPort.Text := '9100';
   end;
+end;
+
+procedure TfrmMain.cmbProtocolChange(Sender: TObject);
+var
+  IsRaw: Boolean;
+begin
+  IsRaw := cmbProtocol.ItemIndex <> 1; // 1 is Native OS
+  cmbInterface.Enabled := IsRaw;
+  edtDevice.Enabled := IsRaw;
+  edtPort.Enabled := IsRaw;
 end;
 
 procedure TfrmMain.ApplySettings;
