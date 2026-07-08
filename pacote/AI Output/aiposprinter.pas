@@ -15,10 +15,11 @@ uses
     netdb
     {$ENDIF}
   {$ENDIF}
-  , LResources;
+  , LResources, imp_generico, imp_elgini9, imp_qr203, imp_elginl42dt;
 
 type
   TPrinterInterface = (piSerial, piEthernet);
+  TPrinterModel = (pmElginI9, pmQR203, pmElginL42DT);
 
   { TAIPOSPrinter }
 
@@ -26,6 +27,7 @@ type
   private
     FPrompt: string;
     FInterfaceType: TPrinterInterface;
+    FPrinterModel: TPrinterModel;
     FDeviceName: string; // e.g., 'COM1' or '/dev/ttyUSB0' for Serial
     FHost: string;       // e.g., '192.168.1.100' for Ethernet
     FPort: Integer;      // default 9100 for raw socket
@@ -34,8 +36,12 @@ type
     FSocket: TSocket;
     FActive: Boolean;
     FLastError: string;
+    FDriver: TIMP_GENERICO;
+    
     procedure SetActive(AValue: Boolean);
+    procedure SetPrinterModel(AValue: TPrinterModel);
     function ResolveHost(const AHost: string; var AAddr): Boolean;
+    procedure InitDriver;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -43,13 +49,26 @@ type
     function OpenConnection: Boolean;
     procedure CloseConnection;
     function SendRawBytes(const ABytes: array of Byte): Boolean;
+    function SendRawString(const AStr: string): Boolean;
+    
     function PrintText(const AText: string): Boolean;
+    function PrintTextLine(const AText: string): Boolean;
+    function SetBold(const ABold: Boolean): Boolean;
+    function SetNormal: Boolean;
+    function SetDoubleText: Boolean;
+    function SetUnderline(const AUnderline: Boolean): Boolean;
+    function AlignCenter: Boolean;
+    function AlignLeft: Boolean;
+    function AlignRight: Boolean;
     function CutPaper: Boolean;
     function OpenDrawer: Boolean;
-    function PrintBarcode(const ACode: string): Boolean;
+    function PrintBarcode(const ACode: string; H: Byte = 80; R: Byte = 3; I: Byte = 2): Boolean;
+    function PrintQRCode(const ACode: string): Boolean;
+    function Beep: Boolean;
   published
     property Prompt: string read FPrompt write FPrompt;
     property InterfaceType: TPrinterInterface read FInterfaceType write FInterfaceType default piSerial;
+    property PrinterModel: TPrinterModel read FPrinterModel write SetPrinterModel default pmElginI9;
     property DeviceName: string read FDeviceName write FDeviceName;
     property Host: string read FHost write FHost;
     property Port: Integer read FPort write FPort default 9100;
@@ -72,8 +91,9 @@ end;
 constructor TAIPOSPrinter.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  FPrompt := 'Component TAIPOSPrinter handles ESC/POS receipt printers via serial or ethernet sockets. Properties: InterfaceType: TPrinterInterface (piSerial, piEthernet), DeviceName: string (serial port), Host: string, Port: Integer (default 9100), SerialBaud: Integer, Active: Boolean. Methods: OpenConnection, CloseConnection, SendRawBytes(const ABytes: array of Byte): Boolean, PrintText(const AText: string): Boolean, CutPaper: Boolean, OpenDrawer: Boolean, PrintBarcode(const ACode: string): Boolean. AI Agent: Use this to print physical tickets, summaries, or open cash drawers.';
+  FPrompt := 'Component TAIPOSPrinter handles ESC/POS receipt printers via serial or ethernet sockets.';
   FInterfaceType := piSerial;
+  FPrinterModel := pmElginI9;
   FDeviceName := 'COM1';
   FHost := '192.168.1.100';
   FPort := 9100;
@@ -82,12 +102,37 @@ begin
   FSocket := TSocket(-1);
   FActive := False;
   FLastError := '';
+  FDriver := nil;
+  InitDriver;
 end;
 
 destructor TAIPOSPrinter.Destroy;
 begin
   CloseConnection;
+  if Assigned(FDriver) then
+    FDriver.Free;
   inherited Destroy;
+end;
+
+procedure TAIPOSPrinter.InitDriver;
+begin
+  if Assigned(FDriver) then
+  begin
+    FDriver.Free;
+    FDriver := nil;
+  end;
+  case FPrinterModel of
+    pmElginI9:      FDriver := TIMP_ELGINI9.Create;
+    pmQR203:        FDriver := TIMP_QR203.Create;
+    pmElginL42DT:   FDriver := TIMP_ELGINL42DT.Create;
+  end;
+end;
+
+procedure TAIPOSPrinter.SetPrinterModel(AValue: TPrinterModel);
+begin
+  if FPrinterModel = AValue then Exit;
+  FPrinterModel := AValue;
+  InitDriver;
 end;
 
 function TAIPOSPrinter.ResolveHost(const AHost: string; var AAddr): Boolean;
@@ -162,6 +207,8 @@ begin
       SerSetParams(FSerialHandle, FSerialBaud, 8, NoneParity, 1, []);
       FActive := True;
       Result := True;
+      if Assigned(FDriver) then
+        SendRawString(FDriver.InitPrint);
     end
     else
       FLastError := 'Failed to open serial POS printer on ' + FDeviceName;
@@ -197,6 +244,8 @@ begin
     
     FActive := True;
     Result := True;
+    if Assigned(FDriver) then
+      SendRawString(FDriver.InitPrint);
   end;
 end;
 
@@ -230,6 +279,7 @@ var
 begin
   Result := False;
   if not FActive then Exit;
+  if Length(ABytes) = 0 then Exit(True);
   
   if FInterfaceType = piSerial then
   begin
@@ -253,66 +303,140 @@ begin
   end;
 end;
 
-function TAIPOSPrinter.PrintText(const AText: string): Boolean;
+function TAIPOSPrinter.SendRawString(const AStr: string): Boolean;
 var
   Buffer: array of Byte;
   I: Integer;
 begin
   Result := False;
-  if Length(AText) = 0 then Exit;
-  
-  SetLength(Buffer, Length(AText));
-  for I := 1 to Length(AText) do
-    Buffer[I - 1] := Byte(AText[I]);
-    
+  if Length(AStr) = 0 then Exit(True);
+  SetLength(Buffer, Length(AStr));
+  for I := 1 to Length(AStr) do
+    Buffer[I - 1] := Byte(AStr[I]);
   Result := SendRawBytes(Buffer);
 end;
 
+function TAIPOSPrinter.PrintText(const AText: string): Boolean;
+begin
+  Result := SendRawString(AText);
+end;
+
+function TAIPOSPrinter.PrintTextLine(const AText: string): Boolean;
+begin
+  if Assigned(FDriver) then
+    Result := SendRawString(FDriver.LineText(AText))
+  else
+    Result := SendRawString(AText + #10);
+end;
+
+function TAIPOSPrinter.SetBold(const ABold: Boolean): Boolean;
+begin
+  if Assigned(FDriver) then
+  begin
+    if ABold then
+      Result := SendRawString(FDriver.Negrito)
+    else
+      Result := SendRawString(FDriver.Normal);
+  end
+  else
+    Result := False;
+end;
+
+// Alias to match old API if needed
+function TAIPOSPrinter.SetNormal: Boolean;
+begin
+  if Assigned(FDriver) then
+    Result := SendRawString(FDriver.Normal)
+  else
+    Result := False;
+end;
+
+function TAIPOSPrinter.SetDoubleText: Boolean;
+begin
+  if Assigned(FDriver) then
+    Result := SendRawString(FDriver.DoubleTexto)
+  else
+    Result := False;
+end;
+
+function TAIPOSPrinter.SetUnderline(const AUnderline: Boolean): Boolean;
+begin
+  if Assigned(FDriver) then
+  begin
+    if AUnderline then
+      Result := SendRawString(FDriver.Sublinhado)
+    else
+      Result := SendRawString(FDriver.Normal);
+  end
+  else
+    Result := False;
+end;
+
+function TAIPOSPrinter.AlignCenter: Boolean;
+begin
+  if Assigned(FDriver) then
+    Result := SendRawString(FDriver.Centralizado)
+  else
+    Result := False;
+end;
+
+// AlignLeft / AlignRight support
+function TAIPOSPrinter.AlignLeft: Boolean;
+begin
+  if Assigned(FDriver) then
+    Result := SendRawString(FDriver.AlinhadoEsquerda)
+  else
+    Result := False;
+end;
+
+function TAIPOSPrinter.AlignRight: Boolean;
+begin
+  if Assigned(FDriver) then
+    Result := SendRawString(FDriver.AlinhadoDireita)
+  else
+    Result := False;
+end;
+
 function TAIPOSPrinter.CutPaper: Boolean;
-var
-  Cmd: array[0..3] of Byte;
 begin
-  // ESC/POS Cut paper command: GS V 66 0
-  Cmd[0] := 29;
-  Cmd[1] := 86;
-  Cmd[2] := 66;
-  Cmd[3] := 0;
-  Result := SendRawBytes(Cmd);
+  if Assigned(FDriver) then
+    Result := SendRawString(FDriver.Guilhotina)
+  else
+    Result := False;
 end;
 
+// OpenDrawer support
 function TAIPOSPrinter.OpenDrawer: Boolean;
-var
-  Cmd: array[0..4] of Byte;
 begin
-  // ESC/POS Open cash drawer command: ESC p 0 25 250
-  Cmd[0] := 27;
-  Cmd[1] := 112;
-  Cmd[2] := 0;
-  Cmd[3] := 25;
-  Cmd[4] := 250;
-  Result := SendRawBytes(Cmd);
+  if Assigned(FDriver) then
+    Result := SendRawString(FDriver.AcionaGaveta)
+  else
+    Result := False;
 end;
 
-function TAIPOSPrinter.PrintBarcode(const ACode: string): Boolean;
-var
-  Cmd: array of Byte;
-  I: Integer;
+// PrintBarcode / PrintQRCode / Beep
+function TAIPOSPrinter.PrintBarcode(const ACode: string; H: Byte = 80; R: Byte = 3; I: Byte = 2): Boolean;
 begin
-  if Length(ACode) = 0 then Exit(False);
-  
-  // ESC/POS Print Barcode command: GS k 4 (Code 39) [Length] [Data]
-  SetLength(Cmd, 4 + Length(ACode) + 1);
-  Cmd[0] := 29;
-  Cmd[1] := 107;
-  Cmd[2] := 4; // Code 39
-  Cmd[3] := Length(ACode);
-  
-  for I := 1 to Length(ACode) do
-    Cmd[3 + I] := Byte(ACode[I]);
-    
-  Cmd[3 + Length(ACode) + 1] := 0; // null terminator
-  
-  Result := SendRawBytes(Cmd);
+  if Assigned(FDriver) then
+    Result := SendRawString(FDriver.Barra1D(ACode, H, R, I))
+  else
+    Result := False;
+end;
+
+function TAIPOSPrinter.PrintQRCode(const ACode: string): Boolean;
+begin
+  if Assigned(FDriver) then
+    Result := SendRawString(FDriver.Barra2D(ACode))
+  else
+    Result := False;
+end;
+
+function TAIPOSPrinter.Beep: Boolean;
+begin
+  if Assigned(FDriver) then
+    Result := SendRawString(FDriver.Beep)
+  else
+    Result := False;
 end;
 
 initialization

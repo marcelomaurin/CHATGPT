@@ -32,11 +32,6 @@
         <UnitName Value="aimqtt"/>
       </Item>
       <Item>
-        <Filename Value="..\AI Industrial\aiposprinter.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="aiposprinter"/>
-      </Item>
-      <Item>
         <Filename Value="..\AI Industrial\aiindustrial.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiindustrial"/>

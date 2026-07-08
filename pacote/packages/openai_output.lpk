@@ -64,6 +64,27 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiwordviewer"/>
       </Item>
+      <Item>
+        <Filename Value="..\AI Output\imp_generico.pas"/>
+        <UnitName Value="imp_generico"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Output\imp_elgini9.pas"/>
+        <UnitName Value="imp_elgini9"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Output\imp_qr203.pas"/>
+        <UnitName Value="imp_qr203"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Output\imp_elginl42dt.pas"/>
+        <UnitName Value="imp_elginl42dt"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Output\aiposprinter.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiposprinter"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>
