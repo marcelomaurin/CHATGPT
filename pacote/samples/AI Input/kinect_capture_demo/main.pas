@@ -1,3 +1,12 @@
+{===============================================================================
+  Kinect Capture Demo
+  Demonstra captura do stream de video colorido de um sensor Kinect
+  usando os componentes TAIKinectSensor e TAIKinectColorStream do
+  pacote openai_input.
+
+  Projeto: https://github.com/marcelomaurin/CHATGPT
+  Licenca: conforme a licenca do repositorio principal.
+===============================================================================}
 unit main;
 
 {$mode objfpc}{$H+}
@@ -5,8 +14,9 @@ unit main;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  aibase, aikinect_types, aikinectsensor, aikinectcolor;
+  Classes, SysUtils, Forms, Controls, Graphics, ExtCtrls, StdCtrls, Spin,
+  ComCtrls, aibase, aikinect_types, aikinectsensor, aikinectcolor,
+  aikinectdepth;
 
 type
   { TfrmMain }
@@ -14,22 +24,46 @@ type
   TfrmMain = class(TForm)
     btnClose: TButton;
     btnOpen: TButton;
+    chkDepth: TCheckBox;
     imgColor: TImage;
+    imgDepth: TImage;
+    lblDevice: TLabel;
+    lblFPS: TLabel;
+    lblStatus: TLabel;
+    memlog: TMemo;
+    PageControl1: TPageControl;
+    PageControl2: TPageControl;
     pnlControl: TPanel;
-    
+    seDevice: TSpinEdit;
+    tsVideo: TTabSheet;
+    tsDepth: TTabSheet;
+    tsLog: TTabSheet;
+    tmrFPS: TTimer;
+    tsConfig: TTabSheet;
+
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnOpenClick(Sender: TObject);
     procedure btnCloseClick(Sender: TObject);
-    
-    // Event handlers
+    procedure tmrFPSTimer(Sender: TObject);
+
     procedure OnKinectConnect(Sender: TObject);
     procedure OnKinectDisconnect(Sender: TObject);
     procedure OnKinectError(Sender: TObject; const AError: string);
     procedure OnColorFrame(Sender: TObject; const AFrameFile: string);
+    procedure OnDepthFrame(Sender: TObject; const AFrameFile: string; AMinMM,
+      AMaxMM: Word);
   private
     FSensor: TAIKinectSensor;
     FColor: TAIKinectColorStream;
+    FDepth: TAIKinectDepthStream;
+    FFrameCount: Integer;
+    FLoadFailCount: Integer;
+    FDepthLoadFailCount: Integer;
+    FBackendLogFile: string;
+    FBackendLogPos: Int64;
+    procedure Log(const AMsg: string);
+    procedure LoadBackendLog;
   public
   end;
 
@@ -48,14 +82,26 @@ begin
   FSensor.OnConnect := @OnKinectConnect;
   FSensor.OnDisconnect := @OnKinectDisconnect;
   FSensor.OnError := @OnKinectError;
-  
+
   FColor := TAIKinectColorStream.Create(Self);
   FColor.Sensor := FSensor;
   FColor.OnFrame := @OnColorFrame;
+
+  FDepth := TAIKinectDepthStream.Create(Self);
+  FDepth.Sensor := FSensor;
+  FDepth.OnDepthFrame := @OnDepthFrame;
+
+  memLog.Clear;
+  PageControl1.ActivePage := tsConfig;
+  FBackendLogFile := IncludeTrailingPathDelimiter(GetTempDir) + 'aikinect_sdk10_backend.log';
+  FBackendLogPos := 0;
+  Log('Demo iniciado. Log do backend: ' + FBackendLogFile);
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
+  if Assigned(FDepth) then
+    FDepth.Active := False;
   if Assigned(FColor) then
     FColor.Active := False;
   if Assigned(FSensor) then
@@ -64,70 +110,166 @@ end;
 
 procedure TfrmMain.btnOpenClick(Sender: TObject);
 begin
-  if not Assigned(FSensor) then
-  begin
-    FSensor := TAIKinectSensor.Create(Self);
-    FSensor.OnConnect := @OnKinectConnect;
-    FSensor.OnDisconnect := @OnKinectDisconnect;
-    FSensor.OnError := @OnKinectError;
-  end;
-  
-  if not Assigned(FColor) then
-  begin
-    FColor := TAIKinectColorStream.Create(Self);
-    FColor.Sensor := FSensor;
-    FColor.OnFrame := @OnColorFrame;
-  end;
+  Log('Conectar solicitado.');
+  btnOpen.Enabled := False;
+  FSensor.DeviceIndex := seDevice.Value;
 
-  FSensor.DeviceIndex := 0;
   if FSensor.Open then
   begin
-    if Assigned(FColor) then
-      FColor.Active := True;
-    btnOpen.Enabled := False;
-    btnClose.Enabled := True;
+    Log('Sensor aberto.');
+    Log('Ativando stream colorido.');
+    FColor.Active := True;
+    if not FColor.Active then
+    begin
+      lblStatus.Caption := 'Erro';
+      Log('Kinect conectado, mas falha ao iniciar o stream de video: ' +
+        FColor.LastError);
+      FSensor.Close;
+      Exit;
+    end;
+    if FColor.Active then
+      Log('Stream colorido ativo.');
+    FDepth.Active := chkDepth.Checked;
+    if chkDepth.Checked then
+      Log('Stream depth solicitado.');
   end
   else
   begin
-    ShowMessage('Falha ao conectar: ' + FSensor.LastError);
+    lblStatus.Caption := 'Erro';
+    Log('Falha ao conectar: ' + FSensor.LastError);
+    btnOpen.Enabled := True;
   end;
 end;
 
 procedure TfrmMain.btnCloseClick(Sender: TObject);
 begin
+  Log('Desconectar solicitado.');
+  if Assigned(FDepth) then
+    FDepth.Active := False;
   if Assigned(FColor) then
     FColor.Active := False;
   if Assigned(FSensor) then
     FSensor.Close;
-  imgColor.Picture.Clear;
-  btnOpen.Enabled := True;
-  btnClose.Enabled := False;
+end;
+
+procedure TfrmMain.tmrFPSTimer(Sender: TObject);
+begin
+  LoadBackendLog;
+  lblFPS.Caption := 'FPS: ' + IntToStr(FFrameCount);
+  FFrameCount := 0;
 end;
 
 procedure TfrmMain.OnKinectConnect(Sender: TObject);
 begin
-  // Handled on btnOpenClick
+  Log('Evento OnConnect.');
+  lblStatus.Caption := 'Conectado';
+  btnOpen.Enabled := False;
+  btnClose.Enabled := True;
+  seDevice.Enabled := False;
+  chkDepth.Enabled := False;
 end;
 
 procedure TfrmMain.OnKinectDisconnect(Sender: TObject);
 begin
+  Log('Evento OnDisconnect.');
+  LoadBackendLog;
+  lblStatus.Caption := 'Desconectado';
   btnOpen.Enabled := True;
   btnClose.Enabled := False;
+  seDevice.Enabled := True;
+  chkDepth.Enabled := True;
   imgColor.Picture.Clear;
+  imgDepth.Picture.Clear;
+  FFrameCount := 0;
+  lblFPS.Caption := 'FPS: 0';
 end;
 
 procedure TfrmMain.OnKinectError(Sender: TObject; const AError: string);
 begin
-  ShowMessage('Erro no Kinect: ' + AError);
+  lblStatus.Caption := 'Erro';
+  Log('Erro: ' + AError);
+  PageControl1.ActivePage := tsLog;
 end;
 
 procedure TfrmMain.OnColorFrame(Sender: TObject; const AFrameFile: string);
 begin
+  Inc(FFrameCount);
   try
     imgColor.Picture.LoadFromFile(AFrameFile);
+    FLoadFailCount := 0;
+    if (FFrameCount mod 30) = 1 then
+      Log('Frame colorido exibido: ' + AFrameFile);
   except
-    // ignore temporary file lock issues
+    on E: Exception do
+    begin
+      Inc(FLoadFailCount);
+      if (FLoadFailCount mod 30) = 1 then
+        Log('Falha ao carregar frame (' + IntToStr(FLoadFailCount) + '): ' + E.Message);
+    end;
   end;
+end;
+
+procedure TfrmMain.OnDepthFrame(Sender: TObject; const AFrameFile: string;
+  AMinMM, AMaxMM: Word);
+begin
+  try
+    imgDepth.Picture.LoadFromFile(AFrameFile);
+    FDepthLoadFailCount := 0;
+  except
+    on E: Exception do
+    begin
+      Inc(FDepthLoadFailCount);
+      if (FDepthLoadFailCount mod 30) = 1 then
+        Log('Falha ao carregar depth (' + IntToStr(FDepthLoadFailCount) + '): ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmMain.LoadBackendLog;
+var
+  FS: TFileStream;
+  Buffer: string;
+  SL: TStringList;
+  I: Integer;
+begin
+  if (FBackendLogFile = '') or (not FileExists(FBackendLogFile)) then Exit;
+
+  try
+    FS := TFileStream.Create(FBackendLogFile, fmOpenRead or fmShareDenyNone);
+    try
+      if FS.Size < FBackendLogPos then
+        FBackendLogPos := 0;
+      if FS.Size <= FBackendLogPos then Exit;
+
+      FS.Position := FBackendLogPos;
+      SetLength(Buffer, FS.Size - FBackendLogPos);
+      if Length(Buffer) > 0 then
+        FS.ReadBuffer(Buffer[1], Length(Buffer));
+      FBackendLogPos := FS.Position;
+    finally
+      FS.Free;
+    end;
+
+    SL := TStringList.Create;
+    try
+      SL.Text := Buffer;
+      for I := 0 to SL.Count - 1 do
+        if Trim(SL[I]) <> '' then
+          Log('[backend] ' + SL[I]);
+    finally
+      SL.Free;
+    end;
+  except
+    on E: Exception do
+      Log('Falha ao ler log do backend: ' + E.Message);
+  end;
+end;
+procedure TfrmMain.Log(const AMsg: string);
+begin
+  memLog.Lines.Add(FormatDateTime('hh:nn:ss', Now) + ' ' + AMsg);
+  while memLog.Lines.Count > 500 do
+    memLog.Lines.Delete(0);
+  memLog.SelStart := Length(memLog.Text);
 end;
 
 end.

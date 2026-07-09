@@ -1,3 +1,12 @@
+{===============================================================================
+  Kinect Capture Demo
+  Demonstra captura do stream de video colorido de um sensor Kinect
+  usando os componentes TAIKinectSensor e TAIKinectColorStream do
+  pacote openai_input.
+
+  Projeto: https://github.com/marcelomaurin/CHATGPT
+  Licenca: conforme a licenca do repositorio principal.
+===============================================================================}
 program kinect_capture_demo;
 
 {$mode objfpc}{$H+}
@@ -9,7 +18,7 @@ uses
   Interfaces, // this includes the LCL widgetset
   Forms, main;
 
-// {$R *.res}
+{$R *.res}
 
 begin
   RequireDerivedFormResource:=True;

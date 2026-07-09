@@ -22,6 +22,7 @@
 | **TAIMessenger** | بوابة إرسال واتساب وSMS عبر REST. | `SMSApiURL, WhatsAppApiURL, WhatsAppToken` | `SendSMS, SendWhatsApp` | إرسال رسائل وتنبيهات فورية مباشرة لهواتف المشغلين والمهندسين. |
 | **TAIChromiumBrowser** | لوحة متصفح ويب مدمجة. | `URL, ShowAddressBar` | `Navigate, GoBack, Reload` | عرض واجهات المستخدم على الويب واستخلاص نصوص HTML البرمجية. |
 | **TAIOSInputCapture** | ملتقط أحداث سطح مكتب نظام التشغيل العام. | `TrackMouse, TrackKeyboard, Active` | `CaptureScreen` | التقاط صور كاملة لسطح المكتب واعتراض مدخلات لوحة المفاتيح. |
+| **TAIListSerialDevices**| معدّد ومعرّف المنافذ التسلسلية. | `ProbeOpenable, AutoRefresh, AutoRefreshIntervalMs` | `Refresh` | توفير بيانات تعريف غنية للأجهزة (VID، PID، السائق، الرقم التسلسلي، الشركة المصنعة) للذكاء الاصطناعي. |
 
 ### 💻 مثال على كود لازاروس (TAIInputData)
 
