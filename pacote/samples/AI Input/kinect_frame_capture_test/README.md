@@ -1,10 +1,16 @@
-# Kinect Frame Capture Test
+# kinect_frame_capture_test
 
-Teste de console para validar o backend Kinect SDK10 sem interface grafica.
+Teste de console que usa os componentes Kinect do pacote para abrir o sensor, capturar o primeiro frame colorido e salvar o resultado em disco.
 
-Ao executar, o programa tenta abrir o Kinect v1 pelo SDK 1.8, iniciar o stream colorido, aguardar um frame por ate 15 segundos e salvar:
+## Saida
 
-- `capture_output/captured_color_frame.bmp`
-- `capture_output/kinect_frame_capture_test.log`
+- Log: `capture_output\kinect_frame_capture_test.log`
+- Imagem: `capture_output\captured_color_frame.bmp`
 
-Use este teste para diferenciar falha no backend de falha na UI do `kinect_capture_demo`.
+## Quando usar
+
+Use este teste quando o demo grafico nao mostrar imagem ou quando precisar validar a captura sem interface visual.
+
+## Requisitos
+
+Windows, Kinect SDK/Runtime 1.8, `Kinect10.dll` e Kinect conectado.

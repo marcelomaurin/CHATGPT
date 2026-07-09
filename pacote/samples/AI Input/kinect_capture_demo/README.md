@@ -1,46 +1,40 @@
-# Kinect Capture Demo
+# kinect_capture_demo
 
-## Descricao
+Demo grafico para validar a captura de video colorido do Kinect usando os componentes `TAIKinectSensor`, `TAIKinectColorStream` e, opcionalmente, `TAIKinectDepthStream`.
 
-Demo em Lazarus/Free Pascal que conecta a um sensor Kinect e exibe o stream de video colorido em tempo real usando os componentes `TAIKinectSensor` e `TAIKinectColorStream` do pacote `openai_input`.
+## Objetivo
+
+Este demo abre o sensor Kinect, inicia o stream colorido, mostra os frames na tela e registra eventos na aba **Log**. A opcao **Depth** liga tambem o stream de profundidade.
 
 ## Requisitos
 
-- Lazarus 4.4 ou superior.
-- Free Pascal 3.2 ou superior.
-- Pacote `openai_input` instalado na IDE.
-- Sensor Kinect conectado via USB.
-- Drivers do Kinect instalados no sistema operacional: Kinect SDK no Windows ou libfreenect no Linux, conforme o backend selecionado pelo componente `TAIKinectSensor`.
-
-
-## Requisitos (Windows)
-
-- Kinect v1 (Xbox 360 / Kinect for Windows).
-- Kinect for Windows SDK 1.8 ou Kinect Runtime 1.8 instalado, fornecendo o driver e a `Kinect10.dll`.
-- A bitness do executavel deve corresponder a DLL; em Windows 64-bit, prefira build 64-bit.
-- Apenas o dispositivo de indice 0 e suportado pelo backend SDK10.
-
-## Solucao de problemas
-
-- `Kinect10.dll not found`: instale o Kinect for Windows SDK 1.8 ou Kinect Runtime 1.8 e confirme que a DLL corresponde a bitness do executavel.
-- `Failed to initialize... NuiInitialize`: verifique o cabo USB, a fonte externa do Kinect e feche outros aplicativos que possam estar usando o sensor.
-- Kinect conectado mas sem imagem: atualize para a versao corrigida do pacote; bugs de interop com o SDK 1.8 foram corrigidos na abertura de streams e na interface COM.
-
-## Como compilar
-
-Abra `kinect_capture_demo.lpi` no Lazarus e pressione F9, ou compile pela linha de comando:
-
-```bash
-lazbuild kinect_capture_demo.lpi
-```
+- Windows.
+- Kinect para Windows SDK/Runtime 1.8 instalado.
+- `Kinect10.dll` disponivel no sistema.
+- Aplicacao compilada com a mesma arquitetura da DLL instalada.
+- Sensor Kinect conectado e livre para uso.
 
 ## Como usar
 
-Clique em "Conectar" para abrir o dispositivo selecionado e iniciar o stream. A imagem colorida aparece no painel direito. Use "Desconectar" para encerrar a captura. Marque "Depth" antes de conectar para exibir tambem o stream de profundidade, quando o backend do Kinect oferecer suporte.
+1. Abra `kinect_capture_demo.exe`.
+2. Deixe `Device` em `0` para o backend SDK10.
+3. Marque **Depth** apenas se quiser testar profundidade.
+4. Clique em **Conectar**.
+5. Veja o video na aba **Video**.
+6. Acompanhe mensagens na aba **Log**.
+7. Clique em **Desconectar** antes de fechar.
 
-## Estrutura de arquivos
+## Logs
 
-- `kinect_capture_demo.lpi`: arquivo de projeto Lazarus com pacotes e modos de build.
-- `kinect_capture_demo.lpr`: ponto de entrada da aplicacao.
-- `main.lfm`: definicao visual do formulario principal.
-- `main.pas`: logica de conexao, streams, status, FPS e tratamento de erros.
+O demo mostra eventos no `memLog` e tambem le o log interno do backend:
+
+`%TEMP%\aikinect_sdk10_backend.log`
+
+Esse log inclui inicializacao da SDK, abertura de stream, captura de frames, `LockRect`, `ReleaseFrame` e `NuiShutdown`.
+
+## Solucao de problemas
+
+- Se nao aparecer imagem, confira a aba **Log**.
+- Se `NuiInitialize` falhar, verifique se outro programa esta usando o Kinect.
+- Se `Kinect10.dll` nao for encontrada, reinstale o Runtime/SDK 1.8.
+- Para testar somente a camera colorida, deixe **Depth** desmarcado.
