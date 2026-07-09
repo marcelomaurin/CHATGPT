@@ -1,0 +1,9 @@
+lib/
+backup/
+*.lps
+*.res
+*.exe
+*.o
+*.ppu
+*.compiled
+*.dbg

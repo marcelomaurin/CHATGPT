@@ -12,12 +12,12 @@ object frmMain: TfrmMain
   OnDestroy = FormDestroy
   object pnlControl: TPanel
     Left = 0
-    Height = 500
-    Top = 0
+    Height = 330
+    Top = 170
     Width = 150
     Align = alLeft
     BevelOuter = bvNone
-    ClientHeight = 500
+    ClientHeight = 330
     ClientWidth = 150
     Color = 2302755
     ParentBackground = False
@@ -44,14 +44,83 @@ object frmMain: TfrmMain
       TabOrder = 1
       OnClick = btnCloseClick
     end
+    object lblStatus: TLabel
+      Left = 15
+      Height = 15
+      Top = 140
+      Width = 75
+      Caption = 'Desconectado'
+      Font.Color = clWhite
+      ParentFont = False
+    end
+    object lblFPS: TLabel
+      Left = 15
+      Height = 15
+      Top = 165
+      Width = 31
+      Caption = 'FPS: 0'
+      Font.Color = clWhite
+      ParentFont = False
+    end
+    object lblDevice: TLabel
+      Left = 15
+      Height = 15
+      Top = 200
+      Width = 38
+      Caption = 'Device:'
+      Font.Color = clWhite
+      ParentFont = False
+    end
+    object seDevice: TSpinEdit
+      Left = 80
+      Height = 23
+      Top = 198
+      Width = 55
+      MaxValue = 7
+      TabOrder = 3
+    end
+    object chkDepth: TCheckBox
+      Left = 15
+      Height = 19
+      Top = 240
+      Width = 50
+      Caption = 'Depth'
+      Font.Color = clWhite
+      ParentFont = False
+      TabOrder = 4
+    end
+    object memLog: TMemo
+      Left = 8
+      Height = 56
+      Top = 264
+      Width = 134
+      Anchors = [akLeft, akBottom]
+      ReadOnly = True
+      ScrollBars = ssAutoVertical
+      TabOrder = 2
+    end
   end
   object imgColor: TImage
-    Left = 150
-    Height = 500
+    Left = 0
+    Height = 170
     Top = 0
+    Width = 800
+    Align = alTop
+    Proportional = True
+    Stretch = True
+  end
+  object imgDepth: TImage
+    Left = 150
+    Height = 330
+    Top = 170
     Width = 650
     Align = alClient
     Proportional = True
     Stretch = True
+  end
+  object tmrFPS: TTimer
+    OnTimer = tmrFPSTimer
+    Left = 496
+    Top = 280
   end
 end
