@@ -106,6 +106,9 @@ Les exemples suivants sont des projets visuels prêts à être compilés et exé
 | **[email_classifier_demo](AI Input/email_classifier_demo/)** | `pacote/samples/AI Input/email_classifier_demo` | Classification intelligente et tri automatique de boîtes de réception. |
 | **[hardware_net_demo](AI Input/hardware_net_demo/)** | `pacote/samples/AI Input/hardware_net_demo` | Intégration de caméras, brokers MQTT, e-mails et passerelles API. |
 | **[serial_demo](AI Input/serial_demo/)** | `pacote/samples/AI Input/serial_demo` | Communication bidirectionnelle directe avec les ports série et cartes Arduino. |
+| **[kinect_capture_demo](AI Input/kinect_capture_demo/)** | `pacote/samples/AI Input/kinect_capture_demo` | Demo graphique de capture couleur/profondeur Kinect avec journalisation intégrée. |
+| **[kinect_frame_capture_test](AI Input/kinect_frame_capture_test/)** | `pacote/samples/AI Input/kinect_frame_capture_test` | Test console qui capture une image couleur via les composants Kinect et enregistre log/image. |
+| **[kinect_sdk10_direct_frame_test](AI Input/kinect_sdk10_direct_frame_test/)** | `pacote/samples/AI Input/kinect_sdk10_direct_frame_test` | Test direct de `Kinect10.dll` pour diagnostiquer initialisation, flux, image, `LockRect` et `ReleaseFrame`. |
 | **[socket_server_client_demo](AI Input/socket_server_client_demo/)** | `pacote/samples/AI Input/socket_server_client_demo` | Utilitaire réseau natif serveur/client TCP/UDP pour échange rapide. |
 | **[webserver_demo](AI Input/webserver_demo/)** | `pacote/samples/AI Input/webserver_demo` | Serveur HTTP léger natif pour exposer des microservices locaux. |
 
