@@ -132,3 +132,4 @@ pacote/samples/AI Input/chromium_capture_demo/*.json
 pacote/download_chromium_runtimes.ps1
 pacote/samples/AI Input/chromium_capture_demo/download_cef.ps1
 
+Thumbs.db
