@@ -32,10 +32,12 @@ type
     lblStatus: TLabel;
     memlog: TMemo;
     PageControl1: TPageControl;
+    PageControl2: TPageControl;
     pnlControl: TPanel;
     seDevice: TSpinEdit;
+    tsVideo: TTabSheet;
+    tsDepth: TTabSheet;
     tsLog: TTabSheet;
-    tsView: TTabSheet;
     tmrFPS: TTimer;
     tsConfig: TTabSheet;
 
@@ -58,7 +60,10 @@ type
     FFrameCount: Integer;
     FLoadFailCount: Integer;
     FDepthLoadFailCount: Integer;
+    FBackendLogFile: string;
+    FBackendLogPos: Int64;
     procedure Log(const AMsg: string);
+    procedure LoadBackendLog;
   public
   end;
 
@@ -85,6 +90,12 @@ begin
   FDepth := TAIKinectDepthStream.Create(Self);
   FDepth.Sensor := FSensor;
   FDepth.OnDepthFrame := @OnDepthFrame;
+
+  memLog.Clear;
+  PageControl1.ActivePage := tsConfig;
+  FBackendLogFile := IncludeTrailingPathDelimiter(GetTempDir) + 'aikinect_sdk10_backend.log';
+  FBackendLogPos := 0;
+  Log('Demo iniciado. Log do backend: ' + FBackendLogFile);
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
@@ -99,13 +110,28 @@ end;
 
 procedure TfrmMain.btnOpenClick(Sender: TObject);
 begin
+  Log('Conectar solicitado.');
   btnOpen.Enabled := False;
   FSensor.DeviceIndex := seDevice.Value;
 
   if FSensor.Open then
   begin
+    Log('Sensor aberto.');
+    Log('Ativando stream colorido.');
     FColor.Active := True;
+    if not FColor.Active then
+    begin
+      lblStatus.Caption := 'Erro';
+      Log('Kinect conectado, mas falha ao iniciar o stream de video: ' +
+        FColor.LastError);
+      FSensor.Close;
+      Exit;
+    end;
+    if FColor.Active then
+      Log('Stream colorido ativo.');
     FDepth.Active := chkDepth.Checked;
+    if chkDepth.Checked then
+      Log('Stream depth solicitado.');
   end
   else
   begin
@@ -117,6 +143,7 @@ end;
 
 procedure TfrmMain.btnCloseClick(Sender: TObject);
 begin
+  Log('Desconectar solicitado.');
   if Assigned(FDepth) then
     FDepth.Active := False;
   if Assigned(FColor) then
@@ -127,12 +154,14 @@ end;
 
 procedure TfrmMain.tmrFPSTimer(Sender: TObject);
 begin
+  LoadBackendLog;
   lblFPS.Caption := 'FPS: ' + IntToStr(FFrameCount);
   FFrameCount := 0;
 end;
 
 procedure TfrmMain.OnKinectConnect(Sender: TObject);
 begin
+  Log('Evento OnConnect.');
   lblStatus.Caption := 'Conectado';
   btnOpen.Enabled := False;
   btnClose.Enabled := True;
@@ -142,6 +171,8 @@ end;
 
 procedure TfrmMain.OnKinectDisconnect(Sender: TObject);
 begin
+  Log('Evento OnDisconnect.');
+  LoadBackendLog;
   lblStatus.Caption := 'Desconectado';
   btnOpen.Enabled := True;
   btnClose.Enabled := False;
@@ -157,6 +188,7 @@ procedure TfrmMain.OnKinectError(Sender: TObject; const AError: string);
 begin
   lblStatus.Caption := 'Erro';
   Log('Erro: ' + AError);
+  PageControl1.ActivePage := tsLog;
 end;
 
 procedure TfrmMain.OnColorFrame(Sender: TObject; const AFrameFile: string);
@@ -165,6 +197,8 @@ begin
   try
     imgColor.Picture.LoadFromFile(AFrameFile);
     FLoadFailCount := 0;
+    if (FFrameCount mod 30) = 1 then
+      Log('Frame colorido exibido: ' + AFrameFile);
   except
     on E: Exception do
     begin
@@ -191,11 +225,51 @@ begin
   end;
 end;
 
+procedure TfrmMain.LoadBackendLog;
+var
+  FS: TFileStream;
+  Buffer: string;
+  SL: TStringList;
+  I: Integer;
+begin
+  if (FBackendLogFile = '') or (not FileExists(FBackendLogFile)) then Exit;
+
+  try
+    FS := TFileStream.Create(FBackendLogFile, fmOpenRead or fmShareDenyNone);
+    try
+      if FS.Size < FBackendLogPos then
+        FBackendLogPos := 0;
+      if FS.Size <= FBackendLogPos then Exit;
+
+      FS.Position := FBackendLogPos;
+      SetLength(Buffer, FS.Size - FBackendLogPos);
+      if Length(Buffer) > 0 then
+        FS.ReadBuffer(Buffer[1], Length(Buffer));
+      FBackendLogPos := FS.Position;
+    finally
+      FS.Free;
+    end;
+
+    SL := TStringList.Create;
+    try
+      SL.Text := Buffer;
+      for I := 0 to SL.Count - 1 do
+        if Trim(SL[I]) <> '' then
+          Log('[backend] ' + SL[I]);
+    finally
+      SL.Free;
+    end;
+  except
+    on E: Exception do
+      Log('Falha ao ler log do backend: ' + E.Message);
+  end;
+end;
 procedure TfrmMain.Log(const AMsg: string);
 begin
   memLog.Lines.Add(FormatDateTime('hh:nn:ss', Now) + ' ' + AMsg);
-  while memLog.Lines.Count > 200 do
+  while memLog.Lines.Count > 500 do
     memLog.Lines.Delete(0);
+  memLog.SelStart := Length(memLog.Text);
 end;
 
 end.

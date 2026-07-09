@@ -7,7 +7,7 @@ object frmMain: TfrmMain
   ClientHeight = 500
   ClientWidth = 800
   Color = 2960685
-  LCLVersion = '4.4.0.0'
+  LCLVersion = '4.6.0.0'
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   object PageControl1: TPageControl
@@ -15,12 +15,12 @@ object frmMain: TfrmMain
     Height = 500
     Top = 0
     Width = 800
-    ActivePage = tsLog
+    ActivePage = tsConfig
     Align = alClient
-    TabIndex = 2
+    TabIndex = 0
     TabOrder = 0
     object tsConfig: TTabSheet
-      Caption = 'tsConfig'
+      Caption = 'Config'
       ClientHeight = 472
       ClientWidth = 792
       object pnlControl: TPanel
@@ -103,32 +103,47 @@ object frmMain: TfrmMain
           TabOrder = 3
         end
       end
-      object imgDepth: TImage
+      object PageControl2: TPageControl
         Left = 150
         Height = 472
         Top = 0
         Width = 642
+        ActivePage = tsVideo
         Align = alClient
-        Proportional = True
-        Stretch = True
-      end
-    end
-    object tsView: TTabSheet
-      Caption = 'tsView'
-      ClientHeight = 472
-      ClientWidth = 792
-      object imgColor: TImage
-        Left = 0
-        Height = 472
-        Top = 0
-        Width = 792
-        Align = alClient
-        Proportional = True
-        Stretch = True
+        TabIndex = 0
+        TabOrder = 1
+        object tsVideo: TTabSheet
+          Caption = 'Video'
+          ClientHeight = 444
+          ClientWidth = 634
+          object imgColor: TImage
+            Left = 0
+            Height = 444
+            Top = 0
+            Width = 634
+            Align = alClient
+            Proportional = True
+            Stretch = True
+          end
+        end
+        object tsDepth: TTabSheet
+          Caption = 'Depth'
+          ClientHeight = 444
+          ClientWidth = 634
+          object imgDepth: TImage
+            Left = 0
+            Height = 444
+            Top = 0
+            Width = 634
+            Align = alClient
+            Proportional = True
+            Stretch = True
+          end
+        end
       end
     end
     object tsLog: TTabSheet
-      Caption = 'tsLog'
+      Caption = 'Log'
       ClientHeight = 472
       ClientWidth = 792
       object memlog: TMemo
@@ -137,9 +152,6 @@ object frmMain: TfrmMain
         Top = 0
         Width = 792
         Align = alClient
-        Lines.Strings = (
-          'memlog'
-        )
         TabOrder = 0
       end
     end
