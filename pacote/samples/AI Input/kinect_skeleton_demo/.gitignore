@@ -1,0 +1,9 @@
+lib/
+*.exe
+*.res
+*.or
+*.ppu
+*.o
+*.compiled
+backup/
+pose_*.json

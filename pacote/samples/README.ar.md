@@ -1,4 +1,4 @@
-# 📂 مشاريع توضيحية (Samples)
+﻿# 📂 مشاريع توضيحية (Samples)
 
 > [!NOTE]
 > يحتوي هذا المجلد على مجموعة كاملة من الأمثلة والمشاريع المطورة لتوضيح واختبار جميع مكونات الذكاء الاصطناعي، تعلم الآلة، معالجة الصور، معالجة الإشارات الرقمية (DSP)، أتمتة الأجهزة، وتوليد المستندات لحزمة Lazarus AI Suite.
@@ -107,6 +107,7 @@
 | **[hardware_net_demo](AI Input/hardware_net_demo/)** | `pacote/samples/AI Input/hardware_net_demo` | عرض متكامل يجمع الكاميرات، ووسطاء MQTT، والبريد الإلكتروني، وجسور PLC. |
 | **[serial_demo](AI Input/serial_demo/)** | `pacote/samples/AI Input/serial_demo` | اتصال ثنائي الاتجاه مباشر مع المنافذ التسلسلية ولوحات Arduino. |
 | **[kinect_capture_demo](AI Input/kinect_capture_demo/)** | `pacote/samples/AI Input/kinect_capture_demo` | عرض رسومي لالتقاط اللون والعمق من Kinect مع سجل مدمج. |
+| **[kinect_skeleton_demo](AI Input/kinect_skeleton_demo/)** | `pacote/samples/AI Input/kinect_skeleton_demo` | عرض رسومي لتتبع هيكل Kinect مع تراكب فيديو RGB وتصدير الوضعية بصيغة JSON. |
 | **[kinect_frame_capture_test](AI Input/kinect_frame_capture_test/)** | `pacote/samples/AI Input/kinect_frame_capture_test` | اختبار سطر أوامر يلتقط إطارا ملونا عبر مكونات Kinect ويحفظ السجل والصورة. |
 | **[kinect_sdk10_direct_frame_test](AI Input/kinect_sdk10_direct_frame_test/)** | `pacote/samples/AI Input/kinect_sdk10_direct_frame_test` | اختبار مباشر لـ `Kinect10.dll` لتشخيص التهيئة والتدفق والإطار و `LockRect` و `ReleaseFrame`. |
 | **[socket_server_client_demo](AI Input/socket_server_client_demo/)** | `pacote/samples/AI Input/socket_server_client_demo` | أداة خادم وعميل TCP/UDP أصلية لتبادل البيانات السريع. |

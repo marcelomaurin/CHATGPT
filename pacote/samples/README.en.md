@@ -1,4 +1,4 @@
-# 📂 Demonstration Projects (Samples)
+﻿# 📂 Demonstration Projects (Samples)
 
 > [!NOTE]
 > This directory contains the complete suite of examples developed to demonstrate and test all Artificial Intelligence, Machine Learning, Image Processing, Digital Signal Processing (DSP), Hardware Automation, and Document Generation components of the Lazarus AI Suite.
@@ -107,6 +107,7 @@ The following examples are visual projects ready for compilation and interactive
 | **[hardware_net_demo](AI Input/hardware_net_demo/)** | `pacote/samples/AI Input/hardware_net_demo` | Showcase integrating cameras, MQTT brokers, emails, and PLC bridges. |
 | **[serial_demo](AI Input/serial_demo/)** | `pacote/samples/AI Input/serial_demo` | Direct two-way communication with serial ports and Arduino boards. |
 | **[kinect_capture_demo](AI Input/kinect_capture_demo/)** | `pacote/samples/AI Input/kinect_capture_demo` | Graphical demo for Kinect color/depth capture with integrated logging. |
+| **[kinect_skeleton_demo](AI Input/kinect_skeleton_demo/)** | `pacote/samples/AI Input/kinect_skeleton_demo` | Graphical demo for Kinect skeleton tracking, RGB video overlay, and JSON pose export. |
 | **[kinect_frame_capture_test](AI Input/kinect_frame_capture_test/)** | `pacote/samples/AI Input/kinect_frame_capture_test` | Console test that captures one color frame through the Kinect components and saves log/image output. |
 | **[kinect_sdk10_direct_frame_test](AI Input/kinect_sdk10_direct_frame_test/)** | `pacote/samples/AI Input/kinect_sdk10_direct_frame_test` | Direct `Kinect10.dll` diagnostic test for initialization, stream, frame, `LockRect`, and `ReleaseFrame`. |
 | **[socket_server_client_demo](AI Input/socket_server_client_demo/)** | `pacote/samples/AI Input/socket_server_client_demo` | Native server and client TCP/UDP utility for rapid data exchange. |
