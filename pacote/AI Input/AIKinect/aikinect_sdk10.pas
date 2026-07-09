@@ -79,6 +79,44 @@ type
   TNuiCameraElevationSetAngle = function(lAngleDegrees: LongInt): HRESULT; stdcall;
   TNuiLedSetColor = function(dwColor: DWord): HRESULT; stdcall;
 
+  TNuiVector4 = record
+    x, y, z, w: Single;
+  end;
+
+  NUI_SKELETON_DATA = record
+    eTrackingState: Integer;
+    dwTrackingID: DWord;
+    dwEnrollmentIndex: DWord;
+    dwUserIndex: DWord;
+    Position: TNuiVector4;
+    SkeletonPositions: array[0..19] of TNuiVector4;
+    eSkeletonPositionTrackingState: array[0..19] of Integer;
+    dwQualityFlags: DWord;
+    _pad: array[0..2] of DWord;
+  end;
+
+  NUI_SKELETON_FRAME = record
+    liTimeStamp: Int64;
+    dwFrameNumber: DWord;
+    dwFlags: DWord;
+    vFloorClipPlane: TNuiVector4;
+    vNormalToGravity: TNuiVector4;
+    SkeletonData: array[0..5] of NUI_SKELETON_DATA;
+  end;
+
+  NUI_TRANSFORM_SMOOTH_PARAMETERS = record
+    fSmoothing: Single;
+    fCorrection: Single;
+    fPrediction: Single;
+    fJitterRadius: Single;
+    fMaxDeviationRadius: Single;
+  end;
+
+  TNuiSkeletonTrackingEnable = function(hNextFrameEvent: THandle; dwFlags: DWord): HRESULT; stdcall;
+  TNuiSkeletonTrackingDisable = function: HRESULT; stdcall;
+  TNuiSkeletonGetNextFrame = function(dwMillisecondsToWait: DWord; out pSkeletonFrame: NUI_SKELETON_FRAME): HRESULT; stdcall;
+  TNuiTransformSmooth = function(var pSkeletonFrame: NUI_SKELETON_FRAME; pSmoothingParams: Pointer): HRESULT; stdcall;
+
 const
   NUI_IMAGE_TYPE_DEPTH_AND_PLAYER_INDEX = 0;
   NUI_IMAGE_TYPE_COLOR                  = 1;
@@ -86,6 +124,10 @@ const
   NUI_IMAGE_RESOLUTION_640x480          = 2;
   NUI_INITIALIZE_FLAG_USES_COLOR        = $00000002;
   NUI_INITIALIZE_FLAG_USES_DEPTH        = $00000020;
+  NUI_INITIALIZE_FLAG_USES_SKELETON     = $00000008;
+  NUI_SKELETON_TRACKING_FLAG_ENABLE_SEATED_SUPPORT = $00000008;
+  NUI_SKELETON_COUNT                    = 6;
+  NUI_SKELETON_POSITION_COUNT           = 20;
 
 type
   TAIKinectSDK10Backend = class(TAIKinectNativeBackend)
@@ -102,6 +144,13 @@ type
     NuiImageStreamReleaseFrame: TNuiImageStreamReleaseFrame;
     NuiCameraElevationSetAngle: TNuiCameraElevationSetAngle;
     NuiLedSetColor: TNuiLedSetColor;
+    NuiSkeletonTrackingEnable: TNuiSkeletonTrackingEnable;
+    NuiSkeletonTrackingDisable: TNuiSkeletonTrackingDisable;
+    NuiSkeletonGetNextFrame: TNuiSkeletonGetNextFrame;
+    NuiTransformSmooth: TNuiTransformSmooth;
+    FSkeletonSeated: Boolean;
+    FSkeletonSmooth: Single;
+    FSkeletonUnavailable: Boolean;
     
     function LoadFunctions: Boolean;
     procedure LogSDK(const AMsg: string);
@@ -122,6 +171,7 @@ type
     function StartDepthStream: Boolean; override;
     procedure StopDepthStream; override;
 
+    procedure ConfigureSkeleton(ASeated: Boolean; ASmooth: Double); override;
     function StartSkeletonStream: Boolean; override;
     procedure StopSkeletonStream; override;
 
@@ -142,16 +192,21 @@ type
     FDepthActive: Boolean;
     FPendingColorFile: string;
     FPendingDepthFile: string;
+    FSkeletonActive: Boolean;
+    FPendingBodies: TAIKinectBodies;
     procedure FireColorEvent;
     procedure FireDepthEvent;
+    procedure FireSkeletonEvent;
     procedure ProcessColor;
     procedure ProcessDepth;
+    procedure ProcessSkeleton;
   protected
     procedure Execute; override;
   public
     constructor Create(ABackend: TAIKinectSDK10Backend);
     property ColorActive: Boolean read FColorActive write FColorActive;
     property DepthActive: Boolean read FDepthActive write FDepthActive;
+    property SkeletonActive: Boolean read FSkeletonActive write FSkeletonActive;
   end;
 
 implementation
@@ -164,6 +219,7 @@ begin
   FBackend := ABackend;
   FColorActive := False;
   FDepthActive := False;
+  FSkeletonActive := False;
   FreeOnTerminate := False;
 end;
 
@@ -177,6 +233,12 @@ procedure TSDK10FrameThread.FireDepthEvent;
 begin
   if Assigned(FBackend.OnDepthFrame) then
     FBackend.OnDepthFrame(FBackend, FPendingDepthFile, 400, 4000);
+end;
+
+procedure TSDK10FrameThread.FireSkeletonEvent;
+begin
+  if Assigned(FBackend.OnSkeletonFrame) then
+    FBackend.OnSkeletonFrame(FBackend, FPendingBodies);
 end;
 
 procedure TSDK10FrameThread.ProcessColor;
@@ -311,6 +373,70 @@ begin
     end;
   end;
 end;
+
+procedure TSDK10FrameThread.ProcessSkeleton;
+const
+  FOCAL_640 = 571.26;
+var
+  Frame: NUI_SKELETON_FRAME;
+  Smooth: NUI_TRANSFORM_SMOOTH_PARAMETERS;
+  Bodies: TAIKinectBodies;
+  I, J, N: Integer;
+  V: TNuiVector4;
+  JT: TAIKinectJointType;
+begin
+  if FBackend = nil then Exit;
+  if not Assigned(FBackend.OnSkeletonFrame) then Exit;
+  if not Assigned(FBackend.NuiSkeletonGetNextFrame) then Exit;
+  if FBackend.NuiSkeletonGetNextFrame(100, Frame) < 0 then Exit;
+
+  if Assigned(FBackend.NuiTransformSmooth) then
+  begin
+    Smooth.fSmoothing := FBackend.FSkeletonSmooth;
+    Smooth.fCorrection := 0.5;
+    Smooth.fPrediction := 0.5;
+    Smooth.fJitterRadius := 0.05;
+    Smooth.fMaxDeviationRadius := 0.04;
+    FBackend.NuiTransformSmooth(Frame, @Smooth);
+  end;
+
+  SetLength(Bodies, 0);
+  for I := 0 to NUI_SKELETON_COUNT - 1 do
+    if Frame.SkeletonData[I].eTrackingState = 2 then
+    begin
+      N := Length(Bodies);
+      SetLength(Bodies, N + 1);
+      Bodies[N].TrackingId := Integer(Frame.SkeletonData[I].dwTrackingID);
+      Bodies[N].Tracked := True;
+      for J := 0 to NUI_SKELETON_POSITION_COUNT - 1 do
+      begin
+        JT := TAIKinectJointType(J);
+        V := Frame.SkeletonData[I].SkeletonPositions[J];
+        Bodies[N].Joints[JT].JointType := JT;
+        Bodies[N].Joints[JT].X := V.x;
+        Bodies[N].Joints[JT].Y := V.y;
+        Bodies[N].Joints[JT].Z := V.z;
+        if V.z > 0.1 then
+        begin
+          Bodies[N].Joints[JT].ScreenX := Round(320 + (V.x / V.z) * FOCAL_640);
+          Bodies[N].Joints[JT].ScreenY := Round(240 - (V.y / V.z) * FOCAL_640);
+        end
+        else
+        begin
+          Bodies[N].Joints[JT].ScreenX := -1;
+          Bodies[N].Joints[JT].ScreenY := -1;
+        end;
+        case Frame.SkeletonData[I].eSkeletonPositionTrackingState[J] of
+          2: Bodies[N].Joints[JT].State := ktTracked;
+          1: Bodies[N].Joints[JT].State := ktInferred;
+          else Bodies[N].Joints[JT].State := ktNotTracked;
+        end;
+      end;
+    end;
+
+  FPendingBodies := Bodies;
+  Synchronize(@FireSkeletonEvent);
+end;
 procedure TSDK10FrameThread.Execute;
 var
   SavedMask: TFPUExceptionMask;
@@ -324,6 +450,7 @@ begin
       begin
         if FColorActive then ProcessColor;
         if FDepthActive then ProcessDepth;
+        if FSkeletonActive then ProcessSkeleton;
       end;
       Sleep(10); // Decreased sleep for higher frame responsiveness
     end;
@@ -361,6 +488,9 @@ begin
   FLibHandle := NilHandle;
   FColorStreamHandle := 0;
   FDepthStreamHandle := 0;
+  FSkeletonSeated := False;
+  FSkeletonSmooth := 0.5;
+  FSkeletonUnavailable := False;
 end;
 
 destructor TAIKinectSDK10Backend.Destroy;
@@ -378,6 +508,10 @@ begin
   NuiImageStreamReleaseFrame := TNuiImageStreamReleaseFrame(GetProcAddress(FLibHandle, 'NuiImageStreamReleaseFrame'));
   NuiCameraElevationSetAngle := TNuiCameraElevationSetAngle(GetProcAddress(FLibHandle, 'NuiCameraElevationSetAngle'));
   NuiLedSetColor := TNuiLedSetColor(GetProcAddress(FLibHandle, 'NuiLedSetColor'));
+  NuiSkeletonTrackingEnable := TNuiSkeletonTrackingEnable(GetProcAddress(FLibHandle, 'NuiSkeletonTrackingEnable'));
+  NuiSkeletonTrackingDisable := TNuiSkeletonTrackingDisable(GetProcAddress(FLibHandle, 'NuiSkeletonTrackingDisable'));
+  NuiSkeletonGetNextFrame := TNuiSkeletonGetNextFrame(GetProcAddress(FLibHandle, 'NuiSkeletonGetNextFrame'));
+  NuiTransformSmooth := TNuiTransformSmooth(GetProcAddress(FLibHandle, 'NuiTransformSmooth'));
 
   Result := Assigned(NuiInitialize) and Assigned(NuiShutdown) and
             Assigned(NuiImageStreamOpen) and Assigned(NuiImageStreamGetNextFrame) and
@@ -428,8 +562,15 @@ begin
         Exit;
       end;
 
-      LogSDK('Calling NuiInitialize.');
-      HR := NuiInitialize(NUI_INITIALIZE_FLAG_USES_DEPTH or NUI_INITIALIZE_FLAG_USES_COLOR);
+      FSkeletonUnavailable := False;
+      LogSDK('Calling NuiInitialize with color, depth and skeleton.');
+      HR := NuiInitialize(NUI_INITIALIZE_FLAG_USES_DEPTH or NUI_INITIALIZE_FLAG_USES_COLOR or NUI_INITIALIZE_FLAG_USES_SKELETON);
+      if HR < 0 then
+      begin
+        LogSDK(Format('NuiInitialize with skeleton failed, HRESULT=0x%.8x. Retrying color/depth only.', [DWord(HR)]));
+        FSkeletonUnavailable := True;
+        HR := NuiInitialize(NUI_INITIALIZE_FLAG_USES_DEPTH or NUI_INITIALIZE_FLAG_USES_COLOR);
+      end;
       if HR < 0 then
       begin
         FLastError := Format('Failed to initialize Kinect SDK NuiInitialize, HRESULT=0x%.8x (Kinect device disconnected or busy).', [DWord(HR)]);
@@ -465,9 +606,22 @@ begin
     begin
       TSDK10FrameThread(FTimer).ColorActive := False;
       TSDK10FrameThread(FTimer).DepthActive := False;
+      TSDK10FrameThread(FTimer).SkeletonActive := False;
       FTimer.Terminate;
       FTimer.WaitFor;
       FreeAndNil(FTimer);
+    end;
+    if Assigned(NuiSkeletonTrackingDisable) then
+    begin
+      try
+        NuiSkeletonTrackingDisable();
+      except
+        on E: Exception do
+        begin
+          FLastError := 'Exception in NuiSkeletonTrackingDisable: ' + E.ClassName + ': ' + E.Message;
+          LogSDK(FLastError);
+        end;
+      end;
     end;
 
     FColorStreamHandle := 0;
@@ -495,6 +649,10 @@ begin
     NuiImageStreamReleaseFrame := nil;
     NuiCameraElevationSetAngle := nil;
     NuiLedSetColor := nil;
+    NuiSkeletonTrackingEnable := nil;
+    NuiSkeletonTrackingDisable := nil;
+    NuiSkeletonGetNextFrame := nil;
+    NuiTransformSmooth := nil;
 
     if FLibHandle <> NilHandle then
     begin
@@ -657,13 +815,69 @@ begin
   FDepthStreamHandle := 0;
 end;
 
+procedure TAIKinectSDK10Backend.ConfigureSkeleton(ASeated: Boolean; ASmooth: Double);
+begin
+  FSkeletonSeated := ASeated;
+  if ASmooth < 0 then
+    FSkeletonSmooth := 0
+  else if ASmooth > 1 then
+    FSkeletonSmooth := 1
+  else
+    FSkeletonSmooth := ASmooth;
+end;
+
 function TAIKinectSDK10Backend.StartSkeletonStream: Boolean;
+var
+  SavedMask: TFPUExceptionMask;
+  Flags: DWord;
+  HR: HRESULT;
 begin
   Result := False;
+  if not FConnected then
+  begin
+    FLastError := 'Kinect SDK10 backend is not connected.';
+    Exit;
+  end;
+  if FSkeletonUnavailable then
+  begin
+    FLastError := 'Skeleton tracking is unavailable because NuiInitialize failed with the skeleton flag.';
+    Exit;
+  end;
+  if not Assigned(NuiSkeletonTrackingEnable) then
+  begin
+    FLastError := 'Skeleton tracking functions not available in Kinect10.dll.';
+    Exit;
+  end;
+
+  SavedMask := GetExceptionMask;
+  SetExceptionMask(SavedMask + [exZeroDivide, exInvalidOp, exOverflow, exUnderflow]);
+  try
+    Flags := 0;
+    if FSkeletonSeated then
+      Flags := NUI_SKELETON_TRACKING_FLAG_ENABLE_SEATED_SUPPORT;
+    HR := NuiSkeletonTrackingEnable(0, Flags);
+    if HR >= 0 then
+    begin
+      if Assigned(FTimer) then
+        TSDK10FrameThread(FTimer).SkeletonActive := True;
+      Result := True;
+    end
+    else
+    begin
+      FLastError := Format('NuiSkeletonTrackingEnable failed, HRESULT=0x%.8x', [DWord(HR)]);
+      LogSDK(FLastError);
+    end;
+  finally
+    SetExceptionMask(SavedMask);
+  end;
 end;
 
 procedure TAIKinectSDK10Backend.StopSkeletonStream;
 begin
+  if Assigned(FTimer) then
+    TSDK10FrameThread(FTimer).SkeletonActive := False;
+  if FConnected and Assigned(NuiSkeletonTrackingDisable) then
+    NuiSkeletonTrackingDisable();
 end;
 
 function TAIKinectSDK10Backend.StartAudioStream: Boolean;
@@ -807,4 +1021,8 @@ begin
     DeleteFile(AFileName);
   RenameFile(TmpFile, AFileName);
 end;
+initialization
+  Assert(SizeOf(NUI_SKELETON_DATA) = 448, 'NUI_SKELETON_DATA layout mismatch');
+  Assert(SizeOf(NUI_SKELETON_FRAME) = 48 + 6*448, 'NUI_SKELETON_FRAME layout mismatch');
+
 end.

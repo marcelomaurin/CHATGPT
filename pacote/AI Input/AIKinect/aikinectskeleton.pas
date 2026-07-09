@@ -80,18 +80,25 @@ end;
 
 function TAIKinectSkeleton.StartTracking: Boolean;
 begin
+  Result := False;
   if FActive then Exit(True);
   if not Assigned(FSensor) or not FSensor.IsConnected then
   begin
     SetError('Sensor is not connected');
     Exit(False);
   end;
-  
+
+  FSensor.BackendObject.ConfigureSkeleton(FSeatedMode, FSmoothFactor);
   FSensor.BackendObject.OnSkeletonFrame := @DoOnSkeleton;
   if FSensor.BackendObject.StartSkeletonStream then
   begin
     FActive := True;
     Result := True;
+  end
+  else
+  begin
+    SetError(FSensor.BackendObject.LastError);
+    FSensor.BackendObject.OnSkeletonFrame := nil;
   end;
 end;
 

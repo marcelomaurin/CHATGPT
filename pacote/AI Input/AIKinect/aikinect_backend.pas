@@ -37,6 +37,7 @@ type
     function StartDepthStream: Boolean; virtual; abstract;
     procedure StopDepthStream; virtual; abstract;
 
+    procedure ConfigureSkeleton(ASeated: Boolean; ASmooth: Double); virtual;
     function StartSkeletonStream: Boolean; virtual;
     procedure StopSkeletonStream; virtual;
 
@@ -65,6 +66,10 @@ end;
 destructor TAIKinectNativeBackend.Destroy;
 begin
   inherited Destroy;
+end;
+
+procedure TAIKinectNativeBackend.ConfigureSkeleton(ASeated: Boolean; ASmooth: Double);
+begin
 end;
 
 function TAIKinectNativeBackend.StartSkeletonStream: Boolean;
