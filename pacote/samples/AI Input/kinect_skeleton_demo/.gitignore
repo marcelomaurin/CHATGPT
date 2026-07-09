@@ -7,3 +7,4 @@ lib/
 *.compiled
 backup/
 pose_*.json
+captures/

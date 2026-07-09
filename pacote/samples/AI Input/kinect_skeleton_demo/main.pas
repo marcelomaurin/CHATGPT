@@ -29,9 +29,12 @@ type
     lblSmooth: TLabel;
     lblStatus: TLabel;
     memLog: TMemo;
+    PageControl1: TPageControl;
     pbView: TPaintBox;
     pnlControl: TPanel;
     pnlView: TPanel;
+    tslog: TTabSheet;
+    tsView: TTabSheet;
     tbSmooth: TTrackBar;
     tmrLog: TTimer;
 
@@ -58,8 +61,14 @@ type
     FOpening: Boolean;
     FBackendLogFile: string;
     FBackendLogPos: Int64;
+    FSnapshotDir: string;
+    FHadTrackedBody: Boolean;
     procedure Log(const AMsg: string);
     procedure LoadBackendLog;
+    function HasTrackedBody(const ABodies: TAIKinectBodies): Boolean;
+    function JointLabel(AJoint: TAIKinectJointType): string;
+    procedure DrawBodies(ACanvas: TCanvas; AWidth, AHeight: Integer; ADrawLabels: Boolean);
+    procedure SavePoseSnapshot;
     function JointName(AJoint: TAIKinectJointType): string;
     function StateName(AState: TAIKinectTrackState): string;
     function JointColor(AState: TAIKinectTrackState; ABase: TColor): TColor;
@@ -122,6 +131,8 @@ begin
   SetLength(FBodies, 0);
   FBackendLogFile := IncludeTrailingPathDelimiter(GetTempDir) + 'aikinect_sdk10_backend.log';
   FBackendLogPos := 0;
+  FSnapshotDir := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))) + 'captures';
+  FHadTrackedBody := False;
   tmrLog.Enabled := True;
   memLog.Clear;
   chkSeated.Checked := True;
@@ -191,6 +202,7 @@ begin
   if Assigned(FSensor) then
     FSensor.Close;
   SetLength(FBodies, 0);
+  FHadTrackedBody := False;
   lblBodies.Caption := 'Corpos: 0';
   pbView.Invalidate;
 end;
@@ -265,66 +277,9 @@ begin
 end;
 
 procedure TfrmMain.pbViewPaint(Sender: TObject);
-var
-  SX, SY: Double;
-  BodyIndex, BoneIndex: Integer;
-  Joint: TAIKinectJointType;
-  R, X, Y: Integer;
-  Base: TColor;
 begin
-  pbView.Canvas.Brush.Color := clBlack;
-  pbView.Canvas.FillRect(0, 0, pbView.Width, pbView.Height);
-
-  if chkShowVideo.Checked and (FVideoBmp.Width > 0) and (FVideoBmp.Height > 0) then
-    pbView.Canvas.StretchDraw(Rect(0, 0, pbView.Width, pbView.Height), FVideoBmp);
-
-  if (pbView.Width <= 0) or (pbView.Height <= 0) then Exit;
-  SX := pbView.Width / 640;
-  SY := pbView.Height / 480;
-
-  for BodyIndex := 0 to Length(FBodies) - 1 do
-  begin
-    Base := BodyColors[BodyIndex mod Length(BodyColors)];
-
-    if not FBodies[BodyIndex].Tracked then
-    begin
-      if FBodies[BodyIndex].Joints[kjHipCenter].ScreenX < 0 then Continue;
-      X := Round(FBodies[BodyIndex].Joints[kjHipCenter].ScreenX * SX);
-      Y := Round(FBodies[BodyIndex].Joints[kjHipCenter].ScreenY * SY);
-      R := 24;
-      pbView.Canvas.Pen.Style := psDash;
-      pbView.Canvas.Pen.Width := 3;
-      pbView.Canvas.Pen.Color := clYellow;
-      pbView.Canvas.Brush.Style := bsClear;
-      pbView.Canvas.Ellipse(X - R, Y - R, X + R, Y + R);
-      pbView.Canvas.Pen.Style := psSolid;
-      pbView.Canvas.Brush.Style := bsSolid;
-      pbView.Canvas.Font.Color := clYellow;
-      pbView.Canvas.TextOut(X + R + 6, Y - 8, 'detectado (sem pose)');
-      Continue;
-    end;
-
-    for BoneIndex := Low(Bones) to High(Bones) do
-      DrawBone(pbView.Canvas, FBodies[BodyIndex], Bones[BoneIndex, 0],
-        Bones[BoneIndex, 1], SX, SY, Base);
-
-    for Joint := Low(TAIKinectJointType) to High(TAIKinectJointType) do
-    begin
-      if FBodies[BodyIndex].Joints[Joint].ScreenX < 0 then Continue;
-      X := Round(FBodies[BodyIndex].Joints[Joint].ScreenX * SX);
-      Y := Round(FBodies[BodyIndex].Joints[Joint].ScreenY * SY);
-      if Joint = kjHead then
-        R := 12
-      else
-        R := 5;
-      pbView.Canvas.Pen.Color := clBlack;
-      pbView.Canvas.Pen.Width := 1;
-      pbView.Canvas.Brush.Color := JointColor(FBodies[BodyIndex].Joints[Joint].State, Base);
-      pbView.Canvas.Ellipse(X - R, Y - R, X + R, Y + R);
-    end;
-  end;
+  DrawBodies(pbView.Canvas, pbView.Width, pbView.Height, True);
 end;
-
 
 procedure TfrmMain.tmrLogTimer(Sender: TObject);
 begin
@@ -350,6 +305,7 @@ begin
   tbSmooth.Enabled := True;
   FVideoBmp.SetSize(0, 0);
   SetLength(FBodies, 0);
+  FHadTrackedBody := False;
   lblBodies.Caption := 'Corpos: 0';
   pbView.Invalidate;
 end;
@@ -377,9 +333,17 @@ begin
 end;
 
 procedure TfrmMain.OnSkeletonFrame(Sender: TObject; const ABodies: TAIKinectBodies);
+var
+  HasPose: Boolean;
 begin
   FBodies := ABodies;
   lblBodies.Caption := 'Corpos: ' + IntToStr(Length(FBodies));
+
+  HasPose := HasTrackedBody(FBodies);
+  if HasPose and not FHadTrackedBody then
+    SavePoseSnapshot;
+  FHadTrackedBody := HasPose;
+
   pbView.Invalidate;
 end;
 
@@ -437,6 +401,142 @@ begin
       Log('Falha ao ler log do backend: ' + E.Message);
   end;
 end;
+function TfrmMain.HasTrackedBody(const ABodies: TAIKinectBodies): Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  for I := 0 to Length(ABodies) - 1 do
+    if ABodies[I].Tracked then
+      Exit(True);
+end;
+
+function TfrmMain.JointLabel(AJoint: TAIKinectJointType): string;
+begin
+  case AJoint of
+    kjHipCenter: Result := 'Quadril';
+    kjSpine: Result := 'Coluna';
+    kjShoulderCenter: Result := 'Ombros';
+    kjHead: Result := 'Cabeca';
+    kjShoulderLeft: Result := 'Ombro E';
+    kjElbowLeft: Result := 'Cotovelo E';
+    kjWristLeft: Result := 'Pulso E';
+    kjHandLeft: Result := 'Mao E';
+    kjShoulderRight: Result := 'Ombro D';
+    kjElbowRight: Result := 'Cotovelo D';
+    kjWristRight: Result := 'Pulso D';
+    kjHandRight: Result := 'Mao D';
+    kjHipLeft: Result := 'Quadril E';
+    kjKneeLeft: Result := 'Joelho E';
+    kjAnkleLeft: Result := 'Tornozelo E';
+    kjFootLeft: Result := 'Pe E';
+    kjHipRight: Result := 'Quadril D';
+    kjKneeRight: Result := 'Joelho D';
+    kjAnkleRight: Result := 'Tornozelo D';
+    kjFootRight: Result := 'Pe D';
+    else Result := JointName(AJoint);
+  end;
+end;
+
+procedure TfrmMain.DrawBodies(ACanvas: TCanvas; AWidth, AHeight: Integer; ADrawLabels: Boolean);
+var
+  SX, SY: Double;
+  BodyIndex, BoneIndex: Integer;
+  Joint: TAIKinectJointType;
+  R, X, Y: Integer;
+  Base: TColor;
+begin
+  ACanvas.Brush.Style := bsSolid;
+  ACanvas.Brush.Color := clBlack;
+  ACanvas.FillRect(0, 0, AWidth, AHeight);
+
+  if chkShowVideo.Checked and (FVideoBmp.Width > 0) and (FVideoBmp.Height > 0) then
+    ACanvas.StretchDraw(Rect(0, 0, AWidth, AHeight), FVideoBmp);
+
+  if (AWidth <= 0) or (AHeight <= 0) then Exit;
+  SX := AWidth / 640;
+  SY := AHeight / 480;
+
+  for BodyIndex := 0 to Length(FBodies) - 1 do
+  begin
+    Base := BodyColors[BodyIndex mod Length(BodyColors)];
+
+    if not FBodies[BodyIndex].Tracked then
+    begin
+      if FBodies[BodyIndex].Joints[kjHipCenter].ScreenX < 0 then Continue;
+      X := Round(FBodies[BodyIndex].Joints[kjHipCenter].ScreenX * SX);
+      Y := Round(FBodies[BodyIndex].Joints[kjHipCenter].ScreenY * SY);
+      R := 24;
+      ACanvas.Pen.Style := psDash;
+      ACanvas.Pen.Width := 3;
+      ACanvas.Pen.Color := clYellow;
+      ACanvas.Brush.Style := bsClear;
+      ACanvas.Ellipse(X - R, Y - R, X + R, Y + R);
+      ACanvas.Pen.Style := psSolid;
+      ACanvas.Brush.Style := bsSolid;
+      ACanvas.Font.Color := clYellow;
+      ACanvas.TextOut(X + R + 6, Y - 8, 'detectado (sem pose)');
+      Continue;
+    end;
+
+    for BoneIndex := Low(Bones) to High(Bones) do
+      DrawBone(ACanvas, FBodies[BodyIndex], Bones[BoneIndex, 0],
+        Bones[BoneIndex, 1], SX, SY, Base);
+
+    for Joint := Low(TAIKinectJointType) to High(TAIKinectJointType) do
+    begin
+      if FBodies[BodyIndex].Joints[Joint].ScreenX < 0 then Continue;
+      if FBodies[BodyIndex].Joints[Joint].State = ktNotTracked then Continue;
+      X := Round(FBodies[BodyIndex].Joints[Joint].ScreenX * SX);
+      Y := Round(FBodies[BodyIndex].Joints[Joint].ScreenY * SY);
+      if Joint = kjHead then
+        R := 12
+      else
+        R := 5;
+      ACanvas.Pen.Style := psSolid;
+      ACanvas.Pen.Color := clBlack;
+      ACanvas.Pen.Width := 1;
+      ACanvas.Brush.Style := bsSolid;
+      ACanvas.Brush.Color := JointColor(FBodies[BodyIndex].Joints[Joint].State, Base);
+      ACanvas.Ellipse(X - R, Y - R, X + R, Y + R);
+      if ADrawLabels then
+      begin
+        ACanvas.Font.Color := clWhite;
+        ACanvas.TextOut(X + R + 3, Y - R - 2, JointLabel(Joint));
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmMain.SavePoseSnapshot;
+var
+  Bmp: TBitmap;
+  FileName: string;
+begin
+  if not ForceDirectories(FSnapshotDir) then
+  begin
+    Log('Falha ao criar pasta de capturas: ' + FSnapshotDir);
+    Exit;
+  end;
+
+  FileName := IncludeTrailingPathDelimiter(FSnapshotDir) +
+    'pose_' + FormatDateTime('yyyymmdd_hhnnss_zzz', Now) + '.bmp';
+  Bmp := TBitmap.Create;
+  try
+    try
+      Bmp.SetSize(640, 480);
+      DrawBodies(Bmp.Canvas, Bmp.Width, Bmp.Height, True);
+      Bmp.SaveToFile(FileName);
+      Log('Foto da pose salva: ' + FileName);
+    except
+      on E: Exception do
+        Log('Falha ao salvar foto da pose: ' + E.Message);
+    end;
+  finally
+    Bmp.Free;
+  end;
+end;
+
 function TfrmMain.JointName(AJoint: TAIKinectJointType): string;
 begin
   Result := JointNames[AJoint];
