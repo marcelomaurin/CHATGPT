@@ -33,7 +33,7 @@ type
   published
     property Sensor       : TAIKinectSensor         read FSensor write FSensor;
     property Active       : Boolean                 read FActive write SetActive default False;
-    property SeatedMode   : Boolean                 read FSeatedMode write FSeatedMode default False;
+    property SeatedMode   : Boolean                 read FSeatedMode write FSeatedMode default True;
     property SmoothFactor : Double                  read FSmoothFactor write FSmoothFactor;
     property OnSkeletonFrame: TAIKinectSkeletonEvent read FOnSkeleton write FOnSkeleton;
   end;
@@ -57,7 +57,7 @@ begin
     'Extracts up to 20 joints per body, converting them into compatible landmarks.';
   FSensor := nil;
   FActive := False;
-  FSeatedMode := False;
+  FSeatedMode := True;
   FSmoothFactor := 0.5;
   SetLength(FBodies, 0);
 end;

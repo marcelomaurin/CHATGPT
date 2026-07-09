@@ -50,7 +50,9 @@
       Top = 110
       Width = 95
       Caption = 'Modo sentado'
+      Checked = True
       Font.Color = clWhite
+      State = cbChecked
       ParentFont = False
       TabOrder = 2
     end
@@ -142,5 +144,11 @@
       Align = alClient
       OnPaint = pbViewPaint
     end
+  end
+  object tmrLog: TTimer
+    Interval = 1000
+    OnTimer = tmrLogTimer
+    Left = 240
+    Top = 32
   end
 end

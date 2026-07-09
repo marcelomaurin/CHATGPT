@@ -33,6 +33,7 @@ type
     pnlControl: TPanel;
     pnlView: TPanel;
     tbSmooth: TTrackBar;
+    tmrLog: TTimer;
 
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -40,6 +41,7 @@ type
     procedure btnCloseClick(Sender: TObject);
     procedure btnExportClick(Sender: TObject);
     procedure pbViewPaint(Sender: TObject);
+    procedure tmrLogTimer(Sender: TObject);
 
     procedure OnKinectConnect(Sender: TObject);
     procedure OnKinectDisconnect(Sender: TObject);
@@ -54,7 +56,10 @@ type
     FBodies: TAIKinectBodies;
     FLoadFailCount: Integer;
     FOpening: Boolean;
+    FBackendLogFile: string;
+    FBackendLogPos: Int64;
     procedure Log(const AMsg: string);
+    procedure LoadBackendLog;
     function JointName(AJoint: TAIKinectJointType): string;
     function StateName(AState: TAIKinectTrackState): string;
     function JointColor(AState: TAIKinectTrackState; ABase: TColor): TColor;
@@ -116,7 +121,8 @@ begin
   FVideoBmp := TBitmap.Create;
   SetLength(FBodies, 0);
   memLog.Clear;
-  Log('Demo iniciado. Conecte o Kinect e clique em Conectar.');
+  chkSeated.Checked := True;
+  Log('Demo iniciado. Modo sentado ativo por padrao. Conecte o Kinect e clique em Conectar.');
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
@@ -297,6 +303,11 @@ begin
   end;
 end;
 
+
+procedure TfrmMain.tmrLogTimer(Sender: TObject);
+begin
+  LoadBackendLog;
+end;
 procedure TfrmMain.OnKinectConnect(Sender: TObject);
 begin
   Log('Evento OnConnect.');
@@ -358,6 +369,52 @@ begin
   memLog.SelStart := Length(memLog.Text);
 end;
 
+
+procedure TfrmMain.LoadBackendLog;
+var
+  FS: TFileStream;
+  Buffer: string;
+  SL: TStringList;
+  I: Integer;
+  Line: string;
+begin
+  if (FBackendLogFile = '') or (not FileExists(FBackendLogFile)) then Exit;
+
+  try
+    FS := TFileStream.Create(FBackendLogFile, fmOpenRead or fmShareDenyNone);
+    try
+      if FS.Size < FBackendLogPos then
+        FBackendLogPos := 0;
+      if FS.Size <= FBackendLogPos then Exit;
+
+      FS.Position := FBackendLogPos;
+      SetLength(Buffer, FS.Size - FBackendLogPos);
+      if Length(Buffer) > 0 then
+        FS.ReadBuffer(Buffer[1], Length(Buffer));
+      FBackendLogPos := FS.Position;
+    finally
+      FS.Free;
+    end;
+
+    SL := TStringList.Create;
+    try
+      SL.Text := Buffer;
+      for I := 0 to SL.Count - 1 do
+      begin
+        Line := Trim(SL[I]);
+        if Line = '' then Continue;
+        if (Pos('Skeleton', Line) > 0) or (Pos('NuiSkeleton', Line) > 0) or
+           (Pos('NuiInitialize', Line) > 0) or (Pos('NuiShutdown', Line) > 0) then
+          Log('[backend] ' + Line);
+      end;
+    finally
+      SL.Free;
+    end;
+  except
+    on E: Exception do
+      Log('Falha ao ler log do backend: ' + E.Message);
+  end;
+end;
 function TfrmMain.JointName(AJoint: TAIKinectJointType): string;
 begin
   Result := JointNames[AJoint];

@@ -14,7 +14,7 @@ Demo Lazarus para testar o rastreamento de esqueleto do Kinect v1/Xbox 360 pelo 
 1. Abra `kinect_skeleton_demo.lpi` no Lazarus ou compile com `lazbuild kinect_skeleton_demo.lpi`.
 2. Execute o demo e clique em **Conectar**.
 3. Deixe **Vídeo de fundo** marcado para sobrepor o esqueleto ao RGB.
-4. Use **Modo sentado** antes de conectar quando quiser rastrear a parte superior do corpo.
+4. **Modo sentado** vem ativo por padrão; desmarque antes de conectar se quiser tentar rastreamento de corpo inteiro.
 5. Ajuste **Suavização** antes de conectar para reduzir tremor das juntas.
 6. Clique em **Exportar pose** para salvar a pose atual em JSON.
 

@@ -193,6 +193,8 @@ type
     FPendingColorFile: string;
     FPendingDepthFile: string;
     FSkeletonActive: Boolean;
+    FSkeletonPollCount: Integer;
+    FSkeletonFailCount: Integer;
     FPendingBodies: TAIKinectBodies;
     procedure FireColorEvent;
     procedure FireDepthEvent;
@@ -220,6 +222,8 @@ begin
   FColorActive := False;
   FDepthActive := False;
   FSkeletonActive := False;
+  FSkeletonPollCount := 0;
+  FSkeletonFailCount := 0;
   FreeOnTerminate := False;
 end;
 
@@ -382,13 +386,28 @@ var
   Smooth: NUI_TRANSFORM_SMOOTH_PARAMETERS;
   Bodies: TAIKinectBodies;
   I, J, N: Integer;
+  HR: HRESULT;
+  TrackedCount: Integer;
+  PositionOnlyCount: Integer;
+  StateList: string;
   V: TNuiVector4;
   JT: TAIKinectJointType;
 begin
   if FBackend = nil then Exit;
   if not Assigned(FBackend.OnSkeletonFrame) then Exit;
   if not Assigned(FBackend.NuiSkeletonGetNextFrame) then Exit;
-  if FBackend.NuiSkeletonGetNextFrame(100, Frame) < 0 then Exit;
+
+  FillChar(Frame, SizeOf(Frame), 0);
+  HR := FBackend.NuiSkeletonGetNextFrame(100, Frame);
+  Inc(FSkeletonPollCount);
+  if HR < 0 then
+  begin
+    Inc(FSkeletonFailCount);
+    if (FSkeletonFailCount mod 30) = 1 then
+      FBackend.LogSDK(Format('NuiSkeletonGetNextFrame failed, HRESULT=0x%.8x', [DWord(HR)]));
+    Exit;
+  end;
+  FSkeletonFailCount := 0;
 
   if Assigned(FBackend.NuiTransformSmooth) then
   begin
@@ -401,7 +420,20 @@ begin
   end;
 
   SetLength(Bodies, 0);
+  TrackedCount := 0;
+  PositionOnlyCount := 0;
+  StateList := '';
   for I := 0 to NUI_SKELETON_COUNT - 1 do
+  begin
+    if StateList <> '' then
+      StateList := StateList + ',';
+    StateList := StateList + IntToStr(Frame.SkeletonData[I].eTrackingState);
+
+    case Frame.SkeletonData[I].eTrackingState of
+      1: Inc(PositionOnlyCount);
+      2: Inc(TrackedCount);
+    end;
+
     if Frame.SkeletonData[I].eTrackingState = 2 then
     begin
       N := Length(Bodies);
@@ -433,6 +465,12 @@ begin
         end;
       end;
     end;
+  end;
+
+  if ((FSkeletonPollCount mod 30) = 1) or (TrackedCount > 0) or (PositionOnlyCount > 0) then
+    FBackend.LogSDK(Format('Skeleton frame=%d states=[%s] tracked=%d positionOnly=%d bodies=%d flags=0x%.8x seated=%s smooth=%.2f',
+      [Frame.dwFrameNumber, StateList, TrackedCount, PositionOnlyCount, Length(Bodies),
+       Frame.dwFlags, BoolToStr(FBackend.FSkeletonSeated, True), FBackend.FSkeletonSmooth]));
 
   FPendingBodies := Bodies;
   Synchronize(@FireSkeletonEvent);
@@ -488,7 +526,7 @@ begin
   FLibHandle := NilHandle;
   FColorStreamHandle := 0;
   FDepthStreamHandle := 0;
-  FSkeletonSeated := False;
+  FSkeletonSeated := True;
   FSkeletonSmooth := 0.5;
   FSkeletonUnavailable := False;
 end;
