@@ -10,117 +10,143 @@ object frmMain: TfrmMain
   LCLVersion = '4.4.0.0'
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  object pnlControl: TPanel
+  object PageControl1: TPageControl
     Left = 0
-    Height = 330
-    Top = 170
-    Width = 150
-    Align = alLeft
-    BevelOuter = bvNone
-    ClientHeight = 330
-    ClientWidth = 150
-    Color = 2302755
-    ParentBackground = False
-    ParentColor = False
-    TabOrder = 0
-    object btnOpen: TButton
-      Left = 15
-      Height = 40
-      Top = 20
-      Width = 120
-      Caption = 'Conectar'
-      Font.Style = [fsBold]
-      ParentFont = False
-      TabOrder = 0
-      OnClick = btnOpenClick
-    end
-    object btnClose: TButton
-      Left = 15
-      Height = 40
-      Top = 80
-      Width = 120
-      Caption = 'Desconectar'
-      Enabled = False
-      TabOrder = 1
-      OnClick = btnCloseClick
-    end
-    object lblStatus: TLabel
-      Left = 15
-      Height = 15
-      Top = 140
-      Width = 75
-      Caption = 'Desconectado'
-      Font.Color = clWhite
-      ParentFont = False
-    end
-    object lblFPS: TLabel
-      Left = 15
-      Height = 15
-      Top = 165
-      Width = 31
-      Caption = 'FPS: 0'
-      Font.Color = clWhite
-      ParentFont = False
-    end
-    object lblDevice: TLabel
-      Left = 15
-      Height = 15
-      Top = 200
-      Width = 38
-      Caption = 'Device:'
-      Font.Color = clWhite
-      ParentFont = False
-    end
-    object seDevice: TSpinEdit
-      Left = 80
-      Height = 23
-      Top = 198
-      Width = 55
-      MaxValue = 7
-      TabOrder = 3
-    end
-    object chkDepth: TCheckBox
-      Left = 15
-      Height = 19
-      Top = 240
-      Width = 50
-      Caption = 'Depth'
-      Font.Color = clWhite
-      ParentFont = False
-      TabOrder = 4
-    end
-    object memLog: TMemo
-      Left = 8
-      Height = 56
-      Top = 264
-      Width = 134
-      Anchors = [akLeft, akBottom]
-      ReadOnly = True
-      ScrollBars = ssAutoVertical
-      TabOrder = 2
-    end
-  end
-  object imgColor: TImage
-    Left = 0
-    Height = 170
+    Height = 500
     Top = 0
     Width = 800
-    Align = alTop
-    Proportional = True
-    Stretch = True
-  end
-  object imgDepth: TImage
-    Left = 150
-    Height = 330
-    Top = 170
-    Width = 650
+    ActivePage = tsLog
     Align = alClient
-    Proportional = True
-    Stretch = True
+    TabIndex = 2
+    TabOrder = 0
+    object tsConfig: TTabSheet
+      Caption = 'tsConfig'
+      ClientHeight = 472
+      ClientWidth = 792
+      object pnlControl: TPanel
+        Left = 0
+        Height = 472
+        Top = 0
+        Width = 150
+        Align = alLeft
+        BevelOuter = bvNone
+        ClientHeight = 472
+        ClientWidth = 150
+        Color = 2302755
+        ParentBackground = False
+        ParentColor = False
+        TabOrder = 0
+        object btnOpen: TButton
+          Left = 15
+          Height = 40
+          Top = 20
+          Width = 120
+          Caption = 'Conectar'
+          Font.Style = [fsBold]
+          ParentFont = False
+          TabOrder = 0
+          OnClick = btnOpenClick
+        end
+        object btnClose: TButton
+          Left = 15
+          Height = 40
+          Top = 80
+          Width = 120
+          Caption = 'Desconectar'
+          Enabled = False
+          TabOrder = 1
+          OnClick = btnCloseClick
+        end
+        object lblStatus: TLabel
+          Left = 15
+          Height = 15
+          Top = 140
+          Width = 75
+          Caption = 'Desconectado'
+          Font.Color = clWhite
+          ParentFont = False
+        end
+        object lblFPS: TLabel
+          Left = 15
+          Height = 15
+          Top = 165
+          Width = 31
+          Caption = 'FPS: 0'
+          Font.Color = clWhite
+          ParentFont = False
+        end
+        object lblDevice: TLabel
+          Left = 15
+          Height = 15
+          Top = 200
+          Width = 38
+          Caption = 'Device:'
+          Font.Color = clWhite
+          ParentFont = False
+        end
+        object seDevice: TSpinEdit
+          Left = 80
+          Height = 23
+          Top = 198
+          Width = 55
+          MaxValue = 7
+          TabOrder = 2
+        end
+        object chkDepth: TCheckBox
+          Left = 15
+          Height = 19
+          Top = 240
+          Width = 50
+          Caption = 'Depth'
+          Font.Color = clWhite
+          ParentFont = False
+          TabOrder = 3
+        end
+      end
+      object imgDepth: TImage
+        Left = 150
+        Height = 472
+        Top = 0
+        Width = 642
+        Align = alClient
+        Proportional = True
+        Stretch = True
+      end
+    end
+    object tsView: TTabSheet
+      Caption = 'tsView'
+      ClientHeight = 472
+      ClientWidth = 792
+      object imgColor: TImage
+        Left = 0
+        Height = 472
+        Top = 0
+        Width = 792
+        Align = alClient
+        Proportional = True
+        Stretch = True
+      end
+    end
+    object tsLog: TTabSheet
+      Caption = 'tsLog'
+      ClientHeight = 472
+      ClientWidth = 792
+      object memlog: TMemo
+        Left = 0
+        Height = 472
+        Top = 0
+        Width = 792
+        Align = alClient
+        Lines.Strings = (
+          'memlog'
+        )
+        TabOrder = 0
+      end
+    end
   end
   object tmrFPS: TTimer
     OnTimer = tmrFPSTimer
-    Left = 496
-    Top = 280
+    Left = 524
+    Top = 308
   end
 end

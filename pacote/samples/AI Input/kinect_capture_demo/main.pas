@@ -15,7 +15,8 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, ExtCtrls, StdCtrls, Spin,
-  aibase, aikinect_types, aikinectsensor, aikinectcolor, aikinectdepth;
+  ComCtrls, aibase, aikinect_types, aikinectsensor, aikinectcolor,
+  aikinectdepth;
 
 type
   { TfrmMain }
@@ -29,10 +30,14 @@ type
     lblDevice: TLabel;
     lblFPS: TLabel;
     lblStatus: TLabel;
-    memLog: TMemo;
+    memlog: TMemo;
+    PageControl1: TPageControl;
     pnlControl: TPanel;
     seDevice: TSpinEdit;
+    tsLog: TTabSheet;
+    tsView: TTabSheet;
     tmrFPS: TTimer;
+    tsConfig: TTabSheet;
 
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
