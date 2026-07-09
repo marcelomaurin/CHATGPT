@@ -6,8 +6,11 @@ Demo Lazarus para testar o rastreamento de esqueleto do Kinect v1/Xbox 360 pelo 
 
 - Windows com Kinect for Windows SDK/Runtime 1.8 instalado.
 - Kinect v1/Xbox 360 conectado por USB.
-- Fonte externa do Kinect conectada. Sem a fonte 12V, o SDK pode abrir video, mas recusar skeleton.
-- Pessoa a aproximadamente 1,8 m a 2,5 m do sensor para o primeiro rastreamento.
+- Fonte externa 12V obrigatoria; sem ela o video pode abrir, mas o skeleton pode falhar.
+- Distancia recomendada de 1,2 m a 3,5 m para corpo inteiro. Em modo sentado, mantenha pelo menos 0,8 m.
+- Pessoa de frente para o sensor, com cabeca e tronco visiveis; para corpo inteiro, deixe o corpo todo no quadro.
+- Evite luz solar direta ou reflexos fortes na cena, pois o IR do Kinect pode saturar.
+- Aguarde 1 a 2 segundos para o SDK fechar o rastreamento apos a pessoa entrar no quadro.
 
 ## Uso
 

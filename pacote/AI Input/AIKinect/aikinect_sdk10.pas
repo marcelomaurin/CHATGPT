@@ -434,14 +434,39 @@ begin
       2: Inc(TrackedCount);
     end;
 
-    if Frame.SkeletonData[I].eTrackingState = 2 then
+    if Frame.SkeletonData[I].eTrackingState in [1, 2] then
     begin
       N := Length(Bodies);
       SetLength(Bodies, N + 1);
       Bodies[N].TrackingId := Integer(Frame.SkeletonData[I].dwTrackingID);
-      Bodies[N].Tracked := True;
+      Bodies[N].Tracked := Frame.SkeletonData[I].eTrackingState = 2;
       for J := 0 to NUI_SKELETON_POSITION_COUNT - 1 do
       begin
+        JT := TAIKinectJointType(J);
+        Bodies[N].Joints[JT].JointType := JT;
+        Bodies[N].Joints[JT].X := 0;
+        Bodies[N].Joints[JT].Y := 0;
+        Bodies[N].Joints[JT].Z := 0;
+        Bodies[N].Joints[JT].ScreenX := -1;
+        Bodies[N].Joints[JT].ScreenY := -1;
+        Bodies[N].Joints[JT].State := ktNotTracked;
+      end;
+
+      if not Bodies[N].Tracked then
+      begin
+        V := Frame.SkeletonData[I].Position;
+        Bodies[N].Joints[kjHipCenter].X := V.x;
+        Bodies[N].Joints[kjHipCenter].Y := V.y;
+        Bodies[N].Joints[kjHipCenter].Z := V.z;
+        if V.z > 0.1 then
+        begin
+          Bodies[N].Joints[kjHipCenter].ScreenX := Round(320 + (V.x / V.z) * FOCAL_640);
+          Bodies[N].Joints[kjHipCenter].ScreenY := Round(240 - (V.y / V.z) * FOCAL_640);
+        end;
+      end
+      else
+        for J := 0 to NUI_SKELETON_POSITION_COUNT - 1 do
+        begin
         JT := TAIKinectJointType(J);
         V := Frame.SkeletonData[I].SkeletonPositions[J];
         Bodies[N].Joints[JT].JointType := JT;
@@ -898,6 +923,7 @@ begin
     begin
       if Assigned(FTimer) then
         TSDK10FrameThread(FTimer).SkeletonActive := True;
+      LogSDK(Format('NuiSkeletonTrackingEnable OK, seated=%s', [BoolToStr(FSkeletonSeated, True)]));
       Result := True;
     end
     else

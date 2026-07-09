@@ -146,6 +146,7 @@
     end
   end
   object tmrLog: TTimer
+    Enabled = True
     Interval = 1000
     OnTimer = tmrLogTimer
     Left = 240

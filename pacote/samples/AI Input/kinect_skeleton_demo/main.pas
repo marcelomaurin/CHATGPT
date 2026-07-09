@@ -120,6 +120,9 @@ begin
 
   FVideoBmp := TBitmap.Create;
   SetLength(FBodies, 0);
+  FBackendLogFile := IncludeTrailingPathDelimiter(GetTempDir) + 'aikinect_sdk10_backend.log';
+  FBackendLogPos := 0;
+  tmrLog.Enabled := True;
   memLog.Clear;
   chkSeated.Checked := True;
   Log('Demo iniciado. Modo sentado ativo por padrao. Conecte o Kinect e clique em Conectar.');
@@ -282,6 +285,25 @@ begin
   for BodyIndex := 0 to Length(FBodies) - 1 do
   begin
     Base := BodyColors[BodyIndex mod Length(BodyColors)];
+
+    if not FBodies[BodyIndex].Tracked then
+    begin
+      if FBodies[BodyIndex].Joints[kjHipCenter].ScreenX < 0 then Continue;
+      X := Round(FBodies[BodyIndex].Joints[kjHipCenter].ScreenX * SX);
+      Y := Round(FBodies[BodyIndex].Joints[kjHipCenter].ScreenY * SY);
+      R := 24;
+      pbView.Canvas.Pen.Style := psDash;
+      pbView.Canvas.Pen.Width := 3;
+      pbView.Canvas.Pen.Color := clYellow;
+      pbView.Canvas.Brush.Style := bsClear;
+      pbView.Canvas.Ellipse(X - R, Y - R, X + R, Y + R);
+      pbView.Canvas.Pen.Style := psSolid;
+      pbView.Canvas.Brush.Style := bsSolid;
+      pbView.Canvas.Font.Color := clYellow;
+      pbView.Canvas.TextOut(X + R + 6, Y - 8, 'detectado (sem pose)');
+      Continue;
+    end;
+
     for BoneIndex := Low(Bones) to High(Bones) do
       DrawBone(pbView.Canvas, FBodies[BodyIndex], Bones[BoneIndex, 0],
         Bones[BoneIndex, 1], SX, SY, Base);
