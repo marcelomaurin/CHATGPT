@@ -10,7 +10,7 @@ uses
   , Registry, Windows
   {$ENDIF}
   {$IFDEF UNIX}
-  , BaseUnix
+  , BaseUnix, Unix
   {$ENDIF}
   , LResources;
 
@@ -1009,9 +1009,11 @@ var
   
   procedure AddPath(const APath, APrefix: string; AKind: TSerialPortKind);
   var
+    I: Integer;
     KindVal: TSerialPortKind;
     IsAvailableVal: Boolean;
     DevNameLower: string;
+    AlreadyDetected: Boolean;
   begin
     if FindFirst(APath, faAnyFile, SR) = 0 then
     begin
@@ -1031,6 +1033,16 @@ var
 
           if ShouldInclude(KindVal) then
           begin
+            AlreadyDetected := False;
+            for I := 0 to Length(ADetected) - 1 do
+              if SameText(ADetected[I].DeviceName, APrefix + SR.Name) then
+              begin
+                AlreadyDetected := True;
+                Break;
+              end;
+            if AlreadyDetected then
+              Continue;
+
             IsAvailableVal := True;
             {$IFNDEF DARWIN}
             if (KindVal = spkSystem) and (Pos('ttyS', SR.Name) = 1) then
@@ -1158,12 +1170,16 @@ begin
   // Linux Standard/System ports
   AddPath('/dev/ttyS*', '/dev/', spkSystem);
 
+  // Raspberry Pi UARTs and aliases
+  AddPath('/dev/ttyAMA*', '/dev/', spkSystem);
+  AddPath('/dev/serial0', '/dev/', spkSystem);
+  AddPath('/dev/serial1', '/dev/', spkSystem);
+
   // Bluetooth
   if FIncludeBluetooth then
     AddPath('/dev/rfcomm*', '/dev/', spkBluetooth);
 
   // Linux SoC/Embedded UARTs
-  AddPath('/dev/ttyAMA*', '/dev/', spkSystem);
   AddPath('/dev/ttyTHS*', '/dev/', spkSystem);
 
   {$IFDEF UNIX}

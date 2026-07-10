@@ -87,6 +87,11 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiagent_orchestrator"/>
       </Item>
+      <Item>
+        <Filename Value="..\AI Agent\aiagentserial.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiagentserial"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>

@@ -18,6 +18,32 @@ COLOR_MAP = {
 
 # Icon pixel art definitions (24x24) - verified to be exactly 24 chars per line
 ICONS = {
+    'taiagentserial': [
+        "........................",
+        ".........######.........",
+        ".......##cccccc##.......",
+        "......#cccccccccc#......",
+        ".....#cccccccccccc#.....",
+        "....#ccc########ccc#....",
+        "....#cc#...##...#cc#....",
+        "....#cc#..####..#cc#....",
+        "....#cc#...##...#cc#....",
+        "....#cc##......##cc#....",
+        "....#ccc########ccc#....",
+        ".....#cccccccccccc#.....",
+        "......#cccccccccc#......",
+        ".......##cccccc##.......",
+        ".........######.........",
+        "..........####..........",
+        "..........#oo#..........",
+        ".......##########.......",
+        "......#oooooooooo#......",
+        "......#o##o##o##o#......",
+        "......#oooooooooo#......",
+        ".......##########.......",
+        "........................",
+        "........................"
+    ],
     'taiagentorchestrator': [
         "........................",
         ".........######.........",
@@ -345,6 +371,7 @@ def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     
     comp_to_file = {
+        'taiagentserial': 'aiagentserial.pas',
         'taiagentorchestrator': 'aiagent_orchestrator.pas',
         'taiclassifieragent': 'aiagent_classifier.pas',
         'taidecisionagent': 'aiagent_decision.pas',

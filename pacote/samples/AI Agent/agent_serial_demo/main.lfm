@@ -1,0 +1,11 @@
+object frmMain: TfrmMain
+  Left = 200
+  Height = 720
+  Top = 100
+  Width = 1000
+  Caption = 'AI Agent Serial Demo'
+  ClientHeight = 720
+  ClientWidth = 1000
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+end

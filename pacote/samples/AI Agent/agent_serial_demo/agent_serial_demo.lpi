@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectOptions>
+    <Version Value="12"/><PathDelim Value="\"/>
+    <General><Title Value="agent_serial_demo"/><ResourceType Value="res"/></General>
+    <RequiredPackages>
+      <Item><PackageName Value="openai_agent"/></Item>
+      <Item><PackageName Value="openai_input"/></Item>
+      <Item><PackageName Value="openai_core"/></Item>
+      <Item><PackageName Value="LCL"/></Item>
+    </RequiredPackages>
+    <Units>
+      <Unit><Filename Value="agent_serial_demo.lpr"/><IsPartOfProject Value="True"/></Unit>
+      <Unit><Filename Value="main.pas"/><IsPartOfProject Value="True"/><ComponentName Value="frmMain"/><HasResources Value="True"/><ResourceBaseClass Value="Form"/></Unit>
+    </Units>
+  </ProjectOptions>
+  <CompilerOptions><Version Value="11"/><PathDelim Value="\"/>
+    <Target><Filename Value="agent_serial_demo"/></Target>
+    <SearchPaths><OtherUnitFiles Value="..\..\.."/><UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/></SearchPaths>
+  </CompilerOptions>
+</CONFIG>

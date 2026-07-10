@@ -96,6 +96,7 @@ Use esta classificação para documentação, README de abas, samples e planejam
 
 | Componente | Unit | Pacote | Status | Observação |
 |---|---|---|---|---|
+| `TAIAgentSerial` | `aiagentserial.pas` | `openai_agent` | Experimental | Agente LLM para controle serial real com confirmação e protocolo JSON |
 | `TAICaptureSource` | `aicapturesource.pas` | `openai_input` | Beta | Fonte de captura unificada: câmera local, IP snapshot, tela, arquivo; substitui os 4 componentes legados |
 | `TAIInputData` | `aiinput.pas` | `openai_input` | Beta | Entrada e normalização de dados numéricos |
 | `TAIWebAPIServer` | `aiwebserver.pas` | `openai_input` | Beta | Servidor REST/HTTP embutido |
