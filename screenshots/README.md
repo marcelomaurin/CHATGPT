@@ -4,6 +4,10 @@
 
 ![AI Project Demo](project_tasklist_ai.jpg)
 
+## Code Assistant Demo
+
+![Code Assistant Demo](codeassistant_demo.jpg)
+
 ## CNN Classifier Complete Demo
 
 ![CNN Classifier Complete Demo](cnn_classifier_complete_demo.jpg)
@@ -75,6 +79,14 @@
 ## Chromium Capture Demo
 
 ![Chromium Capture Demo](chromium_capture_demo.jpg)
+
+## AIUSB Devices Demo
+
+![AIUSB Devices Demo](AIUSB_Devices_Demo.jpg)
+
+## Kinect Capture Demo
+
+![Kinect Capture Demo](kinect_capture_demo.jpg)
 
 ## AI Agent Minimal Demo
 
