@@ -1,224 +1,284 @@
 unit main;
+
 {$mode objfpc}{$H+}
+
 interface
-uses Classes, SysUtils, Forms, Controls, Dialogs, ExtCtrls, StdCtrls,
-  chatgpt, aiserial, ailistserialdevices, aiagentserial;
+
+uses
+  Classes, SysUtils, TypInfo, Forms, Controls, Graphics, Dialogs, ExtCtrls,
+  StdCtrls, ComCtrls, Spin, chatgpt, aiserial, ailistserialdevices,
+  aiagentserial, aiagent_memorymap, aiagent_flowevents;
+
 type
+  { TfrmMain }
+
   TfrmMain = class(TForm)
-    procedure FormCreate(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
-  private
-    FLLM: TCHATGPT;
-    FSerial: TAISerialModem;
-    FAgent: TAIAgentSerial;
-    FLister: TAIListSerialDevices;
-    FTimer: TTimer;
-    FManualStream: string;
-    FFirmwareManual: string;
-    cbProvider, cbPort, cbBaud: TComboBox;
-    edtToken, editSend, editPrompt: TEdit;
-    memoLog, memoChat, memoManual: TMemo;
-    procedure BuildUI;
-    procedure RefreshPorts(Sender: TObject);
-    procedure ConnectClick(Sender: TObject);
-    procedure DisconnectClick(Sender: TObject);
-    procedure SendClick(Sender: TObject);
-    procedure AskClick(Sender: TObject);
-    procedure RequestManual(Sender: TObject);
-    procedure PollTimer(Sender: TObject);
-    procedure SerialConnect(Sender: TObject);
-    procedure SerialRX(Sender: TObject; const AData: string);
-    procedure ProcessManualData;
-    procedure BeforeAction(Sender: TObject; AKind: TAgentActionKind;
+    AIAgentMemoryMap1: TAIAgentMemoryMap;
+    AIAgentSerial1: TAIAgentSerial;
+    AIListSerialDevices1: TAIListSerialDevices;
+    AISerialModem1: TAISerialModem;
+    btnIniciar: TButton;
+    btnRefreshPorts: TButton;
+    btnTestLLM: TButton;
+    cbBaud: TComboBox;
+    cbPort: TComboBox;
+    cbProvider: TComboBox;
+    cbTipoChat: TComboBox;
+    CHATGPT1: TCHATGPT;
+    editCustomModel: TEdit;
+    editDev: TEdit;
+    editLocalIP: TEdit;
+    editORSite: TEdit;
+    editORTitle: TEdit;
+    editPrompt: TEdit;
+    editToken: TEdit;
+    editURL: TEdit;
+    lblAgentStatus: TLabel;
+    lblBaud: TLabel;
+    lblCustomModel: TLabel;
+    lblDev: TLabel;
+    lblLLMStatus: TLabel;
+    lblLocalIP: TLabel;
+    lblMaxTokens: TLabel;
+    lblORSite: TLabel;
+    lblORTitle: TLabel;
+    lblPort: TLabel;
+    lblProvider: TLabel;
+    lblSerialInfo: TLabel;
+    lblStartStatus: TLabel;
+    lblTipoChat: TLabel;
+    lblToken: TLabel;
+    lblURL: TLabel;
+    memoHistory: TMemo;
+    pgMain: TPageControl;
+    pnlLLM: TGroupBox;
+    pnlPrompt: TPanel;
+    pnlSerial: TGroupBox;
+    pnlStart: TPanel;
+    spinMaxTokens: TSpinEdit;
+    tabChat: TTabSheet;
+    tabConfig: TTabSheet;
+    procedure AgentBeforeAction(Sender: TObject; AKind: TAgentActionKind;
       const AParam: string; var AAllow: Boolean);
     procedure AgentLog(Sender: TObject; const AMessage: string);
-    function KindName(AKind: TAgentActionKind): string;
+    procedure btnIniciarClick(Sender: TObject);
+    procedure btnRefreshPortsClick(Sender: TObject);
+    procedure btnTestLLMClick(Sender: TObject);
+    procedure editPromptKeyPress(Sender: TObject; var Key: char);
+    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
+    procedure FormCreate(Sender: TObject);
+    procedure SerialRX(Sender: TObject; const AData: string);
+  private
+    procedure ApplyLLMConfig;
+    procedure RefreshPorts;
+    procedure SubmitPrompt;
+    function ActionName(AKind: TAgentActionKind): string;
   end;
-var frmMain: TfrmMain;
+
+var
+  frmMain: TfrmMain;
+
 implementation
+
 {$R *.lfm}
 
 procedure TfrmMain.FormCreate(Sender: TObject);
-begin
-  BuildUI;
-  FLLM := TCHATGPT.Create(Self);
-  FSerial := TAISerialModem.Create(Self);
-  FLister := TAIListSerialDevices.Create(Self);
-  FTimer := TTimer.Create(Self);
-  FAgent := TAIAgentSerial.Create(Self);
-  FSerial.OnConnect := @SerialConnect;
-  FSerial.OnRXReceive := @SerialRX;
-  FAgent.Serial := FSerial;
-  FAgent.LLM := FLLM;
-  FAgent.OnBeforeAction := @BeforeAction;
-  FAgent.OnAgentLog := @AgentLog;
-  FTimer.Interval := 100;
-  FTimer.OnTimer := @PollTimer;
-  FTimer.Enabled := True;
-  RefreshPorts(nil);
-end;
-
-procedure TfrmMain.FormDestroy(Sender: TObject);
-begin
-  FTimer.Enabled := False;
-  FSerial.ClosePort;
-end;
-
-procedure TfrmMain.BuildUI;
 var
-  TopPanel, BottomPanel, ManualPanel: TPanel;
-  B: TButton;
+  I: Integer;
+  TypeData: PTypeData;
 begin
-  TopPanel := TPanel.Create(Self); TopPanel.Parent := Self; TopPanel.Align := alTop; TopPanel.Height := 105;
-  cbProvider := TComboBox.Create(Self); cbProvider.Parent := TopPanel; cbProvider.SetBounds(10,10,120,24);
-  cbProvider.Items.AddStrings(['OpenAI','OpenRouter','Local']); cbProvider.ItemIndex := 0;
-  edtToken := TEdit.Create(Self); edtToken.Parent := TopPanel; edtToken.SetBounds(140,10,230,24);
-  edtToken.PasswordChar := '*'; edtToken.TextHint := 'API key/token';
-  cbPort := TComboBox.Create(Self); cbPort.Parent := TopPanel; cbPort.SetBounds(10,42,190,24); cbPort.Style := csDropDownList;
-  B := TButton.Create(Self); B.Parent := TopPanel; B.SetBounds(205,41,75,26); B.Caption := 'Atualizar'; B.OnClick := @RefreshPorts;
-  cbBaud := TComboBox.Create(Self); cbBaud.Parent := TopPanel; cbBaud.SetBounds(290,42,100,24);
-  cbBaud.Items.AddStrings(['9600','19200','38400','57600','115200']); cbBaud.ItemIndex := 4;
-  B := TButton.Create(Self); B.Parent := TopPanel; B.SetBounds(400,41,85,26); B.Caption := 'Conectar'; B.OnClick := @ConnectClick;
-  B := TButton.Create(Self); B.Parent := TopPanel; B.SetBounds(490,41,100,26); B.Caption := 'Desconectar'; B.OnClick := @DisconnectClick;
-  B := TButton.Create(Self); B.Parent := TopPanel; B.SetBounds(600,41,95,26); B.Caption := 'Ler MAN'; B.OnClick := @RequestManual;
-  editSend := TEdit.Create(Self); editSend.Parent := TopPanel; editSend.SetBounds(10,74,480,24);
-  B := TButton.Create(Self); B.Parent := TopPanel; B.SetBounds(500,73,80,26); B.Caption := 'Enviar'; B.OnClick := @SendClick;
+  cbProvider.Items.Clear;
+  TypeData := GetTypeData(TypeInfo(TAIProvider));
+  for I := TypeData^.MinValue to TypeData^.MaxValue do
+    cbProvider.Items.Add(GetEnumName(TypeInfo(TAIProvider), I));
+  cbProvider.ItemIndex := Ord(AIP_OPENAI);
 
-  ManualPanel := TPanel.Create(Self); ManualPanel.Parent := Self; ManualPanel.Align := alRight; ManualPanel.Width := 310;
-  memoManual := TMemo.Create(Self); memoManual.Parent := ManualPanel; memoManual.Align := alClient;
-  memoManual.ReadOnly := True; memoManual.ScrollBars := ssVertical; memoManual.Font.Name := 'Courier New';
-  memoManual.Text := 'Manual do firmware ainda não carregado.';
+  cbTipoChat.Items.Clear;
+  TypeData := GetTypeData(TypeInfo(TVersionChat));
+  for I := TypeData^.MinValue to TypeData^.MaxValue do
+    cbTipoChat.Items.Add(GetEnumName(TypeInfo(TVersionChat), I));
+  cbTipoChat.ItemIndex := Ord(VCT_GPT4o);
 
-  BottomPanel := TPanel.Create(Self); BottomPanel.Parent := Self; BottomPanel.Align := alBottom; BottomPanel.Height := 245;
-  memoChat := TMemo.Create(Self); memoChat.Parent := BottomPanel; memoChat.Align := alClient; memoChat.ScrollBars := ssVertical;
-  editPrompt := TEdit.Create(Self); editPrompt.Parent := BottomPanel; editPrompt.Align := alBottom; editPrompt.Height := 28;
-  editPrompt.Text := 'acenda o LED do Arduino';
-  B := TButton.Create(Self); B.Parent := BottomPanel; B.Align := alBottom; B.Height := 32;
-  B.Caption := 'Perguntar ao agente'; B.OnClick := @AskClick;
-  memoLog := TMemo.Create(Self); memoLog.Parent := Self; memoLog.Align := alClient;
-  memoLog.Font.Name := 'Courier New'; memoLog.ScrollBars := ssVertical;
+  cbBaud.ItemIndex := cbBaud.Items.IndexOf('9600');
+  tabChat.TabVisible := False;
+  pgMain.ActivePage := tabConfig;
+  RefreshPorts;
 end;
 
-procedure TfrmMain.RefreshPorts(Sender: TObject);
+procedure TfrmMain.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin
-  FLister.ProbeOpenable := False;
-  FLister.Refresh;
-  FLister.GetDeviceNames(cbPort.Items);
-  if cbPort.Items.Count > 0 then cbPort.ItemIndex := 0;
+  AISerialModem1.ClosePort;
 end;
 
-procedure TfrmMain.ConnectClick(Sender: TObject);
+procedure TfrmMain.ApplyLLMConfig;
 begin
-  FSerial.DeviceName := cbPort.Text;
-  FSerial.BaudRate := StrToIntDef(cbBaud.Text, 115200);
-  if not FSerial.OpenPort then memoLog.Lines.Add('ERRO: ' + FSerial.LastError);
+  CHATGPT1.Provider := TAIProvider(cbProvider.ItemIndex);
+  CHATGPT1.TipoChat := TVersionChat(cbTipoChat.ItemIndex);
+  CHATGPT1.TOKEN := editToken.Text;
+  CHATGPT1.CustomModel := editCustomModel.Text;
+  CHATGPT1.URL := editURL.Text;
+  CHATGPT1.LocalIP := editLocalIP.Text;
+  CHATGPT1.MaxTokens := spinMaxTokens.Value;
+  CHATGPT1.Dev := editDev.Text;
+  CHATGPT1.OpenRouterTitle := editORTitle.Text;
+  CHATGPT1.OpenRouterSite := editORSite.Text;
 end;
 
-procedure TfrmMain.DisconnectClick(Sender: TObject);
+procedure TfrmMain.RefreshPorts;
 begin
-  FSerial.ClosePort;
+  AIListSerialDevices1.ProbeOpenable := False;
+  AIListSerialDevices1.Refresh;
+  AIListSerialDevices1.GetDeviceNames(cbPort.Items);
+  if cbPort.Items.Count > 0 then
+    cbPort.ItemIndex := 0;
 end;
 
-procedure TfrmMain.SendClick(Sender: TObject);
+procedure TfrmMain.btnRefreshPortsClick(Sender: TObject);
 begin
-  if not FSerial.WriteText(Trim(editSend.Text) + #10) then
-    memoLog.Lines.Add('ERRO TX: ' + FSerial.LastError);
+  RefreshPorts;
 end;
 
-procedure TfrmMain.SerialConnect(Sender: TObject);
+procedure TfrmMain.btnTestLLMClick(Sender: TObject);
 begin
-  memoLog.Lines.Add('*** Conectado; solicitando MAN ao firmware ***');
-  RequestManual(Sender);
+  ApplyLLMConfig;
+  Screen.Cursor := crHourGlass;
+  try
+    try
+      if CHATGPT1.SendQuestion('Responda apenas: OK') then
+        lblLLMStatus.Caption := 'Conexão OK — ' + CHATGPT1.ProviderName +
+          ' / ' + CHATGPT1.TipoModelo
+      else
+        lblLLMStatus.Caption := 'FALHA: ' + CHATGPT1.LastError;
+    except
+      on E: Exception do
+        lblLLMStatus.Caption := 'FALHA: ' + E.Message;
+    end;
+  finally
+    Screen.Cursor := crDefault;
+  end;
 end;
 
-procedure TfrmMain.RequestManual(Sender: TObject);
+procedure TfrmMain.btnIniciarClick(Sender: TObject);
+var
+  Step: TAIAgentMemoryMapItem;
 begin
-  if not FSerial.Active then
+  if (TAIProvider(cbProvider.ItemIndex) <> AIP_LOCAL) and
+    (Trim(editToken.Text) = '') then
   begin
-    memoLog.Lines.Add('ERRO: conecte a porta antes de solicitar MAN.');
+    MessageDlg('Informe o token do provedor.', mtWarning, [mbOK], 0);
     Exit;
   end;
-  FManualStream := '';
-  FFirmwareManual := '';
-  memoManual.Text := 'Aguardando resposta do comando MAN...';
-  if not FSerial.WriteText('MAN' + #10) then
-    memoLog.Lines.Add('ERRO MAN: ' + FSerial.LastError);
+  if cbPort.Text = '' then
+  begin
+    MessageDlg('Selecione uma porta serial.', mtWarning, [mbOK], 0);
+    Exit;
+  end;
+
+  ApplyLLMConfig;
+  AIAgentMemoryMap1.StartFlow('Sessão de controle serial via agente',
+    'Agent Serial Demo', 'user', 'desktop');
+  Step := AIAgentMemoryMap1.BeginAgentStep('Configuração', tamCustom,
+    'Configuração inicial da sessão');
+  AIAgentMemoryMap1.AddQuestion(Step, 'porta_serial', cbPort.Text,
+    'Porta selecionada pelo usuário', 'user', 1.0);
+  AIAgentMemoryMap1.AddQuestion(Step, 'baud_rate', cbBaud.Text,
+    'Baud rate selecionado pelo usuário', 'user', 1.0);
+  AIAgentMemoryMap1.AddQuestion(Step, 'provider_llm', cbProvider.Text,
+    'Provedor de IA', 'user', 1.0);
+  AIAgentMemoryMap1.AddQuestion(Step, 'modelo', CHATGPT1.TipoModelo,
+    'Modelo em uso', 'system', 1.0);
+  AIAgentMemoryMap1.AddQuestion(Step, 'protocolo_hardware',
+    'Para descobrir os comandos suportados pelo equipamento, envie MAN pela ' +
+    'serial. O equipamento responde com o manual. Sempre que não souber como ' +
+    'operar o dispositivo, envie MAN primeiro e leia a resposta.',
+    'Convenção de descoberta de hardware', 'system', 1.0);
+  AIAgentMemoryMap1.EndAgentStep(Step, 'Configuração validada',
+    'Parâmetros registrados para uso da LLM', 'Iniciar sessão',
+    'Configuração registrada', 'Usar porta, baud e protocolo MAN');
+
+  tabChat.TabVisible := True;
+  pgMain.ActivePage := tabChat;
+  lblStartStatus.Caption := 'Sessão iniciada';
+  memoHistory.Clear;
+  memoHistory.Lines.Add('=== Sessão iniciada ===');
+  memoHistory.Lines.Add(Format('Porta: %s @ %s | Provider: %s',
+    [cbPort.Text, cbBaud.Text, cbProvider.Text]));
+  memoHistory.Lines.Add('Dica: o hardware documenta seus comandos via MAN.');
+  memoHistory.Lines.Add('Digite sua solicitação abaixo e pressione Enter.');
+  editPrompt.SetFocus;
 end;
 
-procedure TfrmMain.PollTimer(Sender: TObject);
+procedure TfrmMain.editPromptKeyPress(Sender: TObject; var Key: char);
 begin
-  FSerial.Poll;
+  if Key = #13 then
+  begin
+    Key := #0;
+    SubmitPrompt;
+  end;
 end;
 
-procedure TfrmMain.SerialRX(Sender: TObject; const AData: string);
-begin
-  memoLog.Lines.Add('RX <= ' + AData);
-  FAgent.AppendRX(AData);
-  FManualStream := FManualStream + AData;
-  ProcessManualData;
-end;
-
-procedure TfrmMain.ProcessManualData;
+procedure TfrmMain.SubmitPrompt;
 var
-  PStart, PEnd: Integer;
+  Ask, Ctx, Reply: string;
+  Step: TAIAgentMemoryMapItem;
 begin
-  PStart := Pos('MAN-BEGIN', FManualStream);
-  PEnd := Pos('MAN-END', FManualStream);
-  if (PStart = 0) or (PEnd <= PStart) then Exit;
-  FFirmwareManual := Trim(Copy(FManualStream, PStart,
-    PEnd + Length('MAN-END') - PStart));
-  memoManual.Text := FFirmwareManual;
-  FAgent.SystemPrompt :=
-    'MANUAL FORNECIDO PELO FIRMWARE CONECTADO:' + LineEnding +
-    FFirmwareManual + LineEnding +
-    'Use exclusivamente os comandos documentados nesse manual. ' +
-    'Para operar o firmware, gere uma ação send com o comando exato e terminador \n. ' +
-    'Não invente comandos.';
-  memoLog.Lines.Add('*** MAN carregado no contexto do agente ***');
-  FManualStream := '';
+  Ask := Trim(editPrompt.Text);
+  if Ask = '' then Exit;
+  editPrompt.Clear;
+  memoHistory.Lines.Add('Você> ' + Ask);
+  lblAgentStatus.Caption := 'processando...';
+  editPrompt.Enabled := False;
+  Application.ProcessMessages;
+  Step := nil;
+  try
+    Ctx := AIAgentMemoryMap1.BuildContextForAgent('AgenteSerial', tamCustom, 10);
+    Step := AIAgentMemoryMap1.BeginAgentStep('AgenteSerial', tamCustom, Ask, Ctx);
+    AIAgentSerial1.SystemPrompt := Ctx;
+    Reply := AIAgentSerial1.Execute(Ask);
+    AIAgentMemoryMap1.AddQuestion(Step, Ask, Reply,
+      'Resposta do agente serial', 'LLM', 0);
+    AIAgentMemoryMap1.EndAgentStep(Step, 'Prompt analisado',
+      'Resposta gerada com memória da sessão', 'Executar agente serial', Reply,
+      Reply);
+    memoHistory.Lines.Add('Agente> ' + Reply);
+  except
+    on E: Exception do
+    begin
+      if Step <> nil then
+        AIAgentMemoryMap1.EndAgentStep(Step, 'Erro', E.Message,
+          'Abortar execução', 'ERRO: ' + E.Message, E.Message);
+      memoHistory.Lines.Add('ERRO> ' + E.Message);
+    end;
+  end;
+  lblAgentStatus.Caption := 'pronto';
+  editPrompt.Enabled := True;
+  editPrompt.SetFocus;
+end;
+
+function TfrmMain.ActionName(AKind: TAgentActionKind): string;
+const
+  Names: array[TAgentActionKind] of string = ('none', 'set_port', 'set_baud',
+    'connect', 'disconnect', 'send', 'read', 'list_ports', 'status');
+begin
+  Result := Names[AKind];
+end;
+
+procedure TfrmMain.AgentBeforeAction(Sender: TObject; AKind: TAgentActionKind;
+  const AParam: string; var AAllow: Boolean);
+begin
+  AAllow := MessageDlg('O agente quer executar: ' + ActionName(AKind) + ' ' +
+    AParam + '. Permitir?', mtConfirmation, [mbYes, mbNo], 0) = mrYes;
 end;
 
 procedure TfrmMain.AgentLog(Sender: TObject; const AMessage: string);
 begin
-  memoLog.Lines.Add(AMessage);
+  memoHistory.Lines.Add('  [ação] ' + AMessage);
 end;
 
-function TfrmMain.KindName(AKind: TAgentActionKind): string;
-const
-  N: array[TAgentActionKind] of string = ('none','set_port','set_baud',
-    'connect','disconnect','send','read','list_ports','status');
+procedure TfrmMain.SerialRX(Sender: TObject; const AData: string);
 begin
-  Result := N[AKind];
-end;
-
-procedure TfrmMain.BeforeAction(Sender: TObject; AKind: TAgentActionKind;
-  const AParam: string; var AAllow: Boolean);
-begin
-  AAllow := MessageDlg('Agente quer executar: ' + KindName(AKind) + ' ' +
-    AParam + '. Permitir?', mtConfirmation, [mbYes, mbNo], 0) = mrYes;
-end;
-
-procedure TfrmMain.AskClick(Sender: TObject);
-begin
-  if FFirmwareManual = '' then
-  begin
-    MessageDlg('Conecte o Arduino e aguarde o carregamento do MAN.',
-      mtWarning, [mbOK], 0);
-    Exit;
-  end;
-  case cbProvider.ItemIndex of
-    1: FLLM.Provider := AIP_OPENROUTER;
-    2: FLLM.Provider := AIP_LOCAL;
-    else FLLM.Provider := AIP_OPENAI;
-  end;
-  FLLM.TOKEN := edtToken.Text;
-  if FLLM.Provider = AIP_LOCAL then
-  begin
-    FLLM.LocalIP := 'http://localhost:11434';
-    FLLM.CustomModel := 'llama3.2:3b';
-  end;
-  memoChat.Lines.Add('Você: ' + editPrompt.Text);
-  memoChat.Lines.Add('Agente: ' + FAgent.Execute(editPrompt.Text));
+  AIAgentSerial1.AppendRX(AData);
+  memoHistory.Lines.Add('  [RX] ' + AData);
 end;
 
 end.
