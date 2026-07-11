@@ -1,0 +1,25 @@
+{
+  "name": "sherpa-onnx-runtime",
+  "strategy": "bundled-first-version-pinned",
+  "preferred": {
+    "windows": {
+      "x64": "sherpa-onnx-c-api.dll",
+      "x86": "sherpa-onnx-c-api.dll"
+    },
+    "macos": {
+      "universal2": "libsherpa-onnx-c-api.dylib"
+    }
+  },
+  "fallback_patterns": {
+    "windows": [
+      "sherpa-onnx-c-api.dll",
+      "libsherpa-onnx-c-api.dll",
+      "sherpa-onnx*.dll"
+    ],
+    "macos": [
+      "libsherpa-onnx-c-api.dylib",
+      "libsh*onnx*.dylib",
+      "libonnxruntime*.dylib"
+    ]
+  }
+}

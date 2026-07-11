@@ -1,0 +1,17 @@
+{
+  "name": "whispercpp-runtime",
+  "strategy": "bundled-first-version-pinned",
+  "preferred": {
+    "windows": {
+      "x64": "whisper-cli.exe"
+    }
+  },
+  "fallback_patterns": {
+    "windows": [
+      "whisper-cli.exe",
+      "main.exe",
+      "whisper*.exe"
+    ]
+  }
+}
+
