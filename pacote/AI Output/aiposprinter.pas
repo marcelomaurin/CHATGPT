@@ -36,6 +36,7 @@ type
     FRenderMode: TPrinterRenderMode;
     FTransportKind: TPrinterTransportKind;
     FCodePage: TPrinterEncoding;
+    FRemoveAccents: Boolean;
     
     // Connectivity
     FDeviceName: string; // e.g. COM1
@@ -126,6 +127,7 @@ type
     property RenderMode: TPrinterRenderMode read FRenderMode write FRenderMode default rmRawCommand;
     property TransportKind: TPrinterTransportKind read FTransportKind write FTransportKind default ptTcp9100;
     property CodePage: TPrinterEncoding read FCodePage write SetCodePage default peCP850;
+    property RemoveAccents: Boolean read FRemoveAccents write FRemoveAccents default False;
     
     // Connectivity
     property DeviceName: string read FDeviceName write FDeviceName;
@@ -174,6 +176,7 @@ begin
   FRenderMode := rmRawCommand;
   FTransportKind := ptTcp9100;
   FCodePage := peCP850;
+  FRemoveAccents := False;
   
   FDeviceName := 'COM1';
   FHost := '192.168.1.100';
@@ -408,14 +411,70 @@ begin
   Result := SendDocument(TEncoding.UTF8.GetBytes(AStr));
 end;
 
+function SemAcento(const S: string): string;
+begin
+  Result := S;
+  Result := StringReplace(Result, 'á', 'a', [rfReplaceAll]);
+  Result := StringReplace(Result, 'à', 'a', [rfReplaceAll]);
+  Result := StringReplace(Result, 'â', 'a', [rfReplaceAll]);
+  Result := StringReplace(Result, 'ã', 'a', [rfReplaceAll]);
+  Result := StringReplace(Result, 'ä', 'a', [rfReplaceAll]);
+  Result := StringReplace(Result, 'Á', 'A', [rfReplaceAll]);
+  Result := StringReplace(Result, 'À', 'A', [rfReplaceAll]);
+  Result := StringReplace(Result, 'Â', 'A', [rfReplaceAll]);
+  Result := StringReplace(Result, 'Ã', 'A', [rfReplaceAll]);
+  Result := StringReplace(Result, 'Ä', 'A', [rfReplaceAll]);
+  Result := StringReplace(Result, 'é', 'e', [rfReplaceAll]);
+  Result := StringReplace(Result, 'è', 'e', [rfReplaceAll]);
+  Result := StringReplace(Result, 'ê', 'e', [rfReplaceAll]);
+  Result := StringReplace(Result, 'ë', 'e', [rfReplaceAll]);
+  Result := StringReplace(Result, 'É', 'E', [rfReplaceAll]);
+  Result := StringReplace(Result, 'È', 'E', [rfReplaceAll]);
+  Result := StringReplace(Result, 'Ê', 'E', [rfReplaceAll]);
+  Result := StringReplace(Result, 'Ë', 'E', [rfReplaceAll]);
+  Result := StringReplace(Result, 'í', 'i', [rfReplaceAll]);
+  Result := StringReplace(Result, 'ì', 'i', [rfReplaceAll]);
+  Result := StringReplace(Result, 'î', 'i', [rfReplaceAll]);
+  Result := StringReplace(Result, 'ï', 'i', [rfReplaceAll]);
+  Result := StringReplace(Result, 'Í', 'I', [rfReplaceAll]);
+  Result := StringReplace(Result, 'Ì', 'I', [rfReplaceAll]);
+  Result := StringReplace(Result, 'Î', 'I', [rfReplaceAll]);
+  Result := StringReplace(Result, 'Ï', 'I', [rfReplaceAll]);
+  Result := StringReplace(Result, 'ó', 'o', [rfReplaceAll]);
+  Result := StringReplace(Result, 'ò', 'o', [rfReplaceAll]);
+  Result := StringReplace(Result, 'ô', 'o', [rfReplaceAll]);
+  Result := StringReplace(Result, 'õ', 'o', [rfReplaceAll]);
+  Result := StringReplace(Result, 'ö', 'o', [rfReplaceAll]);
+  Result := StringReplace(Result, 'Ó', 'O', [rfReplaceAll]);
+  Result := StringReplace(Result, 'Ò', 'O', [rfReplaceAll]);
+  Result := StringReplace(Result, 'Ô', 'O', [rfReplaceAll]);
+  Result := StringReplace(Result, 'Õ', 'O', [rfReplaceAll]);
+  Result := StringReplace(Result, 'Ö', 'O', [rfReplaceAll]);
+  Result := StringReplace(Result, 'ú', 'u', [rfReplaceAll]);
+  Result := StringReplace(Result, 'ù', 'u', [rfReplaceAll]);
+  Result := StringReplace(Result, 'û', 'u', [rfReplaceAll]);
+  Result := StringReplace(Result, 'ü', 'u', [rfReplaceAll]);
+  Result := StringReplace(Result, 'Ú', 'U', [rfReplaceAll]);
+  Result := StringReplace(Result, 'Ù', 'U', [rfReplaceAll]);
+  Result := StringReplace(Result, 'Û', 'U', [rfReplaceAll]);
+  Result := StringReplace(Result, 'Ü', 'U', [rfReplaceAll]);
+  Result := StringReplace(Result, 'ç', 'c', [rfReplaceAll]);
+  Result := StringReplace(Result, 'Ç', 'C', [rfReplaceAll]);
+  Result := StringReplace(Result, 'ñ', 'n', [rfReplaceAll]);
+  Result := StringReplace(Result, 'Ñ', 'N', [rfReplaceAll]);
+end;
+
 function TAIPOSPrinter.PrintText(const AText: string): Boolean;
 var
-  Bytes: TBytes;
+  TextToPrint: string;
 begin
   Result := False;
+  TextToPrint := AText;
+  if FRemoveAccents then
+    TextToPrint := SemAcento(TextToPrint);
   if FRenderMode = rmNativeCanvas then
   begin
-    FPageLines.Add(AText);
+    FPageLines.Add(TextToPrint);
     Result := True;
   end
   else
@@ -423,25 +482,30 @@ begin
     if Assigned(FLanguageEngine) then
     begin
       // Low-level sequential print adds raw encoded text to builder
-      FJobBuilder.AddTextEncoded(AText, FCodePage);
+      FJobBuilder.AddTextEncoded(TextToPrint, FCodePage);
       Result := True;
     end;
   end;
 end;
 
 function TAIPOSPrinter.PrintTextLine(const AText: string): Boolean;
+var
+  TextToPrint: string;
 begin
   Result := False;
+  TextToPrint := AText;
+  if FRemoveAccents then
+    TextToPrint := SemAcento(TextToPrint);
   if FRenderMode = rmNativeCanvas then
   begin
-    FPageLines.Add(AText);
+    FPageLines.Add(TextToPrint);
     Result := True;
   end
   else
   begin
     if Assigned(FLanguageEngine) then
     begin
-      FJobBuilder.AddBytes(FLanguageEngine.TextLine(AText));
+      FJobBuilder.AddBytes(FLanguageEngine.TextLine(TextToPrint));
       Result := True;
     end;
   end;
