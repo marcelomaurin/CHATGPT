@@ -15,6 +15,35 @@ type
     plEpl
   );
 
+  TAIPosProtocol = (
+    ppEscPos,
+    ppEscBema,
+    ppEscDaruma,
+    ppStarLine,
+    ppZPL,
+    ppEPL,
+    ppTexto,
+    ppNativo
+  );
+
+  TAIPosModel = (
+    pmGenerico,
+    pmElginI9,
+    pmElginI7,
+    pmElginL42DT,
+    pmQR203,
+    pmBematech4200,
+    pmBematechMP20,
+    pmDarumaDR800,
+    pmDarumaDR700,
+    pmSweda,
+    pmTanca,
+    pmControlID,
+    pmStarTSP100,
+    pmZebraZPL,
+    pmEltronEPL
+  );
+
   TPrinterRenderMode = (
     rmRawCommand,
     rmNativeCanvas

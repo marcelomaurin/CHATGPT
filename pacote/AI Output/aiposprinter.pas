@@ -22,7 +22,7 @@ uses
 type
   // Legacy aliases for backward compatibility
   TPrinterInterface = (piSerial, piEthernet);
-  TPrinterProtocol = (ppEscPos, ppNative, ppEpl, ppZpl, ppTspl) deprecated;
+  TPrinterProtocol = (ppEscPos, ppNative, ppEpl, ppZpl, ppTspl, ppNativo) deprecated;
 
   { TAIPOSPrinter }
 
@@ -32,6 +32,7 @@ type
     
     // Core parameters
     FPrinterModelName: string;
+    FPrinterModel: TAIPosModel;
     FLanguage: TPrinterLanguage;
     FRenderMode: TPrinterRenderMode;
     FTransportKind: TPrinterTransportKind;
@@ -70,8 +71,11 @@ type
 
     procedure SetActive(AValue: Boolean);
     procedure SetPrinterModelName(const AValue: string);
+    procedure SetPrinterModel(AValue: TAIPosModel);
     procedure SetLanguage(AValue: TPrinterLanguage);
     procedure SetCodePage(AValue: TPrinterEncoding);
+    function GetPrinterModel: TAIPosModel;
+    function HasCapability(C: Integer): Boolean;
     
     procedure InitLanguageEngine;
     procedure InitTransport;
@@ -123,6 +127,7 @@ type
     
     // Modern properties
     property PrinterModelName: string read FPrinterModelName write SetPrinterModelName;
+    property PrinterModel: TAIPosModel read GetPrinterModel write SetPrinterModel;
     property Language: TPrinterLanguage read FLanguage write SetLanguage default plEscPos;
     property RenderMode: TPrinterRenderMode read FRenderMode write FRenderMode default rmRawCommand;
     property TransportKind: TPrinterTransportKind read FTransportKind write FTransportKind default ptTcp9100;
@@ -172,6 +177,7 @@ begin
   FPrompt := 'TAIPOSPrinter handles ESC/POS, ZPL, TSPL, and EPL printer hardware and OS Native printing.';
   
   FPrinterModelName := 'Elgin i9 (80mm)';
+  FPrinterModel := pmElginI9;
   FLanguage := plEscPos;
   FRenderMode := rmRawCommand;
   FTransportKind := ptTcp9100;
@@ -284,6 +290,35 @@ begin
   finally
     Profile.Free;
   end;
+end;
+
+procedure TAIPOSPrinter.SetPrinterModel(AValue: TAIPosModel);
+begin
+  if FPrinterModel = AValue then Exit;
+  FPrinterModel := AValue;
+  case FPrinterModel of
+    pmGenerico: FPrinterModelName := 'Generic ESC/POS 80mm';
+    pmElginI9: FPrinterModelName := 'Elgin i9 (80mm)';
+    pmElginI7: FPrinterModelName := 'Elgin i7';
+    pmElginL42DT: FPrinterModelName := 'Elgin L42DT (Label)';
+    pmQR203: FPrinterModelName := 'QR203 (58mm)';
+    pmBematech4200: FPrinterModelName := 'Bematech 4200';
+    pmBematechMP20: FPrinterModelName := 'Bematech MP20';
+    pmDarumaDR800: FPrinterModelName := 'Daruma DR800';
+    pmDarumaDR700: FPrinterModelName := 'Daruma DR700';
+    pmSweda: FPrinterModelName := 'Sweda';
+    pmTanca: FPrinterModelName := 'Tanca';
+    pmControlID: FPrinterModelName := 'Control ID';
+    pmStarTSP100: FPrinterModelName := 'Star TSP100';
+    pmZebraZPL: FPrinterModelName := 'Zebra ZPL';
+    pmEltronEPL: FPrinterModelName := 'Eltron EPL';
+  end;
+  SetPrinterModelName(FPrinterModelName);
+end;
+
+function TAIPOSPrinter.GetPrinterModel: TAIPosModel;
+begin
+  Result := FPrinterModel;
 end;
 
 procedure TAIPOSPrinter.SetLanguage(AValue: TPrinterLanguage);
@@ -485,6 +520,14 @@ begin
       FJobBuilder.AddTextEncoded(TextToPrint, FCodePage);
       Result := True;
     end;
+  end;
+end;
+
+function TAIPOSPrinter.HasCapability(C: Integer): Boolean;
+begin
+  Result := True;
+  case C of
+    0: Result := True;
   end;
 end;
 
