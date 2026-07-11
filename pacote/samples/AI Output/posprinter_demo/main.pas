@@ -16,7 +16,6 @@ type
     pnlTop: TPanel;
     lblTitle: TLabel;
     lblStatus: TLabel;
-    chkSimulation: TCheckBox;
     btnRun: TButton;
     btnClearLog: TButton;
     memoLog: TMemo;
@@ -325,78 +324,38 @@ begin
   try
     ApplySettings;
     
-    if chkSimulation.Checked then
-    begin
-      AddLog('Simulating printing:');
-      AddLog('  Model: ' + cmbModel.Text);
-      AddLog('  Protocol: ' + cmbProtocol.Text);
-      
-      if FAIPosPrinter.RenderMode = rmNativeCanvas then
+    FAIPosPrinter.Active := True;
+    try
+      if not FAIPosPrinter.BeginJob then
       begin
-        AddLog('Simulating Native OS Canvas Printing:');
-        AddLog('  Canvas.TextOut: "DAILY PRODUCTION SUMMARY"');
-        AddLog('  Canvas.TextOut: "COMPLETED SUCCESSFULLY"');
-        AddLog('  Canvas.TextOut: "-------------------------"');
-        AddLog('  Canvas.TextOut: "Count: 100 units"');
-        AddLog('  Canvas.TextOut: "[QR Code: Hello World]"');
-        AddLog('  Document sent to OS Print Spooler.');
+        AddLog('Error: BeginJob failed.');
+        Exit;
+      end;
+      
+      FAIPosPrinter.AlignCenter;
+      FAIPosPrinter.PrintTextLine('DAILY PRODUCTION SUMMARY');
+      FAIPosPrinter.SetBold(True);
+      FAIPosPrinter.PrintTextLine('COMPLETED SUCCESSFULLY');
+      FAIPosPrinter.SetBold(False);
+      FAIPosPrinter.PrintTextLine('-------------------------');
+      FAIPosPrinter.PrintTextLine('Count: 100 units');
+      
+      FAIPosPrinter.PrintQRCode('Hello World');
+      FAIPosPrinter.CutPaper;
+      
+      FAIPosPrinter.EndJob;
+      
+      if FAIPosPrinter.PrintJob then
+      begin
+        AddLog('Job sent to printer successfully.');
+        AddLog('Bytes sent: ' + IntToStr(FAIPosPrinter.LastBytesSent));
+        if FAIPosPrinter.LastCommandHex <> '' then
+          AddLog('Command Hex: ' + FAIPosPrinter.LastCommandHex);
       end
       else
-      begin
-        case FAIPosPrinter.Language of
-          plEpl:
-          begin
-            LogHexBytes('Clear Buffer (N)', #13#10'N'#10);
-            AddLog('  A10,10,0,4,1,1,N,"DAILY PRODUCTION SUMMARY"');
-            AddLog('  A10,40,0,4,1,1,N,"COMPLETED SUCCESSFULLY"');
-            AddLog('  A10,70,0,4,1,1,N,"-------------------------"');
-            AddLog('  A10,100,0,4,1,1,N,"Count: 100 units"');
-            AddLog('  b10,130,Q,m2,g3,"Hello World"');
-            LogHexBytes('Print label (P1)', 'P1'#10);
-          end;
-          plZpl:
-          begin
-            AddLog('  ^XA');
-            AddLog('  ^FO10,10^ADN,18,10^FDDAILY PRODUCTION SUMMARY^FS');
-            AddLog('  ^FO10,40^ADN,18,10^FDCOMPLETED SUCCESSFULLY^FS');
-            AddLog('  ^FO10,70^ADN,18,10^FD-------------------------^FS');
-            AddLog('  ^FO10,100^ADN,18,10^FDCount: 100 units^FS');
-            AddLog('  ^FO10,130^BQN,2,4^FDQA,Hello World^FS');
-            AddLog('  ^XZ');
-          end;
-          plTspl:
-          begin
-            AddLog('  SIZE 4,3');
-            AddLog('  GAP 0,0');
-            AddLog('  CLS');
-            AddLog('  TEXT 10,10,"4",0,1,1,"DAILY PRODUCTION SUMMARY"');
-            AddLog('  TEXT 10,40,"4",0,1,1,"COMPLETED SUCCESSFULLY"');
-            AddLog('  TEXT 10,70,"4",0,1,1,"-------------------------"');
-            AddLog('  TEXT 10,100,"4",0,1,1,"Count: 100 units"');
-            AddLog('  QRCODE 10,130,L,4,A,0,"Hello World"');
-            AddLog('  PRINT 1,1');
-          end;
-          else // plEscPos
-          begin
-            LogHexBytes('Init Command', #27'@');
-            LogHexBytes('Center Align', #27'a'#1);
-            AddLog('  Print text: "DAILY PRODUCTION SUMMARY"');
-            LogHexBytes('Bold Enable', #27'E'#1);
-            AddLog('  Print bold text: "COMPLETED SUCCESSFULLY"');
-            LogHexBytes('Normal Restore', #27'E'#0);
-            AddLog('  Print text: "-------------------------"');
-            AddLog('  Print text: "Count: 100 units"');
-            
-            if FAIPosPrinter.PrinterModel = pmElginI9 then
-              LogHexBytes('Store/Print QR code', #29'(k'#4#0'1C'#49#0#29'(k'#3#0'1E'#6#29'(k' + Chr(15) + #0 + '1P0Hello World'#29'(k'#3#0'1Q0')
-            else
-              LogHexBytes('Chinese Mini QR code', #29'k'#11#3#1 + Chr(11) + 'Hello World');
-              
-            LogHexBytes('Cutter (Guilhotina)', #29'VB'#3);
-          end;
-        end;
-      end;
-      AddLog('Simulation complete.');
+        AddLog('Error: PrintJob failed. ' + FAIPosPrinter.LastError);
+    finally
+      FAIPosPrinter.Active := False;
     end;
   except
     on E: Exception do
@@ -412,24 +371,23 @@ procedure TfrmMain.btnBoldTextClick(Sender: TObject);
 begin
   AddLog('--- Testing Bold/Text Style ---');
   ApplySettings;
-  if chkSimulation.Checked then
-  begin
-    if FAIPosPrinter.RenderMode = rmNativeCanvas then
-      AddLog('  Canvas.Font.Style := [fsBold]')
-    else
+  FAIPosPrinter.Active := True;
+  try
+    FAIPosPrinter.BeginJob;
+    FAIPosPrinter.SetBold(True);
+    FAIPosPrinter.PrintTextLine('THIS IS BOLD');
+    FAIPosPrinter.SetBold(False);
+    FAIPosPrinter.EndJob;
+    if FAIPosPrinter.PrintJob then
     begin
-      case FAIPosPrinter.Language of
-        plEpl:    AddLog('  Note: Multipliers/Fonts simulated for bold.');
-        plZpl:    AddLog('  Note: Styled fonts simulated.');
-        plTspl:   AddLog('  Note: TSPL text sizes simulated.');
-        else // plEscPos
-        begin
-          LogHexBytes('Bold command', #27'E'#1);
-          AddLog('  Simulated Bold Text: "THIS IS BOLD"');
-          LogHexBytes('Normal command', #27'E'#0);
-        end;
-      end;
-    end;
+      AddLog('Bold text job sent.');
+      if FAIPosPrinter.LastCommandHex <> '' then
+        AddLog('Hex: ' + FAIPosPrinter.LastCommandHex);
+    end
+    else
+      AddLog('Error sending bold job: ' + FAIPosPrinter.LastError);
+  finally
+    FAIPosPrinter.Active := False;
   end;
 end;
 
@@ -437,19 +395,21 @@ procedure TfrmMain.btnBarcodeClick(Sender: TObject);
 begin
   AddLog('--- Testing 1D Barcode ---');
   ApplySettings;
-  if chkSimulation.Checked then
-  begin
-    if FAIPosPrinter.RenderMode = rmNativeCanvas then
-      AddLog('  Canvas.TextOut: "[Barcode: 123456]"')
-    else
+  FAIPosPrinter.Active := True;
+  try
+    FAIPosPrinter.BeginJob;
+    FAIPosPrinter.PrintBarcode('123456');
+    FAIPosPrinter.EndJob;
+    if FAIPosPrinter.PrintJob then
     begin
-      case FAIPosPrinter.Language of
-        plEpl:    AddLog('  Simulated EPL2 Barcode: B10,10,0,3,3,6,80,B,"123456"');
-        plZpl:    AddLog('  Simulated ZPL Barcode: ^FO10,10^BY3^BCN,80,Y,N,N^FD123456^FS');
-        plTspl:   AddLog('  Simulated TSPL Barcode: BARCODE 10,10,"128",80,1,0,3,6,"123456"');
-        else      LogHexBytes('Barcode command (Code 39)', #29'h'#80#29'w'#3#29'H'#2#29'k'#4'123456'#0); // plEscPos
-      end;
-    end;
+      AddLog('Barcode job sent.');
+      if FAIPosPrinter.LastCommandHex <> '' then
+        AddLog('Hex: ' + FAIPosPrinter.LastCommandHex);
+    end
+    else
+      AddLog('Error sending barcode job: ' + FAIPosPrinter.LastError);
+  finally
+    FAIPosPrinter.Active := False;
   end;
 end;
 
@@ -457,51 +417,43 @@ procedure TfrmMain.btnQRCodeClick(Sender: TObject);
 begin
   AddLog('--- Testing QR Code ---');
   ApplySettings;
-  if chkSimulation.Checked then
-  begin
-    if FAIPosPrinter.RenderMode = rmNativeCanvas then
-      AddLog('  Canvas.TextOut: "[QR Code: https://google.com]"')
-    else
+  FAIPosPrinter.Active := True;
+  try
+    FAIPosPrinter.BeginJob;
+    FAIPosPrinter.PrintQRCode('https://google.com');
+    FAIPosPrinter.EndJob;
+    if FAIPosPrinter.PrintJob then
     begin
-      case FAIPosPrinter.Language of
-        plEpl:    AddLog('  Simulated EPL2 QR Code: b10,10,Q,m2,g3,"https://google.com"');
-        plZpl:    AddLog('  Simulated ZPL QR Code: ^FO10,10^BQN,2,4^FDQA,https://google.com^FS');
-        plTspl:   AddLog('  Simulated TSPL QR Code: QRCODE 10,10,L,4,A,0,"https://google.com"');
-        else // plEscPos
-        begin
-          if FAIPosPrinter.PrinterModel = pmElginI9 then
-            LogHexBytes('Store/Print QR code', #29'(k'#4#0'1C'#49#0#29'(k'#3#0'1E'#6#29'(k' + Chr(18) + #0 + '1P0https://google.com'#29'(k'#3#0'1Q0')
-          else
-            LogHexBytes('Chinese Mini QR code', #29'k'#11#3#1 + Chr(18) + 'https://google.com');
-        end;
-      end;
-    end;
+      AddLog('QR Code job sent.');
+      if FAIPosPrinter.LastCommandHex <> '' then
+        AddLog('Hex: ' + FAIPosPrinter.LastCommandHex);
+    end
+    else
+      AddLog('Error sending QR Code job: ' + FAIPosPrinter.LastError);
+  finally
+    FAIPosPrinter.Active := False;
   end;
 end;
 
 procedure TfrmMain.btnCutClick(Sender: TObject);
 begin
-  AddLog('--- Testing Paper Cut / Label Print ---');
+  AddLog('--- Testing Paper Cut ---');
   ApplySettings;
-  if chkSimulation.Checked then
-  begin
-    if FAIPosPrinter.RenderMode = rmNativeCanvas then
-      AddLog('  Simulated Native OS canvas print finished.')
-    else
+  FAIPosPrinter.Active := True;
+  try
+    FAIPosPrinter.BeginJob;
+    FAIPosPrinter.CutPaper;
+    FAIPosPrinter.EndJob;
+    if FAIPosPrinter.PrintJob then
     begin
-      case FAIPosPrinter.Language of
-        plEpl:    AddLog('  Simulated EPL2 Print command: P1');
-        plZpl:    AddLog('  Simulated ZPL End command: ^XZ');
-        plTspl:   AddLog('  Simulated TSPL Print command: PRINT 1,1');
-        else // plEscPos
-        begin
-          if FAIPosPrinter.PrinterModel = pmElginI9 then
-            LogHexBytes('Guillotine command', #29'VB'#3)
-          else
-            AddLog('  Note: QR203 model does not support paper cut.');
-        end;
-      end;
-    end;
+      AddLog('Paper cut command sent.');
+      if FAIPosPrinter.LastCommandHex <> '' then
+        AddLog('Hex: ' + FAIPosPrinter.LastCommandHex);
+    end
+    else
+      AddLog('Error sending paper cut job: ' + FAIPosPrinter.LastError);
+  finally
+    FAIPosPrinter.Active := False;
   end;
 end;
 
@@ -509,20 +461,21 @@ procedure TfrmMain.btnDrawerClick(Sender: TObject);
 begin
   AddLog('--- Testing Cash Drawer Kick ---');
   ApplySettings;
-  if chkSimulation.Checked then
-  begin
-    if FAIPosPrinter.RenderMode = rmRawCommand then
+  FAIPosPrinter.Active := True;
+  try
+    FAIPosPrinter.BeginJob;
+    FAIPosPrinter.OpenDrawer;
+    FAIPosPrinter.EndJob;
+    if FAIPosPrinter.PrintJob then
     begin
-      if FAIPosPrinter.Language = plEscPos then
-      begin
-        if FAIPosPrinter.PrinterModel = pmElginI9 then
-          LogHexBytes('Cash Drawer kick command', #16#20#1#0#8)
-        else
-          AddLog('  Note: Only Elgin i9 model supports drawer kick.');
-      end
-      else
-        AddLog('  Note: Cash Drawer is only supported in ESC/POS mode.');
-    end;
+      AddLog('Cash drawer command sent.');
+      if FAIPosPrinter.LastCommandHex <> '' then
+        AddLog('Hex: ' + FAIPosPrinter.LastCommandHex);
+    end
+    else
+      AddLog('Error sending cash drawer job: ' + FAIPosPrinter.LastError);
+  finally
+    FAIPosPrinter.Active := False;
   end;
 end;
 
@@ -530,22 +483,21 @@ procedure TfrmMain.btnBeepClick(Sender: TObject);
 begin
   AddLog('--- Testing Printer Beep ---');
   ApplySettings;
-  if chkSimulation.Checked then
-  begin
-    if FAIPosPrinter.RenderMode = rmRawCommand then
+  FAIPosPrinter.Active := True;
+  try
+    FAIPosPrinter.BeginJob;
+    FAIPosPrinter.Beep;
+    FAIPosPrinter.EndJob;
+    if FAIPosPrinter.PrintJob then
     begin
-      if FAIPosPrinter.Language = plEscPos then
-      begin
-        if FAIPosPrinter.PrinterModel = pmElginI9 then
-          LogHexBytes('Beep command', #27'(A'#5#0'add'#1'dd')
-        else if FAIPosPrinter.PrinterModel = pmQR203 then
-          LogHexBytes('Standard Bell beep', #7)
-        else
-          AddLog('  Note: Elgin L42DT does not support beep command.');
-      end
-      else
-        AddLog('  Note: Beep is only supported in ESC/POS mode.');
-    end;
+      AddLog('Beep command sent.');
+      if FAIPosPrinter.LastCommandHex <> '' then
+        AddLog('Hex: ' + FAIPosPrinter.LastCommandHex);
+    end
+    else
+      AddLog('Error sending beep job: ' + FAIPosPrinter.LastError);
+  finally
+    FAIPosPrinter.Active := False;
   end;
 end;
 
