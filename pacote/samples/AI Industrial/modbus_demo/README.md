@@ -9,11 +9,11 @@ This sample project demonstrates the usage of component `aimodbus` from the `ope
 
 ## Regra do sample
 
-Este sample não usa dados fake, mock, simulação interna ou valores inventados.
+This sample does not use fake data, mocks, internal simulation, or invented values.
 
-Para testar sem Arduino físico, use um servidor Modbus TCP real, como `diagslave` ou `pymodbus.server`.
+To test without a physical Arduino, use a real Modbus TCP server such as `diagslave` or `pymodbus.server`.
 
-O botão de leitura/escrita só deve retornar sucesso quando houver resposta real de um dispositivo Modbus RTU/TCP.
+The read/write button should only return success when there is a real response from a Modbus RTU/TCP device.
 
 ## How to Build & Run
 1. Open this project folder in Lazarus.
@@ -21,28 +21,61 @@ O botão de leitura/escrita só deve retornar sucesso quando houver resposta rea
 3. Build the project (`Ctrl+F9` or run `lazbuild.exe`).
 4. Execute and connect/operate.
 
-## Firmware Arduino incluído
+## Firmware Arduino included
 
-Arquivo: [arduino_nano_sample.ino](file:///P:/maurinsoft/CHATGPT/pacote/samples/AI%20Industrial/modbus_demo/arduino/arduino_nano_sample/arduino_nano_sample.ino)
+The sample now includes two firmware options:
 
-### Biblioteca necessária no Arduino IDE:
+- [Arduino Nano sample](arduino/arduino_nano_sample/arduino_nano_sample.ino)
+- [ESP32 sample](arduino/esp32_modbus_sample/esp32_modbus_sample.ino)
+
+### Arduino Nano
+
+Library required in the Arduino IDE:
+
 - `ModbusRTUSlave`
 
-### Mapa Real de Registradores
+Register map:
 
-| Área | Faixa | Uso real |
+| Area | Range | Real use |
 |---|---|---|
-| Coils | 0..13 | Escrita digital D0..D13 |
-| Discrete Inputs | 0..13 | Leitura digital D0..D13 |
-| Holding Registers | 0..13 | Modo dos pinos D0..D13 |
+| Coils | 0..13 | Digital write D0..D13 |
+| Discrete Inputs | 0..13 | Digital read D0..D13 |
+| Holding Registers | 0..13 | Pin mode D0..D13 |
 | Holding Registers | 20..33 | PWM D0..D13 |
-| Input Registers | 0..7 | Analógicas A0..A7 |
+| Input Registers | 0..7 | Analog A0..A7 |
 
-### Tabela de Modos
+Mode table:
 
-| Valor | Modo |
+| Value | Mode |
 |---|---|
-| 0 | Desativado / INPUT |
+| 0 | Disabled / INPUT |
+| 1 | INPUT |
+| 2 | INPUT_PULLUP |
+| 3 | OUTPUT |
+| 4 | PWM |
+
+### ESP32
+
+Library required in the Arduino IDE:
+
+- `ModbusRTUSlave`
+
+Register map:
+
+| Area | Range | Real use |
+|---|---|---|
+| Coils | 0..13 | Digital write on mapped ESP32 GPIOs |
+| Discrete Inputs | 0..13 | Digital read on mapped ESP32 GPIOs |
+| Holding Registers | 0..13 | GPIO mode slots |
+| Holding Registers | 20..33 | PWM for each GPIO slot |
+| Input Registers | 0..5 | ADC1 analog inputs |
+| Input Registers | 6..7 | Reserved on common WROOM boards |
+
+Mode table:
+
+| Value | Mode |
+|---|---|
+| 0 | Disabled / INPUT |
 | 1 | INPUT |
 | 2 | INPUT_PULLUP |
 | 3 | OUTPUT |

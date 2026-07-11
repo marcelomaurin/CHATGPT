@@ -9,7 +9,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\AI Agents;..\AI Output;.."/>
+        <OtherUnitFiles Value="..\AI Agents;..\AI Output;..;..\AI Graph"/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
@@ -28,7 +28,6 @@
       </Item>
       <Item>
         <Filename Value="..\AI Agents\aiagent_executors.pas"/>
-        <HasRegisterProc Value="False"/>
         <UnitName Value="aiagent_executors"/>
       </Item>
       <Item>
@@ -38,7 +37,6 @@
       </Item>
       <Item>
         <Filename Value="..\AI Agents\aiagent_flowevents.pas"/>
-        <HasRegisterProc Value="False"/>
         <UnitName Value="aiagent_flowevents"/>
       </Item>
       <Item>
@@ -48,32 +46,26 @@
       </Item>
       <Item>
         <Filename Value="..\AI Agents\aiagent_core.pas"/>
-        <HasRegisterProc Value="False"/>
         <UnitName Value="aiagent_core"/>
       </Item>
       <Item>
         <Filename Value="..\AI Agents\aiagent_classifier.pas"/>
-        <HasRegisterProc Value="False"/>
         <UnitName Value="aiagent_classifier"/>
       </Item>
       <Item>
         <Filename Value="..\AI Agents\aiagent_decision.pas"/>
-        <HasRegisterProc Value="False"/>
         <UnitName Value="aiagent_decision"/>
       </Item>
       <Item>
         <Filename Value="..\AI Agents\aiagent_actionbuilder.pas"/>
-        <HasRegisterProc Value="False"/>
         <UnitName Value="aiagent_actionbuilder"/>
       </Item>
       <Item>
         <Filename Value="..\AI Agents\aiagent_executor.pas"/>
-        <HasRegisterProc Value="False"/>
         <UnitName Value="aiagent_executor"/>
       </Item>
       <Item>
         <Filename Value="..\AI Agents\aiagent_actions.pas"/>
-        <HasRegisterProc Value="False"/>
         <UnitName Value="aiagent_actions"/>
       </Item>
       <Item>
@@ -88,6 +80,15 @@
       </Item>
     </Files>
     <RequiredPkgs>
+      <Item>
+        <PackageName Value="openai_graph"/>
+      </Item>
+      <Item>
+        <PackageName Value="openai_ml"/>
+      </Item>
+      <Item>
+        <PackageName Value="openai_industrial"/>
+      </Item>
       <Item>
         <PackageName Value="openai_output"/>
       </Item>

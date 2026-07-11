@@ -5,15 +5,31 @@ rem ============================================================
 rem TCHATGPT - Lazarus package installer for Windows
 rem Author: Marcelo Maurin Martins
 rem Repository: https://github.com/marcelomaurin/CHATGPT
+rem
+rem Default behavior:
+rem   - Add the requested packages
+rem   - Do not force a Lazarus IDE rebuild
+rem
+rem Optional third argument:
+rem   rebuild | --rebuild-ide | /rebuild-ide | true | yes | 1
 rem ============================================================
 
 set "ROOT_DIR=%~dp0"
 set "LAZBUILD="
 set "MODE=recommended"
 set "FAILED=0"
+set "REBUILD_IDE=0"
 
 if not "%~1"=="" set "MODE=%~1"
 if not "%~2"=="" set "LAZBUILD=%~2"
+if not "%~3"=="" set "REBUILD_IDE=%~3"
+
+if /I "%REBUILD_IDE%"=="1" set "REBUILD_IDE=1"
+if /I "%REBUILD_IDE%"=="yes" set "REBUILD_IDE=1"
+if /I "%REBUILD_IDE%"=="true" set "REBUILD_IDE=1"
+if /I "%REBUILD_IDE%"=="rebuild" set "REBUILD_IDE=1"
+if /I "%REBUILD_IDE%"=="--rebuild-ide" set "REBUILD_IDE=1"
+if /I "%REBUILD_IDE%"=="/rebuild-ide" set "REBUILD_IDE=1"
 
 if /I "%MODE%"=="/h" goto :help
 if /I "%MODE%"=="-h" goto :help
@@ -30,6 +46,7 @@ if not exist "%LAZBUILD%" (
   echo   install_components.bat core
   echo   install_components.bat all
   echo   install_components.bat recommended "C:\lazarus\lazbuild.exe"
+  echo   install_components.bat recommended "C:\lazarus\lazbuild.exe" rebuild
   echo.
   exit /b 1
 )
@@ -41,6 +58,7 @@ echo ============================================================
 echo Repository path: %ROOT_DIR%
 echo lazbuild:       %LAZBUILD%
 echo Mode:           %MODE%
+echo Rebuild IDE:    %REBUILD_IDE%
 echo ============================================================
 echo.
 
@@ -149,15 +167,23 @@ echo ============================================================
 if "%FAILED%"=="0" (
   echo Installation commands finished successfully.
   echo.
-  echo ------------------------------------------------------------
-  echo Rebuilding Lazarus IDE with installed packages...
-  echo ------------------------------------------------------------
-  "%LAZBUILD%" --build-ide=
-  if errorlevel 1 (
-    echo [ERROR] Lazarus IDE rebuild failed. Open Lazarus and rebuild manually.
-    exit /b 1
+  if "%REBUILD_IDE%"=="1" (
+    echo ------------------------------------------------------------
+    echo Rebuilding Lazarus IDE with installed packages...
+    echo ------------------------------------------------------------
+    "%LAZBUILD%" --build-ide=
+    if errorlevel 1 (
+      echo [ERROR] Lazarus IDE rebuild failed. Open Lazarus and rebuild manually.
+      exit /b 1
+    ) else (
+      echo [OK] Lazarus IDE rebuilt successfully.
+    )
   ) else (
-    echo [OK] Lazarus IDE rebuilt successfully.
+    echo ------------------------------------------------------------
+    echo IDE rebuild skipped.
+    echo ------------------------------------------------------------
+    echo Open Lazarus and rebuild the IDE manually if you want the packages
+    echo to appear immediately in the component palette.
   )
 ) else (
   echo Installation finished with warnings or errors.
@@ -171,7 +197,7 @@ echo.
 echo TCHATGPT - Windows component installer
 echo.
 echo Usage:
-echo   install_components.bat [mode] [path_to_lazbuild.exe]
+echo   install_components.bat [mode] [path_to_lazbuild.exe] [rebuild]
 echo.
 echo Modes:
 echo   core         Installs only openai_core.lpk
@@ -183,5 +209,6 @@ echo   install_components.bat
 echo   install_components.bat core
 echo   install_components.bat all
 echo   install_components.bat recommended "C:\lazarus\lazbuild.exe"
+echo   install_components.bat recommended "C:\lazarus\lazbuild.exe" rebuild
 echo.
 exit /b 0

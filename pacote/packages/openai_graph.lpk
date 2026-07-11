@@ -50,9 +50,6 @@
         <PackageName Value="openai_ml"/>
       </Item>
       <Item>
-        <PackageName Value="openai_agents"/>
-      </Item>
-      <Item>
         <PackageName Value="openai_input"/>
       </Item>
       <Item>

@@ -1,0 +1,11 @@
+﻿"ID Respondente";Nome;E-mail;Identificador;Respondeu?;"Data Resposta";"Unidade de saúde";Data;Solicitante;Cargo;Equipamento;"Número do patrimônio";"Número de série";Marca;Local;"Defeito relatado"
+6;"marcelo maurin";marcelomaurinmartins@gmail.com;111;Não;;;;;;;;;;;
+7;manutencao.saude@rp.ribeiraopreto.sp.gov.br;manutencao.saude@rp.ribeiraopreto.sp.gov.br;24;Não;;;;;;;;;;;
+8;manutencao.saude@rp.ribeiraopreto.sp.gov.br;manutencao.saude@rp.ribeiraopreto.sp.gov.br;24;Não;;;;;;;;;;;
+9;manutencao.saude@rp.ribeiraopreto.sp.gov.br;manutencao.saude@rp.ribeiraopreto.sp.gov.br;24;Não;;;;;;;;;;;
+10;manutencao.saude@rp.ribeiraopreto.sp.gov.br;manutencao.saude@rp.ribeiraopreto.sp.gov.br;24;Não;;;;;;;;;;;
+11;manutencao.saude@rp.ribeiraopreto.sp.gov.br;manutencao.saude@rp.ribeiraopreto.sp.gov.br;24;Não;;;;;;;;;;;
+12;"Josue Marcos Fernandes";jmfernandes@rp.ribeiraopreto.sp.gov.br;13;Não;;;;;;;;;;;
+13;manutencao.saude@rp.ribeiraopreto.sp.gov.br;manutencao.saude@rp.ribeiraopreto.sp.gov.br;24;Não;;;;;;;;;;;
+14;"Josue Marcos Fernandes";jmfernandes@rp.ribeiraopreto.sp.gov.br;13;Não;;;;;;;;;;;
+15;manutencao.saude@rp.ribeiraopreto.sp.gov.br;manutencao.saude@rp.ribeiraopreto.sp.gov.br;24;Não;"08/07/2026 11:07:55";"CAPS III Ad com Suporte a Urgência - Flávio Fortes D’Andrea";2026-02-01;solicitante;"teste cargo";"Equipamento teste";12345;123456;"Teste Marca";"Local Teste";Teste
