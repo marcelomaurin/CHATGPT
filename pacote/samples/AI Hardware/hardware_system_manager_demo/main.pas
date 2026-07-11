@@ -82,6 +82,8 @@ begin
   if Assigned(FTaskSortCombo) then
     FTaskSortCombo.ItemIndex := 0;
   RefreshAll;
+  if Assigned(FTimer) then
+    FTimer.Enabled := True;
 end;
 
 procedure TfrmHardwareSystemManagerDemo.FormDestroy(Sender: TObject);
@@ -101,22 +103,22 @@ begin
   FTabOverview := TTabSheet(FindComponent('FTabOverview'));
   FTabTasks := TTabSheet(FindComponent('FTabTasks'));
   FTabDevices := TTabSheet(FindComponent('FTabDevices'));
-    FTabRaw := TTabSheet(FindComponent('FTabRaw'));
-    FTabCPU := TTabSheet(FindComponent('FTabCPU'));
-    FTabMemory := TTabSheet(FindComponent('FTabMemory'));
-    FTabPCIe := TTabSheet(FindComponent('FTabPCIe'));
-    FTabPCI := TTabSheet(FindComponent('FTabPCI'));
-    FTaskTopPanel := TPanel(FindComponent('FTaskTopPanel'));
+  FTabRaw := TTabSheet(FindComponent('FTabRaw'));
+  FTabCPU := TTabSheet(FindComponent('FTabCPU'));
+  FTabMemory := TTabSheet(FindComponent('FTabMemory'));
+  FTabPCIe := TTabSheet(FindComponent('FTabPCIe'));
+  FTabPCI := TTabSheet(FindComponent('FTabPCI'));
+  FTaskTopPanel := TPanel(FindComponent('FTaskTopPanel'));
   FTaskFilterLabel := TLabel(FindComponent('FTaskFilterLabel'));
   FTaskFilterEdit := TEdit(FindComponent('FTaskFilterEdit'));
   FTaskOnlyCurrentUser := TCheckBox(FindComponent('FTaskOnlyCurrentUser'));
   FTaskSortLabel := TLabel(FindComponent('FTaskSortLabel'));
   FTaskSortCombo := TComboBox(FindComponent('FTaskSortCombo'));
-    FOverviewMemo := TMemo(FindComponent('FOverviewMemo'));
-    FCPUMemo := TMemo(FindComponent('FCPUMemo'));
-    FMemoryMemo := TMemo(FindComponent('FMemoryMemo'));
-    FPCIeMemo := TMemo(FindComponent('FPCIeMemo'));
-    FPCIMemo := TMemo(FindComponent('FPCIMemo'));
+  FOverviewMemo := TMemo(FindComponent('FOverviewMemo'));
+  FCPUMemo := TMemo(FindComponent('FCPUMemo'));
+  FMemoryMemo := TMemo(FindComponent('FMemoryMemo'));
+  FPCIeMemo := TMemo(FindComponent('FPCIeMemo'));
+  FPCIMemo := TMemo(FindComponent('FPCIMemo'));
   FTasksListView := TListView(FindComponent('FTasksListView'));
   FDevicesListView := TListView(FindComponent('FDevicesListView'));
   FRawMemo := TMemo(FindComponent('FRawMemo'));
@@ -150,13 +152,13 @@ end;
 
 procedure TfrmHardwareSystemManagerDemo.RefreshAll;
 begin
+  RefreshTasks;
+  RefreshDevices;
+  RefreshOverview;
   RefreshCPUPage;
   RefreshMemoryPage;
   RefreshPCIePage;
   RefreshPCIPage;
-  RefreshOverview;
-  RefreshTasks;
-  RefreshDevices;
   RefreshRawDetails;
 end;
 
@@ -208,7 +210,7 @@ var
   I: Integer;
 begin
   if not Assigned(FCPU) or not Assigned(FCPUMemo) then Exit;
-  CPUInfo := FCPU.RefreshInfo;
+  CPUInfo := FCPU.LastInfo;
   FCPUBar.Position := Trunc(CPUInfo.UsageTotalPercent);
   FCPUMemo.Lines.BeginUpdate;
   try
@@ -233,7 +235,7 @@ var
   MemInfo: TAIMemoryInfo;
 begin
   if not Assigned(FMemory) or not Assigned(FMemoryMemo) then Exit;
-  MemInfo := FMemory.RefreshInfo;
+  MemInfo := FMemory.LastInfo;
   FMemoryBar.Position := Trunc(MemInfo.LoadPercent);
   FMemoryMemo.Lines.BeginUpdate;
   try
@@ -257,7 +259,7 @@ begin
   try
     FPCIeMemo.Clear;
     FPCIeMemo.Lines.Add('Informacoes PCIe');
-    FPCIeMemo.Lines.Add(CollectPCIInventory('PCI\\'));
+    FPCIeMemo.Lines.Add(CollectPCIInventory('PCI\'));
   finally
     FPCIeMemo.Lines.EndUpdate;
   end;
@@ -283,6 +285,8 @@ var
   OSInfo: TAIOSInfo;
   I: Integer;
 begin
+  if not Assigned(FCPU) or not Assigned(FMemory) or not Assigned(FOS) or
+     not Assigned(FOverviewMemo) then Exit;
   CPUInfo := FCPU.RefreshInfo;
   MemInfo := FMemory.RefreshInfo;
   OSInfo := FOS.RefreshInfo;
@@ -332,6 +336,7 @@ var
   Item: TListItem;
   T: TAITask;
   FilterText: string;
+  UsedMB: Double;
 begin
   if not Assigned(FTasks) then Exit;
   FTasks.Refresh;
@@ -352,7 +357,8 @@ begin
       Item.SubItems.Add(IntToStr(T.PPID));
       Item.SubItems.Add(T.Name);
       Item.SubItems.Add(FormatFloat('0.0', T.CPUPercent));
-      Item.SubItems.Add(FormatFloat('0.0 MB', T.MemoryWorking));
+      UsedMB := T.MemoryWorking / 1024 / 1024;
+      Item.SubItems.Add(FormatFloat('0.0 MB', UsedMB));
       Item.SubItems.Add(T.StateStr);
       Item.SubItems.Add(T.User);
     end;
