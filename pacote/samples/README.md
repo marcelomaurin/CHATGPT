@@ -96,6 +96,7 @@ Os exemplos a seguir são projetos visuais prontos para compilação e execuçã
 
 | Exemplo | Caminho | Descrição |
 |---|---|---|
+| **[arduino_modbus_pinmap_demo](AI Industrial/arduino_modbus_pinmap_demo/)** | `pacote/samples/AI Industrial/arduino_modbus_pinmap_demo` | Demonstração visual de mapeamento de pinos Arduino com comunicação Modbus. |
 | **[industrial_bridge_demo](AI Industrial/industrial_bridge_demo/)** | `pacote/samples/AI Industrial/industrial_bridge_demo` | Ponte de comunicação industrial ligando brokers IoT e CLPs. |
 | **[modbus_demo](AI Industrial/modbus_demo/)** | `pacote/samples/AI Industrial/modbus_demo` | Demonstração de leitura/escrita física no protocolo industrial Modbus. |
 | **[mqtt_demo](AI Industrial/mqtt_demo/)** | `pacote/samples/AI Industrial/mqtt_demo` | Conexão e publicação de eventos em brokers MQTT. |
@@ -104,6 +105,7 @@ Os exemplos a seguir são projetos visuais prontos para compilação e execuçã
 
 | Exemplo | Caminho | Descrição |
 |---|---|---|
+| **[aiusb_devices_demo](AI Input/aiusb_devices_demo/)** | `pacote/samples/AI Input/aiusb_devices_demo` | Inventário e monitoramento de dispositivos USB conectados ao sistema. |
 | **[capture_source_demo](AI Input/capture_source_demo/)** | `pacote/samples/AI Input/capture_source_demo` | Demonstração de captura física de frames a partir de múltiplas fontes. |
 | **[chromium_capture_demo](AI Input/chromium_capture_demo/)** | `pacote/samples/AI Input/chromium_capture_demo` | Captura visual programada de telas de navegadores embarcados (CEF). |
 | **[email_classifier_demo](AI Input/email_classifier_demo/)** | `pacote/samples/AI Input/email_classifier_demo` | Classificação inteligente e triagem automatizada de caixas de entrada de e-mails. |
