@@ -37,7 +37,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  Spin, Math, aibase, aiposprinter, aiprinter_types, ailistprinters;
+  Spin, Math, aibase, aiposprinter, aiprinter_types, aiprinter_transport_spooler;
 
 type
   { Assinatura de um "roteiro" de impressao. Cada botao so' descreve O QUE
@@ -50,28 +50,29 @@ type
     pnlTop: TPanel;
     lblTitle: TLabel;
     lblStatus: TLabel;
-    btnRun: TButton;
-    btnClearLog: TButton;
-    memoLog: TMemo;
-    procedure FormCreate(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
-    procedure btnRunClick(Sender: TObject);
-    procedure btnClearLogClick(Sender: TObject);
-  private
-    FAIPosPrinter: TAIPOSPrinter;
-    FListPrinters: TAIListPrinters;
-
+    lblModel: TLabel;
     cmbModel: TComboBox;
-    cmbInterface: TComboBox;
+    lblProtocol: TLabel;
     cmbProtocol: TComboBox;
-    cmbPrinterSO: TComboBox;      { filas do SO, quando interface = RAW }
+    lblInterface: TLabel;
+    cmbInterface: TComboBox;
+    lblDevice: TLabel;
     edtDevice: TEdit;
+    lblPort: TLabel;
     edtPort: TEdit;
+    lblPrinterSO: TLabel;
+    cmbPrinterSO: TComboBox;
+    btnRefreshPrinters: TButton;
+    lblLabelW: TLabel;
     spLabelW: TSpinEdit;
+    lblLabelH: TLabel;
     spLabelH: TSpinEdit;
+    lblGap: TLabel;
     spGap: TSpinEdit;
     chkRemoveAccents: TCheckBox;
-
+    chkHexLog: TCheckBox;
+    btnRun: TButton;
+    btnTestConn: TButton;
     btnBoldText: TButton;
     btnBarcode: TButton;
     btnQRCode: TButton;
@@ -79,14 +80,20 @@ type
     btnPrintLabel: TButton;
     btnDrawer: TButton;
     btnBeep: TButton;
-    btnTestConn: TButton;
+    btnClearLog: TButton;
+    btnSaveBin: TButton;
+    memoLog: TMemo;
+    dlgSave: TSaveDialog;
 
-    procedure BuildUI;
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure btnRunClick(Sender: TObject);
+    procedure btnClearLogClick(Sender: TObject);
+    procedure btnRefreshPrintersClick(Sender: TObject);
+    procedure btnSaveBinClick(Sender: TObject);
     procedure cmbModelChange(Sender: TObject);
     procedure cmbInterfaceChange(Sender: TObject);
     procedure cmbProtocolChange(Sender: TObject);
-
-    { Handlers - cada um so' delega pro RunJob com o roteiro certo }
     procedure btnBoldTextClick(Sender: TObject);
     procedure btnBarcodeClick(Sender: TObject);
     procedure btnQRCodeClick(Sender: TObject);
@@ -95,6 +102,8 @@ type
     procedure btnDrawerClick(Sender: TObject);
     procedure btnBeepClick(Sender: TObject);
     procedure btnTestConnClick(Sender: TObject);
+  private
+    FAIPosPrinter: TAIPOSPrinter;
 
     { Roteiros }
     procedure JobReceipt;
@@ -141,14 +150,13 @@ const
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
   FAIPosPrinter := TAIPOSPrinter.Create(Self);
-  FListPrinters := TAIListPrinters.Create(Self);
-
-  BuildUI;
 
   AddLog('Posprinter Demo inicializado.');
   AddLog('DICA: antes de tudo, imprima a etiqueta de autoteste da L42 DT');
   AddLog('      (segure FEED ao ligar) para descobrir a linguagem ativa.');
   SetStatus('Pronto');
+
+  btnRefreshPrintersClick(nil);
 
   { estado inicial coerente }
   cmbModelChange(nil);
@@ -159,148 +167,6 @@ end;
 procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
   { LCL libera pelo Owner }
-end;
-
-procedure TfrmMain.BuildUI;
-
-  function MkLabel(const ACaption: string; ALeft, ATop: Integer): TLabel;
-  begin
-    Result := TLabel.Create(Self);
-    Result.Parent := pnlTop;
-    Result.Left := ALeft;
-    Result.Top := ATop;
-    Result.Caption := ACaption;
-  end;
-
-  function MkButton(const ACaption: string; ALeft, ATop, AWidth: Integer;
-    AHandler: TNotifyEvent): TButton;
-  begin
-    Result := TButton.Create(Self);
-    Result.Parent := pnlTop;
-    Result.Left := ALeft;
-    Result.Top := ATop;
-    Result.Width := AWidth;
-    Result.Caption := ACaption;
-    Result.OnClick := AHandler;
-  end;
-
-  function MkSpin(ALeft, ATop, AWidth, AMin, AMax, AValue: Integer): TSpinEdit;
-  begin
-    Result := TSpinEdit.Create(Self);
-    Result.Parent := pnlTop;
-    Result.Left := ALeft;
-    Result.Top := ATop;
-    Result.Width := AWidth;
-    Result.MinValue := AMin;
-    Result.MaxValue := AMax;
-    Result.Value := AValue;
-  end;
-
-begin
-  pnlTop.Height := 250;
-
-  { ---------- Linha 1: modelo / interface / protocolo ---------- }
-  MkLabel('Modelo:', 15, 30);
-  cmbModel := TComboBox.Create(Self);
-  cmbModel.Parent := pnlTop;
-  cmbModel.SetBounds(15, 48, 150, 23);
-  cmbModel.Style := csDropDownList;
-  cmbModel.Items.Add('Elgin i9 (80mm)');
-  cmbModel.Items.Add('QR203 (58mm)');
-  cmbModel.Items.Add('Elgin L42DT (Label)');
-  cmbModel.ItemIndex := 0;
-  cmbModel.OnChange := @cmbModelChange;   { <-- [1] o que faltava }
-
-  MkLabel('Protocolo:', 175, 30);
-  cmbProtocol := TComboBox.Create(Self);
-  cmbProtocol.Parent := pnlTop;
-  cmbProtocol.SetBounds(175, 48, 110, 23);
-  cmbProtocol.Style := csDropDownList;
-  cmbProtocol.Items.Add('ESC/POS');
-  cmbProtocol.Items.Add('Native OS');
-  cmbProtocol.Items.Add('EPL');
-  cmbProtocol.Items.Add('ZPL');
-  cmbProtocol.Items.Add('TSPL');
-  cmbProtocol.ItemIndex := PROTO_ESCPOS;
-  cmbProtocol.OnChange := @cmbProtocolChange;
-
-  MkLabel('Interface:', 295, 30);
-  cmbInterface := TComboBox.Create(Self);
-  cmbInterface.Parent := pnlTop;
-  cmbInterface.SetBounds(295, 48, 150, 23);
-  cmbInterface.Style := csDropDownList;
-  cmbInterface.Items.Add('Serial (COM)');
-  cmbInterface.Items.Add('Ethernet (TCP 9100)');
-  cmbInterface.Items.Add('Device / Arquivo');       { <-- [2] }
-  cmbInterface.Items.Add('Impressora do SO (RAW)'); { <-- [2] }
-  cmbInterface.ItemIndex := IFACE_DEVICE;
-  cmbInterface.OnChange := @cmbInterfaceChange;
-
-  MkLabel('Porta / IP / Caminho:', 455, 30);
-  edtDevice := TEdit.Create(Self);
-  edtDevice.Parent := pnlTop;
-  edtDevice.SetBounds(455, 48, 190, 23);
-  {$IFDEF WINDOWS}
-  edtDevice.Text := 'saida.bin';
-  {$ELSE}
-  edtDevice.Text := '/dev/usb/lp0';
-  {$ENDIF}
-
-  MkLabel('Baud / Porta:', 655, 30);
-  edtPort := TEdit.Create(Self);
-  edtPort.Parent := pnlTop;
-  edtPort.SetBounds(655, 48, 80, 23);
-  edtPort.Text := '9100';
-
-  { fila do SO - so' aparece quando interface = RAW }
-  MkLabel('Fila do SO:', 745, 30);
-  cmbPrinterSO := TComboBox.Create(Self);
-  cmbPrinterSO.Parent := pnlTop;
-  cmbPrinterSO.SetBounds(745, 48, 200, 23);
-  cmbPrinterSO.Style := csDropDownList;
-  try
-    if Assigned(FListPrinters) then
-    begin
-      cmbPrinterSO.Items.Assign(FListPrinters.Printers);
-      if cmbPrinterSO.Items.Count > 0 then
-        cmbPrinterSO.ItemIndex :=
-          Max(0, cmbPrinterSO.Items.IndexOf(FListPrinters.DefaultPrinter));
-    end;
-  except
-    on E: Exception do
-      AddLog('Nao foi possivel listar impressoras do SO: ' + E.Message);
-  end;
-
-  { ---------- Linha 2: etiqueta ---------- }
-  MkLabel('Etiqueta L (mm):', 15, 85);
-  spLabelW := MkSpin(15, 103, 70, 10, 300, 100);
-
-  MkLabel('A (mm):', 95, 85);
-  spLabelH := MkSpin(95, 103, 70, 10, 300, 50);
-
-  MkLabel('Gap (mm):', 175, 85);
-  spGap := MkSpin(175, 103, 70, 0, 20, 2);
-
-  chkRemoveAccents := TCheckBox.Create(Self);
-  chkRemoveAccents.Parent := pnlTop;
-  chkRemoveAccents.SetBounds(255, 105, 160, 19);
-  chkRemoveAccents.Caption := 'Remover acentos';
-
-  { ---------- Linha 3: acoes ---------- }
-  btnRun.SetBounds(15, 145, 150, 28);
-  btnRun.Caption := 'Cupom completo';
-
-  btnTestConn   := MkButton('Testar conexao', 175, 145, 110, @btnTestConnClick);
-  btnBoldText   := MkButton('Negrito',        295, 145,  90, @btnBoldTextClick);
-  btnBarcode    := MkButton('Barcode',        395, 145,  90, @btnBarcodeClick);
-  btnQRCode     := MkButton('QR Code',        495, 145,  90, @btnQRCodeClick);
-  btnCut        := MkButton('Cortar',         595, 145,  90, @btnCutClick);
-  btnPrintLabel := MkButton('Imprimir etiqueta', 695, 145, 130, @btnPrintLabelClick); { [3] }
-  btnDrawer     := MkButton('Gaveta',         835, 145,  90, @btnDrawerClick);
-  btnBeep       := MkButton('Beep',           935, 145,  70, @btnBeepClick);
-
-  btnClearLog.SetBounds(15, 185, 150, 28);
-  btnClearLog.Caption := 'Limpar log';
 end;
 
 {============================ Sincronizacao da UI =============================}
@@ -453,13 +319,8 @@ begin
       end;
     IFACE_SPOOLER:
       begin
-        { PENDENTE: exige ptPrinterRaw + TAIPrinterSpoolerTransport
-          (winspool RAW no Windows / lp -o raw no Linux).
-          Enquanto nao existir, avisamos em vez de fingir que funciona. }
-        raise Exception.Create(
-          'Transporte "Impressora do SO (RAW)" ainda nao implementado no ' +
-          'pacote. Falta TAIPrinterSpoolerTransport (ptPrinterRaw). ' +
-          'Use "Device / Arquivo" por enquanto.');
+        FAIPosPrinter.TransportKind := ptPrinterRaw;
+        FAIPosPrinter.DeviceName := cmbPrinterSO.Text;
       end;
   end;
 end;
@@ -659,6 +520,70 @@ end;
 procedure TfrmMain.btnClearLogClick(Sender: TObject);
 begin
   memoLog.Clear;
+end;
+
+procedure TfrmMain.btnRefreshPrintersClick(Sender: TObject);
+var
+  Err: string;
+  Count: Integer;
+  Def: string;
+begin
+  cmbPrinterSO.Items.Clear;
+  Count := ListSystemPrinters(cmbPrinterSO.Items, Err);
+  if Err <> '' then
+    AddLog('Erro ao listar impressoras do SO: ' + Err)
+  else
+  begin
+    AddLog(Format('%d impressora(s) encontrada(s) no SO.', [Count]));
+    Def := DefaultSystemPrinter;
+    if Def <> '' then
+      cmbPrinterSO.ItemIndex := Max(0, cmbPrinterSO.Items.IndexOf(Def))
+    else if cmbPrinterSO.Items.Count > 0 then
+      cmbPrinterSO.ItemIndex := 0;
+  end;
+end;
+
+procedure TfrmMain.btnSaveBinClick(Sender: TObject);
+var
+  HexStr: string;
+  Bytes: TBytes;
+  FS: TFileStream;
+  S: string;
+  I, Code, Len: Integer;
+  B: Byte;
+  ValStr: string;
+begin
+  HexStr := FAIPosPrinter.LastCommandHex;
+  if HexStr = '' then
+  begin
+    ShowMessage('Nenhum comando enviado ainda ou log vazio.');
+    Exit;
+  end;
+
+  if dlgSave.Execute then
+  begin
+    S := StringReplace(HexStr, ' ', '', [rfReplaceAll]);
+    Len := Length(S) div 2;
+    SetLength(Bytes, Len);
+    for I := 0 to Len - 1 do
+    begin
+      ValStr := '$' + Copy(S, (I * 2) + 1, 2);
+      Val(ValStr, B, Code);
+      if Code = 0 then
+        Bytes[I] := B
+      else
+        Bytes[I] := 0;
+    end;
+
+    FS := TFileStream.Create(dlgSave.FileName, fmCreate);
+    try
+      if Length(Bytes) > 0 then
+        FS.WriteBuffer(Bytes[0], Length(Bytes));
+      AddLog('Bytes salvos com sucesso em: ' + dlgSave.FileName);
+    finally
+      FS.Free;
+    end;
+  end;
 end;
 
 {================================= Utils =====================================}

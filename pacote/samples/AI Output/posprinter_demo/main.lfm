@@ -1,71 +1,367 @@
 object frmMain: TfrmMain
-  Left = 300
-  Height = 600
-  Top = 150
-  Width = 800
+  Left = 250
+  Height = 700
+  Top = 120
+  Width = 1040
   Caption = 'Posprinter Demo (aiposprinter)'
-  ClientHeight = 600
-  ClientWidth = 800
+  ClientHeight = 700
+  ClientWidth = 1040
   LCLVersion = '4.4.0.0'
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   object pnlTop: TPanel
-    Left = 10
-    Height = 150
-    Top = 10
-    Width = 780
+    Left = 0
+    Height = 235
+    Top = 0
+    Width = 1040
     Align = alTop
-    BorderSpacing.Around = 10
-    ClientHeight = 150
-    ClientWidth = 780
+    BevelOuter = bvNone
+    ClientHeight = 235
+    ClientWidth = 1040
     TabOrder = 0
     object lblTitle: TLabel
       Left = 15
       Height = 25
-      Top = 15
+      Top = 10
       Width = 264
       Caption = 'Posprinter Demo (aiposprinter)'
       Font.Height = -18
-      Font.Name = 'Segoe UI'
       Font.Style = [fsBold]
       ParentColor = False
       ParentFont = False
     end
     object lblStatus: TLabel
-      Left = 15
+      Left = 320
       Height = 15
-      Top = 50
-      Width = 70
-      Caption = 'Status: Ready'
+      Top = 18
+      Width = 90
+      Caption = 'Status: Pronto'
       ParentColor = False
     end
-    object btnRun: TButton
-      Left = 200
-      Height = 30
-      Top = 75
-      Width = 150
-      Caption = 'Execute Test'
+    object lblModel: TLabel
+      Left = 15
+      Height = 15
+      Top = 45
+      Width = 45
+      Caption = 'Modelo:'
+      ParentColor = False
+    end
+    object cmbModel: TComboBox
+      Left = 15
+      Height = 23
+      Top = 63
+      Width = 155
+      ItemHeight = 15
+      ItemIndex = 0
+      Items.Strings = (
+        'Elgin i9 (80mm)'
+        'QR203 (58mm)'
+        'Elgin L42DT (Label)'
+      )
+      Style = csDropDownList
       TabOrder = 0
+      Text = 'Elgin i9 (80mm)'
+      OnChange = cmbModelChange
+    end
+    object lblProtocol: TLabel
+      Left = 180
+      Height = 15
+      Top = 45
+      Width = 57
+      Caption = 'Protocolo:'
+      ParentColor = False
+    end
+    object cmbProtocol: TComboBox
+      Left = 180
+      Height = 23
+      Top = 63
+      Width = 110
+      ItemHeight = 15
+      ItemIndex = 0
+      Items.Strings = (
+        'ESC/POS'
+        'Native OS'
+        'EPL'
+        'ZPL'
+        'TSPL'
+      )
+      Style = csDropDownList
+      TabOrder = 1
+      Text = 'ESC/POS'
+      OnChange = cmbProtocolChange
+    end
+    object lblInterface: TLabel
+      Left = 300
+      Height = 15
+      Top = 45
+      Width = 52
+      Caption = 'Interface:'
+      ParentColor = False
+    end
+    object cmbInterface: TComboBox
+      Left = 300
+      Height = 23
+      Top = 63
+      Width = 170
+      ItemHeight = 15
+      ItemIndex = 2
+      Items.Strings = (
+        'Serial (COM)'
+        'Ethernet (TCP 9100)'
+        'Device / Arquivo'
+        'Impressora do SO (RAW)'
+      )
+      Style = csDropDownList
+      TabOrder = 2
+      Text = 'Device / Arquivo'
+      OnChange = cmbInterfaceChange
+    end
+    object lblDevice: TLabel
+      Left = 480
+      Height = 15
+      Top = 45
+      Width = 116
+      Caption = 'Porta / IP / Caminho:'
+      ParentColor = False
+    end
+    object edtDevice: TEdit
+      Left = 480
+      Height = 23
+      Top = 63
+      Width = 175
+      TabOrder = 3
+      Text = 'saida.bin'
+    end
+    object lblPort: TLabel
+      Left = 665
+      Height = 15
+      Top = 45
+      Width = 70
+      Caption = 'Baud / Porta:'
+      ParentColor = False
+    end
+    object edtPort: TEdit
+      Left = 665
+      Height = 23
+      Top = 63
+      Width = 75
+      TabOrder = 4
+      Text = '9100'
+    end
+    object lblPrinterSO: TLabel
+      Left = 750
+      Height = 15
+      Top = 45
+      Width = 62
+      Caption = 'Fila do SO:'
+      ParentColor = False
+    end
+    object cmbPrinterSO: TComboBox
+      Left = 750
+      Height = 23
+      Top = 63
+      Width = 200
+      ItemHeight = 15
+      Style = csDropDownList
+      TabOrder = 5
+    end
+    object btnRefreshPrinters: TButton
+      Left = 958
+      Height = 23
+      Top = 63
+      Width = 68
+      Caption = 'Atualizar'
+      TabOrder = 6
+      OnClick = btnRefreshPrintersClick
+    end
+    object lblLabelW: TLabel
+      Left = 15
+      Height = 15
+      Top = 100
+      Width = 88
+      Caption = 'Etiqueta L (mm):'
+      ParentColor = False
+    end
+    object spLabelW: TSpinEdit
+      Left = 15
+      Height = 23
+      Top = 118
+      Width = 75
+      MaxValue = 300
+      MinValue = 10
+      TabOrder = 7
+      Value = 100
+    end
+    object lblLabelH: TLabel
+      Left = 100
+      Height = 15
+      Top = 100
+      Width = 45
+      Caption = 'A (mm):'
+      ParentColor = False
+    end
+    object spLabelH: TSpinEdit
+      Left = 100
+      Height = 23
+      Top = 118
+      Width = 75
+      MaxValue = 300
+      MinValue = 10
+      TabOrder = 8
+      Value = 50
+    end
+    object lblGap: TLabel
+      Left = 185
+      Height = 15
+      Top = 100
+      Width = 55
+      Caption = 'Gap (mm):'
+      ParentColor = False
+    end
+    object spGap: TSpinEdit
+      Left = 185
+      Height = 23
+      Top = 118
+      Width = 70
+      MaxValue = 20
+      MinValue = 0
+      TabOrder = 9
+      Value = 2
+    end
+    object chkRemoveAccents: TCheckBox
+      Left = 270
+      Height = 19
+      Top = 120
+      Width = 130
+      Caption = 'Remover acentos'
+      TabOrder = 10
+    end
+    object chkHexLog: TCheckBox
+      Left = 410
+      Height = 19
+      Top = 120
+      Width = 130
+      Caption = 'Logar HEX'
+      Checked = True
+      State = cbChecked
+      TabOrder = 11
+    end
+    object btnRun: TButton
+      Left = 15
+      Height = 30
+      Top = 155
+      Width = 150
+      Caption = 'Cupom completo'
+      TabOrder = 12
       OnClick = btnRunClick
     end
-    object btnClearLog: TButton
-      Left = 360
+    object btnTestConn: TButton
+      Left = 175
       Height = 30
-      Top = 75
-      Width = 120
-      Caption = 'Clear Log'
-      TabOrder = 1
+      Top = 155
+      Width = 115
+      Caption = 'Testar conexao'
+      TabOrder = 13
+      OnClick = btnTestConnClick
+    end
+    object btnBoldText: TButton
+      Left = 300
+      Height = 30
+      Top = 155
+      Width = 90
+      Caption = 'Negrito'
+      TabOrder = 14
+      OnClick = btnBoldTextClick
+    end
+    object btnBarcode: TButton
+      Left = 400
+      Height = 30
+      Top = 155
+      Width = 90
+      Caption = 'Barcode'
+      TabOrder = 15
+      OnClick = btnBarcodeClick
+    end
+    object btnQRCode: TButton
+      Left = 500
+      Height = 30
+      Top = 155
+      Width = 90
+      Caption = 'QR Code'
+      TabOrder = 16
+      OnClick = btnQRCodeClick
+    end
+    object btnCut: TButton
+      Left = 600
+      Height = 30
+      Top = 155
+      Width = 90
+      Caption = 'Cortar'
+      TabOrder = 17
+      OnClick = btnCutClick
+    end
+    object btnPrintLabel: TButton
+      Left = 700
+      Height = 30
+      Top = 155
+      Width = 135
+      Caption = 'Imprimir etiqueta'
+      TabOrder = 18
+      OnClick = btnPrintLabelClick
+    end
+    object btnDrawer: TButton
+      Left = 845
+      Height = 30
+      Top = 155
+      Width = 90
+      Caption = 'Gaveta'
+      TabOrder = 19
+      OnClick = btnDrawerClick
+    end
+    object btnBeep: TButton
+      Left = 945
+      Height = 30
+      Top = 155
+      Width = 81
+      Caption = 'Beep'
+      TabOrder = 20
+      OnClick = btnBeepClick
+    end
+    object btnClearLog: TButton
+      Left = 15
+      Height = 28
+      Top = 195
+      Width = 150
+      Caption = 'Limpar log'
+      TabOrder = 21
       OnClick = btnClearLogClick
+    end
+    object btnSaveBin: TButton
+      Left = 175
+      Height = 28
+      Top = 195
+      Width = 150
+      Caption = 'Salvar bytes (.bin)'
+      TabOrder = 22
+      OnClick = btnSaveBinClick
     end
   end
   object memoLog: TMemo
-    Left = 10
-    Height = 420
-    Top = 170
-    Width = 780
+    Left = 0
+    Height = 465
+    Top = 235
+    Width = 1040
     Align = alClient
-    BorderSpacing.Around = 10
+    Font.Name = 'Courier New'
+    ParentFont = False
+    ReadOnly = True
     ScrollBars = ssAutoBoth
     TabOrder = 1
+  end
+  object dlgSave: TSaveDialog
+    DefaultExt = '.bin'
+    Filter = 'Bytes brutos (*.bin)|*.bin|Todos (*.*)|*.*'
+    Left = 990
+    Top = 250
   end
 end

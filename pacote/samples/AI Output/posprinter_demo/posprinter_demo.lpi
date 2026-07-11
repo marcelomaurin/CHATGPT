@@ -28,9 +28,6 @@
         <PackageName Value="openai_output"/>
       </Item>
       <Item>
-        <PackageName Value="openai_hardware"/>
-      </Item>
-      <Item>
         <PackageName Value="LCL"/>
       </Item>
     </RequiredPackages>
