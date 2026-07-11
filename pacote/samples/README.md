@@ -22,13 +22,16 @@ Os exemplos a seguir são projetos visuais prontos para compilação e execuçã
 | **[visual_demo](AI/visual_demo/)** | `pacote/samples/AI/visual_demo` | Playground unificado reunindo várias demonstrações visuais e abas de teste. |
 | **[yolo_demo](AI/yolo_demo/)** | `pacote/samples/AI/yolo_demo` | Detecção profunda de objetos com YOLOv8 via integração Python. |
 
-### 📦 AI Agent
+### 📦 AI Agents
 
 | Exemplo | Caminho | Descrição |
 |---|---|---|
-| **[agent_demo](AI Agent/agent_demo/)** | `pacote/samples/AI Agent/agent_demo` | Simulação de agentes inteligentes autônomos para tomada de decisão e disparo de saídas. |
-| **[agent_memorymap_demo](AI Agent/agent_memorymap_demo/)** | `pacote/samples/AI Agent/agent_memorymap_demo` | Demonstração de fluxo multiagente com histórico estruturado persistente no componente TAIMapaDeMemoria. |
-| **[agent_task_memory_action_demo](AI Agent/agent_task_memory_action_demo/)** | `pacote/samples/AI Agent/agent_task_memory_action_demo` | Demonstração visual avançada de fluxo multiagente orientado por tarefas, com mapa de memória e execução simulada/real de ações. |
+| **[action_builder_recovery_test](AI Agents/action_builder_recovery_test/)** | `pacote/samples/AI Agents/action_builder_recovery_test` | Teste de recuperação e validação do construtor de ações do ecossistema de agentes. |
+| **[agent_demo](AI Agents/agent_demo/)**<br><br>![agent_demo](../../screenshots/AI_Agent_Minimal_Demo.jpg) | `pacote/samples/AI Agents/agent_demo` | Demonstração básica do componente `TAIAgent` com seleção de ação e saída estruturada. |
+| **[agent_memorymap_demo](AI Agents/agent_memorymap_demo/)**<br><br>![agent_memorymap_demo](../../screenshots/agent_memory_action_demo.jpg) | `pacote/samples/AI Agents/agent_memorymap_demo` | Demonstração de fluxo multiagente com histórico estruturado persistente em memória. |
+| **[agent_serial_demo](AI Agents/agent_serial_demo/)** | `pacote/samples/AI Agents/agent_serial_demo` | Integração de agente com interface serial para entrada e saída de comandos. |
+| **[agent_task_memory_action_demo](AI Agents/agent_task_memory_action_demo/)**<br><br>![agent_task_memory_action_demo](../../screenshots/agent_memory_action_demo.jpg) | `pacote/samples/AI Agents/agent_task_memory_action_demo` | Fluxo multiagente orientado por tarefas com mapa de memória e execução de ações. |
+| **[taskbot](AI Agents/taskbot/)** | `pacote/samples/AI Agents/taskbot` | Orquestrador de tarefas e ações para agentes, com planejamento e execução encadeada. |
 
 ### 📦 AI Core
 
@@ -161,7 +164,7 @@ Os exemplos a seguir são projetos visuais prontos para compilação e execuçã
 
 | Exemplo | Caminho | Descrição |
 |---|---|---|
-| **[project_tasklist_ai_demo](AI Project/project_tasklist_ai_demo/)** | `pacote/samples/AI Project/project_tasklist_ai_demo` | Nenhuma descrição disponível. |
+| **[project_tasklist_ai_demo](AI Project/project_tasklist_ai_demo/)**<br><br>![project_tasklist_ai_demo](../../screenshots/project_tasklist_ai.jpg) | `pacote/samples/AI Project/project_tasklist_ai_demo` | Painel de organização e acompanhamento de tarefas do projeto com apoio de IA. |
 
 ### 📦 AI Python
 
