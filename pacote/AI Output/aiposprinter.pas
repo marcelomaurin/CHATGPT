@@ -103,6 +103,7 @@ type
     
     // Actions
     function CutPaper: Boolean;
+    function PrintLabel: Boolean;
     function OpenDrawer: Boolean;
     function PrintBarcode(const ACode: string; H: Byte = 80; R: Byte = 3; I: Byte = 2): Boolean;
     function PrintQRCode(const ACode: string): Boolean;
@@ -301,7 +302,7 @@ procedure TAIPOSPrinter.SetActive(AValue: Boolean);
 begin
   if FActive = AValue then Exit;
   if AValue then
-    OpenConnection
+    FActive := OpenConnection
   else
     CloseConnection;
 end;
@@ -465,7 +466,7 @@ begin
     Result := True
   else if Assigned(FLanguageEngine) then
   begin
-    FJobBuilder.AddBytes(FLanguageEngine.Normal);
+    FJobBuilder.AddBytes(FLanguageEngine.Reset);
     Result := True;
   end;
 end;
@@ -477,7 +478,7 @@ begin
     Result := True
   else if Assigned(FLanguageEngine) then
   begin
-    FJobBuilder.AddBytes(FLanguageEngine.DoubleTexto);
+    FJobBuilder.AddBytes(FLanguageEngine.TextSize(2, 2));
     Result := True;
   end;
 end;
@@ -566,6 +567,11 @@ begin
     FJobBuilder.AddBytes(FLanguageEngine.Cut(True));
     Result := True;
   end;
+end;
+
+function TAIPOSPrinter.PrintLabel: Boolean;
+begin
+  Result := CutPaper;
 end;
 
 function TAIPOSPrinter.OpenDrawer: Boolean;
