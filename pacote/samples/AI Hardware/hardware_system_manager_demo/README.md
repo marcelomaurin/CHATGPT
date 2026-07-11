@@ -31,3 +31,7 @@ Demo visual do pacote `AI Hardware`, com foco em um painel no estilo:
 Os componentes de GPU, CPU, memoria, disco e SO foram mantidos no padrao atual
 do pacote. Em especial, `TAIGPU` continua retornando dados basicos quando nao ha
 integração nativa de GPU disponivel na maquina.
+
+## Screenshot
+
+![Gerenciador de Hardware](../../../../screenshots/hardware_system_manager+demo.jpg)
