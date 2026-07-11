@@ -84,6 +84,10 @@
 
 ![AIUSB Devices Demo](AIUSB_Devices_Demo.jpg)
 
+## Hardware System Manager Demo
+
+![Hardware System Manager Demo](hardware_system_manager_demo.jpg)
+
 ## Kinect Capture Demo
 
 ![Kinect Capture Demo](kinect_capture_demo.jpg)
