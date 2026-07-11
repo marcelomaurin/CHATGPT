@@ -1,4 +1,4 @@
-﻿# 📂 Progetti di Dimostrazione (Samples)
+# 📂 Progetti di Dimostrazione (Samples)
 
 > [!NOTE]
 > Questa directory contiene la suite completa di esempi sviluppati per dimostrare e testare tutti i componenti di Intelligenza Artificiale, Machine Learning, Elaborazione Immagini, Elaborazione Segnali (DSP), Automazione Hardware e Geração Documenti della suite Lazarus AI Suite.
@@ -22,13 +22,15 @@ I seguenti esempi sono progetti visuali pronti per la compilazione e l'esecuzion
 | **[visual_demo](AI/visual_demo/)** | `pacote/samples/AI/visual_demo` | Playground unificato che unisce varie demo visive e schede di test. |
 | **[yolo_demo](AI/yolo_demo/)** | `pacote/samples/AI/yolo_demo` | Rilevamento profondo degli oggetti con YOLOv8 tramite integrazione Python. |
 
-### 📦 AI Agent
+### 📦 AI Agents
 
 | Esempio | Percorso | Descrizione |
 |---|---|---|
-| **[agent_demo](AI Agent/agent_demo/)** | `pacote/samples/AI Agent/agent_demo` | Simulazione di agenti intelligenti autonomi per il processo decisionale. |
-| **[agent_memorymap_demo](AI Agent/agent_memorymap_demo/)** | `pacote/samples/AI Agent/agent_memorymap_demo` | Dimostrazione di workflow multi-agente con cronologia strutturata persistente nel componente TAIMapaDeMemoria. |
-| **[agent_task_memory_action_demo](AI Agent/agent_task_memory_action_demo/)** | `pacote/samples/AI Agent/agent_task_memory_action_demo` | Dimostrazione visiva avanzata di workflow multi-agente orientati ai task, con mappa di memoria ed esecuzione simulata o reale di azioni. |
+| **[action_builder_recovery_test](AI Agents/action_builder_recovery_test/)** | `pacote/samples/AI Agents/action_builder_recovery_test` | Nessuna descrizione disponível. |
+| **[agent_demo](AI Agents/agent_demo/)** | `pacote/samples/AI Agents/agent_demo` | Simulazione di agenti intelligenti autonomi per il processo decisionale. |
+| **[agent_memorymap_demo](AI Agents/agent_memorymap_demo/)** | `pacote/samples/AI Agents/agent_memorymap_demo` | Dimostrazione di workflow multi-agente con cronologia strutturata persistente nel componente TAIMapaDeMemoria. |
+| **[agent_serial_demo](AI Agents/agent_serial_demo/)** | `pacote/samples/AI Agents/agent_serial_demo` | Nessuna descrizione disponível. |
+| **[agent_task_memory_action_demo](AI Agents/agent_task_memory_action_demo/)** | `pacote/samples/AI Agents/agent_task_memory_action_demo` | Dimostrazione visiva avanzata di workflow multi-agente orientati ai task, con mappa di memoria ed esecuzione simulata o reale di azioni. |
 
 ### 📦 AI Core
 
@@ -83,6 +85,12 @@ I seguenti esempi sono progetti visuali pronti per la compilazione e l'esecuzion
 | **[skeleton_rig_demo](AI Graphic/skeleton_rig_demo/)** | `pacote/samples/AI Graphic/skeleton_rig_demo` | Controllo scheletrico e deformazione dei vertici nelle mesh 3D. |
 | **[tripo3d_demo](AI Graphic/tripo3d_demo/)** | `pacote/samples/AI Graphic/tripo3d_demo` | Generazione di mesh 3D da testo o immagini utilizzando l'API Tripo3D. |
 
+### 📦 AI Hardware
+
+| Esempio | Percorso | Descrizione |
+|---|---|---|
+| **[hardware_system_manager_demo](AI Hardware/hardware_system_manager_demo/)** | `pacote/samples/AI Hardware/hardware_system_manager_demo` | Nessuna descrizione disponível. |
+
 ### 📦 AI Image
 
 | Esempio | Percorso | Descrizione |
@@ -93,6 +101,7 @@ I seguenti esempi sono progetti visuali pronti per la compilazione e l'esecuzion
 
 | Esempio | Percorso | Descrizione |
 |---|---|---|
+| **[arduino_modbus_pinmap_demo](AI Industrial/arduino_modbus_pinmap_demo/)** | `pacote/samples/AI Industrial/arduino_modbus_pinmap_demo` | Nessuna descrizione disponível. |
 | **[industrial_bridge_demo](AI Industrial/industrial_bridge_demo/)** | `pacote/samples/AI Industrial/industrial_bridge_demo` | Bridge di comunicazione industriale che collega broker IoT e PLC. |
 | **[modbus_demo](AI Industrial/modbus_demo/)** | `pacote/samples/AI Industrial/modbus_demo` | Lettura e scrittura sul protocollo industriale Modbus. |
 | **[mqtt_demo](AI Industrial/mqtt_demo/)** | `pacote/samples/AI Industrial/mqtt_demo` | Connessione e pubblicazione di eventi su broker MQTT. |
@@ -101,15 +110,16 @@ I seguenti esempi sono progetti visuali pronti per la compilazione e l'esecuzion
 
 | Esempio | Percorso | Descrizione |
 |---|---|---|
+| **[aiusb_devices_demo](AI Input/aiusb_devices_demo/)** | `pacote/samples/AI Input/aiusb_devices_demo` | Nessuna descrizione disponível. |
 | **[capture_source_demo](AI Input/capture_source_demo/)** | `pacote/samples/AI Input/capture_source_demo` | Acquisizione di frame da più sorgenti fisiche e telecamere. |
 | **[chromium_capture_demo](AI Input/chromium_capture_demo/)** | `pacote/samples/AI Input/chromium_capture_demo` | Acquisizione programmata di screenshot per browser Chromium incorporati (CEF). |
 | **[email_classifier_demo](AI Input/email_classifier_demo/)** | `pacote/samples/AI Input/email_classifier_demo` | Classificazione intelligente e smistamento automatico delle e-mail. |
 | **[hardware_net_demo](AI Input/hardware_net_demo/)** | `pacote/samples/AI Input/hardware_net_demo` | Integrazione di telecamere, broker MQTT, e-mail e bridge PLC. |
+| **[kinect_capture_demo](AI Input/kinect_capture_demo/)** | `pacote/samples/AI Input/kinect_capture_demo` | Nessuna descrizione disponível. |
+| **[kinect_frame_capture_test](AI Input/kinect_frame_capture_test/)** | `pacote/samples/AI Input/kinect_frame_capture_test` | Nessuna descrizione disponível. |
+| **[kinect_sdk10_direct_frame_test](AI Input/kinect_sdk10_direct_frame_test/)** | `pacote/samples/AI Input/kinect_sdk10_direct_frame_test` | Nessuna descrizione disponível. |
+| **[kinect_skeleton_demo](AI Input/kinect_skeleton_demo/)** | `pacote/samples/AI Input/kinect_skeleton_demo` | Nessuna descrizione disponível. |
 | **[serial_demo](AI Input/serial_demo/)** | `pacote/samples/AI Input/serial_demo` | Comunicazione bidirezionale diretta con porte seriali e schede Arduino. |
-| **[kinect_capture_demo](AI Input/kinect_capture_demo/)** | `pacote/samples/AI Input/kinect_capture_demo` | Demo grafica per acquisizione colore/profondità Kinect con log integrato. |
-| **[kinect_skeleton_demo](AI Input/kinect_skeleton_demo/)** | `pacote/samples/AI Input/kinect_skeleton_demo` | Demo grafica per il tracciamento dello scheletro Kinect, overlay sul video RGB ed esportazione della posa in JSON. |
-| **[kinect_frame_capture_test](AI Input/kinect_frame_capture_test/)** | `pacote/samples/AI Input/kinect_frame_capture_test` | Test console che cattura un frame colore tramite i componenti Kinect e salva log/immagine. |
-| **[kinect_sdk10_direct_frame_test](AI Input/kinect_sdk10_direct_frame_test/)** | `pacote/samples/AI Input/kinect_sdk10_direct_frame_test` | Test diretto di `Kinect10.dll` per diagnosticare inizializzazione, stream, frame, `LockRect` e `ReleaseFrame`. |
 | **[socket_server_client_demo](AI Input/socket_server_client_demo/)** | `pacote/samples/AI Input/socket_server_client_demo` | Server e client nativo TCP/UDP per il rapido scambio di pacchetti dati. |
 | **[webserver_demo](AI Input/webserver_demo/)** | `pacote/samples/AI Input/webserver_demo` | Server HTTP leggero nativo per esporre microservizi locali. |
 
@@ -199,6 +209,7 @@ I seguenti esempi sono progetti visuali pronti per la compilazione e l'esecuzion
 |---|---|---|
 | **[audio_capture_demo](AI Voice/audio_capture_demo/)**<br><br>![audio_capture_demo](../../screenshots/audio_capture_demo.jpg) | `pacote/samples/AI Voice/audio_capture_demo` | Demo grafica per l'acquisizione reale dell'audio dal microfono, salvataggio in WAV, senza modalità simulata. |
 | **[sound_filters_visual_demo](AI Voice/sound_filters_visual_demo/)**<br><br>![sound_filters_visual_demo](../../screenshots/sound_filters_visual_demo.jpg) | `pacote/samples/AI Voice/sound_filters_visual_demo` | Equalizzatore e pannello di controllo dei filtri audio in tempo reale. |
+| **[speech_recognizer_demo](AI Voice/speech_recognizer_demo/)** | `pacote/samples/AI Voice/speech_recognizer_demo` | Demo grafica di riconoscimento vocale reale con registrazione WAV, quattro backend e consenso per l'invio online. |
 | **[voice_synthesizer_complete_demo](AI Voice/voice_synthesizer_complete_demo/)**<br><br>![voice_synthesizer_complete_demo](../../screenshots/voice_synthesizer_complete_demo.jpg) | `pacote/samples/AI Voice/voice_synthesizer_complete_demo` | Vetrina completa di sintesi vocale sincrona e asincrona. |
 | **[voicesynthesizer_demo](AI Voice/voicesynthesizer_demo/)**<br><br>![voicesynthesizer_demo](../../screenshots/voicesynthesizer_demo.jpg) | `pacote/samples/AI Voice/voicesynthesizer_demo` | Dimostrazione di sintesi vocale (Text-to-Speech) nativa e multipiattaforma. |
 
@@ -213,6 +224,13 @@ Questi esempi mostrano l'invocazione diretta dei componentes da riga di comando 
 | **[aidatasetgenerator_sample.lpr](AI/aidatasetgenerator_sample.lpr)** | `pacote/samples/AI/aidatasetgenerator_sample.lpr` | Ciclo automatizzato di generazione di dataset esportato in formato JSONL. |
 | **[chatgpt_sample.lpr](AI/chatgpt_sample.lpr)** | `pacote/samples/AI/chatgpt_sample.lpr` | Query e controllo delle risposte grezze per OpenAI, Claude e Gemini. |
 | **[neuralnetwork_sample.lpr](AI/neuralnetwork_sample.lpr)** | `pacote/samples/AI/neuralnetwork_sample.lpr` | Simulatore classico di addestramento MLP per porte logiche XOR in puro Pascal. |
+
+### ⌨️ AI Agents
+
+| Esempio | Percorso | Descrizione |
+|---|---|---|
+| **[taskbot.lpr](AI Agents/taskbot/taskbot.lpr)** | `pacote/samples/AI Agents/taskbot/taskbot.lpr` | Nessuna descrizione disponível. |
+| **[test_taskbot.lpr](AI Agents/taskbot/test_taskbot.lpr)** | `pacote/samples/AI Agents/taskbot/test_taskbot.lpr` | Nessuna descrizione disponível. |
 
 ### ⌨️ AI Input
 

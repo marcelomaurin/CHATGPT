@@ -192,6 +192,15 @@ SAMPLE_DESCRIPTIONS = {
         'it': 'Elaborazione matriciale di filtri d\'immagine nativi su canvas Pascal.',
         'ar': 'المعالجة المصفوفية لفلاتر الصور الأصلية على لوحة رسم باسكال.'
     },
+    'speech_recognizer_demo': {
+        'pt': 'Demo grafico de reconhecimento de fala real com gravacao WAV, quatro backends e consentimento para envio online.',
+        'en': 'GUI demo for real speech recognition with WAV recording, four backends, and online consent gating.',
+        'es': 'Demostracion grafica de reconocimiento de voz real con grabacion WAV, cuatro backends y consentimiento para envio online.',
+        'fr': 'Demonstration graphique de reconnaissance vocale reelle avec enregistrement WAV, quatre backends et consentement pour l\'envoi en ligne.',
+        'it': 'Demo grafica di riconoscimento vocale reale con registrazione WAV, quattro backend e consenso per l\'invio online.',
+        'ar': 'عرض رسومي للتعرف الحقيقي على الكلام مع تسجيل WAV وأربعة محركات وموافقة إلزامية قبل الإرسال عبر الإنترنت.'
+    },
+
     'sound_filters_visual_demo': {
         'pt': 'Demonstração visual de processamento e filtragem de sinais de áudio em tempo real (Low-pass, High-pass, Moving average).',
         'en': 'Visual demonstration of real-time audio signal processing and filtering (Low-pass, High-pass, Moving average).',
@@ -736,6 +745,15 @@ SAMPLE_DESCRIPTIONS = {
         'it': 'Demo grafica per l\'acquisizione reale dell\'audio dal microfono, salvataggio in WAV, senza modalità simulata.',
         'ar': 'عرض رسومي لالتقاط الصوت الحقيقي من الميكروفون وحفظه بصيغة WAV، بدون وضع المحاكاة.'
     },
+    'speech_recognizer_demo': {
+        'pt': 'Demo grafico de reconhecimento de fala real com gravacao WAV, quatro backends e consentimento para envio online.',
+        'en': 'GUI demo for real speech recognition with WAV recording, four backends, and online consent gating.',
+        'es': 'Demostracion grafica de reconocimiento de voz real con grabacion WAV, cuatro backends y consentimiento para envio online.',
+        'fr': 'Demonstration graphique de reconnaissance vocale reelle avec enregistrement WAV, quatre backends et consentement pour l\'envoi en ligne.',
+        'it': 'Demo grafica di riconoscimento vocale reale con registrazione WAV, quattro backend e consenso per l\'invio online.',
+        'ar': 'عرض رسومي للتعرف الحقيقي على الكلام مع تسجيل WAV وأربعة محركات وموافقة إلزامية قبل الإرسال عبر الإنترنت.'
+    },
+
     'sound_filters_visual_demo': {
         'pt': 'Equalizador e painel visual de filtros sonoros aplicados em tempo real.',
         'en': 'Visual sound filters control board and real-time audio equalizer.',
