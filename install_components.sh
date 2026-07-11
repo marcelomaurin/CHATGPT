@@ -85,10 +85,12 @@ install_package() {
 
 install_recommended() {
   install_package "pacote/packages/openai_core.lpk"
+  install_package "pacote/packages/openai_python.lpk"
   install_package "pacote/packages/openai_ml.lpk"
   install_package "pacote/packages/openai_graph.lpk"
   install_package "pacote/packages/openai_output.lpk"
   install_package "pacote/packages/openai_input.lpk"
+  install_package "pacote/packages/openai_hardware.lpk"
   install_package "pacote/packages/openai_image.lpk"
   install_package "pacote/packages/openai_simulation.lpk"
   install_package "pacote/packages/openai_files.lpk"
@@ -98,10 +100,12 @@ install_recommended() {
 
 install_all() {
   install_package "pacote/packages/openai_core.lpk"
+  install_package "pacote/packages/openai_python.lpk"
   install_package "pacote/packages/openai_ml.lpk"
   install_package "pacote/packages/openai_graph.lpk"
   install_package "pacote/packages/openai_output.lpk"
   install_package "pacote/packages/openai_input.lpk"
+  install_package "pacote/packages/openai_hardware.lpk"
   install_package "pacote/packages/openai_vision.lpk"
   install_package "pacote/packages/openai_image.lpk"
   install_package "pacote/packages/openai_voice.lpk"

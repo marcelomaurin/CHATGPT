@@ -1,0 +1,368 @@
+object frmAgentMemoryMapDemo: TfrmAgentMemoryMapDemo
+  Left = 826
+  Height = 750
+  Top = 180
+  Width = 1200
+  Caption = 'IA Multi-Agent & Memory Map Demo'
+  ClientHeight = 750
+  ClientWidth = 1200
+  LCLVersion = '4.4.0.0'
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  object pnlHeader: TPanel
+    Left = 0
+    Height = 50
+    Top = 0
+    Width = 1200
+    Align = alTop
+    BevelOuter = bvNone
+    BorderWidth = 5
+    ClientHeight = 50
+    ClientWidth = 1200
+    TabOrder = 0
+    object lblProvider: TLabel
+      Left = 5
+      Height = 15
+      Top = 13
+      Width = 57
+      Caption = ' Provedor: '
+      Layout = tlCenter
+    end
+    object cbProvider: TComboBox
+      Left = 65
+      Height = 23
+      Top = 13
+      Width = 120
+      ItemHeight = 15
+      Items.Strings = (
+        'OpenAI'
+        'Local (Ollama/LMStudio)'
+      )
+      Style = csDropDownList
+      TabOrder = 0
+      OnChange = cbProviderChange
+    end
+    object lblModel: TLabel
+      Left = 195
+      Height = 15
+      Top = 13
+      Width = 50
+      Caption = ' Modelo: '
+      Layout = tlCenter
+    end
+    object edtModel: TEdit
+      Left = 250
+      Height = 23
+      Top = 13
+      Width = 130
+      TabOrder = 1
+      Text = 'gpt-4o-mini'
+    end
+    object lblToken: TLabel
+      Left = 390
+      Height = 15
+      Top = 13
+      Width = 61
+      Caption = ' API Token: '
+      Layout = tlCenter
+    end
+    object edtToken: TEdit
+      Left = 455
+      Height = 23
+      Top = 13
+      Width = 180
+      EchoMode = emPassword
+      PasswordChar = '*'
+      TabOrder = 2
+    end
+    object lblBaseURL: TLabel
+      Left = 640
+      Height = 15
+      Top = 13
+      Width = 57
+      Caption = ' Base URL: '
+      Layout = tlCenter
+    end
+    object edtBaseURL: TEdit
+      Left = 705
+      Height = 23
+      Top = 13
+      Width = 250
+      TabOrder = 3
+      Text = 'https://api.openai.com/v1'
+    end
+  end
+  object pnlClient: TPanel
+    Left = 0
+    Height = 700
+    Top = 50
+    Width = 1200
+    Align = alClient
+    BevelOuter = bvNone
+    ClientHeight = 700
+    ClientWidth = 1200
+    TabOrder = 1
+    object pnlLeft: TPanel
+      Left = 0
+      Height = 700
+      Top = 0
+      Width = 350
+      Align = alLeft
+      BevelOuter = bvNone
+      BorderWidth = 5
+      ClientHeight = 700
+      ClientWidth = 350
+      TabOrder = 0
+      object gbInput: TGroupBox
+        Left = 5
+        Height = 655
+        Top = 5
+        Width = 340
+        Align = alClient
+        Caption = 'Solicitação do Usuário'
+        ClientHeight = 635
+        ClientWidth = 336
+        TabOrder = 0
+        object memInput: TMemo
+          Left = 0
+          Height = 635
+          Top = 0
+          Width = 336
+          Align = alClient
+          ScrollBars = ssAutoVertical
+          TabOrder = 0
+        end
+      end
+      object btnRun: TButton
+        Left = 5
+        Height = 35
+        Top = 660
+        Width = 340
+        Align = alBottom
+        Caption = 'Executar Fluxo Multiagente'
+        TabOrder = 1
+        OnClick = btnRunClick
+      end
+    end
+    object splitterLeft: TSplitter
+      Left = 350
+      Height = 700
+      Top = 0
+      Width = 5
+    end
+    object pnlCenter: TPanel
+      Left = 355
+      Height = 700
+      Top = 0
+      Width = 440
+      Align = alClient
+      BevelOuter = bvNone
+      BorderWidth = 5
+      ClientHeight = 700
+      ClientWidth = 440
+      TabOrder = 2
+      object gbClassifier: TGroupBox
+        Left = 5
+        Height = 200
+        Top = 5
+        Width = 430
+        Align = alTop
+        Caption = '1. Classificador (Decisão Preliminar)'
+        ClientHeight = 180
+        ClientWidth = 426
+        TabOrder = 0
+        object memClassifier: TMemo
+          Left = 0
+          Height = 180
+          Top = 0
+          Width = 426
+          Align = alClient
+          ReadOnly = True
+          ScrollBars = ssAutoVertical
+          TabOrder = 0
+        end
+      end
+      object gbDecision: TGroupBox
+        Left = 5
+        Height = 290
+        Top = 205
+        Width = 430
+        Align = alClient
+        Caption = '2. Decisor (Plano de Ação)'
+        ClientHeight = 270
+        ClientWidth = 426
+        TabOrder = 1
+        object memDecision: TMemo
+          Left = 0
+          Height = 270
+          Top = 0
+          Width = 426
+          Align = alClient
+          ReadOnly = True
+          ScrollBars = ssAutoVertical
+          TabOrder = 0
+        end
+      end
+      object gbExecutor: TGroupBox
+        Left = 5
+        Height = 200
+        Top = 495
+        Width = 430
+        Align = alBottom
+        Caption = '3. Executor (Ações Executadas)'
+        ClientHeight = 180
+        ClientWidth = 426
+        TabOrder = 2
+        object memExecutor: TMemo
+          Left = 0
+          Height = 180
+          Top = 0
+          Width = 426
+          Align = alClient
+          ReadOnly = True
+          ScrollBars = ssAutoVertical
+          TabOrder = 0
+        end
+      end
+    end
+    object splitterCenter: TSplitter
+      Left = 795
+      Height = 700
+      Top = 0
+      Width = 5
+      Align = alRight
+      ResizeAnchor = akRight
+    end
+    object pnlRight: TPanel
+      Left = 800
+      Height = 700
+      Top = 0
+      Width = 400
+      Align = alRight
+      BevelOuter = bvNone
+      BorderWidth = 5
+      ClientHeight = 700
+      ClientWidth = 400
+      TabOrder = 4
+      object gbMemoryMap: TGroupBox
+        Left = 5
+        Height = 390
+        Top = 5
+        Width = 390
+        Align = alClient
+        Caption = 'Mapa de Memória (Persistência de Contexto)'
+        ClientHeight = 370
+        ClientWidth = 386
+        TabOrder = 0
+        object memMemoryMap: TMemo
+          Left = 0
+          Height = 370
+          Top = 0
+          Width = 386
+          Align = alClient
+          Font.CharSet = ANSI_CHARSET
+          Font.Height = -11
+          Font.Name = 'Courier New'
+          Font.Pitch = fpFixed
+          Font.Quality = fqDraft
+          ParentFont = False
+          ReadOnly = True
+          ScrollBars = ssAutoVertical
+          TabOrder = 0
+        end
+      end
+      object gbInfoLoss: TGroupBox
+        Left = 5
+        Height = 160
+        Top = 395
+        Width = 390
+        Align = alBottom
+        Caption = 'Perdas de Informação Detectadas'
+        ClientHeight = 140
+        ClientWidth = 386
+        TabOrder = 1
+        object memInfoLoss: TMemo
+          Left = 0
+          Height = 140
+          Top = 0
+          Width = 386
+          Align = alClient
+          Font.CharSet = ANSI_CHARSET
+          Font.Color = clRed
+          Font.Height = -11
+          Font.Name = 'Courier New'
+          Font.Pitch = fpFixed
+          Font.Quality = fqDraft
+          ParentFont = False
+          ReadOnly = True
+          ScrollBars = ssAutoVertical
+          TabOrder = 0
+        end
+      end
+      object gbErrors: TGroupBox
+        Left = 5
+        Height = 140
+        Top = 555
+        Width = 390
+        Align = alBottom
+        Caption = 'Erros do Fluxo'
+        ClientHeight = 120
+        ClientWidth = 386
+        TabOrder = 2
+        object memErrors: TMemo
+          Left = 0
+          Height = 120
+          Top = 0
+          Width = 386
+          Align = alClient
+          Font.Color = clMaroon
+          ParentFont = False
+          ReadOnly = True
+          ScrollBars = ssAutoVertical
+          TabOrder = 0
+        end
+      end
+    end
+  end
+  object FChatGPT: TCHATGPT
+    Prompt = 'VocÃª Ã© um assistente.'
+    Dev = 'Voc'#195#170' '#195#169' um assistente.'
+    TipoChat = VCT_GPT4o
+    Provider = AIP_OPENAI
+    LocalIP = 'http://localhost:11434'
+    MaxTokens = 4096
+    Left = 32
+    Top = 120
+  end
+  object FClassifier: TAIClassifierAgent
+    NomeAgente = 'ClassifierAgent'
+    TipoAgenteMapa = tamClassificador
+    MinConfidence = 0.7
+    Left = 192
+    Top = 120
+  end
+  object FDecisionAgent: TAIDecisionAgent
+    NomeAgente = 'DecisionAgent'
+    TipoAgenteMapa = tamDecisor
+    MinConfidence = 0.7
+    Left = 272
+    Top = 120
+  end
+  object FActionBuilder: TAIActionBuilderAgent
+    NomeAgente = 'ActionBuilderAgent'
+    TipoAgenteMapa = tamAjustadorAcao
+    MinConfidence = 0.7
+    Left = 352
+    Top = 120
+  end
+  object FExecutor: TAIActionExecutor
+    Category = ccAction
+    NomeAgente = 'ActionExecutor'
+    Left = 432
+    Top = 120
+  end
+  object FOrchestrator: TAIAgentOrchestrator
+    Left = 512
+    Top = 120
+  end
+end

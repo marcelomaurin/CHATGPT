@@ -112,11 +112,6 @@
         <Filename Value="..\AI Output\aiprinter_language_epl.pas"/>
         <UnitName Value="aiprinter_language_epl"/>
       </Item>
-      <Item>
-        <Filename Value="..\AI Output\aiposprinter.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="aiposprinter"/>
-      </Item>
     </Files>
     <RequiredPkgs>
       <Item>

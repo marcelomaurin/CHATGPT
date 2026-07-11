@@ -1,0 +1,27 @@
+program agent_task_memory_action_demo;
+
+{$mode objfpc}{$H+}
+
+uses
+  {$IFDEF UNIX}
+  cthreads,
+  {$ENDIF}
+  Interfaces, // this includes the LCL widgetset
+  Forms, main, aiagent_decision, uCEFApplication;
+
+{$R *.res}
+
+begin
+  GlobalCEFApp := TCefApplication.Create;
+
+  if GlobalCEFApp.StartMainProcess then
+  begin
+    RequireDerivedFormResource:=True;
+  Application.Scaled:=True;
+    Application.Initialize;
+    Application.CreateForm(TfrmMain, frmMain);
+    Application.Run;
+  end;
+
+  GlobalCEFApp.Free;
+end.

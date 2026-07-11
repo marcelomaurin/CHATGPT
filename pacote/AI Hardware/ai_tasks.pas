@@ -397,6 +397,8 @@ begin
 end;
 
 procedure TAITasks.Refresh;
+var
+  Snapshot: TStringList;
 begin
   FLastError := '';
   FTasks.Clear;
@@ -409,6 +411,33 @@ begin
   except
     on E: Exception do
       FLastError := E.Message;
+  end;
+  if not FHasPrev then
+  begin
+    Snapshot := TStringList.Create;
+    try
+      Snapshot.Sorted := True;
+      Snapshot.Duplicates := dupIgnore;
+      ComputeCPUPercent;
+      Snapshot.Assign(FPrev);
+      Sleep(250);
+      FTasks.Clear;
+      FTotalCPU := 0;
+      FTotalMemory := 0;
+      try
+        {$IFDEF WINDOWS} CollectWindows; {$ENDIF}
+        {$IFDEF LINUX} CollectLinux; {$ENDIF}
+        {$IFDEF DARWIN} CollectMac; {$ENDIF}
+      except
+        on E: Exception do
+          FLastError := E.Message;
+      end;
+      FPrev.Assign(Snapshot);
+      FHasPrev := True;
+      FPrevTick := GetTickCount64 - 250;
+    finally
+      Snapshot.Free;
+    end;
   end;
   ComputeCPUPercent;
   SortTasks;

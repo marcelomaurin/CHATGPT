@@ -1,0 +1,279 @@
+object frmHardwareSystemManagerDemo: TfrmHardwareSystemManagerDemo
+  Left = 200
+  Height = 760
+  Top = 120
+  Width = 1180
+  Caption = 'AI Hardware - System Manager Demo'
+  ClientHeight = 760
+  ClientWidth = 1180
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  object FPageControl: TPageControl
+    Left = 0
+    Height = 760
+    Top = 0
+    Width = 1180
+    Align = alClient
+    TabOrder = 0
+    object FTabOverview: TTabSheet
+      Caption = 'Visao geral'
+      object FHeaderPanel: TPanel
+        Left = 0
+        Height = 110
+        Top = 0
+        Width = 1172
+        Align = alTop
+        BevelOuter = bvNone
+        Color = 2839826
+        ParentColor = False
+        object FTitleLabel: TLabel
+          Left = 18
+          Height = 31
+          Top = 14
+          Width = 200
+          Caption = 'AI Hardware'
+          Font.Height = -24
+          Font.Style = [fsBold]
+          ParentFont = False
+          Font.Color = clWhite
+        end
+        object FSubtitleLabel: TLabel
+          Left = 18
+          Height = 17
+          Top = 54
+          Width = 380
+          Caption = 'Painel de CPU, memoria, GPU, discos, SO e processos'
+          Font.Height = -11
+          ParentFont = False
+          Font.Color = clSilver
+        end
+        object FCPUBar: TProgressBar
+          Left = 18
+          Height = 18
+          Top = 78
+          Width = 520
+          Max = 100
+          Position = 0
+        end
+        object FMemoryBar: TProgressBar
+          Left = 550
+          Height = 18
+          Top = 78
+          Width = 320
+          Max = 100
+          Position = 0
+        end
+      end
+      object FOverviewMemo: TMemo
+        Left = 0
+        Height = 622
+        Top = 110
+        Width = 1172
+        Align = alClient
+        ReadOnly = True
+        ScrollBars = ssAutoVertical
+        Font.Name = 'Consolas'
+        TabOrder = 1
+      end
+    end
+    object FTabTasks: TTabSheet
+      Caption = 'Tarefas'
+      object FTaskTopPanel: TPanel
+        Left = 0
+        Height = 48
+        Top = 0
+        Width = 1172
+        Align = alTop
+        BevelOuter = bvNone
+        TabOrder = 0
+        object FTaskFilterLabel: TLabel
+          Left = 12
+          Height = 15
+          Top = 16
+          Width = 90
+          Caption = 'Filtro rapido:'
+          ParentColor = False
+        end
+        object FTaskFilterEdit: TEdit
+          Left = 96
+          Height = 23
+          Top = 12
+          Width = 280
+          TabOrder = 0
+          OnChange = TaskFilterChange
+        end
+        object FTaskOnlyCurrentUser: TCheckBox
+          Left = 392
+          Height = 19
+          Top = 14
+          Width = 128
+          Caption = 'Apenas meu usuario'
+          TabOrder = 1
+          OnChange = TaskOptionsChange
+        end
+        object FTaskSortLabel: TLabel
+          Left = 536
+          Height = 15
+          Top = 16
+          Width = 90
+          Caption = 'Ordenar por:'
+          ParentColor = False
+        end
+        object FTaskSortCombo: TComboBox
+          Left = 620
+          Height = 23
+          Top = 12
+          Width = 130
+          ItemHeight = 0
+          Style = csDropDownList
+          TabOrder = 2
+          OnChange = TaskOptionsChange
+          Items.Strings = (
+            'CPU'
+            'Memoria')
+        end
+      end
+      object FTasksListView: TListView
+        Left = 0
+        Height = 684
+        Top = 48
+        Width = 1172
+        Align = alClient
+        ReadOnly = True
+        RowSelect = True
+        TabOrder = 1
+        ViewStyle = vsReport
+      end
+    end
+    object FTabDevices: TTabSheet
+      Caption = 'Dispositivos'
+      object FDevicesLeftPanel: TPanel
+        Left = 0
+        Height = 732
+        Top = 0
+        Width = 280
+        Align = alLeft
+        BevelOuter = bvNone
+        object FDevicesListView: TListView
+          Left = 0
+          Height = 732
+          Top = 0
+          Width = 280
+          Align = alClient
+          ReadOnly = True
+          RowSelect = True
+          TabOrder = 0
+          ViewStyle = vsReport
+        end
+      end
+      object FDevicesRightPanel: TPanel
+        Left = 280
+        Height = 732
+        Top = 0
+        Width = 892
+        Align = alClient
+        BevelOuter = bvNone
+        object FRawMemo: TMemo
+          Left = 0
+          Height = 732
+          Top = 0
+          Width = 892
+          Align = alClient
+          ReadOnly = True
+          ScrollBars = ssAutoVertical
+          Font.Name = 'Consolas'
+          TabOrder = 0
+        end
+      end
+    end
+    object FTabRaw: TTabSheet
+      Caption = 'Detalhe bruto'
+    end
+    object FTabCPU: TTabSheet
+      Caption = 'CPU'
+      object FCPUMemo: TMemo
+        Left = 0
+        Height = 732
+        Top = 0
+        Width = 1172
+        Align = alClient
+        Font.Name = 'Consolas'
+        ReadOnly = True
+        ScrollBars = ssAutoVertical
+        TabOrder = 0
+      end
+    end
+    object FTabMemory: TTabSheet
+      Caption = 'Memoria'
+      object FMemoryMemo: TMemo
+        Left = 0
+        Height = 732
+        Top = 0
+        Width = 1172
+        Align = alClient
+        Font.Name = 'Consolas'
+        ReadOnly = True
+        ScrollBars = ssAutoVertical
+        TabOrder = 0
+      end
+    end
+    object FTabPCIe: TTabSheet
+      Caption = 'PCIe'
+      object FPCIeMemo: TMemo
+        Left = 0
+        Height = 732
+        Top = 0
+        Width = 1172
+        Align = alClient
+        Font.Name = 'Consolas'
+        ReadOnly = True
+        ScrollBars = ssAutoVertical
+        TabOrder = 0
+      end
+    end
+    object FTabPCI: TTabSheet
+      Caption = 'PCI'
+      object FPCIMemo: TMemo
+        Left = 0
+        Height = 732
+        Top = 0
+        Width = 1172
+        Align = alClient
+        Font.Name = 'Consolas'
+        ReadOnly = True
+        ScrollBars = ssAutoVertical
+        TabOrder = 0
+      end
+    end
+  end
+  object FCPU: TAICPU
+    Left = 56
+    Top = 608
+  end
+  object FMemory: TAIMemory
+    Left = 152
+    Top = 608
+  end
+  object FGPU: TAIGPU
+    Left = 248
+    Top = 608
+  end
+  object FDisk: TAIDisk
+    Left = 344
+    Top = 608
+  end
+  object FOS: TAIOS
+    Left = 440
+    Top = 608
+  end
+  object FTasks: TAITasks
+    Left = 536
+    Top = 608
+  end
+  object FTimer: TTimer
+    Interval = 1000
+    OnTimer = TimerTick
+    Left = 632
+    Top = 608
+  end
+end

@@ -1,0 +1,332 @@
+object frmMain: TfrmMain
+  Left = 180
+  Height = 760
+  Top = 80
+  Width = 1080
+  Caption = 'AI Agent Serial Demo'
+  ClientHeight = 760
+  ClientWidth = 1080
+  OnClose = FormClose
+  OnCreate = FormCreate
+  LCLVersion = '3.0.0.3'
+  object pgMain: TPageControl
+    Left = 0
+    Height = 760
+    Top = 0
+    Width = 1080
+    ActivePage = tabConfig
+    Align = alClient
+    TabIndex = 0
+    TabOrder = 0
+    object tabConfig: TTabSheet
+      Caption = 'Configuração'
+      ClientHeight = 730
+      ClientWidth = 1072
+      object pnlLLM: TGroupBox
+        Left = 12
+        Height = 440
+        Top = 12
+        Width = 1048
+        Caption = ' LLM — Provedor de IA '
+        TabOrder = 0
+        object lblProvider: TLabel
+          Left = 16
+          Top = 32
+          Caption = 'Provider'
+        end
+        object cbProvider: TComboBox
+          Left = 140
+          Height = 23
+          Top = 28
+          Width = 330
+          Style = csDropDownList
+          TabOrder = 0
+        end
+        object lblTipoChat: TLabel
+          Left = 540
+          Top = 32
+          Caption = 'Tipo/modelo'
+        end
+        object cbTipoChat: TComboBox
+          Left = 670
+          Height = 23
+          Top = 28
+          Width = 350
+          Style = csDropDownList
+          TabOrder = 1
+        end
+        object lblToken: TLabel
+          Left = 16
+          Top = 72
+          Caption = 'Token/API key'
+        end
+        object editToken: TEdit
+          Left = 140
+          Height = 23
+          Top = 68
+          Width = 330
+          PasswordChar = '*'
+          TabOrder = 2
+        end
+        object lblCustomModel: TLabel
+          Left = 540
+          Top = 72
+          Caption = 'Modelo customizado'
+        end
+        object editCustomModel: TEdit
+          Left = 670
+          Height = 23
+          Top = 68
+          Width = 350
+          TabOrder = 3
+        end
+        object lblURL: TLabel
+          Left = 16
+          Top = 112
+          Caption = 'URL customizada'
+        end
+        object editURL: TEdit
+          Left = 140
+          Height = 23
+          Top = 108
+          Width = 330
+          TabOrder = 4
+        end
+        object lblLocalIP: TLabel
+          Left = 540
+          Top = 112
+          Caption = 'Servidor local'
+        end
+        object editLocalIP: TEdit
+          Left = 670
+          Height = 23
+          Top = 108
+          Width = 350
+          TabOrder = 5
+          Text = 'http://localhost:11434'
+        end
+        object lblMaxTokens: TLabel
+          Left = 16
+          Top = 152
+          Caption = 'Máximo de tokens'
+        end
+        object spinMaxTokens: TSpinEdit
+          Left = 140
+          Height = 23
+          Top = 148
+          Width = 130
+          MaxValue = 32000
+          TabOrder = 6
+          Value = 1000
+        end
+        object lblDev: TLabel
+          Left = 16
+          Top = 192
+          Caption = 'Instruções Dev'
+        end
+        object editDev: TEdit
+          Left = 140
+          Height = 23
+          Top = 188
+          Width = 880
+          TabOrder = 7
+          Text = 'Você é um agente de controle serial seguro e objetivo.'
+        end
+        object lblORTitle: TLabel
+          Left = 16
+          Top = 232
+          Caption = 'OpenRouter título'
+        end
+        object editORTitle: TEdit
+          Left = 140
+          Height = 23
+          Top = 228
+          Width = 330
+          TabOrder = 8
+        end
+        object lblORSite: TLabel
+          Left = 540
+          Top = 232
+          Caption = 'OpenRouter site'
+        end
+        object editORSite: TEdit
+          Left = 670
+          Height = 23
+          Top = 228
+          Width = 350
+          TabOrder = 9
+        end
+        object btnTestLLM: TButton
+          Left = 140
+          Height = 34
+          Top = 286
+          Width = 180
+          Caption = 'Testar Conexão'
+          OnClick = btnTestLLMClick
+          TabOrder = 10
+        end
+        object lblLLMStatus: TLabel
+          Left = 340
+          Top = 296
+          Width = 680
+          Caption = 'Não testado'
+        end
+      end
+      object pnlSerial: TGroupBox
+        Left = 12
+        Height = 150
+        Top = 464
+        Width = 1048
+        Caption = ' Porta Serial '
+        TabOrder = 1
+        object lblPort: TLabel
+          Left = 16
+          Top = 34
+          Caption = 'Porta'
+        end
+        object cbPort: TComboBox
+          Left = 70
+          Height = 23
+          Top = 30
+          Width = 300
+          Style = csDropDownList
+          TabOrder = 0
+        end
+        object btnRefreshPorts: TButton
+          Left = 380
+          Height = 27
+          Top = 28
+          Width = 100
+          Caption = 'Atualizar'
+          OnClick = btnRefreshPortsClick
+          TabOrder = 1
+        end
+        object lblBaud: TLabel
+          Left = 520
+          Top = 34
+          Caption = 'Baud'
+        end
+        object cbBaud: TComboBox
+          Left = 570
+          Height = 23
+          Top = 30
+          Width = 160
+          ItemHeight = 15
+          Items.Strings = (
+            '1200'
+            '2400'
+            '4800'
+            '9600'
+            '19200'
+            '38400'
+            '57600'
+            '115200'
+            '230400'
+          )
+          Style = csDropDownList
+          TabOrder = 2
+        end
+        object lblSerialInfo: TLabel
+          Left = 16
+          Top = 88
+          Width = 970
+          Caption = 'Estas configurações serão informadas à LLM; a conexão é feita pelo agente.'
+          Font.Style = [fsItalic]
+        end
+      end
+      object pnlStart: TPanel
+        Left = 12
+        Height = 86
+        Top = 626
+        Width = 1048
+        BevelOuter = bvNone
+        TabOrder = 2
+        object btnIniciar: TButton
+          Left = 0
+          Height = 42
+          Top = 10
+          Width = 180
+          Caption = 'Iniciar'
+          Font.Style = [fsBold]
+          OnClick = btnIniciarClick
+          TabOrder = 0
+        end
+        object lblStartStatus: TLabel
+          Left = 200
+          Top = 24
+          Caption = 'Sessão não iniciada'
+        end
+      end
+    end
+    object tabChat: TTabSheet
+      Caption = 'Conversa'
+      ClientHeight = 730
+      ClientWidth = 1072
+      object memoHistory: TMemo
+        Left = 0
+        Height = 690
+        Top = 0
+        Width = 1072
+        Align = alClient
+        Font.Name = 'Courier New'
+        ReadOnly = True
+        ScrollBars = ssVertical
+        TabOrder = 0
+      end
+      object pnlPrompt: TPanel
+        Left = 0
+        Height = 40
+        Top = 690
+        Width = 1072
+        Align = alBottom
+        TabOrder = 1
+        object lblAgentStatus: TLabel
+          Left = 970
+          Height = 38
+          Top = 1
+          Width = 101
+          Align = alRight
+          Alignment = taCenter
+          Caption = 'pronto'
+          Layout = tlCenter
+        end
+        object editPrompt: TEdit
+          Left = 1
+          Height = 38
+          Top = 1
+          Width = 969
+          Align = alClient
+          OnKeyPress = editPromptKeyPress
+          TabOrder = 0
+        end
+      end
+    end
+  end
+  object CHATGPT1: TCHATGPT
+    Left = 760
+    Top = 680
+  end
+  object AISerialModem1: TAISerialModem
+    OnRXReceive = SerialRX
+    Left = 800
+    Top = 680
+  end
+  object AIListSerialDevices1: TAIListSerialDevices
+    ProbeOpenable = False
+    Left = 840
+    Top = 680
+  end
+  object AIAgentSerial1: TAIAgentSerial
+    Serial = AISerialModem1
+    LLM = CHATGPT1
+    RequireConfirmation = True
+    OnBeforeAction = AgentBeforeAction
+    OnAgentLog = AgentLog
+    Left = 880
+    Top = 680
+  end
+  object AIAgentMemoryMap1: TAIAgentMemoryMap
+    Left = 920
+    Top = 680
+  end
+end

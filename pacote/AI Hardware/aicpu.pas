@@ -231,4 +231,7 @@ begin
   RegisterComponents('AI Hardware', [TAICPU]);
 end;
 
+initialization
+  {$I aihardware_icons.lrs}
+
 end.

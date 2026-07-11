@@ -9,7 +9,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\AI Agent;..\AI Project;.."/>
+        <OtherUnitFiles Value="..\AI Agents;..\AI Output;..\AI Project;.."/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
@@ -123,6 +123,9 @@
       </Item>
       <Item>
         <PackageName Value="openai_input"/>
+      </Item>
+      <Item>
+        <PackageName Value="openai_agents"/>
       </Item>
       <Item>
         <PackageName Value="LCL"/>

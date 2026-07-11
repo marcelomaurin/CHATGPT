@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="5">
+    <PathDelim Value="\"/>
+    <Name Value="openai_agents"/>
+    <Type Value="RunAndDesignTime"/>
+    <Author Value="Marcelo Maurin Martins"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <PathDelim Value="\"/>
+      <SearchPaths>
+        <OtherUnitFiles Value="..\AI Agents;..\AI Output;.."/>
+        <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+      </SearchPaths>
+    </CompilerOptions>
+    <Description Value="Lazarus AI Suite: agents, safety, executors, pipeline and related components."/>
+    <License Value="OPEN SOURCE GPL3"/>
+    <Files>
+      <Item>
+        <Filename Value="..\AI Agents\aiagents.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiagents"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Agents\aiagent.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiagent"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Agents\aiagent_executors.pas"/>
+        <HasRegisterProc Value="False"/>
+        <UnitName Value="aiagent_executors"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Agents\aipipeline.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aipipeline"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Agents\aiagent_flowevents.pas"/>
+        <HasRegisterProc Value="False"/>
+        <UnitName Value="aiagent_flowevents"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Agents\aiagent_memorymap.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiagent_memorymap"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Agents\aiagent_core.pas"/>
+        <HasRegisterProc Value="False"/>
+        <UnitName Value="aiagent_core"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Agents\aiagent_classifier.pas"/>
+        <HasRegisterProc Value="False"/>
+        <UnitName Value="aiagent_classifier"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Agents\aiagent_decision.pas"/>
+        <HasRegisterProc Value="False"/>
+        <UnitName Value="aiagent_decision"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Agents\aiagent_actionbuilder.pas"/>
+        <HasRegisterProc Value="False"/>
+        <UnitName Value="aiagent_actionbuilder"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Agents\aiagent_executor.pas"/>
+        <HasRegisterProc Value="False"/>
+        <UnitName Value="aiagent_executor"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Agents\aiagent_actions.pas"/>
+        <HasRegisterProc Value="False"/>
+        <UnitName Value="aiagent_actions"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Agents\aiagent_orchestrator.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiagent_orchestrator"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Agents\aiagentserial.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiagentserial"/>
+      </Item>
+    </Files>
+    <RequiredPkgs>
+      <Item>
+        <PackageName Value="openai_output"/>
+      </Item>
+      <Item>
+        <PackageName Value="LCL"/>
+      </Item>
+      <Item>
+        <PackageName Value="FCL"/>
+      </Item>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+      <UseFileFilters Value="True"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>
