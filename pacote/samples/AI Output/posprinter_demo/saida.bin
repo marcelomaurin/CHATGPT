@@ -1,0 +1,17 @@
+SIZE 51 mm,25 mm
+GAP 2 mm,0
+DENSITY 8
+SPEED 4
+DIRECTION 0
+CODEPAGE 850
+CLS
+TEXT 84,10,"4",0,1,1,"MERCADO EXEMPLO"
+CLS
+TEXT 20,40,"4",0,1,1,"CNPJ 00.000.000/0001-00"
+TEXT 10,70,"4",0,1,1,"--------------------------------"
+TEXT 10,100,"4",0,1,1,"Coca-Cola 2L            12,90"
+TEXT 10,130,"4",0,1,1,"Pao Frances kg           9,50"
+TEXT 10,160,"4",0,1,1,"--------------------------------"
+TEXT 10,190,"4",0,1,1,"TOTAL                   22,40"
+QRCODE 10,220,L,4,A,0,"https://exemplo.com/nfce/12345"
+PRINT 1,1
