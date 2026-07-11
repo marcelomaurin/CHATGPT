@@ -1,0 +1,1 @@
+﻿A validação do arquivo WAV precisa acontecer antes da transcrição.
