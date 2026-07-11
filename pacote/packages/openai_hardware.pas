@@ -8,7 +8,7 @@ unit openai_hardware;
 interface
 
 uses
-  aicpu, aimemory, aigpu, aidisk, aiso, ai_tasks, LazarusPackageIntf;
+  aicpu, aimemory, aigpu, aidisk, aiso, ai_tasks, ailistprinters, LazarusPackageIntf;
 
 implementation
 
@@ -20,6 +20,7 @@ begin
   RegisterUnit('aidisk', @aidisk.Register);
   RegisterUnit('aiso', @aiso.Register);
   RegisterUnit('ai_tasks', @ai_tasks.Register);
+  RegisterUnit('ailistprinters', @ailistprinters.Register);
 end;
 
 initialization

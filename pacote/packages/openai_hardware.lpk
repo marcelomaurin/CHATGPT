@@ -46,6 +46,11 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="ai_tasks"/>
       </Item>
+      <Item>
+        <Filename Value="..\AI Hardware\ailistprinters.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="ailistprinters"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>
