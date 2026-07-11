@@ -51,6 +51,11 @@ type
     FLabelWidthMM: Integer;
     FLabelHeightMM: Integer;
     FGapMM: Integer;
+    FMarginLeftMM: Integer;
+    FMarginTopMM: Integer;
+    FMarginRightMM: Integer;
+    FMarginBottomMM: Integer;
+    FPrinterDpi: Integer;
     FDensity: Integer;
     FSpeed: Integer;
     FDirection: Integer;
@@ -86,6 +91,10 @@ type
     function GetSupportsBeep: Boolean;
     function GetSupportsLabel: Boolean;
     function GetSupportsReceipt: Boolean;
+    function GetGeometry: TAIPrinterGeometry;
+    procedure SetGeometry(const AValue: TAIPrinterGeometry);
+    function GetUsableWidthMM: Double;
+    function GetUsableHeightMM: Double;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -164,9 +173,18 @@ type
     property LabelWidthMM: Integer read FLabelWidthMM write FLabelWidthMM default 100;
     property LabelHeightMM: Integer read FLabelHeightMM write FLabelHeightMM default 50;
     property GapMM: Integer read FGapMM write FGapMM default 2;
+    property MarginLeftMM: Integer read FMarginLeftMM write FMarginLeftMM default 0;
+    property MarginTopMM: Integer read FMarginTopMM write FMarginTopMM default 0;
+    property MarginRightMM: Integer read FMarginRightMM write FMarginRightMM default 0;
+    property MarginBottomMM: Integer read FMarginBottomMM write FMarginBottomMM default 0;
+    property PrinterDpi: Integer read FPrinterDpi write FPrinterDpi default 203;
     property Density: Integer read FDensity write FDensity default 8;
     property Speed: Integer read FSpeed write FSpeed default 4;
     property Direction: Integer read FDirection write FDirection default 0;
+  public
+    property Geometry: TAIPrinterGeometry read GetGeometry write SetGeometry;
+    property UsableWidthMM: Double read GetUsableWidthMM;
+    property UsableHeightMM: Double read GetUsableHeightMM;
     
 
   end;
@@ -208,6 +226,11 @@ begin
   FLabelWidthMM := 100;
   FLabelHeightMM := 50;
   FGapMM := 2;
+  FMarginLeftMM := 0;
+  FMarginTopMM := 0;
+  FMarginRightMM := 0;
+  FMarginBottomMM := 0;
+  FPrinterDpi := 203;
   FDensity := 8;
   FSpeed := 4;
   FDirection := 0;
@@ -257,9 +280,8 @@ begin
     FLanguageEngine.Encoding := FCodePage;
     if FLanguageEngine is TAIZplLanguage then
     begin
-      // ZPL DPI is 203 by default, calculate width/height in pixels
-      TAIZplLanguage(FLanguageEngine).LabelWidthPixels := Round(FLabelWidthMM * 8);
-      TAIZplLanguage(FLanguageEngine).LabelHeightPixels := Round(FLabelHeightMM * 8);
+      TAIZplLanguage(FLanguageEngine).LabelWidthPixels := MMToDots(FLabelWidthMM, FPrinterDpi);
+      TAIZplLanguage(FLanguageEngine).LabelHeightPixels := MMToDots(FLabelHeightMM, FPrinterDpi);
     end
     else if FLanguageEngine is TAITsplLanguage then
     begin
@@ -272,9 +294,9 @@ begin
     end
     else if FLanguageEngine is TAIEplLanguage then
     begin
-      TAIEplLanguage(FLanguageEngine).LabelWidthDots := Round(FLabelWidthMM * 8);
-      TAIEplLanguage(FLanguageEngine).LabelHeightDots := Round(FLabelHeightMM * 8);
-      TAIEplLanguage(FLanguageEngine).GapDots := Round(FGapMM * 8);
+      TAIEplLanguage(FLanguageEngine).LabelWidthDots := MMToDots(FLabelWidthMM, FPrinterDpi);
+      TAIEplLanguage(FLanguageEngine).LabelHeightDots := MMToDots(FLabelHeightMM, FPrinterDpi);
+      TAIEplLanguage(FLanguageEngine).GapDots := MMToDots(FGapMM, FPrinterDpi);
     end;
   end;
 end;
@@ -339,6 +361,42 @@ begin
     pmEltronEPL: FPrinterModelName := 'Eltron EPL';
   end;
   SetPrinterModelName(FPrinterModelName);
+end;
+
+function TAIPOSPrinter.GetGeometry: TAIPrinterGeometry;
+begin
+  Result.WidthMM := FLabelWidthMM;
+  Result.HeightMM := FLabelHeightMM;
+  Result.GapMM := FGapMM;
+  Result.MarginLeftMM := FMarginLeftMM;
+  Result.MarginTopMM := FMarginTopMM;
+  Result.MarginRightMM := FMarginRightMM;
+  Result.MarginBottomMM := FMarginBottomMM;
+  Result.Dpi := FPrinterDpi;
+end;
+
+procedure TAIPOSPrinter.SetGeometry(const AValue: TAIPrinterGeometry);
+begin
+  FLabelWidthMM := Round(AValue.WidthMM);
+  FLabelHeightMM := Round(AValue.HeightMM);
+  FGapMM := Round(AValue.GapMM);
+  FMarginLeftMM := Round(AValue.MarginLeftMM);
+  FMarginTopMM := Round(AValue.MarginTopMM);
+  FMarginRightMM := Round(AValue.MarginRightMM);
+  FMarginBottomMM := Round(AValue.MarginBottomMM);
+  FPrinterDpi := AValue.Dpi;
+  if Assigned(FLanguageEngine) then
+    InitLanguageEngine;
+end;
+
+function TAIPOSPrinter.GetUsableWidthMM: Double;
+begin
+  Result := FLabelWidthMM - FMarginLeftMM - FMarginRightMM;
+end;
+
+function TAIPOSPrinter.GetUsableHeightMM: Double;
+begin
+  Result := FLabelHeightMM - FMarginTopMM - FMarginBottomMM;
 end;
 
 function TAIPOSPrinter.GetPrinterModel: TAIPosModel;

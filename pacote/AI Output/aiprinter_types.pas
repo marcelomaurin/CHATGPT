@@ -8,6 +8,17 @@ uses
   Classes, SysUtils;
 
 type
+  TAIPrinterGeometry = record
+    WidthMM: Double;
+    HeightMM: Double;
+    GapMM: Double;
+    MarginLeftMM: Double;
+    MarginTopMM: Double;
+    MarginRightMM: Double;
+    MarginBottomMM: Double;
+    Dpi: Integer;
+  end;
+
   TPrinterLanguage = (
     plEscPos,
     plZpl,
@@ -68,6 +79,38 @@ type
     taRight
   );
 
+function MMToDots(const AMillimeters: Double; ADpi: Integer): Integer;
+function DefaultGeometry: TAIPrinterGeometry;
+function UsableWidthMM(const AG: TAIPrinterGeometry): Double;
+function UsableHeightMM(const AG: TAIPrinterGeometry): Double;
+
 implementation
+
+function MMToDots(const AMillimeters: Double; ADpi: Integer): Integer;
+begin
+  Result := Round(AMillimeters * ADpi / 25.4);
+end;
+
+function DefaultGeometry: TAIPrinterGeometry;
+begin
+  Result.WidthMM := 51;
+  Result.HeightMM := 25;
+  Result.GapMM := 2;
+  Result.MarginLeftMM := 0;
+  Result.MarginTopMM := 0;
+  Result.MarginRightMM := 0;
+  Result.MarginBottomMM := 0;
+  Result.Dpi := 203;
+end;
+
+function UsableWidthMM(const AG: TAIPrinterGeometry): Double;
+begin
+  Result := AG.WidthMM - AG.MarginLeftMM - AG.MarginRightMM;
+end;
+
+function UsableHeightMM(const AG: TAIPrinterGeometry): Double;
+begin
+  Result := AG.HeightMM - AG.MarginTopMM - AG.MarginBottomMM;
+end;
 
 end.

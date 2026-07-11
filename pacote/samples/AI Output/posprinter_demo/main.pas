@@ -1,34 +1,26 @@
 unit main;
 
 {-------------------------------------------------------------------------------
-  Posprinter Demo - VERSAO CORRIGIDA
+  Posprinter Demo — com aba "Tamanho do papel"
 
-  Correcoes principais em relacao a versao anterior:
+  A geometria (largura, altura, gap, margens, dpi) NAO e' assunto da UI:
+  ela pertence ao PROTOCOLO. Esta aba so' coleta os valores e os entrega ao
+  componente, que os repassa a linguagem ativa, que por sua vez emite:
 
-  [1] cmbModel.OnChange -> sincroniza o protocolo com o modelo.
-      ANTES: escolher "Elgin L42DT" e deixar o combo de protocolo no default
-      (ESC/POS) enviava ESC/POS para uma ETIQUETADORA. Nada saia, sem erro.
+      TSPL    : SIZE / GAP / REFERENCE
+      EPL     : q / Q / R
+      ZPL     : ^PW / ^LL / ^LH
+      ESC/POS : GS L (margem esq.) / GS W (largura da area de impressao)
 
-  [2] Novo combo de INTERFACE com "Device/Arquivo" e "Impressora do SO (RAW)".
-      ANTES: so' Serial e TCP. Uma L42 DT no USB era INALCANCAVEL.
+  PADRAO DO PROJETO: area util de 51 mm x 25 mm, 203 dpi, gap 2 mm.
 
-  [3] Botao "Print Label" chamando PrintLabel (PRINT 1,1 / P1).
-      ANTES: tudo terminava em CutPaper, que em EPL emite ZERO bytes e em
-      TSPL emite CUT (guilhotina que a L42 nao tem). Etiqueta nunca saia.
+  ATENCAO - conversao mm->dots:
+    NAO e' "mm * 8". A 203 dpi sao 7,992 dots/mm; a 300 dpi sao 11,81.
+    Sempre  Round(mm * Dpi / 25.4).  Ver MMToDots em aiprinter_types.
 
-  [4] Checagem de Active apos conectar + preservacao do LastError real.
-      ANTES: falha de conexao era engolida e virava "Transport not active".
-
-  [5] Hex logado SEMPRE (inclusive na falha) - e' o principal instrumento
-      de debug. ANTES: so' no sucesso.
-
-  [6] Campos de tamanho de etiqueta (mm) e gap na UI.
-
-  [7] RunJob() unico no lugar de 6 handlers copia-e-cola.
-
-  NOTA: ptPrinterRaw depende do TAIPrinterSpoolerTransport (winspool RAW /
-  lp -o raw), que ainda precisa ser implementado no pacote. Enquanto isso,
-  use "Device/Arquivo" apontando para /dev/usb/lp0 (Linux) ou um .bin.
+  DEPENDENCIAS (ver SPEC-GEOMETRIA.md, T24..T30):
+    - aiprinter_types: TAIPrinterGeometry, MMToDots, DefaultGeometry
+    - aiposprinter   : propriedade Geometry + UsableWidthMM/UsableHeightMM
 -------------------------------------------------------------------------------}
 
 {$mode objfpc}{$H+}
@@ -37,19 +29,20 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  Spin, Math, aibase, aiposprinter, aiprinter_types, aiprinter_transport_spooler;
+  ComCtrls, Spin,
+  aiposprinter, aiprinter_types, aiprinter_transport_spooler;
 
 type
-  { Assinatura de um "roteiro" de impressao. Cada botao so' descreve O QUE
-    imprimir; toda a mecanica de conectar/abrir/fechar/logar fica no RunJob. }
   TJobProc = procedure of object;
 
   { TfrmMain }
 
   TfrmMain = class(TForm)
-    pnlTop: TPanel;
-    lblTitle: TLabel;
-    lblStatus: TLabel;
+    pgConfig: TPageControl;
+    tabPrinter: TTabSheet;
+    tabPaper: TTabSheet;
+
+    { --- aba Impressora --- }
     lblModel: TLabel;
     cmbModel: TComboBox;
     lblProtocol: TLabel;
@@ -63,14 +56,10 @@ type
     lblPrinterSO: TLabel;
     cmbPrinterSO: TComboBox;
     btnRefreshPrinters: TButton;
-    lblLabelW: TLabel;
-    spLabelW: TSpinEdit;
-    lblLabelH: TLabel;
-    spLabelH: TSpinEdit;
-    lblGap: TLabel;
-    spGap: TSpinEdit;
     chkRemoveAccents: TCheckBox;
     chkHexLog: TCheckBox;
+    lblGeometryInfo: TLabel;
+
     btnRun: TButton;
     btnTestConn: TButton;
     btnBoldText: TButton;
@@ -82,18 +71,47 @@ type
     btnBeep: TButton;
     btnClearLog: TButton;
     btnSaveBin: TButton;
+
+    { --- aba Tamanho do papel --- }
+    gbPhysical: TGroupBox;
+    lblPaperW: TLabel;
+    spPaperW: TFloatSpinEdit;
+    lblPaperH: TLabel;
+    spPaperH: TFloatSpinEdit;
+    lblGap: TLabel;
+    spGap: TFloatSpinEdit;
+    lblDpi: TLabel;
+    cmbDpi: TComboBox;
+
+    gbMargins: TGroupBox;
+    lblMLeft: TLabel;
+    spMarginLeft: TFloatSpinEdit;
+    lblMTop: TLabel;
+    spMarginTop: TFloatSpinEdit;
+    lblMRight: TLabel;
+    spMarginRight: TFloatSpinEdit;
+    lblMBottom: TLabel;
+    spMarginBottom: TFloatSpinEdit;
+
+    gbUsable: TGroupBox;
+    lblUsableMM: TLabel;
+    lblUsableDots: TLabel;
+    lblGeomWarn: TLabel;
+    btnResetGeometry: TButton;
+
     memoLog: TMemo;
     dlgSave: TSaveDialog;
 
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure btnRunClick(Sender: TObject);
-    procedure btnClearLogClick(Sender: TObject);
-    procedure btnRefreshPrintersClick(Sender: TObject);
-    procedure btnSaveBinClick(Sender: TObject);
     procedure cmbModelChange(Sender: TObject);
-    procedure cmbInterfaceChange(Sender: TObject);
     procedure cmbProtocolChange(Sender: TObject);
+    procedure cmbInterfaceChange(Sender: TObject);
+    procedure GeometryChange(Sender: TObject);
+    procedure btnResetGeometryClick(Sender: TObject);
+    procedure btnRefreshPrintersClick(Sender: TObject);
+    procedure btnRunClick(Sender: TObject);
+    procedure btnTestConnClick(Sender: TObject);
     procedure btnBoldTextClick(Sender: TObject);
     procedure btnBarcodeClick(Sender: TObject);
     procedure btnQRCodeClick(Sender: TObject);
@@ -101,11 +119,24 @@ type
     procedure btnPrintLabelClick(Sender: TObject);
     procedure btnDrawerClick(Sender: TObject);
     procedure btnBeepClick(Sender: TObject);
-    procedure btnTestConnClick(Sender: TObject);
+    procedure btnClearLogClick(Sender: TObject);
+    procedure btnSaveBinClick(Sender: TObject);
   private
-    FAIPosPrinter: TAIPOSPrinter;
+    FPrinter: TAIPOSPrinter;
+    FLastHex: string;
+    FLoading: Boolean;      { evita reentrancia no GeometryChange }
 
-    { Roteiros }
+    procedure LoadSystemPrinters;
+    function  IsLabelLanguage: Boolean;
+
+    function  BuildGeometry: TAIPrinterGeometry;
+    procedure GeometryToUI(const G: TAIPrinterGeometry);
+    function  UpdateGeometryPreview: Boolean;   { False = geometria invalida }
+
+    procedure ApplySettings;
+    procedure RunJob(const AName: string; AJob: TJobProc);
+
+    procedure JobNothing;
     procedure JobReceipt;
     procedure JobBold;
     procedure JobBarcode;
@@ -114,11 +145,7 @@ type
     procedure JobLabel;
     procedure JobDrawer;
     procedure JobBeep;
-    procedure JobNothing;
 
-    function  IsLabelLanguage: Boolean;
-    procedure ApplySettings;
-    procedure RunJob(const AName: string; AJob: TJobProc);
     procedure AddLog(const AMsg: string);
     procedure SetStatus(const AMsg: string);
   public
@@ -132,41 +159,173 @@ implementation
 {$R *.lfm}
 
 const
-  { indices do cmbProtocol }
   PROTO_ESCPOS = 0;
   PROTO_NATIVE = 1;
   PROTO_EPL    = 2;
   PROTO_ZPL    = 3;
   PROTO_TSPL   = 4;
 
-  { indices do cmbInterface }
   IFACE_SERIAL  = 0;
   IFACE_TCP     = 1;
-  IFACE_DEVICE  = 2;   { /dev/usb/lp0, LPT1, ou um .bin }
-  IFACE_SPOOLER = 3;   { fila do SO, RAW }
+  IFACE_DEVICE  = 2;
+  IFACE_SPOOLER = 3;
 
 { TfrmMain }
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
-  FAIPosPrinter := TAIPOSPrinter.Create(Self);
+  FPrinter := TAIPOSPrinter.Create(Self);
+
+  {$IFDEF UNIX}
+  edtDevice.Text := '/dev/usb/lp0';
+  {$ENDIF}
+
+  { PADRAO DO PROJETO: 51 x 25 mm. Vem de DefaultGeometry, nao de numero
+    solto na UI - assim o default e' o mesmo no componente e na tela. }
+  FLoading := True;
+  try
+    GeometryToUI(DefaultGeometry);
+  finally
+    FLoading := False;
+  end;
+  UpdateGeometryPreview;
+
+  LoadSystemPrinters;
 
   AddLog('Posprinter Demo inicializado.');
-  AddLog('DICA: antes de tudo, imprima a etiqueta de autoteste da L42 DT');
-  AddLog('      (segure FEED ao ligar) para descobrir a linguagem ativa.');
-  SetStatus('Pronto');
+  AddLog('Area util padrao: 51 x 25 mm @ 203 dpi (408 x 200 dots).');
+  AddLog('DICA: imprima a etiqueta de autoteste da L42 DT (segure FEED ao');
+  AddLog('      ligar) para descobrir a linguagem ativa antes de tudo.');
+  AddLog('');
 
-  btnRefreshPrintersClick(nil);
-
-  { estado inicial coerente }
   cmbModelChange(nil);
-  cmbInterfaceChange(nil);
-  cmbProtocolChange(nil);
+  SetStatus('Pronto');
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
   { LCL libera pelo Owner }
+end;
+
+{============================ GEOMETRIA ======================================}
+
+function TfrmMain.BuildGeometry: TAIPrinterGeometry;
+begin
+  Result.WidthMM        := spPaperW.Value;
+  Result.HeightMM       := spPaperH.Value;
+  Result.GapMM          := spGap.Value;
+  Result.MarginLeftMM   := spMarginLeft.Value;
+  Result.MarginTopMM    := spMarginTop.Value;
+  Result.MarginRightMM  := spMarginRight.Value;
+  Result.MarginBottomMM := spMarginBottom.Value;
+  Result.Dpi := StrToIntDef(cmbDpi.Text, 203);
+end;
+
+procedure TfrmMain.GeometryToUI(const G: TAIPrinterGeometry);
+begin
+  spPaperW.Value       := G.WidthMM;
+  spPaperH.Value       := G.HeightMM;
+  spGap.Value          := G.GapMM;
+  spMarginLeft.Value   := G.MarginLeftMM;
+  spMarginTop.Value    := G.MarginTopMM;
+  spMarginRight.Value  := G.MarginRightMM;
+  spMarginBottom.Value := G.MarginBottomMM;
+  cmbDpi.ItemIndex     := cmbDpi.Items.IndexOf(IntToStr(G.Dpi));
+  if cmbDpi.ItemIndex < 0 then cmbDpi.ItemIndex := 0;
+end;
+
+function TfrmMain.UpdateGeometryPreview: Boolean;
+var
+  G: TAIPrinterGeometry;
+  UW, UH: Double;
+  DW, DH: Integer;
+begin
+  G := BuildGeometry;
+
+  UW := UsableWidthMM(G);    { largura - margens esq/dir }
+  UH := UsableHeightMM(G);   { altura  - margens sup/inf }
+
+  Result := (UW > 0) and (UH > 0);
+
+  if not Result then
+  begin
+    lblUsableMM.Caption := 'Area util: INVALIDA';
+    lblUsableMM.Font.Color := clRed;
+    lblUsableDots.Caption := '';
+    lblGeomWarn.Caption :=
+      'As margens excedem o tamanho do papel. Reduza as margens ou ' +
+      'aumente o papel.';
+    lblGeometryInfo.Caption := 'Area util: INVALIDA';
+    lblGeometryInfo.Font.Color := clRed;
+    Exit;
+  end;
+
+  { mm -> dots: Dpi/25.4, NUNCA "* 8" }
+  DW := MMToDots(UW, G.Dpi);
+  DH := MMToDots(UH, G.Dpi);
+
+  lblUsableMM.Font.Color := clDefault;
+  lblUsableMM.Caption := Format('Area util: %.1f x %.1f mm', [UW, UH]);
+  lblUsableDots.Caption := Format('Em dots (%d dpi): %d x %d', [G.Dpi, DW, DH]);
+  lblGeomWarn.Caption := '';
+
+  lblGeometryInfo.Font.Color := clDefault;
+  lblGeometryInfo.Caption := Format('Area util: %.1f x %.1f mm (%d x %d dots)',
+    [UW, UH, DW, DH]);
+end;
+
+procedure TfrmMain.GeometryChange(Sender: TObject);
+begin
+  if FLoading then Exit;
+  UpdateGeometryPreview;
+end;
+
+procedure TfrmMain.btnResetGeometryClick(Sender: TObject);
+begin
+  FLoading := True;
+  try
+    GeometryToUI(DefaultGeometry);   { 51 x 25 mm, gap 2, margens 0, 203 dpi }
+  finally
+    FLoading := False;
+  end;
+  UpdateGeometryPreview;
+  AddLog('Geometria restaurada para o padrao: 51 x 25 mm @ 203 dpi.');
+end;
+
+{========================= Filas de impressao do SO ===========================}
+
+procedure TfrmMain.LoadSystemPrinters;
+var
+  Err, Padrao: string;
+  N, Idx: Integer;
+begin
+  Err := '';
+  cmbPrinterSO.Items.BeginUpdate;
+  try
+    N := ListSystemPrinters(cmbPrinterSO.Items, Err);
+  finally
+    cmbPrinterSO.Items.EndUpdate;
+  end;
+
+  if N = 0 then
+  begin
+    AddLog('[Fila do SO] Nenhuma impressora encontrada. ' + Err);
+    cmbPrinterSO.ItemIndex := -1;
+    Exit;
+  end;
+
+  Padrao := DefaultSystemPrinter;
+  Idx := cmbPrinterSO.Items.IndexOf(Padrao);
+  if Idx < 0 then Idx := 0;
+  cmbPrinterSO.ItemIndex := Idx;
+
+  AddLog(Format('[Fila do SO] %d impressora(s). Padrao: %s',
+    [N, cmbPrinterSO.Items[Idx]]));
+end;
+
+procedure TfrmMain.btnRefreshPrintersClick(Sender: TObject);
+begin
+  LoadSystemPrinters;
 end;
 
 {============================ Sincronizacao da UI =============================}
@@ -178,15 +337,13 @@ end;
 
 procedure TfrmMain.cmbModelChange(Sender: TObject);
 begin
-  { [1] CORRECAO CENTRAL.
-    Antes, escolher a L42DT e deixar o protocolo no default (ESC/POS)
-    mandava ESC/POS pra uma etiquetadora. Silenciosamente. }
+  { Sem isto, escolher "Elgin L42DT" e deixar o protocolo no default
+    (ESC/POS) manda ESC/POS para uma ETIQUETADORA. Silenciosamente. }
   case cmbModel.ItemIndex of
-    0, 1:  { Elgin i9 / QR203 - cupom }
+    0, 1:
       if IsLabelLanguage then
         cmbProtocol.ItemIndex := PROTO_ESCPOS;
-
-    2:     { Elgin L42DT - ETIQUETA. ESC/POS aqui nao faz sentido. }
+    2:
       if not IsLabelLanguage then
       begin
         cmbProtocol.ItemIndex := PROTO_TSPL;
@@ -206,18 +363,15 @@ begin
 
   cmbInterface.Enabled := not IsNative;
 
-  { campos de etiqueta so' fazem sentido em linguagem de etiqueta }
-  spLabelW.Enabled := IsLbl;
-  spLabelH.Enabled := IsLbl;
-  spGap.Enabled := IsLbl;
+  { Em cupom (papel continuo) a ALTURA e o GAP nao fazem sentido:
+    o papel nao acaba. A largura e as margens continuam valendo (GS L/GS W). }
+  spPaperH.Enabled := IsLbl;
+  spGap.Enabled    := IsLbl;
 
-  { em etiquetadora nao ha guilhotina nem gaveta }
   btnPrintLabel.Enabled := IsLbl;
-  btnCut.Enabled := not IsLbl;
-  btnDrawer.Enabled := not IsLbl and not IsNative;
-  btnBeep.Enabled := not IsLbl and not IsNative;
-  btnBarcode.Enabled := True;
-  btnQRCode.Enabled := True;
+  btnCut.Enabled        := not IsLbl;
+  btnDrawer.Enabled     := (not IsLbl) and (not IsNative);
+  btnBeep.Enabled       := (not IsLbl) and (not IsNative);
 
   cmbInterfaceChange(nil);
 end;
@@ -231,6 +385,7 @@ begin
   edtDevice.Enabled    := Idx in [IFACE_SERIAL, IFACE_TCP, IFACE_DEVICE];
   edtPort.Enabled      := Idx in [IFACE_SERIAL, IFACE_TCP];
   cmbPrinterSO.Enabled := Idx = IFACE_SPOOLER;
+  btnRefreshPrinters.Enabled := Idx = IFACE_SPOOLER;
 
   case Idx of
     IFACE_SERIAL:
@@ -262,65 +417,72 @@ end;
 
 procedure TfrmMain.ApplySettings;
 begin
-  { ORDEM IMPORTA: o modelo mexe na linguagem (via profile), entao o
-    protocolo escolhido pelo usuario e' aplicado DEPOIS, sobrescrevendo. }
+  if not UpdateGeometryPreview then
+    raise Exception.Create(
+      'Geometria invalida: as margens excedem o tamanho do papel. ' +
+      'Corrija na aba "Tamanho do papel".');
+
   case cmbModel.ItemIndex of
-    0: FAIPosPrinter.PrinterModel := pmElginI9;
-    1: FAIPosPrinter.PrinterModel := pmQR203;
-    2: FAIPosPrinter.PrinterModel := pmElginL42DT;
+    0: FPrinter.PrinterModel := pmElginI9;
+    1: FPrinter.PrinterModel := pmQR203;
+    2: FPrinter.PrinterModel := pmElginL42DT;
   end;
 
   case cmbProtocol.ItemIndex of
     PROTO_ESCPOS: begin
-        FAIPosPrinter.Language := plEscPos;
-        FAIPosPrinter.RenderMode := rmRawCommand;
+        FPrinter.Language := plEscPos;
+        FPrinter.RenderMode := rmRawCommand;
       end;
     PROTO_NATIVE:
-        FAIPosPrinter.RenderMode := rmNativeCanvas;
+        FPrinter.RenderMode := rmNativeCanvas;
     PROTO_EPL: begin
-        FAIPosPrinter.Language := plEpl;
-        FAIPosPrinter.RenderMode := rmRawCommand;
+        FPrinter.Language := plEpl;
+        FPrinter.RenderMode := rmRawCommand;
       end;
     PROTO_ZPL: begin
-        FAIPosPrinter.Language := plZpl;
-        FAIPosPrinter.RenderMode := rmRawCommand;
+        FPrinter.Language := plZpl;
+        FPrinter.RenderMode := rmRawCommand;
       end;
     PROTO_TSPL: begin
-        FAIPosPrinter.Language := plTspl;
-        FAIPosPrinter.RenderMode := rmRawCommand;
+        FPrinter.Language := plTspl;
+        FPrinter.RenderMode := rmRawCommand;
       end;
   end;
 
-  { [6] tamanho da etiqueta - antes ficava preso no default 100x50 }
-  FAIPosPrinter.LabelWidthMM  := spLabelW.Value;
-  FAIPosPrinter.LabelHeightMM := spLabelH.Value;
-  FAIPosPrinter.GapMM         := spGap.Value;
-  FAIPosPrinter.RemoveAccents := chkRemoveAccents.Checked;
+  { A geometria vai INTEIRA para o componente, que a repassa para a
+    linguagem, que emite SIZE/GAP/REFERENCE, q/Q/R, ^PW/^LL/^LH ou GS L/GS W.
+    O modelo e' definido ANTES, entao o valor da UI prevalece sobre o
+    default do profile. }
+  FPrinter.Geometry := BuildGeometry;
+
+  FPrinter.RemoveAccents := chkRemoveAccents.Checked;
 
   case cmbInterface.ItemIndex of
     IFACE_SERIAL:
       begin
-        FAIPosPrinter.TransportKind := ptSerial;
-        FAIPosPrinter.DeviceName := edtDevice.Text;
-        FAIPosPrinter.SerialBaud := StrToIntDef(edtPort.Text, 9600);
+        FPrinter.TransportKind := ptSerial;
+        FPrinter.DeviceName := edtDevice.Text;
+        FPrinter.SerialBaud := StrToIntDef(edtPort.Text, 9600);
       end;
     IFACE_TCP:
       begin
-        FAIPosPrinter.TransportKind := ptTcp9100;
-        FAIPosPrinter.Host := edtDevice.Text;
-        FAIPosPrinter.Port := StrToIntDef(edtPort.Text, 9100);
+        FPrinter.TransportKind := ptTcp9100;
+        FPrinter.Host := edtDevice.Text;
+        FPrinter.Port := StrToIntDef(edtPort.Text, 9100);
       end;
     IFACE_DEVICE:
       begin
-        { [2] Requer a correcao no InitTransport: ptFile deve usar
-          FDeviceName, e nao o caminho hardcoded output/test_print.bin }
-        FAIPosPrinter.TransportKind := ptFile;
-        FAIPosPrinter.DeviceName := edtDevice.Text;
+        FPrinter.TransportKind := ptFile;
+        FPrinter.DeviceName := edtDevice.Text;
       end;
     IFACE_SPOOLER:
       begin
-        FAIPosPrinter.TransportKind := ptPrinterRaw;
-        FAIPosPrinter.DeviceName := cmbPrinterSO.Text;
+        if cmbPrinterSO.ItemIndex < 0 then
+          raise Exception.Create(
+            'Selecione uma fila do SO. Se o combo estiver vazio, clique em ' +
+            '"Atualizar" e veja o motivo no log.');
+        FPrinter.TransportKind := ptPrinterRaw;
+        FPrinter.DeviceName := cmbPrinterSO.Items[cmbPrinterSO.ItemIndex];
       end;
   end;
 end;
@@ -328,56 +490,62 @@ end;
 {=============================== Motor de job ================================}
 
 procedure TfrmMain.RunJob(const AName: string; AJob: TJobProc);
+var
+  G: TAIPrinterGeometry;
 begin
   AddLog('--- ' + AName + ' ---');
   SetStatus('Executando: ' + AName);
+  FLastHex := '';
   try
     ApplySettings;
 
-    FAIPosPrinter.Active := True;
+    G := FPrinter.Geometry;
+    AddLog(Format('  Papel: %.1f x %.1f mm | margens L%.1f T%.1f R%.1f B%.1f | %d dpi',
+      [G.WidthMM, G.HeightMM, G.MarginLeftMM, G.MarginTopMM,
+       G.MarginRightMM, G.MarginBottomMM, G.Dpi]));
+    AddLog(Format('  Area util: %.1f x %.1f mm (%d x %d dots)',
+      [FPrinter.UsableWidthMM, FPrinter.UsableHeightMM,
+       MMToDots(FPrinter.UsableWidthMM, G.Dpi),
+       MMToDots(FPrinter.UsableHeightMM, G.Dpi)]));
 
-    { [4] Antes nao havia esta checagem: a falha de conexao era engolida
-      e reaparecia depois como o generico "Transport not active",
-      perdendo o erro real (connection refused, porta ocupada...). }
-    if not FAIPosPrinter.Active then
+    FPrinter.Active := True;
+    if not FPrinter.Active then
     begin
-      AddLog('FALHA ao conectar: ' + FAIPosPrinter.LastError);
+      AddLog('FALHA ao conectar: ' + FPrinter.LastError);
       SetStatus('Erro de conexao');
       Exit;
     end;
 
     try
-      if not FAIPosPrinter.BeginJob then
+      if not FPrinter.BeginJob then
       begin
-        AddLog('FALHA em BeginJob: ' + FAIPosPrinter.LastError);
+        AddLog('FALHA em BeginJob: ' + FPrinter.LastError);
         Exit;
       end;
 
-      AJob();          { <- o roteiro especifico do botao }
+      AJob();
 
-      FAIPosPrinter.EndJob;
+      FPrinter.EndJob;
 
-      if FAIPosPrinter.PrintJob then
+      if FPrinter.PrintJob then
       begin
-        AddLog(Format('OK - %d bytes enviados.',
-          [FAIPosPrinter.LastBytesSent]));
+        AddLog(Format('OK - %d bytes enviados.', [FPrinter.LastBytesSent]));
         SetStatus('Concluido');
       end
       else
       begin
-        AddLog('FALHA em PrintJob: ' + FAIPosPrinter.LastError);
+        AddLog('FALHA em PrintJob: ' + FPrinter.LastError);
         SetStatus('Erro de envio');
       end;
 
-      { [5] Hex SEMPRE, inclusive na falha. SendDocument preenche
-        LastCommandHex antes de checar a conexao, entao os bytes estao
-        disponiveis mesmo quando o envio falha - e e' justamente ai
-        que voce mais precisa deles. }
-      if FAIPosPrinter.LastCommandHex <> '' then
-        AddLog('  HEX: ' + FAIPosPrinter.LastCommandHex);
+      { Hex SEMPRE, inclusive na falha: e' justamente ai que voce precisa
+        ver os bytes. }
+      FLastHex := FPrinter.LastCommandHex;
+      if chkHexLog.Checked and (FLastHex <> '') then
+        AddLog('  HEX: ' + FLastHex);
 
     finally
-      FAIPosPrinter.Active := False;
+      FPrinter.Active := False;
     end;
   except
     on E: Exception do
@@ -393,81 +561,76 @@ end;
 
 procedure TfrmMain.JobNothing;
 begin
-  { so' abre e fecha - serve pro "Testar conexao" }
 end;
 
 procedure TfrmMain.JobReceipt;
 begin
-  FAIPosPrinter.AlignCenter;
-  FAIPosPrinter.SetDoubleText;
-  FAIPosPrinter.PrintTextLine('MERCADO EXEMPLO');
-  FAIPosPrinter.SetNormal;
-  FAIPosPrinter.PrintTextLine('CNPJ 00.000.000/0001-00');
-  FAIPosPrinter.AlignLeft;
-  FAIPosPrinter.PrintTextLine('--------------------------------');
-  FAIPosPrinter.PrintTextLine('Coca-Cola 2L            12,90');
-  FAIPosPrinter.PrintTextLine('Pao Frances kg           9,50');
-  FAIPosPrinter.PrintTextLine('--------------------------------');
-  FAIPosPrinter.SetBold(True);
-  FAIPosPrinter.PrintTextLine('TOTAL                   22,40');
-  FAIPosPrinter.SetBold(False);
-  FAIPosPrinter.AlignCenter;
-  FAIPosPrinter.PrintQRCode('https://exemplo.com/nfce/12345');
-  FAIPosPrinter.AlignLeft;
+  FPrinter.AlignCenter;
+  FPrinter.SetDoubleText;
+  FPrinter.PrintTextLine('MERCADO EXEMPLO');
+  FPrinter.SetNormal;
+  FPrinter.PrintTextLine('CNPJ 00.000.000/0001-00');
+  FPrinter.AlignLeft;
+  FPrinter.PrintTextLine('--------------------------------');
+  FPrinter.PrintTextLine('Coca-Cola 2L            12,90');
+  FPrinter.PrintTextLine('Pao Frances kg           9,50');
+  FPrinter.PrintTextLine('--------------------------------');
+  FPrinter.SetBold(True);
+  FPrinter.PrintTextLine('TOTAL                   22,40');
+  FPrinter.SetBold(False);
+  FPrinter.AlignCenter;
+  FPrinter.PrintQRCode('https://exemplo.com/nfce/12345');
+  FPrinter.AlignLeft;
 
-  { fecha do jeito certo pra cada tipo de impressora }
   if IsLabelLanguage then
-    FAIPosPrinter.PrintLabel
+    FPrinter.PrintLabel(1)
   else
-    FAIPosPrinter.CutPaper;
+    FPrinter.CutPaper;
 end;
 
 procedure TfrmMain.JobBold;
 begin
-  FAIPosPrinter.SetBold(True);
-  FAIPosPrinter.PrintTextLine('TEXTO EM NEGRITO');
-  FAIPosPrinter.SetBold(False);
-  FAIPosPrinter.PrintTextLine('Texto normal');
-  if IsLabelLanguage then FAIPosPrinter.PrintLabel;
+  FPrinter.SetBold(True);
+  FPrinter.PrintTextLine('TEXTO EM NEGRITO');
+  FPrinter.SetBold(False);
+  FPrinter.PrintTextLine('Texto normal');
+  if IsLabelLanguage then FPrinter.PrintLabel(1);
 end;
 
 procedure TfrmMain.JobBarcode;
 begin
-  FAIPosPrinter.PrintBarcode('7891234567895');
-  if IsLabelLanguage then FAIPosPrinter.PrintLabel;
+  FPrinter.PrintBarcode('7891234567895');
+  if IsLabelLanguage then FPrinter.PrintLabel(1);
 end;
 
 procedure TfrmMain.JobQRCode;
 begin
-  FAIPosPrinter.PrintQRCode('https://github.com/marcelomaurin/CHATGPT');
-  if IsLabelLanguage then FAIPosPrinter.PrintLabel;
+  FPrinter.PrintQRCode('https://github.com/marcelomaurin/CHATGPT');
+  if IsLabelLanguage then FPrinter.PrintLabel(1);
 end;
 
 procedure TfrmMain.JobCut;
 begin
-  FAIPosPrinter.CutPaper;
+  FPrinter.CutPaper;
 end;
 
 procedure TfrmMain.JobLabel;
 begin
-  { [3] o teste que faltava: uma etiqueta de verdade, terminando em
-    PRINT 1,1 (TSPL) / P1 (EPL) / ^XZ (ZPL) - e NAO em CutPaper. }
-  FAIPosPrinter.PrintTextLine('PRODUTO TESTE');
-  FAIPosPrinter.PrintTextLine('Lote 2026-A');
-  FAIPosPrinter.PrintTextLine('Val: 31/12/2026');
-  FAIPosPrinter.PrintBarcode('7891234567895');
-  FAIPosPrinter.PrintQRCode('https://exemplo.com/prod/1');
-  FAIPosPrinter.PrintLabel;
+  { Etiqueta de 51 x 25 mm: conteudo curto, senao estoura a area util. }
+  FPrinter.PrintTextLine('PRODUTO TESTE');
+  FPrinter.PrintTextLine('Lote 2026-A');
+  FPrinter.PrintBarcode('7891234567895');
+  FPrinter.PrintLabel(1);
 end;
 
 procedure TfrmMain.JobDrawer;
 begin
-  FAIPosPrinter.OpenDrawer;
+  FPrinter.OpenDrawer;
 end;
 
 procedure TfrmMain.JobBeep;
 begin
-  FAIPosPrinter.Beep;
+  FPrinter.Beep;
 end;
 
 {================================ Handlers ===================================}
@@ -522,67 +685,24 @@ begin
   memoLog.Clear;
 end;
 
-procedure TfrmMain.btnRefreshPrintersClick(Sender: TObject);
-var
-  Err: string;
-  Count: Integer;
-  Def: string;
-begin
-  cmbPrinterSO.Items.Clear;
-  Count := ListSystemPrinters(cmbPrinterSO.Items, Err);
-  if Err <> '' then
-    AddLog('Erro ao listar impressoras do SO: ' + Err)
-  else
-  begin
-    AddLog(Format('%d impressora(s) encontrada(s) no SO.', [Count]));
-    Def := DefaultSystemPrinter;
-    if Def <> '' then
-      cmbPrinterSO.ItemIndex := Max(0, cmbPrinterSO.Items.IndexOf(Def))
-    else if cmbPrinterSO.Items.Count > 0 then
-      cmbPrinterSO.ItemIndex := 0;
-  end;
-end;
-
 procedure TfrmMain.btnSaveBinClick(Sender: TObject);
 var
-  HexStr: string;
-  Bytes: TBytes;
-  FS: TFileStream;
-  S: string;
-  I, Code, Len: Integer;
-  B: Byte;
-  ValStr: string;
+  L: TStringList;
 begin
-  HexStr := FAIPosPrinter.LastCommandHex;
-  if HexStr = '' then
+  if FLastHex = '' then
   begin
-    ShowMessage('Nenhum comando enviado ainda ou log vazio.');
+    ShowMessage('Nenhum job executado ainda.');
     Exit;
   end;
+  if not dlgSave.Execute then Exit;
 
-  if dlgSave.Execute then
-  begin
-    S := StringReplace(HexStr, ' ', '', [rfReplaceAll]);
-    Len := Length(S) div 2;
-    SetLength(Bytes, Len);
-    for I := 0 to Len - 1 do
-    begin
-      ValStr := '$' + Copy(S, (I * 2) + 1, 2);
-      Val(ValStr, B, Code);
-      if Code = 0 then
-        Bytes[I] := B
-      else
-        Bytes[I] := 0;
-    end;
-
-    FS := TFileStream.Create(dlgSave.FileName, fmCreate);
-    try
-      if Length(Bytes) > 0 then
-        FS.WriteBuffer(Bytes[0], Length(Bytes));
-      AddLog('Bytes salvos com sucesso em: ' + dlgSave.FileName);
-    finally
-      FS.Free;
-    end;
+  L := TStringList.Create;
+  try
+    L.Text := FLastHex;
+    L.SaveToFile(dlgSave.FileName);
+    AddLog('HEX salvo em: ' + dlgSave.FileName);
+  finally
+    L.Free;
   end;
 end;
 
@@ -596,8 +716,7 @@ end;
 
 procedure TfrmMain.SetStatus(const AMsg: string);
 begin
-  if Assigned(lblStatus) then
-    lblStatus.Caption := 'Status: ' + AMsg;
+  Caption := 'Posprinter Demo — ' + AMsg;
 end;
 
 end.
