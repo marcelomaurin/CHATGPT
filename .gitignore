@@ -81,6 +81,20 @@ backup/
 *.lps
 packagefiles.xml
 
+# Runtime binaries that must be versioned for this project
+!runtime/whispercpp/windows/x64/bin/
+!runtime/whispercpp/windows/x64/bin/**
+!runtime/sherpaonnx/windows/x64/bin/
+!runtime/sherpaonnx/windows/x64/bin/**
+!runtime/sherpaonnx/windows/x64/lib/
+!runtime/sherpaonnx/windows/x64/lib/**
+!runtime/sherpaonnx/windows/x86/bin/
+!runtime/sherpaonnx/windows/x86/bin/**
+!runtime/sherpaonnx/windows/x86/lib/
+!runtime/sherpaonnx/windows/x86/lib/**
+!runtime/sherpaonnx/macos/universal2/lib/
+!runtime/sherpaonnx/macos/universal2/lib/**
+
 # CHATGPT-AI generated runtime/installers
 runtime/windows-x64/python/
 runtime/linux-x64/python/
