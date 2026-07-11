@@ -34,4 +34,4 @@ integração nativa de GPU disponivel na maquina.
 
 ## Screenshot
 
-![Gerenciador de Hardware](../../../../screenshots/hardware_system_manager+demo.jpg)
+![Gerenciador de Hardware](../../../../screenshots/hardware_system_manager_demo.jpg)
