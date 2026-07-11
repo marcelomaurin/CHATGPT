@@ -12,9 +12,6 @@ type
   { TfrmHardwareSystemManagerDemo }
 
   TfrmHardwareSystemManagerDemo = class(TForm)
-    procedure FormCreate(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
-  private
     FPageControl: TPageControl;
     FTimer: TTimer;
     FCPU: TAICPU;
@@ -49,9 +46,12 @@ type
     FMemoryBar: TProgressBar;
     FTitleLabel: TLabel;
     FSubtitleLabel: TLabel;
-    procedure BindComponents;
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
     procedure TaskFilterChange(Sender: TObject);
     procedure TaskOptionsChange(Sender: TObject);
+    procedure TimerTick(Sender: TObject);
+  private
     function CollectPCIInventory(const ANeedle: string): string;
     procedure RefreshAll;
     procedure RefreshOverview;
@@ -62,7 +62,6 @@ type
     procedure RefreshTasks;
     procedure RefreshDevices;
     procedure RefreshRawDetails;
-    procedure TimerTick(Sender: TObject);
   public
   end;
 
@@ -75,7 +74,12 @@ implementation
 
 procedure TfrmHardwareSystemManagerDemo.FormCreate(Sender: TObject);
 begin
-  BindComponents;
+  Self.DoubleBuffered := True;
+  if Assigned(FTasksListView) then
+    FTasksListView.DoubleBuffered := True;
+  if Assigned(FDevicesListView) then
+    FDevicesListView.DoubleBuffered := True;
+
   FTasks.SortBy := sbCPU;
   FTasks.SortDescending := True;
   FTasks.ResetHistory;
@@ -88,44 +92,6 @@ end;
 
 procedure TfrmHardwareSystemManagerDemo.FormDestroy(Sender: TObject);
 begin
-end;
-
-procedure TfrmHardwareSystemManagerDemo.BindComponents;
-begin
-  FPageControl := TPageControl(FindComponent('FPageControl'));
-  FTimer := TTimer(FindComponent('FTimer'));
-  FCPU := TAICPU(FindComponent('FCPU'));
-  FMemory := TAIMemory(FindComponent('FMemory'));
-  FGPU := TAIGPU(FindComponent('FGPU'));
-  FDisk := TAIDisk(FindComponent('FDisk'));
-  FOS := TAIOS(FindComponent('FOS'));
-  FTasks := TAITasks(FindComponent('FTasks'));
-  FTabOverview := TTabSheet(FindComponent('FTabOverview'));
-  FTabTasks := TTabSheet(FindComponent('FTabTasks'));
-  FTabDevices := TTabSheet(FindComponent('FTabDevices'));
-  FTabRaw := TTabSheet(FindComponent('FTabRaw'));
-  FTabCPU := TTabSheet(FindComponent('FTabCPU'));
-  FTabMemory := TTabSheet(FindComponent('FTabMemory'));
-  FTabPCIe := TTabSheet(FindComponent('FTabPCIe'));
-  FTabPCI := TTabSheet(FindComponent('FTabPCI'));
-  FTaskTopPanel := TPanel(FindComponent('FTaskTopPanel'));
-  FTaskFilterLabel := TLabel(FindComponent('FTaskFilterLabel'));
-  FTaskFilterEdit := TEdit(FindComponent('FTaskFilterEdit'));
-  FTaskOnlyCurrentUser := TCheckBox(FindComponent('FTaskOnlyCurrentUser'));
-  FTaskSortLabel := TLabel(FindComponent('FTaskSortLabel'));
-  FTaskSortCombo := TComboBox(FindComponent('FTaskSortCombo'));
-  FOverviewMemo := TMemo(FindComponent('FOverviewMemo'));
-  FCPUMemo := TMemo(FindComponent('FCPUMemo'));
-  FMemoryMemo := TMemo(FindComponent('FMemoryMemo'));
-  FPCIeMemo := TMemo(FindComponent('FPCIeMemo'));
-  FPCIMemo := TMemo(FindComponent('FPCIMemo'));
-  FTasksListView := TListView(FindComponent('FTasksListView'));
-  FDevicesListView := TListView(FindComponent('FDevicesListView'));
-  FRawMemo := TMemo(FindComponent('FRawMemo'));
-  FCPUBar := TProgressBar(FindComponent('FCPUBar'));
-  FMemoryBar := TProgressBar(FindComponent('FMemoryBar'));
-  FTitleLabel := TLabel(FindComponent('FTitleLabel'));
-  FSubtitleLabel := TLabel(FindComponent('FSubtitleLabel'));
 end;
 
 procedure TfrmHardwareSystemManagerDemo.TaskFilterChange(Sender: TObject);
@@ -332,38 +298,94 @@ end;
 
 procedure TfrmHardwareSystemManagerDemo.RefreshTasks;
 var
-  I: Integer;
+  I, J: Integer;
   Item: TListItem;
   T: TAITask;
   FilterText: string;
   UsedMB: Double;
+  PIDStr: string;
+  Found: Boolean;
+  ValPPID, ValName, ValCPU, ValMem, ValState, ValUser: string;
+
+  procedure SetSubItem(AItem: TListItem; AIndex: Integer; const AValue: string);
+  begin
+    while AItem.SubItems.Count <= AIndex do
+      AItem.SubItems.Add('');
+    if AItem.SubItems[AIndex] <> AValue then
+      AItem.SubItems[AIndex] := AValue;
+  end;
+
 begin
   if not Assigned(FTasks) then Exit;
   FTasks.Refresh;
   FilterText := '';
   if Assigned(FTaskFilterEdit) then
     FilterText := Trim(LowerCase(FTaskFilterEdit.Text));
+  
   FTasksListView.Items.BeginUpdate;
   try
-    FTasksListView.Items.Clear;
+    // Mark all existing items as nil to track which ones need deletion
+    for I := 0 to FTasksListView.Items.Count - 1 do
+      FTasksListView.Items[I].Data := nil;
+
     for I := 0 to FTasks.Count - 1 do
     begin
       T := FTasks.Tasks[I];
       if (FilterText <> '') and (Pos(FilterText, LowerCase(T.Name)) = 0) and
          (Pos(FilterText, LowerCase(T.CommandLine)) = 0) then
         Continue;
-      Item := FTasksListView.Items.Add;
-      Item.Caption := IntToStr(T.PID);
-      Item.SubItems.Add(IntToStr(T.PPID));
-      Item.SubItems.Add(T.Name);
-      Item.SubItems.Add(FormatFloat('0.0', T.CPUPercent));
+        
+      PIDStr := IntToStr(T.PID);
+      Found := False;
+      Item := nil;
+      
+      // Look for the PID in the table
+      for J := 0 to FTasksListView.Items.Count - 1 do
+      begin
+        if FTasksListView.Items[J].Caption = PIDStr then
+        begin
+          Item := FTasksListView.Items[J];
+          Found := True;
+          Break;
+        end;
+      end;
+      
+      if not Found then
+      begin
+        Item := FTasksListView.Items.Add;
+        Item.Caption := PIDStr;
+      end;
+      
+      ValPPID := IntToStr(T.PPID);
+      ValName := T.Name;
+      ValCPU := FormatFloat('0.0', T.CPUPercent);
       UsedMB := T.MemoryWorking / 1024 / 1024;
-      Item.SubItems.Add(FormatFloat('0.0 MB', UsedMB));
-      Item.SubItems.Add(T.StateStr);
-      Item.SubItems.Add(T.User);
+      ValMem := FormatFloat('0.0 MB', UsedMB);
+      ValState := T.StateStr;
+      ValUser := T.User;
+      
+      SetSubItem(Item, 0, ValPPID);
+      SetSubItem(Item, 1, ValName);
+      SetSubItem(Item, 2, ValCPU);
+      SetSubItem(Item, 3, ValMem);
+      SetSubItem(Item, 4, ValState);
+      SetSubItem(Item, 5, ValUser);
+      
+      // Mark as alive in this cycle
+      Item.Data := Pointer(1);
+    end;
+    
+    // Delete any items that were not found in this cycle
+    for I := FTasksListView.Items.Count - 1 downto 0 do
+    begin
+      Item := FTasksListView.Items[I];
+      if Item.Data = nil then
+        Item.Delete
+      else
+        Item.Data := nil; // Reset for next refresh
     end;
   finally
-    FTasksListView.Items.EndUpdate;
+    //FTasksListView.Items.EndUpdate;
   end;
 end;
 
@@ -453,5 +475,13 @@ begin
     FRawMemo.Lines.EndUpdate;
   end;
 end;
+
+initialization
+  RegisterClass(TAICPU);
+  RegisterClass(TAIMemory);
+  RegisterClass(TAIGPU);
+  RegisterClass(TAIDisk);
+  RegisterClass(TAIOS);
+  RegisterClass(TAITasks);
 
 end.
