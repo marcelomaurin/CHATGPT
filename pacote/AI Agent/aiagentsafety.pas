@@ -67,7 +67,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('AI Agents', [TAIAgentSafety]);
+  RegisterComponents('AI AGENTS', [TAIAgentSafety]);
 end;
 
 { TAIAgentSafety }

@@ -1,6 +1,6 @@
-# 🤖 Documentação da Aba AI Agent
+# 🤖 Documentação da Aba AI AGENTS
 
-Esta pasta contém os componentes do Lazarus sob a aba **AI Agent**, voltados à criação de agentes de IA, orquestração multiagente, tomada de decisão, auditoria de contexto, mapa de memória, controle de segurança e integração com ações externas controladas.
+Esta pasta contém os componentes do Lazarus sob a aba **AI AGENTS**, voltados à criação de agentes de IA, orquestração multiagente, tomada de decisão, auditoria de contexto, mapa de memória, controle de segurança e integração com ações externas controladas.
 
 > **Nota de maturidade:** Os componentes de agentes e orquestração estão em evolução. Alguns recursos são voltados à auditoria, simulação, estruturação de decisões e integração controlada com ações externas. Antes de uso em produção, valide permissões, segurança, persistência, logs e integração com provedores LLM.
 
@@ -141,7 +141,7 @@ Esta pasta contém os componentes do Lazarus sob a aba **AI Agent**, voltados à
 
 ### TAICustomAgent
 
-**Função:** Classe base para agentes especializados do pacote AI Agent. Centraliza integração com `TCHATGPT`, prompt de sistema, mapa de memória, auditoria de etapas, confiança mínima e eventos comuns do ciclo de execução.
+**Função:** Classe base para agentes especializados do pacote AI AGENTS. Centraliza integração com `TCHATGPT`, prompt de sistema, mapa de memória, auditoria de etapas, confiança mínima e eventos comuns do ciclo de execução.
 
 É a base usada por agentes como `TAIClassifierAgent`, `TAIDecisionAgent` e `TAIActionBuilderAgent`.
 

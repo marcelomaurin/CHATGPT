@@ -1,6 +1,6 @@
-# 🤖 AI Agent Tab Documentation
+# 🤖 AI AGENTS Tab Documentation
 
-This directory contains the complete suite of Lazarus components under the **AI Agent** tab, focusing on cognitive orchestration, autonomous AI decision making, and hardware/pipeline integrations.
+This directory contains the complete suite of Lazarus components under the **AI AGENTS** tab, focusing on cognitive orchestration, autonomous AI decision making, and hardware/pipeline integrations.
 
 ---
 
@@ -265,7 +265,7 @@ This directory contains the complete suite of Lazarus components under the **AI 
   - `Mode: TAIPipelineMode` - Workflow mode (pmTextLLM, pmNumericML, pmAgentAction, pmDocumentGeneration, pmIndustrialMonitor, pmGraphMapClassification).
   - `ChatGPT: TCHATGPT` - Linked ChatGPT component.
   - `NeuralNetwork: TNeuralNetwork` - Linked local MLP Neural Network.
-  - `Agent: TAIAgent` - Linked AI Agent.
+  - `Agent: TAIAgent` - Linked AI AGENTS.
   - `InputData: TAIInputData` - Linked data input.
   - `OutputData: TAIOutputData` - Linked data output.
   - `OutputDocs: TAIOutputDocs` - Linked document output.
@@ -278,7 +278,7 @@ This directory contains the complete suite of Lazarus components under the **AI 
   - `Run: Boolean` - Triggers the pipeline execution.
   - `RunText(const AText: string): string` - Text model processing.
   - `RunNumeric: Boolean` - Local MLP Neural Network calculation.
-  - `RunAgent(const AInput: string): Boolean` - Runs AI Agent decisions.
+  - `RunAgent(const AInput: string): Boolean` - Runs AI AGENTS decisions.
 
 ---
 

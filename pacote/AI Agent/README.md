@@ -1,4 +1,4 @@
-# 🤖 Lazarus AI Suite — Tab: `AI Agent`
+# 🤖 Lazarus AI Suite — Tab: `AI AGENTS`
 
 > [!NOTE]
 > Autonomous cognitive execution models and hardware pipelines.
@@ -21,4 +21,4 @@ Please select your preferred language for the component reference manual:
 ---
 
 ### ⚡ AI and Hardware Integration
-Each component in this folder features a published `Prompt` property that documents its API structure to automatically guide AI Agents (`TAIAgent`) in runtime.
+Each component in this folder features a published `Prompt` property that documents its API structure to automatically guide AI AGENTS (`TAIAgent`) in runtime.

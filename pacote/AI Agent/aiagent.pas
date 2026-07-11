@@ -266,7 +266,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('AI Agents', [TAIAgent, TAIAgentOptions, TAIAgentAction, TAIAgentResource, TAIAgentOutput]);
+  RegisterComponents('AI AGENTS', [TAIAgent, TAIAgentOptions, TAIAgentAction, TAIAgentResource, TAIAgentOutput]);
 end;
 
 { TAIAgentDecision }

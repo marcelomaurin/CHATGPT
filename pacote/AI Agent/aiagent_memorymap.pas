@@ -307,7 +307,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('AI Agents', [TAIAgentMemoryMap]);
+  RegisterComponents('AI AGENTS', [TAIAgentMemoryMap]);
   RegisterClassAlias(TAIAgentMemoryMap, 'TAIMapaDeMemoria');
 end;
 

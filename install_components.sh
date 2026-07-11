@@ -107,7 +107,6 @@ install_all() {
   install_package "pacote/packages/openai_voice.lpk"
   install_package "pacote/packages/openai_industrial.lpk"
   install_package "pacote/packages/openai_graphic.lpk"
-  install_package "pacote/packages/openai_agent.lpk"
   install_package "pacote/packages/openai_simulation.lpk"
   install_package "pacote/packages/openai_files.lpk"
   install_package "pacote/packages/openai_aidbase.lpk"

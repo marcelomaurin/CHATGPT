@@ -96,7 +96,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('AI Agents', [
+  RegisterComponents('AI AGENTS', [
     TAIAgentOrchestrator,
     TAIClassifierAgent,
     TAIDecisionAgent,

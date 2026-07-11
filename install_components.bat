@@ -88,6 +88,7 @@ goto :eof
 
 :install_recommended
 call :install_package "pacote\packages\openai_core.lpk"
+call :install_package "pacote\packages\openai_python.lpk"
 call :install_package "pacote\packages\openai_ml.lpk"
 call :install_package "pacote\packages\openai_graph.lpk"
 call :install_package "pacote\packages\openai_output.lpk"
@@ -100,21 +101,9 @@ call :install_package "pacote\packages\openai_project.lpk"
 goto :eof
 
 :install_all
-call :install_package "pacote\packages\openai_core.lpk"
-call :install_package "pacote\packages\openai_ml.lpk"
-call :install_package "pacote\packages\openai_graph.lpk"
-call :install_package "pacote\packages\openai_output.lpk"
-call :install_package "pacote\packages\openai_input.lpk"
-call :install_package "pacote\packages\openai_vision.lpk"
-call :install_package "pacote\packages\openai_image.lpk"
-call :install_package "pacote\packages\openai_voice.lpk"
-call :install_package "pacote\packages\openai_industrial.lpk"
-call :install_package "pacote\packages\openai_graphic.lpk"
-call :install_package "pacote\packages\openai_agent.lpk"
-call :install_package "pacote\packages\openai_simulation.lpk"
-call :install_package "pacote\packages\openai_files.lpk"
-call :install_package "pacote\packages\openai_aidbase.lpk"
-call :install_package "pacote\packages\openai_project.lpk"
+for /f "delims=" %%P in ('dir /b /on "%ROOT_DIR%pacote\packages\openai_*.lpk"') do (
+  call :install_package "pacote\packages\%%P"
+)
 goto :eof
 
 :install_package

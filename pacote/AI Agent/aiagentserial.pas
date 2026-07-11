@@ -82,7 +82,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('AI Agent', [TAIAgentSerial]);
+  RegisterComponents('AI AGENTS', [TAIAgentSerial]);
 end;
 
 constructor TAIAgentSerial.Create(AOwner: TComponent);
