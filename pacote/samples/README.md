@@ -151,6 +151,12 @@ Os exemplos a seguir são projetos visuais prontos para compilação e execuçã
 | **[word_object_demo](AI Output/word_object_demo/)** | `pacote/samples/AI Output/word_object_demo` | Manipulação real e edição estruturada de arquivos DOCX via OpenXML. |
 | **[word_viewer_demo](AI Output/word_viewer_demo/)** | `pacote/samples/AI Output/word_viewer_demo` | Visualizador nativo e renderizador de documentos DOCX dentro de formulários Lazarus. |
 
+### 📦 AI Hardware
+
+| Exemplo | Caminho | Descrição |
+|---|---|---|
+| **[hardware_system_manager_demo](AI Hardware/hardware_system_manager_demo/)**<br><br>![hardware_system_manager_demo](../../screenshots/hardware_system_manager_demo.jpg) | `pacote/samples/AI Hardware/hardware_system_manager_demo` | Painel visual de CPU, memória, GPU, discos, sistema operacional, tarefas e inventário de hardware. |
+
 ### 📦 AI Project
 
 | Exemplo | Caminho | Descrição |
