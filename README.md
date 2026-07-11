@@ -341,7 +341,7 @@ Demonstração do fluxo clássico do orquestrador de agentes cognitivos.
 
 ### AI Hardware System Manager Demo
 
-![AI Hardware System Manager Demo](screenshots/hardware_system_manager+demo.jpg)
+![AI Hardware System Manager Demo](screenshots/hardware_system_manager_demo.jpg)
 
 Demonstração do painel visual do gerenciador de sistema e hardware (CPU, Memória, Discos, Processos, GPU, etc.).
 
