@@ -93,6 +93,10 @@
         <UnitName Value="aiprinter_transport_file"/>
       </Item>
       <Item>
+        <Filename Value="..\AI Output\aiprinter_transport_spooler.pas"/>
+        <UnitName Value="aiprinter_transport_spooler"/>
+      </Item>
+      <Item>
         <Filename Value="..\AI Output\aiprinter_language_base.pas"/>
         <UnitName Value="aiprinter_language_base"/>
       </Item>

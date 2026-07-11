@@ -54,17 +54,26 @@ end;
 function TAIPrinterFileTransport.Open: Boolean;
 var
   Dir: string;
+  IsDevice: Boolean;
 begin
   Result := False;
   FLastError := '';
   Close;
   
   try
-    Dir := ExtractFileDir(FFilePath);
-    if (Dir <> '') and not DirectoryExists(Dir) then
-      ForceDirectories(Dir);
+    IsDevice := (Pos('/dev/', FFilePath) = 1) or (Pos('\\.\', FFilePath) = 1);
+    if not IsDevice then
+    begin
+      Dir := ExtractFileDir(FFilePath);
+      if (Dir <> '') and not DirectoryExists(Dir) then
+        ForceDirectories(Dir);
+    end;
       
-    FFileStream := TFileStream.Create(FFilePath, fmCreate or fmOpenWrite);
+    if FileExists(FFilePath) then
+      FFileStream := TFileStream.Create(FFilePath, fmOpenWrite or fmShareDenyNone)
+    else
+      FFileStream := TFileStream.Create(FFilePath, fmCreate);
+      
     FIsOpen := True;
     Result := True;
   except

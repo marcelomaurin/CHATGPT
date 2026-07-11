@@ -15,17 +15,6 @@ type
     plEpl
   );
 
-  TAIPosProtocol = (
-    ppEscPos,
-    ppEscBema,
-    ppEscDaruma,
-    ppStarLine,
-    ppZPL,
-    ppEPL,
-    ppTexto,
-    ppNativo
-  );
-
   TAIPosModel = (
     pmGenerico,
     pmElginI9,
@@ -52,7 +41,8 @@ type
   TPrinterTransportKind = (
     ptSerial,
     ptTcp9100,
-    ptFile
+    ptFile,
+    ptPrinterRaw
   );
 
   TPrinterEncoding = (

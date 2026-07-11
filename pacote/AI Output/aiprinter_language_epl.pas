@@ -14,6 +14,9 @@ type
   private
     FYPos: Integer;
     FAlign: TTextAlign;
+    FLabelWidthDots: Integer;
+    FLabelHeightDots: Integer;
+    FGapDots: Integer;
   public
     constructor Create; override;
     
@@ -31,6 +34,10 @@ type
     function BeginLabel: TBytes; override;
     function EndLabel: TBytes; override;
     function PrintLabel(ACopies: Integer = 1): TBytes; override;
+    
+    property LabelWidthDots: Integer read FLabelWidthDots write FLabelWidthDots;
+    property LabelHeightDots: Integer read FLabelHeightDots write FLabelHeightDots;
+    property GapDots: Integer read FGapDots write FGapDots;
   end;
 
 function EscapeEplString(const S: string): string;
@@ -51,6 +58,9 @@ begin
   inherited Create;
   FYPos := 10;
   FAlign := taLeft;
+  FLabelWidthDots := 800;  // 100mm default at 203 dpi
+  FLabelHeightDots := 400; // 50mm default
+  FGapDots := 16;          // 2mm default
 end;
 
 const
@@ -68,13 +78,13 @@ begin
   SetLength(Result, 0);
 end;
 
+// Helper to construct TBytes from string in UTF-8
 function TAIEplLanguage.TextLine(const S: string): TBytes;
 var
   Escaped: string;
   Cmd: string;
 begin
   Escaped := EscapeEplString(S);
-  // EPL command: A x, y, rotation, font, horiz_mult, vert_mult, reverse, "data"
   Cmd := Format('A10,%d,0,4,1,1,N,"%s"' + LF, [FYPos, Escaped]);
   Result := TEncoding.UTF8.GetBytes(Cmd);
   Inc(FYPos, 30);
@@ -105,11 +115,19 @@ function TAIEplLanguage.Barcode1D(const ACode: string; H, R, I: Byte; ASymbology
 var
   Cmd: string;
   HriPrint: string;
+  TypeStr: string;
 begin
+  case ASymbology of
+    bsEan13:   TypeStr := 'E30';
+    bsEan8:    TypeStr := 'E80';
+    bsCode39:  TypeStr := '3';
+    bsCode128: TypeStr := '1';
+    bsItf:     TypeStr := '2';
+    bsCodabar: TypeStr := 'K';
+  else         TypeStr := '1';
+  end;
   if I = 0 then HriPrint := 'N' else HriPrint := 'B';
-  // EPL barcode: B x, y, rotation, barcode_type, narrow, wide, height, readable, "code"
-  // barcode_type '3' = Code 39, '1' = Code 128
-  Cmd := Format('B10,%d,0,3,%d,%d,%d,%s,"%s"' + LF, [FYPos, R, R * 2, H, HriPrint, ACode]);
+  Cmd := Format('B10,%d,0,"%s",%d,%d,%d,%s,"%s"' + LF, [FYPos, TypeStr, R, R * 2, H, HriPrint, ACode]);
   Result := TEncoding.UTF8.GetBytes(Cmd);
   Inc(FYPos, H + 20);
 end;
@@ -118,21 +136,26 @@ function TAIEplLanguage.QRCode(const ACode: string; ASize: Byte): TBytes;
 var
   Cmd: string;
 begin
-  // EPL2 QR Code is experimental: b x, y, Q, [parameters], "data"
-  Cmd := Format('b10,%d,Q,m2,g3,s%d,"%s"   [EXPERIMENTAL]' + LF, [FYPos, ASize, ACode]);
+  Cmd := Format('b10,%d,Q,m2,s%d,"%s"' + LF, [FYPos, ASize, ACode]);
   Result := TEncoding.UTF8.GetBytes(Cmd);
   Inc(FYPos, 120);
 end;
 
 function TAIEplLanguage.BeginLabel: TBytes;
+var
+  Cmd: string;
 begin
   FYPos := 10;
-  Result := TEncoding.UTF8.GetBytes(CR + LF + 'N' + LF);
+  Cmd := CR + LF +
+         Format('q%d' + LF, [FLabelWidthDots]) +
+         Format('Q%d,%d' + LF, [FLabelHeightDots, FGapDots]) +
+         'N' + LF;
+  Result := TEncoding.UTF8.GetBytes(Cmd);
 end;
 
 function TAIEplLanguage.EndLabel: TBytes;
 begin
-  SetLength(Result, 0); // EPL does not have a suffix, just Pn command
+  SetLength(Result, 0);
 end;
 
 function TAIEplLanguage.PrintLabel(ACopies: Integer): TBytes;

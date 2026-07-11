@@ -5,13 +5,8 @@
     <PathDelim Value="\"/>
     <General>
       <SessionStorage Value="InProjectDir"/>
-      <Title Value="posprinter_demo"/>
-      <Scaled Value="True"/>
+      <Title Value="test_openai_output"/>
       <ResourceType Value="res"/>
-      <UseXPManifest Value="True"/>
-      <XPManifest>
-        <DpiAware Value="True"/>
-      </XPManifest>
     </General>
     <BuildModes>
       <Item Name="Default" Default="True"/>
@@ -28,23 +23,20 @@
         <PackageName Value="openai_output"/>
       </Item>
       <Item>
-        <PackageName Value="openai_hardware"/>
+        <PackageName Value="LCL"/>
       </Item>
       <Item>
-        <PackageName Value="LCL"/>
+        <PackageName Value="FPCUnitTestRunner"/>
       </Item>
     </RequiredPackages>
     <Units>
       <Unit>
-        <Filename Value="posprinter_demo.lpr"/>
+        <Filename Value="test_openai_output.lpr"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="main.pas"/>
+        <Filename Value="test_languages.pas"/>
         <IsPartOfProject Value="True"/>
-        <ComponentName Value="frmMain"/>
-        <HasResources Value="True"/>
-        <ResourceBaseClass Value="Form"/>
       </Unit>
     </Units>
   </ProjectOptions>
@@ -52,11 +44,11 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="posprinter_demo"/>
+      <Filename Value="test_openai_output"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\..\..;..\..\..\AI;..\..\..\AI Agent;..\..\..\AI Voice;..\..\..\AI Filtros Sonoros;..\..\..\AI Image;..\..\..\AI Schedule;..\..\..\AI Math;..\..\..\AI Input;..\..\..\AI Output;..\..\..\AI Graph;..\..\..\AI Graphic;..\..\..\AI Vision;..\..\..\packages"/>
+      <OtherUnitFiles Value="..;..\AI;..\AI Output;..\packages"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>

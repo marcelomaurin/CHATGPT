@@ -18,10 +18,14 @@ type
     FSerialHandle: TSerialHandle;
     FLastError: string;
     FIsOpen: Boolean;
+    FDataBits: Integer;
+    FParity: TParityType;
+    FStopBits: Integer;
   public
     constructor Create(const ADeviceName: string; ABaudRate: Integer);
     destructor Destroy; override;
     
+    // ...
     function Open: Boolean;
     procedure Close;
     function WriteAll(const ABytes: TBytes): Boolean;
@@ -29,6 +33,10 @@ type
     function LastError: string;
     procedure SetTimeoutMs(AValue: Integer);
     function GetTimeoutMs: Integer;
+    
+    property DataBits: Integer read FDataBits write FDataBits;
+    property Parity: TParityType read FParity write FParity;
+    property StopBits: Integer read FStopBits write FStopBits;
   end;
 
 implementation
@@ -44,6 +52,9 @@ begin
   FSerialHandle := 0;
   FLastError := '';
   FIsOpen := False;
+  FDataBits := 8;
+  FParity := NoneParity;
+  FStopBits := 1;
 end;
 
 destructor TAIPrinterSerialTransport.Destroy;
@@ -61,7 +72,7 @@ begin
   FSerialHandle := SerOpen(FDeviceName);
   if FSerialHandle <> 0 then
   begin
-    SerSetParams(FSerialHandle, FBaudRate, 8, NoneParity, 1, []);
+    SerSetParams(FSerialHandle, FBaudRate, FDataBits, FParity, FStopBits, []);
     FIsOpen := True;
     Result := True;
   end

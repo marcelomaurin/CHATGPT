@@ -92,14 +92,14 @@ function TAITsplLanguage.TextLine(const S: string): TBytes;
 var
   Escaped: string;
   XPos: Integer;
-  Cmd: string;
+  CmdPrefix, CmdSuffix: string;
   CharWidthDot: Integer;
   TextWidthDot: Integer;
+  BB: TAIByteBuilder;
 begin
   Escaped := EscapeTsplString(S);
   
-  // Basic layout coordinate calculation based on alignment
-  CharWidthDot := 16; // Font "4" character width is ~16 dots
+  CharWidthDot := 16;
   TextWidthDot := Length(S) * CharWidthDot;
   XPos := 10;
   
@@ -116,9 +116,19 @@ begin
     end;
   end;
   
-  // TSPL command: TEXT x, y, "font", rotation, x-mult, y-mult, "text"
-  Cmd := Format('TEXT %d,%d,"4",0,1,1,"%s"' + LF, [XPos, FYPos, Escaped]);
-  Result := TEncoding.UTF8.GetBytes(Cmd);
+  CmdPrefix := Format('TEXT %d,%d,"4",0,1,1,"', [XPos, FYPos]);
+  CmdSuffix := '"' + LF;
+  
+  BB := TAIByteBuilder.Create;
+  try
+    BB.AddTextEncoded(CmdPrefix, FEncoding);
+    BB.AddTextEncoded(Escaped, FEncoding);
+    BB.AddTextEncoded(CmdSuffix, FEncoding);
+    Result := BB.ToBytes;
+  finally
+    BB.Free;
+  end;
+  
   Inc(FYPos, 30);
 end;
 
@@ -177,15 +187,33 @@ end;
 function TAITsplLanguage.BeginLabel: TBytes;
 var
   Cmd: string;
+  CpStr: string;
+  BB: TAIByteBuilder;
 begin
   FYPos := 10;
-  Cmd := Format('SIZE %d mm,%d mm' + LF +
-                'GAP %d mm,0' + LF +
-                'DIRECTION %d' + LF +
-                'DENSITY %d' + LF +
-                'SPEED %d' + LF +
-                'CLS' + LF, [FLabelWidthMM, FLabelHeightMM, FGapMM, FDirection, FDensity, FSpeed]);
-  Result := TEncoding.UTF8.GetBytes(Cmd);
+  case FEncoding of
+    peCP437:       CpStr := '437';
+    peCP850:       CpStr := '850';
+    peWindows1252: CpStr := '1252';
+    peUTF8:        CpStr := 'UTF-8';
+  else             CpStr := '1252';
+  end;
+
+  Cmd := Format('SIZE %d mm,%d mm' + LF, [FLabelWidthMM, FLabelHeightMM]) +
+         Format('GAP %d mm,0' + LF, [FGapMM]) +
+         Format('DENSITY %d' + LF, [FDensity]) +
+         Format('SPEED %d' + LF, [FSpeed]) +
+         Format('DIRECTION %d' + LF, [FDirection]) +
+         Format('CODEPAGE %s' + LF, [CpStr]) +
+         'CLS' + LF;
+
+  BB := TAIByteBuilder.Create;
+  try
+    BB.AddTextEncoded(Cmd, FEncoding);
+    Result := BB.ToBytes;
+  finally
+    BB.Free;
+  end;
 end;
 
 function TAITsplLanguage.EndLabel: TBytes;

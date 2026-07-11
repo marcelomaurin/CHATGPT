@@ -11,7 +11,7 @@ uses
   aioutput, aioutput_docs, aiwordtypes, aiwordunits, aiwordpackage, aiwordxml, 
   aiwordrelationships, aiwordstyles, aiwordobjects, aiworddocument, aiwordviewer, 
   aiprinter_types, aiprinter_bytebuilder, aiprinter_profile, aiprinter_transport, 
-  aiprinter_transport_tcp, aiprinter_transport_serial, aiprinter_transport_file, 
+  aiprinter_transport_tcp, aiprinter_transport_serial, aiprinter_transport_file, aiprinter_transport_spooler,
   aiprinter_language_base, aiprinter_language_escpos, aiprinter_language_zpl, 
   aiprinter_language_tspl, aiprinter_language_epl, 
   LazarusPackageIntf;

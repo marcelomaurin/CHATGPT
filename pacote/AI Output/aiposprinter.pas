@@ -13,6 +13,7 @@ uses
   aiprinter_transport_tcp,
   aiprinter_transport_serial,
   aiprinter_transport_file,
+  aiprinter_transport_spooler,
   aiprinter_language_base,
   aiprinter_language_escpos,
   aiprinter_language_zpl,
@@ -20,9 +21,7 @@ uses
   aiprinter_language_epl;
 
 type
-  // Legacy aliases for backward compatibility
-  TPrinterInterface = (piSerial, piEthernet);
-  TPrinterProtocol = (ppEscPos, ppNative, ppEpl, ppZpl, ppTspl, ppNativo) deprecated;
+
 
   { TAIPOSPrinter }
 
@@ -63,11 +62,10 @@ type
     FPageLines: TStringList;
     FLastBytesSent: Integer;
     FLastCommandHex: string;
+    FLabelPrinted: Boolean;
+    FProfile: TAIPrinterProfile;
     
-    // Compatibility backing fields
-    FInterfaceType: TPrinterInterface;
-    FPrinterModelLegacy: Integer; // pmElginI9, etc.
-    FProtocolLegacy: TPrinterProtocol;
+
 
     procedure SetActive(AValue: Boolean);
     procedure SetPrinterModelName(const AValue: string);
@@ -79,6 +77,15 @@ type
     
     procedure InitLanguageEngine;
     procedure InitTransport;
+    function IsLabelLanguage: Boolean;
+    
+    function GetColumns: Integer;
+    function GetDpi: Integer;
+    function GetSupportsCut: Boolean;
+    function GetSupportsDrawer: Boolean;
+    function GetSupportsBeep: Boolean;
+    function GetSupportsLabel: Boolean;
+    function GetSupportsReceipt: Boolean;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -108,7 +115,7 @@ type
     
     // Actions
     function CutPaper: Boolean;
-    function PrintLabel: Boolean;
+    function PrintLabel(ACopies: Integer = 1): Boolean;
     function OpenDrawer: Boolean;
     function PrintBarcode(const ACode: string; H: Byte = 80; R: Byte = 3; I: Byte = 2): Boolean;
     function PrintQRCode(const ACode: string): Boolean;
@@ -122,6 +129,14 @@ type
     property ActiveTransport: IAIPrinterTransport read FTransport;
     property ActiveLanguageEngine: TAIPrinterLanguageBase read FLanguageEngine;
     property PageLines: TStringList read FPageLines;
+    
+    property Columns: Integer read GetColumns;
+    property Dpi: Integer read GetDpi;
+    property SupportsCut: Boolean read GetSupportsCut;
+    property SupportsDrawer: Boolean read GetSupportsDrawer;
+    property SupportsBeep: Boolean read GetSupportsBeep;
+    property SupportsLabel: Boolean read GetSupportsLabel;
+    property SupportsReceipt: Boolean read GetSupportsReceipt;
   published
     property Prompt: string read FPrompt write FPrompt;
     
@@ -153,9 +168,7 @@ type
     property Speed: Integer read FSpeed write FSpeed default 4;
     property Direction: Integer read FDirection write FDirection default 0;
     
-    // Legacy properties for backwards compatibility
-    property InterfaceType: TPrinterInterface read FInterfaceType write FInterfaceType default piSerial;
-    property Protocol: TPrinterProtocol read FProtocolLegacy write FProtocolLegacy default ppEscPos; deprecated;
+
   end;
 
 procedure Register;
@@ -166,7 +179,7 @@ uses Printers;
 
 procedure Register;
 begin
-  RegisterComponents('AI Communication', [TAIPOSPrinter]);
+  RegisterComponents('AI Output', [TAIPOSPrinter]);
 end;
 
 { TAIPOSPrinter }
@@ -206,6 +219,8 @@ begin
   
   FLastBytesSent := 0;
   FLastCommandHex := '';
+  FLabelPrinted := False;
+  FProfile := TAIPrinterProfile.GetProfile(FPrinterModelName);
   
   InitLanguageEngine;
 end;
@@ -215,10 +230,13 @@ begin
   CloseConnection;
   if Assigned(FLanguageEngine) then
     FLanguageEngine.Free;
+  if Assigned(FProfile) then
+    FProfile.Free;
   FJobBuilder.Free;
   FPageLines.Free;
   inherited Destroy;
 end;
+
 
 procedure TAIPOSPrinter.InitLanguageEngine;
 begin
@@ -251,6 +269,12 @@ begin
       TAITsplLanguage(FLanguageEngine).Density := FDensity;
       TAITsplLanguage(FLanguageEngine).Speed := FSpeed;
       TAITsplLanguage(FLanguageEngine).Direction := FDirection;
+    end
+    else if FLanguageEngine is TAIEplLanguage then
+    begin
+      TAIEplLanguage(FLanguageEngine).LabelWidthDots := Round(FLabelWidthMM * 8);
+      TAIEplLanguage(FLanguageEngine).LabelHeightDots := Round(FLabelHeightMM * 8);
+      TAIEplLanguage(FLanguageEngine).GapDots := Round(FGapMM * 8);
     end;
   end;
 end;
@@ -261,9 +285,10 @@ begin
   if FRenderMode = rmNativeCanvas then Exit;
   
   case FTransportKind of
-    ptSerial:  FTransport := TAIPrinterSerialTransport.Create(FDeviceName, FSerialBaud);
-    ptTcp9100: FTransport := TAIPrinterTcpTransport.Create(FHost, FPort);
-    ptFile:    FTransport := TAIPrinterFileTransport.Create(ConcatPaths([ExtractFilePath(ParamStr(0)), 'output', 'test_print.bin']));
+    ptSerial:     FTransport := TAIPrinterSerialTransport.Create(FDeviceName, FSerialBaud);
+    ptTcp9100:    FTransport := TAIPrinterTcpTransport.Create(FHost, FPort);
+    ptFile:       FTransport := TAIPrinterFileTransport.Create(FDeviceName);
+    ptPrinterRaw: FTransport := TAIPrinterSpoolerTransport.Create(FDeviceName);
   end;
   
   if Assigned(FTransport) then
@@ -271,24 +296,24 @@ begin
 end;
 
 procedure TAIPOSPrinter.SetPrinterModelName(const AValue: string);
-var
-  Profile: TAIPrinterProfile;
 begin
   if FPrinterModelName = AValue then Exit;
   FPrinterModelName := AValue;
   
-  Profile := TAIPrinterProfile.GetProfile(FPrinterModelName);
-  try
-    // Auto-update capabilities
-    FLabelWidthMM := Profile.PaperWidthMM;
-    if plEscPos in Profile.SupportedLanguages then
+  if Assigned(FProfile) then
+    FreeAndNil(FProfile);
+  
+  FProfile := TAIPrinterProfile.GetProfile(FPrinterModelName);
+  if Assigned(FProfile) then
+  begin
+    if plEscPos in FProfile.SupportedLanguages then
       SetLanguage(plEscPos)
-    else if plZpl in Profile.SupportedLanguages then
+    else if plZpl in FProfile.SupportedLanguages then
       SetLanguage(plZpl)
-    else if plTspl in Profile.SupportedLanguages then
-      SetLanguage(plTspl);
-  finally
-    Profile.Free;
+    else if plTspl in FProfile.SupportedLanguages then
+      SetLanguage(plTspl)
+    else if plEpl in FProfile.SupportedLanguages then
+      SetLanguage(plEpl);
   end;
 end;
 
@@ -379,10 +404,51 @@ begin
   FActive := False;
 end;
 
+function TAIPOSPrinter.IsLabelLanguage: Boolean;
+begin
+  Result := FLanguage in [plZpl, plTspl, plEpl];
+end;
+
+function TAIPOSPrinter.GetColumns: Integer;
+begin
+  if Assigned(FProfile) then Result := FProfile.ColumnsNormal else Result := 48;
+end;
+
+function TAIPOSPrinter.GetDpi: Integer;
+begin
+  if Assigned(FProfile) then Result := FProfile.Dpi else Result := 203;
+end;
+
+function TAIPOSPrinter.GetSupportsCut: Boolean;
+begin
+  if Assigned(FProfile) then Result := FProfile.SupportsCut else Result := True;
+end;
+
+function TAIPOSPrinter.GetSupportsDrawer: Boolean;
+begin
+  if Assigned(FProfile) then Result := FProfile.SupportsDrawer else Result := True;
+end;
+
+function TAIPOSPrinter.GetSupportsBeep: Boolean;
+begin
+  if Assigned(FProfile) then Result := FProfile.SupportsBeep else Result := True;
+end;
+
+function TAIPOSPrinter.GetSupportsLabel: Boolean;
+begin
+  if Assigned(FProfile) then Result := FProfile.SupportsLabel else Result := True;
+end;
+
+function TAIPOSPrinter.GetSupportsReceipt: Boolean;
+begin
+  if Assigned(FProfile) then Result := FProfile.SupportsReceipt else Result := True;
+end;
+
 function TAIPOSPrinter.BeginJob: Boolean;
 begin
   FJobBuilder.Clear;
   FPageLines.Clear;
+  FLabelPrinted := False;
   Result := True;
   
   if FRenderMode = rmRawCommand then
@@ -395,13 +461,20 @@ end;
 function TAIPOSPrinter.EndJob: Boolean;
 begin
   Result := True;
-  if FRenderMode = rmRawCommand then
+  if FRenderMode <> rmRawCommand then Exit;
+  if not Assigned(FLanguageEngine) then Exit;
+
+  if IsLabelLanguage then
   begin
-    if Assigned(FLanguageEngine) then
+    if not FLabelPrinted then
     begin
       FJobBuilder.AddBytes(FLanguageEngine.EndLabel);
+      FJobBuilder.AddBytes(FLanguageEngine.PrintLabel(1));
+      FLabelPrinted := True;
     end;
-  end;
+  end
+  else
+    FJobBuilder.AddBytes(FLanguageEngine.EndLabel);
 end;
 
 function TAIPOSPrinter.PrintJob: Boolean;
@@ -441,9 +514,17 @@ begin
 end;
 
 function TAIPOSPrinter.SendRawString(const AStr: string): Boolean;
+var
+  BB: TAIByteBuilder;
 begin
   if not FActive then Exit(False);
-  Result := SendDocument(TEncoding.UTF8.GetBytes(AStr));
+  BB := TAIByteBuilder.Create;
+  try
+    BB.AddTextEncoded(AStr, FCodePage);
+    Result := SendDocument(BB.ToBytes);
+  finally
+    BB.Free;
+  end;
 end;
 
 function SemAcento(const S: string): string;
@@ -669,21 +750,42 @@ begin
       end;
     end;
   end
-  else if Assigned(FLanguageEngine) then
+  else
   begin
-    FJobBuilder.AddBytes(FLanguageEngine.Cut(True));
-    Result := True;
+    if Assigned(FProfile) and not FProfile.SupportsCut then
+    begin
+      FLastError := FProfile.ModelName + ' não possui guilhotina.';
+      Exit;
+    end;
+    if Assigned(FLanguageEngine) then
+    begin
+      FJobBuilder.AddBytes(FLanguageEngine.Cut(True));
+      Result := True;
+    end;
   end;
 end;
 
-function TAIPOSPrinter.PrintLabel: Boolean;
+function TAIPOSPrinter.PrintLabel(ACopies: Integer): Boolean;
 begin
-  Result := CutPaper;
+  Result := False;
+  if FRenderMode = rmNativeCanvas then
+    Exit(CutPaper);
+  if not Assigned(FLanguageEngine) then Exit;
+  if ACopies < 1 then ACopies := 1;
+  FJobBuilder.AddBytes(FLanguageEngine.EndLabel);
+  FJobBuilder.AddBytes(FLanguageEngine.PrintLabel(ACopies));
+  FLabelPrinted := True;
+  Result := True;
 end;
 
 function TAIPOSPrinter.OpenDrawer: Boolean;
 begin
   Result := False;
+  if Assigned(FProfile) and not FProfile.SupportsDrawer then
+  begin
+    FLastError := FProfile.ModelName + ' não possui gaveta.';
+    Exit;
+  end;
   if FRenderMode = rmNativeCanvas then
     Result := True
   else if Assigned(FLanguageEngine) then
@@ -726,6 +828,11 @@ end;
 function TAIPOSPrinter.Beep: Boolean;
 begin
   Result := False;
+  if Assigned(FProfile) and not FProfile.SupportsBeep then
+  begin
+    FLastError := FProfile.ModelName + ' não possui beep.';
+    Exit;
+  end;
   if FRenderMode = rmNativeCanvas then
     Result := True
   else if Assigned(FLanguageEngine) then
@@ -738,7 +845,6 @@ end;
 function TAIPOSPrinter.SendDocument(const ABytes: TBytes): Boolean;
 begin
   Result := False;
-  FLastError := '';
   FLastBytesSent := Length(ABytes);
   FLastCommandHex := BytesToHex(ABytes);
   
@@ -746,10 +852,12 @@ begin
   
   if not FActive or not Assigned(FTransport) then
   begin
-    FLastError := 'Transport connection not active.';
+    if FLastError = '' then
+      FLastError := 'Transporte não conectado.';
     Exit;
   end;
   
+  FLastError := '';
   Result := FTransport.WriteAll(ABytes);
   if not Result then
     FLastError := FTransport.LastError;
@@ -757,16 +865,16 @@ end;
 
 function TAIPOSPrinter.PreviewDocument(const ABytes: TBytes): string;
 var
-  I: Integer;
+  Raw: RawByteString;
 begin
   if FLanguage = plEscPos then
     Result := BytesToHex(ABytes)
   else
   begin
-    // Return textual representation for text-based languages
-    SetLength(Result, Length(ABytes));
+    SetLength(Raw, Length(ABytes));
     if Length(ABytes) > 0 then
-      Move(ABytes[0], Result[1], Length(ABytes));
+      Move(ABytes[0], Raw[1], Length(ABytes));
+    Result := string(Raw);
   end;
 end;
 

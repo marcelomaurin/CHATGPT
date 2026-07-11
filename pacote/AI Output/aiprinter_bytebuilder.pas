@@ -5,7 +5,7 @@ unit aiprinter_bytebuilder;
 interface
 
 uses
-  Classes, SysUtils, aiprinter_types;
+  Classes, SysUtils, LConvEncoding, aiprinter_types;
 
 type
   { TAIByteBuilder }
@@ -21,7 +21,6 @@ type
     
     procedure Clear;
     procedure AddByte(B: Byte);
-    procedure AddBytes(const ABytes: array of Byte);
     procedure AddBytes(const ABytes: TBytes);
     procedure AddAscii(const S: RawByteString);
     procedure AddTextEncoded(const S: string; AEncoding: TPrinterEncoding);
@@ -73,16 +72,6 @@ begin
   Inc(FLength);
 end;
 
-procedure TAIByteBuilder.AddBytes(const ABytes: array of Byte);
-var
-  Len: Integer;
-begin
-  Len := Length(ABytes);
-  if Len = 0 then Exit;
-  EnsureCapacity(FLength + Len);
-  Move(ABytes[0], FBytes[FLength], Len);
-  Inc(FLength, Len);
-end;
 
 procedure TAIByteBuilder.AddBytes(const ABytes: TBytes);
 var
@@ -107,33 +96,17 @@ begin
 end;
 
 procedure TAIByteBuilder.AddTextEncoded(const S: string; AEncoding: TPrinterEncoding);
-var
-  Enc: TEncoding;
-  TempBytes: TBytes;
+var Raw: RawByteString;
 begin
-  if Length(S) = 0 then Exit;
-  Enc := nil;
-  try
-    case AEncoding of
-      peRawAscii:    Enc := TEncoding.ASCII;
-      peCP437:       Enc := TEncoding.GetEncoding(437);
-      peCP850:       Enc := TEncoding.GetEncoding(850);
-      peWindows1252: Enc := TEncoding.GetEncoding(1252);
-      peUTF8:        Enc := TEncoding.UTF8;
-    end;
-    if Assigned(Enc) then
-    begin
-      TempBytes := Enc.GetBytes(S);
-      AddBytes(TempBytes);
-    end
-    else
-    begin
-      // Fallback
-      AddAscii(RawByteString(S));
-    end;
-  finally
-    // Standard system encodings should not be freed as they are managed globally
+  if S = '' then Exit;
+  case AEncoding of
+    peCP437:       Raw := UTF8ToCP437(S);
+    peCP850:       Raw := UTF8ToCP850(S);
+    peWindows1252: Raw := UTF8ToCP1252(S);
+    peUTF8:        Raw := S;
+  else             Raw := RawByteString(S);   // peRawAscii
   end;
+  AddAscii(Raw);
 end;
 
 function TAIByteBuilder.ToBytes: TBytes;
@@ -149,12 +122,20 @@ end;
 function BytesToHex(const ABytes: TBytes): string;
 var
   I: Integer;
+  SB: TStringBuilder;
 begin
   Result := '';
-  for I := 0 to Length(ABytes) - 1 do
-  begin
-    if Result <> '' then Result := Result + ' ';
-    Result := Result + Format('$%02X', [ABytes[I]]);
+  if Length(ABytes) = 0 then Exit;
+  SB := TStringBuilder.Create(Length(ABytes) * 4);
+  try
+    for I := 0 to Length(ABytes) - 1 do
+    begin
+      if I > 0 then SB.Append(' ');
+      SB.Append(Format('$%02X', [ABytes[I]]));
+    end;
+    Result := SB.ToString;
+  finally
+    SB.Free;
   end;
 end;
 
