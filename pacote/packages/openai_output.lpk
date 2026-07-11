@@ -65,20 +65,52 @@
         <UnitName Value="aiwordviewer"/>
       </Item>
       <Item>
-        <Filename Value="..\AI Output\imp_generico.pas"/>
-        <UnitName Value="imp_generico"/>
+        <Filename Value="..\AI Output\aiprinter_types.pas"/>
+        <UnitName Value="aiprinter_types"/>
       </Item>
       <Item>
-        <Filename Value="..\AI Output\imp_elgini9.pas"/>
-        <UnitName Value="imp_elgini9"/>
+        <Filename Value="..\AI Output\aiprinter_bytebuilder.pas"/>
+        <UnitName Value="aiprinter_bytebuilder"/>
       </Item>
       <Item>
-        <Filename Value="..\AI Output\imp_qr203.pas"/>
-        <UnitName Value="imp_qr203"/>
+        <Filename Value="..\AI Output\aiprinter_profile.pas"/>
+        <UnitName Value="aiprinter_profile"/>
       </Item>
       <Item>
-        <Filename Value="..\AI Output\imp_elginl42dt.pas"/>
-        <UnitName Value="imp_elginl42dt"/>
+        <Filename Value="..\AI Output\aiprinter_transport.pas"/>
+        <UnitName Value="aiprinter_transport"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Output\aiprinter_transport_tcp.pas"/>
+        <UnitName Value="aiprinter_transport_tcp"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Output\aiprinter_transport_serial.pas"/>
+        <UnitName Value="aiprinter_transport_serial"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Output\aiprinter_transport_file.pas"/>
+        <UnitName Value="aiprinter_transport_file"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Output\aiprinter_language_base.pas"/>
+        <UnitName Value="aiprinter_language_base"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Output\aiprinter_language_escpos.pas"/>
+        <UnitName Value="aiprinter_language_escpos"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Output\aiprinter_language_zpl.pas"/>
+        <UnitName Value="aiprinter_language_zpl"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Output\aiprinter_language_tspl.pas"/>
+        <UnitName Value="aiprinter_language_tspl"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Output\aiprinter_language_epl.pas"/>
+        <UnitName Value="aiprinter_language_epl"/>
       </Item>
       <Item>
         <Filename Value="..\AI Output\aiposprinter.pas"/>

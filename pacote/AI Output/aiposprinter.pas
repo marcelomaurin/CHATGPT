@@ -5,58 +5,92 @@ unit aiposprinter;
 interface
 
 uses
-  Classes, SysUtils, serial, sockets,
-  {$IFDEF WIN32}
-  winsock2
-  {$ELSE}
-    {$IFDEF WIN64}
-    winsock2
-    {$ELSE}
-    netdb
-    {$ENDIF}
-  {$ENDIF}
-  , LResources, imp_generico, imp_elgini9, imp_qr203, imp_elginl42dt;
+  Classes, SysUtils, LResources,
+  aiprinter_types,
+  aiprinter_bytebuilder,
+  aiprinter_profile,
+  aiprinter_transport,
+  aiprinter_transport_tcp,
+  aiprinter_transport_serial,
+  aiprinter_transport_file,
+  aiprinter_language_base,
+  aiprinter_language_escpos,
+  aiprinter_language_zpl,
+  aiprinter_language_tspl,
+  aiprinter_language_epl;
 
 type
+  // Legacy aliases for backward compatibility
   TPrinterInterface = (piSerial, piEthernet);
-  TPrinterModel = (pmElginI9, pmQR203, pmElginL42DT);
+  TPrinterProtocol = (ppEscPos, ppNative, ppEpl, ppZpl, ppTspl) deprecated;
 
   { TAIPOSPrinter }
 
   TAIPOSPrinter = class(TComponent)
   private
     FPrompt: string;
-    FInterfaceType: TPrinterInterface;
-    FPrinterModel: TPrinterModel;
-    FDeviceName: string; // e.g., 'COM1' or '/dev/ttyUSB0' for Serial
-    FHost: string;       // e.g., '192.168.1.100' for Ethernet
-    FPort: Integer;      // default 9100 for raw socket
+    
+    // Core parameters
+    FPrinterModelName: string;
+    FLanguage: TPrinterLanguage;
+    FRenderMode: TPrinterRenderMode;
+    FTransportKind: TPrinterTransportKind;
+    FCodePage: TPrinterEncoding;
+    
+    // Connectivity
+    FDeviceName: string; // e.g. COM1
+    FHost: string;       // e.g. 192.168.1.100
+    FPort: Integer;      // e.g. 9100
     FSerialBaud: Integer;
-    FSerialHandle: TSerialHandle;
-    FSocket: TSocket;
+    FTimeoutMs: Integer;
     FActive: Boolean;
     FLastError: string;
-    FDriver: TIMP_GENERICO;
-    FProtocol: TPrinterProtocol;
-    FPageLines: TStringList;
     
+    // Label settings
+    FLabelWidthMM: Integer;
+    FLabelHeightMM: Integer;
+    FGapMM: Integer;
+    FDensity: Integer;
+    FSpeed: Integer;
+    FDirection: Integer;
+    
+    // Internals
+    FTransport: IAIPrinterTransport;
+    FLanguageEngine: TAIPrinterLanguageBase;
+    FJobBuilder: TAIByteBuilder;
+    FPageLines: TStringList;
+    FLastBytesSent: Integer;
+    FLastCommandHex: string;
+    
+    // Compatibility backing fields
+    FInterfaceType: TPrinterInterface;
+    FPrinterModelLegacy: Integer; // pmElginI9, etc.
+    FProtocolLegacy: TPrinterProtocol;
+
     procedure SetActive(AValue: Boolean);
-    procedure SetPrinterModel(AValue: TPrinterModel);
-    procedure SetProtocol(AValue: TPrinterProtocol);
-    function ResolveHost(const AHost: string; var AAddr): Boolean;
-    procedure InitDriver;
+    procedure SetPrinterModelName(const AValue: string);
+    procedure SetLanguage(AValue: TPrinterLanguage);
+    procedure SetCodePage(AValue: TPrinterEncoding);
+    
+    procedure InitLanguageEngine;
+    procedure InitTransport;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     
+    // Real printing job API
     function OpenConnection: Boolean;
     procedure CloseConnection;
+    
+    function BeginJob: Boolean;
+    function EndJob: Boolean;
+    function PrintJob: Boolean;
+    function CancelJob: Boolean;
+    
     function SendRawBytes(const ABytes: array of Byte): Boolean;
     function SendRawString(const AStr: string): Boolean;
     
-    // Page lines clearing
-    procedure ClearPage;
-    
+    // Sequential text commands
     function PrintText(const AText: string): Boolean;
     function PrintTextLine(const AText: string): Boolean;
     function SetBold(const ABold: Boolean): Boolean;
@@ -66,23 +100,54 @@ type
     function AlignCenter: Boolean;
     function AlignLeft: Boolean;
     function AlignRight: Boolean;
-    // Guilhotina / print trigger
+    
+    // Actions
     function CutPaper: Boolean;
     function OpenDrawer: Boolean;
     function PrintBarcode(const ACode: string; H: Byte = 80; R: Byte = 3; I: Byte = 2): Boolean;
     function PrintQRCode(const ACode: string): Boolean;
     function Beep: Boolean;
+    
+    // Raw transmissions & previews
+    function SendDocument(const ABytes: TBytes): Boolean;
+    function PreviewDocument(const ABytes: TBytes): string;
+    
+    // Properties
+    property ActiveTransport: IAIPrinterTransport read FTransport;
+    property ActiveLanguageEngine: TAIPrinterLanguageBase read FLanguageEngine;
+    property PageLines: TStringList read FPageLines;
   published
     property Prompt: string read FPrompt write FPrompt;
-    property InterfaceType: TPrinterInterface read FInterfaceType write FInterfaceType default piSerial;
-    property PrinterModel: TPrinterModel read FPrinterModel write SetPrinterModel default pmElginI9;
-    property Protocol: TPrinterProtocol read FProtocol write SetProtocol default ppEscPos;
+    
+    // Modern properties
+    property PrinterModelName: string read FPrinterModelName write SetPrinterModelName;
+    property Language: TPrinterLanguage read FLanguage write SetLanguage default plEscPos;
+    property RenderMode: TPrinterRenderMode read FRenderMode write FRenderMode default rmRawCommand;
+    property TransportKind: TPrinterTransportKind read FTransportKind write FTransportKind default ptTcp9100;
+    property CodePage: TPrinterEncoding read FCodePage write SetCodePage default peCP850;
+    
+    // Connectivity
     property DeviceName: string read FDeviceName write FDeviceName;
     property Host: string read FHost write FHost;
     property Port: Integer read FPort write FPort default 9100;
     property SerialBaud: Integer read FSerialBaud write FSerialBaud default 9600;
+    property TimeoutMs: Integer read FTimeoutMs write FTimeoutMs default 5000;
     property Active: Boolean read FActive write SetActive default False;
     property LastError: string read FLastError;
+    property LastBytesSent: Integer read FLastBytesSent;
+    property LastCommandHex: string read FLastCommandHex;
+    
+    // Label settings
+    property LabelWidthMM: Integer read FLabelWidthMM write FLabelWidthMM default 100;
+    property LabelHeightMM: Integer read FLabelHeightMM write FLabelHeightMM default 50;
+    property GapMM: Integer read FGapMM write FGapMM default 2;
+    property Density: Integer read FDensity write FDensity default 8;
+    property Speed: Integer read FSpeed write FSpeed default 4;
+    property Direction: Integer read FDirection write FDirection default 0;
+    
+    // Legacy properties for backwards compatibility
+    property InterfaceType: TPrinterInterface read FInterfaceType write FInterfaceType default piSerial;
+    property Protocol: TPrinterProtocol read FProtocolLegacy write FProtocolLegacy default ppEscPos; deprecated;
   end;
 
 procedure Register;
@@ -101,108 +166,135 @@ end;
 constructor TAIPOSPrinter.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  FPrompt := 'Component TAIPOSPrinter handles ESC/POS receipt printers via serial or ethernet sockets.';
-  FInterfaceType := piSerial;
-  FPrinterModel := pmElginI9;
-  FProtocol := ppEscPos;
-  FPageLines := TStringList.Create;
+  FPrompt := 'TAIPOSPrinter handles ESC/POS, ZPL, TSPL, and EPL printer hardware and OS Native printing.';
+  
+  FPrinterModelName := 'Elgin i9 (80mm)';
+  FLanguage := plEscPos;
+  FRenderMode := rmRawCommand;
+  FTransportKind := ptTcp9100;
+  FCodePage := peCP850;
+  
   FDeviceName := 'COM1';
   FHost := '192.168.1.100';
   FPort := 9100;
   FSerialBaud := 9600;
-  FSerialHandle := 0;
-  FSocket := TSocket(-1);
+  FTimeoutMs := 5000;
   FActive := False;
   FLastError := '';
-  FDriver := nil;
-  InitDriver;
+  
+  FLabelWidthMM := 100;
+  FLabelHeightMM := 50;
+  FGapMM := 2;
+  FDensity := 8;
+  FSpeed := 4;
+  FDirection := 0;
+  
+  FTransport := nil;
+  FLanguageEngine := nil;
+  FJobBuilder := TAIByteBuilder.Create;
+  FPageLines := TStringList.Create;
+  
+  FLastBytesSent := 0;
+  FLastCommandHex := '';
+  
+  InitLanguageEngine;
 end;
 
 destructor TAIPOSPrinter.Destroy;
 begin
   CloseConnection;
-  if Assigned(FDriver) then
-    FDriver.Free;
+  if Assigned(FLanguageEngine) then
+    FLanguageEngine.Free;
+  FJobBuilder.Free;
   FPageLines.Free;
   inherited Destroy;
 end;
 
-procedure TAIPOSPrinter.InitDriver;
+procedure TAIPOSPrinter.InitLanguageEngine;
 begin
-  if Assigned(FDriver) then
+  if Assigned(FLanguageEngine) then
   begin
-    FDriver.Free;
-    FDriver := nil;
+    FreeAndNil(FLanguageEngine);
   end;
-  case FPrinterModel of
-    pmElginI9:      FDriver := TIMP_ELGINI9.Create;
-    pmQR203:        FDriver := TIMP_QR203.Create;
-    pmElginL42DT:   FDriver := TIMP_ELGINL42DT.Create;
+  
+  case FLanguage of
+    plEscPos: FLanguageEngine := TAIEscPosLanguage.Create;
+    plZpl:    FLanguageEngine := TAIZplLanguage.Create;
+    plTspl:   FLanguageEngine := TAITsplLanguage.Create;
+    plEpl:    FLanguageEngine := TAIEplLanguage.Create;
   end;
-  if Assigned(FDriver) then
-    FDriver.Protocol := FProtocol;
+  
+  if Assigned(FLanguageEngine) then
+  begin
+    FLanguageEngine.Encoding := FCodePage;
+    if FLanguageEngine is TAIZplLanguage then
+    begin
+      // ZPL DPI is 203 by default, calculate width/height in pixels
+      TAIZplLanguage(FLanguageEngine).LabelWidthPixels := Round(FLabelWidthMM * 8);
+      TAIZplLanguage(FLanguageEngine).LabelHeightPixels := Round(FLabelHeightMM * 8);
+    end
+    else if FLanguageEngine is TAITsplLanguage then
+    begin
+      TAITsplLanguage(FLanguageEngine).LabelWidthMM := FLabelWidthMM;
+      TAITsplLanguage(FLanguageEngine).LabelHeightMM := FLabelHeightMM;
+      TAITsplLanguage(FLanguageEngine).GapMM := FGapMM;
+      TAITsplLanguage(FLanguageEngine).Density := FDensity;
+      TAITsplLanguage(FLanguageEngine).Speed := FSpeed;
+      TAITsplLanguage(FLanguageEngine).Direction := FDirection;
+    end;
+  end;
 end;
 
-procedure TAIPOSPrinter.SetProtocol(AValue: TPrinterProtocol);
+procedure TAIPOSPrinter.InitTransport;
 begin
-  if FProtocol = AValue then Exit;
-  FProtocol := AValue;
-  if Assigned(FDriver) then
-    FDriver.Protocol := FProtocol;
+  FTransport := nil;
+  if FRenderMode = rmNativeCanvas then Exit;
+  
+  case FTransportKind of
+    ptSerial:  FTransport := TAIPrinterSerialTransport.Create(FDeviceName, FSerialBaud);
+    ptTcp9100: FTransport := TAIPrinterTcpTransport.Create(FHost, FPort);
+    ptFile:    FTransport := TAIPrinterFileTransport.Create(ConcatPaths([ExtractFilePath(ParamStr(0)), 'output', 'test_print.bin']));
+  end;
+  
+  if Assigned(FTransport) then
+    FTransport.SetTimeoutMs(FTimeoutMs);
 end;
 
-procedure TAIPOSPrinter.SetPrinterModel(AValue: TPrinterModel);
-begin
-  if FPrinterModel = AValue then Exit;
-  FPrinterModel := AValue;
-  InitDriver;
-end;
-
-function TAIPOSPrinter.ResolveHost(const AHost: string; var AAddr): Boolean;
+procedure TAIPOSPrinter.SetPrinterModelName(const AValue: string);
 var
-  AddrVal: Cardinal;
-  {$IFDEF WIN32}
-  HostEnt: PHostEnt;
-  {$ELSE}
-    {$IFDEF WIN64}
-    HostEnt: PHostEnt;
-    {$ELSE}
-    HostEnt: THostEntry;
-    {$ENDIF}
-  {$ENDIF}
+  Profile: TAIPrinterProfile;
 begin
-  Result := False;
-  AddrVal := 0;
-  Move(StrToNetAddr(AHost), AddrVal, 4);
-  if AddrVal <> 0 then
-  begin
-    Move(AddrVal, AAddr, 4);
-    Exit(True);
+  if FPrinterModelName = AValue then Exit;
+  FPrinterModelName := AValue;
+  
+  Profile := TAIPrinterProfile.GetProfile(FPrinterModelName);
+  try
+    // Auto-update capabilities
+    FLabelWidthMM := Profile.PaperWidthMM;
+    if plEscPos in Profile.SupportedLanguages then
+      SetLanguage(plEscPos)
+    else if plZpl in Profile.SupportedLanguages then
+      SetLanguage(plZpl)
+    else if plTspl in Profile.SupportedLanguages then
+      SetLanguage(plTspl);
+  finally
+    Profile.Free;
   end;
-    
-  {$IFDEF WIN32}
-  HostEnt := gethostbyname(PChar(AHost));
-  if HostEnt <> nil then
-  begin
-    Move(HostEnt^.h_addr_list^^, AAddr, 4);
-    Result := True;
-  end;
-  {$ELSE}
-    {$IFDEF WIN64}
-    HostEnt := gethostbyname(PChar(AHost));
-    if HostEnt <> nil then
-    begin
-      Move(HostEnt^.h_addr_list^^, AAddr, 4);
-      Result := True;
-    end;
-    {$ELSE}
-    if netdb.ResolveHostByName(AHost, HostEnt) then
-    begin
-      Move(HostEnt.Addr, AAddr, SizeOf(TInAddr));
-      Result := True;
-    end;
-    {$ENDIF}
-  {$ENDIF}
+end;
+
+procedure TAIPOSPrinter.SetLanguage(AValue: TPrinterLanguage);
+begin
+  if FLanguage = AValue then Exit;
+  FLanguage := AValue;
+  InitLanguageEngine;
+end;
+
+procedure TAIPOSPrinter.SetCodePage(AValue: TPrinterEncoding);
+begin
+  if FCodePage = AValue then Exit;
+  FCodePage := AValue;
+  if Assigned(FLanguageEngine) then
+    FLanguageEngine.Encoding := FCodePage;
 end;
 
 procedure TAIPOSPrinter.SetActive(AValue: Boolean);
@@ -215,259 +307,235 @@ begin
 end;
 
 function TAIPOSPrinter.OpenConnection: Boolean;
-var
-  Addr: TInetSockAddr;
-  Res: Integer;
 begin
   Result := False;
   FLastError := '';
   
-  if FProtocol = ppNative then
+  if FRenderMode = rmNativeCanvas then
   begin
     FActive := True;
     Result := True;
     Exit;
   end;
   
-  if FInterfaceType = piSerial then
+  InitTransport;
+  if not Assigned(FTransport) then
   begin
-    FSerialHandle := SerOpen(FDeviceName);
-    if FSerialHandle <> 0 then
-    begin
-      SerSetParams(FSerialHandle, FSerialBaud, 8, NoneParity, 1, []);
-      FActive := True;
-      Result := True;
-      if Assigned(FDriver) then
-        SendRawString(FDriver.InitPrint);
-    end
-    else
-      FLastError := 'Failed to open serial POS printer on ' + FDeviceName;
-  end
-  else
-  begin
-    FSocket := fpSocket(AF_INET, SOCK_STREAM, 0);
-    if FSocket = TSocket(-1) then
-    begin
-      FLastError := 'Could not create socket.';
-      Exit;
-    end;
-    
-    Addr.sin_family := AF_INET;
-    Addr.sin_port := htons(FPort);
-    
-    if not ResolveHost(FHost, Addr.sin_addr) then
-    begin
-      sockets.CloseSocket(FSocket);
-      FSocket := TSocket(-1);
-      FLastError := 'Host resolution failed: ' + FHost;
-      Exit;
-    end;
-    
-    Res := fpConnect(FSocket, @Addr, SizeOf(Addr));
-    if Res < 0 then
-    begin
-      sockets.CloseSocket(FSocket);
-      FSocket := TSocket(-1);
-      FLastError := 'Connection to host failed.';
-      Exit;
-    end;
-    
-    FActive := True;
-    Result := True;
-    if Assigned(FDriver) then
-      SendRawString(FDriver.InitPrint);
+    FLastError := 'No transport configured.';
+    Exit;
   end;
+  
+  Result := FTransport.Open;
+  if Result then
+    FActive := True;
 end;
 
 procedure TAIPOSPrinter.CloseConnection;
 begin
   if not FActive then Exit;
   
-  if FProtocol = ppNative then
+  if Assigned(FTransport) then
+    FTransport.Close;
+    
+  FActive := False;
+end;
+
+function TAIPOSPrinter.BeginJob: Boolean;
+begin
+  FJobBuilder.Clear;
+  FPageLines.Clear;
+  Result := True;
+  
+  if FRenderMode = rmRawCommand then
   begin
-    FActive := False;
+    if Assigned(FLanguageEngine) then
+      FJobBuilder.AddBytes(FLanguageEngine.BeginLabel);
+  end;
+end;
+
+function TAIPOSPrinter.EndJob: Boolean;
+begin
+  Result := True;
+  if FRenderMode = rmRawCommand then
+  begin
+    if Assigned(FLanguageEngine) then
+    begin
+      FJobBuilder.AddBytes(FLanguageEngine.EndLabel);
+    end;
+  end;
+end;
+
+function TAIPOSPrinter.PrintJob: Boolean;
+begin
+  Result := False;
+  if not FActive then
+  begin
+    FLastError := 'Printer not active/connected.';
     Exit;
   end;
   
-  if FInterfaceType = piSerial then
+  if FRenderMode = rmNativeCanvas then
   begin
-    if FSerialHandle <> 0 then
-    begin
-      SerClose(FSerialHandle);
-      FSerialHandle := 0;
-    end;
-  end
-  else
-  begin
-    if FSocket <> TSocket(-1) then
-    begin
-      sockets.CloseSocket(FSocket);
-      FSocket := TSocket(-1);
-    end;
+    Result := CutPaper; // Native OS Spooling is triggered by CutPaper/Document print
+    Exit;
   end;
   
-  FActive := False;
+  Result := SendDocument(FJobBuilder.ToBytes);
+end;
+
+function TAIPOSPrinter.CancelJob: Boolean;
+begin
+  FJobBuilder.Clear;
+  FPageLines.Clear;
+  Result := True;
 end;
 
 function TAIPOSPrinter.SendRawBytes(const ABytes: array of Byte): Boolean;
 var
-  Res: Integer;
+  T: TBytes;
+  I: Integer;
+begin
+  SetLength(T, Length(ABytes));
+  for I := 0 to Length(ABytes) - 1 do
+    T[I] := ABytes[I];
+  Result := SendDocument(T);
+end;
+
+function TAIPOSPrinter.SendRawString(const AStr: string): Boolean;
+begin
+  if not FActive then Exit(False);
+  Result := SendDocument(TEncoding.UTF8.GetBytes(AStr));
+end;
+
+function TAIPOSPrinter.PrintText(const AText: string): Boolean;
+var
+  Bytes: TBytes;
 begin
   Result := False;
-  if not FActive then Exit;
-  if Length(ABytes) = 0 then Exit(True);
-  
-  if FInterfaceType = piSerial then
+  if FRenderMode = rmNativeCanvas then
   begin
-    if FSerialHandle <> 0 then
-      Result := SerWrite(FSerialHandle, ABytes[0], Length(ABytes)) = Length(ABytes);
+    FPageLines.Add(AText);
+    Result := True;
   end
   else
   begin
-    if FSocket <> TSocket(-1) then
+    if Assigned(FLanguageEngine) then
     begin
-      try
-        Res := fpsend(FSocket, @ABytes[0], Length(ABytes), 0);
-        Result := Res = Length(ABytes);
-        if not Result then
-          FLastError := 'Socket Write Error: did not write all bytes.';
-      except
-        on E: Exception do
-          FLastError := 'Socket Write Error: ' + E.Message;
-      end;
+      // Low-level sequential print adds raw encoded text to builder
+      FJobBuilder.AddTextEncoded(AText, FCodePage);
+      Result := True;
     end;
   end;
 end;
 
-function TAIPOSPrinter.SendRawString(const AStr: string): Boolean;
-var
-  Buffer: array of Byte;
-  I: Integer;
-begin
-  Result := False;
-  if Length(AStr) = 0 then Exit(True);
-  SetLength(Buffer, Length(AStr));
-  for I := 1 to Length(AStr) do
-    Buffer[I - 1] := Byte(AStr[I]);
-  Result := SendRawBytes(Buffer);
-end;
-
-function TAIPOSPrinter.PrintText(const AText: string): Boolean;
-begin
-  if FProtocol = ppNative then
-  begin
-    FPageLines.Add(AText);
-    Result := True;
-  end
-  else
-    Result := SendRawString(AText);
-end;
-
 function TAIPOSPrinter.PrintTextLine(const AText: string): Boolean;
 begin
-  if FProtocol = ppNative then
+  Result := False;
+  if FRenderMode = rmNativeCanvas then
   begin
     FPageLines.Add(AText);
     Result := True;
   end
-  else if Assigned(FDriver) then
-    Result := SendRawString(FDriver.LineText(AText))
   else
-    Result := SendRawString(AText + #10);
-end;
-
-procedure TAIPOSPrinter.ClearPage;
-begin
-  FPageLines.Clear;
+  begin
+    if Assigned(FLanguageEngine) then
+    begin
+      FJobBuilder.AddBytes(FLanguageEngine.TextLine(AText));
+      Result := True;
+    end;
+  end;
 end;
 
 function TAIPOSPrinter.SetBold(const ABold: Boolean): Boolean;
 begin
-  if FProtocol = ppNative then
+  Result := False;
+  if FRenderMode = rmNativeCanvas then
     Result := True
-  else if Assigned(FDriver) then
+  else if Assigned(FLanguageEngine) then
   begin
-    if ABold then
-      Result := SendRawString(FDriver.Negrito)
-    else
-      Result := SendRawString(FDriver.Normal);
-  end
-  else
-    Result := False;
+    FJobBuilder.AddBytes(FLanguageEngine.Bold(ABold));
+    Result := True;
+  end;
 end;
 
-// Alias to match old API if needed
 function TAIPOSPrinter.SetNormal: Boolean;
 begin
-  if FProtocol = ppNative then
+  Result := False;
+  if FRenderMode = rmNativeCanvas then
     Result := True
-  else if Assigned(FDriver) then
-    Result := SendRawString(FDriver.Normal)
-  else
-    Result := False;
+  else if Assigned(FLanguageEngine) then
+  begin
+    FJobBuilder.AddBytes(FLanguageEngine.Normal);
+    Result := True;
+  end;
 end;
 
 function TAIPOSPrinter.SetDoubleText: Boolean;
 begin
-  if FProtocol = ppNative then
+  Result := False;
+  if FRenderMode = rmNativeCanvas then
     Result := True
-  else if Assigned(FDriver) then
-    Result := SendRawString(FDriver.DoubleTexto)
-  else
-    Result := False;
+  else if Assigned(FLanguageEngine) then
+  begin
+    FJobBuilder.AddBytes(FLanguageEngine.DoubleTexto);
+    Result := True;
+  end;
 end;
 
 function TAIPOSPrinter.SetUnderline(const AUnderline: Boolean): Boolean;
 begin
-  if FProtocol = ppNative then
+  Result := False;
+  if FRenderMode = rmNativeCanvas then
     Result := True
-  else if Assigned(FDriver) then
+  else if Assigned(FLanguageEngine) then
   begin
-    if AUnderline then
-      Result := SendRawString(FDriver.Sublinhado)
-    else
-      Result := SendRawString(FDriver.Normal);
-  end
-  else
-    Result := False;
+    FJobBuilder.AddBytes(FLanguageEngine.Underline(AUnderline));
+    Result := True;
+  end;
 end;
 
 function TAIPOSPrinter.AlignCenter: Boolean;
 begin
-  if FProtocol = ppNative then
+  Result := False;
+  if FRenderMode = rmNativeCanvas then
     Result := True
-  else if Assigned(FDriver) then
-    Result := SendRawString(FDriver.Centralizado)
-  else
-    Result := False;
+  else if Assigned(FLanguageEngine) then
+  begin
+    FJobBuilder.AddBytes(FLanguageEngine.Align(taCenter));
+    Result := True;
+  end;
 end;
 
-// AlignLeft / AlignRight support
 function TAIPOSPrinter.AlignLeft: Boolean;
 begin
-  if FProtocol = ppNative then
+  Result := False;
+  if FRenderMode = rmNativeCanvas then
     Result := True
-  else if Assigned(FDriver) then
-    Result := SendRawString(FDriver.AlinhadoEsquerda)
-  else
-    Result := False;
+  else if Assigned(FLanguageEngine) then
+  begin
+    FJobBuilder.AddBytes(FLanguageEngine.Align(taLeft));
+    Result := True;
+  end;
 end;
 
 function TAIPOSPrinter.AlignRight: Boolean;
 begin
-  if FProtocol = ppNative then
+  Result := False;
+  if FRenderMode = rmNativeCanvas then
     Result := True
-  else if Assigned(FDriver) then
-    Result := SendRawString(FDriver.AlinhadoDireita)
-  else
-    Result := False;
+  else if Assigned(FLanguageEngine) then
+  begin
+    FJobBuilder.AddBytes(FLanguageEngine.Align(taRight));
+    Result := True;
+  end;
 end;
 
 function TAIPOSPrinter.CutPaper: Boolean;
 var
   I, Y: Integer;
 begin
-  if FProtocol = ppNative then
+  Result := False;
+  if FRenderMode = rmNativeCanvas then
   begin
     Result := True;
     try
@@ -493,58 +561,100 @@ begin
       end;
     end;
   end
-  else if Assigned(FDriver) then
-    Result := SendRawString(FDriver.Guilhotina)
-  else
-    Result := False;
+  else if Assigned(FLanguageEngine) then
+  begin
+    FJobBuilder.AddBytes(FLanguageEngine.Cut(True));
+    Result := True;
+  end;
 end;
 
-// OpenDrawer support
 function TAIPOSPrinter.OpenDrawer: Boolean;
 begin
-  if FProtocol = ppNative then
+  Result := False;
+  if FRenderMode = rmNativeCanvas then
     Result := True
-  else if Assigned(FDriver) then
-    Result := SendRawString(FDriver.AcionaGaveta)
-  else
-    Result := False;
+  else if Assigned(FLanguageEngine) then
+  begin
+    FJobBuilder.AddBytes(FLanguageEngine.OpenDrawer);
+    Result := True;
+  end;
 end;
 
-// PrintBarcode / PrintQRCode / Beep
 function TAIPOSPrinter.PrintBarcode(const ACode: string; H: Byte = 80; R: Byte = 3; I: Byte = 2): Boolean;
 begin
-  if FProtocol = ppNative then
+  Result := False;
+  if FRenderMode = rmNativeCanvas then
   begin
     FPageLines.Add('[Barcode: ' + ACode + ']');
     Result := True;
   end
-  else if Assigned(FDriver) then
-    Result := SendRawString(FDriver.Barra1D(ACode, H, R, I))
-  else
-    Result := False;
+  else if Assigned(FLanguageEngine) then
+  begin
+    FJobBuilder.AddBytes(FLanguageEngine.Barcode1D(ACode, H, R, I, bsCode128));
+    Result := True;
+  end;
 end;
 
 function TAIPOSPrinter.PrintQRCode(const ACode: string): Boolean;
 begin
-  if FProtocol = ppNative then
+  Result := False;
+  if FRenderMode = rmNativeCanvas then
   begin
     FPageLines.Add('[QR Code: ' + ACode + ']');
     Result := True;
   end
-  else if Assigned(FDriver) then
-    Result := SendRawString(FDriver.Barra2D(ACode))
-  else
-    Result := False;
+  else if Assigned(FLanguageEngine) then
+  begin
+    FJobBuilder.AddBytes(FLanguageEngine.QRCode(ACode, 4));
+    Result := True;
+  end;
 end;
 
 function TAIPOSPrinter.Beep: Boolean;
 begin
-  if FProtocol = ppNative then
+  Result := False;
+  if FRenderMode = rmNativeCanvas then
     Result := True
-  else if Assigned(FDriver) then
-    Result := SendRawString(FDriver.Beep)
+  else if Assigned(FLanguageEngine) then
+  begin
+    FJobBuilder.AddBytes(FLanguageEngine.Beep);
+    Result := True;
+  end;
+end;
+
+function TAIPOSPrinter.SendDocument(const ABytes: TBytes): Boolean;
+begin
+  Result := False;
+  FLastError := '';
+  FLastBytesSent := Length(ABytes);
+  FLastCommandHex := BytesToHex(ABytes);
+  
+  if FLastBytesSent = 0 then Exit(True);
+  
+  if not FActive or not Assigned(FTransport) then
+  begin
+    FLastError := 'Transport connection not active.';
+    Exit;
+  end;
+  
+  Result := FTransport.WriteAll(ABytes);
+  if not Result then
+    FLastError := FTransport.LastError;
+end;
+
+function TAIPOSPrinter.PreviewDocument(const ABytes: TBytes): string;
+var
+  I: Integer;
+begin
+  if FLanguage = plEscPos then
+    Result := BytesToHex(ABytes)
   else
-    Result := False;
+  begin
+    // Return textual representation for text-based languages
+    SetLength(Result, Length(ABytes));
+    if Length(ABytes) > 0 then
+      Move(ABytes[0], Result[1], Length(ABytes));
+  end;
 end;
 
 initialization

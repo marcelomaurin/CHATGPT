@@ -10,7 +10,10 @@ interface
 uses
   aioutput, aioutput_docs, aiwordtypes, aiwordunits, aiwordpackage, aiwordxml, 
   aiwordrelationships, aiwordstyles, aiwordobjects, aiworddocument, aiwordviewer, 
-  imp_generico, imp_elgini9, imp_qr203, imp_elginl42dt, aiposprinter,
+  aiprinter_types, aiprinter_bytebuilder, aiprinter_profile, aiprinter_transport, 
+  aiprinter_transport_tcp, aiprinter_transport_serial, aiprinter_transport_file, 
+  aiprinter_language_base, aiprinter_language_escpos, aiprinter_language_zpl, 
+  aiprinter_language_tspl, aiprinter_language_epl, aiposprinter, 
   LazarusPackageIntf;
 
 implementation
