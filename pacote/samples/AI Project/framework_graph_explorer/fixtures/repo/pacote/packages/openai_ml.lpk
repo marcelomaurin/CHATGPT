@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="5">
+    <Name Value="openai_ml"/>
+    <Files Count="1">
+      <Item1><Filename Value="..\AI ML\aimath.pas"/><UnitName Value="aimath"/></Item1>
+    </Files>
+    <RequiredPkgs Count="1">
+      <Item1><PackageName Value="FCL"/></Item1>
+    </RequiredPkgs>
+  </Package>
+</CONFIG>

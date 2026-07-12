@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="5">
+    <Name Value="openai_graph"/>
+    <Type Value="RunAndDesignTime"/>
+    <Files Count="2">
+      <Item1>
+        <Filename Value="..\AI Graph\aigraphmap.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aigraphmap"/>
+      </Item1>
+      <Item2>
+        <Filename Value="..\AI Graph\aigraphvisualizer.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aigraphvisualizer"/>
+      </Item2>
+    </Files>
+    <RequiredPkgs Count="2">
+      <Item1><PackageName Value="openai_core"/></Item1>
+      <Item2><PackageName Value="openai_ml"/></Item2>
+    </RequiredPkgs>
+  </Package>
+</CONFIG>

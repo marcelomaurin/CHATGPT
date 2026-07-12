@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="5">
+    <PathDelim Value="\"/>
+    <Name Value="openai_core"/>
+    <Type Value="RunAndDesignTime"/>
+    <Files Count="3">
+      <Item1>
+        <Filename Value="..\AI\chatgpt.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="chatgpt"/>
+      </Item1>
+      <Item2>
+        <Filename Value="..\AI\aibase.pas"/>
+        <UnitName Value="aibase"/>
+      </Item2>
+      <Item3>
+        <Filename Value="..\AI\aipromptbuilder.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aipromptbuilder"/>
+      </Item3>
+    </Files>
+    <RequiredPkgs Count="2">
+      <Item1><PackageName Value="LCL"/></Item1>
+      <Item2><PackageName Value="FCL"/></Item2>
+    </RequiredPkgs>
+  </Package>
+</CONFIG>

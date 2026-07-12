@@ -1,0 +1,60 @@
+name: FGX Core (factual)
+
+# Nucleo factual do AI Framework Graph Explorer.
+# Nao depende de Lazarus, da LCL, nem de nenhum pacote openai_*.
+# Compila so com FPC. Se este job ficar vermelho, o problema e o nucleo.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+env:
+  FGX_DIR: pacote/samples/AI Project/framework_graph_explorer
+
+jobs:
+  build-and-run:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar Free Pascal (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y fpc
+
+      - name: Instalar Free Pascal (Windows)
+        if: runner.os == 'Windows'
+        run: choco install freepascal -y
+
+      # -Sew: warning vira erro. Nada de "compila com avisos".
+      - name: Compilar o nucleo
+        shell: bash
+        working-directory: ${{ env.FGX_DIR }}
+        run: |
+          mkdir -p build/units
+          fpc -Mobjfpc -Sh -O2 -Sew -Fusrc -FUbuild/units -obuild/fgxcli src/fgxcli.lpr
+
+      # A fixture inclui um .lpk deliberadamente corrompido: deve virar 'partial'
+      # e o pipeline deve seguir. Esperado: 13 nos, 15 arestas, PASS.
+      - name: Rodar contra a fixture
+        shell: bash
+        working-directory: ${{ env.FGX_DIR }}
+        run: ./build/fgxcli fixtures/repo build/out
+
+      # E1: o grafo real da suite. Exit != 0 se a validacao falhar.
+      - name: Rodar contra o repositorio real (E1)
+        shell: bash
+        working-directory: ${{ env.FGX_DIR }}
+        run: ./build/fgxcli ../../../.. build/out-real
+
+      - name: Publicar o grafo factual
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fgx-graph-${{ matrix.os }}
+          path: ${{ env.FGX_DIR }}/build/out-real/

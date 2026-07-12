@@ -1,5 +1,7 @@
 # TCHATGPT — AI Component Suite for Lazarus / Free Pascal
 
+> **Nota de estabilização:** a contagem de pacotes deste README está desatualizada; a fonte de verdade será gerada por ferramenta em E21.
+
 🌍 **Languages / Idiomas**
 
 * [Português (PT-BR)](README.md)
