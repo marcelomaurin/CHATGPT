@@ -16,10 +16,138 @@ program fgxcli;
 
 uses
   Classes, SysUtils, fpjson, fgl,
-  fgx_graph, fgx_lpk, fgx_scan;
+  fgx_graph, fgx_lpk, fgx_scan, fgx_pascal;
 
 type
   TLPKList = specialize TFPGObjectList<TLPKPackage>;
+
+function RelToRoot(const ARoot, APath: string): string;
+var
+  R, P: string;
+begin
+  R := IncludeTrailingPathDelimiter(ExpandFileName(ARoot));
+  P := ExpandFileName(APath);
+  if CompareText(Copy(P, 1, Length(R)), R) = 0 then
+    Result := Copy(P, Length(R) + 1, MaxInt)
+  else
+    Result := P;
+  Result := StringReplace(Result, '\', '/', [rfReplaceAll]);
+  if Result = '' then Result := '.';
+end;
+
+function IsSamplePath(const ARelPath: string): Boolean;
+begin
+  Result := Pos('pacote/samples/', LowerCase(ARelPath)) = 1;
+end;
+
+function DirPart(const ARelPath: string): string;
+begin
+  Result := StringReplace(ExtractFileDir(StringReplace(ARelPath, '/',
+    PathDelim, [rfReplaceAll])), PathDelim, '/', [rfReplaceAll]);
+end;
+
+function FindClass(AInfo: TPascalUnitInfo; const AName: string): TPascalClass;
+var
+  I: Integer;
+begin
+  Result := nil;
+  for I := 0 to AInfo.PublicClasses.Count - 1 do
+    if SameText(AInfo.PublicClasses[I].Name, AName) then
+      Exit(AInfo.PublicClasses[I]);
+end;
+
+procedure WriteStabilityReport(const AFileName: string; AGraph: TFGXGraph);
+var
+  Root: TJSONObject;
+  OrphanComponents, UnusedUnits, PackageDeps: TJSONArray;
+  O, P: TJSONObject;
+  Arr: TJSONArray;
+  I, J: Integer;
+  N: TFGXNode;
+  E: TFGXEdge;
+  HasDemo, HasIncomingUse: Boolean;
+  SL: TStringList;
+begin
+  Root := TJSONObject.Create;
+  try
+    Root.Add('schema', 'fgx-stability-report-v1');
+    Root.Add('warning', 'Conservative static analysis; false positives and false negatives are possible. Every item includes factual evidence.');
+    OrphanComponents := TJSONArray.Create;
+    UnusedUnits := TJSONArray.Create;
+    PackageDeps := TJSONArray.Create;
+
+    for I := 0 to AGraph.Nodes.Count - 1 do
+    begin
+      N := AGraph.Nodes[I];
+      if N.NodeType = NT_COMPONENT then
+      begin
+        HasDemo := False;
+        for J := 0 to AGraph.Edges.Count - 1 do
+          if (AGraph.Edges[J].FromId = N.Id) and
+             (AGraph.Edges[J].EdgeType = ET_DEMONSTRATED_BY) then HasDemo := True;
+        if not HasDemo then
+        begin
+          O := TJSONObject.Create;
+          O.Add('component', N.Name);
+          O.Add('file', N.Evidence.SourceFile);
+          O.Add('line', N.Evidence.Line);
+          OrphanComponents.Add(O);
+        end;
+      end
+      else if N.NodeType = NT_UNIT then
+      begin
+        HasIncomingUse := False;
+        for J := 0 to AGraph.Edges.Count - 1 do
+          if (AGraph.Edges[J].ToId = N.Id) and
+             (AGraph.Edges[J].EdgeType = ET_USES_UNIT) then HasIncomingUse := True;
+        if not HasIncomingUse then
+        begin
+          O := TJSONObject.Create;
+          O.Add('unit', N.Name);
+          O.Add('file', N.Evidence.SourceFile);
+          O.Add('line', N.Evidence.Line);
+          UnusedUnits.Add(O);
+        end;
+      end;
+    end;
+
+    for I := 0 to AGraph.Nodes.Count - 1 do
+      if AGraph.Nodes[I].NodeType = NT_PACKAGE then
+      begin
+        N := AGraph.Nodes[I];
+        P := TJSONObject.Create;
+        P.Add('package', N.Name);
+        Arr := TJSONArray.Create;
+        for J := 0 to AGraph.Edges.Count - 1 do
+        begin
+          E := AGraph.Edges[J];
+          if (E.FromId = N.Id) and (E.EdgeType = ET_REQUIRES_PACKAGE) then
+          begin
+            O := TJSONObject.Create;
+            O.Add('target', AGraph.FindNode(E.ToId).Name);
+            O.Add('file', E.Evidence.SourceFile);
+            O.Add('line', E.Evidence.Line);
+            Arr.Add(O);
+          end;
+        end;
+        P.Add('dependencies', Arr);
+        PackageDeps.Add(P);
+      end;
+
+    Root.Add('components_without_sample', OrphanComponents);
+    Root.Add('units_without_incoming_use', UnusedUnits);
+    Root.Add('package_dependencies', PackageDeps);
+    SL := TStringList.Create;
+    try
+      SL.Text := Root.FormatJSON();
+      SL.SaveToFile(AFileName);
+    finally
+      SL.Free;
+    end;
+  finally
+    Root.Free;
+  end;
+end;
 
 procedure WriteInventory(const AFileName: string; AList: TArtifactList;
                          const AStats: TScanStats);
@@ -89,6 +217,15 @@ var
   V: TFGXValidation;
   ParseErrCount, PartialCount: Integer;
   ReqName: string;
+  UnitFiles, UnitPkgs, SampleDirs: TStringList;
+  Info: TPascalUnitInfo;
+  Ref: TPascalRef;
+  Reg: TComponentRegistration;
+  C: TPascalClass;
+  UnitName, SourcePath, SourceRel, TargetId, ComponentId: string;
+  SampleDir, SampleId: string;
+  LineNo, K: Integer;
+  N: TFGXNode;
 
 begin
   if ParamCount < 1 then
@@ -118,6 +255,16 @@ begin
   Known.Sorted := True;
   Known.Duplicates := dupIgnore;
   Known.CaseSensitive := False;
+  UnitFiles := TStringList.Create;
+  UnitFiles.NameValueSeparator := '=';
+  UnitFiles.CaseSensitive := False;
+  UnitPkgs := TStringList.Create;
+  UnitPkgs.NameValueSeparator := '=';
+  UnitPkgs.CaseSensitive := False;
+  SampleDirs := TStringList.Create;
+  SampleDirs.Sorted := True;
+  SampleDirs.Duplicates := dupIgnore;
+  SampleDirs.CaseSensitive := False;
 
   try
     { ---- 1. Varredura e classificacao (G009-G011) ---- }
@@ -159,9 +306,9 @@ begin
     { ---- 3. Grafo factual (G032 / G033 / G037) ---- }
     RepoId := MakeNodeId(NT_REPOSITORY, ExtractFileName(
                 ExcludeTrailingPathDelimiter(Root)));
-    Ev := MakeEvidence(Root, 0, 'fgx_scan');
+    Ev := MakeEvidence('.', 0, 'fgx_scan');
     Graph.AddNode(RepoId, NT_REPOSITORY,
-      ExtractFileName(ExcludeTrailingPathDelimiter(Root)), Root, Ev);
+      ExtractFileName(ExcludeTrailingPathDelimiter(Root)), '.', Ev);
 
     for I := 0 to Pkgs.Count - 1 do
     begin
@@ -169,8 +316,9 @@ begin
 
       { G032: no de pacote }
       PkgId := MakeNodeId(NT_PACKAGE, Pkg.Name);
-      Ev := MakeEvidence(Pkg.LPKPath, 0, 'fgx_lpk');
-      with Graph.AddNode(PkgId, NT_PACKAGE, Pkg.Name, Pkg.LPKPath, Ev) do
+      Ev := MakeEvidence(RelToRoot(Root, Pkg.LPKPath), 0, 'fgx_lpk');
+      with Graph.AddNode(PkgId, NT_PACKAGE, Pkg.Name,
+        RelToRoot(Root, Pkg.LPKPath), Ev) do
       begin
         Attrs.Values['package_type'] := Pkg.PackageType;
         Attrs.Values['unit_count'] := IntToStr(Pkg.Units.Count);
@@ -190,9 +338,13 @@ begin
           Continue;
 
         UnitId := MakeNodeId(NT_UNIT, U.UnitIdent);
-        Ev := MakeEvidence(Pkg.LPKPath, 0, 'fgx_lpk');
+        SourcePath := ExpandFileName(IncludeTrailingPathDelimiter(
+          ExtractFileDir(Pkg.LPKPath)) + StringReplace(U.FileName, '/',
+          PathDelim, [rfReplaceAll]));
+        SourceRel := RelToRoot(Root, SourcePath);
+        Ev := MakeEvidence(RelToRoot(Root, Pkg.LPKPath), 0, 'fgx_lpk');
 
-        with Graph.AddNode(UnitId, NT_UNIT, U.UnitIdent, U.FileName, Ev) do
+        with Graph.AddNode(UnitId, NT_UNIT, U.UnitIdent, SourceRel, Ev) do
         begin
           Attrs.Values['package'] := Pkg.Name;
           if U.HasRegisterProc then
@@ -202,6 +354,8 @@ begin
         end;
 
         Graph.AddEdge(PkgId, UnitId, ET_CONTAINS, Ev);
+        UnitFiles.Values[LowerCase(U.UnitIdent)] := SourcePath;
+        UnitPkgs.Values[LowerCase(U.UnitIdent)] := Pkg.Name;
       end;
     end;
 
@@ -214,7 +368,7 @@ begin
       for J := 0 to Pkg.RequiredPkgs.Count - 1 do
       begin
         ReqName := Pkg.RequiredPkgs[J];
-        Ev := MakeEvidence(Pkg.LPKPath, 0, 'fgx_lpk');
+        Ev := MakeEvidence(RelToRoot(Root, Pkg.LPKPath), 0, 'fgx_lpk');
 
         if Known.IndexOf(ReqName) >= 0 then
           DepId := MakeNodeId(NT_PACKAGE, ReqName)
@@ -230,6 +384,85 @@ begin
       end;
     end;
 
+    { ---- 4. Pascal: uses, classes publicas e RegisterComponents ---- }
+    for I := 0 to UnitFiles.Count - 1 do
+    begin
+      UnitName := UnitFiles.Names[I];
+      SourcePath := UnitFiles.ValueFromIndex[I];
+      if not FileExists(SourcePath) then Continue;
+      SourceRel := RelToRoot(Root, SourcePath);
+      UnitId := MakeNodeId(NT_UNIT, UnitName);
+      Info := ParsePascalUnit(SourcePath);
+      try
+        for K := 0 to Info.InterfaceUses.Count + Info.ImplementationUses.Count - 1 do
+        begin
+          if K < Info.InterfaceUses.Count then Ref := Info.InterfaceUses[K]
+          else Ref := Info.ImplementationUses[K - Info.InterfaceUses.Count];
+          Ev := MakeEvidence(SourceRel, Ref.Line, 'fgx_pascal.uses');
+          if UnitFiles.IndexOfName(LowerCase(Ref.Name)) >= 0 then
+            TargetId := MakeNodeId(NT_UNIT, Ref.Name)
+          else
+          begin
+            TargetId := MakeNodeId(NT_EXTERNAL, 'unit:' + Ref.Name);
+            N := Graph.AddNode(TargetId, NT_EXTERNAL, Ref.Name, '', Ev);
+            N.Attrs.Values['resolution'] := 'unresolved';
+            N.Attrs.Values['reference_kind'] := 'pascal_unit';
+          end;
+          Graph.AddEdge(UnitId, TargetId, ET_USES_UNIT, Ev);
+        end;
+
+        for K := 0 to Info.Registrations.Count - 1 do
+        begin
+          Reg := Info.Registrations[K];
+          C := FindClass(Info, Reg.ClassName);
+          if C = nil then Continue;
+          ComponentId := MakeNodeId(NT_COMPONENT, Reg.ClassName);
+          Ev := MakeEvidence(SourceRel, C.Line, 'fgx_pascal.class');
+          N := Graph.AddNode(ComponentId, NT_COMPONENT, Reg.ClassName, SourceRel, Ev);
+          N.Attrs.Values['ancestor'] := C.Ancestor;
+          N.Attrs.Values['palette'] := Reg.Palette;
+          N.Attrs.Values['package'] := UnitPkgs.Values[UnitName];
+          Graph.AddEdge(UnitId, ComponentId, ET_DECLARES, Ev);
+          Ev := MakeEvidence(SourceRel, Reg.Line, 'fgx_pascal.registercomponents');
+          Graph.AddEdge(MakeNodeId(NT_PACKAGE, UnitPkgs.Values[UnitName]),
+            ComponentId, ET_REGISTERS, Ev);
+        end;
+      finally
+        Info.Free;
+      end;
+    end;
+
+    { ---- 5. Samples e evidencia de uso ---- }
+    for I := 0 to Artifacts.Count - 1 do
+      if IsSamplePath(Artifacts[I].RelPath) and
+         (Artifacts[I].Kind in [akProject, akProjectSrc]) then
+        SampleDirs.Add(DirPart(Artifacts[I].RelPath));
+
+    for I := 0 to SampleDirs.Count - 1 do
+    begin
+      SampleDir := SampleDirs[I];
+      SampleId := MakeNodeId(NT_SAMPLE, SampleDir);
+      Ev := MakeEvidence(SampleDir, 0, 'fgx_sample');
+      Graph.AddNode(SampleId, NT_SAMPLE, ExtractFileName(StringReplace(
+        SampleDir, '/', PathDelim, [rfReplaceAll])), SampleDir, Ev);
+      Graph.AddEdge(RepoId, SampleId, ET_CONTAINS, Ev);
+
+      for J := 0 to Graph.Nodes.Count - 1 do
+      begin
+        N := Graph.Nodes[J];
+        if N.NodeType <> NT_COMPONENT then Continue;
+        for K := 0 to Artifacts.Count - 1 do
+          if (Pos(LowerCase(SampleDir) + '/', LowerCase(Artifacts[K].RelPath)) = 1) and
+             (Artifacts[K].Kind in [akPascal, akForm, akProjectSrc]) and
+             FileContainsIdentifier(Artifacts[K].FullPath, N.Name, LineNo) then
+          begin
+            Ev := MakeEvidence(Artifacts[K].RelPath, LineNo, 'fgx_sample.identifier');
+            Graph.AddEdge(N.Id, SampleId, ET_DEMONSTRATED_BY, Ev);
+            Break;
+          end;
+      end;
+    end;
+
     WriteLn(Format('[graph] %d nos, %d arestas', [Graph.NodeCount, Graph.EdgeCount]));
     WriteLn(Format('        packages=%d  units=%d  external=%d',
       [Graph.CountNodesOfType(NT_PACKAGE),
@@ -239,7 +472,7 @@ begin
       [Graph.CountEdgesOfType(ET_CONTAINS),
        Graph.CountEdgesOfType(ET_REQUIRES_PACKAGE)]));
 
-    { ---- 4. Validacao (G040) ---- }
+    { ---- 6. Validacao (G040) ---- }
     V := Graph.Validate;
     WriteLn;
     WriteLn('[valid] arestas quebradas : ', V.BrokenEdges);
@@ -251,18 +484,23 @@ begin
     else
       WriteLn('[valid] RESULTADO: FAIL');
 
-    { ---- 5. Exportacao (G012 / G043) ---- }
+    { ---- 7. Exportacao (G012 / G043 / E9) ---- }
     Graph.SaveJSON(OutDir + 'factual_graph.json');
     Graph.SaveDOT(OutDir + 'graph.dot');
+    WriteStabilityReport(OutDir + 'stability_report.json', Graph);
     WriteLn;
     WriteLn('[out ] factual_graph.json');
     WriteLn('[out ] graph.dot');
     WriteLn('[out ] inventory.json');
+    WriteLn('[out ] stability_report.json');
 
     if not V.Passed then
       Halt(1);
 
   finally
+    SampleDirs.Free;
+    UnitPkgs.Free;
+    UnitFiles.Free;
     Known.Free;
     Graph.Free;
     Pkgs.Free;

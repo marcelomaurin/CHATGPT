@@ -52,24 +52,31 @@ Exit code `0` = grafo validado (PASS). `1` = FAIL. Sem sucesso artificial.
 | G040 | Validação: arestas quebradas, sem evidência, auto-arestas, órfãos → PASS/FAIL |
 | G043 | `graph.dot` (GraphViz) |
 | — | `factual_graph.json` |
+| E2 | Caminhos de nós e evidências relativos à raiz |
+| E3–E5 | `uses`, classes públicas e `RegisterComponents`, sem aceitar texto de comentários/diretivas como fato |
+| E6 | Nós `component` e arestas `declares`/`registers` com arquivo e linha |
+| E7–E8 | Projetos em `pacote/samples/` e `demonstrated_by` somente com identificador comprovado |
+| E9 | `stability_report.json`: componentes sem sample, units sem uso de entrada e dependências por pacote |
 
 **Nenhum nó ou aresta existe sem evidência** (arquivo + parser de origem). A
 validação rejeita o grafo se houver. A camada de IA não escreve aqui — o tipo
 `Kind` é fixado em `factual` no `AddEdge`.
 
-## O que NÃO faz (e não finge fazer)
+## Limites deliberados
 
-- **Não** faz parse de `.pas`. Logo, **não há nós de `component`** ainda — eles
-  exigiriam `RegisterComponents` e declaração de classe (G018/G019). Inventar
-  componente a partir do `HasRegisterProc` seria violar o princípio nº 2.
-- **Não** faz parse de `uses` (G017), `.lfm` (G023) nem samples (G039).
-- **Não** gera matrizes (Fase 6), IA (Fase 7), memória (Fase 8) nem PDF/Word.
+- O parser é conservador e não substitui um compilador Pascal completo.
+- Referências de unit não resolvidas são registradas como `unresolved`; nunca são
+  promovidas a units internas sem evidência.
+- Uso em sample é associação estática por identificador em `.pas`, `.lpr` ou
+  `.lfm`; o relatório declara a possibilidade de falso positivo/negativo.
+- Não gera IA, GUI, memória, PDF ou Word.
 
-## Desvio conhecido
+## Saídas
 
-`factual_graph.json` grava **caminhos absolutos**. O critério de aceite do G012
-pede caminhos relativos à raiz. Está registrado aqui em vez de silenciado:
-a correção é normalizar contra `ARoot` no momento de `AddNode`. Uma linha.
+- `inventory.json`
+- `factual_graph.json`
+- `graph.dot`
+- `stability_report.json`
 
 ## Fixtures
 

@@ -38,6 +38,12 @@ jobs:
         run: |
           mkdir -p build/units
           fpc -Mobjfpc -Sh -O2 -Sew -Fusrc -FUbuild/units -obuild/fgxcli src/fgxcli.lpr
+          fpc -Mobjfpc -Sh -O2 -Sew -Fusrc -FUbuild/units -obuild/fgx_parser_tests src/fgx_parser_tests.lpr
+
+      - name: Testar parser Pascal factual
+        shell: bash
+        working-directory: ${{ env.FGX_DIR }}
+        run: ./build/fgx_parser_tests fixtures/parser/parser_fixture.pas
 
       # A fixture inclui um .lpk deliberadamente corrompido: deve virar 'partial'
       # e o pipeline deve seguir. Esperado: 13 nos, 15 arestas, PASS.
