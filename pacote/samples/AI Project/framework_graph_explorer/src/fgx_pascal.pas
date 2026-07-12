@@ -24,7 +24,7 @@ type
   TComponentRegistration = class
   public
     Palette: string;
-    ClassName: string;
+    RegisteredClass: string;
     Line: Integer;
   end;
 
@@ -34,7 +34,7 @@ type
 
   TPascalUnitInfo = class
   public
-    UnitName: string;
+    DeclaredUnitName: string;
     InterfaceUses: TPascalRefList;
     ImplementationUses: TPascalRefList;
     PublicClasses: TPascalClassList;
@@ -47,6 +47,8 @@ type
 function ParsePascalUnit(const AFileName: string): TPascalUnitInfo;
 function FileContainsIdentifier(const AFileName, AIdentifier: string;
                                 out ALine: Integer): Boolean;
+procedure CollectFileIdentifiers(const AFileName: string;
+                                 AIdentifiers: TStringList);
 
 implementation
 
@@ -280,7 +282,7 @@ begin
           begin
             R := TComponentRegistration.Create;
             R.Palette := Palette;
-            R.ClassName := Tokens[J].Text;
+            R.RegisteredClass := Tokens[J].Text;
             R.Line := Tokens[I].Line;
             AList.Add(R);
           end;
@@ -310,7 +312,7 @@ begin
       for I := 0 to Tokens.Count - 1 do
       begin
         if SameToken(Tokens[I], 'unit') and (I + 1 < Tokens.Count) and
-           (Result.UnitName = '') then Result.UnitName := Tokens[I + 1].Text;
+           (Result.DeclaredUnitName = '') then Result.DeclaredUnitName := Tokens[I + 1].Text;
         if SameToken(Tokens[I], 'interface') and (IntfAt < 0) then IntfAt := I;
         if SameToken(Tokens[I], 'implementation') then begin ImplAt := I; Break; end;
       end;
@@ -351,6 +353,39 @@ begin
         end;
     except
       Exit(False);
+    end;
+  finally
+    Tokens.Free;
+    SL.Free;
+  end;
+end;
+
+procedure CollectFileIdentifiers(const AFileName: string;
+                                 AIdentifiers: TStringList);
+var
+  SL: TStringList;
+  Tokens: TTokenList;
+  I: Integer;
+  Key: string;
+begin
+  AIdentifiers.Clear;
+  AIdentifiers.NameValueSeparator := '=';
+  AIdentifiers.CaseSensitive := False;
+  SL := TStringList.Create;
+  Tokens := nil;
+  try
+    try
+      SL.LoadFromFile(AFileName);
+      Tokens := Tokenize(SL.Text);
+      for I := 0 to Tokens.Count - 1 do
+        if (Tokens[I].Text <> '') and IsIdentStart(Tokens[I].Text[1]) then
+        begin
+          Key := LowerCase(Tokens[I].Text);
+          if AIdentifiers.IndexOfName(Key) < 0 then
+            AIdentifiers.Values[Key] := IntToStr(Tokens[I].Line);
+        end;
+    except
+      AIdentifiers.Clear;
     end;
   finally
     Tokens.Free;

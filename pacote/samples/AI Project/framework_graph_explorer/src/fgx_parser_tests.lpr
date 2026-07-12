@@ -23,7 +23,7 @@ begin
   Info := ParsePascalUnit(ParamStr(1));
   try
     Check(Info.ParseErrors.Count = 0, 'parser reported an error');
-    Check(SameText(Info.UnitName, 'parser_fixture'), 'unit name');
+    Check(SameText(Info.DeclaredUnitName, 'parser_fixture'), 'unit name');
     HasClasses := False;
     HasSysUtils := False;
     HasMath := False;
@@ -40,7 +40,7 @@ begin
     Check(SameText(Info.PublicClasses[0].Ancestor, 'TComponent'), 'ancestor');
     Check(Info.Registrations.Count = 1, 'registration count');
     Check(SameText(Info.Registrations[0].Palette, 'AI Tests'), 'palette');
-    Check(SameText(Info.Registrations[0].ClassName, 'TVisibleComponent'), 'registered class');
+    Check(SameText(Info.Registrations[0].RegisteredClass, 'TVisibleComponent'), 'registered class');
     WriteLn('PASS');
   finally
     Info.Free;

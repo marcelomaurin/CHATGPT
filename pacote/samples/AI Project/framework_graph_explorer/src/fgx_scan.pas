@@ -46,9 +46,9 @@ procedure ScanTree(const ARoot: string; AList: TArtifactList;
 implementation
 
 const
-  EXCLUDED_DIRS: array[0..8] of string = (
+  EXCLUDED_DIRS: array[0..9] of string = (
     '.git', 'lib', 'bin', 'backup', 'output', '__pycache__',
-    'node_modules', '.vscode', 'dist'
+    'node_modules', '.vscode', 'dist', 'fixtures'
   );
 
 function ClassifyExt(const AExt: string): TArtifactKind;

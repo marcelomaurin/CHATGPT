@@ -226,6 +226,7 @@ var
   SampleDir, SampleId: string;
   LineNo, K: Integer;
   N: TFGXNode;
+  Identifiers: TStringList;
 
 begin
   if ParamCount < 1 then
@@ -265,6 +266,9 @@ begin
   SampleDirs.Sorted := True;
   SampleDirs.Duplicates := dupIgnore;
   SampleDirs.CaseSensitive := False;
+  Identifiers := TStringList.Create;
+  Identifiers.NameValueSeparator := '=';
+  Identifiers.CaseSensitive := False;
 
   try
     { ---- 1. Varredura e classificacao (G009-G011) ---- }
@@ -310,9 +314,12 @@ begin
     Graph.AddNode(RepoId, NT_REPOSITORY,
       ExtractFileName(ExcludeTrailingPathDelimiter(Root)), '.', Ev);
 
+    WriteLn('[graph] criando pacotes e units');
     for I := 0 to Pkgs.Count - 1 do
     begin
       Pkg := Pkgs[I];
+      WriteLn(Format('[graph] pacote %d/%d: %s (%d units)',
+        [I + 1, Pkgs.Count, Pkg.Name, Pkg.Units.Count]));
 
       { G032: no de pacote }
       PkgId := MakeNodeId(NT_PACKAGE, Pkg.Name);
@@ -359,6 +366,7 @@ begin
       end;
     end;
 
+    WriteLn('[graph] criando dependencias de pacotes');
     { G037: requires_package, direto do RequiredPkgs do LPK }
     for I := 0 to Pkgs.Count - 1 do
     begin
@@ -384,12 +392,14 @@ begin
       end;
     end;
 
+    WriteLn('[graph] analisando Pascal');
     { ---- 4. Pascal: uses, classes publicas e RegisterComponents ---- }
     for I := 0 to UnitFiles.Count - 1 do
     begin
       UnitName := UnitFiles.Names[I];
       SourcePath := UnitFiles.ValueFromIndex[I];
       if not FileExists(SourcePath) then Continue;
+      WriteLn(Format('[pas ] unit %d/%d: %s', [I + 1, UnitFiles.Count, UnitName]));
       SourceRel := RelToRoot(Root, SourcePath);
       UnitId := MakeNodeId(NT_UNIT, UnitName);
       Info := ParsePascalUnit(SourcePath);
@@ -414,11 +424,11 @@ begin
         for K := 0 to Info.Registrations.Count - 1 do
         begin
           Reg := Info.Registrations[K];
-          C := FindClass(Info, Reg.ClassName);
+          C := FindClass(Info, Reg.RegisteredClass);
           if C = nil then Continue;
-          ComponentId := MakeNodeId(NT_COMPONENT, Reg.ClassName);
+          ComponentId := MakeNodeId(NT_COMPONENT, Reg.RegisteredClass);
           Ev := MakeEvidence(SourceRel, C.Line, 'fgx_pascal.class');
-          N := Graph.AddNode(ComponentId, NT_COMPONENT, Reg.ClassName, SourceRel, Ev);
+          N := Graph.AddNode(ComponentId, NT_COMPONENT, Reg.RegisteredClass, SourceRel, Ev);
           N.Attrs.Values['ancestor'] := C.Ancestor;
           N.Attrs.Values['palette'] := Reg.Palette;
           N.Attrs.Values['package'] := UnitPkgs.Values[UnitName];
@@ -447,20 +457,24 @@ begin
         SampleDir, '/', PathDelim, [rfReplaceAll])), SampleDir, Ev);
       Graph.AddEdge(RepoId, SampleId, ET_CONTAINS, Ev);
 
-      for J := 0 to Graph.Nodes.Count - 1 do
-      begin
-        N := Graph.Nodes[J];
-        if N.NodeType <> NT_COMPONENT then Continue;
-        for K := 0 to Artifacts.Count - 1 do
-          if (Pos(LowerCase(SampleDir) + '/', LowerCase(Artifacts[K].RelPath)) = 1) and
-             (Artifacts[K].Kind in [akPascal, akForm, akProjectSrc]) and
-             FileContainsIdentifier(Artifacts[K].FullPath, N.Name, LineNo) then
+      for K := 0 to Artifacts.Count - 1 do
+        if (Pos(LowerCase(SampleDir) + '/', LowerCase(Artifacts[K].RelPath)) = 1) and
+           (Artifacts[K].Kind in [akPascal, akForm, akProjectSrc]) then
+        begin
+          CollectFileIdentifiers(Artifacts[K].FullPath, Identifiers);
+          for J := 0 to Graph.Nodes.Count - 1 do
           begin
-            Ev := MakeEvidence(Artifacts[K].RelPath, LineNo, 'fgx_sample.identifier');
-            Graph.AddEdge(N.Id, SampleId, ET_DEMONSTRATED_BY, Ev);
-            Break;
+            N := Graph.Nodes[J];
+            if N.NodeType <> NT_COMPONENT then Continue;
+            if Identifiers.IndexOfName(LowerCase(N.Name)) >= 0 then
+            begin
+              LineNo := StrToIntDef(Identifiers.Values[LowerCase(N.Name)], 0);
+              Ev := MakeEvidence(Artifacts[K].RelPath, LineNo,
+                'fgx_sample.identifier');
+              Graph.AddEdge(N.Id, SampleId, ET_DEMONSTRATED_BY, Ev);
+            end;
           end;
-      end;
+        end;
     end;
 
     WriteLn(Format('[graph] %d nos, %d arestas', [Graph.NodeCount, Graph.EdgeCount]));
@@ -498,6 +512,7 @@ begin
       Halt(1);
 
   finally
+    Identifiers.Free;
     SampleDirs.Free;
     UnitPkgs.Free;
     UnitFiles.Free;
