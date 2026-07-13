@@ -1,94 +1,158 @@
-# AI Framework Graph Explorer — Núcleo Factual (M1–M2)
+# AI Framework Graph Explorer
 
-Implementação do recorte da **seção 16** da especificação: a primeira sessão,
-entregue como **binário de console**.
+Aplicacao Lazarus que analisa o proprio repositorio da suite, constroi um grafo
+factual de sua arquitetura e usa IA opcionalmente para interpretar os fatos.
 
-## Por que console, e por que sem os pacotes `openai_*`
+## O que a interface entrega
 
-A especificação original faz o sample GUI depender de **seis pacotes** da suíte
-(`openai_core`, `files`, `project`, `graph`, `agent`, `output`) — e a própria
-tarefa **G001** admite que ainda não se sabe se eles compilam.
+- **Projeto:** escolhe a raiz e executa a analise completa.
+- **Inventario:** arvore produzida pelo `TAIDiskTreeScanner` e contadores por tipo.
+- **Pacotes:** pacotes `.lpk` e suas dependencias internas e externas.
+- **Componentes:** componentes registrados, pacote de origem, paleta e samples que
+  comprovadamente usam cada componente. Componentes sem sample aparecem como orfaos.
+- **Samples:** projetos `.lpi`, componentes usados e resultado real do `lazbuild`.
+  Um sample compilado pode ser aberto para validacao visual.
+- **Analise IA:** recomendacoes geradas pelo `TCHATGPT` a partir do grafo pronto.
+- **Setup:** tipo de provedor, modelo, endpoint, token, caminhos do `lazbuild` e
+  do FPC e diretorio isolado de compilacao.
+- **Log:** etapas e resultados `PASS`, `FAIL` e `SKIPPED`.
+- **Relatorio final:** resumo e evidencias consolidadas em um arquivo TXT.
+- **Historico:** snapshots comparaveis que denunciam componentes, pacotes ou
+  samples desaparecidos e regressao de build.
 
-Este núcleo inverte a ordem:
+## Pipeline em etapas
 
-- **Zero dependência** de `openai_*`, zero LCL. Só FPC (`fcl-xml`, `fpjson`, `fgl`).
-- Compila com um comando `fpc`, sem instalar pacote na IDE.
-- Roda hoje, contra o repositório real, e **produz o dado que decide o que cortar**.
+O botao **Analyze project** executa dez etapas visiveis e independentes:
 
-Quando os fatos estiverem de pé, isto vira `TAIDependencyGraph` (em `openai_graph`)
-e os parsers migram para `openai_files`. O sample GUI passa a ser uma **casca** em
-volta de lógica já provada — em vez de nascer acoplado a seis pacotes não validados.
+1. Inventario do disco.
+2. Pacotes e units.
+3. Dependencias entre pacotes.
+4. Tokenizacao Pascal e componentes.
+5. Cobertura dos componentes por samples.
+6. Validacao do grafo factual.
+7. Compilacao dos samples.
+8. Analise opcional por IA.
+9. Relatorio factual final.
+10. Relatorio de IA com `Where`, `What` e recomendacao.
 
-É o princípio nº 2 da própria especificação: **fato antes de inferência**.
+Cada etapa termina como `PASS`, `FAIL`, `PARTIAL`, `CANCELLED` ou `SKIPPED`.
+As opcoes **Compilar samples** e **Executar analise IA** permitem controlar as
+duas etapas demoradas. Elas ficam habilitadas por padrao na interface.
+
+## Separacao entre fatos e IA
+
+A descoberta nao depende de rede nem token. Os parsers leem os `.lpk`, tokenizam
+Pascal, localizam `uses`, classes e `RegisterComponents`, identificam os projetos
+de sample e cruzam os identificadores encontrados. Esses fatos alimentam o
+`TAIDependencyGraph` com evidencia de arquivo, linha e parser.
+
+A IA nunca decide se um pacote, componente, dependencia ou sample existe. Ela
+recebe somente um resumo do grafo factual validado e produz recomendacoes em uma
+aba separada. Se o setup estiver em **Offline**, a etapa de IA fica `SKIPPED` e
+todo o restante continua funcionando.
+
+Os achados sao produzidos por regras deterministicas em `fgx_findings.pas`.
+`Where`, `What`, tipo, severidade e causa-raiz ficam bloqueados. A IA recebe os
+achados em lotes pequenos e preenche somente a recomendacao, isto e, o **How**.
+
+## Setup
+
+### IA
+
+Provedores suportados pelo componente `TCHATGPT`:
+
+- OpenAI
+- OpenRouter
+- Cerebras
+- Ollama/local
+- Google Gemini
+- Anthropic Claude
+
+O token, o modelo e o endpoint sao salvos somente quando o usuario pressiona
+**Save setup**. O token fica no arquivo de configuracao do perfil do usuario e
+nunca e gravado nos artefatos do repositorio.
+
+### Toolchain Lazarus
+
+Antes de compilar os samples, configure na mesma aba:
+
+- **Lazarus directory:** diretorio de instalacao do Lazarus que contem o
+  `lazbuild.exe` no Windows ou `lazbuild` no Linux.
+- **FPC compiler:** caminho completo do `fpc.exe` usado pelo Lazarus.
+- **Build output:** pasta externa onde as compilacoes de validacao serao geradas.
+
+O botao **Auto-detect** procura uma instalacao local do Lazarus, inclusive em
+`C:\lazarus`. O botao **Test toolchain** executa `fpc -iV` e
+`lazbuild --version`; somente codigo de saida zero produz `PASS`. Use **Save
+setup** para manter os caminhos no proximo uso. O arquivo
+`framework_graph_explorer.ini` fica em `%APPDATA%\AIFrameworkGraphExplorer` no
+Windows e em `~/.framework_graph_explorer` no Linux. No Linux, o arquivo recebe
+permissao `0600`, limitada ao usuario atual.
 
 ## Compilar
 
-```bash
-mkdir -p build/units
-fpc -Mobjfpc -Sh -O2 -Sew -Fusrc -FUbuild/units -obuild/fgxcli src/fgxcli.lpr
+Instale os pacotes da suite e execute:
+
+```powershell
+C:\lazarus\lazbuild.exe --build-all --ws=win32 --compiler=C:\lazarus\fpc\3.2.2\bin\i386-win32\fpc.exe framework_graph_explorer.lpi
 ```
 
-`-Sew` faz warnings virarem erro. Compila limpo em FPC 3.2.2.
+O projeto requer `openai_core`, `openai_files`, `openai_graph` e `LCL`.
 
-## Rodar
+## Executar
 
-```bash
-./build/fgxcli <raiz-do-repositorio> [pasta-de-saida]
-./build/fgxcli . output          # contra o próprio CHATGPT
+Abra o executavel e selecione a raiz do repositorio. Tambem e possivel informar
+a raiz na linha de comando para iniciar a analise automaticamente:
+
+```powershell
+framework_graph_explorer.exe D:\projetos\maurinsoft\CHATGPT
 ```
 
-Exit code `0` = grafo validado (PASS). `1` = FAIL. Sem sucesso artificial.
+### Gate headless
 
-## O que já faz
+Para CI ou automacao, use:
 
-| Tarefa | Item |
-|---|---|
-| G009–G011 | Varredura recursiva, exclusão de `lib`/`bin`/`.git`/`dist`, classificação por extensão |
-| G012 | `inventory.json` |
-| G015 | Parser determinista de `.lpk` (Name, Type, Files, UnitName, HasRegisterProc, RequiredPkgs) |
-| G026 | LPK corrompido vira `partial` com motivo registrado — o pipeline **não para** |
-| G028–G031 | Grafo genérico: IDs estáveis, dedupe, evidência e atributos por nó/aresta |
-| G032/G033/G037 | Nós de `package` / `unit` / `external_dependency`; arestas `contains` e `requires_package` |
-| G040 | Validação: arestas quebradas, sem evidência, auto-arestas, órfãos → PASS/FAIL |
-| G043 | `graph.dot` (GraphViz) |
-| — | `factual_graph.json` |
-| E2 | Caminhos de nós e evidências relativos à raiz |
-| E3–E5 | `uses`, classes públicas e `RegisterComponents`, sem aceitar texto de comentários/diretivas como fato |
-| E6 | Nós `component` e arestas `declares`/`registers` com arquivo e linha |
-| E7–E8 | Projetos em `pacote/samples/` e `demonstrated_by` somente com identificador comprovado |
-| E9 | `stability_report.json`: componentes sem sample, units sem uso de entrada e dependências por pacote |
+```powershell
+framework_graph_explorer.exe --headless --root D:\projetos\maurinsoft\CHATGPT --no-ai
+```
 
-**Nenhum nó ou aresta existe sem evidência** (arquivo + parser de origem). A
-validação rejeita o grafo se houver. A camada de IA não escreve aqui — o tipo
-`Kind` é fixado em `factual` no `AddEdge`.
+Opcoes:
 
-## Limites deliberados
+- `--no-build`: pula a compilacao dos samples.
+- `--ai`: solicita a analise por IA; sem token, a etapa fica `SKIPPED`.
+- `--no-ai`: nunca acessa a rede.
 
-- O parser é conservador e não substitui um compilador Pascal completo.
-- Referências de unit não resolvidas são registradas como `unresolved`; nunca são
-  promovidas a units internas sem evidência.
-- Uso em sample é associação estática por identificador em `.pas`, `.lpr` ou
-  `.lfm`; o relatório declara a possibilidade de falso positivo/negativo.
-- Não gera IA, GUI, memória, PDF ou Word.
+Codigos de saida:
 
-## Saídas
+- `0`: grafo valido, sem build FAIL e sem regressao temporal.
+- `1`: validacao, build ou comparacao temporal falhou.
+- `2`: raiz invalida ou execucao cancelada.
+
+## Artefatos
+
+Depois da analise, a pasta do executavel recebe:
 
 - `inventory.json`
 - `factual_graph.json`
 - `graph.dot`
-- `stability_report.json`
+- `graph.mmd`
+- `framework_graph_report.txt`
+- `DOC/fgx/history/<timestamp>.json`
 
-## Fixtures
+Esses arquivos sao resultados de execucao e estao ignorados pelo Git.
 
-`fixtures/repo/` contém 3 LPK válidos, 1 **deliberadamente corrompido** e um
-`lib/` que deve ser ignorado. É o teste do G026 e do G008.
+O relatorio final inclui a situacao de cada etapa, contagens do grafo, todas as
+dependencias de pacote, componentes orfaos, relacao componente/sample, resultado
+de cada compilacao e a resposta da IA quando ela tiver sido executada. Se alguma
+etapa opcional nao rodar, o resultado global aparece como `PARTIAL`, nunca como
+`PASS` artificial.
 
-Resultado esperado: 13 nós, 15 arestas, 1 pacote `partial`, validação **PASS**.
+## Limites honestos
 
-## CI
-
-`.github/workflows/fgx-core.yml` compila em Ubuntu e Windows, roda contra a
-fixture e contra o repositório real, e publica o grafo como artefato.
-
-Este é o item que faltava: a partir dele, **qualquer pessoa sabe se o núcleo
-compila hoje** — sem abrir o Lazarus.
+- `PASS` em um sample significa que o `lazbuild` terminou com exit code zero.
+- Samples GUI precisam ser abertos pelo botao para validacao visual; iniciar o
+  processo e registrado como `ABERTO`, nao como teste automatizado de comportamento.
+- O parser Pascal e conservador e nao substitui o compilador.
+- Dependencias nao resolvidas sao mantidas como `external_dependency`.
+- Nenhum achado remove arquivos. Desaparecimentos apenas geram evidencia e
+  codigo de saida diferente de zero.

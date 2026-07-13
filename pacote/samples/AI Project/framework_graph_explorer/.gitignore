@@ -1,3 +1,13 @@
 build/
 output/*
 !output/.gitkeep
+lib/
+framework_graph_explorer.exe
+framework_graph_explorer.res
+framework_graph_explorer.lps
+framework_graph_explorer.ini
+inventory.json
+factual_graph.json
+graph.dot
+graph.mmd
+framework_graph_report.txt

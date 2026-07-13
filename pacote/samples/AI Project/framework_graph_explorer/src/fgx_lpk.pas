@@ -42,6 +42,8 @@ type
 
 { Retorna sempre um objeto (nunca nil). Verifique Partial/ParseErrors. }
 function ParseLPK(const AFileName: string): TLPKPackage;
+function ParseProjectRequiredPackages(const AFileName: string;
+  APackages, AErrors: TStrings): Boolean;
 
 implementation
 
@@ -211,6 +213,52 @@ begin
     ParseFilesSection(Result, PkgNode.FindNode(UTF8Decode('Files')));
     ParseRequiredSection(Result, PkgNode.FindNode(UTF8Decode('RequiredPkgs')));
 
+  finally
+    Doc.Free;
+  end;
+end;
+
+function ParseProjectRequiredPackages(const AFileName: string;
+  APackages, AErrors: TStrings): Boolean;
+var
+  Doc: TXMLDocument;
+  ProjectOptions, RequiredNode, Item: TDOMNode;
+  PackageName: string;
+begin
+  Result := False;
+  if Assigned(APackages) then APackages.Clear;
+  if Assigned(AErrors) then AErrors.Clear;
+  Doc := nil;
+  try
+    try
+      ReadXMLFile(Doc, AFileName);
+    except
+      on E: Exception do
+      begin
+        if Assigned(AErrors) then AErrors.Add(E.Message);
+        Exit;
+      end;
+    end;
+    if not Assigned(Doc.DocumentElement) then Exit;
+    ProjectOptions := Doc.DocumentElement.FindNode(UTF8Decode('ProjectOptions'));
+    if not Assigned(ProjectOptions) then Exit;
+    RequiredNode := ProjectOptions.FindNode(UTF8Decode('RequiredPackages'));
+    if not Assigned(RequiredNode) then
+      Exit(True);
+    Item := RequiredNode.FirstChild;
+    while Assigned(Item) do
+    begin
+      if IsItemNode(Item) then
+      begin
+        PackageName := Trim(GetChildValue(Item, 'PackageName'));
+        if PackageName <> '' then
+          APackages.Add(PackageName)
+        else if Assigned(AErrors) then
+          AErrors.Add('RequiredPackages item without PackageName');
+      end;
+      Item := Item.NextSibling;
+    end;
+    Result := not Assigned(AErrors) or (AErrors.Count = 0);
   finally
     Doc.Free;
   end;
