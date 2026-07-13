@@ -1,0 +1,132 @@
+object frmMain: TfrmMain
+  Left = 220
+  Height = 760
+  Top = 120
+  Width = 1200
+  Caption = 'AI Framework Graph Explorer'
+  ClientHeight = 760
+  ClientWidth = 1200
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '4.4.0.0'
+  object PageControl1: TPageControl
+    Left = 0
+    Height = 760
+    Top = 0
+    Width = 1200
+    ActivePage = tsProject
+    Align = alClient
+    TabOrder = 0
+    object tsProject: TTabSheet
+      Caption = 'Projeto'
+      ClientHeight = 730
+      ClientWidth = 1192
+      object pnlProjectTop: TPanel
+        Left = 0
+        Height = 130
+        Top = 0
+        Width = 1192
+        Align = alTop
+        BevelOuter = bvNone
+        TabOrder = 0
+        object lblRoot: TLabel
+          Left = 16
+          Height = 15
+          Top = 17
+          Width = 28
+          Caption = 'Raiz'
+          ParentColor = False
+        end
+        object deRoot: TDirectoryEdit
+          Left = 56
+          Height = 28
+          Top = 12
+          Width = 740
+          ButtonWidth = 26
+          NumGlyphs = 1
+          TabOrder = 0
+        end
+        object btnAnalyze: TButton
+          Left = 810
+          Height = 32
+          Top = 10
+          Width = 120
+          Caption = 'Analisar'
+          TabOrder = 1
+          OnClick = btnAnalyzeClick
+        end
+        object btnStop: TButton
+          Left = 940
+          Height = 32
+          Top = 10
+          Width = 120
+          Caption = 'Parar'
+          TabOrder = 2
+          OnClick = btnStopClick
+        end
+        object ProgressBar1: TProgressBar
+          Left = 56
+          Height = 18
+          Top = 52
+          Width = 1004
+          TabOrder = 3
+        end
+        object lblProjectStatus: TLabel
+          Left = 56
+          Height = 15
+          Top = 82
+          Width = 42
+          Caption = 'Pronto.'
+          ParentColor = False
+        end
+      end
+    end
+    object tsInventory: TTabSheet
+      Caption = 'Inventário'
+      ClientHeight = 730
+      ClientWidth = 1192
+      object pnlInventoryTop: TPanel
+        Left = 0
+        Height = 240
+        Top = 0
+        Width = 1192
+        Align = alTop
+        BevelOuter = bvNone
+        TabOrder = 0
+        object sgCounts: TStringGrid
+          Left = 0
+          Height = 216
+          Top = 0
+          Width = 1192
+          Align = alClient
+          ColCount = 2
+          FixedCols = 0
+          FixedRows = 1
+          Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goRowSelect]
+          RowCount = 12
+          TabOrder = 0
+        end
+        object lblInventoryStatus: TLabel
+          Left = 8
+          Height = 15
+          Top = 220
+          Width = 42
+          Caption = 'Pronto.'
+          ParentColor = False
+        end
+      end
+      object tvInventory: TTreeView
+        Left = 0
+        Height = 490
+        Top = 240
+        Width = 1192
+        Align = alClient
+        Indent = 19
+        ReadOnly = True
+        ShowButtons = True
+        ShowLines = True
+        TabOrder = 1
+      end
+    end
+  end
+end
