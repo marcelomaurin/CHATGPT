@@ -41,11 +41,17 @@ jobs:
           mkdir -p build/units
           fpc -Mobjfpc -Sh -O2 -Sew -Fusrc -FUbuild/units -obuild/fgxcli src/fgxcli.lpr
           fpc -Mobjfpc -Sh -O2 -Sew -Fusrc -FUbuild/units -obuild/fgx_parser_tests src/fgx_parser_tests.lpr
+          fpc -Mobjfpc -Sh -O2 -Sew -Fusrc -Fu"../../../../pacote/AI" -Fu"../../../../pacote/AI Graph" -FUbuild/units -obuild/fgx_graph_tests src/fgx_graph_tests.lpr
 
       - name: Testar parser Pascal factual
         shell: bash
         working-directory: ${{ env.FGX_DIR }}
         run: ./build/fgx_parser_tests fixtures/parser/parser_fixture.pas
+
+      - name: Testar grafo factual
+        shell: bash
+        working-directory: ${{ env.FGX_DIR }}
+        run: ./build/fgx_graph_tests ../../../..
 
       # A fixture inclui um .lpk deliberadamente corrompido: deve virar 'partial'
       # e o pipeline deve seguir. Esperado: 13 nos, 15 arestas, PASS.

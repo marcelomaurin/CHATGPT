@@ -13,13 +13,23 @@
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Description Value="Lazarus AI Suite: Graph Classifier and Visualization components (TAIGraphMap, TAITrainingExporter, TAIDatasetAnalyzer, TAITrainingReport, TAIGraphVisualizer)."/>
+    <Description Value="Lazarus AI Suite: Graph Classifier, factual dependency graph and visualization components (TAIGraphMap, TAIDependencyGraph, TAIGraphStructuralAdapter, TAITrainingExporter, TAIDatasetAnalyzer, TAITrainingReport, TAIGraphVisualizer)."/>
     <License Value="OPEN SOURCE GPL3"/>
     <Files>
+      <Item>
+        <Filename Value="..\AI Graph\aidependencygraph.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aidependencygraph"/>
+      </Item>
       <Item>
         <Filename Value="..\AI Graph\aigraphmap.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aigraphmap"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Graph\aigraphstructuraladapter.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aigraphstructuraladapter"/>
       </Item>
       <Item>
         <Filename Value="..\AI Graph\aitrainingexporter.pas"/>

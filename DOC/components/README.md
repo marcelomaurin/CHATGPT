@@ -38,6 +38,8 @@ Este índice lista os componentes documentados individualmente.
 | Componente | Documentação | Unit | Pacote | Status |
 |---|---|---|---|---|
 | `TAIGraphMap` | [`TAIGraphMap`](TAIGraphMap/) | `aigraphmap.pas` | `openai_graph` | Beta |
+| `TAIDependencyGraph` | [`TAIDependencyGraph`](TAIDependencyGraph/) | `aidependencygraph.pas` | `openai_graph` | Beta |
+| `TAIGraphStructuralAdapter` | [`TAIGraphStructuralAdapter`](TAIGraphStructuralAdapter/) | `aigraphstructuraladapter.pas` | `openai_graph` | Beta |
 | `TAITrainingExporter` | [`TAITrainingExporter`](TAITrainingExporter/) | `aitrainingexporter.pas` | `openai_graph` | Experimental |
 | `TAIDatasetAnalyzer` | [`TAIDatasetAnalyzer`](TAIDatasetAnalyzer/) | `aidatasetanalyzer.pas` | `openai_graph` | Experimental |
 | `TAITrainingReport` | [`TAITrainingReport`](TAITrainingReport/) | `aitrainingreport.pas` | `openai_graph` | Experimental |

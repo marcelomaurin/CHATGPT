@@ -52,6 +52,8 @@ Use esta classificação para documentação, README de abas, samples e planejam
 | Componente | Unit | Pacote | Status | Observação |
 |---|---|---|---|---|
 | `TAIGraphMap` | `aigraphmap.pas` | `openai_graph` | Beta | Classificação por grafo e tokens |
+| `TAIDependencyGraph` | `aidependencygraph.pas` | `openai_graph` | Beta | Grafo factual com evidência obrigatória e arestas inferidas separadas |
+| `TAIGraphStructuralAdapter` | `aigraphstructuraladapter.pas` | `openai_graph` | Beta | Projeção estrutural para reutilizar o visualizer atual |
 | `TAITrainingExporter` | `aitrainingexporter.pas` | `openai_graph` | Experimental | Exportação de dados de treinamento |
 | `TAIDatasetAnalyzer` | `aidatasetanalyzer.pas` | `openai_graph` | Experimental | Análise de qualidade de dataset |
 | `TAITrainingReport` | `aitrainingreport.pas` | `openai_graph` | Experimental | Relatórios técnicos de treinamento |
