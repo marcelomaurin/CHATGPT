@@ -1,0 +1,995 @@
+{
+  "schema" : "fgx-stability-report-v1",
+  "warning" : "Conservative static analysis; false positives and false negatives are possible. Every item includes factual evidence.",
+  "components_without_sample" : [
+    {
+      "component" : "TAIAgentResource",
+      "file" : "pacote/AI Agent/aiagent.pas",
+      "line" : 189
+    },
+    {
+      "component" : "TAIAgentOutput",
+      "file" : "pacote/AI Agent/aiagent.pas",
+      "line" : 234
+    },
+    {
+      "component" : "TAIAgentSafety",
+      "file" : "pacote/AI Agent/aiagentsafety.pas",
+      "line" : 20
+    },
+    {
+      "component" : "TDBTokenList",
+      "file" : "pacote/AI/dbtokenlist.pas",
+      "line" : 12
+    },
+    {
+      "component" : "TGroupResponse",
+      "file" : "pacote/AI/groupresponse.pas",
+      "line" : 12
+    },
+    {
+      "component" : "TAISensorVirtual",
+      "file" : "pacote/AI Graphic/aisensorvirtual.pas",
+      "line" : 15
+    },
+    {
+      "component" : "TAIRewardFunction",
+      "file" : "pacote/AI Graphic/airewardfunction.pas",
+      "line" : 13
+    },
+    {
+      "component" : "TAIKinectAudio",
+      "file" : "pacote/AI Input/AIKinect/aikinectaudio.pas",
+      "line" : 13
+    },
+    {
+      "component" : "TAIAgileDocuments",
+      "file" : "pacote/AI Project/aiproject_documents.pas",
+      "line" : 12
+    },
+    {
+      "component" : "TAIProjectDependencies",
+      "file" : "pacote/AI Project/aiproject_dependencies.pas",
+      "line" : 12
+    },
+    {
+      "component" : "TAIProjectAgents",
+      "file" : "pacote/AI Project/aiproject_agents.pas",
+      "line" : 12
+    },
+    {
+      "component" : "TAIProjectReports",
+      "file" : "pacote/AI Project/aiproject_reports.pas",
+      "line" : 25
+    },
+    {
+      "component" : "TAIProjectRevisions",
+      "file" : "pacote/AI Project/aiproject_revisions.pas",
+      "line" : 23
+    },
+    {
+      "component" : "TAIProjectTimeline",
+      "file" : "pacote/AI Project/aiproject_timeline.pas",
+      "line" : 11
+    },
+    {
+      "component" : "TAIRiskMatrix",
+      "file" : "pacote/AI Project/aiproject_riskmatrix.pas",
+      "line" : 11
+    },
+    {
+      "component" : "TAITaskActionPanel",
+      "file" : "pacote/AI Project/aiproject_taskactionpanel.pas",
+      "line" : 18
+    },
+    {
+      "component" : "TAIProjectReportViewer",
+      "file" : "pacote/AI Project/aiproject_reportviewer.pas",
+      "line" : 13
+    },
+    {
+      "component" : "TAIPythonRuntime",
+      "file" : "pacote/python/aipythonruntime.pas",
+      "line" : 13
+    },
+    {
+      "component" : "TAIEntityFactory",
+      "file" : "pacote/AI Simulation/aientityfactory.pas",
+      "line" : 36
+    },
+    {
+      "component" : "TAIEvolutionEngine",
+      "file" : "pacote/AI Simulation/aievolutionengine.pas",
+      "line" : 13
+    },
+    {
+      "component" : "TAIScenarioConfig",
+      "file" : "pacote/AI Simulation/aiscenarioconfig.pas",
+      "line" : 13
+    },
+    {
+      "component" : "TAIScenarioGenerator",
+      "file" : "pacote/AI Simulation/aiscenariogenerator.pas",
+      "line" : 13
+    },
+    {
+      "component" : "TAIFrameBuffer",
+      "file" : "pacote/AI Vision/aiframebuffer.pas",
+      "line" : 13
+    }
+  ],
+  "units_without_incoming_use" : [
+    {
+      "unit" : "aiwizardconfig",
+      "file" : "pacote/packages/openai_agent.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiagent_browseractions",
+      "file" : "pacote/packages/openai_agent.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiagent_orchestrator",
+      "file" : "pacote/packages/openai_agent.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiagentserial",
+      "file" : "pacote/packages/openai_agent.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aidb_register",
+      "file" : "pacote/packages/openai_aidbase.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "funcoes",
+      "file" : "pacote/packages/openai_core.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "ailibraryloader",
+      "file" : "pacote/packages/openai_core.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aicodeassistant",
+      "file" : "pacote/packages/openai_core.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "dbtokenlist",
+      "file" : "pacote/packages/openai_core.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "groupresponse",
+      "file" : "pacote/packages/openai_core.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "iaschedule",
+      "file" : "pacote/packages/openai_core.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aidisktreescanner",
+      "file" : "pacote/packages/openai_files.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "ai_docfilesmanager",
+      "file" : "pacote/packages/openai_files.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aidatasetanalyzer",
+      "file" : "pacote/packages/openai_graph.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aitrainingreport",
+      "file" : "pacote/packages/openai_graph.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aigraphvisualizer",
+      "file" : "pacote/packages/openai_graph.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aitrainingenvironment",
+      "file" : "pacote/packages/openai_graphic.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiphysicssimulator",
+      "file" : "pacote/packages/openai_graphic.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aisensorvirtual",
+      "file" : "pacote/packages/openai_graphic.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "airewardfunction",
+      "file" : "pacote/packages/openai_graphic.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "ai3dmodelviewer",
+      "file" : "pacote/packages/openai_graphic.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiavatarcontroller",
+      "file" : "pacote/packages/openai_graphic.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiposelibrary",
+      "file" : "pacote/packages/openai_graphic.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aianimationsequence",
+      "file" : "pacote/packages/openai_graphic.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aitripo3dclient",
+      "file" : "pacote/packages/openai_graphic.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "imagefilters",
+      "file" : "pacote/packages/openai_image.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiarduinomodbuspinmap",
+      "file" : "pacote/packages/openai_industrial.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aicapturesource_icon",
+      "file" : "pacote/packages/openai_input.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiserialfingerprint",
+      "file" : "pacote/packages/openai_input.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiusb_register",
+      "file" : "pacote/packages/openai_input.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aikinectcolor",
+      "file" : "pacote/packages/openai_input.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aikinectdepth",
+      "file" : "pacote/packages/openai_input.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aikinectskeleton",
+      "file" : "pacote/packages/openai_input.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aikinectaudio",
+      "file" : "pacote/packages/openai_input.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "perceptron",
+      "file" : "pacote/packages/openai_ml.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "sommap",
+      "file" : "pacote/packages/openai_ml.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "matrizcomponent",
+      "file" : "pacote/packages/openai_ml.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "numps",
+      "file" : "pacote/packages/openai_ml.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiwordstyles",
+      "file" : "pacote/packages/openai_output.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiwordviewer",
+      "file" : "pacote/packages/openai_output.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiproject_llmconfig",
+      "file" : "pacote/packages/openai_project.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiproject_storage",
+      "file" : "pacote/packages/openai_project.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiproject_description",
+      "file" : "pacote/packages/openai_project.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiproject_documents",
+      "file" : "pacote/packages/openai_project.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiproject_tasks",
+      "file" : "pacote/packages/openai_project.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiproject_specification",
+      "file" : "pacote/packages/openai_project.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiproject_dependencies",
+      "file" : "pacote/packages/openai_project.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiproject_agents",
+      "file" : "pacote/packages/openai_project.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiproject_actions",
+      "file" : "pacote/packages/openai_project.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiproject_revisions",
+      "file" : "pacote/packages/openai_project.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiproject_taskgrid",
+      "file" : "pacote/packages/openai_project.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiproject_gantt",
+      "file" : "pacote/packages/openai_project.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiproject_timeline",
+      "file" : "pacote/packages/openai_project.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiproject_riskmatrix",
+      "file" : "pacote/packages/openai_project.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiproject_statuspanel",
+      "file" : "pacote/packages/openai_project.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiproject_agentmanager",
+      "file" : "pacote/packages/openai_project.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiproject_taskactionpanel",
+      "file" : "pacote/packages/openai_project.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiproject_reportviewer",
+      "file" : "pacote/packages/openai_project.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "facedetection",
+      "file" : "pacote/packages/openai_python.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "yolodetect",
+      "file" : "pacote/packages/openai_python.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "cnnclassifier",
+      "file" : "pacote/packages/openai_python.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "lstmpredictor",
+      "file" : "pacote/packages/openai_python.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aigridbuffer",
+      "file" : "pacote/packages/openai_simulation.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aisimulationengine",
+      "file" : "pacote/packages/openai_simulation.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aigridrenderer2d",
+      "file" : "pacote/packages/openai_simulation.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiscenariogenerator",
+      "file" : "pacote/packages/openai_simulation.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aisimulationexporter",
+      "file" : "pacote/packages/openai_simulation.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aigridworld_icon",
+      "file" : "pacote/packages/openai_simulation.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aisimentity_icon",
+      "file" : "pacote/packages/openai_simulation.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aientityfactory_icon",
+      "file" : "pacote/packages/openai_simulation.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aisimulationengine_icon",
+      "file" : "pacote/packages/openai_simulation.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "airuleengine_icon",
+      "file" : "pacote/packages/openai_simulation.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aitriggerengine_icon",
+      "file" : "pacote/packages/openai_simulation.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aimovementengine_icon",
+      "file" : "pacote/packages/openai_simulation.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aievolutionengine_icon",
+      "file" : "pacote/packages/openai_simulation.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aisimulationstats_icon",
+      "file" : "pacote/packages/openai_simulation.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aigridrenderer2d_icon",
+      "file" : "pacote/packages/openai_simulation.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiscenarioconfig_icon",
+      "file" : "pacote/packages/openai_simulation.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiscenariogenerator_icon",
+      "file" : "pacote/packages/openai_simulation.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aisimulationexporter_icon",
+      "file" : "pacote/packages/openai_simulation.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiopencv",
+      "file" : "pacote/packages/openai_vision.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiframeprocessor",
+      "file" : "pacote/packages/openai_vision.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aifacetracker",
+      "file" : "pacote/packages/openai_vision.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aimotiontracker",
+      "file" : "pacote/packages/openai_vision.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiimageinfo",
+      "file" : "pacote/packages/openai_vision.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiframebuffer",
+      "file" : "pacote/packages/openai_vision.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "ainativeimagefilter",
+      "file" : "pacote/packages/openai_vision.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiframediff",
+      "file" : "pacote/packages/openai_vision.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aihumanposedetector",
+      "file" : "pacote/packages/openai_vision.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aihumanposedetector_icon",
+      "file" : "pacote/packages/openai_vision.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiimageinfo_icon",
+      "file" : "pacote/packages/openai_vision.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiframebuffer_icon",
+      "file" : "pacote/packages/openai_vision.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "ainativeimagefilter_icon",
+      "file" : "pacote/packages/openai_vision.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aiframediff_icon",
+      "file" : "pacote/packages/openai_vision.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "aivoicesynthesizer",
+      "file" : "pacote/packages/openai_voice.lpk",
+      "line" : 0
+    },
+    {
+      "unit" : "soundfilters",
+      "file" : "pacote/packages/openai_voice.lpk",
+      "line" : 0
+    }
+  ],
+  "package_dependencies" : [
+    {
+      "package" : "openai_agent",
+      "dependencies" : [
+        {
+          "target" : "openai_core",
+          "file" : "pacote/packages/openai_agent.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "openai_ml",
+          "file" : "pacote/packages/openai_agent.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "openai_input",
+          "file" : "pacote/packages/openai_agent.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "openai_output",
+          "file" : "pacote/packages/openai_agent.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "LCL",
+          "file" : "pacote/packages/openai_agent.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "FCL",
+          "file" : "pacote/packages/openai_agent.lpk",
+          "line" : 0
+        }
+      ]
+    },
+    {
+      "package" : "openai_aidbase",
+      "dependencies" : [
+        {
+          "target" : "openai_core",
+          "file" : "pacote/packages/openai_aidbase.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "LCL",
+          "file" : "pacote/packages/openai_aidbase.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "FCL",
+          "file" : "pacote/packages/openai_aidbase.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "zcomponent",
+          "file" : "pacote/packages/openai_aidbase.lpk",
+          "line" : 0
+        }
+      ]
+    },
+    {
+      "package" : "openai_core",
+      "dependencies" : [
+        {
+          "target" : "LCL",
+          "file" : "pacote/packages/openai_core.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "FCL",
+          "file" : "pacote/packages/openai_core.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "zcomponent",
+          "file" : "pacote/packages/openai_core.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "TurboPowerIpro",
+          "file" : "pacote/packages/openai_core.lpk",
+          "line" : 0
+        }
+      ]
+    },
+    {
+      "package" : "openai_files",
+      "dependencies" : [
+        {
+          "target" : "openai_core",
+          "file" : "pacote/packages/openai_files.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "LCL",
+          "file" : "pacote/packages/openai_files.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "FCL",
+          "file" : "pacote/packages/openai_files.lpk",
+          "line" : 0
+        }
+      ]
+    },
+    {
+      "package" : "openai_graph",
+      "dependencies" : [
+        {
+          "target" : "openai_core",
+          "file" : "pacote/packages/openai_graph.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "openai_ml",
+          "file" : "pacote/packages/openai_graph.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "openai_input",
+          "file" : "pacote/packages/openai_graph.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "openai_output",
+          "file" : "pacote/packages/openai_graph.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "openai_agent",
+          "file" : "pacote/packages/openai_graph.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "LCL",
+          "file" : "pacote/packages/openai_graph.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "FCL",
+          "file" : "pacote/packages/openai_graph.lpk",
+          "line" : 0
+        }
+      ]
+    },
+    {
+      "package" : "openai_graphic",
+      "dependencies" : [
+        {
+          "target" : "openai_core",
+          "file" : "pacote/packages/openai_graphic.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "LCL",
+          "file" : "pacote/packages/openai_graphic.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "FCL",
+          "file" : "pacote/packages/openai_graphic.lpk",
+          "line" : 0
+        }
+      ]
+    },
+    {
+      "package" : "openai_image",
+      "dependencies" : [
+        {
+          "target" : "openai_core",
+          "file" : "pacote/packages/openai_image.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "LCL",
+          "file" : "pacote/packages/openai_image.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "FCL",
+          "file" : "pacote/packages/openai_image.lpk",
+          "line" : 0
+        }
+      ]
+    },
+    {
+      "package" : "openai_industrial",
+      "dependencies" : [
+        {
+          "target" : "openai_core",
+          "file" : "pacote/packages/openai_industrial.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "openai_input",
+          "file" : "pacote/packages/openai_industrial.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "LCL",
+          "file" : "pacote/packages/openai_industrial.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "FCL",
+          "file" : "pacote/packages/openai_industrial.lpk",
+          "line" : 0
+        }
+      ]
+    },
+    {
+      "package" : "openai_input",
+      "dependencies" : [
+        {
+          "target" : "CEF4Delphi_Lazarus",
+          "file" : "pacote/packages/openai_input.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "openai_core",
+          "file" : "pacote/packages/openai_input.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "LCL",
+          "file" : "pacote/packages/openai_input.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "FCL",
+          "file" : "pacote/packages/openai_input.lpk",
+          "line" : 0
+        }
+      ]
+    },
+    {
+      "package" : "openai_ml",
+      "dependencies" : [
+        {
+          "target" : "openai_core",
+          "file" : "pacote/packages/openai_ml.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "LCL",
+          "file" : "pacote/packages/openai_ml.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "FCL",
+          "file" : "pacote/packages/openai_ml.lpk",
+          "line" : 0
+        }
+      ]
+    },
+    {
+      "package" : "openai_output",
+      "dependencies" : [
+        {
+          "target" : "openai_core",
+          "file" : "pacote/packages/openai_output.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "LCL",
+          "file" : "pacote/packages/openai_output.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "FCL",
+          "file" : "pacote/packages/openai_output.lpk",
+          "line" : 0
+        }
+      ]
+    },
+    {
+      "package" : "openai_project",
+      "dependencies" : [
+        {
+          "target" : "openai_agent",
+          "file" : "pacote/packages/openai_project.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "openai_core",
+          "file" : "pacote/packages/openai_project.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "LCL",
+          "file" : "pacote/packages/openai_project.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "FCL",
+          "file" : "pacote/packages/openai_project.lpk",
+          "line" : 0
+        }
+      ]
+    },
+    {
+      "package" : "openai_python",
+      "dependencies" : [
+        {
+          "target" : "openai_core",
+          "file" : "pacote/packages/openai_python.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "LCL",
+          "file" : "pacote/packages/openai_python.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "FCL",
+          "file" : "pacote/packages/openai_python.lpk",
+          "line" : 0
+        }
+      ]
+    },
+    {
+      "package" : "openai_simulation",
+      "dependencies" : [
+        {
+          "target" : "openai_core",
+          "file" : "pacote/packages/openai_simulation.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "LCL",
+          "file" : "pacote/packages/openai_simulation.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "FCL",
+          "file" : "pacote/packages/openai_simulation.lpk",
+          "line" : 0
+        }
+      ]
+    },
+    {
+      "package" : "openai_vision",
+      "dependencies" : [
+        {
+          "target" : "openai_core",
+          "file" : "pacote/packages/openai_vision.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "openai_python",
+          "file" : "pacote/packages/openai_vision.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "LCL",
+          "file" : "pacote/packages/openai_vision.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "FCL",
+          "file" : "pacote/packages/openai_vision.lpk",
+          "line" : 0
+        }
+      ]
+    },
+    {
+      "package" : "openai_voice",
+      "dependencies" : [
+        {
+          "target" : "openai_core",
+          "file" : "pacote/packages/openai_voice.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "openai_input",
+          "file" : "pacote/packages/openai_voice.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "LCL",
+          "file" : "pacote/packages/openai_voice.lpk",
+          "line" : 0
+        },
+        {
+          "target" : "FCL",
+          "file" : "pacote/packages/openai_voice.lpk",
+          "line" : 0
+        }
+      ]
+    }
+  ]
+}
