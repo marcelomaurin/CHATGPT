@@ -5,7 +5,7 @@ unit aidb_firebird_dictionary;
 interface
 
 uses
-  Classes, SysUtils, aidb_types, aidb_dictionary_base;
+  Classes, SysUtils, aidb_types, aidb_dictionary_base, LResources;
 
 type
   TAIFirebirdDictionary = class(TAICustomDBDictionary)
@@ -75,5 +75,8 @@ function TAIFirebirdDictionary.LoadRoutines: Boolean;
 begin
   Result := True;
 end;
+
+initialization
+  {$I aidb_firebird_dictionary_icon.lrs}
 
 end.

@@ -5,7 +5,7 @@ unit aidb_oracle_dictionary;
 interface
 
 uses
-  Classes, SysUtils, aidb_types, aidb_dictionary_base;
+  Classes, SysUtils, aidb_types, aidb_dictionary_base, LResources;
 
 type
   TAIOracleDictionary = class(TAICustomDBDictionary)
@@ -74,5 +74,8 @@ function TAIOracleDictionary.LoadRoutines: Boolean;
 begin
   Result := True;
 end;
+
+initialization
+  {$I aidb_oracle_dictionary_icon.lrs}
 
 end.

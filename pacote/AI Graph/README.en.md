@@ -1,36 +1,37 @@
-# 📊 Documentation for AI Graph Tab
+# AI Graph Tab
 
-> [!NOTE]
-> This folder contains the Lazarus components suite under the **AI Graph** tab.
+> This folder contains the Lazarus components under the **AI Graph** tab.
 
-## Text Classification by Weighted Graph Maps.
-Explainable short text and ticket classification component based on local token graph maps.
+## Text Classification and Structural Graphs
 
 ### Detailed Component Reference
 
 | Component | Description | Important Properties | Main Methods | AI Agent Role |
 |---|---|---|---|---|
 | **TAIGraphMap** | Weighted graph text classifier. | `Training, LowerCaseTokens, RemoveAccents, RemoveStopWords, WindowSize, UseGraphDepthSearch, MaxDepth, DepthDecay` | `Train, TrainItem, Predict, PredictRanking, ExplainPrediction, SaveGraphToFile, LoadGraphFromFile` | Classify short texts locally without network dependencies. |
+| **TAIDependencyGraph** | Factual graph with mandatory evidence and separate inferred edges. | `NodeCount, EdgeCount, Validated, LastError` | `AddNode, AddEdge, AddInferredEdge, FindNode, Clear, Validate, CountNodesOfType, CountEdgesOfType, SaveToJSON, LoadFromJSON, SaveToDOT, SaveToMermaid` | Record structural repository facts without mixing hypothesis and evidence. |
+| **TAIGraphStructuralAdapter** | Structural projection for the current visualizer. | `DependencyGraph, GraphMap` | `Refresh, AttachToVisualizer` | Reuse the existing visualizer without breaking existing samples. |
 
-### 💻 Lazarus Code Example (TAIGraphMap)
+### Lazarus Code Example
 
 ```pascal
 var
-  MyComponent: TAIGraphMap;
+  Graph: TAIDependencyGraph;
+  Adapter: TAIGraphStructuralAdapter;
 begin
-  MyComponent := TAIGraphMap.Create(Self);
+  Graph := TAIDependencyGraph.Create(Self);
+  Adapter := TAIGraphStructuralAdapter.Create(Self);
   try
-    // Configuration properties
-    // MyComponent.Property := Value;
-    
-    // Execute call
-    // MyComponent.ExecuteMethod;
+    Adapter.DependencyGraph := Graph;
+    Adapter.Refresh;
+    // Visualizer.GraphMap := Adapter.GraphMap;
   finally
-    MyComponent.Free;
+    Adapter.Free;
+    Graph.Free;
   end;
 end;
 ```
 
+### Notes
 
-### ⚡ AI and Hardware Bridge
-Each of these components features a published `Prompt` property that transparently documents its internal API to guide AI Agents (`TAIAgent`) autonomously!
+Each component in this folder exposes a published `Prompt` property that documents its internal API for `TAIAgent`.

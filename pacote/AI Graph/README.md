@@ -1,24 +1,37 @@
-# 📊 Lazarus AI Suite — Tab: `AI Graph`
+# AI Graph Tab
 
-> [!NOTE]
-> Explainable weighted graph text classification models.
+> This folder contains the Lazarus components under the **AI Graph** tab.
 
-Please select your preferred language for the component reference manual:
+## Text Classification and Structural Graphs
 
----
+### Detailed Component Reference
 
-## 🌐 Select Language / Selecione o Idioma
+| Component | Description | Important Properties | Main Methods | AI Agent Role |
+|---|---|---|---|---|
+| **TAIGraphMap** | Weighted graph text classifier. | `Training, LowerCaseTokens, RemoveAccents, RemoveStopWords, WindowSize, UseGraphDepthSearch, MaxDepth, DepthDecay` | `Train, TrainItem, Predict, PredictRanking, ExplainPrediction, SaveGraphToFile, LoadGraphFromFile` | Classify short texts locally without network dependencies. |
+| **TAIDependencyGraph** | Factual graph with mandatory evidence and separate inferred edges. | `NodeCount, EdgeCount, Validated, LastError` | `AddNode, AddEdge, AddInferredEdge, FindNode, Clear, Validate, CountNodesOfType, CountEdgesOfType, SaveToJSON, LoadFromJSON, SaveToDOT, SaveToMermaid` | Record structural repository facts without mixing hypothesis and evidence. |
+| **TAIGraphStructuralAdapter** | Structural projection for the current visualizer. | `DependencyGraph, GraphMap` | `Refresh, AttachToVisualizer` | Reuse the existing visualizer without breaking existing samples. |
 
-| Language | Country Flag | Documentation Link |
-|---|---|---|
-| **Português (PT)** | 🇧🇷 / 🇵🇹 | 📄 [README.pt.md](README.pt.md) |
-| **English (EN)** | 🇺🇸 / 🇬🇧 | 📄 [README.en.md](README.en.md) |
-| **Español (ES)** | 🇪🇸 / 🇲🇽 | 📄 [README.es.md](README.es.md) |
-| **Français (FR)** | 🇫🇷 | 📄 [README.fr.md](README.fr.md) |
-| **Italiano (IT)** | 🇮🇹 | 📄 [README.it.md](README.it.md) |
-| **العربية (AR)** | 🇦🇪 / 🇸🇦 | 📄 [README.ar.md](README.ar.md) |
+### Lazarus Code Example
 
----
+```pascal
+var
+  Graph: TAIDependencyGraph;
+  Adapter: TAIGraphStructuralAdapter;
+begin
+  Graph := TAIDependencyGraph.Create(Self);
+  Adapter := TAIGraphStructuralAdapter.Create(Self);
+  try
+    Adapter.DependencyGraph := Graph;
+    Adapter.Refresh;
+    // Visualizer.GraphMap := Adapter.GraphMap;
+  finally
+    Adapter.Free;
+    Graph.Free;
+  end;
+end;
+```
 
-### ⚡ AI and Hardware Integration
-Each component in this folder features a published `Prompt` property that documents its API structure to automatically guide AI Agents (`TAIAgent`) in runtime.
+### Notes
+
+Each component in this folder exposes a published `Prompt` property that documents its internal API for `TAIAgent`.

@@ -5,7 +5,7 @@ unit aidb_mysql_dictionary;
 interface
 
 uses
-  Classes, SysUtils, aidb_types, aidb_dictionary_base;
+  Classes, SysUtils, aidb_types, aidb_dictionary_base, LResources;
 
 type
   TAIMySQLDictionary = class(TAICustomDBDictionary)
@@ -76,5 +76,8 @@ function TAIMySQLDictionary.LoadRoutines: Boolean;
 begin
   Result := True;
 end;
+
+initialization
+  {$I aidb_mysql_dictionary_icon.lrs}
 
 end.

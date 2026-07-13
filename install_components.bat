@@ -89,32 +89,41 @@ goto :eof
 :install_recommended
 call :install_package "pacote\packages\openai_core.lpk"
 call :install_package "pacote\packages\openai_ml.lpk"
-call :install_package "pacote\packages\openai_graph.lpk"
 call :install_package "pacote\packages\openai_output.lpk"
 call :install_package "pacote\packages\openai_input.lpk"
-call :install_package "pacote\packages\openai_image.lpk"
-call :install_package "pacote\packages\openai_simulation.lpk"
-call :install_package "pacote\packages\openai_files.lpk"
-call :install_package "pacote\packages\openai_aidbase.lpk"
-call :install_package "pacote\packages\openai_project.lpk"
-goto :eof
-
-:install_all
-call :install_package "pacote\packages\openai_core.lpk"
-call :install_package "pacote\packages\openai_ml.lpk"
-call :install_package "pacote\packages\openai_graph.lpk"
-call :install_package "pacote\packages\openai_output.lpk"
-call :install_package "pacote\packages\openai_input.lpk"
+call :install_package "pacote\packages\openai_python.lpk"
 call :install_package "pacote\packages\openai_vision.lpk"
 call :install_package "pacote\packages\openai_image.lpk"
 call :install_package "pacote\packages\openai_voice.lpk"
 call :install_package "pacote\packages\openai_industrial.lpk"
 call :install_package "pacote\packages\openai_graphic.lpk"
 call :install_package "pacote\packages\openai_agent.lpk"
+call :install_package "pacote\packages\openai_graph.lpk"
+call :install_package "pacote\packages\openai_simulation.lpk"
+call :install_package "pacote\packages\openai_files.lpk"
+goto :eof
+
+:install_all
+call :install_package "pacote\packages\openai_core.lpk"
+call :install_package "pacote\packages\openai_ml.lpk"
+call :install_package "pacote\packages\openai_output.lpk"
+call :install_package "pacote\packages\openai_input.lpk"
+call :install_package "pacote\packages\openai_python.lpk"
+call :install_package "pacote\packages\openai_vision.lpk"
+call :install_package "pacote\packages\openai_image.lpk"
+call :install_package "pacote\packages\openai_voice.lpk"
+call :install_package "pacote\packages\openai_industrial.lpk"
+call :install_package "pacote\packages\openai_graphic.lpk"
+call :install_package "pacote\packages\openai_agents.lpk"
+call :install_package "pacote\packages\openai_agent.lpk"
+call :install_package "pacote\packages\openai_graph.lpk"
 call :install_package "pacote\packages\openai_simulation.lpk"
 call :install_package "pacote\packages\openai_files.lpk"
 call :install_package "pacote\packages\openai_aidbase.lpk"
+call :install_package "pacote\packages\openai_dbase.lpk"
+call :install_package "pacote\packages\openai_hardware.lpk"
 call :install_package "pacote\packages\openai_project.lpk"
+call :install_package "pacote\packages\openai_full.lpk"
 goto :eof
 
 :install_package
@@ -145,20 +154,20 @@ echo.
 echo ============================================================
 if "%FAILED%"=="0" (
   echo Installation commands finished successfully.
-  echo.
-  echo ------------------------------------------------------------
-  echo Rebuilding Lazarus IDE with installed packages...
-  echo ------------------------------------------------------------
-  "%LAZBUILD%" --build-ide=
-  if errorlevel 1 (
-    echo [ERROR] Lazarus IDE rebuild failed. Open Lazarus and rebuild manually.
-    exit /b 1
-  ) else (
-    echo [OK] Lazarus IDE rebuilt successfully.
-  )
 ) else (
   echo Installation finished with warnings or errors.
   echo Review the messages above before using the components.
+)
+echo.
+echo ------------------------------------------------------------
+echo Rebuilding Lazarus IDE with installed packages...
+echo ------------------------------------------------------------
+"%LAZBUILD%" --build-ide
+if errorlevel 1 (
+  echo [ERROR] Lazarus IDE rebuild failed. Open Lazarus and rebuild manually.
+  set "FAILED=1"
+) else (
+  echo [OK] Lazarus IDE rebuilt successfully.
 )
 echo ============================================================
 exit /b %FAILED%

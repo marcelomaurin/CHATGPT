@@ -5,7 +5,7 @@ unit aidb_sqlserver_dictionary;
 interface
 
 uses
-  Classes, SysUtils, aidb_types, aidb_dictionary_base;
+  Classes, SysUtils, aidb_types, aidb_dictionary_base, LResources;
 
 type
   TAISQLServerDictionary = class(TAICustomDBDictionary)
@@ -74,5 +74,8 @@ function TAISQLServerDictionary.LoadRoutines: Boolean;
 begin
   Result := True;
 end;
+
+initialization
+  {$I aidb_sqlserver_dictionary_icon.lrs}
 
 end.

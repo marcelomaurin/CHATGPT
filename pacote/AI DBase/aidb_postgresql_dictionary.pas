@@ -5,7 +5,7 @@ unit aidb_postgresql_dictionary;
 interface
 
 uses
-  Classes, SysUtils, ZDataset, aidb_types, aidb_dictionary_base;
+  Classes, SysUtils, ZDataset, aidb_types, aidb_dictionary_base, LResources;
 
 type
   TAIPostgreSQLDictionary = class(TAICustomDBDictionary)
@@ -429,5 +429,8 @@ begin
   end;
   Query.Free;
 end;
+
+initialization
+  {$I aidb_postgresql_dictionary_icon.lrs}
 
 end.

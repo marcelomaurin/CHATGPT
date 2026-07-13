@@ -5,7 +5,7 @@ unit aidb_sqlite_dictionary;
 interface
 
 uses
-  Classes, SysUtils, ZDataset, aidb_types, aidb_dictionary_base;
+  Classes, SysUtils, ZDataset, aidb_types, aidb_dictionary_base, LResources;
 
 type
   TAISQLiteDictionary = class(TAICustomDBDictionary)
@@ -302,5 +302,8 @@ begin
   // SQLite does not support stored procedures or routines.
   Result := True;
 end;
+
+initialization
+  {$I aidb_sqlite_dictionary_icon.lrs}
 
 end.

@@ -1,58 +1,62 @@
-# Lazarus AI Suite - Package Compilation Baseline (GitHub Actions Run #3)
+# Lazarus AI Suite - Stabilization Baseline
 
-| Package | OS | Result | Build message |
-|---|---|---|---|
-| `openai_agent.lpk` | Linux | FAIL | Fatal: Can't find unit openai_core |
-| `openai_agent.lpk` | Windows | SKIPPED | lazbuild was not found after installing Lazarus (Workflow/Runner failure) |
-| `openai_aidbase.lpk` | Linux | FAIL | Fatal: Can't find unit zcomponent |
-| `openai_aidbase.lpk` | Windows | SKIPPED | lazbuild was not found after installing Lazarus (Workflow/Runner failure) |
-| `openai_core.lpk` | Linux | FAIL | Fatal: Can't find unit zcomponent |
-| `openai_core.lpk` | Windows | SKIPPED | lazbuild was not found after installing Lazarus (Workflow/Runner failure) |
-| `openai_files.lpk` | Linux | FAIL | Fatal: Can't find unit openai_core |
-| `openai_files.lpk` | Windows | SKIPPED | lazbuild was not found after installing Lazarus (Workflow/Runner failure) |
-| `openai_graph.lpk` | Linux | FAIL | Fatal: Can't find unit openai_core |
-| `openai_graph.lpk` | Windows | SKIPPED | lazbuild was not found after installing Lazarus (Workflow/Runner failure) |
-| `openai_graphic.lpk` | Linux | FAIL | Fatal: Can't find unit openai_core |
-| `openai_graphic.lpk` | Windows | SKIPPED | lazbuild was not found after installing Lazarus (Workflow/Runner failure) |
-| `openai_image.lpk` | Linux | FAIL | Fatal: Can't find unit openai_core |
-| `openai_image.lpk` | Windows | SKIPPED | lazbuild was not found after installing Lazarus (Workflow/Runner failure) |
-| `openai_industrial.lpk` | Linux | FAIL | Fatal: Can't find unit openai_core |
-| `openai_industrial.lpk` | Windows | SKIPPED | lazbuild was not found after installing Lazarus (Workflow/Runner failure) |
-| `openai_input.lpk` | Linux | FAIL | Fatal: Can't find unit cef4delphi_lazarus |
-| `openai_input.lpk` | Windows | SKIPPED | lazbuild was not found after installing Lazarus (Workflow/Runner failure) |
-| `openai_ml.lpk` | Linux | FAIL | Fatal: Can't find unit openai_core |
-| `openai_ml.lpk` | Windows | SKIPPED | lazbuild was not found after installing Lazarus (Workflow/Runner failure) |
-| `openai_output.lpk` | Linux | FAIL | Fatal: Can't find unit openai_core |
-| `openai_output.lpk` | Windows | SKIPPED | lazbuild was not found after installing Lazarus (Workflow/Runner failure) |
-| `openai_project.lpk` | Linux | FAIL | Fatal: Can't find unit openai_core |
-| `openai_project.lpk` | Windows | SKIPPED | lazbuild was not found after installing Lazarus (Workflow/Runner failure) |
-| `openai_python.lpk` | Linux | FAIL | Fatal: Can't find unit openai_core |
-| `openai_python.lpk` | Windows | SKIPPED | lazbuild was not found after installing Lazarus (Workflow/Runner failure) |
-| `openai_simulation.lpk` | Linux | FAIL | Fatal: Can't find unit openai_core |
-| `openai_simulation.lpk` | Windows | SKIPPED | lazbuild was not found after installing Lazarus (Workflow/Runner failure) |
-| `openai_vision.lpk` | Linux | FAIL | Fatal: Can't find unit openai_core |
-| `openai_vision.lpk` | Windows | SKIPPED | lazbuild was not found after installing Lazarus (Workflow/Runner failure) |
-| `openai_voice.lpk` | Linux | FAIL | Fatal: Can't find unit openai_core |
-| `openai_voice.lpk` | Windows | SKIPPED | lazbuild was not found after installing Lazarus (Workflow/Runner failure) |
+This document keeps CI evidence only. Local runs are excluded.
 
----
+## C7.5 - Clean 16 x 2 CI baseline
 
-### Local Execution Baseline (All dependencies met on local Windows environment)
+Topological order follows C7.4. The previous alphabetical table is discarded.
 
-All 16 packages compile successfully (`PASS`) when compiled locally using `C:\lazarus\lazbuild.exe`:
-- `openai_agent.lpk`: **PASS**
-- `openai_aidbase.lpk`: **PASS**
-- `openai_core.lpk`: **PASS**
-- `openai_files.lpk`: **PASS**
-- `openai_graph.lpk`: **PASS**
-- `openai_graphic.lpk`: **PASS**
-- `openai_image.lpk`: **PASS**
-- `openai_industrial.lpk`: **PASS**
-- `openai_input.lpk`: **PASS**
-- `openai_ml.lpk`: **PASS**
-- `openai_output.lpk`: **PASS**
-- `openai_project.lpk`: **PASS**
-- `openai_python.lpk`: **PASS**
-- `openai_simulation.lpk`: **PASS**
-- `openai_vision.lpk`: **PASS**
-- `openai_voice.lpk`: **PASS**
+| Package | Linux | Windows |
+|---|---|---|
+| `openai_core.lpk` | FAIL: Fatal: Can't find unit zcomponent | PASS |
+| `openai_ml.lpk` | FAIL: Fatal: Can't find unit openai_core | PASS |
+| `openai_files.lpk` | FAIL: Fatal: Can't find unit openai_core | PASS |
+| `openai_output.lpk` | FAIL: Fatal: Can't find unit openai_core | PASS |
+| `openai_input.lpk` | FAIL: Fatal: Can't find unit cef4delphi_lazarus | PASS |
+| `openai_python.lpk` | FAIL: Fatal: Can't find unit openai_core | PASS |
+| `openai_image.lpk` | FAIL: Fatal: Can't find unit openai_core | PASS |
+| `openai_graphic.lpk` | FAIL: Fatal: Can't find unit openai_core | PASS |
+| `openai_simulation.lpk` | FAIL: Fatal: Can't find unit openai_core | PASS |
+| `openai_aidbase.lpk` | FAIL: Fatal: Can't find unit zcomponent | PASS |
+| `openai_agent.lpk` | FAIL: Fatal: Can't find unit openai_core | PASS |
+| `openai_industrial.lpk` | FAIL: Fatal: Can't find unit openai_core | PASS |
+| `openai_vision.lpk` | FAIL: Fatal: Can't find unit openai_core | PASS |
+| `openai_voice.lpk` | FAIL: Fatal: Can't find unit openai_core | PASS |
+| `openai_project.lpk` | FAIL: Fatal: Can't find unit openai_core | PASS |
+| `openai_graph.lpk` | FAIL: Fatal: Can't find unit openai_core | PASS |
+
+Windows results come from `baseline-results/Windows.tsv`.
+
+## C8 - Orphan Components
+
+Computed from `DOC/fgx/factual_graph.json` as `component` nodes minus `demonstrated_by` edges.
+
+- Components: 139
+- With sample: 116
+- Orphans: 23
+
+| Component | Package |
+|---|---|
+| `TAIAgentOutput` | `openai_agent` |
+| `TAIAgentResource` | `openai_agent` |
+| `TAIAgentSafety` | `openai_agent` |
+| `TAIAgileDocuments` | `openai_project` |
+| `TAIEntityFactory` | `openai_simulation` |
+| `TAIEvolutionEngine` | `openai_simulation` |
+| `TAIFrameBuffer` | `openai_vision` |
+| `TAIKinectAudio` | `openai_input` |
+| `TAIProjectAgents` | `openai_project` |
+| `TAIProjectDependencies` | `openai_project` |
+| `TAIProjectReports` | `openai_project` |
+| `TAIProjectReportViewer` | `openai_project` |
+| `TAIProjectRevisions` | `openai_project` |
+| `TAIProjectTimeline` | `openai_project` |
+| `TAIPythonRuntime` | `openai_python` |
+| `TAIRewardFunction` | `openai_graphic` |
+| `TAIRiskMatrix` | `openai_project` |
+| `TAIScenarioConfig` | `openai_simulation` |
+| `TAIScenarioGenerator` | `openai_simulation` |
+| `TAISensorVirtual` | `openai_graphic` |
+| `TAITaskActionPanel` | `openai_project` |
+| `TDBTokenList` | `openai_core` |
+| `TGroupResponse` | `openai_core` |

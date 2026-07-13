@@ -312,4 +312,7 @@ begin
   Result := Result + ']';
 end;
 
+initialization
+  {$I aidbase_icon.lrs}
+
 end.
