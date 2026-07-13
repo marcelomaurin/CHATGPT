@@ -4,6 +4,10 @@
 
 ![AI Project Demo](project_tasklist_ai.jpg)
 
+## Framework Graph Explorer
+
+![Framework Graph Explorer](framework_graph_explorer.jpg)
+
 ## Code Assistant Demo
 
 ![Code Assistant Demo](codeassistant_demo.jpg)
