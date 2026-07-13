@@ -28,6 +28,28 @@ jobs:
         shell: pwsh
         run: choco install lazarus -y --no-progress
 
+      - name: Instalar dependencias adicionais (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          git clone --depth 1 https://github.com/Zeoslib/Zeoslib.git zeosdbo
+          git clone --depth 1 https://github.com/salvadordf/CEF4Delphi.git cef4delphi
+          lazbuild --add-package-link=zeosdbo/packages/lazarus/zcomponent.lpk
+          lazbuild --add-package-link=cef4delphi/packages/cef4delphi_lazarus.lpk
+
+      - name: Instalar dependencias adicionais (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          git clone --depth 1 https://github.com/Zeoslib/Zeoslib.git zeosdbo
+          git clone --depth 1 https://github.com/salvadordf/CEF4Delphi.git cef4delphi
+          $lazbuildPath = 'lazbuild'
+          if (-not (Get-Command lazbuild -ErrorAction SilentlyContinue)) {
+            $candidate = Get-ChildItem -Path 'C:\lazarus*' -Filter lazbuild.exe -File -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($candidate) { $lazbuildPath = $candidate.FullName }
+          }
+          & $lazbuildPath --add-package-link=zeosdbo/packages/lazarus/zcomponent.lpk
+          & $lazbuildPath --add-package-link=cef4delphi/packages/cef4delphi_lazarus.lpk
+
       - name: Compile every tracked package
         id: baseline
         shell: pwsh
@@ -37,18 +59,42 @@ jobs:
           $logDir = Join-Path $resultDir 'logs'
           New-Item -ItemType Directory -Force -Path $logDir | Out-Null
 
-          $lazbuild = Get-Command lazbuild -ErrorAction SilentlyContinue
-          if (-not $lazbuild -and $env:RUNNER_OS -eq 'Windows') {
+          $lazbuildPath = ''
+          $lazbuildCmd = Get-Command lazbuild -ErrorAction SilentlyContinue
+          if ($lazbuildCmd) {
+            $lazbuildPath = $lazbuildCmd.Source
+          } elseif ($env:RUNNER_OS -eq 'Windows') {
             $candidate = Get-ChildItem -Path 'C:\lazarus*' -Filter lazbuild.exe -File -Recurse -ErrorAction SilentlyContinue |
               Select-Object -First 1
-            if ($candidate) { $lazbuild = $candidate }
+            if ($candidate) { $lazbuildPath = $candidate.FullName }
           }
-          if (-not $lazbuild) { throw 'lazbuild was not found after installing Lazarus.' }
+          if (-not $lazbuildPath) { throw 'lazbuild was not found after installing Lazarus.' }
+
+          # C7.4: Ordem topológica de dependências do grafo
+          $orderedPackages = @(
+            'openai_core.lpk',
+            'openai_aidbase.lpk',
+            'openai_files.lpk',
+            'openai_graphic.lpk',
+            'openai_image.lpk',
+            'openai_ml.lpk',
+            'openai_output.lpk',
+            'openai_python.lpk',
+            'openai_simulation.lpk',
+            'openai_input.lpk',
+            'openai_industrial.lpk',
+            'openai_vision.lpk',
+            'openai_voice.lpk',
+            'openai_agent.lpk',
+            'openai_project.lpk',
+            'openai_graph.lpk'
+          )
 
           $rows = [System.Collections.Generic.List[string]]::new()
-          foreach ($package in (Get-ChildItem 'pacote/packages/*.lpk' -File | Sort-Object Name)) {
+          foreach ($pkgName in $orderedPackages) {
+            $package = Get-Item "pacote/packages/$pkgName"
             $log = Join-Path $logDir ($package.BaseName + '.log')
-            & $lazbuild.Source $package.FullName 2>&1 | Tee-Object -FilePath $log
+            & $lazbuildPath $package.FullName 2>&1 | Tee-Object -FilePath $log
             $exitCode = $LASTEXITCODE
             $status = if ($exitCode -eq 0) { 'PASS' } else { 'FAIL' }
             $message = if ($exitCode -eq 0) {

@@ -29,7 +29,9 @@ jobs:
 
       - name: Instalar Free Pascal (Windows)
         if: runner.os == 'Windows'
-        run: choco install freepascal -y
+        run: |
+          choco install freepascal -y
+          echo "C:\tools\fpc\bin\i386-win32" >> $GITHUB_PATH
 
       # -Sew: warning vira erro. Nada de "compila com avisos".
       - name: Compilar o nucleo

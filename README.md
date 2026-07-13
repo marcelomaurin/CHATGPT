@@ -95,18 +95,35 @@ Para novos projetos, use diretamente os pacotes modulares.
 
 ## Instalação recomendada no Lazarus
 
-1. Abra o Lazarus.
-2. Acesse **Package > Open Package File (.lpk)**.
-3. Instale primeiro o pacote essencial:
+### Dependências Externas (Pré-requisitos)
+
+Antes de compilar a suíte, certifique-se de ter as seguintes dependências externas instaladas no Lazarus:
+
+1. **ZeosLib (Pacote `zcomponent` / `zcomponent.lpk`)**
+   * **Requisitado por:** `openai_core.lpk` e `openai_aidbase.lpk`.
+   * **Objetivo:** Prover suporte nativo a conexões com bancos de dados relacionais (PostgreSQL, SQLite, MySQL, Firebird, etc.).
+   * **Instalação:** Obtenha através do Online Package Manager do Lazarus ou via [GitHub do ZeosLib](https://github.com/Zeoslib/Zeoslib).
+
+2. **CEF4Delphi (Pacote `cef4delphi_lazarus` / `cef4delphi_lazarus.lpk`)**
+   * **Requisitado por:** `openai_input.lpk` (através de `aichromiumbrowser.pas`).
+   * **Objetivo:** Fornecer suporte à automação e visualização de páginas web usando o motor Chromium Embedded Framework.
+   * **Instalação:** Obtenha via Online Package Manager ou via [GitHub do CEF4Delphi](https://github.com/salvadordf/CEF4Delphi).
+
+### Processo de Instalação
+
+1. Instale e compile as dependências externas acima no Lazarus.
+2. Abra o Lazarus.
+3. Acesse **Package > Open Package File (.lpk)**.
+4. Instale primeiro o pacote essencial:
 
 ```text
 pacote/packages/openai_core.lpk
 ```
 
-4. Compile e instale.
-5. Instale o pacote `openai_python.lpk` caso deseje utilizar recursos de integração com scripts Python.
-6. Instale apenas os pacotes adicionais necessários ao seu projeto.
-7. Recompile a IDE quando o Lazarus solicitar.
+5. Compile e instale.
+6. Instale o pacote `openai_python.lpk` caso deseje utilizar recursos de integração com scripts Python.
+7. Instale apenas os pacotes adicionais necessários ao seu projeto.
+8. Recompile a IDE quando o Lazarus solicitar.
 
 ### Ordem recomendada de instalação
 
