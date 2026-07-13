@@ -1,0 +1,10 @@
+object frmMain: TfrmMain
+  Left = 200
+  Height = 768
+  Top = 100
+  Width = 1024
+  Caption = 'AI Project Manager Demo (TAIProject)'
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '3.0.0'
+end

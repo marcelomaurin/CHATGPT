@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="5">
+    <PathDelim Value="\"/>
+    <Name Value="openai_hardware"/>
+    <Type Value="RunAndDesignTime"/>
+    <Author Value="Marcelo Maurin Martins"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <PathDelim Value="\"/>
+      <SearchPaths>
+        <OtherUnitFiles Value="..\AI Hardware"/>
+        <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+      </SearchPaths>
+    </CompilerOptions>
+    <Description Value="Lazarus AI Suite: CPU, memory, GPU, disk and operating system hardware components."/>
+    <License Value="OPEN SOURCE GPL3"/>
+    <Files>
+      <Item>
+        <Filename Value="..\AI Hardware\aicpu.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aicpu"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Hardware\aimemory.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aimemory"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Hardware\aigpu.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aigpu"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Hardware\aidisk.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aidisk"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Hardware\aiso.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiso"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Hardware\ai_tasks.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="ai_tasks"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Hardware\ailistprinters.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="ailistprinters"/>
+      </Item>
+    </Files>
+    <RequiredPkgs>
+      <Item>
+        <PackageName Value="LCL"/>
+      </Item>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+      <UseFileFilters Value="True"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>

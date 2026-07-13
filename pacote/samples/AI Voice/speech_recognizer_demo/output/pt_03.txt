@@ -1,0 +1,1 @@
+﻿Sem consentimento online, o envio de áudio deve ser bloqueado.
