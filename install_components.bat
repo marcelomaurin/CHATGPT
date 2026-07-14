@@ -123,7 +123,6 @@ call :install_package "pacote\packages\openai_aidbase.lpk"
 call :install_package "pacote\packages\openai_dbase.lpk"
 call :install_package "pacote\packages\openai_hardware.lpk"
 call :install_package "pacote\packages\openai_project.lpk"
-call :install_package "pacote\packages\openai_full.lpk"
 goto :eof
 
 :install_package

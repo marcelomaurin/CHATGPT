@@ -120,7 +120,6 @@ install_all() {
   install_package "pacote/packages/openai_dbase.lpk"
   install_package "pacote/packages/openai_hardware.lpk"
   install_package "pacote/packages/openai_project.lpk"
-  install_package "pacote/packages/openai_full.lpk"
 }
 
 case "$MODE" in

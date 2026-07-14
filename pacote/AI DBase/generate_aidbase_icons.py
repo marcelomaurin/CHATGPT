@@ -139,6 +139,19 @@ UNIT_FILES = {
     'aidb_oracle_dictionary': 'aidb_oracle_dictionary.pas',
 }
 
+# Lazarus resolves a component palette icon by the registered component class
+# name, not by its unit or source filename. Keep this mapping explicit because
+# several units use longer provider-specific filenames.
+RESOURCE_NAMES = {
+    'aidbase': 'TAIDBase',
+    'aidb_postgresql_dictionary': 'TAIPostgreSQLDictionary',
+    'aidb_mysql_dictionary': 'TAIMySQLDictionary',
+    'aidb_sqlite_dictionary': 'TAISQLiteDictionary',
+    'aidb_firebird_dictionary': 'TAIFirebirdDictionary',
+    'aidb_sqlserver_dictionary': 'TAISQLServerDictionary',
+    'aidb_oracle_dictionary': 'TAIOracleDictionary',
+}
+
 
 def normalize_art(art):
     if len(art) != 24:
@@ -202,9 +215,9 @@ def make_bmp(pixels_rgb_flat):
     return file_header + dib_header + pixel_data
 
 
-def format_lrs_resource(name, bmp_bytes):
+def format_lrs_resource(resource_name, bmp_bytes):
     byte_strs = "".join(f"#{b}" for b in bmp_bytes)
-    return f"LazarusResources.Add('{name.upper()}','BMP',[\n  {byte_strs}\n]);"
+    return f"LazarusResources.Add('{resource_name.upper()}','BMP',[\n  {byte_strs}\n]);"
 
 
 def patch_pas_file(file_path, lrs_filename):
@@ -252,7 +265,7 @@ def main():
         lrs_filename = f'{icon_name}_icon.lrs'
         lrs_path = os.path.join(script_dir, lrs_filename)
         with open(lrs_path, 'w', encoding='utf-8') as f:
-            f.write(format_lrs_resource(icon_name, bmp_bytes) + '\n')
+            f.write(format_lrs_resource(RESOURCE_NAMES[icon_name], bmp_bytes) + '\n')
         patch_pas_file(os.path.join(script_dir, unit_file), lrs_filename)
 
 
