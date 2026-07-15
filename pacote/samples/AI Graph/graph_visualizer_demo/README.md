@@ -2,6 +2,10 @@
 
 This sample project demonstrates the usage of component `aigraphvisualizer, aigraphmap` from the `openai_graph` package.
 
+## Preview
+
+![graph_visualizer_demo preview](../../../../screenshots/graph_visualizer_demo.jpg)
+
 ## Features Illustrated
 - Exercises at least 3 component properties.
 - Calls at least 2 methods.
