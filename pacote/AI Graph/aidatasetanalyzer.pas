@@ -161,7 +161,8 @@ begin
   
   LWords := TStringList.Create;
   try
-    CollectItems(LItems);
+    try
+      CollectItems(LItems);
     
     if LItems.Count = 0 then
     begin
@@ -198,11 +199,9 @@ begin
           
         // Tokenize
         if Assigned(FGraphMap) then
-          LWords.Assign(FGraphMap.Tokenize(LItem.InputText))
+          FGraphMap.TokenizeToStrings(LItem.InputText, LWords)
         else
-        begin
-          LWords.CommaText := CleanWord(LItem.InputText);
-        end;
+          LWords.CommaText := StringReplace(CleanWord(LItem.InputText), ' ', ',', [rfReplaceAll]);
         
         Inc(LTotalTokens, LWords.Count);
         for j := 0 to LWords.Count - 1 do
@@ -326,6 +325,12 @@ begin
     FLastResult := Format('Análise concluída. Exemplos: %d, Alertas: %d', [LItems.Count, FAlerts.Count]);
     FLastSuccess := True;
     Log(llInfo, FLastResult);
+    except
+      on E: Exception do
+      begin
+        SetError('Erro ao analisar dataset: ' + E.Message);
+      end;
+    end;
   finally
     LWords.Free;
     LTokenCounts.Free;

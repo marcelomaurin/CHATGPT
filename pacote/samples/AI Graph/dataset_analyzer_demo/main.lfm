@@ -1,80 +1,371 @@
 object frmMain: TfrmMain
-  Left = 300
-  Height = 600
-  Top = 150
-  Width = 800
-  Caption = 'Dataset Analyzer Demo (aidatasetanalyzer)'
-  ClientHeight = 600
-  ClientWidth = 800
+  Left = 452
+  Height = 860
+  Top = 142
+  Width = 1240
+  Caption = 'Dataset Analyzer Demo'
+  ClientHeight = 860
+  ClientWidth = 1240
+  LCLVersion = '4.4.0.0'
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  LCLVersion = '3.0.0.3'
-  object pnlTop: TPanel
-    Left = 10
-    Height = 150
-    Top = 10
-    Width = 780
-    Align = alTop
-    BorderSpacing.Around = 10
-    ClientHeight = 150
-    ClientWidth = 780
+  object pcMain: TPageControl
+    Left = 0
+    Height = 860
+    Top = 0
+    Width = 1240
+    ActivePage = tsLoad
+    Align = alClient
+    TabIndex = 0
     TabOrder = 0
-    object lblTitle: TLabel
-      Left = 15
-      Height = 25
-      Top = 15
-      Width = 500
-      Caption = 'Dataset Analyzer Demo (aidatasetanalyzer)'
-      Font.Height = -18
-      Font.Name = 'Segoe UI'
-      Font.Style = [fsBold]
-      ParentColor = False
+    object tsLoad: TTabSheet
+      Caption = 'Load Dataset'
+      ClientHeight = 832
+      ClientWidth = 1232
+      object pnlLoadTop: TPanel
+        Left = 0
+        Height = 84
+        Top = 0
+        Width = 1232
+        Align = alTop
+        BevelOuter = bvNone
+        ClientHeight = 84
+        ClientWidth = 1232
+        TabOrder = 0
+        object lblDatasetPath: TLabel
+          Left = 16
+          Height = 15
+          Top = 14
+          Width = 58
+          Caption = 'Dataset file'
+          ParentColor = False
+        end
+        object edDatasetPath: TEdit
+          Left = 16
+          Height = 23
+          Top = 34
+          Width = 760
+          TabOrder = 0
+        end
+        object btnLoadDataset: TButton
+          Left = 792
+          Height = 30
+          Top = 32
+          Width = 140
+          Caption = 'Load Dataset'
+          TabOrder = 1
+          OnClick = btnLoadDatasetClick
+        end
+        object lblIngredientCount: TLabel
+          Left = 960
+          Height = 15
+          Top = 15
+          Width = 71
+          Caption = 'Ingredients: 0'
+          ParentColor = False
+        end
+        object lblDishCount: TLabel
+          Left = 960
+          Height = 15
+          Top = 34
+          Width = 46
+          Caption = 'Dishes: 0'
+          ParentColor = False
+        end
+        object lblRelationCount: TLabel
+          Left = 960
+          Height = 15
+          Top = 53
+          Width = 60
+          Caption = 'Relations: 0'
+          ParentColor = False
+        end
+      end
+      object pnlLoadLeft: TPanel
+        Left = 10
+        Height = 728
+        Top = 94
+        Width = 360
+        Align = alLeft
+        BorderSpacing.Around = 10
+        ClientHeight = 728
+        ClientWidth = 360
+        TabOrder = 1
+        object lblIngredients: TLabel
+          Left = 14
+          Height = 15
+          Top = 12
+          Width = 59
+          Caption = 'Ingredients'
+          ParentColor = False
+        end
+        object lbIngredients: TListBox
+          Left = 14
+          Height = 180
+          Top = 32
+          Width = 332
+          ItemHeight = 0
+          TabOrder = 0
+        end
+        object lblCategories: TLabel
+          Left = 14
+          Height = 15
+          Top = 222
+          Width = 34
+          Caption = 'Dishes'
+          ParentColor = False
+        end
+        object lbCategories: TListBox
+          Left = 14
+          Height = 150
+          Top = 242
+          Width = 332
+          ItemHeight = 0
+          TabOrder = 1
+        end
+        object lblRelations: TLabel
+          Left = 14
+          Height = 15
+          Top = 406
+          Width = 48
+          Caption = 'Relations'
+          ParentColor = False
+        end
+        object lbRelations: TListBox
+          Left = 14
+          Height = 300
+          Top = 426
+          Width = 332
+          ItemHeight = 0
+          TabOrder = 2
+        end
+      end
+      object pnlLoadRight: TPanel
+        Left = 380
+        Height = 728
+        Top = 94
+        Width = 842
+        Align = alClient
+        BorderSpacing.Around = 10
+        ClientHeight = 728
+        ClientWidth = 842
+        TabOrder = 2
+        object lblLoadInfo: TLabel
+          Left = 14
+          Height = 15
+          Top = 12
+          Width = 50
+          Caption = 'Load info'
+          ParentColor = False
+        end
+        object memoLoadInfo: TMemo
+          Left = 1
+          Height = 160
+          Top = 567
+          Width = 840
+          Align = alBottom
+          ScrollBars = ssAutoBoth
+          TabOrder = 0
+        end
+        object pbGraph: TPaintBox
+          Left = 1
+          Height = 566
+          Top = 1
+          Width = 840
+          Align = alClient
+          OnPaint = pbGraphPaint
+        end
+      end
     end
-    object lblStatus: TLabel
-      Left = 15
-      Height = 15
-      Top = 50
-      Width = 400
-      Caption = 'Status: Ready'
-      ParentColor = False
+    object tsAnalyze: TTabSheet
+      Caption = 'Analyze'
+      ClientHeight = 832
+      ClientWidth = 1232
+      object pnlAnalyzeTop: TPanel
+        Left = 0
+        Height = 90
+        Top = 0
+        Width = 1232
+        Align = alTop
+        BevelOuter = bvNone
+        ClientHeight = 90
+        ClientWidth = 1232
+        TabOrder = 0
+        object lblAnalyzeHint: TLabel
+          Left = 16
+          Height = 15
+          Top = 14
+          Width = 487
+          Caption = 'Select one or more ingredient nodes, then run the analysis to see the 5 best matching dishes.'
+          ParentColor = False
+          WordWrap = True
+        end
+        object btnSelectAll: TButton
+          Left = 600
+          Height = 30
+          Top = 26
+          Width = 110
+          Caption = 'Select All'
+          TabOrder = 0
+          OnClick = btnSelectAllClick
+        end
+        object btnClearSelection: TButton
+          Left = 720
+          Height = 30
+          Top = 26
+          Width = 130
+          Caption = 'Clear Selection'
+          TabOrder = 1
+          OnClick = btnClearSelectionClick
+        end
+        object btnAnalyze: TButton
+          Left = 860
+          Height = 30
+          Top = 26
+          Width = 120
+          Caption = 'Analyze'
+          TabOrder = 2
+          OnClick = btnAnalyzeClick
+        end
+        object lblSelectedCount: TLabel
+          Left = 1008
+          Height = 15
+          Top = 33
+          Width = 91
+          Caption = 'Selected nodes: 0'
+          ParentColor = False
+        end
+      end
+      object pnlAnalyzeLeft: TPanel
+        Left = 10
+        Height = 722
+        Top = 100
+        Width = 360
+        Align = alLeft
+        BorderSpacing.Around = 10
+        ClientHeight = 722
+        ClientWidth = 360
+        TabOrder = 1
+        object lbAnalysisNodes: TListBox
+          Left = 14
+          Height = 706
+          Top = 14
+          Width = 332
+          ItemHeight = 0
+          MultiSelect = True
+          TabOrder = 0
+          OnClick = lbAnalysisNodesClick
+        end
+      end
+      object pnlAnalyzeRight: TPanel
+        Left = 380
+        Height = 722
+        Top = 100
+        Width = 842
+        Align = alClient
+        BorderSpacing.Around = 10
+        ClientHeight = 722
+        ClientWidth = 842
+        TabOrder = 2
+        object lbRanking: TListBox
+          Left = 1
+          Height = 170
+          Top = 1
+          Width = 840
+          Align = alTop
+          ItemHeight = 0
+          TabOrder = 0
+        end
+        object memoAnalysis: TMemo
+          Left = 1
+          Height = 550
+          Top = 171
+          Width = 840
+          Align = alClient
+          ScrollBars = ssAutoBoth
+          TabOrder = 1
+        end
+      end
     end
-    object chkSimulation: TCheckBox
-      Left = 15
-      Height = 19
-      Top = 80
-      Width = 150
-      Caption = 'Simulation Mode'
-      Checked = True
-      State = cbChecked
-      TabOrder = 0
-    end
-    object btnRun: TButton
-      Left = 200
-      Height = 30
-      Top = 75
-      Width = 150
-      Caption = 'Execute Test'
-      OnClick = btnRunClick
-      TabOrder = 1
-    end
-    object btnClearLog: TButton
-      Left = 360
-      Height = 30
-      Top = 75
-      Width = 120
-      Caption = 'Clear Log'
-      OnClick = btnClearLogClick
-      TabOrder = 2
+    object tsReport: TTabSheet
+      Caption = 'Report'
+      ClientHeight = 832
+      ClientWidth = 1232
+      object pnlReportTop: TPanel
+        Left = 0
+        Height = 64
+        Top = 0
+        Width = 1232
+        Align = alTop
+        BevelOuter = bvNone
+        ClientHeight = 64
+        ClientWidth = 1232
+        TabOrder = 0
+        object btnGenerateReport: TButton
+          Left = 16
+          Height = 30
+          Top = 18
+          Width = 140
+          Caption = 'Generate Report'
+          TabOrder = 0
+          OnClick = btnGenerateReportClick
+        end
+        object btnExportReport: TButton
+          Left = 168
+          Height = 30
+          Top = 18
+          Width = 130
+          Caption = 'Export Report'
+          TabOrder = 1
+          OnClick = btnExportReportClick
+        end
+      end
+      object memoReport: TMemo
+        Left = 0
+        Height = 768
+        Top = 64
+        Width = 1232
+        Align = alClient
+        ScrollBars = ssAutoBoth
+        TabOrder = 1
+      end
     end
   end
-  object memoLog: TMemo
-    Left = 10
-    Height = 410
-    Top = 180
-    Width = 780
-    Align = alClient
-    BorderSpacing.Around = 10
-    ScrollBars = ssAutoBoth
-    TabOrder = 1
+  object AIGraphMap1: TAIGraphMap
+    Prompt = 'Component TAIGraphMap creates a weighted token graph for explainable text classification. It tokenizes input texts, creates token nodes and category nodes, connects them with weighted edges, trains from InputText and OutputCategory pairs, saves and loads the graph as JSON, and predicts the closest output category for a new text with a ranked percentage list.'
+    Training = <>
+    TokenDelimiterChars = ' ,;.:!?()[]{}''"/\@#$*&^%-_+='
+    StopWords.Strings = (
+      'a'
+      'an'
+      'and'
+      'are'
+      'for'
+      'from'
+      'in'
+      'is'
+      'it'
+      'of'
+      'on'
+      'or'
+      'the'
+      'to'
+      'with'
+    )
+    TokenEdgeWeight = 1
+    CategoryEdgeWeight = 2
+    RepetitionBoost = 1
+    DepthDecay = 0.6
+    MinimumScore = 0.01
+    UnknownCategoryName = 'unknown'
+    Left = 64
+    Top = 48
+  end
+  object sdReport: TSaveDialog
+    Title = 'Save analysis report'
+    DefaultExt = '.txt'
+    Filter = 'Text files (*.txt)|*.txt|All files (*.*)|*.*'
+    Left = 164
+    Top = 48
   end
 end
