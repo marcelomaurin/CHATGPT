@@ -1,463 +1,249 @@
 # TCHATGPT — AI Component Suite for Lazarus / Free Pascal
 
-> **Nota de estabilização:** a contagem de pacotes deste README está desatualizada; a fonte de verdade será gerada por ferramenta em E21.
-
 🌍 **Languages / Idiomas**
 
-* [Português (PT-BR)](README.md)
-* [English (EN)](README_EN.md)
-* [Español (ES)](README_ES.md)
-* [Français (FR)](README_FR.md)
-* [Italiano (IT)](README_IT.md)
-* [العربية (AR)](README_AR.md)
-* [中文 (CH)](README_CH.md)
-* [Русский (RU)](README_RU.md)
-* [日本語 (JP)](README_JP.md)
+[Português](README.md) · [English](README_EN.md) · [Español](README_ES.md) · [Français](README_FR.md) · [Italiano](README_IT.md) · [العربية](README_AR.md) · [中文](README_CH.md) · [Русский](README_RU.md) · [日本語](README_JP.md)
 
----
-
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![Lazarus](https://img.shields.io/badge/Lazarus-3.x-orange.svg)](https://www.lazarus-ide.org/)
 [![Free Pascal](https://img.shields.io/badge/Free%20Pascal-FPC-blue.svg)](https://www.freepascal.org/)
-[![Status](https://img.shields.io/badge/status-in%20development-yellow.svg)]()
-
-> [!WARNING]
-> **Aviso Importante de Arquitetura e Integração**:
-> 1. A suíte suporta o componente de detecção de pose humana (`TAIHumanPoseDetector`) **exclusivamente em plataformas de 64-bit (x86_64)** no Windows e no Linux. Em sistemas de 32-bit o componente compila normalmente mas reporta-se indisponível em runtime.
-> 2. O backend do MediaPipe Pose (`TAIHumanPoseDetector`) oferece suporte completo a execução **SIM (Simulada/Mock)** e **REAL (com detecção de verdade através de um worker em Python)**. Ambas as abordagens estão validadas e funcionais em 64-bit.
-
----
+[![Samples](https://img.shields.io/badge/samples-91%20PASS%20%2F%204%20FAIL-yellow.svg)]()
 
 ## Visão geral
 
-**TCHATGPT** é uma suíte open source de componentes visuais e não visuais para **Lazarus / Free Pascal**, criada para facilitar a integração de recursos de Inteligência Artificial em aplicações desktop, industriais, educacionais e corporativas.
+**TCHATGPT** é uma suíte open source de componentes visuais e não visuais para **Lazarus / Free Pascal**. O projeto integra LLMs, modelos locais, Python, visão computacional, voz, grafos, arquivos, bancos de dados, documentos, agentes, sensores e automação industrial.
 
-O projeto oferece componentes para conexão com provedores de LLM, modelos locais, processamento de dados, aprendizado de máquina simples, voz, imagem, grafos, agentes, canais de entrada/saída, visão computacional e visualização 3D.
+A suíte é uma camada de integração para aplicações Pascal. Ela não substitui frameworks especializados de treinamento, MLOps ou implantação de modelos em larga escala.
 
-> Este projeto deve ser entendido como uma **suíte de componentes para integração de IA em aplicações Lazarus**, e não como uma plataforma completa para substituir frameworks especializados de treinamento, MLOps ou implantação de modelos em larga escala.
+> [!WARNING]
+> Um sample com `PASS` comprova compilação pelo `lazbuild`. Isso não comprova automaticamente execução de hardware, APIs, modelos externos, DLLs ou comportamento completo em runtime. O backend real de `TAIHumanPoseDetector` exige plataforma 64-bit.
 
----
+## Situação factual da compilação
 
-## Situação atual
+Resultado produzido pelo **AI Framework Graph Explorer**:
 
-O projeto está em desenvolvimento ativo e possui componentes em diferentes níveis de maturidade.
+```text
+Ambiente: Windows Win32 / i386
+Free Pascal: 3.2.2
+Samples encontrados: 95
+PASS: 91
+FAIL: 4
+Taxa de sucesso: 95,8%
+Grafo factual: 534 nós e 2.209 arestas
+```
 
-Use a matriz oficial em:
+A matriz técnica complementar está em:
 
 ```text
 pacote/COMPONENT_STATUS.md
 ```
 
-Classificação usada:
+## Regra de maturidade baseada nos samples
 
-| Status | Significado |
+| Status | Regra |
 |---|---|
-| Stable | Base consolidada e de baixo risco |
-| Beta | Funcional, mas ainda precisa validação ampla |
-| Experimental | API ou comportamento ainda pode mudar |
-| Placeholder | Estrutura existe, mas ainda não entrega função real completa |
-| Deprecated | Mantido apenas por compatibilidade |
+| **Stable / Beta** | O componente possui ao menos um sample associado que compilou com `exit code 0`. |
+| **Experimental** | O sample associado falhou e o componente ainda não possui evidência independente de compilação. |
+| **Placeholder** | A estrutura existe, mas ainda não entrega a funcionalidade real completa. |
+| **Deprecated** | Mantido somente por compatibilidade. |
 
----
+Quando um componente aparece em um sample composto que falhou, mas também possui sample dedicado com `PASS`, prevalece a evidência dedicada. A integração composta continua Experimental.
 
-## Arquitetura modular dos pacotes
+## Pacotes modulares
 
-A suíte é organizada em pacotes modulares dentro de:
+Os pacotes ficam em:
 
 ```text
 pacote/packages/
 ```
 
-Para novos projetos, use diretamente os pacotes modulares.
+| Pacote | Finalidade | Status atual |
+|---|---|---|
+| `openai_core.lpk` | LLM, base, tokenização, prompts, registro de modelos e agenda | Stable / Beta |
+| `openai_python.lpk` | Python, CNN, LSTM, YOLO, face detection e runtime | Stable / Beta |
+| `openai_ml.lpk` | Machine learning e matemática em Pascal | Stable / Beta |
+| `openai_graph.lpk` | Grafos, análise, visualização, exportação e relatórios | Stable / Beta |
+| `openai_files.lpk` | Inventário, varredura e gestão de arquivos | Stable / Beta |
+| `openai_output.lpk` | Texto, JSON, PDF, Word/OpenXML, Excel e visualização | Stable / Beta |
+| `openai_input.lpk` | Captura, Chromium, USB, Kinect, serial, sockets, web e e-mail | Stable / Beta; integração `hardware_net_demo` Experimental |
+| `openai_vision.lpk` | Visão nativa, OpenCV, câmera e MediaPipe | Stable / Beta |
+| `openai_image.lpk` | Filtros de imagem nativos | Stable / Beta |
+| `openai_voice.lpk` | Áudio, filtros, reconhecimento e síntese de voz | Stable / Beta |
+| `openai_simulation.lpk` | Simulação 2D, entidades, regras e movimento | Stable / Beta por compilação |
+| `openai_industrial.lpk` | Modbus, MQTT, pinmap, bridge e POS | Stable / Beta |
+| `openai_graphic.lpk` | 3D, avatares, física, cenas, poses e Tripo3D | Stable / Beta |
+| `openai_agent.lpk` | Agentes, memória, ações, segurança e pipeline | Stable / Beta; `TAIPipeline` e `TAIWizardConfig` Experimental |
+| `openai_project.lpk` | Projetos, tarefas, armazenamento e especificações | Stable / Beta; integração de pipeline Experimental |
+| `openai_aidbase.lpk` | Dicionários e metadados de bancos de dados | Stable / Beta |
 
-| Pacote | Finalidade | Uso recomendado | Status |
-|---|---|---|---|
-| `openai_core.lpk` | Componentes centrais, LLM, base comum, utilitários principais e suporte a projetos | **Essencial** | Stable / Beta |
-| `openai_python.lpk` | Conectores Python e executores de modelos (TPythonConnector, TYoloDetect, TFaceDetection, TCNNClassifier, TLSTMPredictor, TAIPythonRuntime) | Opcional | Beta / Experimental |
-| `openai_ml.lpk` | Machine learning simples e matemática em Pascal (Rede Neural, Perceptron, SOM) | Opcional | Beta / Experimental |
-| `openai_graph.lpk` | Grafos, classificação por grafo, exportação e relatórios | Opcional | Beta / Experimental |
-| `openai_files.lpk` | Varredura de diretórios, Disk Tree Scanner e gerenciamento físico de arquivos | Opcional | Beta |
-| `openai_output.lpk` | Saídas, relatórios, PDF, TXT, geração de arquivos Word/Excel compatíveis | Opcional | Stable / Beta |
-| `openai_input.lpk` | Entrada, captura unificada (TAICaptureSource), e-mail, sockets, serial, MQTT, Modbus, Profinet | Opcional | Beta |
-| `openai_vision.lpk` | OpenCV, backends nativos de câmera (VFW/V4L2), face e motion tracker, pose detector (MediaPipe 64-bit) | Opcional | Stable / Beta / Exp |
-| `openai_image.lpk` | Filtros rápidos de pixel 100% nativos (Grayscale, Negative, Blur, Sobel, etc.) | Opcional | Stable |
-| `openai_voice.lpk` | Voz, áudio, sintetizador de texto para fala e filtros sonoros | Opcional | Stable / Beta |
-| `openai_simulation.lpk` | Simulações em grade 2D, motor de regras, comportamento e movimentação | Opcional | Experimental |
-| `openai_industrial.lpk` | Modbus, MQTT e pontes PLC industriais | Opcional | Beta / Experimental |
-| `openai_graphic.lpk` | Visualização 3D, STL/OBJ, avatar e integração Tripo3D | Opcional | Experimental |
-| `openai_agent.lpk` | Agentes autônomos, regras de segurança estrita e executores de ação | Opcional | Beta / Experimental |
-| `openai_project.lpk` | Gerenciamento de projetos estruturados com IA, tarefas, gráficos Gantt e relatórios | Opcional | Beta |
-| `openai_aidbase.lpk` | Dicionários de dados e metadados de bancos de dados para IA (TAIPostgreSQLDictionary, TAISQLiteDictionary, etc.) | Opcional | Beta / Experimental |
+> O pacote monolítico legado `openai.lpk` foi removido. Use somente os pacotes modulares.
 
-> **Nota sobre o Pacote Legado**: O pacote antigo e monolítico `openai.lpk` foi completamente descontinuado e removido. Utilize a estrutura modular acima.
+## Associação completa entre samples e componentes
 
----
+A tabela foi construída relacionando cada projeto encontrado pelo Graph Explorer com os componentes que ele instancia ou demonstra.
 
-## Instalação recomendada no Lazarus
-
-### Dependências Externas (Pré-requisitos)
-
-Antes de compilar a suíte, certifique-se de ter as seguintes dependências externas instaladas no Lazarus:
-
-1. **ZeosLib (Pacote `zcomponent` / `zcomponent.lpk`)**
-   * **Requisitado por:** `openai_core.lpk` e `openai_aidbase.lpk`.
-   * **Objetivo:** Prover suporte nativo a conexões com bancos de dados relacionais (PostgreSQL, SQLite, MySQL, Firebird, etc.).
-   * **Instalação:** Obtenha através do Online Package Manager do Lazarus ou via [GitHub do ZeosLib](https://github.com/Zeoslib/Zeoslib).
-
-2. **CEF4Delphi (Pacote `cef4delphi_lazarus` / `cef4delphi_lazarus.lpk`)**
-   * **Requisitado por:** `openai_input.lpk` (através de `aichromiumbrowser.pas`).
-   * **Objetivo:** Fornecer suporte à automação e visualização de páginas web usando o motor Chromium Embedded Framework.
-   * **Instalação:** Obtenha via Online Package Manager ou via [GitHub do CEF4Delphi](https://github.com/salvadordf/CEF4Delphi).
-
-### Processo de Instalação
-
-1. Instale e compile as dependências externas acima no Lazarus.
-2. Abra o Lazarus.
-3. Acesse **Package > Open Package File (.lpk)**.
-4. Instale primeiro o pacote essencial:
-
-```text
-pacote/packages/openai_core.lpk
-```
-
-5. Compile e instale.
-6. Instale o pacote `openai_python.lpk` caso deseje utilizar recursos de integração com scripts Python.
-7. Instale apenas os pacotes adicionais necessários ao seu projeto.
-8. Recompile a IDE quando o Lazarus solicitar.
-
-### Ordem recomendada de instalação
-
-```text
-1.  pacote/packages/openai_core.lpk       (Essencial)
-2.  pacote/packages/openai_python.lpk     (Opcional - Python Connectors)
-3.  pacote/packages/openai_ml.lpk         (Opcional)
-4.  pacote/packages/openai_graph.lpk      (Opcional)
-5.  pacote/packages/openai_files.lpk      (Opcional)
-6.  pacote/packages/openai_output.lpk     (Opcional)
-7.  pacote/packages/openai_input.lpk      (Opcional)
-8.  pacote/packages/openai_vision.lpk     (Opcional)
-9.  pacote/packages/openai_image.lpk      (Opcional)
-10. pacote/packages/openai_voice.lpk      (Opcional)
-11. pacote/packages/openai_simulation.lpk (Opcional)
-12. pacote/packages/openai_industrial.lpk (Experimental)
-13. pacote/packages/openai_graphic.lpk    (Experimental)
-14. pacote/packages/openai_agent.lpk       (Experimental)
-15. pacote/packages/openai_aidbase.lpk     (Opcional - Dicionário de Dados)
-```
-
----
-
-## Dependências externas por pacote
-
-| Pacote | Dependências comuns |
-|---|---|
-| `openai_core` | Lazarus, FPC, LCL, FCL, OpenSSL para HTTPS. Para componentes de integração Python: Python 3, arquitetura compatível e bibliotecas Python conforme componente |
-| `openai_ml` | Sem Python obrigatório; usa Pascal/FPC |
-| `openai_graph` | `openai_core`, `openai_ml` |
-| `openai_vision` | Para `TAIOpenCV`: Python 3, `opencv-python`, `numpy`. Componentes nativos usam LCL/FPC;usa VFW no Windows |
-| `openai_voice` | Windows SAPI ou Linux eSpeak/eSpeak-NG conforme uso |
-| `openai_output` | `fpPDF`/FPC para PDF; Word/Excel podem ser HTML compatível |
-| `openai_input` | Componentes web como TAIChromiumBrowser requerem CEF4Delphi e os binários do Chromium (disponíveis na pasta `runtime/chromium`) |
-| `openai_industrial` | Dependências de Modbus/MQTT e permissões do ambiente |
-| `openai_graphic` | Dependências gráficas conforme viewer/3D |
-| `openai_agent` | Depende de segurança e confirmação explícita para ações reais |
-
----
-
-## Componentes principais
-
-### AI Core
-
-Componentes centrais:
-
-* `TAIBaseComponent`
-* `TCHATGPT`
-* `TTokenList`
-* `TAICodeAssistant`
-* `TAIPromptBuilder`
-* `TAIModelRegistry`
-* `TAIWizardConfig`
-* `TAIProject`
-* `TAIPipeline`
-
-> Nota técnica: atualmente `TAIPipeline` ainda está no pacote core, mas ele depende conceitualmente de módulos como agente, input, output, industrial e grafo. A meta futura é separá-lo em um pacote próprio ou reduzir o acoplamento.
-
-### AI Vision
-
-A camada de Visão Computacional do projeto é dividida em duas abordagens:
-
-#### 1. AI Native Vision (100% Lazarus / Free Pascal)
-
-Componentes Pascal, sem dependência de Python, OpenCV ou executores externos. Estão registrados principalmente na aba **`AI Native Vision`** da IDE e utilizam recursos como `TBitmap` e `TLazIntfImage`.
-
-*: captura de câmera/webcam via Windows VFW/`avicap32.dll`. No Linux, a versão atual ainda retorna stub/erro de plataforma não suportada.
-* `TAINativeImageFilter`: filtros de imagem nativos, como cinza, threshold, inverter, resize e blur box.
-* `TAIImageInfo`: extração nativa de dimensões e informações básicas de imagem.
-* `TAIFrameBuffer`: buffer circular de frames em memória para processamento de vídeo.
-* `TAIMotionTracker`: detecção de movimento por variação de luminância entre bitmaps.
-* `TAIFrameDiff`: geração de mapa de diferença absoluta entre frames.
-* `TAIFaceTracker`: rastreador local baseado em template matching/SAD. Não é detector facial semântico.
-
-Samples nativos previstos ou em validação:
-
-* `pacote/samples/AI Native Vision/camera_capture_demo/`
-* `pacote/samples/AI Native Vision/native_image_filter_demo/`
-* `pacote/samples/AI Native Vision/motion_tracker_demo/`
-
-#### 2. AI Python Vision (Integração Externa)
-
-Componentes que realizam chamadas ou utilizam scripts Python externos para executar tarefas mais pesadas:
-
-* `TAIOpenCV`: funcional via worker Python. Possui sample funcional em `pacote/samples/AI Vision/opencv_filter_demo/`.
-  * Recursos atuais do `TAIOpenCV`: `SelfTest`, `Image Info`, `Gray`, `Blur`, `Canny`, `Threshold`, `Resize`.
-  * Dependências do OpenCV Python: `pip install opencv-python numpy`.
-
-#### 3. AI MediaPipe Vision (Nativo via Bridge DLL/SO)
-
-| Componente | Pacote | Backend | Função | Status |
+| Pacote/área | Status | Componentes com evidência PASS | Samples PASS | Samples FAIL |
 |---|---|---|---|---|
-| `TAIHumanPoseDetector` | `openai_vision.lpk` | MediaPipe Bridge DLL/SO | Detecta pose humana, retorna 33 landmarks corporais reais e simulação integrada | Estável (64-bit) |
+| openai_agent | Stable / Beta + Experimental | `TAIActionBuilderAgent`<br>`TAIAgent`<br>`TAIAgentMemoryMap`<br>`TAIAgentSerial`<br>`TAIClassifierAgent`, `TAIDecisionAgent`, `TAIActionBuilderAgent`, `TAIAgentMemoryMap`, `TAIActionExecutor` | `action_builder_recovery_test`, `agent_demo`, `agent_memorymap_demo`, `agent_serial_demo`, `agent_task_memory_action_demo` | `pipeline_full_demo`, `wizard_config_demo` |
+| openai_aidbase | Stable / Beta | `TAISQLiteDictionary`, `TCHATGPT`<br>`TAIPostgreSQLDictionary`, `TAISQLiteDictionary` | `ai_sqlite_query_assistant_demo`, `db_dictionary_demo` | — |
+| openai_core | Stable / Beta | `TAICodeAssistant`, `TCHATGPT`<br>`TAIModelRegistry`<br>`TAIPromptBuilder`<br>`IASchedule`<br>`TTokenList` | `codeassistant_demo`, `modelregistry_demo`, `promptbuilder_demo`, `schedule_demo`, `tokenizer_demo` | — |
+| openai_core + openai_ml | Stable / Beta | playground visual multi-componente | `visual_demo` | — |
+| openai_files | Stable / Beta | `TAIDiskTreeScanner`<br>`TAI_DOCFILESMANAGER` | `disk_tree_ai_dataset_demo`, `docfilesmanager_demo` | — |
+| openai_graph | Stable / Beta | `TAIDatasetAnalyzer`<br>`TAIGraphVisualizer`<br>`TAIGraphMap`<br>`TAITrainingExporter`<br>`TAITrainingReport` | `dataset_analyzer_demo`, `graph_visualizer_demo`, `graphmap_basic`, `training_exporter_demo`, `training_report_demo`, `graphmap_demo` | — |
+| openai_graphic | Stable / Beta | `TAIAvatar3D`, `TAIAvatarController`<br>`TAI3DModelViewer`, `TAIModel3D`<br>componentes gráficos OpenGL<br>`TAIPhysicsSimulator`, `TAITrainingEnvironment`<br>`TAIPoseLibrary`, `TAIAnimationSequence`<br>`TAIScene3D`<br>`TAISkeletonRig`<br>`TAITripo3DClient` | `avatar_demo`, `model3d_viewer_demo`, `opengl_graphic_demo`, `physics_training_demo`, `pose_animation_demo`, `scene3d_demo`, `skeleton_rig_demo`, `tripo3d_demo` | — |
+| openai_image | Stable / Beta | `TGrayscaleFilter`, `TNegativeFilter`, `TBrightnessContrastFilter`, `TBinarizationFilter`, `TBlurFilter`, `TSharpenFilter`, `TSobelFilter`, `TErosionDilationFilter` | `image_filters_demo` | — |
+| openai_industrial | Stable / Beta | `TAIModbusClient`, mapa de pinos e mapa de comandos<br>`TAIIndustrialBridge`<br>`TAIModbusClient`<br>`TAIMQTTClient`<br>`TAIPOSPrinter` | `arduino_modbus_pinmap_demo`, `industrial_bridge_demo`, `modbus_demo`, `mqtt_demo`, `posprinter_demo` | — |
+| openai_input | Stable / Beta + Experimental | gerenciador de hardware da suíte<br>`TAIUSB`<br>`TAICaptureSource`<br>`TAIChromiumBrowser`<br>`TAIEmailClient` e classificação de mensagens<br>`TAIKinectSensor`, `TAIKinectColorStream`, `TAIKinectDepthStream`<br>`TAIKinectColorStream`<br>bridge direto da Kinect SDK 1.0<br>`TAIKinectSkeleton`<br>`TAISerialModem` e enumeração de portas<br>`TAISocketTCP`, `TAISocketUDP`<br>`TAIWebAPIServer` | `hardware_system_manager_demo`, `aiusb_devices_demo`, `capture_source_demo`, `chromium_capture_demo`, `email_classifier_demo`, `kinect_capture_demo`, `kinect_frame_capture_test`, `kinect_sdk10_direct_frame_test`, `kinect_skeleton_demo`, `serial_demo`, `socket_server_client_demo`, `webserver_demo` | `hardware_net_demo` |
+| openai_input + openai_output | Stable / Beta | `TAIInputData`, `TAIOutputData` | `math_input_output_demo` | — |
+| openai_ml | Stable / Beta | `TAIDatasetGenerator`<br>`TAMatrizComponent`<br>`TNumPS`<br>`TNeuralNetwork`<br>`TPerceptron`<br>`TSOMMap` | `dataset_generator_visual_demo`, `matrix_component_demo`, `numps_demo`, `neural_network_demo`, `perceptron_demo`, `som_demo` | — |
+| openai_output | Stable / Beta | `TAIOutputDocs`<br>`TAIOutputData`<br>`TAIPDFOutput`, `TAIWordOutput`, `TAIExcelOutput`<br>componentes OpenXML de documento Word<br>`TAIWordViewer` | `output_docs_demo`, `output_text_json_demo`, `pdf_word_excel_demo`, `word_object_demo`, `word_viewer_demo` | — |
+| openai_project | Stable / Beta | `TAIProject`, `TAIProjectTasks`, `TAIProjectStorage`, `TAIProjectSpecification`<br>`TAIProjectTasks`, `TAIProjectStorage`, `TAIProjectSpecification` | `Demo_AI_Project`, `project_tasklist_ai_demo` | — |
+| openai_project + openai_agent | Stable / Beta + Experimental |  |  | `pipeline_project_demo` |
+| openai_project + openai_graph + openai_files | Stable / Beta | `TCHATGPT`, `TAIDiskTreeScanner`, `TAIDependencyGraph`, `TAIGraphStructuralAdapter` | `framework_graph_explorer` | — |
+| openai_python | Stable / Beta | `TCNNClassifier`<br>`TLSTMPredictor`<br>`TAIPythonRuntime`<br>`TYoloDetect`<br>`TFaceDetection`<br>`TPythonConnector` | `cnn_classifier_complete_demo`, `lstm_timeseries_demo`, `python_runtime_check_demo`, `yolo_detection_complete_demo`, `cnn_demo`, `face_detection_demo`, `lstm_demo`, `python_demo`, `yolo_demo` | — |
+| openai_simulation | Stable / Beta | `TAISimulationEngine`, `TAIRuleEngine`, `TAITriggerEngine`, `TAISimulationStats`<br>`TAIGridWorld`, `TAIMovementEngine`, `TAIRuleEngine`<br>`TAIGridWorld`, `TAISimEntity`, `TAISimulationEngine`, `TAISimulationStats`<br>`TAIGridWorld`, `TAIEntityFactory`, `TAIMovementEngine` | `contamination_demo`, `robot_grid_demo`, `service_queue_demo`, `warehouse_agents_demo` | — |
+| openai_vision | Stable / Beta | `TAIHumanPoseDetector`<br>`TAIMotionTracker`<br>`TAINativeImageFilter`<br>`TAIFrameProcessor`<br>backend `aicamera_vfw`<br>`TAIFrameDiff`<br>`TAIImageInfo`<br>`TAIOpenCV`<br>`TAIOpenCV`, `aiopencvruntime`<br>`TAIOpenCV`, recursos de câmera e rastreamento | `human_pose_detector_demo`, `motion_tracker_demo`, `native_image_filter_demo`, `aiframeprocessor_demo`, `camera_capture_windows_demo`, `frame_diff_demo`, `image_info_demo`, `opencv_filter_demo`, `opencv_image_real_demo`, `opencv_vision_demo` | — |
+| openai_voice | Stable / Beta | `SoundFilters`<br>`TAIAudioInput`<br>`TAISpeechRecognizer`<br>`TAIVoiceSynthesizer` | `sound_filters_demo`, `audio_capture_demo`, `sound_filters_visual_demo`, `speech_recognizer_demo`, `voice_synthesizer_complete_demo`, `voicesynthesizer_demo` | — |
 
-##### Runtime MediaPipe
+## Falhas que mantêm componentes ou integrações como Experimental
 
-O componente `TAIHumanPoseDetector` usa runtime versionado em:
+| Sample | Classificação | Componentes/integração | Falha observada |
+|---|---|---|---|
+| `pipeline_full_demo` | Experimental | `TAIPipeline`, integração com `TCHATGPT`, `TAIOutputData` e `TAIOutputDocs` | `uCEFChromiumWindow` não encontrado; também existem PPUs e units duplicadas nos caminhos. |
+| `wizard_config_demo` | Experimental | `TAIWizardConfig`, `TAIPipeline`, `TAIProject`, `TCHATGPT` | `uCEFChromiumWindow` não encontrado. |
+| `hardware_net_demo` | Experimental como integração | Chromium, captura, MQTT, e-mail, Modbus, bridge industrial e áudio | `uCEFChromiumWindow` não encontrado. Os componentes com samples dedicados permanecem Stable/Beta. |
+| `pipeline_project_demo` | Experimental como integração | `TAIProject`, `TAIPipeline`, LLM, ML, input e output | Dependência quebrada do pacote legado `openai`. |
 
-`runtime/mediapipe/pose/mp_0_10_35/`
+### Componentes reclassificados
 
-A DLL/SO da bridge deve informar:
+* `TAIPipeline`: **Experimental**, pois `pipeline_full_demo` e `pipeline_project_demo` falharam.
+* `TAIWizardConfig`: **Experimental**, pois seu sample dedicado falhou.
+* `TAIChromiumBrowser`: **Stable / Beta**, pois `chromium_capture_demo` compilou; a falha de `hardware_net_demo` é da integração/configuração.
+* `TAIProject`, `TCHATGPT`, `TNeuralNetwork`, `TAIInputData`, `TAIOutputData`, `TAIOutputDocs` e `TAIPromptBuilder`: **Stable / Beta**, pois possuem outras evidências `PASS`.
 
-- versão da bridge;
-- ABI da bridge;
-- versão compatível do MediaPipe;
-- plataforma;
-- arquitetura;
-- modelo `.task` usado.
+## Principais componentes
 
-O componente Pascal valida essas informações antes de inicializar.
+### Core e agentes
 
-### AI Output
+`TAIBaseComponent`, `TCHATGPT`, `TTokenList`, `TAICodeAssistant`, `TAIPromptBuilder`, `TAIModelRegistry`, `IASchedule`, `TAIAgent`, `TAIAgentMemoryMap`, `TAIAgentSerial`, `TAIActionBuilderAgent`, `TAIDecisionAgent`, `TAIActionExecutor`, `TAIAgentSafety`, `TAIPipeline` e `TAIWizardConfig`.
 
-Componentes de documentos e saídas. Atenção: quando a saída Word/Excel for feita por HTML compatível, a documentação do componente deve indicar isso claramente, sem prometer DOCX/XLSX nativo.
+> `TAIPipeline` e `TAIWizardConfig` pertencem ao pacote `openai_agent.lpk` e permanecem Experimental.
 
-### AI Agent
+### Projeto, arquivos e grafos
 
-Agentes são experimentais e devem ser usados com segurança. Ações reais de arquivo, rede, e-mail, industrial ou automação devem exigir configuração explícita e validação do usuário.
+`TAIProject`, `TAIProjectSpecification`, `TAIProjectTasks`, `TAIProjectStorage`, `TAIProjectLLMConfig`, `TAIDiskTreeScanner`, `TAI_DOCFILESMANAGER`, `TAIGraphMap`, `TAIDependencyGraph`, `TAIGraphStructuralAdapter`, `TAIDatasetAnalyzer`, `TAITrainingExporter`, `TAITrainingReport` e `TAIGraphVisualizer`.
 
----
+### Input e industrial
+
+`TAICaptureSource`, `TAIChromiumBrowser`, `TAIUSB`, `TAISerialModem`, `TAISocketTCP`, `TAISocketUDP`, `TAIWebAPIServer`, `TAIEmailClient`, `TAIKinectSensor`, `TAIKinectColorStream`, `TAIKinectDepthStream`, `TAIKinectSkeleton`, `TAIModbusClient`, `TAIMQTTClient`, `TAIIndustrialBridge` e `TAIPOSPrinter`.
+
+### Visão, imagem e voz
+
+`TAIFrameProcessor`, `TAINativeImageFilter`, `TAIImageInfo`, `TAIFrameBuffer`, `TAIMotionTracker`, `TAIFrameDiff`, `TAIFaceTracker`, `TAIOpenCV`, `TAIHumanPoseDetector`, `TAIAudioInput`, `TAISpeechRecognizer`, `TAIVoiceSynthesizer` e `SoundFilters`.
+
+### ML, Python, 3D e simulação
+
+`TNeuralNetwork`, `TPerceptron`, `TSOMMap`, `TAIDatasetGenerator`, `TAMatrizComponent`, `TNumPS`, `TPythonConnector`, `TAIPythonRuntime`, `TCNNClassifier`, `TFaceDetection`, `TLSTMPredictor`, `TYoloDetect`, `TAI3DModelViewer`, `TAIModel3D`, `TAIAvatar3D`, `TAIScene3D`, `TAITripo3DClient`, `TAIPhysicsSimulator`, `TAIGridWorld`, `TAISimulationEngine`, `TAIRuleEngine`, `TAITriggerEngine`, `TAIMovementEngine` e `TAISimulationStats`.
+
+## Instalação
+
+### Dependências externas principais
+
+1. **ZeosLib** — necessária para os componentes de banco de dados (`zcomponent.lpk`).
+2. **CEF4Delphi** — necessária para `TAIChromiumBrowser` (`cef4delphi_lazarus.lpk`).
+3. **Python e bibliotecas opcionais** — necessários para Python, OpenCV, CNN, LSTM, YOLO e backends equivalentes.
+
+### Ordem recomendada
+
+```text
+1.  openai_core.lpk
+2.  openai_python.lpk
+3.  openai_ml.lpk
+4.  openai_files.lpk
+5.  openai_output.lpk
+6.  openai_input.lpk
+7.  openai_industrial.lpk
+8.  openai_vision.lpk
+9.  openai_voice.lpk
+10. openai_graphic.lpk
+11. openai_simulation.lpk
+12. openai_agent.lpk
+13. openai_project.lpk
+14. openai_graph.lpk
+15. openai_aidbase.lpk
+```
+
+A ordem final deve respeitar as dependências registradas nos próprios arquivos `.lpk`.
+
+## AI Framework Graph Explorer
+
+O sample `pacote/samples/AI Project/framework_graph_explorer/` analisa o próprio repositório e produz:
+
+* inventário de arquivos;
+* pacotes, units e dependências;
+* componentes registrados;
+* associação componente/sample;
+* compilação real por `lazbuild`;
+* histórico e regressões;
+* relatórios JSON, TXT, DOT e Mermaid;
+* análise opcional por IA separada dos fatos determinísticos.
+
+A IA não decide se um componente existe ou compilou. Essas informações vêm dos parsers e do código de saída do compilador.
 
 ## Provedores de LLM
 
 | Provedor | Enum | Tipo |
 |---|---|---|
 | OpenAI | `AIP_OPENAI` | API externa |
-| OpenRouter | `AIP_OPENROUTER` | API externa/agregador |
+| OpenRouter | `AIP_OPENROUTER` | Agregador |
 | Cerebras | `AIP_CEREBRAS` | API externa |
 | Google Gemini | `AIP_GEMINI` | API externa |
 | Anthropic Claude | `AIP_CLAUDE` | API externa |
-| Local/Ollama/compatível | `AIP_LOCAL` | Servidor local |
-
-> Modelos, custos, limites e disponibilidade mudam conforme cada provedor. Sempre confira a documentação oficial do serviço usado.
-
----
-
-## Samples
-
-Os projetos de demonstração ficam em:
-
-```text
-pacote/samples/
-```
-
-Sample atualmente consolidado:
-
-| Sample | Tipo | Pacote | Dependência externa | Status |
-|---|---|---|---|---|
-| `opencv_filter_demo` | GUI | `openai_vision` | Python + OpenCV | Funcional/Beta |
-
-Samples nativos em validação/documentação:
-
-| Sample | Tipo | Pacote | Dependência externa | Status |
-|---|---|---|---|---|
-| `camera_capture_demo` | GUI | `openai_vision` | Webcam VFW no Windows | Em validação |
-| `native_image_filter_demo` | GUI | `openai_vision` | Nenhuma | Previsto/em validação |
-| `motion_tracker_demo` | GUI | `openai_vision` | Nenhuma | Previsto/em validação |
-
----
-
-
----
+| Ollama/local/compatível | `AIP_LOCAL` | Servidor local |
 
 ## Screenshots
 
-> As imagens abaixo demonstram recursos já testados ou atualmente em desenvolvimento.
-> Componentes novos podem não ter ainda demonstrações visuais completas.
-
-### AI Project Demo
-
 ![AI Project Demo](screenshots/project_tasklist_ai.jpg)
-
-Demonstração do gerador e gerenciador de projetos e tarefas (Gantt, Timeline) integrados com IA.
-
-### CNN Demo
 
 ![CNN Demo](screenshots/cnn_demo.jpg)
 
-Demonstração de classificação de imagens.
-
-### Math Input / Output Demo
-
-![Math Input Output Demo](screenshots/math_input_output_demo.jpg)
-
-Demonstração de componentes matemáticos.
-
-### Python Connector Demo
-
 ![Python Demo](screenshots/python_demo.jpg)
-
-Demonstração de integração com Python.
-
-### SOM Demo
-
-![SOM Demo](screenshots/som_demo.jpg)
-
-Demonstração de mapa auto-organizado.
-
-### Sound Filters Demo
 
 ![Sound Filters](screenshots/sound_filters.jpg)
 
-Demonstração de filtros de som.
-
-### Voice Synthesizer Demo
-
 ![Voice Synthesizer](screenshots/voicesynthesizer_demo.jpg)
-
-Demonstração de síntese de voz.
-
-### Disk Tree AI Dataset Demo
 
 ![Disk Tree AI Dataset Demo](screenshots/disk_tree_ai_dataset_demo.jpg)
 
-Varredura assíncrona do sistema de arquivos e preparação do inventário de datasets de IA.
-
-### DB Dictionary Demo
-
 ![DB Dictionary Demo](screenshots/db_dicitionary_demo.jpg)
-
-Geração de dicionário de dados a partir de conexões de banco de dados (PostgreSQL e SQLite) para alimentação de prompts de IA.
-
-### AI SQLite Query Assistant Demo
 
 ![AI SQLite Query Assistant Demo](screenshots/ai_sqlite_query_assistant_demo.jpg)
 
-Interface para geração e execução segura de consultas SQLite (SELECT) por meio de linguagem natural, integrada ao ChatGPT e dicionário de metadados da ZeosLib.
-
-### AI Agent Minimal Demo
-
-![AI Agent Minimal Demo](screenshots/AI_Agent_Minimal_Demo.jpg)
-
-Demonstração do fluxo clássico do orquestrador de agentes cognitivos.
-
----
-
 ## Limitações conhecidas
 
-* O projeto ainda está em desenvolvimento.
-* Nem todos os componentes possuem demonstração completa.
-* Alguns componentes são placeholders ou experimentais.
-* Integrações externas dependem de APIs, bibliotecas e permissões de terceiros.
-* Componentes Python dependem de versão, arquitetura e ambiente compatíveis.
-* É recomendado validar cada componente antes de uso em produção.
-* Testes automatizados e integração contínua ainda precisam ser ampliados.
-* `TAIFaceTracker` rastreia template, não detecta rosto semanticamente.
+* `PASS` de compilação não substitui teste funcional.
+* A execução atual foi Win32/i386; componentes 64-bit precisam de validação separada.
+* Integrações externas dependem de APIs, runtimes, DLLs, modelos e permissões.
+* PPUs antigas e caminhos duplicados podem gerar dependências incorretas.
+* Os quatro samples com falha precisam ser corrigidos antes de uma release totalmente verde.
 
----
+## Roadmap imediato
 
-## Roadmap
-
-### Curto prazo
-
-* validar compilação dos pacotes modulares em Windows e Linux;
-* manter `COMPONENT_STATUS.md` atualizado;
-* completar documentação técnica por aba;
-* criar pelo menos um sample real por pacote principal;
-* revisar o acoplamento do `TAIPipeline`.
-
-### Médio prazo
-
-* criar testes automatizados com `lazbuild`;
-* criar releases versionadas;
-* documentar dependências externas por componente;
-* melhorar tratamento de erros;
-* consolidar OpenCV, grafos, output e agentes.
-
-### Longo prazo
-
-* criar templates de projetos;
-* criar assistente visual de configuração;
-* consolidar componentes 3D;
-* melhorar integração com modelos locais;
-* evoluir agentes com controle de segurança;
-* criar documentação de produção.
-
----
-
-## Para quem este projeto é indicado?
-
-* Desenvolvedores Lazarus/Free Pascal.
-* Professores e estudantes.
-* Projetos desktop com IA.
-* Automação local.
-* Sistemas corporativos legados.
-* Prototipação de IA.
-* Integração de IA com dispositivos e aplicações existentes.
-
----
-
-## Para quem este projeto ainda não é indicado?
-
-Neste momento, o projeto ainda não substitui:
-
-* frameworks completos de machine learning;
-* plataformas de MLOps;
-* pipelines corporativos de treinamento;
-* serviços profissionais de deploy de modelos;
-* bibliotecas especializadas como PyTorch, TensorFlow, scikit-learn ou OpenCV completo;
-* infraestrutura de IA em escala empresarial.
-
----
+* corrigir os quatro samples com falha;
+* remover referências ao pacote legado `openai`;
+* eliminar PPUs órfãs e units duplicadas;
+* executar a matriz em Windows 64-bit e Linux 64-bit;
+* gerar automaticamente esta classificação pelo Graph Explorer;
+* publicar releases versionadas com relatório factual anexado.
 
 ## Contribuindo
 
-Contribuições são bem-vindas, especialmente em:
-
-* correção de bugs;
-* samples funcionais;
-* documentação;
-* testes automatizados;
-* compatibilidade Windows/Linux;
-* validação dos pacotes modulares;
-* melhorias de segurança;
-* integração com provedores de IA.
-
----
+Contribuições são bem-vindas em correções, samples, testes, documentação, compatibilidade Windows/Linux, segurança de agentes e integração com provedores.
 
 ## Licença
 
-Este projeto está licenciado sob a **GNU General Public License v3.0**.
-
-Consulte o arquivo `LICENSE`.
-
----
+GNU General Public License v3.0. Consulte `LICENSE`.
 
 ## Aviso
 
-Este projeto utiliza ou integra serviços externos de IA. O uso desses serviços pode envolver custos, limites de API, políticas próprias e envio de dados para terceiros.
-
-Antes de usar em produção:
-
-* revise os termos do provedor;
-* proteja suas chaves de API;
-* não envie dados sensíveis sem autorização;
-* valide segurança, privacidade e conformidade;
-* teste o comportamento do componente no ambiente real.
+Serviços externos podem envolver custos, limites de API e envio de dados para terceiros. Proteja suas chaves, não envie dados sensíveis sem autorização e valide segurança, privacidade e conformidade antes do uso em produção.
