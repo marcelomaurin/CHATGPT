@@ -5,9 +5,7 @@
     <PathDelim Value="\"/>
     <General>
       <Flags>
-        <MainUnitHasCreateFormStatements Value="False"/>
         <MainUnitHasTitleStatement Value="False"/>
-        <MainUnitHasScaledStatement Value="False"/>
       </Flags>
       <SessionStorage Value="InProjectDir"/>
       <Title Value="graphmap_basic"/>
@@ -26,6 +24,9 @@
     </RunParams>
     <RequiredPackages>
       <Item>
+        <PackageName Value="openai_graph"/>
+      </Item>
+      <Item>
         <PackageName Value="openai_core"/>
       </Item>
       <Item>
@@ -36,6 +37,13 @@
       <Unit>
         <Filename Value="graphmap_basic.lpr"/>
         <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="main.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmGraphMapBasic"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
       </Unit>
     </Units>
   </ProjectOptions>
@@ -57,4 +65,3 @@
     </Linking>
   </CompilerOptions>
 </CONFIG>
-

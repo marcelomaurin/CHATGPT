@@ -1,0 +1,220 @@
+object frmGraphMapBasic: TfrmGraphMapBasic
+  Left = 240
+  Height = 760
+  Top = 120
+  Width = 980
+  Caption = 'Graphmap Basic - Nodes and Relations'
+  ClientHeight = 760
+  ClientWidth = 980
+  LCLVersion = '4.4.0.0'
+  OnCreate = FormCreate
+  object pnlTop: TPanel
+    Left = 0
+    Height = 92
+    Top = 0
+    Width = 980
+    Align = alTop
+    BevelOuter = bvNone
+    ClientHeight = 92
+    ClientWidth = 980
+    TabOrder = 0
+    object btnLoadSample: TButton
+      Left = 14
+      Height = 30
+      Top = 14
+      Width = 120
+      Caption = 'Load Sample'
+      TabOrder = 0
+      OnClick = btnLoadSampleClick
+    end
+    object btnSaveMermaid: TButton
+      Left = 144
+      Height = 30
+      Top = 14
+      Width = 130
+      Caption = 'Save Mermaid'
+      TabOrder = 1
+      OnClick = btnSaveMermaidClick
+    end
+    object btnClear: TButton
+      Left = 284
+      Height = 30
+      Top = 14
+      Width = 100
+      Caption = 'Clear'
+      TabOrder = 2
+      OnClick = btnClearClick
+    end
+    object lblStatus: TLabel
+      Left = 410
+      Height = 15
+      Top = 18
+      Width = 155
+      Caption = 'Nodes: 0  |  Relations: 0'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object lblMessage: TLabel
+      Left = 410
+      Height = 34
+      Top = 42
+      Width = 540
+      Caption = 'Create a node in the Nodes tab, then connect two nodes in the Relationships tab.'
+      ParentColor = False
+      WordWrap = True
+    end
+  end
+  object pcMain: TPageControl
+    Left = 0
+    Height = 190
+    Top = 92
+    Width = 980
+    ActivePage = tsNodes
+    Align = alTop
+    TabOrder = 1
+    object tsNodes: TTabSheet
+      Caption = 'Nodes'
+      object pnlNode: TPanel
+        Left = 0
+        Height = 162
+        Top = 0
+        Width = 972
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 162
+        ClientWidth = 972
+        TabOrder = 0
+        object lblNodeDescription: TLabel
+          Left = 16
+          Height = 15
+          Top = 16
+          Width = 126
+          Caption = 'Node description'
+          ParentColor = False
+        end
+        object edNodeDescription: TEdit
+          Left = 16
+          Height = 26
+          Top = 36
+          Width = 560
+          TabOrder = 0
+          OnChange = edNodeDescriptionChange
+        end
+        object lblNodeAutoId: TLabel
+          Left = 16
+          Height = 15
+          Top = 70
+          Width = 126
+          Caption = 'Generated ID: sample:customer'
+          ParentColor = False
+        end
+        object btnAddNode: TButton
+          Left = 16
+          Height = 30
+          Top = 100
+          Width = 130
+          Caption = 'Add Node'
+          TabOrder = 1
+          OnClick = btnAddNodeClick
+        end
+      end
+    end
+    object tsRelations: TTabSheet
+      Caption = 'Relationships'
+      object pnlRelation: TPanel
+        Left = 0
+        Height = 162
+        Top = 0
+        Width = 972
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 162
+        ClientWidth = 972
+        TabOrder = 0
+        object lblFromNode: TLabel
+          Left = 16
+          Height = 15
+          Top = 16
+          Width = 53
+          Caption = 'Node 1'
+          ParentColor = False
+        end
+        object cbFromNode: TComboBox
+          Left = 16
+          Height = 26
+          Top = 36
+          Width = 420
+          Style = csDropDownList
+          TabOrder = 0
+        end
+        object lblToNode: TLabel
+          Left = 454
+          Height = 15
+          Top = 16
+          Width = 53
+          Caption = 'Node 2'
+          ParentColor = False
+        end
+        object cbToNode: TComboBox
+          Left = 454
+          Height = 26
+          Top = 36
+          Width = 420
+          Style = csDropDownList
+          TabOrder = 1
+        end
+        object btnAddRelation: TButton
+          Left = 16
+          Height = 30
+          Top = 84
+          Width = 180
+          Caption = 'Create Relation'
+          TabOrder = 2
+          OnClick = btnAddRelationClick
+        end
+      end
+    end
+  end
+  object pnlGraph: TPanel
+    Left = 0
+    Height = 478
+    Top = 282
+    Width = 980
+    Align = alClient
+    BevelOuter = bvNone
+    ClientHeight = 478
+    ClientWidth = 980
+    TabOrder = 2
+    object lblGraph: TLabel
+      Left = 14
+      Height = 15
+      Top = 10
+      Width = 73
+          Caption = 'Graph view'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      Align = alTop
+    end
+    object pbGraph: TPaintBox
+      Left = 0
+      Height = 458
+      Top = 20
+      Width = 980
+      Align = alClient
+      OnPaint = pbGraphPaint
+    end
+  end
+  object AIDependencyGraph1: TAIDependencyGraph
+    Left = 48
+    Top = 48
+  end
+  object sdGraph: TSaveDialog
+    Title = 'Save Mermaid graph'
+    DefaultExt = '.mmd'
+    Filter = 'Mermaid (*.mmd)|*.mmd|All files (*.*)|*.*'
+    Left = 160
+    Top = 40
+  end
+end
