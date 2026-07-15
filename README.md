@@ -114,12 +114,54 @@ A tabela foi construída relacionando cada projeto encontrado pelo Graph Explore
 | `hardware_net_demo` | Experimental como integração | Chromium, captura, MQTT, e-mail, Modbus, bridge industrial e áudio | `uCEFChromiumWindow` não encontrado. Os componentes com samples dedicados permanecem Stable/Beta. |
 | `pipeline_project_demo` | Experimental como integração | `TAIProject`, `TAIPipeline`, LLM, ML, input e output | Dependência quebrada do pacote legado `openai`. |
 
-### Componentes reclassificados
+### Componentes reclassificados por evidência de compilação
 
-* `TAIPipeline`: **Experimental**, pois `pipeline_full_demo` e `pipeline_project_demo` falharam.
-* `TAIWizardConfig`: **Experimental**, pois seu sample dedicado falhou.
-* `TAIChromiumBrowser`: **Stable / Beta**, pois `chromium_capture_demo` compilou; a falha de `hardware_net_demo` é da integração/configuração.
-* `TAIProject`, `TCHATGPT`, `TNeuralNetwork`, `TAIInputData`, `TAIOutputData`, `TAIOutputDocs` e `TAIPromptBuilder`: **Stable / Beta**, pois possuem outras evidências `PASS`.
+A relação abaixo é a classificação completa obtida pelo cruzamento entre os samples e os componentes diretamente utilizados por eles. Um componente só entra nesta relação quando existe evidência direta no sample; dependências carregadas apenas de forma transitiva não são usadas para promover o status.
+
+#### Stable / Beta — componentes com pelo menos um sample `PASS`
+
+| Pacote/área | Componentes reclassificados como Stable / Beta |
+|---|---|
+| **AI Hardware** | `TAICPU`, `TAIMemory`, `TAIGPU`, `TAIDisk`, `TAIOS`, `TAITasks` |
+| **openai_core** | `TCHATGPT`, `TTokenList`, `TAICodeAssistant`, `TAIPromptBuilder`, `TAIModelRegistry`, `IASchedule` |
+| **openai_agent** | `TAIActionBuilderAgent`, `TAIAgent`, `TAIAgentMemoryMap`, `TAIAgentSerial`, `TAIClassifierAgent`, `TAIDecisionAgent`, `TAIActionExecutor` |
+| **openai_aidbase** | `TAIPostgreSQLDictionary`, `TAISQLiteDictionary` |
+| **openai_files** | `TAIDiskTreeScanner`, `TAI_DOCFILESMANAGER` |
+| **openai_graph** | `TAIGraphMap`, `TAIDependencyGraph`, `TAIGraphStructuralAdapter`, `TAIDatasetAnalyzer`, `TAIGraphVisualizer`, `TAITrainingExporter`, `TAITrainingReport` |
+| **openai_graphic** | `TAIAvatar3D`, `TAIAvatarController`, `TAI3DModelViewer`, `TAIModel3D`, `TAIPhysicsSimulator`, `TAITrainingEnvironment`, `TAIPoseLibrary`, `TAIAnimationSequence`, `TAIScene3D`, `TAISkeletonRig`, `TAITripo3DClient` |
+| **openai_image** | `TGrayscaleFilter`, `TNegativeFilter`, `TBrightnessContrastFilter`, `TBinarizationFilter`, `TBlurFilter`, `TSharpenFilter`, `TSobelFilter`, `TErosionDilationFilter` |
+| **openai_industrial** | `TAIArduinoModbusPinMap`, `TAIModbusCommandMap`, `TAIModbusClient`, `TAIIndustrialBridge`, `TAIMQTTClient`, `TAIPOSPrinter` |
+| **openai_input** | `TAIUSB`, `TAICaptureSource`, `TAIChromiumBrowser`, `TAIEmailClient`, `TAIKinectSensor`, `TAIKinectColorStream`, `TAIKinectDepthStream`, `TAIKinectSkeleton`, `TAISerialModem`, `TAISocketTCP`, `TAISocketUDP`, `TAIWebAPIServer` |
+| **openai_input / openai_output** | `TAIInputData`, `TAIOutputData` |
+| **openai_ml** | `TAIDatasetGenerator`, `TAMatrizComponent`, `TNumPS`, `TNeuralNetwork`, `TPerceptron`, `TSOMMap` |
+| **openai_output** | `TAIOutputDocs`, `TAIOutputData`, `TAIPDFOutput`, `TAIWordOutput`, `TAIExcelOutput`, `TAIWordDocument`, `TAIWordViewer` |
+| **openai_project** | `TAIProject`, `TAIProjectTasks`, `TAIProjectStorage`, `TAIProjectSpecification` |
+| **openai_python** | `TPythonConnector`, `TAIPythonRuntime`, `TCNNClassifier`, `TFaceDetection`, `TLSTMPredictor`, `TYoloDetect` |
+| **openai_simulation** | `TAIGridWorld`, `TAISimEntity`, `TAIEntityFactory`, `TAISimulationEngine`, `TAIRuleEngine`, `TAITriggerEngine`, `TAIMovementEngine`, `TAISimulationStats` |
+| **openai_vision** | `TAIHumanPoseDetector`, `TAIMotionTracker`, `TAINativeImageFilter`, `TAIFrameProcessor`, `TAIFrameDiff`, `TAIImageInfo`, `TAIOpenCV` |
+| **openai_voice** | `SoundFilters`, `TAIAudioInput`, `TAISpeechRecognizer`, `TAIVoiceSynthesizer` |
+
+#### Experimental — componentes sem evidência independente de `PASS`
+
+| Componente | Samples associados | Motivo |
+|---|---|---|
+| `TAIPipeline` | `pipeline_full_demo`, `pipeline_project_demo` | Os dois samples que validam diretamente o pipeline falharam. |
+| `TAIWizardConfig` | `wizard_config_demo` | O sample dedicado falhou durante a compilação. |
+
+#### Integrações compostas que permanecem Experimental
+
+| Integração | Sample | Observação |
+|---|---|---|
+| Pipeline completo com LLM e documentos | `pipeline_full_demo` | Falhou por dependência do Chromium/CEF e por caminhos contendo units/PPUs duplicadas. |
+| Assistente visual de configuração | `wizard_config_demo` | Falhou ao resolver `uCEFChromiumWindow`. |
+| Hardware, rede e automação reunidos | `hardware_net_demo` | A integração falhou, mas seus componentes individuais permanecem Stable/Beta porque possuem samples dedicados com `PASS`. |
+| Projeto integrado ao pipeline | `pipeline_project_demo` | Falhou por dependência do pacote monolítico legado `openai`. |
+
+#### Componentes presentes em samples que falharam, mas mantidos como Stable / Beta
+
+`TAIChromiumBrowser`, `TAICaptureSource`, `TAIMQTTClient`, `TAIEmailClient`, `TAIModbusClient`, `TAIIndustrialBridge`, `TAIAudioInput`, `TAIProject`, `TCHATGPT`, `TNeuralNetwork`, `TAIInputData`, `TAIOutputData`, `TAIOutputDocs` e `TAIPromptBuilder` possuem evidência independente em outros samples com `PASS`.
+
+> Componentes sem sample diretamente associado não são reclassificados por este relatório. Eles conservam o status registrado em `pacote/COMPONENT_STATUS.md` até receberem um sample verificável.
 
 ## Principais componentes
 
