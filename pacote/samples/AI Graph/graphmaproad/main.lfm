@@ -1,0 +1,430 @@
+object frmMain: TfrmMain
+  Left = 210
+  Height = 900
+  Top = 67
+  Width = 1320
+  Caption = 'Route Graph Road Demo'
+  ClientHeight = 900
+  ClientWidth = 1320
+  LCLVersion = '4.4.0.0'
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  object pnlHeader: TPanel
+    Left = 0
+    Height = 124
+    Top = 0
+    Width = 1320
+    Align = alTop
+    BevelOuter = bvNone
+    ClientHeight = 124
+    ClientWidth = 1320
+    TabOrder = 0
+    object lblTitle: TLabel
+      Left = 16
+      Height = 25
+      Top = 10
+      Width = 212
+      Caption = 'Route Graph Road Demo'
+      Font.Height = -18
+      Font.Name = 'Segoe UI'
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object lblStatus: TLabel
+      Left = 16
+      Height = 15
+      Top = 42
+      Width = 70
+      Caption = 'Status: Ready'
+      ParentColor = False
+      ParentFont = False
+    end
+    object lblDataFolder: TLabel
+      Left = 16
+      Height = 15
+      Top = 68
+      Width = 73
+      Caption = 'Dataset folder'
+      ParentColor = False
+    end
+    object edDataFolder: TEdit
+      Left = 16
+      Height = 23
+      Top = 88
+      Width = 640
+      TabOrder = 0
+      OnChange = edDataFolderChange
+    end
+    object btnReload: TButton
+      Left = 668
+      Height = 30
+      Top = 86
+      Width = 120
+      Caption = 'Reload Data'
+      TabOrder = 1
+      OnClick = btnReloadClick
+    end
+    object lblOrigin: TLabel
+      Left = 804
+      Height = 15
+      Top = 68
+      Width = 33
+      Caption = 'Origin'
+      ParentColor = False
+    end
+    object cbOrigin: TComboBox
+      Left = 804
+      Height = 23
+      Top = 88
+      Width = 190
+      ItemHeight = 15
+      Style = csDropDownList
+      TabOrder = 2
+      OnChange = cbOriginChange
+    end
+    object lblDestination: TLabel
+      Left = 1008
+      Height = 15
+      Top = 68
+      Width = 60
+      Caption = 'Destination'
+      ParentColor = False
+    end
+    object cbDestination: TComboBox
+      Left = 1008
+      Height = 23
+      Top = 88
+      Width = 190
+      ItemHeight = 15
+      Style = csDropDownList
+      TabOrder = 3
+      OnChange = cbDestinationChange
+    end
+    object lblRouteMode: TLabel
+      Left = 1216
+      Height = 15
+      Top = 68
+      Width = 65
+      Caption = 'Route mode'
+      ParentColor = False
+    end
+    object cbRouteMode: TComboBox
+      Left = 1216
+      Height = 23
+      Top = 88
+      Width = 88
+      ItemHeight = 15
+      Style = csDropDownList
+      TabOrder = 4
+      OnChange = cbRouteModeChange
+    end
+    object btnCalculate: TButton
+      Left = 1140
+      Height = 30
+      Top = 52
+      Width = 164
+      Caption = 'Calculate Route'
+      TabOrder = 5
+      OnClick = btnCalculateClick
+    end
+  end
+  object pcMain: TPageControl
+    Left = 0
+    Height = 776
+    Top = 124
+    Width = 1320
+    ActivePage = tsMap
+    Align = alClient
+    TabIndex = 0
+    TabOrder = 1
+    object tsMap: TTabSheet
+      Caption = 'Map'
+      ClientHeight = 748
+      ClientWidth = 1312
+  object pnlMapTop: TPanel
+    Left = 0
+    Height = 70
+    Top = 0
+    Width = 1312
+    Align = alTop
+    BevelOuter = bvNone
+    ClientHeight = 70
+    ClientWidth = 1312
+    TabOrder = 0
+    object lblMapHint: TLabel
+      Left = 16
+      Height = 15
+      Top = 10
+      Width = 715
+      Caption = 'Drag to pan. Use the mouse wheel or the zoom buttons to zoom. The red line is the selected route.'
+      ParentColor = False
+    end
+    object lblZoomLevel: TLabel
+      Left = 960
+      Height = 15
+      Top = 10
+      Width = 71
+      Caption = 'Zoom 7'
+      ParentColor = False
+    end
+    object tbMapZoom: TTrackBar
+      Left = 960
+      Height = 36
+      Top = 28
+      Width = 180
+      Min = 3
+      Max = 18
+      Frequency = 1
+      Position = 7
+      PageSize = 10
+      TabOrder = 0
+      TickStyle = tsNone
+      OnChange = tbMapZoomChange
+    end
+    object btnZoomOut: TButton
+      Left = 1148
+      Height = 28
+      Top = 28
+      Width = 34
+      Caption = '-'
+      TabOrder = 1
+      OnClick = btnZoomOutClick
+    end
+    object btnZoomIn: TButton
+      Left = 1188
+      Height = 28
+      Top = 28
+      Width = 34
+      Caption = '+'
+      TabOrder = 2
+      OnClick = btnZoomInClick
+    end
+    object btnFitView: TButton
+      Left = 1228
+      Height = 28
+      Top = 28
+      Width = 68
+      Caption = 'Fit'
+      TabOrder = 3
+      OnClick = btnFitViewClick
+    end
+  end
+  object pnlMapLeft: TPanel
+    Left = 0
+    Height = 678
+    Top = 70
+    Width = 980
+    Align = alLeft
+    BevelOuter = bvNone
+    ClientHeight = 678
+    ClientWidth = 980
+    TabOrder = 1
+    object pbMap: TPaintBox
+      Left = 0
+      Height = 678
+      Top = 0
+      Width = 980
+      Align = alClient
+      Cursor = crHandPoint
+      OnMouseDown = pbMapMouseDown
+      OnMouseMove = pbMapMouseMove
+      OnMouseUp = pbMapMouseUp
+      OnMouseWheelDown = pbMapMouseWheelDown
+      OnMouseWheelUp = pbMapMouseWheelUp
+      OnPaint = pbMapPaint
+    end
+  end
+  object pnlMapRight: TPanel
+    Left = 980
+    Height = 678
+    Top = 70
+    Width = 332
+    Align = alClient
+    ClientHeight = 678
+    ClientWidth = 332
+    TabOrder = 2
+        object pnlRouteTop: TPanel
+          Left = 1
+          Height = 168
+          Top = 1
+          Width = 330
+          Align = alTop
+          ClientHeight = 168
+          ClientWidth = 330
+          TabOrder = 0
+          object lblRouteTitle: TLabel
+            Left = 12
+            Height = 15
+            Top = 10
+            Width = 34
+            Caption = 'Route'
+            Font.Style = [fsBold]
+            ParentColor = False
+            ParentFont = False
+          end
+          object memoRoute: TMemo
+            Left = 12
+            Height = 126
+            Top = 32
+            Width = 308
+            ReadOnly = True
+            ScrollBars = ssAutoBoth
+            TabOrder = 0
+          end
+        end
+        object pnlRouteStats: TPanel
+          Left = 1
+          Height = 274
+          Top = 169
+          Width = 330
+          Align = alClient
+          ClientHeight = 274
+          ClientWidth = 330
+          TabOrder = 1
+          object lblRouteEdges: TLabel
+            Left = 12
+            Height = 15
+            Top = 10
+            Width = 56
+            Caption = 'Segments'
+            Font.Style = [fsBold]
+            ParentColor = False
+            ParentFont = False
+          end
+          object lbRouteEdges: TListBox
+            Left = 12
+            Height = 268
+            Top = 32
+            Width = 308
+            ItemHeight = 0
+            TabOrder = 0
+          end
+        end
+        object pnlRouteBottom: TPanel
+          Left = 1
+          Height = 264
+          Top = 443
+          Width = 330
+          Align = alBottom
+          ClientHeight = 264
+          ClientWidth = 330
+          TabOrder = 2
+          object lblRouteSummary: TLabel
+            Left = 12
+            Height = 15
+            Top = 10
+            Width = 53
+            Caption = 'Summary'
+            Font.Style = [fsBold]
+            ParentColor = False
+            ParentFont = False
+          end
+          object memoRouteSummary: TMemo
+            Left = 12
+            Height = 224
+            Top = 32
+            Width = 308
+            ReadOnly = True
+            ScrollBars = ssAutoBoth
+            TabOrder = 0
+          end
+        end
+      end
+    end
+    object tsData: TTabSheet
+      Caption = 'Data'
+      ClientHeight = 748
+      ClientWidth = 1312
+      object lbCities: TListBox
+        Left = 12
+        Height = 240
+        Top = 40
+        Width = 350
+        ItemHeight = 0
+        TabOrder = 0
+      end
+      object lbNodes: TListBox
+        Left = 372
+        Height = 240
+        Top = 40
+        Width = 450
+        ItemHeight = 0
+        TabOrder = 1
+      end
+      object lbEdges: TListBox
+        Left = 832
+        Height = 240
+        Top = 40
+        Width = 472
+        ItemHeight = 0
+        TabOrder = 2
+      end
+      object memoDataInfo: TMemo
+        Left = 12
+        Height = 408
+        Top = 296
+        Width = 1292
+        ReadOnly = True
+        ScrollBars = ssAutoBoth
+        TabOrder = 3
+      end
+    end
+    object tsLog: TTabSheet
+      Caption = 'Log'
+      ClientHeight = 748
+      ClientWidth = 1312
+      object memoLog: TMemo
+        Left = 0
+        Height = 748
+        Top = 0
+        Width = 1312
+        Align = alClient
+        ReadOnly = True
+        ScrollBars = ssAutoBoth
+        TabOrder = 0
+      end
+    end
+  end
+  object AIRouteGraph1: TAIRouteGraph
+    Prompt = 'Component TAIRouteGraph stores road nodes, directed edges, adjacency indexes, and spatial lookup for route calculation.'
+    SpatialCellSize = 0.05
+    MaximumSnapDistanceMeters = 50000
+    Left = 32
+    Top = 24
+  end
+  object AIGeoJSONRouteImporter1: TAIGeoJSONRouteImporter
+    Prompt = 'Component TAIGeoJSONRouteImporter loads road nodes, edges, and cities from GeoJSON files.'
+    RouteGraph = AIRouteGraph1
+    Left = 128
+    Top = 24
+  end
+  object AIRouteSpeedProfile1: TAIRouteSpeedProfile
+    Prompt = 'Component TAIRouteSpeedProfile provides default speed estimates for road types when maxspeed is absent.'
+    MotorwaySpeed = 100
+    TrunkSpeed = 90
+    PrimarySpeed = 80
+    SecondarySpeed = 70
+    TertiarySpeed = 60
+    UnclassifiedSpeed = 50
+    ResidentialSpeed = 30
+    ServiceSpeed = 20
+    TrackSpeed = 15
+    DefaultSpeed = 40
+    SpeedFactor = 0.85
+    Left = 232
+    Top = 24
+  end
+  object AIRouteCityIndex1: TAIRouteCityIndex
+    Prompt = 'Component TAIRouteCityIndex loads city coordinates and connects each city to the nearest road node.'
+    Left = 344
+    Top = 24
+  end
+  object AIRouteCalculator1: TAIRouteCalculator
+    Prompt = 'Component TAIRouteCalculator computes shortest or fastest route over a directed road graph.'
+    RouteGraph = AIRouteGraph1
+    SpeedProfile = AIRouteSpeedProfile1
+    Left = 456
+    Top = 24
+  end
+end

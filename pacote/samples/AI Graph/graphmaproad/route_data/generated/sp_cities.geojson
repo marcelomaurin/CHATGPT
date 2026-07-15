@@ -1,0 +1,9680 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3500105",
+        "name": "Adamantina",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.07328,
+          -21.687818
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3500204",
+        "name": "Adolfo",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.642761,
+          -21.235606
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3500303",
+        "name": "Aguaí",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.979005,
+          -22.0592
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3500402",
+        "name": "Águas da Prata",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.716538,
+          -21.93556
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3500501",
+        "name": "Águas de Lindóia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.632068,
+          -22.471562
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3500550",
+        "name": "Águas de Santa Bárbara",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.239349,
+          -22.880763
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3500600",
+        "name": "Águas de São Pedro",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.877125,
+          -22.598713
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3500709",
+        "name": "Agudos",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.9896,
+          -22.4728
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3500758",
+        "name": "Alambari",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.89941,
+          -23.551591
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3500808",
+        "name": "Alfredo Marcondes",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.414701,
+          -21.954101
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3500907",
+        "name": "Altair",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.0594,
+          -20.5243
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3501004",
+        "name": "Altinópolis",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.3731,
+          -21.0269
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3501103",
+        "name": "Alto Alegre",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.165219,
+          -21.582185
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3501152",
+        "name": "Alumínio",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.253091,
+          -23.531041
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3501202",
+        "name": "Álvares Florence",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.9106,
+          -20.32108
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3501301",
+        "name": "Álvares Machado",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.4715,
+          -22.0769
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3501400",
+        "name": "Álvaro de Carvalho",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.720486,
+          -22.078456
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3501509",
+        "name": "Alvinlândia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.7634,
+          -22.4455
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3501608",
+        "name": "Americana",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.3321,
+          -22.7445
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3501707",
+        "name": "Américo Brasiliense",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.103,
+          -21.7289
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3501806",
+        "name": "Américo de Campos",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.7319,
+          -20.2992
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3501905",
+        "name": "Amparo",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.7745,
+          -22.7099
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3502002",
+        "name": "Analândia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.663911,
+          -22.125726
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3502101",
+        "name": "Andradina",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.380732,
+          -20.89697
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3502200",
+        "name": "Angatuba",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.4175,
+          -23.489
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3502309",
+        "name": "Anhembi",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.1272,
+          -22.7902
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3502408",
+        "name": "Anhumas",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.386021,
+          -22.296036
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3502507",
+        "name": "Aparecida",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.228487,
+          -22.848875
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3502606",
+        "name": "Aparecida d'Oeste",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.880859,
+          -20.45019
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3502705",
+        "name": "Apiaí",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.84635,
+          -24.512122
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3502754",
+        "name": "Araçariguama",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.06228,
+          -23.439098
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3502804",
+        "name": "Araçatuba",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.437098,
+          -21.216322
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3502903",
+        "name": "Araçoiaba da Serra",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.6146,
+          -23.5055
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3503000",
+        "name": "Aramina",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.78543,
+          -20.089487
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3503109",
+        "name": "Arandu",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.053852,
+          -23.133867
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3503158",
+        "name": "Arapeí",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -44.450708,
+          -22.673994
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3503208",
+        "name": "Araraquara",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.1753,
+          -21.793
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3503307",
+        "name": "Araras",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.385896,
+          -22.35822
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3503356",
+        "name": "Arco-Íris",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.464935,
+          -21.773473
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3503406",
+        "name": "Arealva",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.91166,
+          -22.029054
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3503505",
+        "name": "Areias",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -44.696937,
+          -22.581019
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3503604",
+        "name": "Areiópolis",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.6627,
+          -22.6693
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3503703",
+        "name": "Ariranha",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.785865,
+          -21.187594
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3503802",
+        "name": "Artur Nogueira",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.173,
+          -22.5734
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3503901",
+        "name": "Arujá",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.322977,
+          -23.395845
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3503950",
+        "name": "Aspásia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.726583,
+          -20.159187
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3504008",
+        "name": "Assis",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.4111,
+          -22.6611
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3504107",
+        "name": "Atibaia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.54835,
+          -23.115996
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3504206",
+        "name": "Auriflama",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.554301,
+          -20.687792
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3504305",
+        "name": "Avaí",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.332837,
+          -22.156184
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3504404",
+        "name": "Avanhandava",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.950064,
+          -21.460452
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3504503",
+        "name": "Avaré",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.9255,
+          -23.0989
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3504602",
+        "name": "Bady Bassitt",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.446748,
+          -20.919787
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3504701",
+        "name": "Balbinos",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.356625,
+          -21.901743
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3504800",
+        "name": "Bálsamo",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.582848,
+          -20.732807
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3504909",
+        "name": "Bananal",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -44.319246,
+          -22.680043
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3505005",
+        "name": "Barão de Antonina",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.561691,
+          -23.629889
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3505104",
+        "name": "Barbosa",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.950265,
+          -21.267767
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3505203",
+        "name": "Bariri",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.7391,
+          -22.0764
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3505302",
+        "name": "Barra Bonita",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.5617,
+          -22.4942
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3505351",
+        "name": "Barra do Chapéu",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.026311,
+          -24.471388
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3505401",
+        "name": "Barra do Turvo",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.5053,
+          -24.7582
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3505500",
+        "name": "Barretos",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.569382,
+          -20.570998
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3505609",
+        "name": "Barrinha",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.1645,
+          -21.1946
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3505708",
+        "name": "Barueri",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.874037,
+          -23.511859
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3505807",
+        "name": "Bastos",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.7323,
+          -21.9211
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3505906",
+        "name": "Batatais",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.5853,
+          -20.8894
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3506003",
+        "name": "Bauru",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.0702,
+          -22.331
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3506102",
+        "name": "Bebedouro",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.482556,
+          -20.949382
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3506201",
+        "name": "Bento de Abreu",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.812183,
+          -21.271881
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3506300",
+        "name": "Bernardino de Campos",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.474801,
+          -23.012917
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3506359",
+        "name": "Bertioga",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.141838,
+          -23.846717
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3506409",
+        "name": "Bilac",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.473312,
+          -21.406607
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3506508",
+        "name": "Birigui",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.340101,
+          -21.29178
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3506607",
+        "name": "Biritiba Mirim",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.039555,
+          -23.573064
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3506706",
+        "name": "Boa Esperança do Sul",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.391,
+          -21.9924
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3506805",
+        "name": "Bocaina",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.5191,
+          -22.139
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3506904",
+        "name": "Bofete",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.258218,
+          -23.102856
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3507001",
+        "name": "Boituva",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.6763,
+          -23.284
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3507100",
+        "name": "Bom Jesus dos Perdões",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.465096,
+          -23.136245
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3507159",
+        "name": "Bom Sucesso de Itararé",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.147741,
+          -24.319384
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3507209",
+        "name": "Borá",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.5441,
+          -22.2696
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3507308",
+        "name": "Boracéia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.7792,
+          -22.195
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3507407",
+        "name": "Borborema",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.0744,
+          -21.6212
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3507456",
+        "name": "Borebi",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.9722,
+          -22.5698
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3507506",
+        "name": "Botucatu",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.444218,
+          -22.885226
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3507605",
+        "name": "Bragança Paulista",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.534074,
+          -22.966064
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3507704",
+        "name": "Braúna",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.316379,
+          -21.501277
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3507753",
+        "name": "Brejo Alegre",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.185873,
+          -21.164505
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3507803",
+        "name": "Brodowski",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.6588,
+          -20.989
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3507902",
+        "name": "Brotas",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.126497,
+          -22.288184
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3508009",
+        "name": "Buri",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.594955,
+          -23.797809
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3508108",
+        "name": "Buritama",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.144589,
+          -21.068148
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3508207",
+        "name": "Buritizal",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.708106,
+          -20.191327
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3508306",
+        "name": "Cabrália Paulista",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.3368,
+          -22.4588
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3508405",
+        "name": "Cabreúva",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.133241,
+          -23.307358
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3508504",
+        "name": "Caçapava",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.707776,
+          -23.097096
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3508603",
+        "name": "Cachoeira Paulista",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.007614,
+          -22.664449
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3508702",
+        "name": "Caconde",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.645138,
+          -21.529047
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3508801",
+        "name": "Cafelândia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.6051,
+          -21.8041
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3508900",
+        "name": "Caiabu",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.2355,
+          -22.0137
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3509007",
+        "name": "Caieiras",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.749555,
+          -23.365822
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3509106",
+        "name": "Caiuá",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.9873,
+          -21.8308
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3509205",
+        "name": "Cajamar",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.87254,
+          -23.364742
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3509254",
+        "name": "Cajati",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.1146,
+          -24.7252
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3509304",
+        "name": "Cajobi",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.810212,
+          -20.880796
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3509403",
+        "name": "Cajuru",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.3042,
+          -21.2776
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3509452",
+        "name": "Campina do Monte Alegre",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.477015,
+          -23.591576
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3509502",
+        "name": "Campinas",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.0573,
+          -22.9011
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3509601",
+        "name": "Campo Limpo Paulista",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.783947,
+          -23.205035
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3509700",
+        "name": "Campos do Jordão",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.59489,
+          -22.741821
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3509809",
+        "name": "Campos Novos Paulista",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.000176,
+          -22.602874
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3509908",
+        "name": "Cananéia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.929855,
+          -25.010387
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3509957",
+        "name": "Canas",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.053,
+          -22.7022
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3510005",
+        "name": "Cândido Mota",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.3895,
+          -22.7446
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3510104",
+        "name": "Cândido Rodrigues",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.631,
+          -21.3257
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3510153",
+        "name": "Canitar",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.7842,
+          -23.0079
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3510203",
+        "name": "Capão Bonito",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.34781,
+          -24.003723
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3510302",
+        "name": "Capela do Alto",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.734247,
+          -23.468784
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3510401",
+        "name": "Capivari",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.5043,
+          -22.9988
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3510500",
+        "name": "Caraguatatuba",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.409776,
+          -23.619272
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3510609",
+        "name": "Carapicuíba",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.840402,
+          -23.517973
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3510708",
+        "name": "Cardoso",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.9151,
+          -20.0796
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3510807",
+        "name": "Casa Branca",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.086645,
+          -21.774015
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3510906",
+        "name": "Cássia dos Coqueiros",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.17,
+          -21.2824
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3511003",
+        "name": "Castilho",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.4878,
+          -20.8716
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3511102",
+        "name": "Catanduva",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.971399,
+          -21.131619
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3511201",
+        "name": "Catiguá",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.062467,
+          -21.057486
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3511300",
+        "name": "Cedral",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.270036,
+          -20.902048
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3511409",
+        "name": "Cerqueira César",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.165009,
+          -23.034563
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3511508",
+        "name": "Cerquilho",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.7443,
+          -23.1613
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3511607",
+        "name": "Cesário Lange",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.953,
+          -23.2273
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3511706",
+        "name": "Charqueada",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.77709,
+          -22.511285
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3557204",
+        "name": "Chavantes",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.7081,
+          -23.0405
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3511904",
+        "name": "Clementina",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.449186,
+          -21.558892
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3512001",
+        "name": "Colina",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.5417,
+          -20.715
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3512100",
+        "name": "Colômbia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.688673,
+          -20.177757
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3512209",
+        "name": "Conchal",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.17254,
+          -22.332173
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3512308",
+        "name": "Conchas",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.0092,
+          -23.0135
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3512407",
+        "name": "Cordeirópolis",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.4655,
+          -22.4809
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3512506",
+        "name": "Coroados",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.28394,
+          -21.35603
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3512605",
+        "name": "Coronel Macedo",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.31372,
+          -23.631309
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3512704",
+        "name": "Corumbataí",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.6264,
+          -22.2206
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3512803",
+        "name": "Cosmópolis",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.196218,
+          -22.645347
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3512902",
+        "name": "Cosmorama",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.7764,
+          -20.4784
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3513009",
+        "name": "Cotia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.915347,
+          -23.60602
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3513108",
+        "name": "Cravinhos",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.7331,
+          -21.3377
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3513207",
+        "name": "Cristais Paulista",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.421238,
+          -20.406184
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3513306",
+        "name": "Cruzália",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.792257,
+          -22.741085
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3513405",
+        "name": "Cruzeiro",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -44.958392,
+          -22.575762
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3513504",
+        "name": "Cubatão",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.4228,
+          -23.8836
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3513603",
+        "name": "Cunha",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -44.959328,
+          -23.076028
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3513702",
+        "name": "Descalvado",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.62,
+          -21.9037
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3513801",
+        "name": "Diadema",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.611375,
+          -23.686428
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3513850",
+        "name": "Dirce Reis",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.6066,
+          -20.4663
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3513900",
+        "name": "Divinolândia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.739765,
+          -21.661706
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3514007",
+        "name": "Dobrada",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.3947,
+          -21.5164
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3514106",
+        "name": "Dois Córregos",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.3842,
+          -22.3687
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3514205",
+        "name": "Dolcinópolis",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.512717,
+          -20.123153
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3514304",
+        "name": "Dourado",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.316601,
+          -22.115054
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3514403",
+        "name": "Dracena",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.534,
+          -21.4856
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3514502",
+        "name": "Duartina",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.4014,
+          -22.4152
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3514601",
+        "name": "Dumont",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.9742,
+          -21.2387
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3514700",
+        "name": "Echaporã",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.2023,
+          -22.4298
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3514809",
+        "name": "Eldorado",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.109711,
+          -24.521651
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3514908",
+        "name": "Elias Fausto",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.3731,
+          -23.0428
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3514924",
+        "name": "Elisiário",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.11054,
+          -21.166583
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3514957",
+        "name": "Embaúba",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.835886,
+          -20.981083
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3515004",
+        "name": "Embu das Artes",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.853115,
+          -23.648367
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3515103",
+        "name": "Embu-Guaçu",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.814497,
+          -23.827424
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3515129",
+        "name": "Emilianópolis",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.482921,
+          -21.832858
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3515152",
+        "name": "Engenheiro Coelho",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.2208,
+          -22.4892
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3515186",
+        "name": "Espírito Santo do Pinhal",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.747036,
+          -22.193075
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3515194",
+        "name": "Espírito Santo do Turvo",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.4274,
+          -22.6937
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3557303",
+        "name": "Estiva Gerbi",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.9525,
+          -22.2746
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3515202",
+        "name": "Estrela d'Oeste",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.396196,
+          -20.28629
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3515301",
+        "name": "Estrela do Norte",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.660628,
+          -22.487059
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3515350",
+        "name": "Euclides da Cunha Paulista",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -52.5943,
+          -22.5618
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3515400",
+        "name": "Fartura",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.511,
+          -23.3902
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3515608",
+        "name": "Fernando Prestes",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.6862,
+          -21.2648
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3515509",
+        "name": "Fernandópolis",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.2488,
+          -20.2825
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3515657",
+        "name": "Fernão",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.5187,
+          -22.3594
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3515707",
+        "name": "Ferraz de Vasconcelos",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.3667,
+          -23.5435
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3515806",
+        "name": "Flora Rica",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.38026,
+          -21.674991
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3515905",
+        "name": "Floreal",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.1457,
+          -20.6771
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3516002",
+        "name": "Flórida Paulista",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.1729,
+          -21.6142
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3516101",
+        "name": "Florínea",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.72982,
+          -22.9002
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3516200",
+        "name": "Franca",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.4011,
+          -20.5383
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3516309",
+        "name": "Francisco Morato",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.7457,
+          -23.282
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3516408",
+        "name": "Franco da Rocha",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.726,
+          -23.3319
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3516507",
+        "name": "Gabriel Monteiro",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.5566,
+          -21.5309
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3516606",
+        "name": "Gália",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.5534,
+          -22.291
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3516705",
+        "name": "Garça",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.6533,
+          -22.2118
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3516804",
+        "name": "Gastão Vidigal",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.1882,
+          -20.7992
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3516853",
+        "name": "Gavião Peixoto",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.4951,
+          -21.8392
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3516903",
+        "name": "General Salgado",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.3608,
+          -20.6487
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3517000",
+        "name": "Getulina",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.931,
+          -21.7992
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3517109",
+        "name": "Glicério",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.2092,
+          -21.3836
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3517208",
+        "name": "Guaiçara",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.798108,
+          -21.623444
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3517307",
+        "name": "Guaimbê",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.898,
+          -21.9109
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3517406",
+        "name": "Guaíra",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.3107,
+          -20.3188
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3517505",
+        "name": "Guapiaçu",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.2202,
+          -20.7953
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3517604",
+        "name": "Guapiara",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.5344,
+          -24.1843
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3517703",
+        "name": "Guará",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.8248,
+          -20.4285
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3517802",
+        "name": "Guaraçaí",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.209,
+          -21.0335
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3517901",
+        "name": "Guaraci",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.9441,
+          -20.4996
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3518008",
+        "name": "Guarani d'Oeste",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.3398,
+          -20.0748
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3518107",
+        "name": "Guarantã",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.5904,
+          -21.8973
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3518206",
+        "name": "Guararapes",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.644,
+          -21.2543
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3518305",
+        "name": "Guararema",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.03556,
+          -23.41429
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3518404",
+        "name": "Guaratinguetá",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.192425,
+          -22.81706
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3518503",
+        "name": "Guareí",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.1845,
+          -23.3731
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3518602",
+        "name": "Guariba",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.2274,
+          -21.3607
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3518701",
+        "name": "Guarujá",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.2573,
+          -23.9934
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3518800",
+        "name": "Guarulhos",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.5312,
+          -23.4702
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3518859",
+        "name": "Guatapará",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.0393,
+          -21.4956
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3518909",
+        "name": "Guzolândia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.6626,
+          -20.6509
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3519006",
+        "name": "Herculândia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.38603,
+          -22.00451
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3519055",
+        "name": "Holambra",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.0597,
+          -22.6261
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3519071",
+        "name": "Hortolândia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.21811,
+          -22.86995
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3519105",
+        "name": "Iacanga",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.0159,
+          -21.8903
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3519204",
+        "name": "Iacri",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.6917,
+          -21.8571
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3519253",
+        "name": "Iaras",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.1631,
+          -22.8723
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3519303",
+        "name": "Ibaté",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.001378,
+          -21.952756
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3519402",
+        "name": "Ibirá",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.2413,
+          -21.0806
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3519501",
+        "name": "Ibirarema",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.0731,
+          -22.8178
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3519600",
+        "name": "Ibitinga",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.8245,
+          -21.7581
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3519709",
+        "name": "Ibiúna",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.2179,
+          -23.651
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3519808",
+        "name": "Icém",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.1979,
+          -20.3412
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3519907",
+        "name": "Iepê",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.0773,
+          -22.6617
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3520004",
+        "name": "Igaraçu do Tietê",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.55743,
+          -22.50889
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3520103",
+        "name": "Igarapava",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.7476,
+          -20.0386
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3520202",
+        "name": "Igaratá",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.154445,
+          -23.206835
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3520301",
+        "name": "Iguape",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.5565,
+          -24.7086
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3520426",
+        "name": "Ilha Comprida",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.5318,
+          -24.7376
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3520442",
+        "name": "Ilha Solteira",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.34397,
+          -20.42645
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3520400",
+        "name": "Ilhabela",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.36548,
+          -23.81438
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3520509",
+        "name": "Indaiatuba",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.2296,
+          -23.0928
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3520608",
+        "name": "Indiana",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.2538,
+          -22.1773
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3520707",
+        "name": "Indiaporã",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.2906,
+          -19.9803
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3520806",
+        "name": "Inúbia Paulista",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.95839,
+          -21.76813
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3520905",
+        "name": "Ipaussu",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.6271,
+          -23.053
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3521002",
+        "name": "Iperó",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.6941,
+          -23.3521
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3521101",
+        "name": "Ipeúna",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.7202,
+          -22.4363
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3521150",
+        "name": "Ipiguá",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.3888,
+          -20.6564
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3521200",
+        "name": "Iporanga",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.5941,
+          -24.5837
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3521309",
+        "name": "Ipuã",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.009625,
+          -20.444137
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3521408",
+        "name": "Iracemápolis",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.5176,
+          -22.5801
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3521507",
+        "name": "Irapuã",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.4092,
+          -21.2793
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3521606",
+        "name": "Irapuru",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.352035,
+          -21.566086
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3521705",
+        "name": "Itaberá",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.138435,
+          -23.862725
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3521804",
+        "name": "Itaí",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.090653,
+          -23.417505
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3521903",
+        "name": "Itajobi",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.058548,
+          -21.31641
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3522000",
+        "name": "Itaju",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.805,
+          -21.9847
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3522109",
+        "name": "Itanhaém",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.7891,
+          -24.1856
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3522158",
+        "name": "Itaoca",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.84193,
+          -24.63938
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3522208",
+        "name": "Itapecerica da Serra",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.8496,
+          -23.7176
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3522307",
+        "name": "Itapetininga",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.0477,
+          -23.5872
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3522406",
+        "name": "Itapeva",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.8764,
+          -23.987
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3522505",
+        "name": "Itapevi",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.9345,
+          -23.5486
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3522604",
+        "name": "Itapira",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.822,
+          -22.4393
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3522653",
+        "name": "Itapirapuã Paulista",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.1722,
+          -24.5716
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3522703",
+        "name": "Itápolis",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.8096,
+          -21.597
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3522802",
+        "name": "Itaporanga",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.483101,
+          -23.704466
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3522901",
+        "name": "Itapuí",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.7196,
+          -22.2346
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3523008",
+        "name": "Itapura",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.51,
+          -20.6468
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3523107",
+        "name": "Itaquaquecetuba",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.352085,
+          -23.485534
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3523206",
+        "name": "Itararé",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.3393,
+          -24.1155
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3523305",
+        "name": "Itariri",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.174268,
+          -24.291049
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3523404",
+        "name": "Itatiba",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.8389,
+          -23.0059
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3523503",
+        "name": "Itatinga",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.615028,
+          -23.103207
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3523602",
+        "name": "Itirapina",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.820174,
+          -22.254161
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3523701",
+        "name": "Itirapuã",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.219,
+          -20.6403
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3523800",
+        "name": "Itobi",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.97459,
+          -21.73147
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3523909",
+        "name": "Itu",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.287,
+          -23.2698
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3524006",
+        "name": "Itupeva",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.0582,
+          -23.1534
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3524105",
+        "name": "Ituverava",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.78199,
+          -20.339589
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3524204",
+        "name": "Jaborandi",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.4136,
+          -20.6888
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3524303",
+        "name": "Jaboticabal",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.3107,
+          -21.2546
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3524402",
+        "name": "Jacareí",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.97487,
+          -23.30564
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3524501",
+        "name": "Jaci",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.5705,
+          -20.8844
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3524600",
+        "name": "Jacupiranga",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.0027,
+          -24.6987
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3524709",
+        "name": "Jaguariúna",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.9848,
+          -22.7051
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3524808",
+        "name": "Jales",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.5476,
+          -20.2681
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3524907",
+        "name": "Jambeiro",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.69035,
+          -23.255017
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3525003",
+        "name": "Jandira",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.9019,
+          -23.5315
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3525102",
+        "name": "Jardinópolis",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.764254,
+          -21.018297
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3525201",
+        "name": "Jarinu",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.7285,
+          -23.1019
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3525300",
+        "name": "Jaú",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.5589,
+          -22.2971
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3525409",
+        "name": "Jeriquara",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.589168,
+          -20.311833
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3525508",
+        "name": "Joanópolis",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.27208,
+          -22.93103
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3525607",
+        "name": "João Ramalho",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.7677,
+          -22.2513
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3525706",
+        "name": "José Bonifácio",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.6886,
+          -21.0531
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3525805",
+        "name": "Júlio Mesquita",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.789271,
+          -22.011559
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3525854",
+        "name": "Jumirim",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.7844,
+          -23.0862
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3525904",
+        "name": "Jundiaí",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.8843,
+          -23.1891
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3526001",
+        "name": "Junqueirópolis",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.4397,
+          -21.5122
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3526100",
+        "name": "Juquiá",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.632053,
+          -24.325916
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3526209",
+        "name": "Juquitiba",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.068626,
+          -23.932402
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3526308",
+        "name": "Lagoinha",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.18964,
+          -23.09036
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3526407",
+        "name": "Laranjal Paulista",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.8379,
+          -23.0521
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3526506",
+        "name": "Lavínia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.0403,
+          -21.1686
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3526605",
+        "name": "Lavrinhas",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -44.906,
+          -22.5679
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3526704",
+        "name": "Leme",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.388677,
+          -22.185505
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3526803",
+        "name": "Lençóis Paulista",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.8025,
+          -22.6035
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3526902",
+        "name": "Limeira",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.4095,
+          -22.5736
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3527009",
+        "name": "Lindóia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.6447,
+          -22.5256
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3527108",
+        "name": "Lins",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.7418,
+          -21.6721
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3527207",
+        "name": "Lorena",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.1158,
+          -22.7384
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3527256",
+        "name": "Lourdes",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.226375,
+          -20.967418
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3527306",
+        "name": "Louveira",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.9503,
+          -23.0886
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3527405",
+        "name": "Lucélia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.0195,
+          -21.7227
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3527504",
+        "name": "Lucianópolis",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.5227,
+          -22.4311
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3527603",
+        "name": "Luís Antônio",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.703554,
+          -21.551311
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3527702",
+        "name": "Luiziânia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.3268,
+          -21.6766
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3527801",
+        "name": "Lupércio",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.817296,
+          -22.415483
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3527900",
+        "name": "Lutécia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.391836,
+          -22.339307
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3528007",
+        "name": "Macatuba",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.7108,
+          -22.5007
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3528106",
+        "name": "Macaubal",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.9649,
+          -20.8072
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3528205",
+        "name": "Macedônia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.194575,
+          -20.1457
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3528304",
+        "name": "Magda",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.226593,
+          -20.644325
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3528403",
+        "name": "Mairinque",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.183559,
+          -23.547159
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3528502",
+        "name": "Mairiporã",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.5878,
+          -23.32
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3528601",
+        "name": "Manduri",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.322684,
+          -23.003814
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3528700",
+        "name": "Marabá Paulista",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.9652,
+          -22.1104
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3528809",
+        "name": "Maracaí",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.6668,
+          -22.614
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3528858",
+        "name": "Marapoama",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.1299,
+          -21.2593
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3528908",
+        "name": "Mariápolis",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.181561,
+          -21.798389
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3529005",
+        "name": "Marília",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.9479,
+          -22.2199
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3529104",
+        "name": "Marinópolis",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.8236,
+          -20.4409
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3529203",
+        "name": "Martinópolis",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.1714,
+          -22.1492
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3529302",
+        "name": "Matão",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.3609,
+          -21.6004
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3529401",
+        "name": "Mauá",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.4623,
+          -23.6699
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3529500",
+        "name": "Mendonça",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.5811,
+          -21.1835
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3529609",
+        "name": "Meridiano",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.1773,
+          -20.3562
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3529658",
+        "name": "Mesópolis",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.619,
+          -19.9663
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3529708",
+        "name": "Miguelópolis",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.0269,
+          -20.1819
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3529807",
+        "name": "Mineiros do Tietê",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.4509,
+          -22.4114
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3530003",
+        "name": "Mira Estrela",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.137649,
+          -19.97953
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3529906",
+        "name": "Miracatu",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.459003,
+          -24.28397
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3530102",
+        "name": "Mirandópolis",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.1025,
+          -21.133622
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3530201",
+        "name": "Mirante do Paranapanema",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.9076,
+          -22.2912
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3530300",
+        "name": "Mirassol",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.512132,
+          -20.816881
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3530409",
+        "name": "Mirassolândia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.4644,
+          -20.617
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3530508",
+        "name": "Mococa",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.004179,
+          -21.468861
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3530607",
+        "name": "Mogi das Cruzes",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.1854,
+          -23.5192
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3530706",
+        "name": "Mogi Guaçu",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.9444,
+          -22.3687
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3530805",
+        "name": "Mogi Mirim",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.9574,
+          -22.4318
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3530904",
+        "name": "Mombuca",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.5663,
+          -22.9293
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3531001",
+        "name": "Monções",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.0922,
+          -20.8508
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3531100",
+        "name": "Mongaguá",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.61816,
+          -24.09484
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3531209",
+        "name": "Monte Alegre do Sul",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.6786,
+          -22.68855
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3531308",
+        "name": "Monte Alto",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.49622,
+          -21.26115
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3531407",
+        "name": "Monte Aprazível",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.7145,
+          -20.7728
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3531506",
+        "name": "Monte Azul Paulista",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.6413,
+          -20.9076
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3531605",
+        "name": "Monte Castelo",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.5686,
+          -21.3014
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3531803",
+        "name": "Monte Mor",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.3141,
+          -22.9467
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3531704",
+        "name": "Monteiro Lobato",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.838868,
+          -22.955923
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3531902",
+        "name": "Morro Agudo",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.0584,
+          -20.7329
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3532009",
+        "name": "Morungaba",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.792789,
+          -22.875741
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3532058",
+        "name": "Motuca",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.150136,
+          -21.512907
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3532108",
+        "name": "Murutinga do Sul",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.278035,
+          -20.993492
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3532157",
+        "name": "Nantes",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.238,
+          -22.6189
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3532207",
+        "name": "Narandiba",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.525123,
+          -22.407259
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3532306",
+        "name": "Natividade da Serra",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.4466,
+          -23.3792
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3532405",
+        "name": "Nazaré Paulista",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.3982,
+          -23.1822
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3532504",
+        "name": "Neves Paulista",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.6302,
+          -20.8461
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3532603",
+        "name": "Nhandeara",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.041555,
+          -20.694942
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3532702",
+        "name": "Nipoã",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.7782,
+          -20.9137
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3532801",
+        "name": "Nova Aliança",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.496988,
+          -21.015566
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3532827",
+        "name": "Nova Campina",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.904555,
+          -24.121288
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3532843",
+        "name": "Nova Canaã Paulista",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.9489,
+          -20.3871
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3532868",
+        "name": "Nova Castilho",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.3421,
+          -20.7632
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3532900",
+        "name": "Nova Europa",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.5606,
+          -21.7786
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3533007",
+        "name": "Nova Granada",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.3176,
+          -20.532554
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3533106",
+        "name": "Nova Guataporanga",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.644615,
+          -21.333623
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3533205",
+        "name": "Nova Independência",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.490158,
+          -21.104858
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3533304",
+        "name": "Nova Luzitânia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.263183,
+          -20.856484
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3533403",
+        "name": "Nova Odessa",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.2984,
+          -22.7803
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3533254",
+        "name": "Novais",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.9188,
+          -20.9933
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3533502",
+        "name": "Novo Horizonte",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.222,
+          -21.4695
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3533601",
+        "name": "Nuporanga",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.75137,
+          -20.732711
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3533700",
+        "name": "Ocauçu",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.9231,
+          -22.4392
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3533809",
+        "name": "Óleo",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.341868,
+          -22.942496
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3533908",
+        "name": "Olímpia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.914339,
+          -20.737578
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3534005",
+        "name": "Onda Verde",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.2962,
+          -20.6101
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3534104",
+        "name": "Oriente",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.0913,
+          -22.1538
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3534203",
+        "name": "Orindiúva",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.352062,
+          -20.181539
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3534302",
+        "name": "Orlândia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.884785,
+          -20.719641
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3534401",
+        "name": "Osasco",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.7821,
+          -23.5388
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3534500",
+        "name": "Oscar Bressane",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.2828,
+          -22.3186
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3534609",
+        "name": "Osvaldo Cruz",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.876542,
+          -21.795093
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3534708",
+        "name": "Ourinhos",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.8659,
+          -22.9811
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3534807",
+        "name": "Ouro Verde",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.7017,
+          -21.4881
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3534757",
+        "name": "Ouroeste",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.372899,
+          -20.001096
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3534906",
+        "name": "Pacaembu",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.263429,
+          -21.566848
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3535002",
+        "name": "Palestina",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.4343,
+          -20.3916
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3535101",
+        "name": "Palmares Paulista",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.800718,
+          -21.083522
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3535200",
+        "name": "Palmeira d'Oeste",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.7624,
+          -20.4166
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3535309",
+        "name": "Palmital",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.220782,
+          -22.78616
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3535408",
+        "name": "Panorama",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.857312,
+          -21.361249
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3535507",
+        "name": "Paraguaçu Paulista",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.581032,
+          -22.421344
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3535606",
+        "name": "Paraibuna",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.663364,
+          -23.387253
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3535705",
+        "name": "Paraíso",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.77483,
+          -21.017259
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3535804",
+        "name": "Paranapanema",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.722328,
+          -23.388094
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3535903",
+        "name": "Paranapuã",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.5857,
+          -20.1036
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3536000",
+        "name": "Parapuã",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.7913,
+          -21.7831
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3536109",
+        "name": "Pardinho",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.374,
+          -23.0815
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3536208",
+        "name": "Pariquera-Açu",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.8815,
+          -24.7136
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3536257",
+        "name": "Parisi",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.0124,
+          -20.3051
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3536307",
+        "name": "Patrocínio Paulista",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.280364,
+          -20.643437
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3536406",
+        "name": "Paulicéia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.8334,
+          -21.314
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3536505",
+        "name": "Paulínia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.154512,
+          -22.761841
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3536570",
+        "name": "Paulistânia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.399,
+          -22.5743
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3536604",
+        "name": "Paulo de Faria",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.3998,
+          -20.0312
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3536703",
+        "name": "Pederneiras",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.7763,
+          -22.3533
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3536802",
+        "name": "Pedra Bela",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.4432,
+          -22.7937
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3536901",
+        "name": "Pedranópolis",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.109871,
+          -20.249758
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3537008",
+        "name": "Pedregulho",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.480343,
+          -20.253619
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3537107",
+        "name": "Pedreira",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.90179,
+          -22.742212
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3537156",
+        "name": "Pedrinhas Paulista",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.7912,
+          -22.8148
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3537206",
+        "name": "Pedro de Toledo",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.231611,
+          -24.275012
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3537305",
+        "name": "Penápolis",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.0766,
+          -21.4194
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3537404",
+        "name": "Pereira Barreto",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.108167,
+          -20.641717
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3537503",
+        "name": "Pereiras",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.9767,
+          -23.0769
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3537602",
+        "name": "Peruíbe",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.002465,
+          -24.320665
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3537701",
+        "name": "Piacatu",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.5995,
+          -21.593266
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3537800",
+        "name": "Piedade",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.412253,
+          -23.714144
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3537909",
+        "name": "Pilar do Sul",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.716697,
+          -23.812612
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3538006",
+        "name": "Pindamonhangaba",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.4628,
+          -22.9377
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3538105",
+        "name": "Pindorama",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.904955,
+          -21.186496
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3538204",
+        "name": "Pinhalzinho",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.5918,
+          -22.7814
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3538303",
+        "name": "Piquerobi",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.730466,
+          -21.8895
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3538501",
+        "name": "Piquete",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.180794,
+          -22.612286
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3538600",
+        "name": "Piracaia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.3558,
+          -23.0553
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3538709",
+        "name": "Piracicaba",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.6646,
+          -22.7288
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3538808",
+        "name": "Piraju",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.383643,
+          -23.1938
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3538907",
+        "name": "Pirajuí",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.4585,
+          -21.9945
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3539004",
+        "name": "Pirangi",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.658454,
+          -21.091675
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3539103",
+        "name": "Pirapora do Bom Jesus",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.002302,
+          -23.396833
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3539202",
+        "name": "Pirapozinho",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.49923,
+          -22.275254
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3539301",
+        "name": "Pirassununga",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.423639,
+          -21.995224
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3539400",
+        "name": "Piratininga",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.1344,
+          -22.4104
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3539509",
+        "name": "Pitangueiras",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.219904,
+          -21.010432
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3539608",
+        "name": "Planalto",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.927432,
+          -21.033599
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3539707",
+        "name": "Platina",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.205519,
+          -22.633245
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3539806",
+        "name": "Poá",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.341788,
+          -23.525452
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3539905",
+        "name": "Poloni",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.816111,
+          -20.784823
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3540002",
+        "name": "Pompéia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.1771,
+          -22.1106
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3540101",
+        "name": "Pongaí",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.357448,
+          -21.734189
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3540200",
+        "name": "Pontal",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.0368,
+          -21.0244
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3540259",
+        "name": "Pontalinda",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.523664,
+          -20.440838
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3540309",
+        "name": "Pontes Gestal",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.701764,
+          -20.184484
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3540408",
+        "name": "Populina",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.538963,
+          -19.943135
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3540507",
+        "name": "Porangaba",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.125812,
+          -23.175887
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3540606",
+        "name": "Porto Feliz",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.5236,
+          -23.2134
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3540705",
+        "name": "Porto Ferreira",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.479746,
+          -21.852884
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3540754",
+        "name": "Potim",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.252255,
+          -22.843613
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3540804",
+        "name": "Potirendaba",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.378728,
+          -21.043346
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3540853",
+        "name": "Pracinha",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.08733,
+          -21.853234
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3540903",
+        "name": "Pradópolis",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.0667,
+          -21.3574
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3541000",
+        "name": "Praia Grande",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.493919,
+          -24.0307
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3541059",
+        "name": "Pratânia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.66636,
+          -22.809013
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3541109",
+        "name": "Presidente Alves",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.4384,
+          -22.1001
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3541208",
+        "name": "Presidente Bernardes",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.5533,
+          -22.0078
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3541307",
+        "name": "Presidente Epitácio",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -52.11,
+          -21.7578
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3541406",
+        "name": "Presidente Prudente",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.388246,
+          -22.121961
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3541505",
+        "name": "Presidente Venceslau",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.844434,
+          -21.875232
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3541604",
+        "name": "Promissão",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.859145,
+          -21.537135
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3541653",
+        "name": "Quadra",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.055872,
+          -23.301138
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3541703",
+        "name": "Quatá",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.6958,
+          -22.2507
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3541802",
+        "name": "Queiroz",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.2406,
+          -21.8
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3541901",
+        "name": "Queluz",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -44.773413,
+          -22.539189
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3542008",
+        "name": "Quintana",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.305152,
+          -22.070786
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3542107",
+        "name": "Rafard",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.531,
+          -23.0141
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3542206",
+        "name": "Rancharia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.8941,
+          -22.2284
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3542305",
+        "name": "Redenção da Serra",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.5335,
+          -23.2825
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3542404",
+        "name": "Regente Feijó",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.3122,
+          -22.2241
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3542503",
+        "name": "Reginópolis",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.227082,
+          -21.8889
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3542602",
+        "name": "Registro",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.8453,
+          -24.4956
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3542701",
+        "name": "Restinga",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.483904,
+          -20.602939
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3542800",
+        "name": "Ribeira",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.008,
+          -24.6587
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3542909",
+        "name": "Ribeirão Bonito",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.175295,
+          -22.069408
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3543006",
+        "name": "Ribeirão Branco",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.766399,
+          -24.221412
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3543105",
+        "name": "Ribeirão Corrente",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.589255,
+          -20.458429
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3543204",
+        "name": "Ribeirão do Sul",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.933,
+          -22.7844
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3543238",
+        "name": "Ribeirão dos Índios",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.6042,
+          -21.8383
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3543253",
+        "name": "Ribeirão Grande",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.3657,
+          -24.0969
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3543303",
+        "name": "Ribeirão Pires",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.4134,
+          -23.7086
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3543402",
+        "name": "Ribeirão Preto",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.8065,
+          -21.1767
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3543600",
+        "name": "Rifaina",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.422919,
+          -20.08125
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3543709",
+        "name": "Rincão",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.068757,
+          -21.589884
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3543808",
+        "name": "Rinópolis",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.7223,
+          -21.7258
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3543907",
+        "name": "Rio Claro",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.5596,
+          -22.4113
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3544004",
+        "name": "Rio das Pedras",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.608074,
+          -22.84365
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3544103",
+        "name": "Rio Grande da Serra",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.393101,
+          -23.744442
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3544202",
+        "name": "Riolândia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.681561,
+          -19.98171
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3543501",
+        "name": "Riversul",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.435688,
+          -23.828373
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3544251",
+        "name": "Rosana",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -53.0586,
+          -22.58
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3544301",
+        "name": "Roseira",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.3066,
+          -22.8981
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3544400",
+        "name": "Rubiácea",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.72801,
+          -21.300891
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3544509",
+        "name": "Rubinéia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.9995,
+          -20.1714
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3544608",
+        "name": "Sabino",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.578924,
+          -21.459201
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3544707",
+        "name": "Sagres",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.957469,
+          -21.88349
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3544806",
+        "name": "Sales",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.498572,
+          -21.341126
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3544905",
+        "name": "Sales Oliveira",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.838648,
+          -20.770304
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3545001",
+        "name": "Salesópolis",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.846603,
+          -23.530896
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3545100",
+        "name": "Salmourão",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.8607,
+          -21.6254
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3545159",
+        "name": "Saltinho",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.6759,
+          -22.8463
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3545209",
+        "name": "Salto",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.296021,
+          -23.205489
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3545308",
+        "name": "Salto de Pirapora",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.580862,
+          -23.660473
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3545407",
+        "name": "Salto Grande",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.9851,
+          -22.8918
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3545506",
+        "name": "Sandovalina",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.7652,
+          -22.456
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3545605",
+        "name": "Santa Adélia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.806381,
+          -21.24534
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3545704",
+        "name": "Santa Albertina",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.729652,
+          -20.033092
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3545803",
+        "name": "Santa Bárbara d'Oeste",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.4274,
+          -22.7546
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3546009",
+        "name": "Santa Branca",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.883291,
+          -23.397193
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3546108",
+        "name": "Santa Clara d'Oeste",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.9273,
+          -20.0931
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3546207",
+        "name": "Santa Cruz da Conceição",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.453828,
+          -22.137755
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3546256",
+        "name": "Santa Cruz da Esperança",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.430417,
+          -21.292294
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3546306",
+        "name": "Santa Cruz das Palmeiras",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.249121,
+          -21.826594
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3546405",
+        "name": "Santa Cruz do Rio Pardo",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.6272,
+          -22.9056
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3546504",
+        "name": "Santa Ernestina",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.389738,
+          -21.463698
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3546603",
+        "name": "Santa Fé do Sul",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.925335,
+          -20.21189
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3546702",
+        "name": "Santa Gertrudes",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.5248,
+          -22.4556
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3546801",
+        "name": "Santa Isabel",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.229,
+          -23.3203
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3546900",
+        "name": "Santa Lúcia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.084,
+          -21.685
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3547007",
+        "name": "Santa Maria da Serra",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.152784,
+          -22.569372
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3547106",
+        "name": "Santa Mercedes",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.7513,
+          -21.3521
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3547403",
+        "name": "Santa Rita d'Oeste",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.830124,
+          -20.144395
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3547502",
+        "name": "Santa Rita do Passa Quatro",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.478554,
+          -21.712353
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3547601",
+        "name": "Santa Rosa de Viterbo",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.362128,
+          -21.479504
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3547650",
+        "name": "Santa Salete",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.687531,
+          -20.246414
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3547205",
+        "name": "Santana da Ponte Pensa",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.799236,
+          -20.254134
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3547304",
+        "name": "Santana de Parnaíba",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.9141,
+          -23.4459
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3547700",
+        "name": "Santo Anastácio",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.6542,
+          -21.9733
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3547809",
+        "name": "Santo André",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.533013,
+          -23.657286
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3547908",
+        "name": "Santo Antônio da Alegria",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.1524,
+          -21.0912
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3548005",
+        "name": "Santo Antônio de Posse",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.9165,
+          -22.6003
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3548054",
+        "name": "Santo Antônio do Aracanguá",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.496,
+          -20.9363
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3548104",
+        "name": "Santo Antônio do Jardim",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.6835,
+          -22.114
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3548203",
+        "name": "Santo Antônio do Pinhal",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.661951,
+          -22.825455
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3548302",
+        "name": "Santo Expedito",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.3929,
+          -21.8504
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3548401",
+        "name": "Santópolis do Aguapeí",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.5008,
+          -21.6381
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3548500",
+        "name": "Santos",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.328146,
+          -23.933588
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3548609",
+        "name": "São Bento do Sapucaí",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.730909,
+          -22.689647
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3548708",
+        "name": "São Bernardo do Campo",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.551835,
+          -23.695755
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3548807",
+        "name": "São Caetano do Sul",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.574672,
+          -23.633
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3548906",
+        "name": "São Carlos",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.891973,
+          -22.016714
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3549003",
+        "name": "São Francisco",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.6972,
+          -20.3598
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3549102",
+        "name": "São João da Boa Vista",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.799116,
+          -21.969399
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3549201",
+        "name": "São João das Duas Pontes",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.3783,
+          -20.3896
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3549250",
+        "name": "São João de Iracema",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.3526,
+          -20.5135
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3549300",
+        "name": "São João do Pau d'Alho",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.6653,
+          -21.27
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3549409",
+        "name": "São Joaquim da Barra",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.866171,
+          -20.587886
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3549508",
+        "name": "São José da Bela Vista",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.639645,
+          -20.594606
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3549607",
+        "name": "São José do Barreiro",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -44.577263,
+          -22.645499
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3549706",
+        "name": "São José do Rio Pardo",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.891656,
+          -21.599568
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3549805",
+        "name": "São José do Rio Preto",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.378424,
+          -20.814015
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3549904",
+        "name": "São José dos Campos",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.8786,
+          -23.1849
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3549953",
+        "name": "São Lourenço da Serra",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.944081,
+          -23.853575
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3550001",
+        "name": "São Luiz do Paraitinga",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.311334,
+          -23.22197
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3550100",
+        "name": "São Manuel",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.5712,
+          -22.7341
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3550209",
+        "name": "São Miguel Arcanjo",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.9934,
+          -23.8787
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3550308",
+        "name": "São Paulo",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.579009,
+          -23.554753
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3550407",
+        "name": "São Pedro",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.9138,
+          -22.5515
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3550506",
+        "name": "São Pedro do Turvo",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.738234,
+          -22.74964
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3550605",
+        "name": "São Roque",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.129196,
+          -23.542014
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3550704",
+        "name": "São Sebastião",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.4015,
+          -23.8049
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3550803",
+        "name": "São Sebastião da Grama",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.8211,
+          -21.7109
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3550902",
+        "name": "São Simão",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.554732,
+          -21.477351
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3551009",
+        "name": "São Vicente",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.383,
+          -23.9667
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3551108",
+        "name": "Sarapuí",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.8279,
+          -23.6429
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3551207",
+        "name": "Sarutaiá",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.479191,
+          -23.275234
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3551306",
+        "name": "Sebastianópolis do Sul",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.9217,
+          -20.6559
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3551405",
+        "name": "Serra Azul",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.567932,
+          -21.311811
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3551603",
+        "name": "Serra Negra",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.7,
+          -22.6107
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3551504",
+        "name": "Serrana",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.6036,
+          -21.2037
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3551702",
+        "name": "Sertãozinho",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.9928,
+          -21.137
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3551801",
+        "name": "Sete Barras",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.925867,
+          -24.391432
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3551900",
+        "name": "Severínia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.804289,
+          -20.809867
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3552007",
+        "name": "Silveiras",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -44.852714,
+          -22.665897
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3552106",
+        "name": "Socorro",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.53,
+          -22.5785
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3552205",
+        "name": "Sorocaba",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.423928,
+          -23.478392
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3552304",
+        "name": "Sud Mennucci",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.9241,
+          -20.6908
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3552403",
+        "name": "Sumaré",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.2701,
+          -22.8189
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3552551",
+        "name": "Suzanápolis",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.025267,
+          -20.502249
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3552502",
+        "name": "Suzano",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.3098,
+          -23.5466
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3552601",
+        "name": "Tabapuã",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.028631,
+          -20.962112
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3552700",
+        "name": "Tabatinga",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.686826,
+          -21.7339
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3552809",
+        "name": "Taboão da Serra",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.763473,
+          -23.604501
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3552908",
+        "name": "Taciba",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.2847,
+          -22.3905
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3553005",
+        "name": "Taguaí",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.410734,
+          -23.452309
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3553104",
+        "name": "Taiaçu",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.513916,
+          -21.145594
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3553203",
+        "name": "Taiúva",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.452151,
+          -21.126448
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3553302",
+        "name": "Tambaú",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.2748,
+          -21.7054
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3553401",
+        "name": "Tanabi",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.646822,
+          -20.624738
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3553500",
+        "name": "Tapiraí",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.5046,
+          -23.9657
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3553609",
+        "name": "Tapiratiba",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.749374,
+          -21.467764
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3553658",
+        "name": "Taquaral",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.410826,
+          -21.072514
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3553708",
+        "name": "Taquaritinga",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.504737,
+          -21.406545
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3553807",
+        "name": "Taquarituba",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.239195,
+          -23.534007
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3553856",
+        "name": "Taquarivaí",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.7017,
+          -23.9266
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3553906",
+        "name": "Tarabai",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.56096,
+          -22.303622
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3553955",
+        "name": "Tarumã",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.577949,
+          -22.748814
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3554003",
+        "name": "Tatuí",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.840543,
+          -23.341521
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3554102",
+        "name": "Taubaté",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.565453,
+          -23.031192
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3554201",
+        "name": "Tejupá",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.3767,
+          -23.3434
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3554300",
+        "name": "Teodoro Sampaio",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -52.1733,
+          -22.531
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3554409",
+        "name": "Terra Roxa",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.3314,
+          -20.787
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3554508",
+        "name": "Tietê",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.7156,
+          -23.0988
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3554607",
+        "name": "Timburi",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.6069,
+          -23.2059
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3554656",
+        "name": "Torre de Pedra",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.194254,
+          -23.246815
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3554706",
+        "name": "Torrinha",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.1662,
+          -22.4301
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3554755",
+        "name": "Trabiju",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.3365,
+          -22.0407
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3554805",
+        "name": "Tremembé",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.5452,
+          -22.9621
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3554904",
+        "name": "Três Fronteiras",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.8908,
+          -20.2399
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3554953",
+        "name": "Tuiuti",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.695,
+          -22.8143
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3555000",
+        "name": "Tupã",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.5128,
+          -21.9346
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3555109",
+        "name": "Tupi Paulista",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.575997,
+          -21.386224
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3555208",
+        "name": "Turiúba",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.1079,
+          -20.9502
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3555307",
+        "name": "Turmalina",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.4764,
+          -20.0521
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3555356",
+        "name": "Ubarana",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.719247,
+          -21.165906
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3555406",
+        "name": "Ubatuba",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -45.0782,
+          -23.433
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3555505",
+        "name": "Ubirajara",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.6633,
+          -22.5275
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3555604",
+        "name": "Uchoa",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.176388,
+          -20.961027
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3555703",
+        "name": "União Paulista",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.896514,
+          -20.886852
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3555802",
+        "name": "Urânia",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.644804,
+          -20.243596
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3555901",
+        "name": "Uru",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.281482,
+          -21.784009
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3556008",
+        "name": "Urupês",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.291173,
+          -21.201902
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3556107",
+        "name": "Valentim Gentil",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.0869,
+          -20.4225
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3556206",
+        "name": "Valinhos",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.9938,
+          -22.9713
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3556305",
+        "name": "Valparaíso",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.869235,
+          -21.222059
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3556354",
+        "name": "Vargem",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.414544,
+          -22.889737
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3556404",
+        "name": "Vargem Grande do Sul",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.8908,
+          -21.829
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3556453",
+        "name": "Vargem Grande Paulista",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.026704,
+          -23.603836
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3556503",
+        "name": "Várzea Paulista",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.832161,
+          -23.211167
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3556602",
+        "name": "Vera Cruz",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.8196,
+          -22.2193
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3556701",
+        "name": "Vinhedo",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -46.9746,
+          -23.0305
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3556800",
+        "name": "Viradouro",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.295976,
+          -20.872837
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3556909",
+        "name": "Vista Alegre do Alto",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -48.628693,
+          -21.171616
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3556958",
+        "name": "Vitória Brasil",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.485,
+          -20.1973
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3557006",
+        "name": "Votorantim",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.446884,
+          -23.540748
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3557105",
+        "name": "Votuporanga",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -49.97668,
+          -20.419032
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "ibge_code": "3557154",
+        "name": "Zacarias",
+        "state": "SP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -50.0515,
+          -21.0529
+        ]
+      }
+    }
+  ]
+}

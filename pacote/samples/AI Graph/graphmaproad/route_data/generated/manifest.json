@@ -1,0 +1,12 @@
+{
+  "dataset": "Sao Paulo municipalities route graph",
+  "source": "IBGE municipalities + IBGE malhas",
+  "nodes": 645,
+  "edges": 1558,
+  "cities": 645,
+  "notes": [
+    "The graph uses all 645 municipalities of Sao Paulo state.",
+    "Nodes and cities use the municipality seat coordinates from geobr when available, with boundary centroids as fallback.",
+    "Routes were generated as municipal connections so the sample stays visual and fully local."
+  ]
+}

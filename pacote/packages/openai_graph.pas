@@ -9,7 +9,9 @@ interface
 
 uses
   aidependencygraph, aigraphmap, aigraphstructuraladapter, aitrainingexporter, 
-  aidatasetanalyzer, aitrainingreport, aigraphvisualizer, LazarusPackageIntf;
+  aidatasetanalyzer, aitrainingreport, aigraphvisualizer, airoutegraph_types, 
+  airoutegraph_utils, airoutegraph, airoutespeedprofile, airoutecityindex, 
+  airoutecalculator, aigeojsonrouteimporter, LazarusPackageIntf;
 
 implementation
 
@@ -22,6 +24,11 @@ begin
   RegisterUnit('aidatasetanalyzer', @aidatasetanalyzer.Register);
   RegisterUnit('aitrainingreport', @aitrainingreport.Register);
   RegisterUnit('aigraphvisualizer', @aigraphvisualizer.Register);
+  RegisterUnit('airoutegraph', @airoutegraph.Register);
+  RegisterUnit('airoutespeedprofile', @airoutespeedprofile.Register);
+  RegisterUnit('airoutecityindex', @airoutecityindex.Register);
+  RegisterUnit('airoutecalculator', @airoutecalculator.Register);
+  RegisterUnit('aigeojsonrouteimporter', @aigeojsonrouteimporter.Register);
 end;
 
 initialization
