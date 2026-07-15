@@ -100,6 +100,10 @@
 
 ![AI Agent Minimal Demo](AI_Agent_Minimal_Demo.jpg)
 
+## Dataset Analyzer Demo
+
+![Dataset Analyzer Demo](dataset_analyzer_demo.jpg)
+
 ## Agent Memory Action Demo
 
 ![Agent Memory Action Demo](agent_memory_action_demo.jpg)
