@@ -1,6 +1,8 @@
 # Graph Map Road Demo
 
-This sample shows a local route graph for Sao Paulo state using the visual form in `main.lfm`.
+This sample shows a local road graph for Sao Paulo state using the visual form in `main.lfm`.
+
+![Graph Map Road Demo](../../../../screenshots/graphmaproad.jpg)
 
 What it demonstrates:
 
@@ -8,7 +10,7 @@ What it demonstrates:
 - build a directed municipal route graph;
 - connect cities to the nearest graph node;
 - calculate a route between two cities;
-- draw the graph and the selected route on the map panel;
+- draw the graph and the selected route on top of OpenStreetMap tiles;
 - show route distance, estimated time, and segment details.
 
 Included demo data:
@@ -19,6 +21,7 @@ Included demo data:
 - `manifest.json`
 
 The dataset is built from the 645 municipalities of Sao Paulo state and their generated connections, so the sample stays representative while still being easy to inspect.
+City points use the municipal seat coordinates when available, which keeps the map markers closer to the real city positions.
 
 How to use:
 
@@ -32,3 +35,4 @@ Notes:
 - The fastest and shortest modes may produce different results on some city pairs.
 - The graph preview is drawn locally in the form, so no simulation mode is involved.
 - The dataset generator lives next to the sample and can be rerun whenever you want to refresh the municipal graph.
+- You can pan with the mouse and zoom with the mouse wheel or the buttons in the top bar.
