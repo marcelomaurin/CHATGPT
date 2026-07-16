@@ -6,9 +6,9 @@ object frmMain: TfrmMain
   Caption = 'AI Agent Serial Demo'
   ClientHeight = 760
   ClientWidth = 1080
+  LCLVersion = '4.4.0.0'
   OnClose = FormClose
   OnCreate = FormCreate
-  LCLVersion = '3.0.0.3'
   object pgMain: TPageControl
     Left = 0
     Height = 760
@@ -20,7 +20,7 @@ object frmMain: TfrmMain
     TabOrder = 0
     object tabConfig: TTabSheet
       Caption = 'Configuração'
-      ClientHeight = 730
+      ClientHeight = 732
       ClientWidth = 1072
       object pnlLLM: TGroupBox
         Left = 12
@@ -28,10 +28,14 @@ object frmMain: TfrmMain
         Top = 12
         Width = 1048
         Caption = ' LLM — Provedor de IA '
+        ClientHeight = 420
+        ClientWidth = 1044
         TabOrder = 0
         object lblProvider: TLabel
           Left = 16
+          Height = 15
           Top = 32
+          Width = 44
           Caption = 'Provider'
         end
         object cbProvider: TComboBox
@@ -39,12 +43,15 @@ object frmMain: TfrmMain
           Height = 23
           Top = 28
           Width = 330
+          ItemHeight = 15
           Style = csDropDownList
           TabOrder = 0
         end
         object lblTipoChat: TLabel
           Left = 540
+          Height = 15
           Top = 32
+          Width = 70
           Caption = 'Tipo/modelo'
         end
         object cbTipoChat: TComboBox
@@ -52,12 +59,15 @@ object frmMain: TfrmMain
           Height = 23
           Top = 28
           Width = 350
+          ItemHeight = 15
           Style = csDropDownList
           TabOrder = 1
         end
         object lblToken: TLabel
           Left = 16
+          Height = 15
           Top = 72
+          Width = 77
           Caption = 'Token/API key'
         end
         object editToken: TEdit
@@ -65,12 +75,15 @@ object frmMain: TfrmMain
           Height = 23
           Top = 68
           Width = 330
+          EchoMode = emPassword
           PasswordChar = '*'
           TabOrder = 2
         end
         object lblCustomModel: TLabel
           Left = 540
+          Height = 15
           Top = 72
+          Width = 112
           Caption = 'Modelo customizado'
         end
         object editCustomModel: TEdit
@@ -82,7 +95,9 @@ object frmMain: TfrmMain
         end
         object lblURL: TLabel
           Left = 16
+          Height = 15
           Top = 112
+          Width = 91
           Caption = 'URL customizada'
         end
         object editURL: TEdit
@@ -94,7 +109,9 @@ object frmMain: TfrmMain
         end
         object lblLocalIP: TLabel
           Left = 540
+          Height = 15
           Top = 112
+          Width = 71
           Caption = 'Servidor local'
         end
         object editLocalIP: TEdit
@@ -107,7 +124,9 @@ object frmMain: TfrmMain
         end
         object lblMaxTokens: TLabel
           Left = 16
+          Height = 15
           Top = 152
+          Width = 97
           Caption = 'Máximo de tokens'
         end
         object spinMaxTokens: TSpinEdit
@@ -121,7 +140,9 @@ object frmMain: TfrmMain
         end
         object lblDev: TLabel
           Left = 16
+          Height = 15
           Top = 192
+          Width = 77
           Caption = 'Instruções Dev'
         end
         object editDev: TEdit
@@ -134,7 +155,9 @@ object frmMain: TfrmMain
         end
         object lblORTitle: TLabel
           Left = 16
+          Height = 15
           Top = 232
+          Width = 95
           Caption = 'OpenRouter título'
         end
         object editORTitle: TEdit
@@ -146,7 +169,9 @@ object frmMain: TfrmMain
         end
         object lblORSite: TLabel
           Left = 540
+          Height = 15
           Top = 232
+          Width = 85
           Caption = 'OpenRouter site'
         end
         object editORSite: TEdit
@@ -162,13 +187,14 @@ object frmMain: TfrmMain
           Top = 286
           Width = 180
           Caption = 'Testar Conexão'
-          OnClick = btnTestLLMClick
           TabOrder = 10
+          OnClick = btnTestLLMClick
         end
         object lblLLMStatus: TLabel
           Left = 340
+          Height = 15
           Top = 296
-          Width = 680
+          Width = 64
           Caption = 'Não testado'
         end
       end
@@ -178,10 +204,14 @@ object frmMain: TfrmMain
         Top = 464
         Width = 1048
         Caption = ' Porta Serial '
+        ClientHeight = 130
+        ClientWidth = 1044
         TabOrder = 1
         object lblPort: TLabel
           Left = 16
+          Height = 15
           Top = 34
+          Width = 28
           Caption = 'Porta'
         end
         object cbPort: TComboBox
@@ -189,7 +219,9 @@ object frmMain: TfrmMain
           Height = 23
           Top = 30
           Width = 300
+          ItemHeight = 15
           Style = csDropDownList
+          OnChange = cbPortChange
           TabOrder = 0
         end
         object btnRefreshPorts: TButton
@@ -198,12 +230,14 @@ object frmMain: TfrmMain
           Top = 28
           Width = 100
           Caption = 'Atualizar'
-          OnClick = btnRefreshPortsClick
           TabOrder = 1
+          OnClick = btnRefreshPortsClick
         end
         object lblBaud: TLabel
           Left = 520
+          Height = 15
           Top = 34
+          Width = 27
           Caption = 'Baud'
         end
         object cbBaud: TComboBox
@@ -224,14 +258,17 @@ object frmMain: TfrmMain
             '230400'
           )
           Style = csDropDownList
+          OnChange = cbBaudChange
           TabOrder = 2
         end
         object lblSerialInfo: TLabel
           Left = 16
+          Height = 15
           Top = 88
-          Width = 970
+          Width = 394
           Caption = 'Estas configurações serão informadas à LLM; a conexão é feita pelo agente.'
           Font.Style = [fsItalic]
+          ParentFont = False
         end
       end
       object pnlStart: TPanel
@@ -240,6 +277,8 @@ object frmMain: TfrmMain
         Top = 626
         Width = 1048
         BevelOuter = bvNone
+        ClientHeight = 86
+        ClientWidth = 1048
         TabOrder = 2
         object btnIniciar: TButton
           Left = 0
@@ -248,27 +287,49 @@ object frmMain: TfrmMain
           Width = 180
           Caption = 'Iniciar'
           Font.Style = [fsBold]
-          OnClick = btnIniciarClick
+          ParentFont = False
           TabOrder = 0
+          OnClick = btnIniciarClick
+        end
+        object btnNewConversation: TButton
+          Left = 190
+          Height = 42
+          Top = 10
+          Width = 170
+          Caption = 'Nova conversa'
+          TabOrder = 1
+          OnClick = btnNewConversationClick
+        end
+        object btnSaveSetup: TButton
+          Left = 370
+          Height = 42
+          Top = 10
+          Width = 170
+          Caption = 'Salvar setup'
+          TabOrder = 2
+          OnClick = btnSaveSetupClick
         end
         object lblStartStatus: TLabel
-          Left = 200
+          Left = 560
+          Height = 15
           Top = 24
+          Width = 102
           Caption = 'Sessão não iniciada'
         end
       end
     end
     object tabChat: TTabSheet
       Caption = 'Conversa'
-      ClientHeight = 730
+      ClientHeight = 732
       ClientWidth = 1072
       object memoHistory: TMemo
         Left = 0
-        Height = 690
+        Height = 692
         Top = 0
         Width = 1072
         Align = alClient
         Font.Name = 'Courier New'
+        ParentFont = False
         ReadOnly = True
         ScrollBars = ssVertical
         TabOrder = 0
@@ -276,15 +337,17 @@ object frmMain: TfrmMain
       object pnlPrompt: TPanel
         Left = 0
         Height = 40
-        Top = 690
+        Top = 692
         Width = 1072
         Align = alBottom
+        ClientHeight = 40
+        ClientWidth = 1072
         TabOrder = 1
         object lblAgentStatus: TLabel
-          Left = 970
+          Left = 1035
           Height = 38
           Top = 1
-          Width = 101
+          Width = 36
           Align = alRight
           Alignment = taCenter
           Caption = 'pronto'
@@ -294,39 +357,136 @@ object frmMain: TfrmMain
           Left = 1
           Height = 38
           Top = 1
-          Width = 969
+          Width = 1034
           Align = alClient
-          OnKeyPress = editPromptKeyPress
           TabOrder = 0
+          OnKeyPress = editPromptKeyPress
         end
+      end
+    end
+    object tabCommands: TTabSheet
+      Caption = 'Comandos do Equipamento'
+      ClientHeight = 732
+      ClientWidth = 1072
+      object pnlCommandsTop: TPanel
+        Left = 0
+        Height = 64
+        Top = 0
+        Width = 1072
+        Align = alTop
+        ClientHeight = 64
+        ClientWidth = 1072
+        TabOrder = 0
+        object btnDiscoverCommands: TButton
+          Left = 12
+          Height = 34
+          Top = 14
+          Width = 180
+          Caption = 'Redescobrir comandos'
+          TabOrder = 0
+          OnClick = btnDiscoverCommandsClick
+        end
+        object btnClearCatalog: TButton
+          Left = 202
+          Height = 34
+          Top = 14
+          Width = 150
+          Caption = 'Limpar catÃ¡logo'
+          TabOrder = 1
+          OnClick = btnClearCatalogClick
+        end
+        object btnCopyCommands: TButton
+          Left = 362
+          Height = 34
+          Top = 14
+          Width = 150
+          Caption = 'Copiar comandos'
+          TabOrder = 2
+          OnClick = btnCopyCommandsClick
+        end
+        object lblCatalogStatus: TLabel
+          Left = 540
+          Height = 15
+          Top = 16
+          Caption = 'CatÃ¡logo: NÃ£o carregado'
+        end
+        object lblLEDState: TLabel
+          Left = 540
+          Height = 15
+          Top = 36
+          Caption = 'LED: desconhecido'
+        end
+      end
+      object gridCommands: TStringGrid
+        Left = 0
+        Height = 668
+        Top = 64
+        Width = 1072
+        Align = alClient
+        ColCount = 4
+        DefaultColWidth = 240
+        FixedCols = 0
+        RowCount = 2
+        TabOrder = 1
       end
     end
   end
   object CHATGPT1: TCHATGPT
-    Left = 760
+    Prompt = 'VocÃª Ã© um assistente.'
+    Dev = 'Voc'#195#170' '#195#169' um assistente.'
+    TipoChat = VCT_GPT4o
+    Provider = AIP_OPENAI
+    LocalIP = 'http://localhost:11434'
+    MaxTokens = 4096
+    Left = 680
     Top = 680
   end
   object AISerialModem1: TAISerialModem
+    Prompt = 'Component TAISerialModem handles serial communication. Use OpenPort, ClosePort, WriteText, ReadText and Poll. Events: OnConnect, OnDisconnect, OnRXReceive and OnTXSend. AI Agent: Use this to interface legacy hardware, sensors and microcontrollers.'
+    DeviceName = 'COM1'
     OnRXReceive = SerialRX
-    Left = 800
+    Left = 760
     Top = 680
   end
   object AIListSerialDevices1: TAIListSerialDevices
-    ProbeOpenable = False
+    Prompt = 'Component TAIListSerialDevices queries and aggregates available serial hardware interfaces (COM/tty) on Windows and Linux/macOS. Methods: Refresh, GetDeviceNames(AList: TStrings).'
+    Devices = <>
+    Left = 840
+    Top = 600
+  end
+  object AIAgentDeviceCommands1: TAIAgentAction
     Left = 840
     Top = 680
   end
   object AIAgentSerial1: TAIAgentSerial
+    Prompt = 'Agent that connects TCHATGPT to TAISerialModem using confirmed JSON actions, serial polling and RX context.'
+    Category = ccAction
     Serial = AISerialModem1
     LLM = CHATGPT1
-    RequireConfirmation = True
+    CommandCatalog = AIAgentDeviceCommands1
+    AutoDiscoverCommands = True
+    DiscoveryCommand = 'MAN'
+    ManualBeginMarker = 'MAN-BEGIN'
+    ManualEndMarker = 'MAN-END'
+    CommandLinePrefix = 'COMMAND '
+    AllowUnknownDeviceCommands = False
     OnBeforeAction = AgentBeforeAction
     OnAgentLog = AgentLog
+    OnCommandsDiscovered = AgentCommandsDiscovered
+    OnCommandRejected = AgentCommandRejected
+    OnDiscoveryError = AgentDiscoveryError
     Left = 880
     Top = 680
   end
   object AIAgentMemoryMap1: TAIAgentMemoryMap
     Left = 920
+    Top = 680
+  end
+  object tmrSerialPoll: TTimer
+    Enabled = True
+    Interval = 50
+    OnTimer = tmrSerialPollTimer
+    Left = 960
     Top = 680
   end
 end

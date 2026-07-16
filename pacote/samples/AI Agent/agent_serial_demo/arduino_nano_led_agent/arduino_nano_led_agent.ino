@@ -1,5 +1,5 @@
 // Device de demonstração para o Agent Serial Demo.
-// Placa alvo: Arduino Mega 2560 (também funciona em Uno/Nano clássicos).
+// Placa alvo: Arduino Nano com ATmega328P.
 
 const uint8_t LED_PIN = LED_BUILTIN;
 const uint8_t ANALOG_PIN = A0;
@@ -37,7 +37,7 @@ void executeLEDCommand(const bool enabled) {
 
 void printManual() {
   Serial.println(F("MAN-BEGIN"));
-  Serial.println(F("DEVICE: Arduino Agent Serial Device"));
+  Serial.println(F("DEVICE: Arduino Nano Agent Serial Device"));
   Serial.println(F("MANUAL-VERSION: 1.1"));
   Serial.println(F("PROTOCOL: send exactly one ASCII command per line"));
   Serial.println(F("LINE-END: every command must end with LF or CRLF"));
@@ -83,7 +83,7 @@ void executeCommand(char *command) {
   } else if (strcmp(command, "PING") == 0) {
     Serial.println(F("OK PONG"));
   } else if (strcmp(command, "ID?") == 0) {
-    Serial.println(F("OK ID ARDUINO_AGENT_SERIAL VERSION=1.1"));
+    Serial.println(F("OK ID ARDUINO_NANO_AGENT_SERIAL VERSION=1.1"));
   } else if (strcmp(command, "STATUS?") == 0) {
     printStatus();
   } else if (strcmp(command, "LEDON") == 0) {
@@ -116,7 +116,7 @@ void setup() {
   pinMode(LED_PIN, OUTPUT);
   setLed(false);
   Serial.begin(SERIAL_BAUD);
-  Serial.println(F("READY ARDUINO_AGENT_SERIAL; SEND MAN"));
+  Serial.println(F("READY ARDUINO_NANO_AGENT_SERIAL; SEND MAN"));
 }
 
 void loop() {
