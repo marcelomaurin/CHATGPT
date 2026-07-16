@@ -9,7 +9,7 @@ Todos os componentes visuais e não-visuais estão declarados em design-time no
 
 ## Interface
 
-![Agent Serial Demo](../../../../screenshots/agent_serial_demo.JPG)
+![Agent Serial Demo](../../../../screenshots/agent_serial_demo.jpg)
 
 ## Abas
 
