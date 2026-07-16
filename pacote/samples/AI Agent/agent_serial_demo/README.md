@@ -7,6 +7,10 @@ Todos os componentes visuais e não-visuais estão declarados em design-time no
 `main.lfm`: `TCHATGPT`, `TAISerialModem`, `TAIListSerialDevices`,
 `TAIAgentSerial`, `TAIAgentAction`, `TAIAgentMemoryMap`, grid, botões e timer.
 
+## Interface
+
+![Agent Serial Demo](../../../../screenshots/agent_serial_demo.JPG)
+
 ## Abas
 
 ### Configuração
