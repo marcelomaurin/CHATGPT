@@ -245,6 +245,10 @@ A IA não decide se um componente existe ou compilou. Essas informações vêm d
 
 ## Screenshots
 
+[Agent Serial Demo](pacote/samples/AI%20Agent/agent_serial_demo/README.md)
+
+![Agent Serial Demo](screenshots/agent_serial_demo.JPG)
+
 ![AI Project Demo](screenshots/project_tasklist_ai.jpg)
 
 ![CNN Demo](screenshots/cnn_demo.jpg)
