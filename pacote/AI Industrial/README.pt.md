@@ -16,6 +16,8 @@ Fornece conexões industriais com CLP (Profinet/Profibus), brokers IoT MQTT, com
 | **TAIModbusCommandMap** | Filtro de códigos de função Modbus permitidos/customizados. | `Commands, AllowCustomCommands, StrictValidation` | `IsValidFunctionCode, LoadDefaultModbusCommands, AddCustomCommand` | Validar e gerenciar códigos de função Modbus padrão e específicos do usuário. |
 | **TAIMQTTClient** | Cliente de Rede IoT MQTT. | `Host, Port, Active` | `ConnectBroker, Publish, Subscribe` | Sincronizar telemetria IoT com brokers (ex: HiveMQ) sem travar a UI. |
 | **TAIIndustrialBridge** | Ponte dinâmica Profinet/Profibus CLP. | `IPAddress, Rack, Slot, Active` | `ConnectBridge, ReadBytes, WriteBytes` | Controlar e ler estado físico de pontes automatizadas industriais (S7). |
+| **TAI_Arm_robot** | Modelo de cinematica 3D para braco robotico. | `BaseX, BaseY, BaseZ, TargetX, TargetY, TargetZ, Tolerance, MaxIterations, UseLimits, Joints` | `AddJoint, ClearJoints, LoadSixAxisSample, ResetAngles, ForwardKinematics, SolveInverseKinematics, GetEndEffectorPosition` | Calcular os angulos dos servos a partir do alvo XYZ e exportar a configuracao mecanica do braco. |
+| **TAI_Arm_robotViewer** | Visualizador 3D/isometrico do braco robotico. | `Arm, BackgroundColor, ArmColor, JointColor, GridColor, ShowGrid, ShowAxes, AutoFit, Scale, AzimuthDeg, ElevationDeg` | `Paint` | Desenhar o braco conforme a especificacao do componente de cinematica. |
 
 ### 💻 Exemplo de Código Lazarus (TAIPOSPrinter)
 

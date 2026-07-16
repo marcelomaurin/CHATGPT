@@ -1,0 +1,13 @@
+object frmMain: TfrmMain
+  Left = 200
+  Height = 860
+  Top = 120
+  Width = 1280
+  Caption = 'AI_Arm_robot'
+  ClientHeight = 860
+  ClientWidth = 1280
+  Color = 1381653
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '3.0.0.4'
+end

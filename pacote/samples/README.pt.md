@@ -94,6 +94,7 @@ Os exemplos a seguir são projetos visuais prontos para compilação e execuçã
 | Exemplo | Caminho | Descrição |
 |---|---|---|
 | **[industrial_bridge_demo](AI Industrial/industrial_bridge_demo/)** | `pacote/samples/AI Industrial/industrial_bridge_demo` | Ponte de comunicação industrial ligando brokers IoT e CLPs. |
+| **[AI_Arm_robot](AI Industrial/AI_Arm_robot/)** | `pacote/samples/AI Industrial/AI_Arm_robot` | Modelo 3D para calcular e visualizar os angulos de um braco robotico de 6 eixos. |
 | **[modbus_demo](AI Industrial/modbus_demo/)** | `pacote/samples/AI Industrial/modbus_demo` | Demonstração de leitura/escrita física no protocolo industrial Modbus. |
 | **[mqtt_demo](AI Industrial/mqtt_demo/)** | `pacote/samples/AI Industrial/mqtt_demo` | Conexão e publicação de eventos em brokers MQTT. |
 

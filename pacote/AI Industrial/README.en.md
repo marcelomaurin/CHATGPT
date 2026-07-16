@@ -14,6 +14,8 @@ Provides industrial PLC (Profinet/Profibus) bridges, IoT MQTT clients, Modbus re
 | **TAIModbusClient** | Industrial Modbus RTU/TCP Client. | `Host, Port, Mode, Active` | `ReadHoldingRegisters, WriteRegister` | Query physical registers from temperature and automated sensors. |
 | **TAIMQTTClient** | IoT MQTT network client. | `Host, Port, Active` | `ConnectBroker, Publish, Subscribe` | Publish JSON sensor data asynchronously to public/private brokers. |
 | **TAIIndustrialBridge** | CLP Profinet/Profibus bridge. | `IPAddress, Rack, Slot, Active` | `ConnectBridge, ReadBytes, WriteBytes` | Interface and trigger controls on physical PLC industrial automation links. |
+| **TAI_Arm_robot** | 3D kinematics model for a robotic arm. | `BaseX, BaseY, BaseZ, TargetX, TargetY, TargetZ, Tolerance, MaxIterations, UseLimits, Joints` | `AddJoint, ClearJoints, LoadSixAxisSample, ResetAngles, ForwardKinematics, SolveInverseKinematics, GetEndEffectorPosition` | Calculate servo angles from an XYZ target and export the mechanical arm configuration. |
+| **TAI_Arm_robotViewer** | 3D/isometric robotic arm viewer. | `Arm, BackgroundColor, ArmColor, JointColor, GridColor, ShowGrid, ShowAxes, AutoFit, Scale, AzimuthDeg, ElevationDeg` | `Paint` | Render the arm according to the kinematics component specification. |
 
 ### 💻 Lazarus Code Example (TAIPOSPrinter)
 
