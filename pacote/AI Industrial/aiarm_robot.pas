@@ -25,6 +25,7 @@ type
   TAI_Arm_robotJoint = class(TCollectionItem)
   private
     FName: string;
+    FMovimento: string;
     FJointType: string;
     FAxisX: Double;
     FAxisY: Double;
@@ -42,6 +43,7 @@ type
     FColor: TColor;
     FLinkRadius: Double;
     FJointRadius: Double;
+    procedure SetMovimento(const AValue: string);
     procedure SetJointType(const AValue: string);
     procedure SetAxisX(AValue: Double);
     procedure SetAxisY(AValue: Double);
@@ -64,6 +66,7 @@ type
     procedure Assign(Source: TPersistent); override;
   published
     property Name: string read FName write FName;
+    property Movimento: string read FMovimento write SetMovimento;
     property JointType: string read FJointType write SetJointType;
     property AxisX: Double read FAxisX write SetAxisX;
     property AxisY: Double read FAxisY write SetAxisY;
@@ -108,6 +111,7 @@ type
   TAI_Arm_robot = class(TAIBaseComponent)
   private
     FJoints: TAI_Arm_robotJoints;
+    FModelDescription: string;
     FBaseX: Double;
     FBaseY: Double;
     FBaseZ: Double;
@@ -163,6 +167,7 @@ type
     FViewServoDepth: Double;
     FViewGripperWidth: Double;
     FViewGripperLength: Double;
+    procedure SetModelDescription(const AValue: string);
     procedure SetBaseX(AValue: Double);
     procedure SetBaseY(AValue: Double);
     procedure SetBaseZ(AValue: Double);
@@ -205,6 +210,7 @@ type
     property LastEndZ: Double read FLastEndZ;
   published
     property Joints: TAI_Arm_robotJoints read FJoints write FJoints;
+    property ModelDescription: string read FModelDescription write SetModelDescription;
     property BaseX: Double read FBaseX write SetBaseX;
     property BaseY: Double read FBaseY write SetBaseY;
     property BaseZ: Double read FBaseZ write SetBaseZ;
@@ -426,6 +432,17 @@ begin
     SameText(AJvalue, 'prismatic') or SameText(AJvalue, 'prismatica');
 end;
 
+function IsGripperJoint(const AJoint: TAI_Arm_robotJoint;
+  AIndex, ACount: Integer): Boolean;
+var
+  Description: string;
+begin
+  if SameText(AJoint.JointType, 'gripper') then
+    Exit(True);
+  Description := LowerCase(AJoint.Name + ' ' + AJoint.Movimento);
+  Result := (AIndex = ACount - 1) and (Pos('garra', Description) > 0);
+end;
+
 function V3(const AX, AY, AZ: Double): TAIArmVector3;
 begin
   Result.X := AX;
@@ -536,6 +553,13 @@ begin
 end;
 
 { TAI_Arm_robotJoint }
+
+procedure TAI_Arm_robotJoint.SetMovimento(const AValue: string);
+begin
+  if FMovimento = AValue then Exit;
+  FMovimento := AValue;
+  NotifyOwnerChanged;
+end;
 
 procedure TAI_Arm_robotJoint.NotifyOwnerChanged;
 begin
@@ -679,6 +703,7 @@ begin
   begin
     Src := TAI_Arm_robotJoint(Source);
     FName := Src.Name;
+    FMovimento := Src.Movimento;
     FJointType := Src.JointType;
     FAxisX := Src.AxisX;
     FAxisY := Src.AxisY;
@@ -732,12 +757,13 @@ begin
     'Viewer: the base is fixed in space and the first joint acts as a fixed pedestal/turntable. ' +
     'AI Agent: use this component to calculate and solve the servo angles of a robotic arm from a target XYZ point and to export the arm configuration.';
   FJoints := TAI_Arm_robotJoints.Create(Self);
+  FModelDescription := 'Braco 6 eixos SG90. Valor 0 em toda dobra deixa o segmento esticado; valor positivo fecha para frente/baixo.';
   FBaseX := 0;
   FBaseY := 0;
   FBaseZ := 0;
-  FTargetX := 10;
+  FTargetX := 8;
   FTargetY := 0;
-  FTargetZ := 15;
+  FTargetZ := 6;
   FTolerance := 0.05;
   FMaxIterations := 80;
   FUseLimits := True;
@@ -802,6 +828,13 @@ begin
     FPrompt := BuildAISetupText;
   if Assigned(FOnChange) then
     FOnChange(Self);
+end;
+
+procedure TAI_Arm_robot.SetModelDescription(const AValue: string);
+begin
+  if FModelDescription = AValue then Exit;
+  FModelDescription := AValue;
+  DoChanged;
 end;
 
 procedure TAI_Arm_robot.SetBaseX(AValue: Double);
@@ -905,7 +938,8 @@ procedure TAI_Arm_robot.LoadSixAxisSample;
 begin
   ClearJoints;
 
-  AddJoint('Girar base', 0, 0, 1, 2.4).Color := clWhite;
+  AddJoint('0 - Base (giro)', 0, 0, 1, 2.5).Color := clWhite;
+  FJoints[0].Movimento := 'ROTACAO. Gira todo o braco em torno do eixo vertical. 0 = frente (+X). Valor + gira para a esquerda (+Y), valor - para a direita (-Y). Nao levanta nem abaixa.';
   FJoints[0].DirectionY := 0;
   FJoints[0].DirectionZ := 1;
   FJoints[0].IsBase := False;
@@ -915,37 +949,41 @@ begin
   FJoints[0].LinkRadius := 0.5;
   FJoints[0].JointRadius := 0.6;
 
-  AddJoint('Ombro', 0, 1, 0, 6.5).Color := clWhite;
+  AddJoint('1 - Ombro (dobra)', 0, 1, 0, 6.5).Color := clWhite;
+  FJoints[1].Movimento := 'DOBRA tipo joelho, no plano vertical. 0 = braco esticado para cima. Valor + fecha a dobra para frente/baixo. So dobra para um lado.';
   FJoints[1].DirectionY := 0;
   FJoints[1].DirectionZ := 1;
   FJoints[1].JointType := 'angular';
-  FJoints[1].DefaultValue := 0;
+  FJoints[1].DefaultValue := 20;
   FJoints[1].MinValue := 0;
   FJoints[1].MaxValue := 120;
   FJoints[1].LinkRadius := 0.5;
   FJoints[1].JointRadius := 0.5;
 
-  AddJoint('Cotovelo', 0, 1, 0, 6.0).Color := clWhite;
+  AddJoint('2 - Cotovelo (dobra)', 0, 1, 0, 6.0).Color := clWhite;
+  FJoints[2].Movimento := 'DOBRA tipo joelho. 0 = antebraco em linha reta com o braco. Valor + fecha o cotovelo para frente/baixo.';
   FJoints[2].DirectionY := 0;
   FJoints[2].DirectionZ := 1;
   FJoints[2].JointType := 'angular';
-  FJoints[2].DefaultValue := 0;
+  FJoints[2].DefaultValue := 45;
   FJoints[2].MinValue := 0;
   FJoints[2].MaxValue := 135;
   FJoints[2].LinkRadius := 0.5;
   FJoints[2].JointRadius := 0.5;
 
-  AddJoint('Punho (dobra)', 0, 1, 0, 4.5).Color := clWhite;
+  AddJoint('3 - Punho (dobra)', 0, 1, 0, 4.0).Color := clWhite;
+  FJoints[3].Movimento := 'DOBRA tipo joelho. 0 = punho em linha reta. Valor + fecha o punho para frente/baixo.';
   FJoints[3].DirectionY := 0;
   FJoints[3].DirectionZ := 1;
   FJoints[3].JointType := 'angular';
-  FJoints[3].DefaultValue := 0;
+  FJoints[3].DefaultValue := 40;
   FJoints[3].MinValue := 0;
   FJoints[3].MaxValue := 135;
   FJoints[3].LinkRadius := 0.5;
   FJoints[3].JointRadius := 0.5;
 
-  AddJoint('Girar punho', 0, 0, 1, 1.5).Color := clWhite;
+  AddJoint('4 - Giro do punho (rotacao)', 0, 0, 1, 1.5).Color := clWhite;
+  FJoints[4].Movimento := 'ROTACAO em torno do eixo do proprio antebraco (torce a garra). 0 = neutro. Valor +/- torce para os dois lados. Nao dobra nem move a ponta, so orienta a garra.';
   FJoints[4].DirectionY := 0;
   FJoints[4].DirectionZ := 1;
   FJoints[4].DefaultAngleDeg := 0;
@@ -954,11 +992,12 @@ begin
   FJoints[4].LinkRadius := 0.5;
   FJoints[4].JointRadius := 0.5;
 
-  AddJoint('Garra', 0, 1, 0, 0.6).Color := clWhite;
+  AddJoint('5 - Garra (abre/fecha)', 0, 1, 0, 0.6).Color := clWhite;
+  FJoints[5].Movimento := 'GARRA. Este e o ULTIMO eixo: o viewer usa o valor para abrir/fechar os dois dedos simetricamente. 0 = totalmente FECHADA, 40 = totalmente ABERTA. NAO dobra o braco.';
   FJoints[5].DirectionY := 0;
   FJoints[5].DirectionZ := 1;
-  FJoints[5].JointType := 'gripper';
-  FJoints[5].DefaultAngleDeg := 0;
+  FJoints[5].JointType := 'angular';
+  FJoints[5].DefaultAngleDeg := 15;
   FJoints[5].MinAngleDeg := 0;
   FJoints[5].MaxAngleDeg := 40;
   FJoints[5].LinkRadius := 0.5;
@@ -1086,6 +1125,7 @@ begin
 
     FLoading := True;
     try
+      FModelDescription := JsonStringValue(RootObj, '_leia_me', FModelDescription);
       VisualObj := JsonObjectValue(RootObj, 'visual');
       if Assigned(VisualObj) then
       begin
@@ -1155,7 +1195,7 @@ begin
       FBaseY := BaseVec.Y;
       FBaseZ := BaseVec.Z;
 
-      TargetVec := JsonVectorValue(RootObj, 'target', V3(10, 0, 15));
+      TargetVec := JsonVectorValue(RootObj, 'target', V3(8, 0, 6));
       FTargetX := TargetVec.X;
       FTargetY := TargetVec.Y;
       FTargetZ := TargetVec.Z;
@@ -1190,6 +1230,7 @@ begin
           Joint.DirectionX := JsonFloatValue(DirectionObj, 'x', 0);
           Joint.DirectionY := JsonFloatValue(DirectionObj, 'y', 0);
           Joint.DirectionZ := JsonFloatValue(DirectionObj, 'z', 1);
+          Joint.Movimento := JsonStringValue(JointObj, 'movimento', '');
           Joint.JointType := JsonStringValue(JointObj, 'joint_type', 'angular');
           AxisName := LowerCase(JsonStringValue(JointObj, 'joint_axis', ''));
           if (AxisName <> '') and (not HasExplicitRotationAxis) then
@@ -1309,7 +1350,7 @@ begin
       AxisWorld := V3(0, 0, 1);
 
     if not IsLinearJoint(Joint.JointType) and
-       not SameText(Joint.JointType, 'gripper') then
+       not IsGripperJoint(Joint, I, FJoints.Count) then
     begin
       CurX := V3RotateAroundAxis(CurX, AxisWorld, DegToRad(Joint.AngleDeg));
       CurY := V3RotateAroundAxis(CurY, AxisWorld, DegToRad(Joint.AngleDeg));
@@ -1366,7 +1407,7 @@ begin
     if Joint.IsBase then
       Continue;
 
-    if SameText(Joint.JointType, 'gripper') then
+    if IsGripperJoint(Joint, I, FJoints.Count) then
       Continue;
 
     if IsLinearJoint(Joint.JointType) then
@@ -1486,6 +1527,7 @@ var
   Joint: TAI_Arm_robotJoint;
 begin
   Result := '{';
+  Result += '"_leia_me": "' + StringReplace(FModelDescription, '"', '\"', [rfReplaceAll]) + '",';
   Result += '"base": {"x": ' + JsonFloat(FBaseX) + ', "y": ' + JsonFloat(FBaseY) + ', "z": ' + JsonFloat(FBaseZ) + '},';
   Result += '"target": {"x": ' + JsonFloat(FTargetX) + ', "y": ' + JsonFloat(FTargetY) + ', "z": ' + JsonFloat(FTargetZ) + '},';
   Result += '"tolerance": ' + JsonFloat(FTolerance) + ',';
@@ -1542,6 +1584,7 @@ begin
       Result += ',';
     Result += '{';
     Result += '"name": "' + StringReplace(Joint.Name, '"', '\"', [rfReplaceAll]) + '",';
+    Result += '"movimento": "' + StringReplace(Joint.Movimento, '"', '\"', [rfReplaceAll]) + '",';
     Result += '"joint_type": "' + StringReplace(Joint.JointType, '"', '\"', [rfReplaceAll]) + '",';
     Result += '"direction": {"x": ' + JsonFloat(Joint.DirectionX) + ', "y": ' + JsonFloat(Joint.DirectionY) + ', "z": ' + JsonFloat(Joint.DirectionZ) + '},';
     Result += '"rotation_axis": {"x": ' + JsonFloat(Joint.AxisX) + ', "y": ' + JsonFloat(Joint.AxisY) + ', "z": ' + JsonFloat(Joint.AxisZ) + '},';
@@ -1590,7 +1633,7 @@ begin
   for I := 0 to FJoints.Count - 1 do
   begin
     J := FJoints[I];
-    if SameText(J.JointType, 'gripper') or (I = FJoints.Count - 1) then
+    if IsGripperJoint(J, I, FJoints.Count) then
     begin
       Papel := 'GARRA (abre/fecha os dedos)';
       Sinal := 'min=fechada, max=aberta';
@@ -1609,6 +1652,8 @@ begin
       [I, J.Name, Papel,
        JsonFloat(J.MinValue), JsonFloat(J.MaxValue),
        JsonFloat(J.Value), Sinal]);
+    if J.Movimento <> '' then
+      Result += '     ' + J.Movimento + LineEnding;
   end;
 end;
 
@@ -2014,7 +2059,7 @@ begin
           FGLJointPlateB[I].Position.Y := FGLJointPlateB[I].Position.Y + (Delta * 0.5);
         end;
       end
-      else if (I = FArm.JointCount - 1) and Assigned(FGLGripperJawA) then
+      else if IsGripperJoint(Joint, I, FArm.JointCount) and Assigned(FGLGripperJawA) then
       begin
         FGLGripperJawA.Roll(-Delta);
         FGLGripperJawB.Roll(Delta);

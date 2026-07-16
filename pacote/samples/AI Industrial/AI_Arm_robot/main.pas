@@ -497,7 +497,10 @@ begin
   T.Left := 12;
   T.Top := 8;
   T.Font.Style := [fsBold];
-  T.Caption := Format('Eixo %d - %s', [AIndex, Joint.Name]);
+  if Pos(IntToStr(AIndex) + ' - ', Joint.Name) = 1 then
+    T.Caption := 'Eixo ' + Joint.Name
+  else
+    T.Caption := Format('Eixo %d - %s', [AIndex, Joint.Name]);
 
   A := TLabel.Create(P);
   A.Parent := P;
