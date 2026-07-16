@@ -426,16 +426,6 @@ begin
     SameText(AJvalue, 'prismatic') or SameText(AJvalue, 'prismatica');
 end;
 
-function DominantAxisName(const AX, AY, AZ: Double): string;
-begin
-  if (Abs(AX) >= Abs(AY)) and (Abs(AX) >= Abs(AZ)) then
-    Result := 'x'
-  else if Abs(AY) >= Abs(AZ) then
-    Result := 'y'
-  else
-    Result := 'z';
-end;
-
 function V3(const AX, AY, AZ: Double): TAIArmVector3;
 begin
   Result.X := AX;
@@ -808,6 +798,8 @@ procedure TAI_Arm_robot.DoChanged;
 begin
   if FLoading then
     Exit;
+  if Assigned(FJoints) then
+    FPrompt := BuildAISetupText;
   if Assigned(FOnChange) then
     FOnChange(Self);
 end;
@@ -927,9 +919,9 @@ begin
   FJoints[1].DirectionY := 0;
   FJoints[1].DirectionZ := 1;
   FJoints[1].JointType := 'angular';
-  FJoints[1].DefaultValue := 25;
-  FJoints[1].MinValue := -20;
-  FJoints[1].MaxValue := 110;
+  FJoints[1].DefaultValue := 0;
+  FJoints[1].MinValue := 0;
+  FJoints[1].MaxValue := 120;
   FJoints[1].LinkRadius := 0.5;
   FJoints[1].JointRadius := 0.5;
 
@@ -937,19 +929,19 @@ begin
   FJoints[2].DirectionY := 0;
   FJoints[2].DirectionZ := 1;
   FJoints[2].JointType := 'angular';
-  FJoints[2].DefaultValue := -40;
-  FJoints[2].MinValue := -120;
-  FJoints[2].MaxValue := 120;
+  FJoints[2].DefaultValue := 0;
+  FJoints[2].MinValue := 0;
+  FJoints[2].MaxValue := 135;
   FJoints[2].LinkRadius := 0.5;
   FJoints[2].JointRadius := 0.5;
 
-  AddJoint('Punho vertical', 0, 1, 0, 4.5).Color := clWhite;
+  AddJoint('Punho (dobra)', 0, 1, 0, 4.5).Color := clWhite;
   FJoints[3].DirectionY := 0;
   FJoints[3].DirectionZ := 1;
   FJoints[3].JointType := 'angular';
-  FJoints[3].DefaultValue := -75;
-  FJoints[3].MinValue := -120;
-  FJoints[3].MaxValue := 120;
+  FJoints[3].DefaultValue := 0;
+  FJoints[3].MinValue := 0;
+  FJoints[3].MaxValue := 135;
   FJoints[3].LinkRadius := 0.5;
   FJoints[3].JointRadius := 0.5;
 
@@ -957,18 +949,18 @@ begin
   FJoints[4].DirectionY := 0;
   FJoints[4].DirectionZ := 1;
   FJoints[4].DefaultAngleDeg := 0;
-  FJoints[4].MinAngleDeg := -135;
-  FJoints[4].MaxAngleDeg := 135;
+  FJoints[4].MinAngleDeg := -90;
+  FJoints[4].MaxAngleDeg := 90;
   FJoints[4].LinkRadius := 0.5;
   FJoints[4].JointRadius := 0.5;
 
-  AddJoint('Garra', 0, 1, 0, 0.8).Color := clWhite;
+  AddJoint('Garra', 0, 1, 0, 0.6).Color := clWhite;
   FJoints[5].DirectionY := 0;
   FJoints[5].DirectionZ := 1;
-  FJoints[5].JointType := 'angular';
-  FJoints[5].DefaultAngleDeg := 18;
+  FJoints[5].JointType := 'gripper';
+  FJoints[5].DefaultAngleDeg := 0;
   FJoints[5].MinAngleDeg := 0;
-  FJoints[5].MaxAngleDeg := 35;
+  FJoints[5].MaxAngleDeg := 40;
   FJoints[5].LinkRadius := 0.5;
   FJoints[5].JointRadius := 0.5;
 
@@ -1083,6 +1075,7 @@ var
   Joint: TAI_Arm_robotJoint;
   BaseVec, TargetVec, ViewVec: TAIArmVector3;
   AxisName: string;
+  HasExplicitRotationAxis: Boolean;
 begin
   RootData := GetJSON(AJSON);
   try
@@ -1183,6 +1176,7 @@ begin
 
           JointObj := TJSONObject(JointData);
           AxisObj := JsonObjectValue(JointObj, 'rotation_axis');
+          HasExplicitRotationAxis := Assigned(AxisObj);
           if not Assigned(AxisObj) then
             AxisObj := JsonObjectValue(JointObj, 'axis');
           DirectionObj := JsonObjectValue(JointObj, 'direction');
@@ -1194,11 +1188,11 @@ begin
             JsonFloatValue(JointObj, 'length', 0)
           );
           Joint.DirectionX := JsonFloatValue(DirectionObj, 'x', 0);
-          Joint.DirectionY := JsonFloatValue(DirectionObj, 'y', 1);
-          Joint.DirectionZ := JsonFloatValue(DirectionObj, 'z', 0);
+          Joint.DirectionY := JsonFloatValue(DirectionObj, 'y', 0);
+          Joint.DirectionZ := JsonFloatValue(DirectionObj, 'z', 1);
           Joint.JointType := JsonStringValue(JointObj, 'joint_type', 'angular');
           AxisName := LowerCase(JsonStringValue(JointObj, 'joint_axis', ''));
-          if AxisName <> '' then
+          if (AxisName <> '') and (not HasExplicitRotationAxis) then
           begin
             if IsLinearJoint(Joint.JointType) then
             begin
@@ -1221,7 +1215,7 @@ begin
             JsonFloatValue(JointObj, 'min_angle_deg', -180));
           Joint.MaxValue := JsonFloatValue(JointObj, 'max_value',
             JsonFloatValue(JointObj, 'max_angle_deg', 180));
-          Joint.IsBase := JsonBoolValue(JointObj, 'is_base', I = 0);
+          Joint.IsBase := JsonBoolValue(JointObj, 'is_base', False);
           Joint.Visible := JsonBoolValue(JointObj, 'visible', True);
           Joint.Color := JsonColorValue(JointObj, 'color', Joint.Color);
           Joint.LinkRadius := JsonFloatValue(JointObj, 'link_radius', Joint.LinkRadius);
@@ -1314,7 +1308,8 @@ begin
     if V3Len(AxisWorld) < 1e-12 then
       AxisWorld := V3(0, 0, 1);
 
-    if not IsLinearJoint(Joint.JointType) then
+    if not IsLinearJoint(Joint.JointType) and
+       not SameText(Joint.JointType, 'gripper') then
     begin
       CurX := V3RotateAroundAxis(CurX, AxisWorld, DegToRad(Joint.AngleDeg));
       CurY := V3RotateAroundAxis(CurY, AxisWorld, DegToRad(Joint.AngleDeg));
@@ -1369,6 +1364,9 @@ begin
       Continue;
 
     if Joint.IsBase then
+      Continue;
+
+    if SameText(Joint.JointType, 'gripper') then
       Continue;
 
     if IsLinearJoint(Joint.JointType) then
@@ -1486,7 +1484,6 @@ function TAI_Arm_robot.ToJSON: string;
 var
   I: Integer;
   Joint: TAI_Arm_robotJoint;
-  JointAxisName: string;
 begin
   Result := '{';
   Result += '"base": {"x": ' + JsonFloat(FBaseX) + ', "y": ' + JsonFloat(FBaseY) + ', "z": ' + JsonFloat(FBaseZ) + '},';
@@ -1541,16 +1538,11 @@ begin
   for I := 0 to FJoints.Count - 1 do
   begin
     Joint := FJoints[I];
-    if IsLinearJoint(Joint.JointType) then
-      JointAxisName := DominantAxisName(Joint.DirectionX, Joint.DirectionY, Joint.DirectionZ)
-    else
-      JointAxisName := DominantAxisName(Joint.AxisX, Joint.AxisY, Joint.AxisZ);
     if I > 0 then
       Result += ',';
     Result += '{';
     Result += '"name": "' + StringReplace(Joint.Name, '"', '\"', [rfReplaceAll]) + '",';
     Result += '"joint_type": "' + StringReplace(Joint.JointType, '"', '\"', [rfReplaceAll]) + '",';
-    Result += '"joint_axis": "' + JointAxisName + '",';
     Result += '"direction": {"x": ' + JsonFloat(Joint.DirectionX) + ', "y": ' + JsonFloat(Joint.DirectionY) + ', "z": ' + JsonFloat(Joint.DirectionZ) + '},';
     Result += '"rotation_axis": {"x": ' + JsonFloat(Joint.AxisX) + ', "y": ' + JsonFloat(Joint.AxisY) + ', "z": ' + JsonFloat(Joint.AxisZ) + '},';
     Result += '"length": ' + JsonFloat(Joint.Length) + ',';
@@ -1587,26 +1579,36 @@ end;
 function TAI_Arm_robot.BuildAISetupText: string;
 var
   I: Integer;
-  Joint: TAI_Arm_robotJoint;
+  J: TAI_Arm_robotJoint;
+  Papel, Sinal: string;
 begin
-  Result := 'AI_Arm_robot configuration' + LineEnding;
-  Result += 'Base: (' + JsonFloat(FBaseX) + ', ' + JsonFloat(FBaseY) + ', ' + JsonFloat(FBaseZ) + ')' + LineEnding;
-  Result += 'Target: (' + JsonFloat(FTargetX) + ', ' + JsonFloat(FTargetY) + ', ' + JsonFloat(FTargetZ) + ')' + LineEnding;
-  Result += 'Tolerance: ' + JsonFloat(FTolerance) + LineEnding;
-  Result += 'MaxIterations: ' + IntToStr(FMaxIterations) + LineEnding;
-  Result += 'UseLimits: ' + BoolToStr(FUseLimits, True) + LineEnding;
-  Result += 'Joints:' + LineEnding;
+  Result := 'AI_Arm_robot - braco 6 eixos SG90.' + LineEnding;
+  Result += 'Eixo vertical = Z (cima). Frente = +X. Esquerda = +Y.' + LineEnding;
+  Result += 'Toda dobra: value=0 esticado; value positivo fecha para frente/baixo.' + LineEnding;
+  Result += 'Giro: value positivo gira para a esquerda.' + LineEnding;
+  Result += 'Eixos (indice, nome, faixa, efeito):' + LineEnding;
   for I := 0 to FJoints.Count - 1 do
   begin
-    Joint := FJoints[I];
-    Result += Format('  %d. %s type=%s direction=(%s,%s,%s) rotation_axis=(%s,%s,%s) len=%s value=%s' + LineEnding,
-      [I,
-       Joint.Name,
-       Joint.JointType,
-       JsonFloat(Joint.DirectionX), JsonFloat(Joint.DirectionY), JsonFloat(Joint.DirectionZ),
-       JsonFloat(Joint.AxisX), JsonFloat(Joint.AxisY), JsonFloat(Joint.AxisZ),
-       JsonFloat(Joint.Length),
-       JsonFloat(Joint.AngleDeg)]);
+    J := FJoints[I];
+    if SameText(J.JointType, 'gripper') or (I = FJoints.Count - 1) then
+    begin
+      Papel := 'GARRA (abre/fecha os dedos)';
+      Sinal := 'min=fechada, max=aberta';
+    end
+    else if Abs(J.AxisZ) > 0.5 then
+    begin
+      Papel := 'ROTACAO (giro em torno do eixo vertical/antebraco)';
+      Sinal := '+ esquerda, - direita; nao dobra';
+    end
+    else
+    begin
+      Papel := 'DOBRA (tipo joelho)';
+      Sinal := '0 esticado, + fecha para frente/baixo';
+    end;
+    Result += Format('  %d. %s | %s | faixa %s..%s | atual %s | %s' + LineEnding,
+      [I, J.Name, Papel,
+       JsonFloat(J.MinValue), JsonFloat(J.MaxValue),
+       JsonFloat(J.Value), Sinal]);
   end;
 end;
 
