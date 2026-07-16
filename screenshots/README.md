@@ -1,5 +1,9 @@
 # Screenshots
 
+## AI Agent Serial Demo 
+
+"[AI Agent Serial Demo](agent_serial_demo.jpg)
+
 ## AI Project Demo
 
 ![AI Project Demo](project_tasklist_ai.jpg)
