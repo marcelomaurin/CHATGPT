@@ -2,7 +2,7 @@
 
 ## AI Agent Serial Demo 
 
-"[AI Agent Serial Demo](agent_serial_demo.jpg)
+![AI Agent Serial Demo](agent_serial_demo.jpg)
 
 ## AI Project Demo
 
