@@ -37,12 +37,20 @@
         <UnitName Value="aiindustrial"/>
       </Item>
       <Item>
+        <Filename Value="..\AI Industrial\aiarm_robot.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiarm_robot"/>
+      </Item>
+      <Item>
         <Filename Value="..\AI Industrial\aimodbuscommandmap.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aimodbuscommandmap"/>
       </Item>
     </Files>
     <RequiredPkgs>
+      <Item>
+        <PackageName Value="GLScene_DesignTime"/>
+      </Item>
       <Item>
         <PackageName Value="openai_core"/>
       </Item>

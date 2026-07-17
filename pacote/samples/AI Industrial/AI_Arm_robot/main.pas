@@ -20,9 +20,9 @@ type
   { TfrmMain }
 
   TfrmMain = class(TForm)
-    procedure FormCreate(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
-  private
+  published
+    { Componentes definidos no .lfm. Precisam estar em published para o
+      streaming do Lazarus ({$R *.lfm}) conseguir ligar cada campo ao objeto. }
     FArm: TAI_Arm_robot;
     FViewer: TAI_Arm_robotViewer;
     FHeader: TPanel;
@@ -34,6 +34,11 @@ type
     FTitle: TLabel;
     FSubtitle: TLabel;
     FStatus: TLabel;
+    LabelTargetTitle: TLabel;
+    LabelX: TLabel;
+    LabelY: TLabel;
+    LabelZ: TLabel;
+    LabelZoom: TLabel;
     FTargetX: TEdit;
     FTargetY: TEdit;
     FTargetZ: TEdit;
@@ -42,6 +47,16 @@ type
     FBtnLoad: TButton;
     FBtnExport: TButton;
     FZoomTrack: TTrackBar;
+    { Eventos referenciados pelo .lfm. Também precisam ser published. }
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure SolveClick(Sender: TObject);
+    procedure ResetClick(Sender: TObject);
+    procedure LoadClick(Sender: TObject);
+    procedure ExportClick(Sender: TObject);
+    procedure ZoomChanged(Sender: TObject);
+  private
+    { Estado interno e handlers atribuidos apenas por codigo (@Metodo). }
     FUpdatingUI: Boolean;
     FJointUI: array of TJointUI;
     function ModelJsonPath: string;
@@ -51,11 +66,6 @@ type
     procedure AddLog(const AMsg: string);
     procedure RefreshUI;
     procedure JointChanged(Sender: TObject);
-    procedure SolveClick(Sender: TObject);
-    procedure ResetClick(Sender: TObject);
-    procedure LoadClick(Sender: TObject);
-    procedure ExportClick(Sender: TObject);
-    procedure ZoomChanged(Sender: TObject);
     procedure ModelChanged(Sender: TObject);
     procedure MakeJointRow(const AIndex: Integer; const AParent: TWinControl);
   public
@@ -70,12 +80,10 @@ implementation
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
-  Color := $151515;
+  { Tamanho, cor e caption ja vem do .lfm; aqui so garantimos a posicao
+    e a fonte base do form. }
   Font.Name := 'Segoe UI';
   Font.Color := clWhite;
-  Caption := 'AI_Arm_robot';
-  Width := 1280;
-  Height := 860;
   Position := poScreenCenter;
 
   BuildUI;
@@ -84,178 +92,123 @@ end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
+  { FArm pertence ao form (criado pelo .lfm), mas liberar aqui e' seguro:
+    FreeAndNil zera a referencia e evita free duplo na destruicao do owner. }
   FreeAndNil(FArm);
 end;
 
 procedure TfrmMain.BuildUI;
 begin
-  FHeader := TPanel.Create(Self);
-  FHeader.Parent := Self;
-  FHeader.Align := alTop;
-  FHeader.Height := 86;
-  FHeader.BevelOuter := bvNone;
-  FHeader.Color := $1C1C1C;
-  FHeader.Font.Color := clWhite;
-
-  FTitle := TLabel.Create(FHeader);
-  FTitle.Parent := FHeader;
-  FTitle.Left := 20;
-  FTitle.Top := 12;
-  FTitle.Font.Name := 'Segoe UI';
-  FTitle.Font.Size := 18;
-  FTitle.Font.Style := [fsBold];
-  FTitle.Caption := 'AI_Arm_robot';
-
-  FSubtitle := TLabel.Create(FHeader);
-  FSubtitle.Parent := FHeader;
-  FSubtitle.Left := 20;
-  FSubtitle.Top := 44;
-  FSubtitle.Caption := 'Cinematica 3D generica para braco robotico com 6 servos SG90';
-
-  FStatus := TLabel.Create(FHeader);
-  FStatus.Parent := FHeader;
-  FStatus.Left := 20;
-  FStatus.Top := 62;
-  FStatus.Caption := 'Status: pronto';
-
-  FMain := TPanel.Create(Self);
-  FMain.Parent := Self;
-  FMain.Align := alClient;
-  FMain.BevelOuter := bvNone;
-  FMain.Color := $151515;
-
-  FRightPanel := TPanel.Create(FMain);
-  FRightPanel.Parent := FMain;
-  FRightPanel.Align := alRight;
-  FRightPanel.Width := 430;
-  FRightPanel.BevelOuter := bvNone;
-  FRightPanel.Color := $202020;
-
-  FViewer := TAI_Arm_robotViewer.Create(Self);
-  FViewer.Parent := FMain;
-  FViewer.Align := alClient;
-  FViewer.BackgroundColor := $121212;
-  FViewer.ArmColor := $36F2A5;
-  FViewer.JointColor := $79D8FF;
-  FViewer.GridColor := $2E2E2E;
-  FViewer.BaseColor := $6F6F6F;
-  FViewer.BaseHighlightColor := $D8D8D8;
-  FViewer.BaseRadius := 20;
-  FViewer.BaseHeight := 28;
-  FViewer.LinkThickness := 13;
-  FViewer.JointRadius := 9;
-  FViewer.ShowBasePedestal := True;
-  FViewer.ShowGrid := True;
-  FViewer.ShowAxes := True;
-  FViewer.ShowJointLabels := True;
-
-  FTargetPanel := TPanel.Create(FRightPanel);
-  FTargetPanel.Parent := FRightPanel;
-  FTargetPanel.Align := alTop;
-  FTargetPanel.Height := 210;
-  FTargetPanel.BevelOuter := bvNone;
-  FTargetPanel.Color := $252525;
-
-  FJointsScroll := TScrollBox.Create(FRightPanel);
-  FJointsScroll.Parent := FRightPanel;
-  FJointsScroll.Align := alClient;
-  FJointsScroll.BorderStyle := bsNone;
-  FJointsScroll.Color := $202020;
-  FJointsScroll.VertScrollBar.Visible := True;
-
-  FMemo := TMemo.Create(FRightPanel);
-  FMemo.Parent := FRightPanel;
-  FMemo.Align := alBottom;
-  FMemo.Height := 160;
-  FMemo.Color := $111111;
-  FMemo.Font.Color := clSilver;
-  FMemo.ScrollBars := ssVertical;
-
-  with TLabel.Create(FTargetPanel) do
+  if FHeader <> nil then
   begin
-    Parent := FTargetPanel;
-    Left := 16;
-    Top := 14;
-    Font.Style := [fsBold];
-    Caption := 'Alvo XYZ';
+    FHeader.BevelOuter := bvNone;
+    FHeader.Color := $1C1C1C;
+    FHeader.Font.Color := clWhite;
   end;
 
-  with TLabel.Create(FTargetPanel) do
+  if FTitle <> nil then
   begin
-    Parent := FTargetPanel;
-    Left := 16;
-    Top := 48;
-    Caption := 'X';
-  end;
-  FTargetX := TEdit.Create(FTargetPanel);
-  FTargetX.Parent := FTargetPanel;
-  FTargetX.SetBounds(40, 44, 70, 26);
-  FTargetX.Text := '10';
-
-  with TLabel.Create(FTargetPanel) do
-  begin
-    Parent := FTargetPanel;
-    Left := 128;
-    Top := 48;
-    Caption := 'Y';
-  end;
-  FTargetY := TEdit.Create(FTargetPanel);
-  FTargetY.Parent := FTargetPanel;
-  FTargetY.SetBounds(152, 44, 70, 26);
-  FTargetY.Text := '0';
-
-  with TLabel.Create(FTargetPanel) do
-  begin
-    Parent := FTargetPanel;
-    Left := 240;
-    Top := 48;
-    Caption := 'Z';
-  end;
-  FTargetZ := TEdit.Create(FTargetPanel);
-  FTargetZ.Parent := FTargetPanel;
-  FTargetZ.SetBounds(264, 44, 70, 26);
-  FTargetZ.Text := '15';
-
-  FBtnSolve := TButton.Create(FTargetPanel);
-  FBtnSolve.Parent := FTargetPanel;
-  FBtnSolve.SetBounds(16, 90, 110, 30);
-  FBtnSolve.Caption := 'Resolver IK';
-  FBtnSolve.OnClick := @SolveClick;
-
-  FBtnReset := TButton.Create(FTargetPanel);
-  FBtnReset.Parent := FTargetPanel;
-  FBtnReset.SetBounds(136, 90, 110, 30);
-  FBtnReset.Caption := 'Resetar';
-  FBtnReset.OnClick := @ResetClick;
-
-  FBtnLoad := TButton.Create(FTargetPanel);
-  FBtnLoad.Parent := FTargetPanel;
-  FBtnLoad.SetBounds(256, 90, 130, 30);
-  FBtnLoad.Caption := 'Recarregar JSON';
-  FBtnLoad.OnClick := @LoadClick;
-
-  FBtnExport := TButton.Create(FTargetPanel);
-  FBtnExport.Parent := FTargetPanel;
-  FBtnExport.SetBounds(16, 126, 150, 30);
-  FBtnExport.Caption := 'Exportar JSON';
-  FBtnExport.OnClick := @ExportClick;
-
-  with TLabel.Create(FTargetPanel) do
-  begin
-    Parent := FTargetPanel;
-    Left := 184;
-    Top := 136;
-    Caption := 'Zoom:';
+    FTitle.Font.Name := 'Segoe UI';
+    FTitle.Font.Size := 18;
+    FTitle.Font.Style := [fsBold];
+    FTitle.Caption := 'AI_Arm_robot';
   end;
 
-  FZoomTrack := TTrackBar.Create(FTargetPanel);
-  FZoomTrack.Parent := FTargetPanel;
-  FZoomTrack.SetBounds(230, 126, 160, 42);
-  FZoomTrack.Min := 10;
-  FZoomTrack.Max := 1000;
-  FZoomTrack.Position := 50;
-  FZoomTrack.Frequency := 25;
-  FZoomTrack.OnChange := @ZoomChanged;
+  if FSubtitle <> nil then
+    FSubtitle.Caption := 'Cinematica 3D generica para braco robotico com 6 servos SG90';
+
+  if FStatus <> nil then
+    FStatus.Caption := 'Status: pronto';
+
+  if FMain <> nil then
+  begin
+    FMain.BevelOuter := bvNone;
+    FMain.Color := $151515;
+  end;
+
+  if FRightPanel <> nil then
+  begin
+    FRightPanel.BevelOuter := bvNone;
+    FRightPanel.Color := $202020;
+  end;
+
+  if FViewer <> nil then
+  begin
+    FViewer.BackgroundColor := $121212;
+    FViewer.ArmColor := $36F2A5;
+    FViewer.JointColor := $79D8FF;
+    FViewer.GridColor := $2E2E2E;
+    FViewer.BaseColor := $6F6F6F;
+    FViewer.BaseHighlightColor := $D8D8D8;
+    FViewer.BaseRadius := 20;
+    FViewer.BaseHeight := 28;
+    FViewer.LinkThickness := 13;
+    FViewer.JointRadius := 9;
+    FViewer.ShowBasePedestal := True;
+    FViewer.ShowGrid := True;
+    FViewer.ShowAxes := True;
+    FViewer.ShowJointLabels := True;
+  end;
+
+  if FTargetPanel <> nil then
+  begin
+    FTargetPanel.BevelOuter := bvNone;
+    FTargetPanel.Color := $252525;
+  end;
+
+  if FJointsScroll <> nil then
+  begin
+    FJointsScroll.BorderStyle := bsNone;
+    FJointsScroll.Color := $202020;
+    FJointsScroll.VertScrollBar.Visible := True;
+  end;
+
+  if FMemo <> nil then
+  begin
+    FMemo.Color := $111111;
+    FMemo.Font.Color := clSilver;
+    FMemo.ScrollBars := ssVertical;
+  end;
+
+  if FTargetX <> nil then
+    FTargetX.Text := '10';
+  if FTargetY <> nil then
+    FTargetY.Text := '0';
+  if FTargetZ <> nil then
+    FTargetZ.Text := '15';
+
+  if FBtnSolve <> nil then
+  begin
+    FBtnSolve.Caption := 'Resolver IK';
+    FBtnSolve.OnClick := @SolveClick;
+  end;
+
+  if FBtnReset <> nil then
+  begin
+    FBtnReset.Caption := 'Resetar';
+    FBtnReset.OnClick := @ResetClick;
+  end;
+
+  if FBtnLoad <> nil then
+  begin
+    FBtnLoad.Caption := 'Recarregar JSON';
+    FBtnLoad.OnClick := @LoadClick;
+  end;
+
+  if FBtnExport <> nil then
+  begin
+    FBtnExport.Caption := 'Exportar JSON';
+    FBtnExport.OnClick := @ExportClick;
+  end;
+
+  if FZoomTrack <> nil then
+  begin
+    FZoomTrack.Min := 10;
+    FZoomTrack.Max := 1000;
+    FZoomTrack.Position := 50;
+    FZoomTrack.Frequency := 25;
+    FZoomTrack.OnChange := @ZoomChanged;
+  end;
 end;
 
 function TfrmMain.ModelJsonPath: string;
@@ -318,8 +271,9 @@ var
   I: Integer;
   ModelPath: string;
 begin
-  FreeAndNil(FArm);
-  FArm := TAI_Arm_robot.Create(Self);
+  { FArm ja vem instanciado pelo .lfm; o guard cobre um uso fora do designer. }
+  if FArm = nil then
+    FArm := TAI_Arm_robot.Create(Self);
   FArm.OnChange := @ModelChanged;
   FUpdatingUI := True;
   try
@@ -348,8 +302,11 @@ begin
     end;
     FArm.UpdatePromptFromJoints;
     ApplyModelVisualToViewer;
-    FViewer.Arm := FArm;
+    FArm.GraphicComponent := FViewer;
 
+    { Recria as linhas de junta do zero (evita duplicar em recarga). }
+    for I := High(FJointUI) downto 0 do
+      FreeAndNil(FJointUI[I].Panel);
     SetLength(FJointUI, FArm.JointCount);
     for I := 0 to FArm.JointCount - 1 do
       MakeJointRow(I, FJointsScroll);
@@ -380,6 +337,7 @@ begin
   try
     for I := 0 to FArm.JointCount - 1 do
     begin
+      if I > High(FJointUI) then Break;
       Joint := FArm.Joints[I];
       FJointUI[I].Track.Min := Round(Joint.MinAngleDeg);
       FJointUI[I].Track.Max := Round(Joint.MaxAngleDeg);
@@ -392,8 +350,10 @@ begin
         FJointUI[I].Value.Caption := Format('%.1f deg', [Joint.Value]);
     end;
     EndPos := FArm.GetEndEffectorPosition;
-    FStatus.Caption := Format('Status: EE (%.2f, %.2f, %.2f)', [EndPos.X, EndPos.Y, EndPos.Z]);
-    FViewer.SyncScene;
+    if Assigned(FStatus) then
+      FStatus.Caption := Format('Status: EE (%.2f, %.2f, %.2f)', [EndPos.X, EndPos.Y, EndPos.Z]);
+    if Assigned(FViewer) then
+      FViewer.SyncScene;
   finally
     FUpdatingUI := False;
   end;

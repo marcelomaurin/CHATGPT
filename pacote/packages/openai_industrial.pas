@@ -8,7 +8,7 @@ unit openai_industrial;
 interface
 
 uses
-  aiarduinomodbuspinmap, aimodbus, aimqtt, aiindustrial, 
+  aiarduinomodbuspinmap, aimodbus, aimqtt, aiindustrial, aiarm_robot, 
   aimodbuscommandmap, LazarusPackageIntf;
 
 implementation
@@ -19,6 +19,7 @@ begin
   RegisterUnit('aimodbus', @aimodbus.Register);
   RegisterUnit('aimqtt', @aimqtt.Register);
   RegisterUnit('aiindustrial', @aiindustrial.Register);
+  RegisterUnit('aiarm_robot', @aiarm_robot.Register);
   RegisterUnit('aimodbuscommandmap', @aimodbuscommandmap.Register);
 end;
 

@@ -20,11 +20,14 @@ type
 
   TAIArmVector3Array = array of TAIArmVector3;
 
+  TAI_Arm_robotViewer = class;
+
   { TAI_Arm_robotJoint }
 
   TAI_Arm_robotJoint = class(TCollectionItem)
   private
     FName: string;
+    FParent: string;
     FMovimento: string;
     FJointType: string;
     FAxisX: Double;
@@ -43,7 +46,12 @@ type
     FColor: TColor;
     FLinkRadius: Double;
     FJointRadius: Double;
+    FAngleValue: string;
+    FOffsetX: Double;
+    FOffsetY: Double;
+    FOffsetZ: Double;
     procedure SetMovimento(const AValue: string);
+    procedure SetParent(const AValue: string);
     procedure SetJointType(const AValue: string);
     procedure SetAxisX(AValue: Double);
     procedure SetAxisY(AValue: Double);
@@ -61,13 +69,22 @@ type
     procedure SetColor(AValue: TColor);
     procedure SetLinkRadius(AValue: Double);
     procedure SetJointRadius(AValue: Double);
+    procedure SetAngleValue(const AValue: string);
+    procedure SetOffsetX(AValue: Double);
+    procedure SetOffsetY(AValue: Double);
+    procedure SetOffsetZ(AValue: Double);
     procedure NotifyOwnerChanged;
   public
     procedure Assign(Source: TPersistent); override;
   published
     property Name: string read FName write FName;
+    property OffsetX: Double read FOffsetX write SetOffsetX;
+    property OffsetY: Double read FOffsetY write SetOffsetY;
+    property OffsetZ: Double read FOffsetZ write SetOffsetZ;
+    property Parent: string read FParent write SetParent;
     property Movimento: string read FMovimento write SetMovimento;
     property JointType: string read FJointType write SetJointType;
+    property AngleValue: string read FAngleValue write SetAngleValue;
     property AxisX: Double read FAxisX write SetAxisX;
     property AxisY: Double read FAxisY write SetAxisY;
     property AxisZ: Double read FAxisZ write SetAxisZ;
@@ -124,6 +141,7 @@ type
     FLastEndX: Double;
     FLastEndY: Double;
     FLastEndZ: Double;
+    FGraphicComponent: TAI_Arm_robotViewer;
     FOnChange: TAI_Arm_robotChangeEvent;
     FLoading: Boolean;
     FViewBackgroundColor: TColor;
@@ -177,21 +195,28 @@ type
     procedure SetTolerance(AValue: Double);
     procedure SetMaxIterations(AValue: Integer);
     procedure SetUseLimits(AValue: Boolean);
+    procedure SetGraphicComponent(AValue: TAI_Arm_robotViewer);
     function GetJointCount: Integer;
     procedure DoChanged;
+    function IndexOfJointName(const AName: string): Integer;
     procedure NormalizeJointAxes(var AAxis: TAIArmVector3);
     procedure BuildPose(out APoints, AFrameX, AFrameY, AFrameZ: TAIArmVector3Array);
     procedure ClampJointAngle(AJoint: TAI_Arm_robotJoint);
     function SolveCCDOnce(const ATarget: TAIArmVector3): Boolean;
+  protected
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
+    procedure Render;
     procedure ClearJoints;
     function AddJoint(const AName: string; AX, AY, AZ, ALength: Double): TAI_Arm_robotJoint;
     procedure LoadSixAxisSample;
     procedure LoadFromJSON(const AJSON: string);
+    procedure LoadFromFile(const AFileName: string);
     procedure LoadFromJSONFile(const AFileName: string);
+    procedure SaveToFile(const AFileName: string);
     procedure SaveToJSONFile(const AFileName: string);
     procedure ResetAngles;
     function ForwardKinematics(out APoints: TAIArmVector3Array): Boolean;
@@ -209,7 +234,9 @@ type
     property LastEndY: Double read FLastEndY;
     property LastEndZ: Double read FLastEndZ;
   published
+    property Items: TAI_Arm_robotJoints read FJoints write FJoints;
     property Joints: TAI_Arm_robotJoints read FJoints write FJoints;
+    property GraphicComponent: TAI_Arm_robotViewer read FGraphicComponent write SetGraphicComponent;
     property ModelDescription: string read FModelDescription write SetModelDescription;
     property BaseX: Double read FBaseX write SetBaseX;
     property BaseY: Double read FBaseY write SetBaseY;
@@ -279,6 +306,7 @@ type
     FGLPedestal: TGLAnnulus;
     FGLBaseBody: TGLCylinder;
     FGLJointNodes: array of TGLDummyCube;
+    FGLJointEndNodes: array of TGLDummyCube;
     FGLJointLinks: array of TGLCylinder;
     FGLJointSpheres: array of TGLSphere;
     FGLJointPlateA: array of TGLCube;
@@ -287,6 +315,8 @@ type
     FGLGripperPalm: TGLCube;
     FGLGripperJawA: TGLCube;
     FGLGripperJawB: TGLCube;
+    FGLGripperJawA_Pivot: TGLDummyCube;
+    FGLGripperJawB_Pivot: TGLDummyCube;
     FAppliedAngles: array of Double;
     FBackgroundColor: TColor;
     FArmColor: TColor;
@@ -377,6 +407,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     procedure SyncScene;
+    procedure Render;
   published
     property Arm: TAI_Arm_robot read FArm write SetArm;
     property BackgroundColor: TColor read FBackgroundColor write SetBackgroundColor default clBlack;
@@ -437,10 +468,41 @@ function IsGripperJoint(const AJoint: TAI_Arm_robotJoint;
 var
   Description: string;
 begin
-  if SameText(AJoint.JointType, 'gripper') then
+  if SameText(AJoint.JointType, 'gripper') or SameText(AJoint.JointType, 'tweezers') then
     Exit(True);
   Description := LowerCase(AJoint.Name + ' ' + AJoint.Movimento);
   Result := (AIndex = ACount - 1) and (Pos('garra', Description) > 0);
+end;
+
+function IsGripperJawA(const AJoint: TAI_Arm_robotJoint): Boolean;
+var
+  LName: string;
+begin
+  LName := LowerCase(AJoint.Name);
+  Result := SameText(AJoint.JointType, 'gripper_jaw_a') or
+            (Pos('garra (esq', LName) > 0) or
+            (Pos('aste esquerda', LName) > 0) or
+            (Pos('dedo esquerdo', LName) > 0) or
+            (Pos('ponta esquerda', LName) > 0) or
+            (Pos('garra esquerda', LName) > 0);
+end;
+
+function IsGripperJawB(const AJoint: TAI_Arm_robotJoint): Boolean;
+var
+  LName: string;
+begin
+  LName := LowerCase(AJoint.Name);
+  Result := SameText(AJoint.JointType, 'gripper_jaw_b') or
+            (Pos('garra (dir', LName) > 0) or
+            (Pos('aste direita', LName) > 0) or
+            (Pos('dedo direito', LName) > 0) or
+            (Pos('ponta direita', LName) > 0) or
+            (Pos('garra direita', LName) > 0);
+end;
+
+function IsGripperPart(const AJoint: TAI_Arm_robotJoint; AIndex, ACount: Integer): Boolean;
+begin
+  Result := IsGripperJoint(AJoint, AIndex, ACount) or IsGripperJawA(AJoint) or IsGripperJawB(AJoint);
 end;
 
 function V3(const AX, AY, AZ: Double): TAIArmVector3;
@@ -558,6 +620,41 @@ procedure TAI_Arm_robotJoint.SetMovimento(const AValue: string);
 begin
   if FMovimento = AValue then Exit;
   FMovimento := AValue;
+  NotifyOwnerChanged;
+end;
+
+procedure TAI_Arm_robotJoint.SetAngleValue(const AValue: string);
+begin
+  if FAngleValue = AValue then Exit;
+  FAngleValue := AValue;
+  NotifyOwnerChanged;
+end;
+
+procedure TAI_Arm_robotJoint.SetOffsetX(AValue: Double);
+begin
+  if FOffsetX = AValue then Exit;
+  FOffsetX := AValue;
+  NotifyOwnerChanged;
+end;
+
+procedure TAI_Arm_robotJoint.SetOffsetY(AValue: Double);
+begin
+  if FOffsetY = AValue then Exit;
+  FOffsetY := AValue;
+  NotifyOwnerChanged;
+end;
+
+procedure TAI_Arm_robotJoint.SetOffsetZ(AValue: Double);
+begin
+  if FOffsetZ = AValue then Exit;
+  FOffsetZ := AValue;
+  NotifyOwnerChanged;
+end;
+
+procedure TAI_Arm_robotJoint.SetParent(const AValue: string);
+begin
+  if FParent = AValue then Exit;
+  FParent := AValue;
   NotifyOwnerChanged;
 end;
 
@@ -703,6 +800,7 @@ begin
   begin
     Src := TAI_Arm_robotJoint(Source);
     FName := Src.Name;
+    FParent := Src.Parent;
     FMovimento := Src.Movimento;
     FJointType := Src.JointType;
     FAxisX := Src.AxisX;
@@ -721,6 +819,7 @@ begin
     FColor := Src.Color;
     FLinkRadius := Src.LinkRadius;
     FJointRadius := Src.JointRadius;
+    FAngleValue := Src.AngleValue;
     NotifyOwnerChanged;
   end
   else
@@ -751,10 +850,10 @@ begin
   inherited Create(AOwner);
   Category := ccModel;
   FPrompt := 'Component TAI_Arm_robot models a 3D robotic arm chain with arbitrary joint axes. ' +
-    'Published properties: BaseX, BaseY, BaseZ, TargetX, TargetY, TargetZ, Tolerance, MaxIterations, UseLimits, Joints. ' +
-    'Each joint exposes Name, AxisX, AxisY, AxisZ, Length, AngleDeg, DefaultAngleDeg, MinAngleDeg, MaxAngleDeg, IsBase, Visible and Color. ' +
-    'Methods: AddJoint, ClearJoints, LoadSixAxisSample, ResetAngles, ForwardKinematics, SolveInverseKinematics, GetEndEffectorPosition, ToJSON. ' +
-    'Viewer: the base is fixed in space and the first joint acts as a fixed pedestal/turntable. ' +
+    'Published properties: BaseX, BaseY, BaseZ, TargetX, TargetY, TargetZ, Tolerance, MaxIterations, UseLimits, Items, Joints, GraphicComponent. ' +
+    'Each item exposes Name, Parent, Movimento, JointType, RotationAxisX/Y/Z, DirectionX/Y/Z, Length, Value, DefaultValue, MinValue, MaxValue, IsBase, Visible, Color, LinkRadius and JointRadius. ' +
+    'Methods: AddJoint, ClearJoints, LoadSixAxisSample, LoadFromFile, SaveToFile, Render, ResetAngles, ForwardKinematics, SolveInverseKinematics, GetEndEffectorPosition, ToJSON. ' +
+    'Viewer: the base is fixed in space and the first item acts as a fixed pedestal/turntable. ' +
     'AI Agent: use this component to calculate and solve the servo angles of a robotic arm from a target XYZ point and to export the arm configuration.';
   FJoints := TAI_Arm_robotJoints.Create(Self);
   FModelDescription := 'Braco 6 eixos SG90. Valor 0 em toda dobra deixa o segmento esticado; valor positivo fecha para frente/baixo.';
@@ -816,8 +915,17 @@ end;
 
 destructor TAI_Arm_robot.Destroy;
 begin
+  if Assigned(FGraphicComponent) then
+    FGraphicComponent.RemoveFreeNotification(Self);
   FJoints.Free;
   inherited Destroy;
+end;
+
+procedure TAI_Arm_robot.Notification(AComponent: TComponent; Operation: TOperation);
+begin
+  inherited Notification(AComponent, Operation);
+  if (Operation = opRemove) and (AComponent = FGraphicComponent) then
+    FGraphicComponent := nil;
 end;
 
 procedure TAI_Arm_robot.DoChanged;
@@ -826,8 +934,85 @@ begin
     Exit;
   if Assigned(FJoints) then
     FPrompt := BuildAISetupText;
+  Render;
   if Assigned(FOnChange) then
     FOnChange(Self);
+end;
+
+procedure TAI_Arm_robot.SetGraphicComponent(AValue: TAI_Arm_robotViewer);
+begin
+  if FGraphicComponent = AValue then
+    Exit;
+  if Assigned(FGraphicComponent) then
+    FGraphicComponent.RemoveFreeNotification(Self);
+  FGraphicComponent := AValue;
+  if Assigned(FGraphicComponent) then
+  begin
+    FGraphicComponent.FreeNotification(Self);
+    FGraphicComponent.Arm := Self;
+  end;
+  Render;
+end;
+
+procedure TAI_Arm_robot.Render;
+begin
+  if not Assigned(FGraphicComponent) then
+    Exit;
+
+  FGraphicComponent.BackgroundColor := FViewBackgroundColor;
+  FGraphicComponent.ArmColor := FViewArmColor;
+  FGraphicComponent.JointColor := FViewJointColor;
+  FGraphicComponent.GridColor := FViewGridColor;
+  FGraphicComponent.BaseColor := FViewBaseColor;
+  FGraphicComponent.BaseHighlightColor := FViewBaseHighlightColor;
+  FGraphicComponent.ShowGrid := FViewShowGrid;
+  FGraphicComponent.ShowJointLabels := FViewShowJointLabels;
+  FGraphicComponent.ShowAxes := FViewShowAxes;
+  FGraphicComponent.AutoFit := FViewAutoFit;
+  FGraphicComponent.Scale := FViewScale;
+  FGraphicComponent.AzimuthDeg := FViewAzimuthDeg;
+  FGraphicComponent.ElevationDeg := FViewElevationDeg;
+  FGraphicComponent.ShowBasePedestal := FViewShowBasePedestal;
+  FGraphicComponent.BaseRadius := FViewBaseRadius;
+  FGraphicComponent.BaseInnerRadius := FViewBaseInnerRadius;
+  FGraphicComponent.BaseHeight := FViewBaseHeight;
+  FGraphicComponent.LinkThickness := FViewLinkThickness;
+  FGraphicComponent.JointRadius := FViewJointRadius;
+  FGraphicComponent.GuideSize := FViewGuideSize;
+  FGraphicComponent.CameraX := FViewCameraX;
+  FGraphicComponent.CameraY := FViewCameraY;
+  FGraphicComponent.CameraZ := FViewCameraZ;
+  FGraphicComponent.CameraFocalLength := FViewCameraFocalLength;
+  FGraphicComponent.CameraDepthOfView := FViewCameraDepthOfView;
+  FGraphicComponent.LightX := FViewLightX;
+  FGraphicComponent.LightY := FViewLightY;
+  FGraphicComponent.LightZ := FViewLightZ;
+  FGraphicComponent.ActorInterval := FViewActorInterval;
+  FGraphicComponent.ModelStyle := FViewModelStyle;
+  FGraphicComponent.PrintedColor := FViewPrintedColor;
+  FGraphicComponent.ServoColor := FViewServoColor;
+  FGraphicComponent.MetalColor := FViewMetalColor;
+  FGraphicComponent.LinkWidth := FViewLinkWidth;
+  FGraphicComponent.LinkDepth := FViewLinkDepth;
+  FGraphicComponent.LinkSpacing := FViewLinkSpacing;
+  FGraphicComponent.ServoWidth := FViewServoWidth;
+  FGraphicComponent.ServoHeight := FViewServoHeight;
+  FGraphicComponent.ServoDepth := FViewServoDepth;
+  FGraphicComponent.GripperWidth := FViewGripperWidth;
+  FGraphicComponent.GripperLength := FViewGripperLength;
+  FGraphicComponent.Render;
+end;
+
+function TAI_Arm_robot.IndexOfJointName(const AName: string): Integer;
+var
+  I: Integer;
+begin
+  Result := -1;
+  if AName = '' then
+    Exit;
+  for I := 0 to FJoints.Count - 1 do
+    if SameText(FJoints[I].Name, AName) then
+      Exit(I);
 end;
 
 procedure TAI_Arm_robot.SetModelDescription(const AValue: string);
@@ -915,6 +1100,10 @@ function TAI_Arm_robot.AddJoint(const AName: string; AX, AY, AZ, ALength: Double
 begin
   Result := FJoints.Add;
   Result.Name := AName;
+  if FJoints.Count > 1 then
+    Result.Parent := FJoints[FJoints.Count - 2].Name
+  else
+    Result.Parent := '';
   Result.JointType := 'angular';
   Result.AxisX := AX;
   Result.AxisY := AY;
@@ -935,21 +1124,24 @@ begin
 end;
 
 procedure TAI_Arm_robot.LoadSixAxisSample;
+var
+  I: Integer;
 begin
   ClearJoints;
 
-  AddJoint('0 - Base (giro)', 0, 0, 1, 2.5).Color := clWhite;
+  AddJoint('0 - Base (giro)', 0, 1, 0, 2.5).Color := clWhite;
   FJoints[0].Movimento := 'ROTACAO. Gira todo o braco em torno do eixo vertical. 0 = frente (+X). Valor + gira para a esquerda (+Y), valor - para a direita (-Y). Nao levanta nem abaixa.';
-  FJoints[0].DirectionY := 0;
-  FJoints[0].DirectionZ := 1;
+  FJoints[0].DirectionY := 1;
+  FJoints[0].DirectionZ := 0;
   FJoints[0].IsBase := False;
   FJoints[0].DefaultAngleDeg := 0;
   FJoints[0].MinAngleDeg := -90;
   FJoints[0].MaxAngleDeg := 90;
   FJoints[0].LinkRadius := 0.5;
   FJoints[0].JointRadius := 0.6;
+  FJoints[0].Parent := '';
 
-  AddJoint('1 - Ombro (dobra)', 0, 1, 0, 6.5).Color := clWhite;
+  AddJoint('1 - Ombro (dobra)', 0, 0, 1, 6.5).Color := clWhite;
   FJoints[1].Movimento := 'DOBRA tipo joelho, no plano vertical. 0 = braco esticado para cima. Valor + fecha a dobra para frente/baixo. So dobra para um lado.';
   FJoints[1].DirectionY := 0;
   FJoints[1].DirectionZ := 1;
@@ -959,8 +1151,9 @@ begin
   FJoints[1].MaxValue := 120;
   FJoints[1].LinkRadius := 0.5;
   FJoints[1].JointRadius := 0.5;
+  FJoints[1].Parent := '0 - Base (giro)';
 
-  AddJoint('2 - Cotovelo (dobra)', 0, 1, 0, 6.0).Color := clWhite;
+  AddJoint('2 - Cotovelo (dobra)', 0, 0, 1, 6.0).Color := clWhite;
   FJoints[2].Movimento := 'DOBRA tipo joelho. 0 = antebraco em linha reta com o braco. Valor + fecha o cotovelo para frente/baixo.';
   FJoints[2].DirectionY := 0;
   FJoints[2].DirectionZ := 1;
@@ -970,8 +1163,9 @@ begin
   FJoints[2].MaxValue := 135;
   FJoints[2].LinkRadius := 0.5;
   FJoints[2].JointRadius := 0.5;
+  FJoints[2].Parent := '1 - Ombro (dobra)';
 
-  AddJoint('3 - Punho (dobra)', 0, 1, 0, 4.0).Color := clWhite;
+  AddJoint('3 - Punho (dobra)', 0, 0, 1, 4.0).Color := clWhite;
   FJoints[3].Movimento := 'DOBRA tipo joelho. 0 = punho em linha reta. Valor + fecha o punho para frente/baixo.';
   FJoints[3].DirectionY := 0;
   FJoints[3].DirectionZ := 1;
@@ -981,6 +1175,7 @@ begin
   FJoints[3].MaxValue := 135;
   FJoints[3].LinkRadius := 0.5;
   FJoints[3].JointRadius := 0.5;
+  FJoints[3].Parent := '2 - Cotovelo (dobra)';
 
   AddJoint('4 - Giro do punho (rotacao)', 0, 0, 1, 1.5).Color := clWhite;
   FJoints[4].Movimento := 'ROTACAO em torno do eixo do proprio antebraco (torce a garra). 0 = neutro. Valor +/- torce para os dois lados. Nao dobra nem move a ponta, so orienta a garra.';
@@ -991,17 +1186,10 @@ begin
   FJoints[4].MaxAngleDeg := 90;
   FJoints[4].LinkRadius := 0.5;
   FJoints[4].JointRadius := 0.5;
+  FJoints[4].Parent := '3 - Punho (dobra)';
 
-  AddJoint('5 - Garra (abre/fecha)', 0, 1, 0, 0.6).Color := clWhite;
-  FJoints[5].Movimento := 'GARRA. Este e o ULTIMO eixo: o viewer usa o valor para abrir/fechar os dois dedos simetricamente. 0 = totalmente FECHADA, 40 = totalmente ABERTA. NAO dobra o braco.';
-  FJoints[5].DirectionY := 0;
-  FJoints[5].DirectionZ := 1;
-  FJoints[5].JointType := 'angular';
-  FJoints[5].DefaultAngleDeg := 15;
-  FJoints[5].MinAngleDeg := 0;
-  FJoints[5].MaxAngleDeg := 40;
-  FJoints[5].LinkRadius := 0.5;
-  FJoints[5].JointRadius := 0.5;
+  for I := 0 to FJoints.Count - 1 do
+    FJoints[I].AngleValue := 'Normal';
 
   ResetAngles;
   DoChanged;
@@ -1107,9 +1295,9 @@ procedure TAI_Arm_robot.LoadFromJSON(const AJSON: string);
 var
   RootData: TJSONData;
   RootObj, VisualObj, CameraObj, LightObj, ActorObj: TJSONObject;
-  JointsArr: TJSONArray;
+  ItemsArr: TJSONArray;
   JointData: TJSONData;
-  JointObj, AxisObj, DirectionObj: TJSONObject;
+  JointObj, AxisObj, DirectionObj, OffsetObj: TJSONObject;
   I: Integer;
   Joint: TAI_Arm_robotJoint;
   BaseVec, TargetVec, ViewVec: TAIArmVector3;
@@ -1205,12 +1393,14 @@ begin
       FUseLimits := JsonBoolValue(RootObj, 'use_limits', FUseLimits);
 
       ClearJoints;
-      JointsArr := JsonArrayValue(RootObj, 'joints');
-      if Assigned(JointsArr) then
+      ItemsArr := JsonArrayValue(RootObj, 'items');
+      if not Assigned(ItemsArr) then
+        ItemsArr := JsonArrayValue(RootObj, 'joints');
+      if Assigned(ItemsArr) then
       begin
-        for I := 0 to JointsArr.Count - 1 do
+        for I := 0 to ItemsArr.Count - 1 do
         begin
-          JointData := JointsArr.Items[I];
+          JointData := ItemsArr.Items[I];
           if not (JointData is TJSONObject) then
             Continue;
 
@@ -1227,6 +1417,11 @@ begin
             JsonFloatValue(AxisObj, 'z', 1),
             JsonFloatValue(JointObj, 'length', 0)
           );
+          if I = 0 then
+            Joint.Parent := ''
+          else
+            Joint.Parent := JsonStringValue(JointObj, 'parent',
+              FJoints[I - 1].Name);
           Joint.DirectionX := JsonFloatValue(DirectionObj, 'x', 0);
           Joint.DirectionY := JsonFloatValue(DirectionObj, 'y', 0);
           Joint.DirectionZ := JsonFloatValue(DirectionObj, 'z', 1);
@@ -1261,6 +1456,20 @@ begin
           Joint.Color := JsonColorValue(JointObj, 'color', Joint.Color);
           Joint.LinkRadius := JsonFloatValue(JointObj, 'link_radius', Joint.LinkRadius);
           Joint.JointRadius := JsonFloatValue(JointObj, 'joint_radius', Joint.JointRadius);
+          Joint.AngleValue := JsonStringValue(JointObj, 'angle_value', 'Normal');
+          OffsetObj := JsonObjectValue(JointObj, 'offset');
+          if Assigned(OffsetObj) then
+          begin
+            Joint.OffsetX := JsonFloatValue(OffsetObj, 'x', 0);
+            Joint.OffsetY := JsonFloatValue(OffsetObj, 'y', 0);
+            Joint.OffsetZ := JsonFloatValue(OffsetObj, 'z', 0);
+          end
+          else
+          begin
+            Joint.OffsetX := 0;
+            Joint.OffsetY := 0;
+            Joint.OffsetZ := 0;
+          end;
         end;
       end;
     finally
@@ -1271,6 +1480,11 @@ begin
   end;
 
   DoChanged;
+end;
+
+procedure TAI_Arm_robot.LoadFromFile(const AFileName: string);
+begin
+  LoadFromJSONFile(AFileName);
 end;
 
 procedure TAI_Arm_robot.LoadFromJSONFile(const AFileName: string);
@@ -1284,6 +1498,11 @@ begin
   finally
     SL.Free;
   end;
+end;
+
+procedure TAI_Arm_robot.SaveToFile(const AFileName: string);
+begin
+  SaveToJSONFile(AFileName);
 end;
 
 procedure TAI_Arm_robot.SaveToJSONFile(const AFileName: string);
@@ -1316,6 +1535,7 @@ end;
 procedure TAI_Arm_robot.BuildPose(out APoints, AFrameX, AFrameY, AFrameZ: TAIArmVector3Array);
 var
   I: Integer;
+  ParentIdx: Integer;
   Pos: TAIArmVector3;
   CurX: TAIArmVector3;
   CurY: TAIArmVector3;
@@ -1323,11 +1543,19 @@ var
   AxisWorld: TAIArmVector3;
   DirectionWorld: TAIArmVector3;
   Joint: TAI_Arm_robotJoint;
+  EndPos: TAIArmVector3Array;
+  EndFrameX: TAIArmVector3Array;
+  EndFrameY: TAIArmVector3Array;
+  EndFrameZ: TAIArmVector3Array;
 begin
   SetLength(APoints, FJoints.Count + 1);
   SetLength(AFrameX, FJoints.Count);
   SetLength(AFrameY, FJoints.Count);
   SetLength(AFrameZ, FJoints.Count);
+  SetLength(EndPos, FJoints.Count);
+  SetLength(EndFrameX, FJoints.Count);
+  SetLength(EndFrameY, FJoints.Count);
+  SetLength(EndFrameZ, FJoints.Count);
 
   Pos := V3(FBaseX, FBaseY, FBaseZ);
   CurX := V3(1, 0, 0);
@@ -1338,9 +1566,40 @@ begin
   for I := 0 to FJoints.Count - 1 do
   begin
     Joint := FJoints[I];
+
+    if Trim(Joint.Parent) <> '' then
+      ParentIdx := IndexOfJointName(Joint.Parent)
+    else if I > 0 then
+      ParentIdx := I - 1
+    else
+      ParentIdx := -1;
+
+    if (ParentIdx >= 0) and (ParentIdx < I) then
+    begin
+      Pos := EndPos[ParentIdx];
+      CurX := EndFrameX[ParentIdx];
+      CurY := EndFrameY[ParentIdx];
+      CurZ := EndFrameZ[ParentIdx];
+    end
+    else if I > 0 then
+    begin
+      Pos := EndPos[I - 1];
+      CurX := EndFrameX[I - 1];
+      CurY := EndFrameY[I - 1];
+      CurZ := EndFrameZ[I - 1];
+    end
+    else
+    begin
+      Pos := V3(FBaseX, FBaseY, FBaseZ);
+      CurX := V3(1, 0, 0);
+      CurY := V3(0, 1, 0);
+      CurZ := V3(0, 0, 1);
+    end;
+
     AFrameX[I] := CurX;
     AFrameY[I] := CurY;
     AFrameZ[I] := CurZ;
+    APoints[I] := Pos;
 
     AxisWorld := V3Normalize(V3Add(V3Add(
       V3Scale(CurX, Joint.AxisX),
@@ -1350,7 +1609,7 @@ begin
       AxisWorld := V3(0, 0, 1);
 
     if not IsLinearJoint(Joint.JointType) and
-       not IsGripperJoint(Joint, I, FJoints.Count) then
+       not IsGripperPart(Joint, I, FJoints.Count) then
     begin
       CurX := V3RotateAroundAxis(CurX, AxisWorld, DegToRad(Joint.AngleDeg));
       CurY := V3RotateAroundAxis(CurY, AxisWorld, DegToRad(Joint.AngleDeg));
@@ -1365,6 +1624,10 @@ begin
       Pos := V3Add(Pos, V3Scale(DirectionWorld, Joint.Length + Joint.Value))
     else
       Pos := V3Add(Pos, V3Scale(DirectionWorld, Joint.Length));
+    EndPos[I] := Pos;
+    EndFrameX[I] := CurX;
+    EndFrameY[I] := CurY;
+    EndFrameZ[I] := CurZ;
     APoints[I + 1] := Pos;
   end;
 
@@ -1407,7 +1670,7 @@ begin
     if Joint.IsBase then
       Continue;
 
-    if IsGripperJoint(Joint, I, FJoints.Count) then
+    if IsGripperPart(Joint, I, FJoints.Count) then
       Continue;
 
     if IsLinearJoint(Joint.JointType) then
@@ -1576,7 +1839,7 @@ begin
   Result += '"gripper_width": ' + JsonFloat(FViewGripperWidth) + ',';
   Result += '"gripper_length": ' + JsonFloat(FViewGripperLength);
   Result += '},';
-  Result += '"joints": [';
+  Result += '"items": [';
   for I := 0 to FJoints.Count - 1 do
   begin
     Joint := FJoints[I];
@@ -1584,6 +1847,7 @@ begin
       Result += ',';
     Result += '{';
     Result += '"name": "' + StringReplace(Joint.Name, '"', '\"', [rfReplaceAll]) + '",';
+    Result += '"parent": "' + StringReplace(Joint.Parent, '"', '\"', [rfReplaceAll]) + '",';
     Result += '"movimento": "' + StringReplace(Joint.Movimento, '"', '\"', [rfReplaceAll]) + '",';
     Result += '"joint_type": "' + StringReplace(Joint.JointType, '"', '\"', [rfReplaceAll]) + '",';
     Result += '"direction": {"x": ' + JsonFloat(Joint.DirectionX) + ', "y": ' + JsonFloat(Joint.DirectionY) + ', "z": ' + JsonFloat(Joint.DirectionZ) + '},';
@@ -1597,7 +1861,9 @@ begin
     Result += '"visible": ' + LowerCase(BoolToStr(Joint.Visible, True)) + ',';
     Result += '"color": ' + IntToStr(ColorToRGB(Joint.Color)) + ',';
     Result += '"link_radius": ' + JsonFloat(Joint.LinkRadius) + ',';
-    Result += '"joint_radius": ' + JsonFloat(Joint.JointRadius);
+    Result += '"joint_radius": ' + JsonFloat(Joint.JointRadius) + ',';
+    Result += '"angle_value": "' + StringReplace(Joint.AngleValue, '"', '\"', [rfReplaceAll]) + '",';
+    Result += '"offset": {"x": ' + JsonFloat(Joint.OffsetX) + ', "y": ' + JsonFloat(Joint.OffsetY) + ', "z": ' + JsonFloat(Joint.OffsetZ) + '}';
     Result += '}';
   end;
   Result += ']';
@@ -1625,7 +1891,7 @@ var
   J: TAI_Arm_robotJoint;
   Papel, Sinal: string;
 begin
-  Result := 'AI_Arm_robot - braco 6 eixos SG90.' + LineEnding;
+  Result := 'AI_Arm_robot - braco 3D SG90 com Items e Parent.' + LineEnding;
   Result += 'Eixo vertical = Z (cima). Frente = +X. Esquerda = +Y.' + LineEnding;
   Result += 'Toda dobra: value=0 esticado; value positivo fecha para frente/baixo.' + LineEnding;
   Result += 'Giro: value positivo gira para a esquerda.' + LineEnding;
@@ -1633,7 +1899,7 @@ begin
   for I := 0 to FJoints.Count - 1 do
   begin
     J := FJoints[I];
-    if IsGripperJoint(J, I, FJoints.Count) then
+    if IsGripperPart(J, I, FJoints.Count) then
     begin
       Papel := 'GARRA (abre/fecha os dedos)';
       Sinal := 'min=fechada, max=aberta';
@@ -1760,7 +2026,10 @@ begin
   FGLGripperPalm := nil;
   FGLGripperJawA := nil;
   FGLGripperJawB := nil;
+  FGLGripperJawA_Pivot := nil;
+  FGLGripperJawB_Pivot := nil;
   SetLength(FGLJointNodes, 0);
+  SetLength(FGLJointEndNodes, 0);
   SetLength(FGLJointLinks, 0);
   SetLength(FGLJointSpheres, 0);
   SetLength(FGLJointPlateA, 0);
@@ -1832,6 +2101,8 @@ var
   I: Integer;
   Joint: TAI_Arm_robotJoint;
   JointNode, NextNode: TGLDummyCube;
+  ParentNode: TGLBaseSceneObject;
+  ParentIdx, WristIdx: Integer;
   Link: TGLCylinder;
   Sphere: TGLSphere;
   PlateA, PlateB, ServoBody: TGLCube;
@@ -1901,6 +2172,7 @@ begin
   end;
 
   SetLength(FGLJointNodes, FArm.JointCount);
+  SetLength(FGLJointEndNodes, FArm.JointCount);
   SetLength(FGLJointLinks, FArm.JointCount);
   SetLength(FGLJointSpheres, FArm.JointCount);
   SetLength(FGLJointPlateA, FArm.JointCount);
@@ -1908,13 +2180,31 @@ begin
   SetLength(FGLServoBodies, FArm.JointCount);
   SetLength(FAppliedAngles, FArm.JointCount);
 
-  JointNode := TGLDummyCube.CreateAsChild(Pedestal);
-  JointNode.Position.SetPoint(0, Pedestal.Height * 0.5, 0);
   PhotoStyle := SameText(FModelStyle, 'sg90_printed');
 
   for I := 0 to FArm.JointCount - 1 do
   begin
     Joint := FArm.Joints[I];
+    if Trim(Joint.Parent) <> '' then
+      ParentIdx := FArm.IndexOfJointName(Joint.Parent)
+    else if I > 0 then
+      ParentIdx := I - 1
+    else
+      ParentIdx := -1;
+
+    if (ParentIdx >= 0) and (ParentIdx < I) then
+      ParentNode := FGLJointEndNodes[ParentIdx]
+    else if I > 0 then
+      ParentNode := FGLJointEndNodes[I - 1]
+    else
+      ParentNode := Pedestal;
+
+    JointNode := TGLDummyCube.CreateAsChild(ParentNode);
+    if ParentIdx < 0 then
+      JointNode.Position.SetPoint(Joint.OffsetX, Pedestal.Height * 0.5 + Joint.OffsetY, Joint.OffsetZ)
+    else
+      JointNode.Position.SetPoint(Joint.OffsetX, Joint.OffsetY, Joint.OffsetZ);
+
     FAppliedAngles[I] := 0;
     FGLJointNodes[I] := JointNode;
     JointNode.Name := Format('EIXO_%d', [I]);
@@ -1928,7 +2218,7 @@ begin
       Sphere.Radius := Max(0.2, FJointRadius);
     Sphere.Slices := 16;
     Sphere.Stacks := 16;
-    Sphere.Visible := Joint.Visible;
+    Sphere.Visible := Joint.Visible and not IsGripperJawA(Joint) and not IsGripperJawB(Joint);
     FGLJointSpheres[I] := Sphere;
 
     Link := TGLCylinder.CreateAsChild(JointNode);
@@ -1943,7 +2233,8 @@ begin
     Link.Stacks := 1;
     Link.Position.SetPoint(0, Link.Height * 0.5, 0);
     Link.Visible := (not PhotoStyle) and Joint.Visible and
-      (not Joint.IsBase) and (Joint.Length > 0.001);
+      (not Joint.IsBase) and (Joint.Length > 0.001) and
+      not IsGripperJawA(Joint) and not IsGripperJawB(Joint);
     FGLJointLinks[I] := Link;
 
     PlateA := TGLCube.CreateAsChild(JointNode);
@@ -1953,7 +2244,7 @@ begin
     PlateA.CubeDepth := Max(0.05, FLinkDepth);
     PlateA.Position.SetPoint(0, PlateA.CubeHeight * 0.5, -FLinkSpacing * 0.5);
     PlateA.Visible := PhotoStyle and Joint.Visible and
-      (I < FArm.JointCount - 1) and (Joint.Length > 0.001);
+      (Joint.Length > 0.001) and not IsGripperJawA(Joint) and not IsGripperJawB(Joint);
     FGLJointPlateA[I] := PlateA;
 
     PlateB := TGLCube.CreateAsChild(JointNode);
@@ -1971,20 +2262,80 @@ begin
     ServoBody.CubeHeight := Max(0.2, FServoHeight);
     ServoBody.CubeDepth := Max(0.2, FServoDepth);
     ServoBody.Position.SetPoint(0, FServoHeight * 0.15, 0);
-    ServoBody.Visible := PhotoStyle and Joint.Visible;
+    ServoBody.Visible := PhotoStyle and Joint.Visible and
+      not IsGripperJawA(Joint) and not IsGripperJawB(Joint);
     FGLServoBodies[I] := ServoBody;
 
-    if I < High(FGLJointNodes) then
+    NextNode := TGLDummyCube.CreateAsChild(JointNode);
+    NextNode.Name := Format('FIM_%d', [I]);
+    NextNode.Position.SetPoint(0, Max(0.0, Joint.Length), 0);
+    FGLJointEndNodes[I] := NextNode;
+
+    if IsGripperJawA(Joint) then
     begin
-      NextNode := TGLDummyCube.CreateAsChild(JointNode);
-      NextNode.Position.SetPoint(0, Max(0.0, Joint.Length), 0);
-      JointNode := NextNode;
+      FGLGripperJawA := TGLCube.CreateAsChild(JointNode);
+      FGLGripperJawA.Name := 'GARRA_MANDIBULA_A';
+      FGLGripperJawA.CubeWidth := 0.55;
+      FGLGripperJawA.CubeHeight := Max(0.8, FGripperLength);
+      FGLGripperJawA.CubeDepth := Max(0.3, FServoDepth * 0.7);
+      FGLGripperJawA.Position.SetPoint(0, Max(0.8, FGripperLength) * 0.5, 0);
+      FGLGripperJawA.Visible := Joint.Visible;
+    end
+    else if IsGripperJawB(Joint) then
+    begin
+      FGLGripperJawB := TGLCube.CreateAsChild(JointNode);
+      FGLGripperJawB.Name := 'GARRA_MANDIBULA_B';
+      FGLGripperJawB.CubeWidth := 0.55;
+      FGLGripperJawB.CubeHeight := Max(0.8, FGripperLength);
+      FGLGripperJawB.CubeDepth := Max(0.3, FServoDepth * 0.7);
+      FGLGripperJawB.Position.SetPoint(0, Max(0.8, FGripperLength) * 0.5, 0);
+      FGLGripperJawB.Visible := Joint.Visible;
     end;
   end;
 
   if PhotoStyle and (FArm.JointCount > 0) then
   begin
-    JointNode := FGLJointNodes[FArm.JointCount - 1];
+    WristIdx := -1;
+    for I := 0 to FArm.JointCount - 1 do
+    begin
+      if IsGripperJawA(FArm.Joints[I]) then
+      begin
+        WristIdx := FArm.IndexOfJointName(FArm.Joints[I].Parent);
+        Break;
+      end;
+    end;
+    if WristIdx < 0 then
+      WristIdx := FArm.JointCount - 3; // Fallback to index 4 in a 7-axis arm
+
+    if (WristIdx >= 0) and (WristIdx < FArm.JointCount) then
+    begin
+      JointNode := FGLJointEndNodes[WristIdx];
+
+      // Draw the common wrist sphere at the end of the wrist joint!
+      Sphere := TGLSphere.CreateAsChild(JointNode);
+      Sphere.Name := 'GARRA_ESFERA_COMUM';
+      if FArm.Joints[WristIdx].JointRadius > 0 then
+        Sphere.Radius := Max(0.1, FArm.Joints[WristIdx].JointRadius)
+      else
+        Sphere.Radius := Max(0.2, FJointRadius);
+      Sphere.Slices := 16;
+      Sphere.Stacks := 16;
+      Sphere.Visible := FArm.Joints[WristIdx].Visible;
+
+      // Draw the common palm base
+      FGLGripperPalm := TGLCube.CreateAsChild(JointNode);
+      FGLGripperPalm.Name := 'GARRA_BASE';
+      FGLGripperPalm.CubeWidth := Max(0.5, FGripperWidth);
+      FGLGripperPalm.CubeHeight := 0.4;
+      FGLGripperPalm.CubeDepth := Max(0.4, FServoDepth * 1.25);
+      FGLGripperPalm.Position.SetPoint(0, 0.35, 0);
+      FGLGripperPalm.Visible := PhotoStyle and FArm.Joints[WristIdx].Visible;
+    end;
+  end;
+
+  if PhotoStyle and (FArm.JointCount > 0) and not Assigned(FGLGripperPalm) then
+  begin
+    JointNode := FGLJointNodes[FArm.JointCount - 1]; // Use start node of joint 5 (the sphere)
 
     FGLGripperPalm := TGLCube.CreateAsChild(JointNode);
     FGLGripperPalm.Name := 'GARRA_BASE';
@@ -1993,21 +2344,27 @@ begin
     FGLGripperPalm.CubeDepth := Max(0.4, FServoDepth * 1.25);
     FGLGripperPalm.Position.SetPoint(0, 0.35, 0);
 
-    FGLGripperJawA := TGLCube.CreateAsChild(JointNode);
+    FGLGripperJawA_Pivot := TGLDummyCube.CreateAsChild(JointNode);
+    FGLGripperJawA_Pivot.Name := 'GARRA_MANDIBULA_A_PIVOT';
+    FGLGripperJawA_Pivot.Position.SetPoint(-FGripperWidth * 0.32, 0.35, 0);
+
+    FGLGripperJawA := TGLCube.CreateAsChild(FGLGripperJawA_Pivot);
     FGLGripperJawA.Name := 'GARRA_MANDIBULA_A';
     FGLGripperJawA.CubeWidth := 0.55;
     FGLGripperJawA.CubeHeight := Max(0.8, FGripperLength);
     FGLGripperJawA.CubeDepth := Max(0.3, FServoDepth * 0.7);
-    FGLGripperJawA.Position.SetPoint(-FGripperWidth * 0.32,
-      (FGripperLength * 0.5) + 0.4, 0);
+    FGLGripperJawA.Position.SetPoint(0, Max(0.8, FGripperLength) * 0.5, 0);
 
-    FGLGripperJawB := TGLCube.CreateAsChild(JointNode);
+    FGLGripperJawB_Pivot := TGLDummyCube.CreateAsChild(JointNode);
+    FGLGripperJawB_Pivot.Name := 'GARRA_MANDIBULA_B_PIVOT';
+    FGLGripperJawB_Pivot.Position.SetPoint(FGripperWidth * 0.32, 0.35, 0);
+
+    FGLGripperJawB := TGLCube.CreateAsChild(FGLGripperJawB_Pivot);
     FGLGripperJawB.Name := 'GARRA_MANDIBULA_B';
     FGLGripperJawB.CubeWidth := FGLGripperJawA.CubeWidth;
     FGLGripperJawB.CubeHeight := FGLGripperJawA.CubeHeight;
     FGLGripperJawB.CubeDepth := FGLGripperJawA.CubeDepth;
-    FGLGripperJawB.Position.SetPoint(FGripperWidth * 0.32,
-      (FGripperLength * 0.5) + 0.4, 0);
+    FGLGripperJawB.Position.SetPoint(0, Max(0.8, FGripperLength) * 0.5, 0);
   end;
 
   ApplyAppearance;
@@ -2020,7 +2377,7 @@ var
   I: Integer;
   Joint: TAI_Arm_robotJoint;
   AxisLocal, AxisGL: TAIArmVector3;
-  Delta: Double;
+  Delta, LDelta: Double;
   MoveNode: TGLDummyCube;
 begin
   if (FArm = nil) or not FSceneReady or (Length(FGLJointNodes) = 0) then
@@ -2061,18 +2418,56 @@ begin
       end
       else if IsGripperJoint(Joint, I, FArm.JointCount) and Assigned(FGLGripperJawA) then
       begin
-        FGLGripperJawA.Roll(-Delta);
-        FGLGripperJawB.Roll(Delta);
+        if Assigned(FGLGripperJawA_Pivot) and Assigned(FGLGripperJawB_Pivot) then
+        begin
+          if SameText(Joint.AngleValue, 'Inverter') or SameText(Joint.AngleValue, 'Inverted') then
+          begin
+            FGLGripperJawA_Pivot.Roll(Delta);
+            FGLGripperJawB_Pivot.Roll(-Delta);
+          end
+          else
+          begin
+            FGLGripperJawA_Pivot.Roll(-Delta);
+            FGLGripperJawB_Pivot.Roll(Delta);
+          end;
+        end
+        else
+        begin
+          if SameText(Joint.AngleValue, 'Inverter') or SameText(Joint.AngleValue, 'Inverted') then
+          begin
+            FGLGripperJawA.Roll(Delta);
+            FGLGripperJawB.Roll(-Delta);
+          end
+          else
+          begin
+            FGLGripperJawA.Roll(-Delta);
+            FGLGripperJawB.Roll(Delta);
+          end;
+        end;
       end
       else
-        FGLJointNodes[I].RotateAbsolute(
-          AffineVectorMake(AxisGL.X, AxisGL.Y, AxisGL.Z), Delta);
+      begin
+        LDelta := Delta;
+        if SameText(Joint.AngleValue, 'Inverter') or SameText(Joint.AngleValue, 'Inverted') then
+          LDelta := -Delta;
+        if Abs(AxisLocal.X) > 0.5 then
+          FGLJointNodes[I].Pitch(LDelta)
+        else if Abs(AxisLocal.Y) > 0.5 then
+          FGLJointNodes[I].Turn(LDelta)
+        else
+          FGLJointNodes[I].Roll(LDelta);
+      end;
     end;
     FAppliedAngles[I] := Joint.AngleDeg;
   end;
 
   if Assigned(FGLSceneViewer) then
     FGLSceneViewer.Invalidate;
+end;
+
+procedure TAI_Arm_robotViewer.Render;
+begin
+  BuildScene;
 end;
 
 procedure TAI_Arm_robotViewer.SetBackgroundColor(AValue: TColor);
