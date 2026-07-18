@@ -4,7 +4,7 @@ This sample shows the `AI_Arm_robot` component in the `AI Industrial` tab.
 
 ## What it does
 - Loads a 6-axis arm preset based on the SG90 arm you described.
-- Lets you adjust each angular or prismatic joint with sliders.
+- The joint controls are automatically generated and managed by the `TAI_ARM_RobotControl` component (simply set its `Arm` and `Container` properties). Loading or reloading a JSON model with a different number of axes automatically reconstructs the control rows and sliders.
 - Solves inverse kinematics from a target `X, Y, Z` point.
 - Renders the arm with the `TAI_Arm_robotViewer` component.
 

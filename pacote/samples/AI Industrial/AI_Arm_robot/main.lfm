@@ -250,11 +250,18 @@ object frmMain: TfrmMain
       ShowJointLabels = True
     end
   end
-  object FControl: TAI_Arm_robotControl
+  object FArm: TAI_Arm_robot
+    Left = 350
+    Top = 10
+  end
+  object FControl: TAI_ARM_RobotControl
+    Arm = FArm
+    Container = FJointsScroll
     Left = 400
     Top = 10
   end
   object FPosition: TAI_Arm_robotPosition
+    Arm = FArm
     OnSolved = PositionSolved
     OnFailed = PositionFailed
     Left = 450

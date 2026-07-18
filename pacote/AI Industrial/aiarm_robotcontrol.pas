@@ -1,6 +1,6 @@
 unit aiarm_robotcontrol;
 
-{ TAI_Arm_robotControl
+{ TAI_ARM_RobotControl
   ---------------------------------------------------------------------------
   Componente nao-visual que cria e mantem, dentro de um container (ex.: um
   TScrollBox como o FJointsScroll do sample), uma linha de controle por junta
@@ -8,7 +8,7 @@ unit aiarm_robotcontrol;
 
   Uso minimo (substitui MakeJointRow/JointChanged do sample):
 
-    FControl := TAI_Arm_robotControl.Create(Self);
+    FControl := TAI_ARM_RobotControl.Create(Self);
     FControl.Container := FJointsScroll;
     FControl.Arm := FArm;          // ao setar o segundo, ele monta tudo sozinho
 
@@ -34,9 +34,9 @@ uses
 
 type
 
-  { TAI_Arm_robotControlRow }
+  { TAI_ARM_RobotControlRow }
 
-  TAI_Arm_robotControlRow = record
+  TAI_ARM_RobotControlRow = record
     Panel: TPanel;
     Title: TLabel;
     Info: TLabel;
@@ -44,13 +44,13 @@ type
     Track: TTrackBar;
   end;
 
-  { TAI_Arm_robotControl }
+  { TAI_ARM_RobotControl }
 
-  TAI_Arm_robotControl = class(TComponent)
+  TAI_ARM_RobotControl = class(TComponent)
   private
     FArm: TAI_Arm_robot;
     FContainer: TWinControl;
-    FRows: array of TAI_Arm_robotControlRow;
+    FRows: array of TAI_ARM_RobotControlRow;
     FPrevOnChange: TAI_Arm_robotChangeEvent;
     FUpdating: Boolean;
     FRowHeight: Integer;
@@ -101,12 +101,12 @@ uses
 
 procedure Register;
 begin
-  RegisterComponents('AI Industrial', [TAI_Arm_robotControl]);
+  RegisterComponents('AI Industrial', [TAI_ARM_RobotControl]);
 end;
 
-{ TAI_Arm_robotControl }
+{ TAI_ARM_RobotControl }
 
-constructor TAI_Arm_robotControl.Create(AOwner: TComponent);
+constructor TAI_ARM_RobotControl.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FRowHeight := 84;
@@ -119,14 +119,14 @@ begin
   FPrevOnChange := nil;
 end;
 
-destructor TAI_Arm_robotControl.Destroy;
+destructor TAI_ARM_RobotControl.Destroy;
 begin
   UnhookArm;
   ClearRows;
   inherited Destroy;
 end;
 
-procedure TAI_Arm_robotControl.SetArm(AValue: TAI_Arm_robot);
+procedure TAI_ARM_RobotControl.SetArm(AValue: TAI_Arm_robot);
 begin
   if FArm = AValue then Exit;
   UnhookArm;
@@ -141,7 +141,7 @@ begin
   Rebuild;
 end;
 
-procedure TAI_Arm_robotControl.SetContainer(AValue: TWinControl);
+procedure TAI_ARM_RobotControl.SetContainer(AValue: TWinControl);
 begin
   if FContainer = AValue then Exit;
   { Linhas antigas pertencem ao container antigo: limpar antes de trocar. }
@@ -154,7 +154,7 @@ begin
   Rebuild;
 end;
 
-procedure TAI_Arm_robotControl.HookArm;
+procedure TAI_ARM_RobotControl.HookArm;
 begin
   if FArm = nil then Exit;
   { Encadeia sem apagar o handler que o form ja tenha instalado. Guarda-se
@@ -166,7 +166,7 @@ begin
   end;
 end;
 
-procedure TAI_Arm_robotControl.UnhookArm;
+procedure TAI_ARM_RobotControl.UnhookArm;
 begin
   if FArm = nil then Exit;
   { So restaura se o handler atual ainda for o nosso; se o form trocou por
@@ -176,7 +176,7 @@ begin
   FPrevOnChange := nil;
 end;
 
-procedure TAI_Arm_robotControl.Notification(AComponent: TComponent;
+procedure TAI_ARM_RobotControl.Notification(AComponent: TComponent;
   Operation: TOperation);
 begin
   inherited Notification(AComponent, Operation);
@@ -198,7 +198,7 @@ begin
   end;
 end;
 
-procedure TAI_Arm_robotControl.ArmChanged(Sender: TObject);
+procedure TAI_ARM_RobotControl.ArmChanged(Sender: TObject);
 begin
   { Primeiro o handler original do form (logs, status etc.). }
   if Assigned(FPrevOnChange) then
@@ -210,7 +210,7 @@ begin
     RefreshValues;
 end;
 
-procedure TAI_Arm_robotControl.TrackChanged(Sender: TObject);
+procedure TAI_ARM_RobotControl.TrackChanged(Sender: TObject);
 var
   Track: TTrackBar;
   Idx: Integer;
@@ -224,7 +224,7 @@ begin
   { O setter da junta dispara o OnChange do braco -> ArmChanged -> Refresh. }
 end;
 
-procedure TAI_Arm_robotControl.ClearRows;
+procedure TAI_ARM_RobotControl.ClearRows;
 var
   I: Integer;
 begin
@@ -234,7 +234,7 @@ begin
   SetLength(FRows, 0);
 end;
 
-function TAI_Arm_robotControl.JointIsLinear(
+function TAI_ARM_RobotControl.JointIsLinear(
   const AJoint: TAI_Arm_robotJoint): Boolean;
 begin
   Result := SameText(AJoint.JointType, 'prismatic') or
@@ -242,17 +242,17 @@ begin
             SameText(AJoint.JointType, 'prismatica');
 end;
 
-function TAI_Arm_robotControl.RowWidth: Integer;
+function TAI_ARM_RobotControl.RowWidth: Integer;
 begin
   Result := 320;
   if Assigned(FContainer) then
     Result := Max(320, FContainer.ClientWidth - 2 * FRowSpacing - 16);
 end;
 
-procedure TAI_Arm_robotControl.BuildRow(const AIndex: Integer);
+procedure TAI_ARM_RobotControl.BuildRow(const AIndex: Integer);
 var
   Joint: TAI_Arm_robotJoint;
-  Row: TAI_Arm_robotControlRow;
+  Row: TAI_ARM_RobotControlRow;
   TopPos: Integer;
 begin
   Joint := FArm.Joints[AIndex];
@@ -317,7 +317,7 @@ begin
   FRows[AIndex] := Row;
 end;
 
-procedure TAI_Arm_robotControl.Rebuild;
+procedure TAI_ARM_RobotControl.Rebuild;
 var
   I: Integer;
 begin
@@ -339,7 +339,7 @@ begin
     FOnRowsRebuilt(Self);
 end;
 
-procedure TAI_Arm_robotControl.RefreshValues;
+procedure TAI_ARM_RobotControl.RefreshValues;
 var
   I: Integer;
   Joint: TAI_Arm_robotJoint;

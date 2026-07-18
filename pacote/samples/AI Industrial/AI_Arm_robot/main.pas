@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Math, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  StdCtrls, ComCtrls, aiarm_robot;
+  StdCtrls, ComCtrls, aiarm_robot, aiarm_robotcontrol;
 
 type
   { TfrmMain }
@@ -40,7 +40,7 @@ type
     FBtnExport: TButton;
     FZoomTrack: TTrackBar;
     FModelCombo: TComboBox;
-    FControl: TAI_Arm_robotControl;
+    FControl: TAI_ARM_RobotControl;
     FPosition: TAI_Arm_robotPosition;
     { Eventos referenciados pelo .lfm. Também precisam ser published. }
     procedure FormCreate(Sender: TObject);
@@ -89,9 +89,7 @@ end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
-  { FArm pertence ao form (criado pelo .lfm), mas liberar aqui e' seguro:
-    FreeAndNil zera a referencia e evita free duplo na destruicao do owner. }
-  FreeAndNil(FArm);
+  FreeAndNil(FControl);
 end;
 
 procedure TfrmMain.BuildUI;
@@ -275,19 +273,23 @@ var
 begin
   if FArm = nil then
     FArm := TAI_Arm_robot.Create(Self);
-  FArm.OnChange := @ModelChanged;
 
-  if FControl = nil then
+  if FControl <> nil then
   begin
-    FControl := TAI_Arm_robotControl.Create(Self);
-    FControl.Container := FJointsScroll;
-  end;
+    FControl.Arm := nil;
+    FArm.OnChange := @ModelChanged;
+    FControl.Arm := FArm;
+  end
+  else
+    FArm.OnChange := @ModelChanged;
+
   if FPosition = nil then
   begin
     FPosition := TAI_Arm_robotPosition.Create(Self);
     FPosition.OnSolved := @PositionSolved;
     FPosition.OnFailed := @PositionFailed;
   end;
+  FPosition.Arm := FArm;
 
   FUpdatingUI := True;
   try
@@ -317,9 +319,6 @@ begin
     FArm.UpdatePromptFromJoints;
     ApplyModelVisualToViewer;
     FArm.GraphicComponent := FViewer;
-
-    FControl.Arm := FArm;
-    FPosition.Arm := FArm;
   finally
     FUpdatingUI := False;
   end;

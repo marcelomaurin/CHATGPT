@@ -55,7 +55,7 @@ implementation
 procedure Register;
 begin
   RegisterComponents('AI Automation', [TAIIndustrialBridge]);
-  RegisterComponents('AI Industrial', [TAI_Arm_robotControl, TAI_Arm_robotPosition]);
+  RegisterComponents('AI Industrial', [TAI_Arm_robotPosition]);
 end;
 
 { TAIIndustrialBridge }

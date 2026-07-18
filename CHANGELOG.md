@@ -5,6 +5,7 @@ Todas as alterações relevantes para a suíte de componentes Lazarus AI Suite s
 ## [1.10.0] - 2026-06-10
 
 ### Adicionado
+- Novo componente `TAI_ARM_RobotControl` + sample atualizado para usá-lo.
 - **Runtimes Python Embutidos**: Suporte para carregar interpretador portátil 32-bits e 64-bits (Python 3.12.6) a partir de `runtime/python/libs/windows` de forma transparente.
 - **Amostras de Imagens de Alta Confiança**: Adição de 7 novas imagens JPG (`banana.jpg`, `coffee_mug.jpg`, `soccer_ball.jpg`, `goldfish.jpg`, `zebra.jpg`, `school_bus.jpg`, `sports_car.jpg`) facilitando o teste e validação do modelo com ImageNet.
 - **Screenshots e Documentação**: Atualização do `README.md` com avisos de compatibilidade 64-bits (requisitada pelo TensorFlow) e inclusão da captura de tela `cnn_classifier_complete_demo.jpg`.
