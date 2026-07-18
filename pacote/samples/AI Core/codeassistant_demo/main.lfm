@@ -3,89 +3,303 @@ object frmMain: TfrmMain
   Height = 600
   Top = 150
   Width = 800
-  Align = alClient
   Caption = 'Codeassistant Demo (aicodeassistant)'
   ClientHeight = 600
   ClientWidth = 800
   LCLVersion = '4.4.0.0'
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  object pnlTop: TPanel
+  object pgcMain: TPageControl
     Left = 10
-    Height = 158
+    Height = 580
     Top = 10
     Width = 780
-    Align = alTop
-    BorderSpacing.Around = 10
-    ClientHeight = 158
-    ClientWidth = 780
-    TabOrder = 0
-    object lblTitle: TLabel
-      Left = 15
-      Height = 25
-      Top = 15
-      Width = 321
-      Caption = 'Codeassistant Demo (aicodeassistant)'
-      Font.Height = -18
-      Font.Name = 'Segoe UI'
-      Font.Style = [fsBold]
-      ParentColor = False
-      ParentFont = False
-    end
-    object lblStatus: TLabel
-      Left = 15
-      Height = 15
-      Top = 50
-      Width = 70
-      Caption = 'Status: Ready'
-      ParentColor = False
-    end
-    object btnRun: TButton
-      Left = 200
-      Height = 30
-      Top = 75
-      Width = 150
-      Caption = 'Execute Test'
-      TabOrder = 1
-      OnClick = btnRunClick
-    end
-    object btnClearLog: TButton
-      Left = 360
-      Height = 30
-      Top = 75
-      Width = 120
-      Caption = 'Clear Log'
-      TabOrder = 0
-      OnClick = btnClearLogClick
-    end
-  end
-  object pnTop: TPanel
-    Left = 0
-    Height = 190
-    Top = 178
-    Width = 800
-    Align = alTop
-    Caption = 'pnTop'
-    ClientHeight = 190
-    ClientWidth = 800
-    TabOrder = 1
-    object memoLog: TMemo
-      Left = 11
-      Height = 168
-      Top = 11
-      Width = 778
-      Align = alClient
-      BorderSpacing.Around = 10
-      ScrollBars = ssAutoBoth
-      TabOrder = 0
-    end
-  end
-  object pnBotton: TPanel
-    Left = 0
-    Height = 232
-    Top = 368
-    Width = 800
+    ActivePage = tsOperation
     Align = alClient
-    TabOrder = 2
+    BorderSpacing.Around = 10
+    TabIndex = 1
+    TabOrder = 0
+    object tsSetup: TTabSheet
+      Caption = 'Setup'
+      ClientHeight = 552
+      ClientWidth = 772
+      object lblTitle: TLabel
+        Left = 15
+        Height = 25
+        Top = 15
+        Width = 321
+        Caption = 'Codeassistant Demo (aicodeassistant)'
+        Font.Height = -18
+        Font.Name = 'Segoe UI'
+        Font.Style = [fsBold]
+        ParentColor = False
+        ParentFont = False
+      end
+      object lblStatus: TLabel
+        Left = 15
+        Height = 15
+        Top = 50
+        Width = 70
+        Caption = 'Status: Ready'
+        ParentColor = False
+      end
+      object lblProvider: TLabel
+        Left = 15
+        Height = 15
+        Top = 85
+        Width = 47
+        Caption = 'Provider:'
+        ParentColor = False
+      end
+      object cbProvider: TComboBox
+        Left = 110
+        Height = 23
+        Top = 80
+        Width = 150
+        ItemHeight = 15
+        Items.Strings = (
+          'OpenAI'
+          'OpenRouter'
+          'Cerebras'
+          'Ollama'
+          'Gemini'
+          'Claude'
+          'LM Studio'
+          'Local HTTP'
+        )
+        Style = csDropDownList
+        TabOrder = 0
+        OnChange = cbProviderChange
+      end
+      object lblModel: TLabel
+        Left = 15
+        Height = 15
+        Top = 120
+        Width = 37
+        Caption = 'Model:'
+        ParentColor = False
+      end
+      object cbModel: TComboBox
+        Left = 110
+        Height = 23
+        Top = 115
+        Width = 200
+        ItemHeight = 15
+        TabOrder = 1
+      end
+      object lblCustomModel: TLabel
+        Left = 15
+        Height = 15
+        Top = 155
+        Width = 82
+        Caption = 'Custom Model:'
+        ParentColor = False
+      end
+      object edtCustomModel: TEdit
+        Left = 110
+        Height = 23
+        Top = 150
+        Width = 200
+        TabOrder = 2
+      end
+      object lblToken: TLabel
+        Left = 15
+        Height = 15
+        Top = 190
+        Width = 34
+        Caption = 'Token:'
+        ParentColor = False
+      end
+      object edtToken: TEdit
+        Left = 110
+        Height = 23
+        Top = 185
+        Width = 300
+        EchoMode = emPassword
+        PasswordChar = '*'
+        TabOrder = 3
+      end
+      object lblEndpoint: TLabel
+        Left = 15
+        Height = 15
+        Top = 225
+        Width = 45
+        Caption = 'URL / IP:'
+        ParentColor = False
+      end
+      object edtEndpoint: TEdit
+        Left = 110
+        Height = 23
+        Top = 220
+        Width = 300
+        TabOrder = 4
+      end
+      object btnRun: TButton
+        Left = 15
+        Height = 30
+        Top = 265
+        Width = 140
+        Caption = 'Test Connection'
+        TabOrder = 5
+        OnClick = btnRunClick
+      end
+      object btnSave: TButton
+        Left = 170
+        Height = 30
+        Top = 265
+        Width = 140
+        Caption = 'Save Settings'
+        TabOrder = 6
+        OnClick = btnSaveClick
+      end
+    end
+    object tsOperation: TTabSheet
+      Caption = 'Operation'
+      ClientHeight = 552
+      ClientWidth = 772
+      object pnResult: TPanel
+        Left = 0
+        Height = 208
+        Top = 344
+        Width = 772
+        Align = alBottom
+        ClientHeight = 208
+        ClientWidth = 772
+        TabOrder = 0
+        object meAnalise: TMemo
+          Left = 1
+          Height = 206
+          Top = 1
+          Width = 770
+          Align = alClient
+          TabOrder = 0
+        end
+      end
+      object pnMeio: TPanel
+        Left = 0
+        Height = 270
+        Top = 74
+        Width = 772
+        Align = alClient
+        ClientHeight = 270
+        ClientWidth = 772
+        TabOrder = 1
+        object FMemoCode: TMemo
+          Left = 1
+          Height = 268
+          Top = 1
+          Width = 770
+          Align = alClient
+          Lines.Strings = (
+            'procedure TForm1.Button1Click(Sender: TObject)'
+            'begin'
+            '  ShowMessage("Hello World");'
+            'end;'
+          )
+          TabOrder = 0
+        end
+      end
+      object pnTop: TPanel
+        Left = 0
+        Height = 74
+        Top = 0
+        Width = 772
+        Align = alTop
+        ClientHeight = 74
+        ClientWidth = 772
+        TabOrder = 2
+        object lblLang: TLabel
+          Left = 15
+          Height = 15
+          Top = 15
+          Width = 90
+          Caption = 'Target Language:'
+          ParentColor = False
+        end
+        object lblCode: TLabel
+          Left = 15
+          Height = 15
+          Top = 50
+          Width = 70
+          Caption = 'Source Code:'
+          ParentColor = False
+        end
+        object cbScript: TComboBox
+          Left = 120
+          Height = 23
+          Top = 10
+          Width = 200
+          ItemHeight = 15
+          Items.Strings = (
+            'Object Pascal (with bug)'
+            'Python (with bug)'
+            'JavaScript (with bug)'
+            'C++ (with bug)'
+          )
+          Style = csDropDownList
+          TabOrder = 0
+          OnChange = cbScriptChange
+        end
+        object btCheck: TButton
+          Left = 344
+          Height = 36
+          Top = 12
+          Width = 129
+          Caption = 'Check'
+          TabOrder = 1
+          OnClick = btCheckClick
+        end
+      end
+    end
+    object tsLog: TTabSheet
+      Caption = 'Log'
+      ClientHeight = 552
+      ClientWidth = 772
+      object memoLog: TMemo
+        Left = 10
+        Height = 492
+        Top = 10
+        Width = 752
+        Align = alClient
+        BorderSpacing.Around = 10
+        ScrollBars = ssAutoBoth
+        TabOrder = 0
+      end
+      object pnlLogButtons: TPanel
+        Left = 0
+        Height = 40
+        Top = 512
+        Width = 772
+        Align = alBottom
+        BevelOuter = bvNone
+        ClientHeight = 40
+        ClientWidth = 772
+        TabOrder = 1
+        object btnClearLog: TButton
+          Left = 10
+          Height = 30
+          Top = 5
+          Width = 120
+          Caption = 'Clear Log'
+          TabOrder = 0
+          OnClick = btnClearLogClick
+        end
+      end
+    end
+  end
+  object FBackgroundChatGPT: TCHATGPT
+    Prompt = 'VocÃª Ã© um assistente.'
+    Dev = 'Voc'#195#170' '#195#169' um assistente.'
+    TipoChat = VCT_GPT4o
+    Provider = AIP_OPENAI
+    LocalIP = 'http://localhost:11434'
+    MaxTokens = 4096
+    Left = 600
+    Top = 10
+  end
+  object FAICodeAssistant: TAICodeAssistant
+    ChatGPT = FBackgroundChatGPT
+    Left = 704
+    Top = 10
   end
 end
