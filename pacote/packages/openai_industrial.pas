@@ -9,7 +9,7 @@ interface
 
 uses
   aiarduinomodbuspinmap, aimodbus, aimqtt, aiindustrial, aiarm_robot, 
-  aimodbuscommandmap, LazarusPackageIntf;
+  aimodbuscommandmap, aiarm_robotcontrol, LazarusPackageIntf;
 
 implementation
 
@@ -21,6 +21,7 @@ begin
   RegisterUnit('aiindustrial', @aiindustrial.Register);
   RegisterUnit('aiarm_robot', @aiarm_robot.Register);
   RegisterUnit('aimodbuscommandmap', @aimodbuscommandmap.Register);
+  RegisterUnit('aiarm_robotcontrol', @aiarm_robotcontrol.Register);
 end;
 
 initialization

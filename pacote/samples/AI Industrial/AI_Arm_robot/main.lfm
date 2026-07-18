@@ -150,11 +150,27 @@ object frmMain: TfrmMain
           OnClick = ResetClick
           TabOrder = 4
         end
+        object FModelCombo: TComboBox
+          Left = 256
+          Height = 26
+          Top = 92
+          Width = 160
+          ItemHeight = 15
+          ItemIndex = 0
+          Items.Strings = (
+            'AI_Arm_robot.model.json'
+            'AI_Arm_robot.model.4eixos.json'
+            'AI_Arm_robot.model.5eixos.json'
+            'AI_Arm_robot.model.6eixos.json'
+          )
+          Style = csDropDownList
+          TabOrder = 8
+        end
         object FBtnLoad: TButton
           Left = 256
           Height = 30
-          Top = 90
-          Width = 130
+          Top = 126
+          Width = 160
           Caption = 'Recarregar JSON'
           OnClick = LoadClick
           TabOrder = 5
@@ -163,23 +179,23 @@ object frmMain: TfrmMain
           Left = 16
           Height = 30
           Top = 126
-          Width = 150
+          Width = 110
           Caption = 'Exportar JSON'
           OnClick = ExportClick
           TabOrder = 6
         end
         object LabelZoom: TLabel
-          Left = 184
+          Left = 136
           Height = 17
           Top = 136
           Width = 39
           Caption = 'Zoom:'
         end
         object FZoomTrack: TTrackBar
-          Left = 230
+          Left = 175
           Height = 42
           Top = 126
-          Width = 160
+          Width = 75
           Max = 1000
           Min = 10
           Frequency = 25
@@ -233,5 +249,15 @@ object frmMain: TfrmMain
       ShowAxes = True
       ShowJointLabels = True
     end
+  end
+  object FControl: TAI_Arm_robotControl
+    Left = 400
+    Top = 10
+  end
+  object FPosition: TAI_Arm_robotPosition
+    OnSolved = PositionSolved
+    OnFailed = PositionFailed
+    Left = 450
+    Top = 10
   end
 end

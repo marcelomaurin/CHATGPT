@@ -9,7 +9,7 @@ uses
   fpjson, jsonparser,
   GLScene, GLViewer, GLObjects, GLGeomObjects, GLMaterial,
   GLCoordinates, GLCrossPlatform, GLVectorGeometry, GLColor,
-  GLVectorFileObjects;
+  GLVectorFileObjects, ExtCtrls, StdCtrls, ComCtrls;
 
 type
   TAIArmVector3 = record
@@ -20,6 +20,19 @@ type
 
   TAIArmVector3Array = array of TAIArmVector3;
 
+  TAIArmPartType = (
+    aptGenerico,        // desenho atual (fallback / compatibilidade)
+    aptBase,            // pedestal cilíndrico que gira
+    aptSegmentoBraco,   // segmento reto (ombro, cotovelo, antebraço...)
+    aptPunho,           // punho: dobra OU rotação axial, desenho próprio
+    aptPinca,           // pinça: 2 dedos paralelos que deslizam
+    aptGarra            // garra: dedos que abrem em arco (tipo mandíbula)
+  );
+
+function AIArmPartTypeToStr(const AValue: TAIArmPartType): string;
+function StrToAIArmPartType(const AValue: string): TAIArmPartType;
+
+type
   TAI_Arm_robotViewer = class;
 
   { TAI_Arm_robotJoint }
@@ -50,6 +63,18 @@ type
     FOffsetX: Double;
     FOffsetY: Double;
     FOffsetZ: Double;
+    FPartType: TAIArmPartType;
+    FPartAltura: Double;
+    FPartRaio: Double;
+    FPartRaioInterno: Double;
+    FPartLargura: Double;
+    FPartEspessura: Double;
+    FPartMovimento: string;
+    FPartRaioPunho: Double;
+    FPartAberturaMax: Double;
+    FPartComprimentoDedo: Double;
+    FPartLarguraDedo: Double;
+    FPartNumDedos: Integer;
     procedure SetMovimento(const AValue: string);
     procedure SetParent(const AValue: string);
     procedure SetJointType(const AValue: string);
@@ -73,8 +98,21 @@ type
     procedure SetOffsetX(AValue: Double);
     procedure SetOffsetY(AValue: Double);
     procedure SetOffsetZ(AValue: Double);
+    procedure SetPartType(AValue: TAIArmPartType);
+    procedure SetPartAltura(AValue: Double);
+    procedure SetPartRaio(AValue: Double);
+    procedure SetPartRaioInterno(AValue: Double);
+    procedure SetPartLargura(AValue: Double);
+    procedure SetPartEspessura(AValue: Double);
+    procedure SetPartMovimento(const AValue: string);
+    procedure SetPartRaioPunho(AValue: Double);
+    procedure SetPartAberturaMax(AValue: Double);
+    procedure SetPartComprimentoDedo(AValue: Double);
+    procedure SetPartLarguraDedo(AValue: Double);
+    procedure SetPartNumDedos(AValue: Integer);
     procedure NotifyOwnerChanged;
   public
+    constructor Create(ACollection: TCollection); override;
     procedure Assign(Source: TPersistent); override;
   published
     property Name: string read FName write FName;
@@ -108,6 +146,18 @@ type
     property MinValue: Double read FMinAngleDeg write SetMinAngleDeg;
     property MaxValue: Double read FMaxAngleDeg write SetMaxAngleDeg;
     property DefaultValue: Double read FDefaultAngleDeg write SetDefaultAngleDeg;
+    property PartType: TAIArmPartType read FPartType write SetPartType;
+    property PartAltura: Double read FPartAltura write SetPartAltura;
+    property PartRaio: Double read FPartRaio write SetPartRaio;
+    property PartRaioInterno: Double read FPartRaioInterno write SetPartRaioInterno;
+    property PartLargura: Double read FPartLargura write SetPartLargura;
+    property PartEspessura: Double read FPartEspessura write SetPartEspessura;
+    property PartMovimento: string read FPartMovimento write SetPartMovimento;
+    property PartRaioPunho: Double read FPartRaioPunho write SetPartRaioPunho;
+    property PartAberturaMax: Double read FPartAberturaMax write SetPartAberturaMax;
+    property PartComprimentoDedo: Double read FPartComprimentoDedo write SetPartComprimentoDedo;
+    property PartLarguraDedo: Double read FPartLarguraDedo write SetPartLarguraDedo;
+    property PartNumDedos: Integer read FPartNumDedos write SetPartNumDedos;
   end;
 
   { TAI_Arm_robotJoints }
@@ -291,11 +341,19 @@ type
     property ViewGripperLength: Double read FViewGripperLength write FViewGripperLength;
   end;
 
-  { TAI_Arm_robotViewer }
+  TAIArmGLPart = record
+    Node: TGLDummyCube;        // pivô da junta (rotaciona/desloca aqui)
+    EndNode: TGLDummyCube;     // ponta do segmento (pai da próxima junta)
+    Shapes: array of TGLSceneObject; // corpos criados p/ esta peça
+    // referências específicas para animação:
+    JawA, JawB, JawC: TGLSceneObject;   // dedos de pinça/garra (JawC pode ser nil)
+    JawAPivot, JawBPivot, JawCPivot: TGLDummyCube;
+  end;
 
   TAI_Arm_robotViewer = class(TCustomControl)
   private
     FArm: TAI_Arm_robot;
+    FGLParts: array of TAIArmGLPart;
     FGLScene: TGLScene;
     FGLSceneViewer: TGLSceneViewer;
     FGLRoot: TGLDummyCube;
@@ -362,6 +420,13 @@ type
     FSceneReady: Boolean;
     FMouseDownX: Integer;
     FMouseDownY: Integer;
+    procedure BuildPartGenerico(Index: Integer);
+    procedure BuildPartBase(Index: Integer);
+    procedure BuildPartSegmento(Index: Integer);
+    procedure BuildPartPunho(Index: Integer);
+    procedure BuildPartPinca(Index: Integer);
+    procedure BuildPartGarra(Index: Integer);
+    procedure ClearGLParts;
     procedure SetArm(AValue: TAI_Arm_robot);
     procedure SetBackgroundColor(AValue: TColor);
     procedure SetArmColor(AValue: TColor);
@@ -453,6 +518,73 @@ type
     property GripperLength: Double read FGripperLength write FGripperLength;
   end;
 
+  TAI_Arm_robotControlRow = record
+    Panel: TPanel;
+    Title: TLabel;
+    Info: TLabel;
+    Value: TLabel;
+    Track: TTrackBar;
+  end;
+
+  TAI_Arm_robotControl = class(TComponent)
+  private
+    FArm: TAI_Arm_robot;
+    FContainer: TWinControl;
+    FRows: array of TAI_Arm_robotControlRow;
+    FUpdating: Boolean;
+    FRowHeight: Integer;
+    FPanelColor: TColor;
+    FValueColor: TColor;
+    FPrevOnChange: TAI_Arm_robotChangeEvent;
+    procedure SetArm(AValue: TAI_Arm_robot);
+    procedure SetContainer(AValue: TWinControl);
+    procedure ArmChanged(Sender: TObject);
+    procedure TrackChanged(Sender: TObject);
+  protected
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    procedure Rebuild;
+    procedure RefreshValues;
+  published
+    property Arm: TAI_Arm_robot read FArm write SetArm;
+    property Container: TWinControl read FContainer write SetContainer;
+    property RowHeight: Integer read FRowHeight write FRowHeight default 92;
+    property PanelColor: TColor read FPanelColor write FPanelColor;
+    property ValueColor: TColor read FValueColor write FValueColor;
+  end;
+
+  TAI_Arm_robotPositionEvent = procedure(Sender: TObject; const AX, AY, AZ: Double;
+    const ASuccess: Boolean; const AError: string) of object;
+
+  TAI_Arm_robotPosition = class(TComponent)
+  private
+    FArm: TAI_Arm_robot;
+    FTargetX, FTargetY, FTargetZ: Double;
+    FAutoApply: Boolean;
+    FOnSolved: TAI_Arm_robotPositionEvent;
+    FOnFailed: TAI_Arm_robotPositionEvent;
+    procedure SetArm(AValue: TAI_Arm_robot);
+    procedure SetTargetX(AValue: Double);
+    procedure SetTargetY(AValue: Double);
+    procedure SetTargetZ(AValue: Double);
+  protected
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    function MoveTo(const AX, AY, AZ: Double): Boolean;
+    function Solve: Boolean;
+    function LastError: string;
+  published
+    property Arm: TAI_Arm_robot read FArm write SetArm;
+    property TargetX: Double read FTargetX write SetTargetX;
+    property TargetY: Double read FTargetY write SetTargetY;
+    property TargetZ: Double read FTargetZ write SetTargetZ;
+    property AutoApply: Boolean read FAutoApply write FAutoApply default False;
+    property OnSolved: TAI_Arm_robotPositionEvent read FOnSolved write FOnSolved;
+    property OnFailed: TAI_Arm_robotPositionEvent read FOnFailed write FOnFailed;
+  end;
+
 procedure Register;
 
 implementation
@@ -503,6 +635,16 @@ end;
 function IsGripperPart(const AJoint: TAI_Arm_robotJoint; AIndex, ACount: Integer): Boolean;
 begin
   Result := IsGripperJoint(AJoint, AIndex, ACount) or IsGripperJawA(AJoint) or IsGripperJawB(AJoint);
+end;
+
+function JointAffectsPosition(const AJoint: TAI_Arm_robotJoint; AIndex, ACount: Integer): Boolean;
+begin
+  if AJoint.PartType = aptGenerico then
+    Result := not IsGripperPart(AJoint, AIndex, ACount)
+  else
+    Result := not (AJoint.PartType in [aptPinca, aptGarra]);
+  if Result and (AJoint.PartType = aptPunho) and SameText(AJoint.PartMovimento, 'rotacao') then
+    Result := False;
 end;
 
 function V3(const AX, AY, AZ: Double): TAIArmVector3;
@@ -600,6 +742,37 @@ begin
   Result := ArcTan2(CrossDot, DotValue);
 end;
 
+function AIArmPartTypeToStr(const AValue: TAIArmPartType): string;
+begin
+  case AValue of
+    aptBase: Result := 'base';
+    aptSegmentoBraco: Result := 'segmento_braco';
+    aptPunho: Result := 'punho';
+    aptPinca: Result := 'pinca';
+    aptGarra: Result := 'garra';
+    else Result := 'generico';
+  end;
+end;
+
+function StrToAIArmPartType(const AValue: string): TAIArmPartType;
+var
+  S: string;
+begin
+  S := LowerCase(Trim(AValue));
+  if S = 'base' then
+    Result := aptBase
+  else if (S = 'segmento_braco') or (S = 'segmento') or (S = 'braco') or (S = 'arm_segment') then
+    Result := aptSegmentoBraco
+  else if (S = 'punho') or (S = 'wrist') then
+    Result := aptPunho
+  else if (S = 'pinca') or (S = 'pinça') or (S = 'gripper') then
+    Result := aptPinca
+  else if (S = 'garra') or (S = 'claw') then
+    Result := aptGarra
+  else
+    Result := aptGenerico;
+end;
+
 function JsonFloat(const AValue: Double): string;
 var
   FS: TFormatSettings;
@@ -611,7 +784,7 @@ end;
 
 procedure Register;
 begin
-  RegisterComponents('AI Industrial', [TAI_Arm_robot, TAI_Arm_robotViewer]);
+  RegisterComponents('AI Industrial', [TAI_Arm_robot, TAI_Arm_robotViewer, TAI_Arm_robotControl, TAI_Arm_robotPosition]);
 end;
 
 { TAI_Arm_robotJoint }
@@ -792,6 +965,107 @@ begin
   NotifyOwnerChanged;
 end;
 
+constructor TAI_Arm_robotJoint.Create(ACollection: TCollection);
+begin
+  inherited Create(ACollection);
+  FPartType := aptGenerico;
+  FPartAltura := 2.2;
+  FPartRaio := 2.6;
+  FPartRaioInterno := 0.3;
+  FPartLargura := 1.0;
+  FPartEspessura := 0.8;
+  FPartMovimento := 'dobra';
+  FPartRaioPunho := 0.9;
+  FPartAberturaMax := 3.0;
+  FPartComprimentoDedo := 2.8;
+  FPartLarguraDedo := 0.5;
+  FPartNumDedos := 2;
+end;
+
+procedure TAI_Arm_robotJoint.SetPartType(AValue: TAIArmPartType);
+begin
+  if FPartType = AValue then Exit;
+  FPartType := AValue;
+  NotifyOwnerChanged;
+end;
+
+procedure TAI_Arm_robotJoint.SetPartAltura(AValue: Double);
+begin
+  if FPartAltura = AValue then Exit;
+  FPartAltura := AValue;
+  NotifyOwnerChanged;
+end;
+
+procedure TAI_Arm_robotJoint.SetPartRaio(AValue: Double);
+begin
+  if FPartRaio = AValue then Exit;
+  FPartRaio := AValue;
+  NotifyOwnerChanged;
+end;
+
+procedure TAI_Arm_robotJoint.SetPartRaioInterno(AValue: Double);
+begin
+  if FPartRaioInterno = AValue then Exit;
+  FPartRaioInterno := AValue;
+  NotifyOwnerChanged;
+end;
+
+procedure TAI_Arm_robotJoint.SetPartLargura(AValue: Double);
+begin
+  if FPartLargura = AValue then Exit;
+  FPartLargura := AValue;
+  NotifyOwnerChanged;
+end;
+
+procedure TAI_Arm_robotJoint.SetPartEspessura(AValue: Double);
+begin
+  if FPartEspessura = AValue then Exit;
+  FPartEspessura := AValue;
+  NotifyOwnerChanged;
+end;
+
+procedure TAI_Arm_robotJoint.SetPartMovimento(const AValue: string);
+begin
+  if FPartMovimento = AValue then Exit;
+  FPartMovimento := AValue;
+  NotifyOwnerChanged;
+end;
+
+procedure TAI_Arm_robotJoint.SetPartRaioPunho(AValue: Double);
+begin
+  if FPartRaioPunho = AValue then Exit;
+  FPartRaioPunho := AValue;
+  NotifyOwnerChanged;
+end;
+
+procedure TAI_Arm_robotJoint.SetPartAberturaMax(AValue: Double);
+begin
+  if FPartAberturaMax = AValue then Exit;
+  FPartAberturaMax := AValue;
+  NotifyOwnerChanged;
+end;
+
+procedure TAI_Arm_robotJoint.SetPartComprimentoDedo(AValue: Double);
+begin
+  if FPartComprimentoDedo = AValue then Exit;
+  FPartComprimentoDedo := AValue;
+  NotifyOwnerChanged;
+end;
+
+procedure TAI_Arm_robotJoint.SetPartLarguraDedo(AValue: Double);
+begin
+  if FPartLarguraDedo = AValue then Exit;
+  FPartLarguraDedo := AValue;
+  NotifyOwnerChanged;
+end;
+
+procedure TAI_Arm_robotJoint.SetPartNumDedos(AValue: Integer);
+begin
+  if FPartNumDedos = AValue then Exit;
+  FPartNumDedos := AValue;
+  NotifyOwnerChanged;
+end;
+
 procedure TAI_Arm_robotJoint.Assign(Source: TPersistent);
 var
   Src: TAI_Arm_robotJoint;
@@ -820,6 +1094,18 @@ begin
     FLinkRadius := Src.LinkRadius;
     FJointRadius := Src.JointRadius;
     FAngleValue := Src.AngleValue;
+    FPartType := Src.PartType;
+    FPartAltura := Src.PartAltura;
+    FPartRaio := Src.PartRaio;
+    FPartRaioInterno := Src.PartRaioInterno;
+    FPartLargura := Src.PartLargura;
+    FPartEspessura := Src.PartEspessura;
+    FPartMovimento := Src.PartMovimento;
+    FPartRaioPunho := Src.PartRaioPunho;
+    FPartAberturaMax := Src.PartAberturaMax;
+    FPartComprimentoDedo := Src.PartComprimentoDedo;
+    FPartLarguraDedo := Src.PartLarguraDedo;
+    FPartNumDedos := Src.PartNumDedos;
     NotifyOwnerChanged;
   end
   else
@@ -1297,7 +1583,7 @@ var
   RootObj, VisualObj, CameraObj, LightObj, ActorObj: TJSONObject;
   ItemsArr: TJSONArray;
   JointData: TJSONData;
-  JointObj, AxisObj, DirectionObj, OffsetObj: TJSONObject;
+  JointObj, AxisObj, DirectionObj, OffsetObj, GeoObj: TJSONObject;
   I: Integer;
   Joint: TAI_Arm_robotJoint;
   BaseVec, TargetVec, ViewVec: TAIArmVector3;
@@ -1457,6 +1743,39 @@ begin
           Joint.LinkRadius := JsonFloatValue(JointObj, 'link_radius', Joint.LinkRadius);
           Joint.JointRadius := JsonFloatValue(JointObj, 'joint_radius', Joint.JointRadius);
           Joint.AngleValue := JsonStringValue(JointObj, 'angle_value', 'Normal');
+          Joint.PartType := StrToAIArmPartType(JsonStringValue(JointObj, 'part', ''));
+          GeoObj := JsonObjectValue(JointObj, 'geometry');
+          if Assigned(GeoObj) then
+          begin
+            if JsonFloatValue(GeoObj, 'altura', 0) > 0 then
+              Joint.PartAltura := JsonFloatValue(GeoObj, 'altura', Joint.PartAltura);
+            if JsonFloatValue(GeoObj, 'raio', 0) > 0 then
+              Joint.PartRaio := JsonFloatValue(GeoObj, 'raio', Joint.PartRaio);
+            if JsonFloatValue(GeoObj, 'raio_interno', -1) >= 0 then
+              Joint.PartRaioInterno := JsonFloatValue(GeoObj, 'raio_interno', Joint.PartRaioInterno);
+            if JsonFloatValue(GeoObj, 'largura', 0) > 0 then
+              Joint.PartLargura := JsonFloatValue(GeoObj, 'largura', Joint.PartLargura);
+            if JsonFloatValue(GeoObj, 'espessura', 0) > 0 then
+              Joint.PartEspessura := JsonFloatValue(GeoObj, 'espessura', Joint.PartEspessura);
+            Joint.PartMovimento := LowerCase(JsonStringValue(GeoObj, 'tipo_movimento', Joint.PartMovimento));
+            if JsonFloatValue(GeoObj, 'raio_punho', 0) > 0 then
+              Joint.PartRaioPunho := JsonFloatValue(GeoObj, 'raio_punho', Joint.PartRaioPunho);
+            if JsonFloatValue(GeoObj, 'abertura_max', 0) > 0 then
+              Joint.PartAberturaMax := JsonFloatValue(GeoObj, 'abertura_max', Joint.PartAberturaMax);
+            if JsonFloatValue(GeoObj, 'comprimento_dedo', 0) > 0 then
+              Joint.PartComprimentoDedo := JsonFloatValue(GeoObj, 'comprimento_dedo', Joint.PartComprimentoDedo);
+            if JsonFloatValue(GeoObj, 'largura_dedo', 0) > 0 then
+              Joint.PartLarguraDedo := JsonFloatValue(GeoObj, 'largura_dedo', Joint.PartLarguraDedo);
+            if JsonIntValue(GeoObj, 'num_dedos', 0) > 0 then
+              Joint.PartNumDedos := JsonIntValue(GeoObj, 'num_dedos', Joint.PartNumDedos);
+          end;
+
+          // Validações silenciosas
+          if not ((Joint.PartMovimento = 'dobra') or (Joint.PartMovimento = 'rotacao')) then
+            Joint.PartMovimento := 'dobra';
+          if (Joint.PartNumDedos < 2) or (Joint.PartNumDedos > 3) then
+            Joint.PartNumDedos := 2;
+
           OffsetObj := JsonObjectValue(JointObj, 'offset');
           if Assigned(OffsetObj) then
           begin
@@ -1609,7 +1928,7 @@ begin
       AxisWorld := V3(0, 0, 1);
 
     if not IsLinearJoint(Joint.JointType) and
-       not IsGripperPart(Joint, I, FJoints.Count) then
+       JointAffectsPosition(Joint, I, FJoints.Count) then
     begin
       CurX := V3RotateAroundAxis(CurX, AxisWorld, DegToRad(Joint.AngleDeg));
       CurY := V3RotateAroundAxis(CurY, AxisWorld, DegToRad(Joint.AngleDeg));
@@ -1670,7 +1989,7 @@ begin
     if Joint.IsBase then
       Continue;
 
-    if IsGripperPart(Joint, I, FJoints.Count) then
+    if not JointAffectsPosition(Joint, I, FJoints.Count) then
       Continue;
 
     if IsLinearJoint(Joint.JointType) then
@@ -1863,6 +2182,28 @@ begin
     Result += '"link_radius": ' + JsonFloat(Joint.LinkRadius) + ',';
     Result += '"joint_radius": ' + JsonFloat(Joint.JointRadius) + ',';
     Result += '"angle_value": "' + StringReplace(Joint.AngleValue, '"', '\"', [rfReplaceAll]) + '",';
+    Result += '"part": "' + AIArmPartTypeToStr(Joint.PartType) + '",';
+    case Joint.PartType of
+      aptBase:
+        Result += '"geometry": {"altura": ' + JsonFloat(Joint.PartAltura) +
+                  ', "raio": ' + JsonFloat(Joint.PartRaio) +
+                  ', "raio_interno": ' + JsonFloat(Joint.PartRaioInterno) + '},';
+      aptSegmentoBraco:
+        Result += '"geometry": {"largura": ' + JsonFloat(Joint.PartLargura) +
+                  ', "espessura": ' + JsonFloat(Joint.PartEspessura) + '},';
+      aptPunho:
+        Result += '"geometry": {"tipo_movimento": "' + StringReplace(Joint.PartMovimento, '"', '\"', [rfReplaceAll]) + '"' +
+                  ', "raio_punho": ' + JsonFloat(Joint.PartRaioPunho) + '},';
+      aptPinca:
+        Result += '"geometry": {"abertura_max": ' + JsonFloat(Joint.PartAberturaMax) +
+                  ', "comprimento_dedo": ' + JsonFloat(Joint.PartComprimentoDedo) +
+                  ', "largura_dedo": ' + JsonFloat(Joint.PartLarguraDedo) + '},';
+      aptGarra:
+        Result += '"geometry": {"abertura_max": ' + JsonFloat(Joint.PartAberturaMax) +
+                  ', "comprimento_dedo": ' + JsonFloat(Joint.PartComprimentoDedo) +
+                  ', "largura_dedo": ' + JsonFloat(Joint.PartLarguraDedo) +
+                  ', "num_dedos": ' + IntToStr(Joint.PartNumDedos) + '},';
+    end;
     Result += '"offset": {"x": ' + JsonFloat(Joint.OffsetX) + ', "y": ' + JsonFloat(Joint.OffsetY) + ', "z": ' + JsonFloat(Joint.OffsetZ) + '}';
     Result += '}';
   end;
@@ -2012,8 +2353,446 @@ begin
   BuildScene;
 end;
 
+procedure TAI_Arm_robotViewer.ClearGLParts;
+var
+  I, J: Integer;
+begin
+  for I := 0 to High(FGLParts) do
+  begin
+    for J := 0 to High(FGLParts[I].Shapes) do
+      FGLParts[I].Shapes[J] := nil;
+    SetLength(FGLParts[I].Shapes, 0);
+    FGLParts[I].Node := nil;
+    FGLParts[I].EndNode := nil;
+    FGLParts[I].JawA := nil;
+    FGLParts[I].JawB := nil;
+    FGLParts[I].JawC := nil;
+    FGLParts[I].JawAPivot := nil;
+    FGLParts[I].JawBPivot := nil;
+    FGLParts[I].JawCPivot := nil;
+  end;
+  SetLength(FGLParts, 0);
+end;
+
+procedure TAI_Arm_robotViewer.BuildPartBase(Index: Integer);
+var
+  Joint: TAI_Arm_robotJoint;
+  Cyl: TGLCylinder;
+  Ann: TGLAnnulus;
+  Plate: TGLCylinder;
+  PartNode: TGLDummyCube;
+begin
+  Joint := FArm.Joints[Index];
+  PartNode := FGLParts[Index].Node;
+
+  if Joint.PartRaioInterno > 0 then
+  begin
+    Ann := TGLAnnulus.CreateAsChild(PartNode);
+    Ann.Name := Format('BaseAnn_%d', [Index]);
+    Ann.Height := Joint.PartAltura;
+    Ann.BottomRadius := Joint.PartRaio;
+    Ann.TopRadius := Joint.PartRaio;
+    Ann.BottomInnerRadius := Joint.PartRaioInterno;
+    Ann.TopInnerRadius := Joint.PartRaioInterno;
+    Ann.Slices := 32;
+    Ann.Position.SetPoint(0, Joint.PartAltura * 0.5, 0);
+    ApplyObjectColor(Ann, Joint.Color);
+    SetLength(FGLParts[Index].Shapes, 1);
+    FGLParts[Index].Shapes[0] := Ann;
+  end
+  else
+  begin
+    Cyl := TGLCylinder.CreateAsChild(PartNode);
+    Cyl.Name := Format('BaseCyl_%d', [Index]);
+    Cyl.Height := Joint.PartAltura;
+    Cyl.BottomRadius := Joint.PartRaio;
+    Cyl.TopRadius := Joint.PartRaio;
+    Cyl.Slices := 32;
+    Cyl.Position.SetPoint(0, Joint.PartAltura * 0.5, 0);
+    ApplyObjectColor(Cyl, Joint.Color);
+    SetLength(FGLParts[Index].Shapes, 1);
+    FGLParts[Index].Shapes[0] := Cyl;
+  end;
+
+  // plate rotating on top
+  Plate := TGLCylinder.CreateAsChild(PartNode);
+  Plate.Name := Format('BasePlate_%d', [Index]);
+  Plate.Height := 0.1;
+  Plate.BottomRadius := Joint.PartRaio * 1.05;
+  Plate.TopRadius := Joint.PartRaio * 1.05;
+  Plate.Slices := 32;
+  Plate.Position.SetPoint(0, Joint.PartAltura + 0.05, 0);
+  ApplyObjectColor(Plate, FBaseHighlightColor);
+  SetLength(FGLParts[Index].Shapes, Length(FGLParts[Index].Shapes) + 1);
+  FGLParts[Index].Shapes[High(FGLParts[Index].Shapes)] := Plate;
+
+  FGLParts[Index].EndNode.Position.SetPoint(0, Joint.PartAltura, 0);
+end;
+
+procedure TAI_Arm_robotViewer.BuildPartSegmento(Index: Integer);
+var
+  Joint: TAI_Arm_robotJoint;
+  Cube: TGLCube;
+  Sph1, Sph2: TGLSphere;
+  Servo: TGLCube;
+  PartNode: TGLDummyCube;
+begin
+  Joint := FArm.Joints[Index];
+  PartNode := FGLParts[Index].Node;
+
+  Cube := TGLCube.CreateAsChild(PartNode);
+  Cube.Name := Format('SegCube_%d', [Index]);
+  Cube.CubeWidth := Joint.PartLargura;
+  Cube.CubeHeight := Joint.Length;
+  Cube.CubeDepth := Joint.PartEspessura;
+  Cube.Position.SetPoint(0, Joint.Length * 0.5, 0);
+  ApplyObjectColor(Cube, Joint.Color);
+
+  Sph1 := TGLSphere.CreateAsChild(PartNode);
+  Sph1.Name := Format('SegSphStart_%d', [Index]);
+  Sph1.Radius := Joint.JointRadius;
+  Sph1.Position.SetPoint(0, 0, 0);
+  ApplyObjectColor(Sph1, FJointColor);
+
+  Sph2 := TGLSphere.CreateAsChild(PartNode);
+  Sph2.Name := Format('SegSphEnd_%d', [Index]);
+  Sph2.Radius := Joint.JointRadius;
+  Sph2.Position.SetPoint(0, Joint.Length, 0);
+  ApplyObjectColor(Sph2, FJointColor);
+
+  Servo := TGLCube.CreateAsChild(PartNode);
+  Servo.Name := Format('SegServo_%d', [Index]);
+  Servo.CubeWidth := FServoWidth;
+  Servo.CubeHeight := FServoHeight;
+  Servo.CubeDepth := FServoDepth;
+  Servo.Position.SetPoint(0, FServoHeight * 0.5, 0);
+  ApplyObjectColor(Servo, FServoColor);
+
+  SetLength(FGLParts[Index].Shapes, 4);
+  FGLParts[Index].Shapes[0] := Cube;
+  FGLParts[Index].Shapes[1] := Sph1;
+  FGLParts[Index].Shapes[2] := Sph2;
+  FGLParts[Index].Shapes[3] := Servo;
+
+  FGLParts[Index].EndNode.Position.SetPoint(0, Joint.Length, 0);
+end;
+
+procedure TAI_Arm_robotViewer.BuildPartPunho(Index: Integer);
+var
+  Joint: TAI_Arm_robotJoint;
+  Cyl: TGLCylinder;
+  Ann: TGLAnnulus;
+  PartNode: TGLDummyCube;
+begin
+  Joint := FArm.Joints[Index];
+  PartNode := FGLParts[Index].Node;
+
+  Cyl := TGLCylinder.CreateAsChild(PartNode);
+  Cyl.Name := Format('WristCyl_%d', [Index]);
+  Cyl.Height := Joint.PartLargura;
+  Cyl.BottomRadius := Joint.PartRaioPunho;
+  Cyl.TopRadius := Joint.PartRaioPunho;
+  Cyl.Slices := 16;
+  ApplyObjectColor(Cyl, Joint.Color);
+
+  if SameText(Joint.PartMovimento, 'rotacao') then
+  begin
+    Cyl.Position.SetPoint(0, Joint.Length * 0.5, 0);
+    Cyl.Roll(90);
+
+    Ann := TGLAnnulus.CreateAsChild(PartNode);
+    Ann.Name := Format('WristAnn_%d', [Index]);
+    Ann.Height := 0.1;
+    Ann.BottomRadius := Joint.PartRaioPunho * 1.2;
+    Ann.TopRadius := Joint.PartRaioPunho * 1.2;
+    Ann.BottomInnerRadius := Joint.PartRaioPunho * 0.95;
+    Ann.TopInnerRadius := Joint.PartRaioPunho * 0.95;
+    Ann.Position.SetPoint(0, Joint.Length * 0.5, 0);
+    ApplyObjectColor(Ann, FMetalColor);
+
+    SetLength(FGLParts[Index].Shapes, 2);
+    FGLParts[Index].Shapes[0] := Cyl;
+    FGLParts[Index].Shapes[1] := Ann;
+  end
+  else
+  begin
+    Cyl.Position.SetPoint(0, 0, 0);
+    Cyl.Pitch(90);
+
+    SetLength(FGLParts[Index].Shapes, 1);
+    FGLParts[Index].Shapes[0] := Cyl;
+  end;
+
+  FGLParts[Index].EndNode.Position.SetPoint(0, Joint.Length, 0);
+end;
+
+procedure TAI_Arm_robotViewer.BuildPartPinca(Index: Integer);
+var
+  Joint: TAI_Arm_robotJoint;
+  Palma: TGLCube;
+  PartNode: TGLDummyCube;
+  JawAPivot, JawBPivot: TGLDummyCube;
+  JawA, JawB: TGLCube;
+begin
+  Joint := FArm.Joints[Index];
+  PartNode := FGLParts[Index].Node;
+
+  Palma := TGLCube.CreateAsChild(PartNode);
+  Palma.Name := Format('PincaPalma_%d', [Index]);
+  Palma.CubeWidth := Joint.PartLargura;
+  Palma.CubeHeight := 0.8;
+  Palma.CubeDepth := Joint.PartEspessura;
+  Palma.Position.SetPoint(0, 0.4, 0);
+  ApplyObjectColor(Palma, Joint.Color);
+
+  JawAPivot := TGLDummyCube.CreateAsChild(PartNode);
+  JawAPivot.Name := Format('PincaJawAPivot_%d', [Index]);
+  JawAPivot.Position.SetPoint(Joint.PartLargura * 0.5, 0.8, 0);
+
+  JawA := TGLCube.CreateAsChild(JawAPivot);
+  JawA.Name := Format('PincaJawA_%d', [Index]);
+  JawA.CubeWidth := Joint.PartLarguraDedo;
+  JawA.CubeHeight := Joint.PartComprimentoDedo;
+  JawA.CubeDepth := Joint.PartEspessura * 0.8;
+  JawA.Position.SetPoint(0, Joint.PartComprimentoDedo * 0.5, 0);
+  ApplyObjectColor(JawA, FPrintedColor);
+
+  JawBPivot := TGLDummyCube.CreateAsChild(PartNode);
+  JawBPivot.Name := Format('PincaJawBPivot_%d', [Index]);
+  JawBPivot.Position.SetPoint(-Joint.PartLargura * 0.5, 0.8, 0);
+
+  JawB := TGLCube.CreateAsChild(JawBPivot);
+  JawB.Name := Format('PincaJawB_%d', [Index]);
+  JawB.CubeWidth := Joint.PartLarguraDedo;
+  JawB.CubeHeight := Joint.PartComprimentoDedo;
+  JawB.CubeDepth := Joint.PartEspessura * 0.8;
+  JawB.Position.SetPoint(0, Joint.PartComprimentoDedo * 0.5, 0);
+  ApplyObjectColor(JawB, FPrintedColor);
+
+  FGLParts[Index].JawAPivot := JawAPivot;
+  FGLParts[Index].JawBPivot := JawBPivot;
+  FGLParts[Index].JawA := JawA;
+  FGLParts[Index].JawB := JawB;
+
+  SetLength(FGLParts[Index].Shapes, 3);
+  FGLParts[Index].Shapes[0] := Palma;
+  FGLParts[Index].Shapes[1] := JawA;
+  FGLParts[Index].Shapes[2] := JawB;
+
+  FGLParts[Index].EndNode.Position.SetPoint(0, 0.8 + Joint.PartComprimentoDedo, 0);
+end;
+
+procedure TAI_Arm_robotViewer.BuildPartGarra(Index: Integer);
+var
+  Joint: TAI_Arm_robotJoint;
+  Palma: TGLCube;
+  PartNode: TGLDummyCube;
+  JawAPivot, JawBPivot, JawCPivot: TGLDummyCube;
+  JawA1, JawA2, JawB1, JawB2, JawC1, JawC2: TGLCube;
+begin
+  Joint := FArm.Joints[Index];
+  PartNode := FGLParts[Index].Node;
+
+  Palma := TGLCube.CreateAsChild(PartNode);
+  Palma.Name := Format('GarraPalma_%d', [Index]);
+  Palma.CubeWidth := Joint.PartLargura;
+  Palma.CubeHeight := 0.8;
+  Palma.CubeDepth := Joint.PartEspessura;
+  Palma.Position.SetPoint(0, 0.4, 0);
+  ApplyObjectColor(Palma, Joint.Color);
+
+  JawAPivot := TGLDummyCube.CreateAsChild(PartNode);
+  JawAPivot.Name := Format('GarraJawAPivot_%d', [Index]);
+  JawAPivot.Position.SetPoint(Joint.PartLargura * 0.5, 0.8, 0);
+
+  JawA1 := TGLCube.CreateAsChild(JawAPivot);
+  JawA1.Name := Format('GarraJawA1_%d', [Index]);
+  JawA1.CubeWidth := Joint.PartLarguraDedo;
+  JawA1.CubeHeight := Joint.PartComprimentoDedo * 0.6;
+  JawA1.CubeDepth := Joint.PartEspessura * 0.8;
+  JawA1.Position.SetPoint(0, JawA1.CubeHeight * 0.5, 0);
+  ApplyObjectColor(JawA1, FPrintedColor);
+
+  JawA2 := TGLCube.CreateAsChild(JawA1);
+  JawA2.Name := Format('GarraJawA2_%d', [Index]);
+  JawA2.CubeWidth := Joint.PartLarguraDedo;
+  JawA2.CubeHeight := Joint.PartComprimentoDedo * 0.4;
+  JawA2.CubeDepth := Joint.PartEspessura * 0.8;
+  JawA2.Position.SetPoint(0, JawA2.CubeHeight * 0.5, 0);
+  JawA2.Pitch(20);
+  ApplyObjectColor(JawA2, FPrintedColor);
+
+  JawBPivot := TGLDummyCube.CreateAsChild(PartNode);
+  JawBPivot.Name := Format('GarraJawBPivot_%d', [Index]);
+  JawBPivot.Position.SetPoint(-Joint.PartLargura * 0.5, 0.8, 0);
+
+  JawB1 := TGLCube.CreateAsChild(JawBPivot);
+  JawB1.Name := Format('GarraJawB1_%d', [Index]);
+  JawB1.CubeWidth := Joint.PartLarguraDedo;
+  JawB1.CubeHeight := Joint.PartComprimentoDedo * 0.6;
+  JawB1.CubeDepth := Joint.PartEspessura * 0.8;
+  JawB1.Position.SetPoint(0, JawB1.CubeHeight * 0.5, 0);
+  ApplyObjectColor(JawB1, FPrintedColor);
+
+  JawB2 := TGLCube.CreateAsChild(JawB1);
+  JawB2.Name := Format('GarraJawB2_%d', [Index]);
+  JawB2.CubeWidth := Joint.PartLarguraDedo;
+  JawB2.CubeHeight := Joint.PartComprimentoDedo * 0.4;
+  JawB2.CubeDepth := Joint.PartEspessura * 0.8;
+  JawB2.Position.SetPoint(0, JawB2.CubeHeight * 0.5, 0);
+  JawB2.Pitch(-20);
+  ApplyObjectColor(JawB2, FPrintedColor);
+
+  FGLParts[Index].JawAPivot := JawAPivot;
+  FGLParts[Index].JawBPivot := JawBPivot;
+  FGLParts[Index].JawA := JawA1;
+  FGLParts[Index].JawB := JawB1;
+
+  if Joint.PartNumDedos = 3 then
+  begin
+    JawCPivot := TGLDummyCube.CreateAsChild(PartNode);
+    JawCPivot.Name := Format('GarraJawCPivot_%d', [Index]);
+    JawCPivot.Position.SetPoint(0, 0.8, Joint.PartEspessura * 0.5);
+
+    JawC1 := TGLCube.CreateAsChild(JawCPivot);
+    JawC1.Name := Format('GarraJawC1_%d', [Index]);
+    JawC1.CubeWidth := Joint.PartLarguraDedo;
+    JawC1.CubeHeight := Joint.PartComprimentoDedo * 0.6;
+    JawC1.CubeDepth := Joint.PartEspessura * 0.8;
+    JawC1.Position.SetPoint(0, JawC1.CubeHeight * 0.5, 0);
+    ApplyObjectColor(JawC1, FPrintedColor);
+
+    JawC2 := TGLCube.CreateAsChild(JawC1);
+    JawC2.Name := Format('GarraJawC2_%d', [Index]);
+    JawC2.CubeWidth := Joint.PartLarguraDedo;
+    JawC2.CubeHeight := Joint.PartComprimentoDedo * 0.4;
+    JawC2.CubeDepth := Joint.PartEspessura * 0.8;
+    JawC2.Position.SetPoint(0, JawC2.CubeHeight * 0.5, 0);
+    JawC2.Roll(20);
+    ApplyObjectColor(JawC2, FPrintedColor);
+
+    FGLParts[Index].JawCPivot := JawCPivot;
+    FGLParts[Index].JawC := JawC1;
+
+    SetLength(FGLParts[Index].Shapes, 7);
+    FGLParts[Index].Shapes[0] := Palma;
+    FGLParts[Index].Shapes[1] := JawA1;
+    FGLParts[Index].Shapes[2] := JawA2;
+    FGLParts[Index].Shapes[3] := JawB1;
+    FGLParts[Index].Shapes[4] := JawB2;
+    FGLParts[Index].Shapes[5] := JawC1;
+    FGLParts[Index].Shapes[6] := JawC2;
+  end
+  else
+  begin
+    SetLength(FGLParts[Index].Shapes, 5);
+    FGLParts[Index].Shapes[0] := Palma;
+    FGLParts[Index].Shapes[1] := JawA1;
+    FGLParts[Index].Shapes[2] := JawA2;
+    FGLParts[Index].Shapes[3] := JawB1;
+    FGLParts[Index].Shapes[4] := JawB2;
+  end;
+
+  FGLParts[Index].EndNode.Position.SetPoint(0, 0.8 + Joint.PartComprimentoDedo, 0);
+end;
+
+procedure TAI_Arm_robotViewer.BuildPartGenerico(Index: Integer);
+var
+  Joint: TAI_Arm_robotJoint;
+  JointNode, NextNode: TGLDummyCube;
+  Sphere: TGLSphere;
+  Link: TGLCylinder;
+  PlateA, PlateB, ServoBody: TGLCube;
+  PhotoStyle: Boolean;
+begin
+  Joint := FArm.Joints[Index];
+  JointNode := FGLParts[Index].Node;
+  NextNode := FGLParts[Index].EndNode;
+  PhotoStyle := SameText(FModelStyle, 'sg90_printed');
+
+  Sphere := TGLSphere.CreateAsChild(JointNode);
+  Sphere.Name := Format('JUNTA_%d', [Index]);
+  if Joint.JointRadius > 0 then
+    Sphere.Radius := Max(0.1, Joint.JointRadius)
+  else
+    Sphere.Radius := Max(0.2, FJointRadius);
+  Sphere.Slices := 16;
+  Sphere.Stacks := 16;
+  Sphere.Visible := Joint.Visible and not IsGripperJawA(Joint) and not IsGripperJawB(Joint);
+  FGLJointSpheres[Index] := Sphere;
+
+  Link := TGLCylinder.CreateAsChild(JointNode);
+  Link.Name := Format('BRACO_%d', [Index]);
+  if Joint.LinkRadius > 0 then
+    Link.BottomRadius := Max(0.1, Joint.LinkRadius)
+  else
+    Link.BottomRadius := Max(0.1, FLinkThickness * 0.5);
+  Link.TopRadius := Link.BottomRadius;
+  Link.Height := Max(0.05, Joint.Length);
+  Link.Slices := 20;
+  Link.Stacks := 1;
+  Link.Position.SetPoint(0, Link.Height * 0.5, 0);
+  Link.Visible := (not PhotoStyle) and Joint.Visible and
+    (not Joint.IsBase) and (Joint.Length > 0.001) and
+    not IsGripperJawA(Joint) and not IsGripperJawB(Joint);
+  FGLJointLinks[Index] := Link;
+
+  PlateA := TGLCube.CreateAsChild(JointNode);
+  PlateA.Name := Format('PLACA_A_%d', [Index]);
+  PlateA.CubeWidth := Max(0.2, FLinkWidth);
+  PlateA.CubeHeight := Max(0.05, Joint.Length);
+  PlateA.CubeDepth := Max(0.05, FLinkDepth);
+  PlateA.Position.SetPoint(0, PlateA.CubeHeight * 0.5, -FLinkSpacing * 0.5);
+  PlateA.Visible := PhotoStyle and Joint.Visible and
+    (Joint.Length > 0.001) and not IsGripperJawA(Joint) and not IsGripperJawB(Joint);
+  FGLJointPlateA[Index] := PlateA;
+
+  PlateB := TGLCube.CreateAsChild(JointNode);
+  PlateB.Name := Format('PLACA_B_%d', [Index]);
+  PlateB.CubeWidth := PlateA.CubeWidth;
+  PlateB.CubeHeight := PlateA.CubeHeight;
+  PlateB.CubeDepth := PlateA.CubeDepth;
+  PlateB.Position.SetPoint(0, PlateB.CubeHeight * 0.5, FLinkSpacing * 0.5);
+  PlateB.Visible := PlateA.Visible;
+  FGLJointPlateB[Index] := PlateB;
+
+  ServoBody := TGLCube.CreateAsChild(JointNode);
+  ServoBody.Name := Format('SERVO_SG90_%d', [Index]);
+  ServoBody.CubeWidth := Max(0.2, FServoWidth);
+  ServoBody.CubeHeight := Max(0.2, FServoHeight);
+  ServoBody.CubeDepth := Max(0.2, FServoDepth);
+  ServoBody.Position.SetPoint(0, FServoHeight * 0.15, 0);
+  ServoBody.Visible := PhotoStyle and Joint.Visible and
+    not IsGripperJawA(Joint) and not IsGripperJawB(Joint);
+  FGLServoBodies[Index] := ServoBody;
+
+  NextNode.Position.SetPoint(0, Max(0.0, Joint.Length), 0);
+
+  if IsGripperJawA(Joint) then
+  begin
+    FGLGripperJawA := TGLCube.CreateAsChild(JointNode);
+    FGLGripperJawA.Name := 'GARRA_MANDIBULA_A';
+    FGLGripperJawA.CubeWidth := 0.55;
+    FGLGripperJawA.CubeHeight := Max(0.8, FGripperLength);
+    FGLGripperJawA.CubeDepth := Max(0.3, FServoDepth * 0.7);
+    FGLGripperJawA.Position.SetPoint(0, Max(0.8, FGripperLength) * 0.5, 0);
+    FGLGripperJawA.Visible := Joint.Visible;
+  end
+  else if IsGripperJawB(Joint) then
+  begin
+    FGLGripperJawB := TGLCube.CreateAsChild(JointNode);
+    FGLGripperJawB.Name := 'GARRA_MANDIBULA_B';
+    FGLGripperJawB.CubeWidth := 0.55;
+    FGLGripperJawB.CubeHeight := Max(0.8, FGripperLength);
+    FGLGripperJawB.CubeDepth := Max(0.3, FServoDepth * 0.7);
+    FGLGripperJawB.Position.SetPoint(0, Max(0.8, FGripperLength) * 0.5, 0);
+    FGLGripperJawB.Visible := Joint.Visible;
+  end;
+end;
+
 procedure TAI_Arm_robotViewer.ClearScene;
 begin
+  ClearGLParts;
   if Assigned(FGLCamera) then
     FGLCamera.TargetObject := FGLRoot;
   if Assigned(FGLRoot) then
@@ -2179,6 +2958,7 @@ begin
   SetLength(FGLJointPlateB, FArm.JointCount);
   SetLength(FGLServoBodies, FArm.JointCount);
   SetLength(FAppliedAngles, FArm.JointCount);
+  SetLength(FGLParts, FArm.JointCount);
 
   PhotoStyle := SameText(FModelStyle, 'sg90_printed');
 
@@ -2193,9 +2973,9 @@ begin
       ParentIdx := -1;
 
     if (ParentIdx >= 0) and (ParentIdx < I) then
-      ParentNode := FGLJointEndNodes[ParentIdx]
+      ParentNode := FGLParts[ParentIdx].EndNode
     else if I > 0 then
-      ParentNode := FGLJointEndNodes[I - 1]
+      ParentNode := FGLParts[I - 1].EndNode
     else
       ParentNode := Pedestal;
 
@@ -2210,90 +2990,25 @@ begin
     JointNode.Name := Format('EIXO_%d', [I]);
     JointNode.ShowAxes := FShowAxes and (I = 1);
 
-    Sphere := TGLSphere.CreateAsChild(JointNode);
-    Sphere.Name := Format('JUNTA_%d', [I]);
-    if Joint.JointRadius > 0 then
-      Sphere.Radius := Max(0.1, Joint.JointRadius)
-    else
-      Sphere.Radius := Max(0.2, FJointRadius);
-    Sphere.Slices := 16;
-    Sphere.Stacks := 16;
-    Sphere.Visible := Joint.Visible and not IsGripperJawA(Joint) and not IsGripperJawB(Joint);
-    FGLJointSpheres[I] := Sphere;
-
-    Link := TGLCylinder.CreateAsChild(JointNode);
-    Link.Name := Format('BRACO_%d', [I]);
-    if Joint.LinkRadius > 0 then
-      Link.BottomRadius := Max(0.1, Joint.LinkRadius)
-    else
-      Link.BottomRadius := Max(0.1, FLinkThickness * 0.5);
-    Link.TopRadius := Link.BottomRadius;
-    Link.Height := Max(0.05, Joint.Length);
-    Link.Slices := 20;
-    Link.Stacks := 1;
-    Link.Position.SetPoint(0, Link.Height * 0.5, 0);
-    Link.Visible := (not PhotoStyle) and Joint.Visible and
-      (not Joint.IsBase) and (Joint.Length > 0.001) and
-      not IsGripperJawA(Joint) and not IsGripperJawB(Joint);
-    FGLJointLinks[I] := Link;
-
-    PlateA := TGLCube.CreateAsChild(JointNode);
-    PlateA.Name := Format('PLACA_A_%d', [I]);
-    PlateA.CubeWidth := Max(0.2, FLinkWidth);
-    PlateA.CubeHeight := Max(0.05, Joint.Length);
-    PlateA.CubeDepth := Max(0.05, FLinkDepth);
-    PlateA.Position.SetPoint(0, PlateA.CubeHeight * 0.5, -FLinkSpacing * 0.5);
-    PlateA.Visible := PhotoStyle and Joint.Visible and
-      (Joint.Length > 0.001) and not IsGripperJawA(Joint) and not IsGripperJawB(Joint);
-    FGLJointPlateA[I] := PlateA;
-
-    PlateB := TGLCube.CreateAsChild(JointNode);
-    PlateB.Name := Format('PLACA_B_%d', [I]);
-    PlateB.CubeWidth := PlateA.CubeWidth;
-    PlateB.CubeHeight := PlateA.CubeHeight;
-    PlateB.CubeDepth := PlateA.CubeDepth;
-    PlateB.Position.SetPoint(0, PlateB.CubeHeight * 0.5, FLinkSpacing * 0.5);
-    PlateB.Visible := PlateA.Visible;
-    FGLJointPlateB[I] := PlateB;
-
-    ServoBody := TGLCube.CreateAsChild(JointNode);
-    ServoBody.Name := Format('SERVO_SG90_%d', [I]);
-    ServoBody.CubeWidth := Max(0.2, FServoWidth);
-    ServoBody.CubeHeight := Max(0.2, FServoHeight);
-    ServoBody.CubeDepth := Max(0.2, FServoDepth);
-    ServoBody.Position.SetPoint(0, FServoHeight * 0.15, 0);
-    ServoBody.Visible := PhotoStyle and Joint.Visible and
-      not IsGripperJawA(Joint) and not IsGripperJawB(Joint);
-    FGLServoBodies[I] := ServoBody;
-
     NextNode := TGLDummyCube.CreateAsChild(JointNode);
     NextNode.Name := Format('FIM_%d', [I]);
-    NextNode.Position.SetPoint(0, Max(0.0, Joint.Length), 0);
     FGLJointEndNodes[I] := NextNode;
 
-    if IsGripperJawA(Joint) then
-    begin
-      FGLGripperJawA := TGLCube.CreateAsChild(JointNode);
-      FGLGripperJawA.Name := 'GARRA_MANDIBULA_A';
-      FGLGripperJawA.CubeWidth := 0.55;
-      FGLGripperJawA.CubeHeight := Max(0.8, FGripperLength);
-      FGLGripperJawA.CubeDepth := Max(0.3, FServoDepth * 0.7);
-      FGLGripperJawA.Position.SetPoint(0, Max(0.8, FGripperLength) * 0.5, 0);
-      FGLGripperJawA.Visible := Joint.Visible;
-    end
-    else if IsGripperJawB(Joint) then
-    begin
-      FGLGripperJawB := TGLCube.CreateAsChild(JointNode);
-      FGLGripperJawB.Name := 'GARRA_MANDIBULA_B';
-      FGLGripperJawB.CubeWidth := 0.55;
-      FGLGripperJawB.CubeHeight := Max(0.8, FGripperLength);
-      FGLGripperJawB.CubeDepth := Max(0.3, FServoDepth * 0.7);
-      FGLGripperJawB.Position.SetPoint(0, Max(0.8, FGripperLength) * 0.5, 0);
-      FGLGripperJawB.Visible := Joint.Visible;
+    FGLParts[I].Node := JointNode;
+    FGLParts[I].EndNode := NextNode;
+
+    case Joint.PartType of
+      aptBase: BuildPartBase(I);
+      aptSegmentoBraco: BuildPartSegmento(I);
+      aptPunho: BuildPartPunho(I);
+      aptPinca: BuildPartPinca(I);
+      aptGarra: BuildPartGarra(I);
+      else BuildPartGenerico(I);
     end;
   end;
 
-  if PhotoStyle and (FArm.JointCount > 0) then
+  // Legacy gripper drawing if the model doesn't use typed parts for grippers
+  if PhotoStyle and (FArm.JointCount > 0) and (FArm.Joints[FArm.JointCount - 1].PartType = aptGenerico) then
   begin
     WristIdx := -1;
     for I := 0 to FArm.JointCount - 1 do
@@ -2333,7 +3048,7 @@ begin
     end;
   end;
 
-  if PhotoStyle and (FArm.JointCount > 0) and not Assigned(FGLGripperPalm) then
+  if PhotoStyle and (FArm.JointCount > 0) and (FArm.Joints[FArm.JointCount - 1].PartType = aptGenerico) and not Assigned(FGLGripperPalm) then
   begin
     JointNode := FGLJointNodes[FArm.JointCount - 1]; // Use start node of joint 5 (the sphere)
 
@@ -2379,6 +3094,7 @@ var
   AxisLocal, AxisGL: TAIArmVector3;
   Delta, LDelta: Double;
   MoveNode: TGLDummyCube;
+  Abertura, AnguloAbertura: Double;
 begin
   if (FArm = nil) or not FSceneReady or (Length(FGLJointNodes) = 0) then
   begin
@@ -2392,73 +3108,142 @@ begin
     Joint := FArm.Joints[I];
     AxisLocal := V3(Joint.AxisX, Joint.AxisY, Joint.AxisZ);
     AxisGL := V3Normalize(V3(AxisLocal.X, AxisLocal.Z, -AxisLocal.Y));
-    Delta := Joint.AngleDeg - FAppliedAngles[I];
-    if (Abs(Delta) > 1e-8) and (not Joint.IsBase) then
+
+    if Joint.PartType <> aptGenerico then
     begin
-      if IsLinearJoint(Joint.JointType) then
-      begin
-        if I < High(FGLJointNodes) then
-          MoveNode := FGLJointNodes[I + 1]
-        else
-          MoveNode := FGLJointNodes[I];
-        MoveNode.Position.X := MoveNode.Position.X +
-          (Delta * Joint.DirectionX);
-        MoveNode.Position.Y := MoveNode.Position.Y +
-          (Delta * Joint.DirectionY);
-        MoveNode.Position.Z := MoveNode.Position.Z +
-          (Delta * Joint.DirectionZ);
-        if Assigned(FGLJointPlateA[I]) then
-        begin
-          FGLJointPlateA[I].CubeHeight := Max(0.05,
-            FGLJointPlateA[I].CubeHeight + Delta);
-          FGLJointPlateB[I].CubeHeight := FGLJointPlateA[I].CubeHeight;
-          FGLJointPlateA[I].Position.Y := FGLJointPlateA[I].Position.Y + (Delta * 0.5);
-          FGLJointPlateB[I].Position.Y := FGLJointPlateB[I].Position.Y + (Delta * 0.5);
-        end;
-      end
-      else if IsGripperJoint(Joint, I, FArm.JointCount) and Assigned(FGLGripperJawA) then
-      begin
-        if Assigned(FGLGripperJawA_Pivot) and Assigned(FGLGripperJawB_Pivot) then
-        begin
-          if SameText(Joint.AngleValue, 'Inverter') or SameText(Joint.AngleValue, 'Inverted') then
-          begin
-            FGLGripperJawA_Pivot.Roll(Delta);
-            FGLGripperJawB_Pivot.Roll(-Delta);
-          end
-          else
-          begin
-            FGLGripperJawA_Pivot.Roll(-Delta);
-            FGLGripperJawB_Pivot.Roll(Delta);
-          end;
-        end
-        else
-        begin
-          if SameText(Joint.AngleValue, 'Inverter') or SameText(Joint.AngleValue, 'Inverted') then
-          begin
-            FGLGripperJawA.Roll(Delta);
-            FGLGripperJawB.Roll(-Delta);
-          end
-          else
-          begin
-            FGLGripperJawA.Roll(-Delta);
-            FGLGripperJawB.Roll(Delta);
-          end;
-        end;
-      end
-      else
+      Delta := Joint.AngleDeg - FAppliedAngles[I];
+      if Abs(Delta) > 1e-8 then
       begin
         LDelta := Delta;
         if SameText(Joint.AngleValue, 'Inverter') or SameText(Joint.AngleValue, 'Inverted') then
           LDelta := -Delta;
-        if Abs(AxisLocal.X) > 0.5 then
-          FGLJointNodes[I].Pitch(LDelta)
-        else if Abs(AxisLocal.Y) > 0.5 then
-          FGLJointNodes[I].Turn(LDelta)
-        else
-          FGLJointNodes[I].Roll(LDelta);
+
+        case Joint.PartType of
+          aptBase, aptSegmentoBraco:
+          begin
+            if Abs(AxisLocal.X) > 0.5 then
+              FGLParts[I].Node.Pitch(LDelta)
+            else if Abs(AxisLocal.Y) > 0.5 then
+              FGLParts[I].Node.Turn(LDelta)
+            else
+              FGLParts[I].Node.Roll(LDelta);
+          end;
+          aptPunho:
+          begin
+            if SameText(Joint.PartMovimento, 'rotacao') then
+            begin
+              FGLParts[I].EndNode.Turn(LDelta);
+            end
+            else
+            begin
+              if Abs(AxisLocal.X) > 0.5 then
+                FGLParts[I].Node.Pitch(LDelta)
+              else if Abs(AxisLocal.Y) > 0.5 then
+                FGLParts[I].Node.Turn(LDelta)
+              else
+                FGLParts[I].Node.Roll(LDelta);
+            end;
+          end;
+          aptPinca:
+          begin
+            if Joint.MaxValue <> Joint.MinValue then
+              Abertura := Joint.PartAberturaMax * (Joint.Value - Joint.MinValue) / (Joint.MaxValue - Joint.MinValue)
+            else
+              Abertura := 0;
+
+            if Assigned(FGLParts[I].JawAPivot) then
+              FGLParts[I].JawAPivot.Position.X := Abertura * 0.5;
+            if Assigned(FGLParts[I].JawBPivot) then
+              FGLParts[I].JawBPivot.Position.X := -Abertura * 0.5;
+          end;
+          aptGarra:
+          begin
+            if Joint.MaxValue <> Joint.MinValue then
+              AnguloAbertura := Joint.PartAberturaMax * (Joint.Value - Joint.MinValue) / (Joint.MaxValue - Joint.MinValue)
+            else
+              AnguloAbertura := 0;
+
+            if Assigned(FGLParts[I].JawAPivot) then
+              FGLParts[I].JawAPivot.PitchAngle := AnguloAbertura * 0.5;
+            if Assigned(FGLParts[I].JawBPivot) then
+              FGLParts[I].JawBPivot.PitchAngle := -AnguloAbertura * 0.5;
+            if Assigned(FGLParts[I].JawCPivot) then
+              FGLParts[I].JawCPivot.RollAngle := -AnguloAbertura * 0.5;
+          end;
+        end;
       end;
+      FAppliedAngles[I] := Joint.AngleDeg;
+    end
+    else
+    begin
+      Delta := Joint.AngleDeg - FAppliedAngles[I];
+      if (Abs(Delta) > 1e-8) and (not Joint.IsBase) then
+      begin
+        if IsLinearJoint(Joint.JointType) then
+        begin
+          if I < High(FGLJointNodes) then
+            MoveNode := FGLJointNodes[I + 1]
+          else
+            MoveNode := FGLJointNodes[I];
+          MoveNode.Position.X := MoveNode.Position.X +
+            (Delta * Joint.DirectionX);
+          MoveNode.Position.Y := MoveNode.Position.Y +
+            (Delta * Joint.DirectionY);
+          MoveNode.Position.Z := MoveNode.Position.Z +
+            (Delta * Joint.DirectionZ);
+          if Assigned(FGLJointPlateA[I]) then
+          begin
+            FGLJointPlateA[I].CubeHeight := Max(0.05,
+              FGLJointPlateA[I].CubeHeight + Delta);
+            FGLJointPlateB[I].CubeHeight := FGLJointPlateA[I].CubeHeight;
+            FGLJointPlateA[I].Position.Y := FGLJointPlateA[I].Position.Y + (Delta * 0.5);
+            FGLJointPlateB[I].Position.Y := FGLJointPlateB[I].Position.Y + (Delta * 0.5);
+          end;
+        end
+        else if IsGripperJoint(Joint, I, FArm.JointCount) and Assigned(FGLGripperJawA) then
+        begin
+          if Assigned(FGLGripperJawA_Pivot) and Assigned(FGLGripperJawB_Pivot) then
+          begin
+            if SameText(Joint.AngleValue, 'Inverter') or SameText(Joint.AngleValue, 'Inverted') then
+            begin
+              FGLGripperJawA_Pivot.Roll(Delta);
+              FGLGripperJawB_Pivot.Roll(-Delta);
+            end
+            else
+            begin
+              FGLGripperJawA_Pivot.Roll(-Delta);
+              FGLGripperJawB_Pivot.Roll(Delta);
+            end;
+          end
+          else
+          begin
+            if SameText(Joint.AngleValue, 'Inverter') or SameText(Joint.AngleValue, 'Inverted') then
+            begin
+              FGLGripperJawA.Roll(Delta);
+              FGLGripperJawB.Roll(-Delta);
+            end
+            else
+            begin
+              FGLGripperJawA.Roll(-Delta);
+              FGLGripperJawB.Roll(Delta);
+            end;
+          end;
+        end
+        else
+        begin
+          LDelta := Delta;
+          if SameText(Joint.AngleValue, 'Inverter') or SameText(Joint.AngleValue, 'Inverted') then
+            LDelta := -Delta;
+          if Abs(AxisLocal.X) > 0.5 then
+            FGLJointNodes[I].Pitch(LDelta)
+          else if Abs(AxisLocal.Y) > 0.5 then
+            FGLJointNodes[I].Turn(LDelta)
+          else
+            FGLJointNodes[I].Roll(LDelta);
+        end;
+      end;
+      FAppliedAngles[I] := Joint.AngleDeg;
     end;
-    FAppliedAngles[I] := Joint.AngleDeg;
   end;
 
   if Assigned(FGLSceneViewer) then
@@ -2927,6 +3712,319 @@ begin
   inherited Notification(AComponent, Operation);
   if (Operation = opRemove) and (AComponent = FArm) then
     FArm := nil;
+end;
+
+{ TAI_Arm_robotControl }
+
+constructor TAI_Arm_robotControl.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FRowHeight := 92;
+  FPanelColor := $262626;
+  FValueColor := clAqua;
+  FUpdating := False;
+end;
+
+procedure TAI_Arm_robotControl.SetArm(AValue: TAI_Arm_robot);
+begin
+  if FArm = AValue then Exit;
+  if FArm <> nil then
+  begin
+    FArm.RemoveFreeNotification(Self);
+    FArm.OnChange := FPrevOnChange;
+  end;
+  FArm := AValue;
+  if FArm <> nil then
+  begin
+    FArm.FreeNotification(Self);
+    FPrevOnChange := FArm.OnChange;
+    FArm.OnChange := @ArmChanged;
+  end;
+  Rebuild;
+end;
+
+procedure TAI_Arm_robotControl.SetContainer(AValue: TWinControl);
+begin
+  if FContainer = AValue then Exit;
+  if FContainer <> nil then
+    FContainer.RemoveFreeNotification(Self);
+  FContainer := AValue;
+  if FContainer <> nil then
+    FContainer.FreeNotification(Self);
+  Rebuild;
+end;
+
+procedure TAI_Arm_robotControl.Notification(AComponent: TComponent; Operation: TOperation);
+begin
+  inherited Notification(AComponent, Operation);
+  if Operation = opRemove then
+  begin
+    if AComponent = FArm then
+    begin
+      FArm := nil;
+      Rebuild;
+    end
+    else if AComponent = FContainer then
+    begin
+      FContainer := nil;
+      Rebuild;
+    end;
+  end;
+end;
+
+procedure TAI_Arm_robotControl.Rebuild;
+var
+  I: Integer;
+  Joint: TAI_Arm_robotJoint;
+  TitleStr: string;
+begin
+  FUpdating := True;
+  try
+    for I := 0 to High(FRows) do
+    begin
+      if Assigned(FRows[I].Panel) then
+        FRows[I].Panel.Free;
+    end;
+    SetLength(FRows, 0);
+
+    if (FArm = nil) or (FContainer = nil) then
+      Exit;
+
+    SetLength(FRows, FArm.JointCount);
+    for I := 0 to FArm.JointCount - 1 do
+    begin
+      Joint := FArm.Joints[I];
+
+      FRows[I].Panel := TPanel.Create(FContainer);
+      FRows[I].Panel.Parent := FContainer;
+      FRows[I].Panel.Top := I * FRowHeight;
+      FRows[I].Panel.Height := FRowHeight - 4;
+      FRows[I].Panel.Left := 4;
+      FRows[I].Panel.Width := FContainer.ClientWidth - 16;
+      FRows[I].Panel.Anchors := [akLeft, akTop, akRight];
+      FRows[I].Panel.Color := FPanelColor;
+      FRows[I].Panel.BevelOuter := bvNone;
+
+      FRows[I].Title := TLabel.Create(FRows[I].Panel);
+      FRows[I].Title.Parent := FRows[I].Panel;
+      FRows[I].Title.Top := 4;
+      FRows[I].Title.Left := 8;
+      FRows[I].Title.Font.Style := [fsBold];
+      if Pos(IntToStr(I) + ' - ', Joint.Name) = 1 then
+        TitleStr := Joint.Name
+      else
+        TitleStr := Format('%d - %s', [I, Joint.Name]);
+      FRows[I].Title.Caption := TitleStr;
+
+      FRows[I].Info := TLabel.Create(FRows[I].Panel);
+      FRows[I].Info.Parent := FRows[I].Panel;
+      FRows[I].Info.Top := 22;
+      FRows[I].Info.Left := 8;
+      FRows[I].Info.Font.Color := clGray;
+      if Joint.PartType in [aptPinca, aptGarra] then
+        FRows[I].Info.Caption := Format('abertura 0..%.1f', [Joint.PartAberturaMax])
+      else
+        FRows[I].Info.Caption := Format('dir:(%.1f,%.1f,%.1f) len:%.1f', [Joint.DirectionX, Joint.DirectionY, Joint.DirectionZ, Joint.Length]);
+
+      FRows[I].Value := TLabel.Create(FRows[I].Panel);
+      FRows[I].Value.Parent := FRows[I].Panel;
+      FRows[I].Value.Top := 4;
+      FRows[I].Value.Left := FRows[I].Panel.Width - 100;
+      FRows[I].Value.Anchors := [akTop, akRight];
+      FRows[I].Value.Font.Color := FValueColor;
+      FRows[I].Value.Font.Style := [fsBold];
+
+      FRows[I].Track := TTrackBar.Create(FRows[I].Panel);
+      FRows[I].Track.Parent := FRows[I].Panel;
+      FRows[I].Track.Top := 40;
+      FRows[I].Track.Left := 8;
+      FRows[I].Track.Width := FRows[I].Panel.Width - 16;
+      FRows[I].Track.Anchors := [akLeft, akTop, akRight];
+      FRows[I].Track.Min := Round(Joint.MinValue);
+      FRows[I].Track.Max := Round(Joint.MaxValue);
+      FRows[I].Track.Position := Round(Joint.Value);
+      FRows[I].Track.Tag := I;
+      FRows[I].Track.OnChange := @TrackChanged;
+      FRows[I].Track.Enabled := not Joint.IsBase;
+    end;
+    RefreshValues;
+  finally
+    FUpdating := False;
+  end;
+end;
+
+procedure TAI_Arm_robotControl.TrackChanged(Sender: TObject);
+var
+  Idx: Integer;
+begin
+  if FUpdating then Exit;
+  if Sender is TTrackBar then
+  begin
+    Idx := TTrackBar(Sender).Tag;
+    if (Idx >= 0) and (Idx < FArm.JointCount) then
+    begin
+      FArm.Joints[Idx].Value := TTrackBar(Sender).Position;
+      RefreshValues;
+    end;
+  end;
+end;
+
+procedure TAI_Arm_robotControl.ArmChanged(Sender: TObject);
+begin
+  if FUpdating then Exit;
+  if Assigned(FPrevOnChange) then
+    FPrevOnChange(Sender);
+  if FArm <> nil then
+  begin
+    if FArm.JointCount <> Length(FRows) then
+      Rebuild
+    else
+      RefreshValues;
+  end;
+end;
+
+procedure TAI_Arm_robotControl.RefreshValues;
+var
+  I: Integer;
+  Joint: TAI_Arm_robotJoint;
+  UnitStr: string;
+  ValPercent: Double;
+begin
+  FUpdating := True;
+  try
+    for I := 0 to High(FRows) do
+    begin
+      if (FArm <> nil) and (I < FArm.JointCount) then
+      begin
+        Joint := FArm.Joints[I];
+        FRows[I].Track.Min := Round(Joint.MinValue);
+        FRows[I].Track.Max := Round(Joint.MaxValue);
+        FRows[I].Track.Position := Round(Joint.Value);
+
+        if Joint.PartType in [aptPinca, aptGarra] then
+        begin
+          if Joint.MaxValue <> Joint.MinValue then
+            ValPercent := (Joint.Value - Joint.MinValue) / (Joint.MaxValue - Joint.MinValue) * 100
+          else
+            ValPercent := 0;
+          FRows[I].Value.Caption := Format('%.1f %% aberta', [ValPercent]);
+        end
+        else
+        begin
+          if SameText(Joint.JointType, 'linear') or SameText(Joint.JointType, 'prismatic') or SameText(Joint.JointType, 'prismatica') then
+            UnitStr := ' cm'
+          else
+            UnitStr := ' deg';
+          FRows[I].Value.Caption := Format('%.1f%s', [Joint.Value, UnitStr]);
+        end;
+      end;
+    end;
+  finally
+    FUpdating := False;
+  end;
+end;
+
+{ TAI_Arm_robotPosition }
+
+constructor TAI_Arm_robotPosition.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FAutoApply := False;
+end;
+
+procedure TAI_Arm_robotPosition.SetArm(AValue: TAI_Arm_robot);
+begin
+  if FArm = AValue then Exit;
+  if FArm <> nil then
+    FArm.RemoveFreeNotification(Self);
+  FArm := AValue;
+  if FArm <> nil then
+    FArm.FreeNotification(Self);
+end;
+
+procedure TAI_Arm_robotPosition.Notification(AComponent: TComponent; Operation: TOperation);
+begin
+  inherited Notification(AComponent, Operation);
+  if (Operation = opRemove) and (AComponent = FArm) then
+    FArm := nil;
+end;
+
+procedure TAI_Arm_robotPosition.SetTargetX(AValue: Double);
+begin
+  if FTargetX = AValue then Exit;
+  FTargetX := AValue;
+  if FAutoApply and (not (csDesigning in ComponentState)) and (FArm <> nil) then
+    Solve;
+end;
+
+procedure TAI_Arm_robotPosition.SetTargetY(AValue: Double);
+begin
+  if FTargetY = AValue then Exit;
+  FTargetY := AValue;
+  if FAutoApply and (not (csDesigning in ComponentState)) and (FArm <> nil) then
+    Solve;
+end;
+
+procedure TAI_Arm_robotPosition.SetTargetZ(AValue: Double);
+begin
+  if FTargetZ = AValue then Exit;
+  FTargetZ := AValue;
+  if FAutoApply and (not (csDesigning in ComponentState)) and (FArm <> nil) then
+    Solve;
+end;
+
+function TAI_Arm_robotPosition.MoveTo(const AX, AY, AZ: Double): Boolean;
+begin
+  FTargetX := AX;
+  FTargetY := AY;
+  FTargetZ := AZ;
+  Result := Solve;
+end;
+
+function TAI_Arm_robotPosition.LastError: string;
+begin
+  if FArm <> nil then
+    Result := FArm.LastError
+  else
+    Result := 'Arm nao atribuido';
+end;
+
+function TAI_Arm_robotPosition.Solve: Boolean;
+begin
+  Result := False;
+  if FArm = nil then
+  begin
+    if Assigned(FOnFailed) then
+      FOnFailed(Self, FTargetX, FTargetY, FTargetZ, False, 'Arm nao atribuido');
+    Exit;
+  end;
+
+  if FArm.JointCount = 0 then
+  begin
+    if Assigned(FOnFailed) then
+      FOnFailed(Self, FTargetX, FTargetY, FTargetZ, False, 'Modelo sem juntas');
+    Exit;
+  end;
+
+  try
+    if FArm.SolveInverseKinematics(FTargetX, FTargetY, FTargetZ) then
+    begin
+      Result := True;
+      if Assigned(FOnSolved) then
+        FOnSolved(Self, FTargetX, FTargetY, FTargetZ, True, '');
+    end
+    else
+    begin
+      if Assigned(FOnFailed) then
+        FOnFailed(Self, FTargetX, FTargetY, FTargetZ, False, FArm.LastError);
+    end;
+  except
+    on E: Exception do
+    begin
+      if Assigned(FOnFailed) then
+        FOnFailed(Self, FTargetX, FTargetY, FTargetZ, False, E.Message);
+    end;
+  end;
 end;
 
 end.

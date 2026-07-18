@@ -30,7 +30,6 @@
         <Filename Value="..\AI Agent\aiagent_executors.pas"/>
         <UnitName Value="aiagent_executors"/>
       </Item>
-
       <Item>
         <Filename Value="..\AI Agent\aiwizardconfig.pas"/>
         <HasRegisterProc Value="True"/>
@@ -94,6 +93,9 @@
       </Item>
     </Files>
     <RequiredPkgs>
+      <Item>
+        <PackageName Value="GLScene_DesignTime"/>
+      </Item>
       <Item>
         <PackageName Value="openai_core"/>
       </Item>

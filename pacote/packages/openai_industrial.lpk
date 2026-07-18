@@ -46,8 +46,16 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="aimodbuscommandmap"/>
       </Item>
+      <Item>
+        <Filename Value="..\AI Industrial\aiarm_robotcontrol.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiarm_robotcontrol"/>
+      </Item>
     </Files>
     <RequiredPkgs>
+      <Item>
+        <PackageName Value="openai_agent"/>
+      </Item>
       <Item>
         <PackageName Value="GLScene_DesignTime"/>
       </Item>

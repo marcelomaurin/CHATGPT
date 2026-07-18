@@ -9,16 +9,8 @@ uses
   StdCtrls, ComCtrls, aiarm_robot;
 
 type
-  TJointUI = record
-    Panel: TPanel;
-    Title: TLabel;
-    AxisInfo: TLabel;
-    Track: TTrackBar;
-    Value: TLabel;
-  end;
-
   { TfrmMain }
-
+ 
   TfrmMain = class(TForm)
   published
     { Componentes definidos no .lfm. Precisam estar em published para o
@@ -47,6 +39,9 @@ type
     FBtnLoad: TButton;
     FBtnExport: TButton;
     FZoomTrack: TTrackBar;
+    FModelCombo: TComboBox;
+    FControl: TAI_Arm_robotControl;
+    FPosition: TAI_Arm_robotPosition;
     { Eventos referenciados pelo .lfm. Também precisam ser published. }
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -55,19 +50,21 @@ type
     procedure LoadClick(Sender: TObject);
     procedure ExportClick(Sender: TObject);
     procedure ZoomChanged(Sender: TObject);
+    procedure PositionSolved(Sender: TObject; const AX, AY, AZ: Double;
+      const ASuccess: Boolean; const AError: string);
+    procedure PositionFailed(Sender: TObject; const AX, AY, AZ: Double;
+      const ASuccess: Boolean; const AError: string);
   private
     { Estado interno e handlers atribuidos apenas por codigo (@Metodo). }
     FUpdatingUI: Boolean;
-    FJointUI: array of TJointUI;
     function ModelJsonPath: string;
     procedure ApplyModelVisualToViewer;
     procedure BuildUI;
     procedure BuildArm;
     procedure AddLog(const AMsg: string);
     procedure RefreshUI;
-    procedure JointChanged(Sender: TObject);
     procedure ModelChanged(Sender: TObject);
-    procedure MakeJointRow(const AIndex: Integer; const AParent: TWinControl);
+    function NormalizarDecimal(const S: string): string;
   public
   end;
 
@@ -212,8 +209,14 @@ begin
 end;
 
 function TfrmMain.ModelJsonPath: string;
+var
+  FileName: string;
 begin
-  Result := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))) + 'AI_Arm_robot.model.json';
+  if (FModelCombo <> nil) and (FModelCombo.ItemIndex >= 0) then
+    FileName := FModelCombo.Items[FModelCombo.ItemIndex]
+  else
+    FileName := 'AI_Arm_robot.model.json';
+  Result := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))) + FileName;
 end;
 
 procedure TfrmMain.ApplyModelVisualToViewer;
@@ -268,13 +271,24 @@ end;
 
 procedure TfrmMain.BuildArm;
 var
-  I: Integer;
   ModelPath: string;
 begin
-  { FArm ja vem instanciado pelo .lfm; o guard cobre um uso fora do designer. }
   if FArm = nil then
     FArm := TAI_Arm_robot.Create(Self);
   FArm.OnChange := @ModelChanged;
+
+  if FControl = nil then
+  begin
+    FControl := TAI_Arm_robotControl.Create(Self);
+    FControl.Container := FJointsScroll;
+  end;
+  if FPosition = nil then
+  begin
+    FPosition := TAI_Arm_robotPosition.Create(Self);
+    FPosition.OnSolved := @PositionSolved;
+    FPosition.OnFailed := @PositionFailed;
+  end;
+
   FUpdatingUI := True;
   try
     ModelPath := ModelJsonPath;
@@ -304,18 +318,14 @@ begin
     ApplyModelVisualToViewer;
     FArm.GraphicComponent := FViewer;
 
-    { Recria as linhas de junta do zero (evita duplicar em recarga). }
-    for I := High(FJointUI) downto 0 do
-      FreeAndNil(FJointUI[I].Panel);
-    SetLength(FJointUI, FArm.JointCount);
-    for I := 0 to FArm.JointCount - 1 do
-      MakeJointRow(I, FJointsScroll);
+    FControl.Arm := FArm;
+    FPosition.Arm := FArm;
   finally
     FUpdatingUI := False;
   end;
 
   RefreshUI;
-  AddLog('Sample AI_Arm_robot carregado com 6 eixos.');
+  AddLog('Sample AI_Arm_robot carregado com ' + IntToStr(FArm.JointCount) + ' eixos.');
   AddLog(FArm.ToSetupText);
 end;
 
@@ -327,28 +337,12 @@ end;
 
 procedure TfrmMain.RefreshUI;
 var
-  I: Integer;
-  Joint: TAI_Arm_robotJoint;
   EndPos: TAIArmVector3;
 begin
   if FArm = nil then Exit;
 
   FUpdatingUI := True;
   try
-    for I := 0 to FArm.JointCount - 1 do
-    begin
-      if I > High(FJointUI) then Break;
-      Joint := FArm.Joints[I];
-      FJointUI[I].Track.Min := Round(Joint.MinAngleDeg);
-      FJointUI[I].Track.Max := Round(Joint.MaxAngleDeg);
-      FJointUI[I].Track.Position := Round(Joint.AngleDeg);
-      if SameText(Joint.JointType, 'prismatic') or
-         SameText(Joint.JointType, 'linear') or
-         SameText(Joint.JointType, 'prismatica') then
-        FJointUI[I].Value.Caption := Format('%.1f cm', [Joint.Value])
-      else
-        FJointUI[I].Value.Caption := Format('%.1f deg', [Joint.Value]);
-    end;
     EndPos := FArm.GetEndEffectorPosition;
     if Assigned(FStatus) then
       FStatus.Caption := Format('Status: EE (%.2f, %.2f, %.2f)', [EndPos.X, EndPos.Y, EndPos.Z]);
@@ -359,35 +353,38 @@ begin
   end;
 end;
 
-procedure TfrmMain.JointChanged(Sender: TObject);
-var
-  Idx: Integer;
-  Track: TTrackBar;
+function TfrmMain.NormalizarDecimal(const S: string): string;
 begin
-  if FUpdatingUI or (FArm = nil) then Exit;
-  if not (Sender is TTrackBar) then Exit;
-
-  Track := TTrackBar(Sender);
-  Idx := Track.Tag;
-  if (Idx < 0) or (Idx >= FArm.JointCount) then Exit;
-
-  FArm.Joints[Idx].AngleDeg := Track.Position;
-  RefreshUI;
+  Result := StringReplace(S, ',', '.', [rfReplaceAll]);
 end;
 
 procedure TfrmMain.SolveClick(Sender: TObject);
 var
   X, Y, Z: Double;
+  FS: TFormatSettings;
 begin
-  if FArm = nil then Exit;
-  X := StrToFloatDef(FTargetX.Text, FArm.TargetX);
-  Y := StrToFloatDef(FTargetY.Text, FArm.TargetY);
-  Z := StrToFloatDef(FTargetZ.Text, FArm.TargetZ);
-  if FArm.SolveInverseKinematics(X, Y, Z) then
-    AddLog(Format('IK resolvida para alvo (%.2f, %.2f, %.2f).', [X, Y, Z]))
-  else
-    AddLog('IK nao convergiu: ' + FArm.LastError);
+  if (FArm = nil) or (FPosition = nil) then Exit;
+  FS := DefaultFormatSettings;
+  FS.DecimalSeparator := '.';
+
+  X := StrToFloatDef(NormalizarDecimal(FTargetX.Text), FArm.TargetX, FS);
+  Y := StrToFloatDef(NormalizarDecimal(FTargetY.Text), FArm.TargetY, FS);
+  Z := StrToFloatDef(NormalizarDecimal(FTargetZ.Text), FArm.TargetZ, FS);
+
+  FPosition.MoveTo(X, Y, Z);
+end;
+
+procedure TfrmMain.PositionSolved(Sender: TObject; const AX, AY, AZ: Double;
+  const ASuccess: Boolean; const AError: string);
+begin
+  AddLog(Format('IK resolvida para alvo (%.2f, %.2f, %.2f).', [AX, AY, AZ]));
   RefreshUI;
+end;
+
+procedure TfrmMain.PositionFailed(Sender: TObject; const AX, AY, AZ: Double;
+  const ASuccess: Boolean; const AError: string);
+begin
+  AddLog('IK nao convergiu: ' + AError);
 end;
 
 procedure TfrmMain.ResetClick(Sender: TObject);
@@ -431,81 +428,6 @@ procedure TfrmMain.ModelChanged(Sender: TObject);
 begin
   if FUpdatingUI then Exit;
   RefreshUI;
-end;
-
-procedure TfrmMain.MakeJointRow(const AIndex: Integer; const AParent: TWinControl);
-var
-  P: TPanel;
-  T: TLabel;
-  A: TLabel;
-  V: TLabel;
-  TB: TTrackBar;
-  Joint: TAI_Arm_robotJoint;
-  TopPos: Integer;
-begin
-  Joint := FArm.Joints[AIndex];
-  TopPos := AIndex * 92;
-
-  P := TPanel.Create(AParent);
-  P.Parent := AParent;
-  P.SetBounds(8, TopPos + 8, Max(320, FRightPanel.Width - 40), 84);
-  P.BevelOuter := bvNone;
-  P.Color := $262626;
-
-  T := TLabel.Create(P);
-  T.Parent := P;
-  T.Left := 12;
-  T.Top := 8;
-  T.Font.Style := [fsBold];
-  if Pos(IntToStr(AIndex) + ' - ', Joint.Name) = 1 then
-    T.Caption := 'Eixo ' + Joint.Name
-  else
-    T.Caption := Format('Eixo %d - %s', [AIndex, Joint.Name]);
-
-  A := TLabel.Create(P);
-  A.Parent := P;
-  A.Left := 12;
-  A.Top := 28;
-  A.Font.Color := clSilver;
-  if SameText(Joint.JointType, 'prismatic') or
-     SameText(Joint.JointType, 'linear') or
-     SameText(Joint.JointType, 'prismatica') then
-    A.Caption := Format('movimento vertical Y: sobe/desce  len=%.2f', [Joint.Length])
-  else
-    A.Caption := Format('direcao=(%.0f, %.0f, %.0f)  rot=(%.0f, %.0f, %.0f)  len=%.2f',
-      [Joint.DirectionX, Joint.DirectionY, Joint.DirectionZ,
-       Joint.RotationAxisX, Joint.RotationAxisY, Joint.RotationAxisZ,
-       Joint.Length]);
-
-  V := TLabel.Create(P);
-  V.Parent := P;
-  V.Left := 250;
-  V.Top := 8;
-  V.Font.Color := clAqua;
-  if SameText(Joint.JointType, 'prismatic') or
-     SameText(Joint.JointType, 'linear') or
-     SameText(Joint.JointType, 'prismatica') then
-    V.Caption := Format('%.1f cm', [Joint.Value])
-  else
-    V.Caption := Format('%.1f deg', [Joint.Value]);
-
-  TB := TTrackBar.Create(P);
-  TB.Parent := P;
-  TB.SetBounds(8, 48, P.Width - 16, 30);
-  TB.Min := Round(Joint.MinAngleDeg);
-  TB.Max := Round(Joint.MaxAngleDeg);
-  TB.Position := Round(Joint.AngleDeg);
-  TB.Frequency := 5;
-  TB.PageSize := 5;
-  TB.Tag := AIndex;
-  TB.OnChange := @JointChanged;
-  TB.Enabled := not Joint.IsBase;
-
-  FJointUI[AIndex].Panel := P;
-  FJointUI[AIndex].Title := T;
-  FJointUI[AIndex].AxisInfo := A;
-  FJointUI[AIndex].Track := TB;
-  FJointUI[AIndex].Value := V;
 end;
 
 end.
