@@ -1,0 +1,352 @@
+[
+  {
+    "Descricao": "Ar condicionado barulhento",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "O ar condicionado da sala 4 está fazendo um barulho metálico muito forte e parou de resfriar o ambiente.",
+    "Resposta": "SIM",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Solicitação de férias",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "Gostaria de agendar minhas férias para o período entre 10 e 30 de dezembro deste ano.",
+    "Resposta": "NAO",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Impressora atolando papel",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "A impressora do setor financeiro está atolando papel constantemente e com uma luz vermelha piscando no painel.",
+    "Resposta": "SIM",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Redefinição de senha",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "Esqueci minha senha de acesso ao portal do funcionário e preciso de uma redefinição para acessar os holerites.",
+    "Resposta": "NAO",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Notebook não liga",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "Meu notebook corporativo Dell não liga de jeito nenhum, nem mesmo os LEDs indicadores de energia acendem ao conectar o carregador.",
+    "Resposta": "SIM",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Teclado quebrado",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "O teclado do meu computador de mesa está com o cabo USB rompido e várias teclas soltas após uma queda.",
+    "Resposta": "SIM",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Projetor queimado",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "A lâmpada do projetor da sala de reuniões principal queimou no meio da apresentação. Precisamos de substituição urgente.",
+    "Resposta": "SIM",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Adiantamento salarial",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "Por motivos pessoais, gostaria de formalizar um pedido de adiantamento de 30% do meu salário deste mês.",
+    "Resposta": "NAO",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Bebedouro vazando",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "O bebedouro de água do segundo andar está com um vazamento constante pela base, molhando todo o corredor.",
+    "Resposta": "SIM",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Reserva de sala",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "Preciso reservar a sala de reuniões B para uma videoconferência com o cliente amanhã das 14h às 16h.",
+    "Resposta": "NAO",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Cafeteira danificada",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "A cafeteira expresso da copa está exibindo o erro E04 na tela LCD e parou de bombear água quente.",
+    "Resposta": "SIM",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Compra de licença",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "Solicito a compra de duas novas licenças do Adobe Photoshop para o time de marketing digital.",
+    "Resposta": "NAO",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Telefone mudo",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "O telefone fixo da recepção está completamente mudo, sem sinal de linha e com forte chiado quando tirado do gancho.",
+    "Resposta": "SIM",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Material de escritório",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "Nosso setor está sem canetas esferográficas azuis e blocos de anotações. Favor providenciar a reposição.",
+    "Resposta": "NAO",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Monitor trincado",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "O monitor LCD do terminal de autoatendimento está trincado após sofrer um vandalismo leve. A tela está apagada.",
+    "Resposta": "SIM",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Pedido de limpeza",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "O refeitório está muito sujo após o almoço de hoje. É necessário que a equipe de limpeza passe um pano no chão.",
+    "Resposta": "NAO",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Cooler do servidor parado",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "O cooler do rack do servidor principal parou de girar. O painel indica alta temperatura física no hardware.",
+    "Resposta": "SIM",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Curso de capacitação",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "Gostaria de solicitar autorização para me matricular no curso de especialização em Big Data da faculdade local.",
+    "Resposta": "NAO",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Empilhadeira com defeito",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "A empilhadeira elétrica número 3 do almoxarifado não está recebendo carga física das baterias e desliga sozinha.",
+    "Resposta": "SIM",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Elevador travado",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "O elevador de carga travou mecanicamente entre o segundo e o terceiro andar com várias caixas de insumos dentro.",
+    "Resposta": "SIM",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Revisão de contrato",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "Envio em anexo o contrato de prestação de serviços de marketing para que o departamento jurídico faça a revisão.",
+    "Resposta": "NAO",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Scroll do mouse quebrado",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "O botão de rolagem (scroll) do meu mouse USB quebrou fisicamente e não desce mais a página do navegador.",
+    "Resposta": "SIM",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Atualização de SO",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "Preciso agendar a atualização do sistema operacional Linux da minha estação de trabalho para a versão mais recente.",
+    "Resposta": "NAO",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Rodízio de cadeira quebrado",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "Uma das rodinhas de plástico da minha cadeira de trabalho quebrou e a cadeira está instável e riscando o piso.",
+    "Resposta": "SIM",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Feedback de reunião",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "Achei a dinâmica da reunião de ontem excelente, mas sugiro que na próxima tenhamos uma pauta mais concisa.",
+    "Resposta": "NAO",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Lente do scanner riscada",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "A lente física do vidro do scanner está com um risco profundo, o que gera linhas pretas verticais em todos os PDFs escaneados.",
+    "Resposta": "SIM",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Exame admissional",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "Favor entrar em contato com a clínica parceira para agendar o exame admissional do novo analista financeiro contratado.",
+    "Resposta": "NAO",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Foco do microscópio travado",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "O botão de ajuste de foco do microscópio número 5 do laboratório está emperrado mecanicamente e não gira.",
+    "Resposta": "SIM",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Troca de senha Wi-Fi",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "Solicito a alteração da chave de acesso da rede sem fio corporativa (Wi-Fi) por questões de segurança periódica.",
+    "Resposta": "NAO",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Roteador Wi-Fi desligando",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "O roteador do corredor está com mau contato no conector de energia física da placa traseira e desliga se for movido.",
+    "Resposta": "SIM",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Envio de holerite",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "Pode me enviar em PDF os meus holerites relativos aos últimos três meses trabalhados para fins de comprovação bancária?",
+    "Resposta": "NAO",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Correia de esteira rompida",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "A correia transportadora de borracha da linha 2 rompeu fisicamente e parou de movimentar as peças montadas.",
+    "Resposta": "SIM",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Acesso a pasta",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "Gostaria de pedir acesso de leitura na pasta de contabilidade que fica armazenada no servidor de rede corporativo.",
+    "Resposta": "NAO",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Compressor sem pressão",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "O compressor de ar comprimido da oficina está com perda de pressão constante devido a um vazamento na junta de vedação.",
+    "Resposta": "SIM",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Passagem aérea",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "Solicito cotação e compra de passagens aéreas de ida e volta para a filial de Salvador para a auditoria de outubro.",
+    "Resposta": "NAO",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Fragmentadora queimando",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "A fragmentadora de papel do escritório travou com excesso de folhas e está soltando fumaça com cheiro de plástico queimado.",
+    "Resposta": "SIM",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Envio de relatório",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "Estou enviando o relatório de faturamento do terceiro trimestre conforme solicitado no nosso cronograma anual.",
+    "Resposta": "NAO",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Câmera de segurança quebrada",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "A câmera de monitoramento externa da garagem teve sua cúpula quebrada e parou de transmitir imagens para a central.",
+    "Resposta": "SIM",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Crachá de visitante",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "Por favor, providencie a liberação e emissão de dois crachás de visitante para os fiscais federais que vêm amanhã.",
+    "Resposta": "NAO",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Carro com motor batendo",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "O automóvel Gol placa ABC-1234 da frota está fazendo barulho metálico forte (batendo válvula) e perdeu a força física do motor.",
+    "Resposta": "SIM",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Bug de aplicativo",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "O botão de gerar PDF da tela de orçamentos do site interno não executa nenhuma ação ao ser clicado pelo usuário.",
+    "Resposta": "NAO",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Vazamento em bomba",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "A bomba hidráulica número 2 que pressuriza a água para o prédio está com vazamento no retentor físico do eixo giratório.",
+    "Resposta": "SIM",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Reembolso de despesa",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "Solicito reembolso no valor de R$ 150,00 referente ao táxi utilizado para o deslocamento até o aeroporto durante a viagem.",
+    "Resposta": "NAO",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Fechadura eletrônica solta",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "O eletroímã da fechadura eletrônica da porta principal da CPD soltou-se do batente físico superior e a porta não tranca.",
+    "Resposta": "SIM",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Festa de aposentadoria",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "Vamos organizar uma pequena festa surpresa para celebrar a aposentadoria da nossa diretora nesta sexta na copa.",
+    "Resposta": "NAO",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Ferro de solda frio",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "O ferro de solda Hikari da bancada número 3 parou de esquentar. A luz de liga acende, mas a ponta física permanece fria.",
+    "Resposta": "SIM",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Pedido de almoço",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "Pode providenciar o pedido de 3 pizzas grandes de calabresa para a equipe que está trabalhando no plantão noturno?",
+    "Resposta": "NAO",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Centrífuga vibrando",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "A centrífuga modelo C-200 do laboratório clínico está vibrando excessivamente de forma perigosa e desliga ao atingir 3000 RPM.",
+    "Resposta": "SIM",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Ausência no e-mail",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "Preciso que me ajude a programar uma mensagem de ausência temporária no Outlook para responder aos e-mails enquanto estiver fora.",
+    "Resposta": "NAO",
+    "RespostasValidas": "SIM,NAO"
+  },
+  {
+    "Descricao": "Secador de mãos frio",
+    "DEV": "Você é um assistente de suporte especializado em classificar chamados. Sua tarefa é responder estritamente 'SIM' se a mensagem do usuário descrever um problema físico, defeito ou necessidade de reparo em um equipamento, máquina, hardware, aparelho ou móvel corporativo. Responda 'NAO' se for qualquer outro assunto, como solicitação de software, senhas, administrativo, RH, dúvidas ou financeiro. Não dê explicações, responda apenas a palavra 'SIM' ou 'NAO'.",
+    "PROMPT": "O secador de mãos elétrico instalado no banheiro masculino parou de aquecer o ar. Ele sopra, mas apenas ar gelado.",
+    "Resposta": "SIM",
+    "RespostasValidas": "SIM,NAO"
+  }
+]

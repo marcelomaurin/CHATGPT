@@ -1,0 +1,23 @@
+[
+  {
+    "Descricao": "Soma Simples",
+    "DEV": "Você é um assistente de matemática. Responda apenas com o número final.",
+    "PROMPT": "Quanto é 12 + 15?",
+    "Resposta": "27",
+    "RespostasValidas": "27"
+  },
+  {
+    "Descricao": "Tradução de Palavra",
+    "DEV": "Você é um dicionário direto Inglês/Português. Traduza a palavra fornecida e retorne APENAS a palavra traduzida em inglês, sem pontuação ou frases adicionais.",
+    "PROMPT": "Computador",
+    "Resposta": "Computer",
+    "RespostasValidas": "Computer"
+  },
+  {
+    "Descricao": "Capital de Estado",
+    "DEV": "Você responde perguntas geográficas diretamente, usando apenas o nome da cidade.",
+    "PROMPT": "Qual é a capital do estado de São Paulo?",
+    "Resposta": "São Paulo",
+    "RespostasValidas": "São Paulo"
+  }
+]
