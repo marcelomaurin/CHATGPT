@@ -557,8 +557,8 @@ begin
     end
     else
     begin
-      ClienteHTTP.IOTimeout := 60000;
-      ClienteHTTP.ConnectTimeout := 60000;
+      ClienteHTTP.IOTimeout := 360000;
+      ClienteHTTP.ConnectTimeout := 360000;
     end;
 
     ClienteHTTP.RequestBody := BodyStream;
