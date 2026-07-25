@@ -6,16 +6,18 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  ComCtrls, chatgpt, aiagent_flowevents, aiagent_memorymap, aiagent_core,
-  aiagent_classifier, aiagent_decision, aiagent_actionbuilder, aiagent_executor,
-  aiagent_orchestrator;
+  ComCtrls, Grids, fpjson, jsonparser, chatgpt, aiagent_flowevents, 
+  aiagent_memorymap, aiagent_core, aiagent_classifier, aiagent_decision, 
+  aiagent_actionbuilder, aiagent_executor, aiagent_orchestrator;
 
 type
 
   { TfrmAgentMemoryMapDemo }
 
   TfrmAgentMemoryMapDemo = class(TForm)
-    pnlHeader: TPanel;
+    PageControl1: TPageControl;
+    tsSetup: TTabSheet;
+    gbAIConfig: TGroupBox;
     lblProvider: TLabel;
     cbProvider: TComboBox;
     lblModel: TLabel;
@@ -24,27 +26,53 @@ type
     edtToken: TEdit;
     lblBaseURL: TLabel;
     edtBaseURL: TEdit;
-    pnlClient: TPanel;
-    pnlLeft: TPanel;
-    splitterLeft: TSplitter;
-    pnlCenter: TPanel;
-    splitterCenter: TSplitter;
-    pnlRight: TPanel;
-    gbInput: TGroupBox;
-    memInput: TMemo;
-    btnRun: TButton;
-    gbClassifier: TGroupBox;
-    memClassifier: TMemo;
-    gbDecision: TGroupBox;
-    memDecision: TMemo;
-    gbExecutor: TGroupBox;
-    memExecutor: TMemo;
-    gbMemoryMap: TGroupBox;
-    memMemoryMap: TMemo;
-    gbInfoLoss: TGroupBox;
-    memInfoLoss: TMemo;
-    gbErrors: TGroupBox;
-    memErrors: TMemo;
+    gbScriptConfig: TGroupBox;
+    lblScriptPath: TLabel;
+    edtScriptPath: TEdit;
+    btnLoadScript: TButton;
+    btnSaveScript: TButton;
+    btnNewScript: TButton;
+    pnlSetupRun: TPanel;
+    btnStartSim: TButton;
+    btnStopSim: TButton;
+    tsPlans: TTabSheet;
+    sgPlans: TStringGrid;
+    pnlEditPlan: TPanel;
+    lblPlanID: TLabel;
+    edtPlanID: TEdit;
+    lblPlanName: TLabel;
+    edtPlanName: TEdit;
+    lblPlanDesc: TLabel;
+    memPlanDesc: TMemo;
+    btnAddPlan: TButton;
+    btnSavePlan: TButton;
+    btnDeletePlan: TButton;
+    tsDialogues: TTabSheet;
+    sgDialogues: TStringGrid;
+    pnlEditDialogue: TPanel;
+    lblExpectedPlan: TLabel;
+    cbExpectedPlan: TComboBox;
+    lblTurns: TLabel;
+    memTurns: TMemo;
+    btnAddDialogue: TButton;
+    btnSaveDialogue: TButton;
+    btnDeleteDialogue: TButton;
+    tsConversas: TTabSheet;
+    pnlConvLeft: TPanel;
+    lblConvHistory: TLabel;
+    memConvHistory: TMemo;
+    splConv: TSplitter;
+    pnlConvRight: TPanel;
+    lblConvMemoryMap: TLabel;
+    memConvMemoryMap: TMemo;
+    tsExecution: TTabSheet;
+    memLogs: TMemo;
+    pnlExecutionBottom: TPanel;
+    btnStopSimExecution: TButton;
+    pbProgress: TProgressBar;
+    tsStats: TTabSheet;
+    memStats: TMemo;
+    sgStatsPlans: TStringGrid;
     FChatGPT: TCHATGPT;
     FClassifier: TAIClassifierAgent;
     FDecisionAgent: TAIDecisionAgent;
@@ -53,11 +81,41 @@ type
     FOrchestrator: TAIAgentOrchestrator;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure btnRunClick(Sender: TObject);
     procedure cbProviderChange(Sender: TObject);
+    procedure btnLoadScriptClick(Sender: TObject);
+    procedure btnSaveScriptClick(Sender: TObject);
+    procedure btnNewScriptClick(Sender: TObject);
+    procedure btnStartSimClick(Sender: TObject);
+    procedure btnStopSimClick(Sender: TObject);
+    procedure sgPlansSelectionChanged(Sender: TObject; aCol, aRow: Integer);
+    procedure sgPlansDblClick(Sender: TObject);
+    procedure sgDialoguesSelectionChanged(Sender: TObject; aCol, aRow: Integer);
+    procedure btnAddPlanClick(Sender: TObject);
+    procedure btnSavePlanClick(Sender: TObject);
+    procedure btnDeletePlanClick(Sender: TObject);
+    procedure btnAddDialogueClick(Sender: TObject);
+    procedure btnSaveDialogueClick(Sender: TObject);
+    procedure btnDeleteDialogueClick(Sender: TObject);
   private
+    FScriptData: TJSONObject;
+    FStopSimulation: Boolean;
+    FLastClassification: string;
+    
+    { Stats counters }
+    FStatsTotal: Integer;
+    FStatsCorrect: Integer;
+    FStatsPlansTotal: TJSONObject;
+    FStatsPlansCorrect: TJSONObject;
+
     procedure SetupScenario;
     function ConfigureChatGPT: Boolean;
+    procedure LoadScriptFromFile(const APath: string);
+    procedure RefreshPlansGrid;
+    procedure RefreshDialoguesGrid;
+    procedure RefreshPlansComboBox;
+    procedure UpdateSystemPrompts;
+    procedure ResetStats;
+    procedure UpdateStatsUI;
 
     { Orchestrator stage events }
     procedure OnBeforeFlowStart(Sender: TObject; AContexto: TAIFluxoEtapaContexto; var ACanContinue: Boolean);
@@ -90,7 +148,7 @@ implementation
 procedure TfrmAgentMemoryMapDemo.FormCreate(Sender: TObject);
 begin
   Position := poScreenCenter;
-  Caption := 'IA Multi-Agent & Memory Map Demo';
+  Caption := 'IA Multi-Agent & Memory Map Simulation';
 
   { Wire components together }
   FOrchestrator.ChatGPT := FChatGPT;
@@ -120,66 +178,690 @@ begin
   FOrchestrator.OnFlowStage := @OnFlowStage;
   FOrchestrator.OnInformationLossDetected := @OnInformationLossDetected;
 
+  FScriptData := nil;
+  FStatsPlansTotal := TJSONObject.Create;
+  FStatsPlansCorrect := TJSONObject.Create;
+
   SetupScenario;
 end;
 
 procedure TfrmAgentMemoryMapDemo.FormDestroy(Sender: TObject);
 begin
-  { Sub-components are owned by form, freed automatically }
+  if Assigned(FScriptData) then FScriptData.Free;
+  FStatsPlansTotal.Free;
+  FStatsPlansCorrect.Free;
 end;
-
-
 
 procedure TfrmAgentMemoryMapDemo.SetupScenario;
 begin
-  memInput.Text := 'O computador da recepção não liga e a unidade precisa de atendimento urgente.';
-  cbProvider.ItemIndex := 0;
+  cbProvider.ItemIndex := 3; { Local (Ollama/LMStudio) }
   cbProviderChange(nil);
+  
+  if FileExists(edtScriptPath.Text) then
+    LoadScriptFromFile(edtScriptPath.Text)
+  else
+    btnNewScriptClick(nil);
 end;
 
 procedure TfrmAgentMemoryMapDemo.cbProviderChange(Sender: TObject);
 begin
-  if cbProvider.ItemIndex = 0 then
-  begin
-    edtBaseURL.Text := '';
-    edtModel.Text := 'gpt-4o-mini';
-  end
-  else
-  begin
-    edtBaseURL.Text := 'http://localhost:11434';
-    edtModel.Text := 'llama3';
+  case cbProvider.ItemIndex of
+    0: begin // OpenAI
+         edtBaseURL.Text := 'https://api.openai.com/v1';
+         edtModel.Text := 'gpt-4o-mini';
+       end;
+    1: begin // OpenRouter
+         edtBaseURL.Text := 'https://openrouter.ai/api/v1';
+         edtModel.Text := 'google/gemma-2-9b-it:free';
+       end;
+    2: begin // Cerebras
+         edtBaseURL.Text := 'https://api.cerebras.ai/v1';
+         edtModel.Text := 'qwen-3-235b-a22b-instruct-2507';
+       end;
+    3: begin // Local
+         edtBaseURL.Text := 'http://localhost:8095';
+         edtModel.Text := 'Qwen2.5-05B-Instruct';
+       end;
+    4: begin // Gemini
+         edtBaseURL.Text := 'https://generativelanguage.googleapis.com';
+         edtModel.Text := 'gemini-2.5-flash';
+       end;
+    5: begin // Claude
+         edtBaseURL.Text := 'https://api.anthropic.com/v1';
+         edtModel.Text := 'claude-3-5-sonnet-20241022';
+       end;
   end;
 end;
 
 function TfrmAgentMemoryMapDemo.ConfigureChatGPT: Boolean;
+var
+  LProvider: TAIProvider;
 begin
   Result := False;
   FChatGPT.TOKEN := edtToken.Text;
-  FChatGPT.URL := edtBaseURL.Text;
   FChatGPT.CustomModel := edtModel.Text;
-  if cbProvider.ItemIndex = 0 then
-    FChatGPT.Provider := AIP_OPENAI
+  FChatGPT.MaxTokens := 300;
+  
+  LProvider := TAIProvider(cbProvider.ItemIndex);
+  FChatGPT.Provider := LProvider;
+  
+  if LProvider = AIP_LOCAL then
+  begin
+    FChatGPT.URL := '';
+    FChatGPT.LocalIP := edtBaseURL.Text;
+  end
   else
-    FChatGPT.Provider := AIP_LOCAL;
+  begin
+    FChatGPT.URL := edtBaseURL.Text;
+    FChatGPT.LocalIP := '';
+  end;
   Result := True;
 end;
 
-procedure TfrmAgentMemoryMapDemo.btnRunClick(Sender: TObject);
+procedure TfrmAgentMemoryMapDemo.LoadScriptFromFile(const APath: string);
+var
+  LStream: TFileStream;
+  LParser: TJSONParser;
 begin
-  memClassifier.Clear;
-  memDecision.Clear;
-  memExecutor.Clear;
-  memMemoryMap.Clear;
-  memInfoLoss.Clear;
-  memErrors.Clear;
-
-  if not ConfigureChatGPT then Exit;
-
-  btnRun.Enabled := False;
+  if not FileExists(APath) then Exit;
+  
+  if Assigned(FScriptData) then FreeAndNil(FScriptData);
+  
+  LStream := TFileStream.Create(APath, fmOpenRead or fmShareDenyWrite);
   try
-    FOrchestrator.Run(memInput.Text);
+    LParser := TJSONParser.Create(LStream);
+    try
+      FScriptData := LParser.Parse as TJSONObject;
+    finally
+      LParser.Free;
+    end;
   finally
-    btnRun.Enabled := True;
+    LStream.Free;
+  end;
+  
+  RefreshPlansGrid;
+  RefreshDialoguesGrid;
+  RefreshPlansComboBox;
+end;
+
+procedure TfrmAgentMemoryMapDemo.RefreshPlansGrid;
+var
+  LPlans: TJSONArray;
+  I: Integer;
+  LPlan: TJSONObject;
+begin
+  sgPlans.RowCount := 1;
+  if not Assigned(FScriptData) then Exit;
+  
+  LPlans := FScriptData.Arrays['action_plans'];
+  if not Assigned(LPlans) then Exit;
+  
+  sgPlans.RowCount := LPlans.Count + 1;
+  sgPlans.Cells[0, 0] := 'ID';
+  sgPlans.Cells[1, 0] := 'Nome';
+  
+  for I := 0 to LPlans.Count - 1 do
+  begin
+    LPlan := LPlans.Objects[I];
+    sgPlans.Cells[0, I + 1] := LPlan.Strings['id'];
+    sgPlans.Cells[1, I + 1] := LPlan.Strings['name'];
+  end;
+end;
+
+procedure TfrmAgentMemoryMapDemo.RefreshDialoguesGrid;
+var
+  LDialogues: TJSONArray;
+  I: Integer;
+  LDialogue: TJSONObject;
+begin
+  sgDialogues.RowCount := 1;
+  if not Assigned(FScriptData) then Exit;
+  
+  LDialogues := FScriptData.Arrays['dialogues'];
+  if not Assigned(LDialogues) then Exit;
+  
+  sgDialogues.RowCount := LDialogues.Count + 1;
+  sgDialogues.Cells[0, 0] := 'ID';
+  sgDialogues.Cells[1, 0] := 'Plano Esperado';
+  
+  for I := 0 to LDialogues.Count - 1 do
+  begin
+    LDialogue := LDialogues.Objects[I];
+    sgDialogues.Cells[0, I + 1] := IntToStr(LDialogue.Integers['id']);
+    sgDialogues.Cells[1, I + 1] := LDialogue.Strings['expected_action_plan'];
+  end;
+end;
+
+procedure TfrmAgentMemoryMapDemo.RefreshPlansComboBox;
+var
+  LPlans: TJSONArray;
+  I: Integer;
+begin
+  cbExpectedPlan.Clear;
+  if not Assigned(FScriptData) then Exit;
+  
+  LPlans := FScriptData.Arrays['action_plans'];
+  if not Assigned(LPlans) then Exit;
+  
+  for I := 0 to LPlans.Count - 1 do
+    cbExpectedPlan.Items.Add(LPlans.Objects[I].Strings['id']);
+end;
+
+procedure TfrmAgentMemoryMapDemo.sgPlansSelectionChanged(Sender: TObject; aCol, aRow: Integer);
+var
+  LPlans: TJSONArray;
+  LPlan: TJSONObject;
+begin
+  if (aRow < 1) or not Assigned(FScriptData) then Exit;
+  LPlans := FScriptData.Arrays['action_plans'];
+  if (LPlans = nil) or (aRow - 1 >= LPlans.Count) then Exit;
+  
+  LPlan := LPlans.Objects[aRow - 1];
+  edtPlanID.Text := LPlan.Strings['id'];
+  edtPlanName.Text := LPlan.Strings['name'];
+  memPlanDesc.Text := LPlan.Strings['description'];
+end;
+
+procedure TfrmAgentMemoryMapDemo.sgPlansDblClick(Sender: TObject);
+var
+  LForm: TForm;
+  LEdtID, LEdtName: TEdit;
+  LMemDesc: TMemo;
+  LLblID, LLblName, LLblDesc: TLabel;
+  LBtnOk, LBtnCancel: TButton;
+  LRow: Integer;
+  LPlans: TJSONArray;
+  LPlan: TJSONObject;
+begin
+  LRow := sgPlans.Row;
+  if (LRow < 1) or not Assigned(FScriptData) then Exit;
+  
+  LPlans := FScriptData.Arrays['action_plans'];
+  if (LPlans = nil) or (LRow - 1 >= LPlans.Count) then Exit;
+  LPlan := LPlans.Objects[LRow - 1];
+  
+  LForm := TForm.Create(nil);
+  try
+    LForm.Caption := 'Visualizar / Editar Plano de Ação';
+    LForm.Width := 500;
+    LForm.Height := 450;
+    LForm.Position := poScreenCenter;
+    LForm.BorderStyle := bsDialog;
+    
+    LLblID := TLabel.Create(LForm);
+    LLblID.Parent := LForm;
+    LLblID.Left := 20; LLblID.Top := 15;
+    LLblID.Caption := 'Identificador:';
+    
+    LEdtID := TEdit.Create(LForm);
+    LEdtID.Parent := LForm;
+    LEdtID.Left := 20; LEdtID.Top := 35;
+    LEdtID.Width := 460;
+    LEdtID.Text := LPlan.Strings['id'];
+    LEdtID.Enabled := False;
+    
+    LLblName := TLabel.Create(LForm);
+    LLblName.Parent := LForm;
+    LLblName.Left := 20; LLblName.Top := 75;
+    LLblName.Caption := 'Nome do Plano:';
+    
+    LEdtName := TEdit.Create(LForm);
+    LEdtName.Parent := LForm;
+    LEdtName.Left := 20; LEdtName.Top := 95;
+    LEdtName.Width := 460;
+    LEdtName.Text := LPlan.Strings['name'];
+    
+    LLblDesc := TLabel.Create(LForm);
+    LLblDesc.Parent := LForm;
+    LLblDesc.Left := 20; LLblDesc.Top := 135;
+    LLblDesc.Caption := 'Descrição/Explicação para o Agente:';
+    
+    LMemDesc := TMemo.Create(LForm);
+    LMemDesc.Parent := LForm;
+    LMemDesc.Left := 20; LMemDesc.Top := 155;
+    LMemDesc.Width := 460; LMemDesc.Height := 200;
+    LMemDesc.ScrollBars := ssAutoVertical;
+    LMemDesc.Text := LPlan.Strings['description'];
+    
+    LBtnOk := TButton.Create(LForm);
+    LBtnOk.Parent := LForm;
+    LBtnOk.Caption := 'Gravar';
+    LBtnOk.ModalResult := mrOk;
+    LBtnOk.Left := 290; LBtnOk.Top := 380;
+    LBtnOk.Width := 85; LBtnOk.Height := 30;
+    LBtnOk.Default := True;
+    
+    LBtnCancel := TButton.Create(LForm);
+    LBtnCancel.Parent := LForm;
+    LBtnCancel.Caption := 'Cancelar';
+    LBtnCancel.ModalResult := mrCancel;
+    LBtnCancel.Left := 390; LBtnCancel.Top := 380;
+    LBtnCancel.Width := 85; LBtnCancel.Height := 30;
+    LBtnCancel.Cancel := True;
+    
+    if LForm.ShowModal = mrOk then
+    begin
+      LPlan.Strings['name'] := LEdtName.Text;
+      LPlan.Strings['description'] := LMemDesc.Text;
+      RefreshPlansGrid;
+      RefreshPlansComboBox;
+    end;
+  finally
+    LForm.Free;
+  end;
+end;
+
+procedure TfrmAgentMemoryMapDemo.sgDialoguesSelectionChanged(Sender: TObject; aCol, aRow: Integer);
+var
+  LDialogues: TJSONArray;
+  LDialogue: TJSONObject;
+  LTurns: TJSONArray;
+  I: Integer;
+begin
+  if (aRow < 1) or not Assigned(FScriptData) then Exit;
+  LDialogues := FScriptData.Arrays['dialogues'];
+  if (LDialogues = nil) or (aRow - 1 >= LDialogues.Count) then Exit;
+  
+  LDialogue := LDialogues.Objects[aRow - 1];
+  cbExpectedPlan.ItemIndex := cbExpectedPlan.Items.IndexOf(LDialogue.Strings['expected_action_plan']);
+  
+  memTurns.Clear;
+  LTurns := LDialogue.Arrays['turns'];
+  if Assigned(LTurns) then
+  begin
+    for I := 0 to LTurns.Count - 1 do
+      memTurns.Lines.Add(LTurns.Strings[I]);
+  end;
+end;
+
+procedure TfrmAgentMemoryMapDemo.btnLoadScriptClick(Sender: TObject);
+begin
+  LoadScriptFromFile(edtScriptPath.Text);
+end;
+
+procedure TfrmAgentMemoryMapDemo.btnSaveScriptClick(Sender: TObject);
+var
+  LFile: TStringList;
+begin
+  if not Assigned(FScriptData) then Exit;
+  
+  LFile := TStringList.Create;
+  try
+    LFile.Text := FScriptData.FormatJSON();
+    LFile.SaveToFile(edtScriptPath.Text);
+    ShowMessage('Script gravado com sucesso em ' + edtScriptPath.Text);
+  finally
+    LFile.Free;
+  end;
+end;
+
+procedure TfrmAgentMemoryMapDemo.btnNewScriptClick(Sender: TObject);
+begin
+  if Assigned(FScriptData) then FreeAndNil(FScriptData);
+  
+  FScriptData := TJSONObject.Create;
+  FScriptData.Add('action_plans', TJSONArray.Create);
+  FScriptData.Add('dialogues', TJSONArray.Create);
+  
+  RefreshPlansGrid;
+  RefreshDialoguesGrid;
+  RefreshPlansComboBox;
+end;
+
+procedure TfrmAgentMemoryMapDemo.btnAddPlanClick(Sender: TObject);
+var
+  LPlans: TJSONArray;
+  LPlan: TJSONObject;
+begin
+  if not Assigned(FScriptData) then Exit;
+  LPlans := FScriptData.Arrays['action_plans'];
+  if not Assigned(LPlans) then Exit;
+  
+  LPlan := TJSONObject.Create;
+  LPlan.Add('id', edtPlanID.Text);
+  LPlan.Add('name', edtPlanName.Text);
+  LPlan.Add('description', memPlanDesc.Text);
+  LPlans.Add(LPlan);
+  
+  RefreshPlansGrid;
+  RefreshPlansComboBox;
+end;
+
+procedure TfrmAgentMemoryMapDemo.btnSavePlanClick(Sender: TObject);
+var
+  LPlans: TJSONArray;
+  LPlan: TJSONObject;
+  LIndex: Integer;
+begin
+  LIndex := sgPlans.Row - 1;
+  if (LIndex < 0) or not Assigned(FScriptData) then Exit;
+  
+  LPlans := FScriptData.Arrays['action_plans'];
+  if (LPlans = nil) or (LIndex >= LPlans.Count) then Exit;
+  
+  LPlan := LPlans.Objects[LIndex];
+  LPlan.Strings['id'] := edtPlanID.Text;
+  LPlan.Strings['name'] := edtPlanName.Text;
+  LPlan.Strings['description'] := memPlanDesc.Text;
+  
+  RefreshPlansGrid;
+  RefreshPlansComboBox;
+end;
+
+procedure TfrmAgentMemoryMapDemo.btnDeletePlanClick(Sender: TObject);
+var
+  LPlans: TJSONArray;
+  LIndex: Integer;
+begin
+  LIndex := sgPlans.Row - 1;
+  if (LIndex < 0) or not Assigned(FScriptData) then Exit;
+  
+  LPlans := FScriptData.Arrays['action_plans'];
+  if (LPlans = nil) or (LIndex >= LPlans.Count) then Exit;
+  
+  LPlans.Delete(LIndex);
+  RefreshPlansGrid;
+  RefreshPlansComboBox;
+end;
+
+procedure TfrmAgentMemoryMapDemo.btnAddDialogueClick(Sender: TObject);
+var
+  LDialogues: TJSONArray;
+  LDialogue: TJSONObject;
+  LTurns: TJSONArray;
+  I: Integer;
+begin
+  if not Assigned(FScriptData) then Exit;
+  LDialogues := FScriptData.Arrays['dialogues'];
+  if not Assigned(LDialogues) then Exit;
+  
+  LDialogue := TJSONObject.Create;
+  LDialogue.Add('id', LDialogues.Count + 1);
+  LDialogue.Add('expected_action_plan', cbExpectedPlan.Text);
+  
+  LTurns := TJSONArray.Create;
+  for I := 0 to memTurns.Lines.Count - 1 do
+    LTurns.Add(memTurns.Lines[I]);
+  LDialogue.Add('turns', LTurns);
+  
+  LDialogues.Add(LDialogue);
+  RefreshDialoguesGrid;
+end;
+
+procedure TfrmAgentMemoryMapDemo.btnSaveDialogueClick(Sender: TObject);
+var
+  LDialogues: TJSONArray;
+  LDialogue: TJSONObject;
+  LTurns: TJSONArray;
+  LIndex: Integer;
+  I: Integer;
+begin
+  LIndex := sgDialogues.Row - 1;
+  if (LIndex < 0) or not Assigned(FScriptData) then Exit;
+  
+  LDialogues := FScriptData.Arrays['dialogues'];
+  if (LDialogues = nil) or (LIndex >= LDialogues.Count) then Exit;
+  
+  LDialogue := LDialogues.Objects[LIndex];
+  LDialogue.Strings['expected_action_plan'] := cbExpectedPlan.Text;
+  
+  LTurns := TJSONArray.Create;
+  for I := 0 to memTurns.Lines.Count - 1 do
+    LTurns.Add(memTurns.Lines[I]);
+    
+  LDialogue.Arrays['turns'] := LTurns;
+  RefreshDialoguesGrid;
+end;
+
+procedure TfrmAgentMemoryMapDemo.btnDeleteDialogueClick(Sender: TObject);
+var
+  LDialogues: TJSONArray;
+  LIndex: Integer;
+begin
+  LIndex := sgDialogues.Row - 1;
+  if (LIndex < 0) or not Assigned(FScriptData) then Exit;
+  
+  LDialogues := FScriptData.Arrays['dialogues'];
+  if (LDialogues = nil) or (LIndex >= LDialogues.Count) then Exit;
+  
+  LDialogues.Delete(LIndex);
+  RefreshDialoguesGrid;
+end;
+
+procedure TfrmAgentMemoryMapDemo.UpdateSystemPrompts;
+var
+  LPlans: TJSONArray;
+  I: Integer;
+  LPlan: TJSONObject;
+  LPrompt: string;
+begin
+  if not Assigned(FScriptData) then Exit;
+  
+  LPlans := FScriptData.Arrays['action_plans'];
+  if not Assigned(LPlans) then Exit;
+  
+  LPrompt := 'Você é o Agente Classificador do sistema de suporte da TI.' + sLineBreak +
+             'Seu trabalho é analisar a pergunta do usuário e verificar se ela corresponde a algum dos planos de ação disponíveis.' + sLineBreak +
+             'Da pergunta acima, dá para identificar alguma das seguintes ações?' + sLineBreak + sLineBreak;
+             
+  for I := 0 to LPlans.Count - 1 do
+  begin
+    LPlan := LPlans.Objects[I];
+    LPrompt := LPrompt + 'Ação: ' + LPlan.Strings['id'] + ' | Descrição: ' + LPlan.Strings['description'] + sLineBreak;
+  end;
+  
+  LPrompt := LPrompt + sLineBreak +
+             'Se não for possível identificar nenhuma das ações, retorne a palavra "nenhuma" no array "target_agents".' + sLineBreak +
+             'Se sim, retorne a ação identificada.' + sLineBreak +
+             'Seu retorno JSON DEVE conter a chave "target_agents" com um array contendo o identificador correspondente. Exemplo: ["manutencao_equipamentos"] ou ["nenhuma"].';
+             
+  FClassifier.SystemPrompt := LPrompt;
+end;
+
+procedure TfrmAgentMemoryMapDemo.ResetStats;
+var
+  LPlans: TJSONArray;
+  I: Integer;
+  LPlan: TJSONObject;
+begin
+  FStatsTotal := 0;
+  FStatsCorrect := 0;
+  
+  FStatsPlansTotal.Clear;
+  FStatsPlansCorrect.Clear;
+  
+  if not Assigned(FScriptData) then Exit;
+  
+  LPlans := FScriptData.Arrays['action_plans'];
+  if not Assigned(LPlans) then Exit;
+  
+  for I := 0 to LPlans.Count - 1 do
+  begin
+    LPlan := LPlans.Objects[I];
+    FStatsPlansTotal.Add(LPlan.Strings['id'], 0);
+    FStatsPlansCorrect.Add(LPlan.Strings['id'], 0);
+  end;
+end;
+
+procedure TfrmAgentMemoryMapDemo.UpdateStatsUI;
+var
+  LPercent: Double;
+  LPlans: TJSONArray;
+  I: Integer;
+  LPlanID: string;
+  LTotal, LCorrect: Integer;
+  LPlanPercent: Double;
+begin
+  memStats.Clear;
+  if FStatsTotal > 0 then
+    LPercent := (FStatsCorrect / FStatsTotal) * 100.0
+  else
+    LPercent := 0.0;
+    
+  memStats.Lines.Add('=== ESTATÍSTICAS GERAIS DA SIMULAÇÃO ===');
+  memStats.Lines.Add(Format('Total de Diálogos Executados: %d', [FStatsTotal]));
+  memStats.Lines.Add(Format('Classificações Corretas: %d', [FStatsCorrect]));
+  memStats.Lines.Add(Format('Precisão Global: %0.2f%%', [LPercent]));
+  memStats.Lines.Add('========================================');
+  
+  if not Assigned(FScriptData) then Exit;
+  LPlans := FScriptData.Arrays['action_plans'];
+  if not Assigned(LPlans) then Exit;
+  
+  sgStatsPlans.RowCount := LPlans.Count + 1;
+  sgStatsPlans.Cells[0, 0] := 'Plano de Ação';
+  sgStatsPlans.Cells[1, 0] := 'Total de Testes';
+  sgStatsPlans.Cells[2, 0] := 'Acertos';
+  sgStatsPlans.Cells[3, 0] := 'Precisão (%)';
+  
+  for I := 0 to LPlans.Count - 1 do
+  begin
+    LPlanID := LPlans.Objects[I].Strings['id'];
+    LTotal := FStatsPlansTotal.Integers[LPlanID];
+    LCorrect := FStatsPlansCorrect.Integers[LPlanID];
+    
+    if LTotal > 0 then
+      LPlanPercent := (LCorrect / LTotal) * 100.0
+    else
+      LPlanPercent := 0.0;
+      
+    sgStatsPlans.Cells[0, I + 1] := LPlanID;
+    sgStatsPlans.Cells[1, I + 1] := IntToStr(LTotal);
+    sgStatsPlans.Cells[2, I + 1] := IntToStr(LCorrect);
+    sgStatsPlans.Cells[3, I + 1] := Format('%0.2f%%', [LPlanPercent]);
+  end;
+end;
+
+procedure TfrmAgentMemoryMapDemo.btnStopSimClick(Sender: TObject);
+begin
+  FStopSimulation := True;
+  memLogs.Lines.Add('Parando simulação na próxima iteração...');
+end;
+
+procedure TfrmAgentMemoryMapDemo.btnStartSimClick(Sender: TObject);
+var
+  LDialogues: TJSONArray;
+  I, J: Integer;
+  LDialogue: TJSONObject;
+  LTurns: TJSONArray;
+  LExpected: string;
+  LTurnText: string;
+  LSuccess: Boolean;
+begin
+  if not ConfigureChatGPT then Exit;
+  if not Assigned(FScriptData) then Exit;
+  
+  LDialogues := FScriptData.Arrays['dialogues'];
+  if (LDialogues = nil) or (LDialogues.Count = 0) then
+  begin
+    ShowMessage('Nenhum diálogo disponível no script.');
+    Exit;
+  end;
+  
+  UpdateSystemPrompts;
+  ResetStats;
+  UpdateStatsUI;
+  
+  FStopSimulation := False;
+  btnStartSim.Enabled := False;
+  btnStopSim.Enabled := True;
+  btnStopSimExecution.Enabled := True;
+  PageControl1.ActivePage := tsExecution;
+  memLogs.Clear;
+  memConvHistory.Clear;
+  memConvMemoryMap.Clear;
+  pbProgress.Min := 0;
+  pbProgress.Max := LDialogues.Count;
+  pbProgress.Position := 0;
+  
+  try
+    for I := 0 to LDialogues.Count - 1 do
+    begin
+      if FStopSimulation then Break;
+      
+      LDialogue := LDialogues.Objects[I];
+      LExpected := LDialogue.Strings['expected_action_plan'];
+      LTurns := LDialogue.Arrays['turns'];
+      
+      memLogs.Lines.Add(Format('--- Iniciando Diálogo %d (Espera: %s) ---', [LDialogue.Integers['id'], LExpected]));
+      memConvHistory.Lines.Add(Format('--- Diálogo %d (Espera: %s) ---', [LDialogue.Integers['id'], LExpected]));
+      
+      { Clear conversational memory at the start of each dialogue }
+      if Assigned(FOrchestrator.MemoryMap) then
+        FOrchestrator.MemoryMap.Items.Clear;
+        
+      FLastClassification := '';
+      LSuccess := True;
+      
+      for J := 0 to LTurns.Count - 1 do
+      begin
+        if FStopSimulation then Break;
+        LTurnText := LTurns.Strings[J];
+        memLogs.Lines.Add(Format('Turno %d: %s', [J + 1, LTurnText]));
+        memConvHistory.Lines.Add(Format('Pergunta: %s', [LTurnText]));
+        
+        try
+          if not FOrchestrator.Run(LTurnText) then
+          begin
+            memLogs.Lines.Add('Fluxo retornou falha.');
+            memConvHistory.Lines.Add('Resposta (Classificador): ERRO / FALHA');
+            LSuccess := False;
+            Break;
+          end;
+        except
+          on E: Exception do
+          begin
+            memLogs.Lines.Add('Erro de execução: ' + E.Message);
+            memConvHistory.Lines.Add('Resposta (Classificador): ERRO / ' + E.Message);
+            LSuccess := False;
+            Break;
+          end;
+        end;
+        
+        if FLastClassification <> '' then
+          memConvHistory.Lines.Add('Resposta (Classificador): ' + FLastClassification)
+        else
+          memConvHistory.Lines.Add('Resposta (Classificador): nenhuma');
+          
+        if Assigned(FOrchestrator.MemoryMap) then
+          memConvMemoryMap.Text := FOrchestrator.MemoryMap.Items.AsText;
+          
+        Application.ProcessMessages;
+      end;
+      
+      if LSuccess and not FStopSimulation then
+      begin
+        FStatsTotal := FStatsTotal + 1;
+        FStatsPlansTotal.Integers[LExpected] := FStatsPlansTotal.Integers[LExpected] + 1;
+        
+        memLogs.Lines.Add(Format('Classificação do modelo: "%s" | Esperado: "%s"', [FLastClassification, LExpected]));
+        
+        if SameText(FLastClassification, LExpected) then
+        begin
+          FStatsCorrect := FStatsCorrect + 1;
+          FStatsPlansCorrect.Integers[LExpected] := FStatsPlansCorrect.Integers[LExpected] + 1;
+          memLogs.Lines.Add('Resultado: CORRETO');
+        end
+        else
+        begin
+          memLogs.Lines.Add('Resultado: INCORRETO');
+        end;
+      end;
+      
+      memLogs.Lines.Add('----------------------------------------' + sLineBreak);
+      memConvHistory.Lines.Add('----------------------------------------');
+      pbProgress.Position := I + 1;
+      UpdateStatsUI;
+      Application.ProcessMessages;
+    end;
+  finally
+    btnStartSim.Enabled := True;
+    btnStopSim.Enabled := False;
+    btnStopSimExecution.Enabled := False;
+    if FStopSimulation then
+      ShowMessage('Simulação parada pelo usuário.')
+    else
+      ShowMessage('Simulação concluída com sucesso!');
   end;
 end;
 
@@ -187,86 +869,88 @@ end;
 
 procedure TfrmAgentMemoryMapDemo.OnBeforeFlowStart(Sender: TObject; AContexto: TAIFluxoEtapaContexto; var ACanContinue: Boolean);
 begin
-  memErrors.Lines.Add('Fluxo iniciando...');
 end;
 
 procedure TfrmAgentMemoryMapDemo.OnAfterFlowStart(Sender: TObject; AContexto: TAIFluxoEtapaContexto);
 begin
-  memErrors.Lines.Add('Fluxo iniciado.');
 end;
 
 procedure TfrmAgentMemoryMapDemo.OnBeforeClassifier(Sender: TObject; AContexto: TAIFluxoEtapaContexto; var ACanContinue: Boolean);
 begin
-  memClassifier.Lines.Add('Iniciando Classificação...');
 end;
 
 procedure TfrmAgentMemoryMapDemo.OnAfterClassifier(Sender: TObject; AContexto: TAIFluxoEtapaContexto);
+var
+  JSONData: TJSONData;
+  Obj: TJSONObject;
+  CleanJSON: string;
 begin
-  memClassifier.Lines.Add('Classificação concluída.');
-  memClassifier.Lines.Add(AContexto.SaidaAtual);
+  try
+    CleanJSON := CleanJSONResponse(AContexto.SaidaAtual);
+    if CleanJSON <> '' then
+    begin
+      JSONData := GetJSON(CleanJSON);
+      try
+        if JSONData is TJSONObject then
+        begin
+          Obj := TJSONObject(JSONData);
+          if Obj.IndexOfName('target_agents') >= 0 then
+          begin
+            if Obj.Arrays['target_agents'].Count > 0 then
+              FLastClassification := Obj.Arrays['target_agents'].Items[0].AsString;
+          end;
+        end;
+      finally
+        JSONData.Free;
+      end;
+    end;
+  except
+    // Silent fail
+  end;
 end;
 
 procedure TfrmAgentMemoryMapDemo.OnBeforeDecisionAgent(Sender: TObject; AContexto: TAIFluxoEtapaContexto; var ACanContinue: Boolean);
 begin
-  memDecision.Lines.Add('Iniciando Decisor...');
 end;
 
 procedure TfrmAgentMemoryMapDemo.OnAfterDecisionAgent(Sender: TObject; AContexto: TAIFluxoEtapaContexto);
 begin
-  memDecision.Lines.Add('Decisão concluída.');
-  memDecision.Lines.Add(AContexto.SaidaAtual);
 end;
 
 procedure TfrmAgentMemoryMapDemo.OnBeforeActionBuilder(Sender: TObject; AContexto: TAIFluxoEtapaContexto; var ACanContinue: Boolean);
 begin
-  memDecision.Lines.Add('Ajustando Plano de Ação...');
 end;
 
 procedure TfrmAgentMemoryMapDemo.OnAfterActionBuilder(Sender: TObject; AContexto: TAIFluxoEtapaContexto);
 begin
-  memDecision.Lines.Add('Parâmetros de ações ajustados.');
-  memDecision.Lines.Add(AContexto.SaidaAtual);
 end;
 
 procedure TfrmAgentMemoryMapDemo.OnBeforeExecutor(Sender: TObject; AContexto: TAIFluxoEtapaContexto; var ACanContinue: Boolean);
 begin
-  memExecutor.Lines.Add('Iniciando Execução do Plano...');
 end;
 
 procedure TfrmAgentMemoryMapDemo.OnAfterExecutor(Sender: TObject; AContexto: TAIFluxoEtapaContexto);
 begin
-  memExecutor.Lines.Add('Execução concluída.');
-  memExecutor.Lines.Add(AContexto.SaidaAtual);
 end;
 
 procedure TfrmAgentMemoryMapDemo.OnFlowFinished(Sender: TObject; AContexto: TAIFluxoEtapaContexto);
 begin
-  memErrors.Lines.Add('Fluxo encerrado com sucesso.');
-  if Assigned(FOrchestrator.MemoryMap) then
-    memMemoryMap.Text := FOrchestrator.MemoryMap.AsText;
 end;
 
 procedure TfrmAgentMemoryMapDemo.OnFlowError(Sender: TObject; AContexto: TAIFluxoEtapaContexto);
 begin
-  memErrors.Lines.Add('ERRO no fluxo: ' + AContexto.MensagemErro);
-  memErrors.Lines.Add('=== DEBUG INFO ===');
-  memErrors.Lines.Add('URL chamada: ' + FChatGPT.LastURL);
-  memErrors.Lines.Add('Resposta bruta da API:');
-  memErrors.Lines.Add(FChatGPT.LastJSON);
-  memErrors.Lines.Add('==================');
-  if Assigned(FOrchestrator.MemoryMap) then
-    memMemoryMap.Text := FOrchestrator.MemoryMap.AsText;
+  memLogs.Lines.Add('Erro detectado no fluxo: ' + AContexto.MensagemErro);
+  memLogs.Lines.Add('=== RESPOSTA BRUTA DO MODELO (CHATGPT) ===');
+  memLogs.Lines.Add(string(FChatGPT.Response));
+  memLogs.Lines.Add('==========================================');
 end;
 
 procedure TfrmAgentMemoryMapDemo.OnFlowStage(Sender: TObject; AContexto: TAIFluxoEtapaContexto);
 begin
-  memErrors.Lines.Add(Format('Etapa: %d | Agente: %s', [Ord(AContexto.Etapa), AContexto.NomeAgenteAtual]));
 end;
 
 procedure TfrmAgentMemoryMapDemo.OnInformationLossDetected(Sender: TObject; AContexto: TAIFluxoEtapaContexto);
 begin
-  memInfoLoss.Lines.Add('ATENÇÃO: Perda de informação identificada!');
-  memInfoLoss.Lines.Add(AContexto.AsText);
 end;
 
 end.

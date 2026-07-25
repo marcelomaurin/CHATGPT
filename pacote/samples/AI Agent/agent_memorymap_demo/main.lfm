@@ -1,326 +1,591 @@
 object frmAgentMemoryMapDemo: TfrmAgentMemoryMapDemo
-  Left = 826
-  Height = 750
-  Top = 180
-  Width = 1200
-  Caption = 'IA Multi-Agent & Memory Map Demo'
-  ClientHeight = 750
-  ClientWidth = 1200
+  Left = 350
+  Height = 700
+  Top = 150
+  Width = 1100
+  Caption = 'IA Multi-Agent & Memory Map Simulation'
+  ClientHeight = 700
+  ClientWidth = 1100
   LCLVersion = '4.4.0.0'
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  object pnlHeader: TPanel
-    Left = 0
-    Height = 50
-    Top = 0
-    Width = 1200
-    Align = alTop
-    BevelOuter = bvNone
-    BorderWidth = 5
-    ClientHeight = 50
-    ClientWidth = 1200
-    TabOrder = 0
-    object lblProvider: TLabel
-      Left = 5
-      Height = 15
-      Top = 13
-      Width = 57
-      Caption = ' Provedor: '
-      Layout = tlCenter
-    end
-    object cbProvider: TComboBox
-      Left = 65
-      Height = 23
-      Top = 13
-      Width = 120
-      ItemHeight = 15
-      Items.Strings = (
-        'OpenAI'
-        'Local (Ollama/LMStudio)'
-      )
-      Style = csDropDownList
-      TabOrder = 0
-      OnChange = cbProviderChange
-    end
-    object lblModel: TLabel
-      Left = 195
-      Height = 15
-      Top = 13
-      Width = 50
-      Caption = ' Modelo: '
-      Layout = tlCenter
-    end
-    object edtModel: TEdit
-      Left = 250
-      Height = 23
-      Top = 13
-      Width = 130
-      TabOrder = 1
-      Text = 'gpt-4o-mini'
-    end
-    object lblToken: TLabel
-      Left = 390
-      Height = 15
-      Top = 13
-      Width = 61
-      Caption = ' API Token: '
-      Layout = tlCenter
-    end
-    object edtToken: TEdit
-      Left = 455
-      Height = 23
-      Top = 13
-      Width = 180
-      EchoMode = emPassword
-      PasswordChar = '*'
-      TabOrder = 2
-    end
-    object lblBaseURL: TLabel
-      Left = 640
-      Height = 15
-      Top = 13
-      Width = 57
-      Caption = ' Base URL: '
-      Layout = tlCenter
-    end
-    object edtBaseURL: TEdit
-      Left = 705
-      Height = 23
-      Top = 13
-      Width = 250
-      TabOrder = 3
-      Text = 'https://api.openai.com/v1'
-    end
-  end
-  object pnlClient: TPanel
+  object PageControl1: TPageControl
     Left = 0
     Height = 700
-    Top = 50
-    Width = 1200
+    Top = 0
+    Width = 1100
+    ActivePage = tsSetup
     Align = alClient
-    BevelOuter = bvNone
-    ClientHeight = 700
-    ClientWidth = 1200
-    TabOrder = 1
-    object pnlLeft: TPanel
-      Left = 0
-      Height = 700
-      Top = 0
-      Width = 350
-      Align = alLeft
-      BevelOuter = bvNone
-      BorderWidth = 5
-      ClientHeight = 700
-      ClientWidth = 350
-      TabOrder = 0
-      object gbInput: TGroupBox
-        Left = 5
-        Height = 655
-        Top = 5
-        Width = 340
-        Align = alClient
-        Caption = 'Solicitação do Usuário'
-        ClientHeight = 635
-        ClientWidth = 336
-        TabOrder = 0
-        object memInput: TMemo
-          Left = 0
-          Height = 635
-          Top = 0
-          Width = 336
-          Align = alClient
-          ScrollBars = ssAutoVertical
-          TabOrder = 0
-        end
-      end
-      object btnRun: TButton
-        Left = 5
-        Height = 35
-        Top = 660
-        Width = 340
-        Align = alBottom
-        Caption = 'Executar Fluxo Multiagente'
-        TabOrder = 1
-        OnClick = btnRunClick
-      end
-    end
-    object splitterLeft: TSplitter
-      Left = 350
-      Height = 700
-      Top = 0
-      Width = 5
-    end
-    object pnlCenter: TPanel
-      Left = 355
-      Height = 700
-      Top = 0
-      Width = 440
-      Align = alClient
-      BevelOuter = bvNone
-      BorderWidth = 5
-      ClientHeight = 700
-      ClientWidth = 440
-      TabOrder = 2
-      object gbClassifier: TGroupBox
-        Left = 5
-        Height = 200
-        Top = 5
-        Width = 430
-        Align = alTop
-        Caption = '1. Classificador (Decisão Preliminar)'
-        ClientHeight = 180
-        ClientWidth = 426
-        TabOrder = 0
-        object memClassifier: TMemo
-          Left = 0
-          Height = 180
-          Top = 0
-          Width = 426
-          Align = alClient
-          ReadOnly = True
-          ScrollBars = ssAutoVertical
-          TabOrder = 0
-        end
-      end
-      object gbDecision: TGroupBox
-        Left = 5
-        Height = 290
-        Top = 205
-        Width = 430
-        Align = alClient
-        Caption = '2. Decisor (Plano de Ação)'
-        ClientHeight = 270
-        ClientWidth = 426
-        TabOrder = 1
-        object memDecision: TMemo
-          Left = 0
-          Height = 270
-          Top = 0
-          Width = 426
-          Align = alClient
-          ReadOnly = True
-          ScrollBars = ssAutoVertical
-          TabOrder = 0
-        end
-      end
-      object gbExecutor: TGroupBox
-        Left = 5
-        Height = 200
-        Top = 495
-        Width = 430
-        Align = alBottom
-        Caption = '3. Executor (Ações Executadas)'
-        ClientHeight = 180
-        ClientWidth = 426
-        TabOrder = 2
-        object memExecutor: TMemo
-          Left = 0
-          Height = 180
-          Top = 0
-          Width = 426
-          Align = alClient
-          ReadOnly = True
-          ScrollBars = ssAutoVertical
-          TabOrder = 0
-        end
-      end
-    end
-    object splitterCenter: TSplitter
-      Left = 795
-      Height = 700
-      Top = 0
-      Width = 5
-      Align = alRight
-      ResizeAnchor = akRight
-    end
-    object pnlRight: TPanel
-      Left = 800
-      Height = 700
-      Top = 0
-      Width = 400
-      Align = alRight
-      BevelOuter = bvNone
-      BorderWidth = 5
-      ClientHeight = 700
-      ClientWidth = 400
-      TabOrder = 4
-      object gbMemoryMap: TGroupBox
-        Left = 5
-        Height = 390
-        Top = 5
-        Width = 390
-        Align = alClient
-        Caption = 'Mapa de Memória (Persistência de Contexto)'
-        ClientHeight = 370
-        ClientWidth = 386
-        TabOrder = 0
-        object memMemoryMap: TMemo
-          Left = 0
-          Height = 370
-          Top = 0
-          Width = 386
-          Align = alClient
-          Font.CharSet = ANSI_CHARSET
-          Font.Height = -11
-          Font.Name = 'Courier New'
-          Font.Pitch = fpFixed
-          Font.Quality = fqDraft
-          ParentFont = False
-          ReadOnly = True
-          ScrollBars = ssAutoVertical
-          TabOrder = 0
-        end
-      end
-      object gbInfoLoss: TGroupBox
-        Left = 5
+    TabIndex = 0
+    TabOrder = 0
+    object tsSetup: TTabSheet
+      Caption = 'Configuração & Carga'
+      ClientHeight = 672
+      ClientWidth = 1092
+      object gbAIConfig: TGroupBox
+        Left = 0
         Height = 160
-        Top = 395
-        Width = 390
-        Align = alBottom
-        Caption = 'Perdas de Informação Detectadas'
+        Top = 0
+        Width = 1092
+        Align = alTop
+        Caption = 'Configurações da API de IA'
         ClientHeight = 140
-        ClientWidth = 386
+        ClientWidth = 1088
+        TabOrder = 0
+        object lblProvider: TLabel
+          Left = 15
+          Height = 15
+          Top = 15
+          Width = 51
+          Caption = 'Provedor:'
+          ParentColor = False
+        end
+        object cbProvider: TComboBox
+          Left = 15
+          Height = 23
+          Top = 35
+          Width = 180
+          ItemHeight = 15
+          Items.Strings = (
+            'OpenAI'
+            'OpenRouter'
+            'Cerebras'
+            'Local (Ollama/LMStudio)'
+            'Gemini (Google)'
+            'Anthropic Claude'
+          )
+          Style = csDropDownList
+          TabOrder = 0
+          OnChange = cbProviderChange
+        end
+        object lblModel: TLabel
+          Left = 210
+          Height = 15
+          Top = 15
+          Width = 44
+          Caption = 'Modelo:'
+          ParentColor = False
+        end
+        object edtModel: TEdit
+          Left = 210
+          Height = 23
+          Top = 35
+          Width = 200
+          TabOrder = 1
+        end
+        object lblToken: TLabel
+          Left = 425
+          Height = 15
+          Top = 15
+          Width = 55
+          Caption = 'API Token:'
+          ParentColor = False
+        end
+        object edtToken: TEdit
+          Left = 425
+          Height = 23
+          Top = 35
+          Width = 220
+          EchoMode = emPassword
+          PasswordChar = '*'
+          TabOrder = 2
+        end
+        object lblBaseURL: TLabel
+          Left = 660
+          Height = 15
+          Top = 15
+          Width = 51
+          Caption = 'Base URL:'
+          ParentColor = False
+        end
+        object edtBaseURL: TEdit
+          Left = 660
+          Height = 23
+          Top = 35
+          Width = 380
+          TabOrder = 3
+        end
+      end
+      object gbScriptConfig: TGroupBox
+        Left = 0
+        Height = 160
+        Top = 160
+        Width = 1092
+        Align = alTop
+        Caption = 'Carga e Gerenciamento do Script'
+        ClientHeight = 140
+        ClientWidth = 1088
         TabOrder = 1
-        object memInfoLoss: TMemo
-          Left = 0
-          Height = 140
-          Top = 0
-          Width = 386
+        object lblScriptPath: TLabel
+          Left = 15
+          Height = 15
+          Top = 15
+          Width = 102
+          Caption = 'Caminho do Script:'
+          ParentColor = False
+        end
+        object edtScriptPath: TEdit
+          Left = 15
+          Height = 23
+          Top = 35
+          Width = 800
+          TabOrder = 0
+          Text = 'maintenance_script.json'
+        end
+        object btnLoadScript: TButton
+          Left = 15
+          Height = 35
+          Top = 80
+          Width = 150
+          Caption = 'Carregar Script'
+          TabOrder = 1
+          OnClick = btnLoadScriptClick
+        end
+        object btnSaveScript: TButton
+          Left = 180
+          Height = 35
+          Top = 80
+          Width = 150
+          Caption = 'Salvar Script'
+          TabOrder = 2
+          OnClick = btnSaveScriptClick
+        end
+        object btnNewScript: TButton
+          Left = 345
+          Height = 35
+          Top = 80
+          Width = 150
+          Caption = 'Novo Script'
+          TabOrder = 3
+          OnClick = btnNewScriptClick
+        end
+      end
+      object pnlSetupRun: TPanel
+        Left = 0
+        Height = 80
+        Top = 320
+        Width = 1092
+        Align = alTop
+        BevelOuter = bvNone
+        ClientHeight = 80
+        ClientWidth = 1092
+        TabOrder = 2
+        object btnStartSim: TButton
+          Left = 15
+          Height = 50
+          Top = 15
+          Width = 220
+          Caption = 'Iniciar Simulação'
+          Font.Style = [fsBold]
+          ParentFont = False
+          TabOrder = 0
+          OnClick = btnStartSimClick
+        end
+        object btnStopSim: TButton
+          Left = 250
+          Height = 50
+          Top = 15
+          Width = 220
+          Caption = 'Parar Simulação'
+          Enabled = False
+          TabOrder = 1
+          OnClick = btnStopSimClick
+        end
+      end
+    end
+    object tsPlans: TTabSheet
+      Caption = 'Planos de Ação'
+      ClientHeight = 672
+      ClientWidth = 1092
+      object sgPlans: TStringGrid
+        Left = 0
+        Height = 672
+        Top = 0
+        Width = 400
+        Align = alLeft
+        ColCount = 2
+        Columns = <        
+          item
+            Title.Caption = 'ID'
+            Width = 150
+          end        
+          item
+            Title.Caption = 'Nome'
+            Width = 220
+          end>
+        FixedCols = 0
+        Flat = True
+        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goRowSelect, goSmoothScroll]
+        RowCount = 1
+        TabOrder = 0
+        OnDblClick = sgPlansDblClick
+      end
+      object pnlEditPlan: TPanel
+        Left = 400
+        Height = 672
+        Top = 0
+        Width = 692
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 672
+        ClientWidth = 692
+        TabOrder = 1
+        object lblPlanID: TLabel
+          Left = 15
+          Height = 15
+          Top = 15
+          Width = 70
+          Caption = 'Identificador:'
+          ParentColor = False
+        end
+        object edtPlanID: TEdit
+          Left = 15
+          Height = 23
+          Top = 35
+          Width = 250
+          TabOrder = 0
+        end
+        object lblPlanName: TLabel
+          Left = 15
+          Height = 15
+          Top = 75
+          Width = 86
+          Caption = 'Nome do Plano:'
+          ParentColor = False
+        end
+        object edtPlanName: TEdit
+          Left = 15
+          Height = 23
+          Top = 95
+          Width = 400
+          TabOrder = 1
+        end
+        object lblPlanDesc: TLabel
+          Left = 15
+          Height = 15
+          Top = 135
+          Width = 192
+          Caption = 'Descrição/Explicação para o Agente:'
+          ParentColor = False
+        end
+        object memPlanDesc: TMemo
+          Left = 15
+          Height = 350
+          Top = 155
+          Width = 630
+          ScrollBars = ssAutoVertical
+          TabOrder = 2
+        end
+        object btnAddPlan: TButton
+          Left = 15
+          Height = 35
+          Top = 520
+          Width = 130
+          Caption = 'Adicionar Novo'
+          TabOrder = 3
+          OnClick = btnAddPlanClick
+        end
+        object btnSavePlan: TButton
+          Left = 160
+          Height = 35
+          Top = 520
+          Width = 130
+          Caption = 'Salvar Edição'
+          TabOrder = 4
+          OnClick = btnSavePlanClick
+        end
+        object btnDeletePlan: TButton
+          Left = 305
+          Height = 35
+          Top = 520
+          Width = 130
+          Caption = 'Remover Plano'
+          TabOrder = 5
+          OnClick = btnDeletePlanClick
+        end
+      end
+    end
+    object tsDialogues: TTabSheet
+      Caption = 'Diálogos de Teste'
+      ClientHeight = 672
+      ClientWidth = 1092
+      object sgDialogues: TStringGrid
+        Left = 0
+        Height = 672
+        Top = 0
+        Width = 400
+        Align = alLeft
+        ColCount = 2
+        Columns = <        
+          item
+            Title.Caption = 'ID'
+            Width = 80
+          end        
+          item
+            Title.Caption = 'Plano Esperado'
+            Width = 280
+          end>
+        FixedCols = 0
+        Flat = True
+        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goRowSelect, goSmoothScroll]
+        RowCount = 1
+        TabOrder = 0
+      end
+      object pnlEditDialogue: TPanel
+        Left = 400
+        Height = 672
+        Top = 0
+        Width = 692
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 672
+        ClientWidth = 692
+        TabOrder = 1
+        object lblExpectedPlan: TLabel
+          Left = 15
+          Height = 15
+          Top = 15
+          Width = 130
+          Caption = 'Plano de Ação Esperado:'
+          ParentColor = False
+        end
+        object cbExpectedPlan: TComboBox
+          Left = 15
+          Height = 23
+          Top = 35
+          Width = 350
+          ItemHeight = 15
+          Style = csDropDownList
+          TabOrder = 0
+        end
+        object lblTurns: TLabel
+          Left = 15
+          Height = 15
+          Top = 75
+          Width = 231
+          Caption = 'Interações do Diálogo (uma frase por linha):'
+          ParentColor = False
+        end
+        object memTurns: TMemo
+          Left = 15
+          Height = 410
+          Top = 95
+          Width = 630
+          ScrollBars = ssAutoVertical
+          TabOrder = 1
+        end
+        object btnAddDialogue: TButton
+          Left = 15
+          Height = 35
+          Top = 520
+          Width = 130
+          Caption = 'Adicionar Novo'
+          TabOrder = 2
+          OnClick = btnAddDialogueClick
+        end
+        object btnSaveDialogue: TButton
+          Left = 160
+          Height = 35
+          Top = 520
+          Width = 130
+          Caption = 'Salvar Edição'
+          TabOrder = 3
+          OnClick = btnSaveDialogueClick
+        end
+        object btnDeleteDialogue: TButton
+          Left = 305
+          Height = 35
+          Top = 520
+          Width = 130
+          Caption = 'Remover Diálogo'
+          TabOrder = 4
+          OnClick = btnDeleteDialogueClick
+        end
+      end
+    end
+    object tsConversas: TTabSheet
+      Caption = 'Conversas'
+      ClientHeight = 672
+      ClientWidth = 1092
+      object pnlConvLeft: TPanel
+        Left = 0
+        Height = 672
+        Top = 0
+        Width = 550
+        Align = alLeft
+        BevelOuter = bvNone
+        ClientHeight = 672
+        ClientWidth = 550
+        TabOrder = 0
+        object lblConvHistory: TLabel
+          Left = 15
+          Height = 15
+          Top = 15
+          Width = 180
+          Caption = 'Perguntas e Respostas em Execução:'
+          ParentColor = False
+        end
+        object memConvHistory: TMemo
+          Left = 15
+          Height = 620
+          Top = 35
+          Width = 520
+          ReadOnly = True
+          ScrollBars = ssAutoVertical
+          TabOrder = 0
+        end
+      end
+      object splConv: TSplitter
+        Left = 550
+        Height = 672
+        Top = 0
+        Width = 5
+      end
+      object pnlConvRight: TPanel
+        Left = 555
+        Height = 672
+        Top = 0
+        Width = 537
+        Align = alClient
+        BevelOuter = bvNone
+        ClientHeight = 672
+        ClientWidth = 537
+        TabOrder = 2
+        object lblConvMemoryMap: TLabel
+          Left = 10
+          Height = 15
+          Top = 15
+          Width = 160
+          Caption = 'Mapa de Memória da Conversa:'
+          ParentColor = False
+        end
+        object memConvMemoryMap: TMemo
+          Left = 10
+          Height = 620
+          Top = 35
+          Width = 517
           Align = alClient
+          BorderSpacing.Left = 10
+          BorderSpacing.Top = 35
+          BorderSpacing.Right = 10
+          BorderSpacing.Bottom = 15
           Font.CharSet = ANSI_CHARSET
-          Font.Color = clRed
           Font.Height = -11
           Font.Name = 'Courier New'
           Font.Pitch = fpFixed
           Font.Quality = fqDraft
           ParentFont = False
           ReadOnly = True
-          ScrollBars = ssAutoVertical
+          ScrollBars = ssAutoBoth
           TabOrder = 0
         end
       end
-      object gbErrors: TGroupBox
-        Left = 5
-        Height = 140
-        Top = 555
-        Width = 390
+    end
+    object tsExecution: TTabSheet
+      Caption = 'Execução & Logs'
+      ClientHeight = 672
+      ClientWidth = 1092
+      object memLogs: TMemo
+        Left = 0
+        Height = 612
+        Top = 0
+        Width = 1092
+        Align = alClient
+        Font.CharSet = ANSI_CHARSET
+        Font.Height = -11
+        Font.Name = 'Courier New'
+        Font.Pitch = fpFixed
+        Font.Quality = fqDraft
+        ParentFont = False
+        ReadOnly = True
+        ScrollBars = ssAutoVertical
+        TabOrder = 0
+      end
+      object pnlExecutionBottom: TPanel
+        Left = 0
+        Height = 60
+        Top = 612
+        Width = 1092
         Align = alBottom
-        Caption = 'Erros do Fluxo'
-        ClientHeight = 120
-        ClientWidth = 386
-        TabOrder = 2
-        object memErrors: TMemo
-          Left = 0
-          Height = 120
-          Top = 0
-          Width = 386
-          Align = alClient
-          Font.Color = clMaroon
-          ParentFont = False
-          ReadOnly = True
-          ScrollBars = ssAutoVertical
+        BevelOuter = bvNone
+        ClientHeight = 60
+        ClientWidth = 1092
+        TabOrder = 1
+        object btnStopSimExecution: TButton
+          Left = 952
+          Height = 40
+          Top = 10
+          Width = 130
+          Align = alRight
+          BorderSpacing.Around = 10
+          Caption = 'Parar Simulação'
+          Enabled = False
           TabOrder = 0
+          OnClick = btnStopSimClick
         end
+        object pbProgress: TProgressBar
+          Left = 10
+          Height = 30
+          Top = 15
+          Width = 932
+          Align = alClient
+          BorderSpacing.Left = 10
+          BorderSpacing.Top = 15
+          BorderSpacing.Right = 10
+          BorderSpacing.Bottom = 15
+          TabOrder = 1
+        end
+      end
+    end
+    object tsStats: TTabSheet
+      Caption = 'Estatísticas'
+      ClientHeight = 672
+      ClientWidth = 1092
+      object memStats: TMemo
+        Left = 0
+        Height = 180
+        Top = 0
+        Width = 1092
+        Align = alTop
+        Font.CharSet = ANSI_CHARSET
+        Font.Height = -12
+        Font.Name = 'Courier New'
+        Font.Pitch = fpFixed
+        Font.Quality = fqDraft
+        ParentFont = False
+        ReadOnly = True
+        ScrollBars = ssAutoVertical
+        TabOrder = 0
+      end
+      object sgStatsPlans: TStringGrid
+        Left = 0
+        Height = 492
+        Top = 180
+        Width = 1092
+        Align = alClient
+        ColCount = 4
+        Columns = <        
+          item
+            Title.Caption = 'Plano de Ação'
+            Width = 400
+          end        
+          item
+            Title.Caption = 'Total de Testes'
+            Width = 180
+          end        
+          item
+            Title.Caption = 'Acertos'
+            Width = 180
+          end        
+          item
+            Title.Caption = 'Precisão (%)'
+            Width = 250
+          end>
+        FixedCols = 0
+        Flat = True
+        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goRowSelect, goSmoothScroll]
+        RowCount = 1
+        TabOrder = 1
       end
     end
   end
@@ -332,37 +597,37 @@ object frmAgentMemoryMapDemo: TfrmAgentMemoryMapDemo
     LocalIP = 'http://localhost:11434'
     MaxTokens = 4096
     Left = 32
-    Top = 120
+    Top = 600
   end
   object FClassifier: TAIClassifierAgent
     NomeAgente = 'ClassifierAgent'
     TipoAgenteMapa = tamClassificador
     MinConfidence = 0.7
-    Left = 192
-    Top = 120
+    Left = 112
+    Top = 600
   end
   object FDecisionAgent: TAIDecisionAgent
     NomeAgente = 'DecisionAgent'
     TipoAgenteMapa = tamDecisor
     MinConfidence = 0.7
-    Left = 272
-    Top = 120
+    Left = 192
+    Top = 600
   end
   object FActionBuilder: TAIActionBuilderAgent
     NomeAgente = 'ActionBuilderAgent'
     TipoAgenteMapa = tamAjustadorAcao
     MinConfidence = 0.7
-    Left = 352
-    Top = 120
+    Left = 272
+    Top = 600
   end
   object FExecutor: TAIActionExecutor
     Category = ccAction
     NomeAgente = 'ActionExecutor'
-    Left = 432
-    Top = 120
+    Left = 352
+    Top = 600
   end
   object FOrchestrator: TAIAgentOrchestrator
-    Left = 512
-    Top = 120
+    Left = 432
+    Top = 600
   end
 end
