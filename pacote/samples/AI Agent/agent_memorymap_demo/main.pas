@@ -490,7 +490,8 @@ begin
   
   FChatGPT.TOKEN := Trim(edtToken.Text);
   FChatGPT.CustomModel := Trim(edtModel.Text);
-  FChatGPT.MaxTokens := 300;
+  FChatGPT.MaxTokens := 100;
+  FChatGPT.Temperature := 0.0;
   FChatGPT.Provider := LProvider;
   
   if LProvider = AIP_LOCAL then

@@ -87,6 +87,7 @@ type
     FLocalIP         : WideString;
     FLastURL         : WideString;
     FURL             : WideString;
+    FTemperature     : Double;
 
     function RequestJson(const LURL, token, ASK: WideString): WideString;
     function PegaMensagem(const JSON: WideString): WideString;
@@ -96,6 +97,7 @@ type
     procedure AddProviderHeaders(AHTTP: TFPHttpClient);
     function GetDev: WideString;
     procedure SetDev(const AValue: WideString);
+    procedure SetTemperature(const AValue: Double);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -113,6 +115,7 @@ type
     property CustomModel: WideString read FCustomModel write FCustomModel;
     property LocalIP: WideString read FLocalIP write FLocalIP;
     property MaxTokens: Integer read FMaxTokens write FMaxTokens;
+    property Temperature: Double read FTemperature write SetTemperature;
     property URL: WideString read FURL write FURL;
 
     // Opcionais para OpenRouter
@@ -532,7 +535,7 @@ begin
       mUser.Add('content', ASK);
       msgs.Add(mUser);
 
-      root.Add('temperature', 0.7);
+      root.Add('temperature', FTemperature);
       if FMaxTokens > 0 then
         root.Add('max_tokens', FMaxTokens);
 
@@ -708,6 +711,7 @@ begin
   FLastJSON := '';
   FLocalIP := 'http://localhost:11434';
   FMaxTokens := 4096;
+  FTemperature := 0.7;
   FLastURL := '';
   FURL := '';
 end;
@@ -716,6 +720,14 @@ destructor TCHATGPT.Destroy;
 begin
   FParams.Free;
   inherited;
+end;
+
+procedure TCHATGPT.SetTemperature(const AValue: Double);
+begin
+  if (AValue >= 0.0) and (AValue <= 2.0) then
+    FTemperature := AValue
+  else
+    raise Exception.Create('A temperatura deve estar entre 0.0 e 2.0.');
 end;
 
 function TCHATGPT.TipoModelo: WideString;
