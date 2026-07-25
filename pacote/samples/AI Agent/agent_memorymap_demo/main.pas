@@ -1140,7 +1140,7 @@ end;
 procedure TfrmAgentMemoryMapDemo.btnStartSimClick(Sender: TObject);
 var
   LDialogues: TJSONArray;
-  I, J: Integer;
+  I, J, LTry: Integer;
   LDialogue: TJSONObject;
   LTurns: TJSONArray;
   LExpected: string;
@@ -1191,9 +1191,6 @@ begin
       if LTurns.Count > 0 then
         FOrchestrator.BeginConversation(LTurns.Strings[0]);
         
-      FLastClassification := '';
-      LSuccess := True;
-      
       for J := 0 to LTurns.Count - 1 do
       begin
         if FStopSimulation then Break;
@@ -1203,45 +1200,61 @@ begin
         
         UpdateSystemPrompts;
         
-        try
-          if chkClassifierOnly.Checked then
-          begin
-            if not ExecuteClassifierOnly(LTurnText, FLastClassification) then
+        LSuccess := False;
+        for LTry := 1 to 2 do
+        begin
+          LSuccess := True;
+          FLastClassification := '';
+          
+          if LTry > 1 then
+            memLogs.Lines.Add('Erro detectado. Tentando classificar novamente (Segunda tentativa)...');
+
+          try
+            if chkClassifierOnly.Checked then
             begin
-              memLogs.Lines.Add('Classificação falhou.');
-              memConvHistory.Lines.Add('Resposta (Classificador): ERRO');
-              LSuccess := False;
-              Break;
+              if not ExecuteClassifierOnly(LTurnText, FLastClassification) then
+                LSuccess := False;
+            end
+            else
+            begin
+              if not FOrchestrator.Run(LTurnText) then
+                LSuccess := False;
             end;
-          end
-          else
-          begin
-            if not FOrchestrator.Run(LTurnText) then
+          except
+            on E: Exception do
             begin
-              memLogs.Lines.Add('Fluxo retornou falha.');
-              memConvHistory.Lines.Add('Resposta (Classificador): ERRO / FALHA');
+              memLogs.Lines.Add('Erro de execução: ' + E.Message);
               LSuccess := False;
-              Break;
             end;
           end;
-        except
-          on E: Exception do
+
+          if LSuccess then
           begin
-            memLogs.Lines.Add('Erro de execução: ' + E.Message);
-            memConvHistory.Lines.Add('Resposta (Classificador): ERRO / ' + E.Message);
-            LSuccess := False;
-            Break;
+            if (FLastClassification = '__CONTRACT_ERROR__') or (FLastClassification = '__JSON_ERROR__') or (FLastClassification = '') then
+              LSuccess := False;
           end;
+
+          if LSuccess then
+            Break; // Sucesso, sai do loop de tentativas
         end;
         
-        if (FLastClassification = '__CONTRACT_ERROR__') or (FLastClassification = '__JSON_ERROR__') or (FLastClassification = '') then
-          memConvHistory.Lines.Add('Resposta (Classificador): ERRO DE CONTRATO')
+        if not LSuccess then
+        begin
+          memLogs.Lines.Add('Classificação falhou após 2 tentativas.');
+          if (FLastClassification = '__CONTRACT_ERROR__') or (FLastClassification = '__JSON_ERROR__') or (FLastClassification = '') then
+            memConvHistory.Lines.Add('Resposta (Classificador): ERRO DE CONTRATO')
+          else
+            memConvHistory.Lines.Add('Resposta (Classificador): ERRO');
+          Break; // Interrompe o diálogo atual
+        end
         else
+        begin
           memConvHistory.Lines.Add('Resposta (Classificador): ' + FLastClassification);
-          
+        end;
+           
         if Assigned(FOrchestrator.MemoryMap) then
           memConvMemoryMap.Text := FOrchestrator.MemoryMap.AsText;
-          
+           
         Application.ProcessMessages;
       end;
       
