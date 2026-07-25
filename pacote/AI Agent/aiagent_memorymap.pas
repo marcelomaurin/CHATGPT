@@ -264,6 +264,7 @@ type
       ATipoAgente: TAITipoAgenteMapa;
       const AMaxSteps: Integer = 10
     ): string;
+    function BuildConversationContext(const AMaxSteps: Integer = 3): string;
     function AsText: string;
     function AsJSON: string;
     procedure SaveToFile(const AFileName: string);
@@ -1479,6 +1480,63 @@ begin
         SB.AppendLine('   Lost information: ' + Item.InformacoesPerdidas.CommaText);
       if Item.Alertas.Count > 0 then
         SB.AppendLine('   Warnings: ' + Item.Alertas.CommaText);
+
+      SB.AppendLine('');
+    end;
+
+    Result := SB.ToString;
+  finally
+    SB.Free;
+  end;
+end;
+
+function TAIAgentMemoryMap.BuildConversationContext(
+  const AMaxSteps: Integer
+): string;
+var
+  SB: TStringBuilder;
+  I, StartIdx, MaxSteps: Integer;
+  Item: TAIAgentMemoryMapItem;
+begin
+  SB := TStringBuilder.Create;
+  try
+    MaxSteps := AMaxSteps;
+    if MaxSteps < 1 then
+      MaxSteps := 1;
+
+    SB.AppendLine('=== CONTEXTO DA CONVERSA ===');
+    SB.AppendLine('Solicitação inicial: ' + FSolicitacaoOriginal);
+    SB.AppendLine('');
+
+    StartIdx := FItems.Count - MaxSteps;
+    if StartIdx < 0 then
+      StartIdx := 0;
+
+    for I := StartIdx to FItems.Count - 1 do
+    begin
+      Item := FItems[I];
+      if I = FItems.Count - 1 then
+        SB.AppendLine('Interação anterior:')
+      else
+        SB.AppendLine(Format('Interação anterior (há %d turnos):', [FItems.Count - 1 - I]));
+
+      if Item.PedidoRecebido <> '' then
+        SB.AppendLine('Pedido: ' + Item.PedidoRecebido);
+      if Item.AcaoTomada <> '' then
+        SB.AppendLine('Classificação: ' + Item.AcaoTomada);
+      if Item.Analise <> '' then
+        SB.AppendLine('Análise: ' + Item.Analise);
+      if Item.ResumoParaProximoAgente <> '' then
+        SB.AppendLine('Resumo: ' + Item.ResumoParaProximoAgente);
+      
+      if Item.InformacoesObrigatorias.Count > 0 then
+        SB.AppendLine('Informações Obrigatórias: ' + Item.InformacoesObrigatorias.CommaText);
+      if Item.InformacoesPreservadas.Count > 0 then
+        SB.AppendLine('Informações Preservadas: ' + Item.InformacoesPreservadas.CommaText);
+      if Item.InformacoesPerdidas.Count > 0 then
+        SB.AppendLine('Informações Perdidas: ' + Item.InformacoesPerdidas.CommaText);
+      if Item.Alertas.Count > 0 then
+        SB.AppendLine('Alerta: ' + Item.Alertas.CommaText);
 
       SB.AppendLine('');
     end;

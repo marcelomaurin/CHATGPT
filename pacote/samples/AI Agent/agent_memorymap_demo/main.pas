@@ -387,7 +387,7 @@ begin
       'Classifier',
       tamClassificador,
       AText,
-      FClassifier.SystemPrompt,
+      '',
       0
     );
   end
@@ -965,7 +965,7 @@ begin
   { Se houver itens na memória, injeta o contexto da memória }
   if Assigned(FOrchestrator.MemoryMap) and (FOrchestrator.MemoryMap.Items.Count > 0) then
   begin
-    LMemoryText := FOrchestrator.MemoryMap.AsText;
+    LMemoryText := FOrchestrator.MemoryMap.BuildConversationContext(3);
     LPrompt := LPrompt + sLineBreak + 
                'Histórico e contexto da conversa (Memory Map):' + sLineBreak +
                LMemoryText + sLineBreak + sLineBreak;
