@@ -110,8 +110,8 @@ type
 
     function GetDefaultScriptPath: string;
     function CleanJSONResponse(const AResponse: string): string;
-    function ExtractTargetAgent(const AJSON: string; out ATargetAgent: string; out AError: string): Boolean;
     function IsKnownActionPlan(const APlanID: string): Boolean;
+    function ValidateClassificationOutput(const AOutput: string; out AClassification: string; out AError: string): Boolean;
     function ExecuteClassifierOnly(const AText: string; out AClassification: string): Boolean;
     procedure SetupScenario;
     function ConfigureChatGPT: Boolean;
@@ -240,25 +240,25 @@ begin
   Result := Trim(Result);
 end;
 
-function TfrmAgentMemoryMapDemo.ExtractTargetAgent(
-  const AJSON: string;
-  out ATargetAgent: string;
+function TfrmAgentMemoryMapDemo.ValidateClassificationOutput(
+  const AOutput: string;
+  out AClassification: string;
   out AError: string
 ): Boolean;
 var
   LText: string;
   LData: TJSONData;
-  LTargetData: TJSONData;
   LObject: TJSONObject;
+  LTargetData: TJSONData;
   LArray: TJSONArray;
+  LTargetVal: string;
 begin
   Result := False;
-  ATargetAgent := '';
+  AClassification := '';
   AError := '';
   LData := nil;
-  LArray := nil;
 
-  LText := Trim(CleanJSONResponse(AJSON));
+  LText := Trim(CleanJSONResponse(AOutput));
 
   if LText = '' then
   begin
@@ -277,60 +277,59 @@ begin
       end;
     end;
 
-    if LData is TJSONObject then
+    if not (LData is TJSONObject) then
     begin
-      LObject := TJSONObject(LData);
-      LTargetData := LObject.Find('target_agents');
-
-      if not Assigned(LTargetData) then
-      begin
-        AError := 'A chave "target_agents" não foi encontrada.';
-        Exit;
-      end;
-
-      if not (LTargetData is TJSONArray) then
-      begin
-        AError := 'A chave "target_agents" não contém um array.';
-        Exit;
-      end;
-
-      LArray := TJSONArray(LTargetData);
-    end
-    else if LData is TJSONArray then
-    begin
-      { Compatibilidade com modelos locais que retornam somente o array. }
-      LArray := TJSONArray(LData);
-    end
-    else
-    begin
-      AError :=
-        'A raiz do JSON deve ser um objeto ou, por compatibilidade, um array.';
+      AError := 'A raiz da resposta deve ser um objeto JSON.';
       Exit;
     end;
 
-    if LArray.Count = 0 then
+    LObject := TJSONObject(LData);
+    LTargetData := LObject.Find('target_agents');
+
+    if not Assigned(LTargetData) then
     begin
-      AError := 'O array de classificação está vazio.';
+      AError := 'A propriedade "target_agents" não foi encontrada.';
+      Exit;
+    end;
+
+    if not (LTargetData is TJSONArray) then
+    begin
+      AError := 'A propriedade "target_agents" deve conter um array.';
+      Exit;
+    end;
+
+    LArray := TJSONArray(LTargetData);
+
+    if LArray.Count <> 1 then
+    begin
+      AError := 'O array "target_agents" deve conter exatamente um item.';
       Exit;
     end;
 
     if LArray.Items[0].JSONType <> jtString then
     begin
-      AError := 'O primeiro item da classificação não é uma string.';
+      AError := 'O item de target_agents deve ser uma string.';
       Exit;
     end;
 
-    ATargetAgent := Trim(LArray.Items[0].AsString);
-
-    if ATargetAgent = '' then
+    LTargetVal := Trim(LArray.Items[0].AsString);
+    if LTargetVal = '' then
     begin
       AError := 'O identificador da classificação está vazio.';
       Exit;
     end;
 
+    if not IsKnownActionPlan(LTargetVal) then
+    begin
+      AError := 'Erro de contrato: o modelo retornou um plano inexistente: "' + LTargetVal + '".';
+      Exit;
+    end;
+
+    AClassification := LTargetVal;
     Result := True;
   finally
-    LData.Free;
+    if Assigned(LData) then
+      LData.Free;
   end;
 end;
 
@@ -401,15 +400,18 @@ begin
       if Assigned(LItem) then
         FOrchestrator.MemoryMap.EndAgentStep(LItem, 'Classificação concluída', '', 'SUCCESS', LOutput);
         
-      if ExtractTargetAgent(LOutput, AClassification, LErr) then
+      if ValidateClassificationOutput(LOutput, AClassification, LErr) then
       begin
         FLastClassification := AClassification;
         Result := True;
       end
       else
       begin
-        FLastClassification := '__JSON_ERROR__';
-        memLogs.Lines.Add('Erro de classificação (JSON inválido): ' + LErr);
+        if Pos('Erro de contrato', LErr) > 0 then
+          FLastClassification := '__CONTRACT_ERROR__'
+        else
+          FLastClassification := '__JSON_ERROR__';
+        memLogs.Lines.Add(LErr);
         memLogs.Lines.Add('Resposta recebida: ' + LOutput);
       end;
     end
@@ -1167,10 +1169,10 @@ begin
           end;
         end;
         
-        if FLastClassification <> '' then
-          memConvHistory.Lines.Add('Resposta (Classificador): ' + FLastClassification)
+        if (FLastClassification = '__CONTRACT_ERROR__') or (FLastClassification = '__JSON_ERROR__') or (FLastClassification = '') then
+          memConvHistory.Lines.Add('Resposta (Classificador): ERRO DE CONTRATO')
         else
-          memConvHistory.Lines.Add('Resposta (Classificador): ERRO DE CONTRATO');
+          memConvHistory.Lines.Add('Resposta (Classificador): ' + FLastClassification);
           
         if Assigned(FOrchestrator.MemoryMap) then
           memConvMemoryMap.Text := FOrchestrator.MemoryMap.AsText;
@@ -1257,24 +1259,17 @@ begin
   memLogs.Lines.Add('Resposta JSON do classificador:');
   memLogs.Lines.Add(AContexto.SaidaAtual);
 
-  if not ExtractTargetAgent(
+  if not ValidateClassificationOutput(
     AContexto.SaidaAtual,
     LTargetAgent,
     LError
   ) then
   begin
-    memLogs.Lines.Add(
-      'Erro de classificação: ' + LError
-    );
-    Exit;
-  end;
-
-  if not IsKnownActionPlan(LTargetAgent) then
-  begin
-    memLogs.Lines.Add(
-      'Erro de contrato: o classificador retornou um plano inexistente: "' +
-      LTargetAgent + '".'
-    );
+    if Pos('Erro de contrato', LError) > 0 then
+      FLastClassification := '__CONTRACT_ERROR__'
+    else
+      FLastClassification := '__JSON_ERROR__';
+    memLogs.Lines.Add(LError);
     Exit;
   end;
 
