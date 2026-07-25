@@ -53,6 +53,7 @@ var
   I: Integer;
   PArr: TJSONArray;
   PObj: TJSONObject;
+  LMustPreserveArr: TJSONArray;
 begin
   Result := False;
   AOutput := '';
@@ -104,15 +105,19 @@ begin
       '  "priority": "alta, media ou baixa",' + sLineBreak +
       '  "confidence": 0.95,' + sLineBreak +
       '  "target_agents": ["nome_do_decisor_de_destino"],' + sLineBreak +
-      '  "must_preserve": ["termos", "chave", "que", "nao", "podem", "sumir"],' + sLineBreak +
+      '  "must_preserve": [],' + sLineBreak +
       '  "analysis_questions": [' + sLineBreak +
       '    {"question": "Qual é a intenção principal do pedido?", "answer": "...", "analysis": "...", "confidence": 0.9},' + sLineBreak +
       '    {"question": "Qual é a categoria?", "answer": "...", "analysis": "...", "confidence": 0.9},' + sLineBreak +
       '    {"question": "Qual é a prioridade?", "answer": "...", "analysis": "...", "confidence": 0.9},' + sLineBreak +
-      '    {"question": "Quais informações não podem ser perdidas?", "answer": "...", "analysis": "...", "confidence": 0.9},' +
-      '    {"question": "Para quais agentes decisores esse pedido deve ir?", "answer": "...", "analysis": "...", "confidence": 0.9}' +
+      '    {"question": "Quais informações não podem ser perdidas?", "answer": "...", "analysis": "...", "confidence": 0.9},' + sLineBreak +
+      '    {"question": "Para quais agentes decisores esse pedido deve ir?", "answer": "...", "analysis": "...", "confidence": 0.9}' + sLineBreak +
       '  ]' + sLineBreak +
-      '}';
+      '}' + sLineBreak + sLineBreak +
+      'Preencha "must_preserve" apenas com informações concretas e importantes ' +
+      'extraídas do pedido atual, como equipamento, local, identificação, defeito ' +
+      'ou restrição. Não copie palavras deste esquema. Se não houver informação ' +
+      'concreta, retorne um array vazio.';
 
     LOriginalDev := ChatGPT.Dev;
     try
@@ -166,6 +171,18 @@ begin
                 'LLM',
                 PObj.Get('confidence', 0.0)
               );
+            end;
+          end;
+
+          // Parse must_preserve
+          if Assigned(Item) and (Obj.IndexOfName('must_preserve') >= 0) then
+          begin
+            LMustPreserveArr := Obj.Arrays['must_preserve'];
+            if Assigned(LMustPreserveArr) then
+            begin
+              Item.InformacoesObrigatorias.Clear;
+              for I := 0 to LMustPreserveArr.Count - 1 do
+                Item.InformacoesObrigatorias.Add(LMustPreserveArr.Items[I].AsString);
             end;
           end;
 

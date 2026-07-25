@@ -111,6 +111,7 @@ type
     function GetDefaultScriptPath: string;
     function CleanJSONResponse(const AResponse: string): string;
     function ExtractTargetAgent(const AJSON: string; out ATargetAgent: string; out AError: string): Boolean;
+    function IsKnownActionPlan(const APlanID: string): Boolean;
     function ExecuteClassifierOnly(const AText: string; out AClassification: string): Boolean;
     procedure SetupScenario;
     function ConfigureChatGPT: Boolean;
@@ -239,52 +240,136 @@ begin
   Result := Trim(Result);
 end;
 
-function TfrmAgentMemoryMapDemo.ExtractTargetAgent(const AJSON: string; out ATargetAgent: string; out AError: string): Boolean;
+function TfrmAgentMemoryMapDemo.ExtractTargetAgent(
+  const AJSON: string;
+  out ATargetAgent: string;
+  out AError: string
+): Boolean;
 var
-  CleanJSON: string;
-  JSONData: TJSONData;
-  Obj: TJSONObject;
-  LArr: TJSONArray;
+  LText: string;
+  LData: TJSONData;
+  LTargetData: TJSONData;
+  LObject: TJSONObject;
+  LArray: TJSONArray;
 begin
   Result := False;
   ATargetAgent := '';
   AError := '';
-  
-  CleanJSON := CleanJSONResponse(AJSON);
-  if CleanJSON = '' then
+  LData := nil;
+  LArray := nil;
+
+  LText := Trim(CleanJSONResponse(AJSON));
+
+  if LText = '' then
   begin
-    AError := 'Resposta vazia ou inválida.';
+    AError := 'A resposta do classificador está vazia.';
     Exit;
   end;
-  
+
   try
-    JSONData := GetJSON(CleanJSON);
     try
-      if JSONData is TJSONObject then
+      LData := GetJSON(LText);
+    except
+      on E: Exception do
       begin
-        Obj := TJSONObject(JSONData);
-        if Obj.IndexOfName('target_agents') >= 0 then
-        begin
-          LArr := Obj.Arrays['target_agents'];
-          if Assigned(LArr) and (LArr.Count > 0) then
-          begin
-            ATargetAgent := LArr.Items[0].AsString;
-            Result := True;
-          end
-          else
-          begin
-            AError := 'Chave "target_agents" está vazia no JSON.';
-          end;
-        end;
+        AError := 'JSON inválido: ' + E.Message;
+        Exit;
       end;
-    finally
-      JSONData.Free;
     end;
-  except
-    on E: Exception do
+
+    if LData is TJSONObject then
     begin
-      AError := E.Message;
+      LObject := TJSONObject(LData);
+      LTargetData := LObject.Find('target_agents');
+
+      if not Assigned(LTargetData) then
+      begin
+        AError := 'A chave "target_agents" não foi encontrada.';
+        Exit;
+      end;
+
+      if not (LTargetData is TJSONArray) then
+      begin
+        AError := 'A chave "target_agents" não contém um array.';
+        Exit;
+      end;
+
+      LArray := TJSONArray(LTargetData);
+    end
+    else if LData is TJSONArray then
+    begin
+      { Compatibilidade com modelos locais que retornam somente o array. }
+      LArray := TJSONArray(LData);
+    end
+    else
+    begin
+      AError :=
+        'A raiz do JSON deve ser um objeto ou, por compatibilidade, um array.';
+      Exit;
     end;
+
+    if LArray.Count = 0 then
+    begin
+      AError := 'O array de classificação está vazio.';
+      Exit;
+    end;
+
+    if LArray.Items[0].JSONType <> jtString then
+    begin
+      AError := 'O primeiro item da classificação não é uma string.';
+      Exit;
+    end;
+
+    ATargetAgent := Trim(LArray.Items[0].AsString);
+
+    if ATargetAgent = '' then
+    begin
+      AError := 'O identificador da classificação está vazio.';
+      Exit;
+    end;
+
+    Result := True;
+  finally
+    LData.Free;
+  end;
+end;
+
+function TfrmAgentMemoryMapDemo.IsKnownActionPlan(
+  const APlanID: string
+): Boolean;
+var
+  LData: TJSONData;
+  LPlans: TJSONArray;
+  LPlan: TJSONObject;
+  I: Integer;
+begin
+  Result := False;
+
+  if SameText(Trim(APlanID), 'nenhuma') then
+    Exit(True);
+
+  if not Assigned(FScriptData) then
+    Exit;
+
+  LData := FScriptData.Find('action_plans');
+
+  if not (LData is TJSONArray) then
+    Exit;
+
+  LPlans := TJSONArray(LData);
+
+  for I := 0 to LPlans.Count - 1 do
+  begin
+    if not (LPlans.Items[I] is TJSONObject) then
+      Continue;
+
+    LPlan := TJSONObject(LPlans.Items[I]);
+
+    if SameText(
+      Trim(LPlan.Get('id', '')),
+      Trim(APlanID)
+    ) then
+      Exit(True);
   end;
 end;
 
@@ -893,9 +978,14 @@ begin
   end;
   
   LPrompt := LPrompt + sLineBreak +
-             'Se não for possível identificar nenhuma das ações, retorne a palavra "nenhuma" no array "target_agents".' + sLineBreak +
-             'Se sim, retorne a ação identificada.' + sLineBreak +
-             'Seu retorno JSON DEVE conter a chave "target_agents" com um array contendo o identificador correspondente. Exemplo: ["manutencao_equipamentos"] ou ["nenhuma"].';
+             'REGRAS OBRIGATÓRIAS:' + sLineBreak +
+             '1. A resposta deve ter um objeto JSON como raiz.' + sLineBreak +
+             '2. A resposta deve começar com "{" e terminar com "}".' + sLineBreak +
+             '3. O campo "target_agents" deve ser um array com exatamente um item.' + sLineBreak +
+             '4. O item deve ser exatamente um dos identificadores de ação listados acima ou "nenhuma".' + sLineBreak +
+             '5. Não retorne nomes de equipamentos, setores, objetos ou categorias em "target_agents".' + sLineBreak +
+             '6. Nunca retorne somente um array como ["nenhuma"].' + sLineBreak +
+             '7. Não inclua Markdown, comentários ou texto fora do JSON.';
              
   FClassifier.SystemPrompt := LPrompt;
 end;
@@ -1080,7 +1170,7 @@ begin
         if FLastClassification <> '' then
           memConvHistory.Lines.Add('Resposta (Classificador): ' + FLastClassification)
         else
-          memConvHistory.Lines.Add('Resposta (Classificador): nenhuma');
+          memConvHistory.Lines.Add('Resposta (Classificador): ERRO DE CONTRATO');
           
         if Assigned(FOrchestrator.MemoryMap) then
           memConvMemoryMap.Text := FOrchestrator.MemoryMap.AsText;
@@ -1141,30 +1231,59 @@ procedure TfrmAgentMemoryMapDemo.OnBeforeFlowStart(Sender: TObject; AContexto: T
 begin
 end;
 
-procedure TfrmAgentMemoryMapDemo.OnAfterFlowStart(Sender: TObject; AContexto: TAIFluxoEtapaContexto);
+procedure TfrmAgentMemoryMapDemo.OnAfterFlowStart(
+  Sender: TObject;
+  AContexto: TAIFluxoEtapaContexto
+);
 begin
+  if Assigned(FOrchestrator.MemoryMap) then
+    FOrchestrator.MemoryMap.DetectInformationLoss := False;
 end;
 
 procedure TfrmAgentMemoryMapDemo.OnBeforeClassifier(Sender: TObject; AContexto: TAIFluxoEtapaContexto; var ACanContinue: Boolean);
 begin
 end;
 
-procedure TfrmAgentMemoryMapDemo.OnAfterClassifier(Sender: TObject; AContexto: TAIFluxoEtapaContexto);
+procedure TfrmAgentMemoryMapDemo.OnAfterClassifier(
+  Sender: TObject;
+  AContexto: TAIFluxoEtapaContexto
+);
 var
-  LTarget: string;
-  LErr: string;
+  LTargetAgent: string;
+  LError: string;
 begin
-  if ExtractTargetAgent(AContexto.SaidaAtual, LTarget, LErr) then
+  FLastClassification := '';
+
+  memLogs.Lines.Add('Resposta JSON do classificador:');
+  memLogs.Lines.Add(AContexto.SaidaAtual);
+
+  if not ExtractTargetAgent(
+    AContexto.SaidaAtual,
+    LTargetAgent,
+    LError
+  ) then
   begin
-    FLastClassification := LTarget;
-  end
-  else
-  begin
-    FLastClassification := '__JSON_ERROR__';
-    memLogs.Lines.Add('Erro ao interpretar JSON de classificação: ' + LErr);
-    memLogs.Lines.Add('Resposta recebida:');
-    memLogs.Lines.Add(AContexto.SaidaAtual);
+    memLogs.Lines.Add(
+      'Erro de classificação: ' + LError
+    );
+    Exit;
   end;
+
+  if not IsKnownActionPlan(LTargetAgent) then
+  begin
+    memLogs.Lines.Add(
+      'Erro de contrato: o classificador retornou um plano inexistente: "' +
+      LTargetAgent + '".'
+    );
+    Exit;
+  end;
+
+  FLastClassification := LTargetAgent;
+
+  memLogs.Lines.Add(
+    'Classificação extraída: "' +
+    FLastClassification + '".'
+  );
 end;
 
 procedure TfrmAgentMemoryMapDemo.OnBeforeDecisionAgent(Sender: TObject; AContexto: TAIFluxoEtapaContexto; var ACanContinue: Boolean);

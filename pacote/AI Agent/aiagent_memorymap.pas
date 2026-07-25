@@ -82,6 +82,7 @@ type
     FInformacoesPreservadas: TStrings;
     FInformacoesPerdidas: TStrings;
     FInformacoesNovas: TStrings;
+    FInformacoesObrigatorias: TStrings;
     FAlertas: TStrings;
     FPerguntasAnalises: TAIAnalysisQuestionCollection;
     FConfianca: Double;
@@ -91,6 +92,7 @@ type
     procedure SetInformacoesPreservadas(AValue: TStrings);
     procedure SetInformacoesPerdidas(AValue: TStrings);
     procedure SetInformacoesNovas(AValue: TStrings);
+    procedure SetInformacoesObrigatorias(AValue: TStrings);
     procedure SetAlertas(AValue: TStrings);
     procedure SetPerguntasAnalises(AValue: TAIAnalysisQuestionCollection);
   public
@@ -133,6 +135,7 @@ type
     property InformacoesPreservadas: TStrings read FInformacoesPreservadas write SetInformacoesPreservadas;
     property InformacoesPerdidas: TStrings read FInformacoesPerdidas write SetInformacoesPerdidas;
     property InformacoesNovas: TStrings read FInformacoesNovas write SetInformacoesNovas;
+    property InformacoesObrigatorias: TStrings read FInformacoesObrigatorias write SetInformacoesObrigatorias;
     property Alertas: TStrings read FAlertas write SetAlertas;
     property PerguntasAnalises: TAIAnalysisQuestionCollection read FPerguntasAnalises write SetPerguntasAnalises;
     property Confianca: Double read FConfianca write FConfianca;
@@ -744,6 +747,7 @@ begin
   FInformacoesPreservadas := TStringList.Create;
   FInformacoesPerdidas := TStringList.Create;
   FInformacoesNovas := TStringList.Create;
+  FInformacoesObrigatorias := TStringList.Create;
   FAlertas := TStringList.Create;
   FPerguntasAnalises := TAIAnalysisQuestionCollection.Create;
   Clear;
@@ -755,6 +759,7 @@ begin
   FInformacoesPreservadas.Free;
   FInformacoesPerdidas.Free;
   FInformacoesNovas.Free;
+  FInformacoesObrigatorias.Free;
   FAlertas.Free;
   FPerguntasAnalises.Free;
   inherited Destroy;
@@ -787,6 +792,7 @@ begin
     FInformacoesPreservadas.Assign(S.InformacoesPreservadas);
     FInformacoesPerdidas.Assign(S.InformacoesPerdidas);
     FInformacoesNovas.Assign(S.InformacoesNovas);
+    FInformacoesObrigatorias.Assign(S.InformacoesObrigatorias);
     FAlertas.Assign(S.Alertas);
     FPerguntasAnalises.Assign(S.PerguntasAnalises);
     FConfianca := S.Confianca;
@@ -819,6 +825,7 @@ begin
   FInformacoesPreservadas.Clear;
   FInformacoesPerdidas.Clear;
   FInformacoesNovas.Clear;
+  FInformacoesObrigatorias.Clear;
   FAlertas.Clear;
   FPerguntasAnalises.Clear;
   FConfianca := 0.0;
@@ -958,6 +965,14 @@ begin
     FAlertas.Assign(AValue)
   else
     FAlertas.Clear;
+end;
+
+procedure TAIAgentMemoryMapItem.SetInformacoesObrigatorias(AValue: TStrings);
+begin
+  if Assigned(AValue) then
+    FInformacoesObrigatorias.Assign(AValue)
+  else
+    FInformacoesObrigatorias.Clear;
 end;
 
 procedure TAIAgentMemoryMapItem.SetPerguntasAnalises(AValue: TAIAnalysisQuestionCollection);
@@ -1343,9 +1358,10 @@ function TAIAgentMemoryMap.CheckInformationLoss(
 ): Boolean;
 var
   OrigText, OutText: string;
-  Tokens: TStringList;
+  Tokens: TStrings;
   I: Integer;
   Word: string;
+  LUsingMandatory: Boolean;
 begin
   Result := False;
   ALostInfo := '';
@@ -1356,7 +1372,6 @@ begin
   AItem.InformacoesPreservadas.Clear;
   AItem.InformacoesPerdidas.Clear;
 
-  OrigText := NormalizeForCompare(FSolicitacaoOriginal);
   OutText := NormalizeForCompare(
     AItem.SaidaGerada + ' ' +
     AItem.ResumoParaProximoAgente + ' ' +
@@ -1365,17 +1380,32 @@ begin
     AItem.AcaoTomada
   );
 
-  Tokens := TStringList.Create;
-  try
-    Tokens.Sorted := True;
-    Tokens.Duplicates := dupIgnore;
+  LUsingMandatory := AItem.InformacoesObrigatorias.Count > 0;
+  if LUsingMandatory then
+  begin
+    Tokens := AItem.InformacoesObrigatorias;
+  end
+  else
+  begin
+    OrigText := NormalizeForCompare(FSolicitacaoOriginal);
+    Tokens := TStringList.Create;
+    TStringList(Tokens).Sorted := True;
+    TStringList(Tokens).Duplicates := dupIgnore;
     ExtractStrings([' ', #9, #10, #13], [], PChar(OrigText), Tokens);
+  end;
 
+  try
     for I := 0 to Tokens.Count - 1 do
     begin
-      Word := Trim(Tokens[I]);
+      Word := NormalizeForCompare(Trim(Tokens[I]));
 
-      if (Length(Word) <= 3) or IsStopWord(Word) then
+      if not LUsingMandatory then
+      begin
+        if (Length(Word) <= 3) or IsStopWord(Word) then
+          Continue;
+      end;
+
+      if Word = '' then
         Continue;
 
       if Pos(Word, OutText) = 0 then
@@ -1390,7 +1420,8 @@ begin
         AItem.AddInformacaoPreservada(Word);
     end;
   finally
-    Tokens.Free;
+    if not LUsingMandatory then
+      Tokens.Free;
   end;
 end;
 
