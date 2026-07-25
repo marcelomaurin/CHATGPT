@@ -1,0 +1,38 @@
+{
+  "action_plans": [
+    {
+      "id": "manutencao_equipamentos",
+      "name": "Manutenção de equipamentos",
+      "description": "Solicitações relacionadas a defeito, reparo ou manutenção de equipamentos."
+    },
+    {
+      "id": "suporte_rede",
+      "name": "Suporte de rede",
+      "description": "Solicitações relacionadas a internet, rede, Wi-Fi ou conexão."
+    }
+  ],
+  "dialogues": [
+    {
+      "id": 1,
+      "expected_action_plan": "manutencao_equipamentos",
+      "turns": [
+        "O monitor da sala 12 está com a imagem piscando."
+      ]
+    },
+    {
+      "id": 2,
+      "expected_action_plan": "suporte_rede",
+      "turns": [
+        "O computador não consegue acessar a internet."
+      ]
+    },
+    {
+      "id": 3,
+      "expected_action_plan": "suporte_rede",
+      "turns": [
+        "O roteador do corredor começou a piscar uma luz vermelha estranha.",
+        "E agora nenhum notebook daquela área consegue navegar."
+      ]
+    }
+  ]
+}

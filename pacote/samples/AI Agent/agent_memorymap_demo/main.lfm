@@ -191,6 +191,16 @@ object frmAgentMemoryMapDemo: TfrmAgentMemoryMapDemo
           TabOrder = 1
           OnClick = btnStopSimClick
         end
+        object chkClassifierOnly: TCheckBox
+          Left = 490
+          Height = 30
+          Top = 25
+          Width = 300
+          Caption = 'Executar somente o classificador'
+          Checked = True
+          State = cbChecked
+          TabOrder = 2
+        end
       end
     end
     object tsPlans: TTabSheet
@@ -219,6 +229,7 @@ object frmAgentMemoryMapDemo: TfrmAgentMemoryMapDemo
         RowCount = 1
         TabOrder = 0
         OnDblClick = sgPlansDblClick
+        OnSelection = sgPlansSelectionChanged
       end
       object pnlEditPlan: TPanel
         Left = 400
@@ -315,7 +326,7 @@ object frmAgentMemoryMapDemo: TfrmAgentMemoryMapDemo
         Top = 0
         Width = 400
         Align = alLeft
-        ColCount = 2
+        ColCount = 3
         Columns = <        
           item
             Title.Caption = 'ID'
@@ -323,13 +334,18 @@ object frmAgentMemoryMapDemo: TfrmAgentMemoryMapDemo
           end        
           item
             Title.Caption = 'Plano Esperado'
-            Width = 280
+            Width = 180
+          end        
+          item
+            Title.Caption = 'Resultado'
+            Width = 120
           end>
         FixedCols = 0
         Flat = True
         Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goRowSelect, goSmoothScroll]
         RowCount = 1
         TabOrder = 0
+        OnSelection = sgDialoguesSelectionChanged
       end
       object pnlEditDialogue: TPanel
         Left = 400

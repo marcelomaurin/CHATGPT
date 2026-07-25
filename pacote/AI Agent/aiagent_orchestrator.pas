@@ -21,6 +21,8 @@ type
     FDecisionAgent: TAIDecisionAgent;
     FActionBuilder: TAIActionBuilderAgent;
     FExecutor: TAIActionExecutor;
+    FSessionId: string;
+    FInSession: Boolean;
     // Events
     FOnBeforeFlowStart: TAIFluxoEtapaControlEvent;
     FOnAfterFlowStart: TAIFluxoEtapaEvent;
@@ -59,6 +61,10 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function Run(const AInput: string): Boolean; virtual;
+    procedure BeginConversation(const AInput: string);
+    procedure EndConversation;
+    property SessionId: string read FSessionId;
+    property InSession: Boolean read FInSession;
   published
     property ChatGPT: TCHATGPT read FChatGPT write FChatGPT;
     property MemoryMap: TAIAgentMemoryMap read FMemoryMap write SetMemoryMap;
@@ -116,6 +122,8 @@ begin
   FDecisionAgent := nil;
   FActionBuilder := nil;
   FExecutor := nil;
+  FSessionId := '';
+  FInSession := False;
 end;
 
 destructor TAIAgentOrchestrator.Destroy;
@@ -221,6 +229,29 @@ begin
   end;
 end;
 
+procedure TAIAgentOrchestrator.BeginConversation(const AInput: string);
+begin
+  if (FMemoryMap = nil) and FCriarMapaAutomaticamente then
+  begin
+    FMemoryMap := TAIAgentMemoryMap.Create(Self);
+  end;
+
+  if FMemoryMap <> nil then
+  begin
+    FMemoryMap.StartFlow(AInput, 'Multi-Agent Orchestrator Flow');
+    FSessionId := FMemoryMap.SessionId;
+    FInSession := True;
+  end;
+end;
+
+procedure TAIAgentOrchestrator.EndConversation;
+begin
+  FInSession := False;
+  FSessionId := '';
+  if FMemoryMap <> nil then
+    FMemoryMap.Items.Clear;
+end;
+
 function TAIAgentOrchestrator.Run(const AInput: string): Boolean;
 var
   Ctx: TAIFluxoEtapaContexto;
@@ -260,8 +291,16 @@ begin
     Ctx.PedidoAtual := AInput;
     Ctx.MemoryMap := FMemoryMap;
 
-    FMemoryMap.StartFlow(AInput, Ctx.FlowName);
-    Ctx.SessionId := FMemoryMap.SessionId;
+    if not FInSession then
+    begin
+      FMemoryMap.StartFlow(AInput, Ctx.FlowName);
+      FSessionId := FMemoryMap.SessionId;
+    end
+    else
+    begin
+      FMemoryMap.SessionId := FSessionId;
+    end;
+    Ctx.SessionId := FSessionId;
 
     // Start Flow stage
     if not DoFlowStage(afeInicioFluxo, Ctx, FOnBeforeFlowStart, FOnAfterFlowStart) then
