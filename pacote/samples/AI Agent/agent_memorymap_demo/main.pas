@@ -378,9 +378,14 @@ var
   LOutput: string;
   LErr: string;
   LItem: TAIAgentMemoryMapItem;
+  LStartTick: QWord;
+  LElapsed: QWord;
 begin
   Result := False;
   AClassification := '';
+  
+  memLogs.Lines.Add('Tamanho do system prompt: ' + IntToStr(Length(FClassifier.SystemPrompt)) + ' caracteres');
+  memLogs.Lines.Add('Tamanho da pergunta: ' + IntToStr(Length(AText)) + ' caracteres');
   
   if Assigned(FOrchestrator.MemoryMap) then
   begin
@@ -395,9 +400,13 @@ begin
   else
     LItem := nil;
   
+  LStartTick := GetTickCount64;
   try
     if FClassifier.Classify(AText, LOutput) then
     begin
+      LElapsed := GetTickCount64 - LStartTick;
+      memLogs.Lines.Add('Tempo da classificação: ' + IntToStr(LElapsed) + ' ms');
+
       if Assigned(LItem) then
         FOrchestrator.MemoryMap.EndAgentStep(LItem, 'Classificação concluída', '', 'SUCCESS', LOutput);
         
@@ -418,16 +427,36 @@ begin
     end
     else
     begin
+      LElapsed := GetTickCount64 - LStartTick;
+      memLogs.Lines.Add('Tempo da classificação: ' + IntToStr(LElapsed) + ' ms');
+
       if Assigned(LItem) then
         FOrchestrator.MemoryMap.EndAgentStep(LItem, 'Falha na classificação', FClassifier.LastError, 'ERROR', '');
-      memLogs.Lines.Add('Falha ao executar a classificação.');
+      memLogs.Lines.Add('Falha ao executar a classificação: ' + FClassifier.LastError);
+      
+      { Registrar informações HTTP }
+      memLogs.Lines.Add('=== INFORMAÇÕES DE DIAGNÓSTICO HTTP ===');
+      memLogs.Lines.Add('URL utilizada: ' + string(FChatGPT.LastURL));
+      memLogs.Lines.Add('JSON HTTP bruto: ' + string(FChatGPT.LastJSON));
+      memLogs.Lines.Add('Resposta extraída: ' + string(FChatGPT.Response));
+      memLogs.Lines.Add('========================================');
     end;
   except
     on E: Exception do
     begin
+      LElapsed := GetTickCount64 - LStartTick;
+      memLogs.Lines.Add('Tempo da classificação (exceção): ' + IntToStr(LElapsed) + ' ms');
+
       if Assigned(LItem) then
         FOrchestrator.MemoryMap.EndAgentStep(LItem, 'Erro de execução', E.Message, 'ERROR', '');
       memLogs.Lines.Add('Erro de execução do classificador: ' + E.Message);
+      
+      { Registrar informações HTTP }
+      memLogs.Lines.Add('=== INFORMAÇÕES DE DIAGNÓSTICO HTTP (EXCEÇÃO) ===');
+      memLogs.Lines.Add('URL utilizada: ' + string(FChatGPT.LastURL));
+      memLogs.Lines.Add('JSON HTTP bruto: ' + string(FChatGPT.LastJSON));
+      memLogs.Lines.Add('Resposta extraída: ' + string(FChatGPT.Response));
+      memLogs.Lines.Add('========================================');
     end;
   end;
 end;
