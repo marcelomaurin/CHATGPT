@@ -9,9 +9,15 @@ uses
   aiagent_flowevents, aiagent_memorymap, aiagent_core, LResources;
 
 type
+  TAIClassifierOutputMode = (
+    comFullAnalysis,
+    comCompactRouting
+  );
+
   { TAIClassifierAgent }
   TAIClassifierAgent = class(TAICustomAgent)
   private
+    FOutputMode: TAIClassifierOutputMode;
     FOnBeforeClassify: TAIFluxoEtapaControlEvent;
     FOnAfterClassify: TAIFluxoEtapaEvent;
     FOnBeforeSelectTargetAgents: TAIFluxoEtapaControlEvent;
@@ -21,6 +27,7 @@ type
     constructor Create(AOwner: TComponent); override;
     function Classify(const AInput: string; out AOutput: string): Boolean; virtual;
   published
+    property OutputMode: TAIClassifierOutputMode read FOutputMode write FOutputMode default comFullAnalysis;
     property OnBeforeClassify: TAIFluxoEtapaControlEvent read FOnBeforeClassify write FOnBeforeClassify;
     property OnAfterClassify: TAIFluxoEtapaEvent read FOnAfterClassify write FOnAfterClassify;
     property OnBeforeSelectTargetAgents: TAIFluxoEtapaControlEvent read FOnBeforeSelectTargetAgents write FOnBeforeSelectTargetAgents;
@@ -37,6 +44,7 @@ begin
   inherited Create(AOwner);
   FNomeAgente := 'ClassifierAgent';
   FTipoAgenteMapa := tamClassificador;
+  FOutputMode := comFullAnalysis;
 end;
 
 function TAIClassifierAgent.Classify(const AInput: string; out AOutput: string): Boolean;
@@ -93,31 +101,45 @@ begin
     end;
 
     // Build Prompt for system role (FDev)
-    LPrompt := 'Você é o Agente Classificador do sistema de suporte da TI.' + sLineBreak;
-    if SystemPrompt <> '' then
-      LPrompt := LPrompt + SystemPrompt + sLineBreak;
+    if Trim(SystemPrompt) <> '' then
+      LPrompt := SystemPrompt + sLineBreak
+    else
+      LPrompt := 'Você é o Agente Classificador do sistema de suporte da TI.' + sLineBreak;
+
     LPrompt := LPrompt + sLineBreak +
       '=== DIRETRIZES DE RETORNO ===' + sLineBreak +
-      'Retorne EXCLUSIVAMENTE um objeto JSON estruturado da seguinte forma:' + sLineBreak +
-      '{' + sLineBreak +
-      '  "intent": "intenção principal do pedido",' + sLineBreak +
-      '  "category": "categoria do pedido (ex: manutencao, suporte, etc.)",' + sLineBreak +
-      '  "priority": "alta, media ou baixa",' + sLineBreak +
-      '  "confidence": 0.95,' + sLineBreak +
-      '  "target_agents": ["nome_do_decisor_de_destino"],' + sLineBreak +
-      '  "must_preserve": [],' + sLineBreak +
-      '  "analysis_questions": [' + sLineBreak +
-      '    {"question": "Qual é a intenção principal do pedido?", "answer": "...", "analysis": "...", "confidence": 0.9},' + sLineBreak +
-      '    {"question": "Qual é a categoria?", "answer": "...", "analysis": "...", "confidence": 0.9},' + sLineBreak +
-      '    {"question": "Qual é a prioridade?", "answer": "...", "analysis": "...", "confidence": 0.9},' + sLineBreak +
-      '    {"question": "Quais informações não podem ser perdidas?", "answer": "...", "analysis": "...", "confidence": 0.9},' + sLineBreak +
-      '    {"question": "Para quais agentes decisores esse pedido deve ir?", "answer": "...", "analysis": "...", "confidence": 0.9}' + sLineBreak +
-      '  ]' + sLineBreak +
-      '}' + sLineBreak + sLineBreak +
-      'Preencha "must_preserve" apenas com informações concretas e importantes ' +
-      'extraídas do pedido atual, como equipamento, local, identificação, defeito ' +
-      'ou restrição. Não copie palavras deste esquema. Se não houver informação ' +
-      'concreta, retorne um array vazio.';
+      'Retorne EXCLUSIVAMENTE um objeto JSON estruturado da seguinte forma:' + sLineBreak;
+
+    if FOutputMode = comCompactRouting then
+    begin
+      LPrompt := LPrompt +
+        '{' + sLineBreak +
+        '  "confidence": 0.95,' + sLineBreak +
+        '  "target_agents": ["identificador_do_plano_de_acao"],' + sLineBreak +
+        '  "must_preserve": []' + sLineBreak +
+        '}' + sLineBreak + sLineBreak +
+        'REGRAS ADICIONAIS:' + sLineBreak +
+        '1. O campo "target_agents" deve conter exatamente um item do array com um dos identificadores de plano cadastrados, ou "nenhuma".' + sLineBreak +
+        '2. Preencha "must_preserve" apenas com informações concretas e importantes extraídas do pedido atual (como equipamento, local, identificação, defeito ou restrição). Se não houver informação concreta, retorne um array vazio.';
+    end
+    else
+    begin
+      LPrompt := LPrompt +
+        '{' + sLineBreak +
+        '  "intent": "intent", "category": "category", "priority": "priority",' + sLineBreak +
+        '  "confidence": 0.95,' + sLineBreak +
+        '  "target_agents": ["nome_do_decisor_de_destino"],' + sLineBreak +
+        '  "must_preserve": [],' + sLineBreak +
+        '  "analysis_questions": [' + sLineBreak +
+        '    {"question": "Qual é a intenção principal do pedido?", "answer": "...", "analysis": "...", "confidence": 0.9},' + sLineBreak +
+        '    {"question": "Qual é a categoria?", "answer": "...", "analysis": "...", "confidence": 0.9},' + sLineBreak +
+        '    {"question": "Qual é a prioridade?", "answer": "...", "analysis": "...", "confidence": 0.9},' + sLineBreak +
+        '    {"question": "Quais informações não podem ser perdidas?", "answer": "...", "analysis": "...", "confidence": 0.9},' + sLineBreak +
+        '    {"question": "Para quais agentes decisores esse pedido deve ir?", "answer": "...", "analysis": "...", "confidence": 0.9}' + sLineBreak +
+        '  ]' + sLineBreak +
+        '}' + sLineBreak + sLineBreak +
+        'Preencha "must_preserve" apenas com informações concretas e importantes extraídas do pedido atual, como equipamento, local, identificação, defeito ou restrição. Se não houver informação concreta, retorne um array vazio.';
+    end;
 
     LOriginalDev := ChatGPT.Dev;
     try
@@ -157,32 +179,41 @@ begin
           Ctx.SaidaAtual := ResponseText;
 
           // Register questions
-          PArr := Obj.Arrays['analysis_questions'];
-          if Assigned(PArr) and Assigned(Item) then
+          if Obj.IndexOfName('analysis_questions') >= 0 then
           begin
-            for I := 0 to PArr.Count - 1 do
+            if Obj.Items[Obj.IndexOfName('analysis_questions')].JSONType = jtArray then
             begin
-              PObj := PArr.Objects[I];
-              AddMemoryQuestion(
-                Item,
-                PObj.Get('question', ''),
-                PObj.Get('answer', ''),
-                PObj.Get('analysis', ''),
-                'LLM',
-                PObj.Get('confidence', 0.0)
-              );
+              PArr := Obj.Arrays['analysis_questions'];
+              if Assigned(PArr) and Assigned(Item) then
+              begin
+                for I := 0 to PArr.Count - 1 do
+                begin
+                  PObj := PArr.Objects[I];
+                  AddMemoryQuestion(
+                    Item,
+                    PObj.Get('question', ''),
+                    PObj.Get('answer', ''),
+                    PObj.Get('analysis', ''),
+                    'LLM',
+                    PObj.Get('confidence', 0.0)
+                  );
+                end;
+              end;
             end;
           end;
 
           // Parse must_preserve
           if Assigned(Item) and (Obj.IndexOfName('must_preserve') >= 0) then
           begin
-            LMustPreserveArr := Obj.Arrays['must_preserve'];
-            if Assigned(LMustPreserveArr) then
+            if Obj.Items[Obj.IndexOfName('must_preserve')].JSONType = jtArray then
             begin
-              Item.InformacoesObrigatorias.Clear;
-              for I := 0 to LMustPreserveArr.Count - 1 do
-                Item.InformacoesObrigatorias.Add(LMustPreserveArr.Items[I].AsString);
+              LMustPreserveArr := Obj.Arrays['must_preserve'];
+              if Assigned(LMustPreserveArr) then
+              begin
+                Item.InformacoesObrigatorias.Clear;
+                for I := 0 to LMustPreserveArr.Count - 1 do
+                  Item.InformacoesObrigatorias.Add(LMustPreserveArr.Items[I].AsString);
+              end;
             end;
           end;
 
@@ -202,9 +233,16 @@ begin
             // Simulate agent routing
             if Obj.IndexOfName('target_agents') >= 0 then
             begin
-              TargetAgentsStr := Obj.Arrays['target_agents'].AsJSON;
-              Ctx.NomeProximoAgente := Obj.Arrays['target_agents'].Items[0].AsString;
-              Ctx.TipoProximoAgente := tamDecisor;
+              if Obj.Items[Obj.IndexOfName('target_agents')].JSONType = jtArray then
+              begin
+                PArr := Obj.Arrays['target_agents'];
+                if Assigned(PArr) and (PArr.Count > 0) then
+                begin
+                  TargetAgentsStr := PArr.AsJSON;
+                  Ctx.NomeProximoAgente := PArr.Items[0].AsString;
+                  Ctx.TipoProximoAgente := tamDecisor;
+                end;
+              end;
             end;
           end;
 

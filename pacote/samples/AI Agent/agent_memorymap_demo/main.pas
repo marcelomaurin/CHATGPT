@@ -164,6 +164,7 @@ begin
   FOrchestrator.Executor := FExecutor;
 
   FClassifier.ChatGPT := FChatGPT;
+  FClassifier.OutputMode := comCompactRouting;
   FDecisionAgent.ChatGPT := FChatGPT;
   FActionBuilder.ChatGPT := FChatGPT;
   FExecutor.ChatGPT := FChatGPT;
