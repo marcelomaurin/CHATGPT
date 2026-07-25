@@ -111,9 +111,34 @@ implementation
 function CleanJSONResponse(const AResponse: string): string;
 var
   S: string;
-  Len: Integer;
+  Len, FirstOpen, LastClose, I: Integer;
 begin
   S := Trim(AResponse);
+  
+  // Find first '{' or '['
+  FirstOpen := Pos('{', S);
+  if (FirstOpen = 0) or ((Pos('[', S) > 0) and (Pos('[', S) < FirstOpen)) then
+    FirstOpen := Pos('[', S);
+    
+  if FirstOpen > 0 then
+  begin
+    LastClose := 0;
+    for I := Length(S) downto FirstOpen do
+    begin
+      if (S[I] = '}') or (S[I] = ']') then
+      begin
+        LastClose := I;
+        Break;
+      end;
+    end;
+    
+    if LastClose >= FirstOpen then
+    begin
+      Result := Copy(S, FirstOpen, LastClose - FirstOpen + 1);
+      Exit;
+    end;
+  end;
+
   if (Length(S) >= 7) and (Copy(S, 1, 7) = '```json') then
   begin
     Delete(S, 1, 7);

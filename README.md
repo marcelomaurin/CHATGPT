@@ -265,6 +265,9 @@ A IA não decide se um componente existe ou compilou. Essas informações vêm d
 
 ![AI SQLite Query Assistant Demo](screenshots/ai_sqlite_query_assistant_demo.jpg)
 
+![AI Test LLM Demo](screenshots/AITestLLM.jpg)
+
+
 ## Limitações conhecidas
 
 * `PASS` de compilação não substitui teste funcional.

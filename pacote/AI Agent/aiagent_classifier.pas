@@ -45,6 +45,7 @@ var
   CanContinue: Boolean;
   Ctx: TAIFluxoEtapaContexto;
   LPrompt, ResponseText: string;
+  LOriginalDev: WideString;
   JSONData: TJSONData;
   Obj: TJSONObject;
   Confidence: Double;
@@ -82,8 +83,16 @@ begin
     // Begin Memory Map Step
     Item := BeginMemoryStep(Ctx.PedidoAtual);
 
-    // Build Prompt
-    LPrompt := 'You are a Classification Agent.' + sLineBreak;
+    if not Assigned(ChatGPT) then
+    begin
+      SetError('ChatGPT is not connected to the classifier.');
+      if Assigned(Item) then
+        EndMemoryStep(Item, 'Hardware error', 'ChatGPT is not connected', 'ERROR', '');
+      Exit;
+    end;
+
+    // Build Prompt for system role (FDev)
+    LPrompt := 'Você é o Agente Classificador do sistema de suporte da TI.' + sLineBreak;
     if SystemPrompt <> '' then
       LPrompt := LPrompt + SystemPrompt + sLineBreak;
     LPrompt := LPrompt + sLineBreak +
@@ -103,24 +112,22 @@ begin
       '    {"question": "Quais informações não podem ser perdidas?", "answer": "...", "analysis": "...", "confidence": 0.9},' +
       '    {"question": "Para quais agentes decisores esse pedido deve ir?", "answer": "...", "analysis": "...", "confidence": 0.9}' +
       '  ]' + sLineBreak +
-      '}' + sLineBreak + sLineBreak +
-      '=== RECEIVED REQUEST ===' + sLineBreak + Ctx.PedidoAtual;
+      '}';
 
-    if not Assigned(ChatGPT) then
-    begin
-      SetError('ChatGPT is not connected to the classifier.');
-      if Assigned(Item) then
-        EndMemoryStep(Item, 'Hardware error', 'ChatGPT is not connected', 'ERROR', '');
-      Exit;
-    end;
+    LOriginalDev := ChatGPT.Dev;
+    try
+      ChatGPT.Dev := LPrompt;
 
-    // Send question to LLM
-    if not ChatGPT.SendQuestion(LPrompt) then
-    begin
-      SetError('Network error while classifying: ' + ChatGPT.LastError);
-      if Assigned(Item) then
-        EndMemoryStep(Item, 'Network error', ChatGPT.LastError, 'ERROR', '');
-      Exit;
+      // Send question to LLM (only user request is sent as user message)
+      if not ChatGPT.SendQuestion(Ctx.PedidoAtual) then
+      begin
+        SetError('Network error while classifying: ' + ChatGPT.LastError);
+        if Assigned(Item) then
+          EndMemoryStep(Item, 'Network error', ChatGPT.LastError, 'ERROR', '');
+        Exit;
+      end;
+    finally
+      ChatGPT.Dev := LOriginalDev;
     end;
 
     ResponseText := CleanJSONResponse(ChatGPT.Response);

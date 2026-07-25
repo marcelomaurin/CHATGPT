@@ -1,4 +1,4 @@
-﻿# TCHATGPT — Lazarus / Free Pascal 向け AI Component Suite
+# TCHATGPT — Lazarus / Free Pascal 向け AI Component Suite
 
 🌍 **Languages / 言語**
 
@@ -641,6 +641,13 @@ Python 統合デモ。
 ![Disk Tree AI Dataset Demo](screenshots/disk_tree_ai_dataset_demo.jpg)
 
 非同期ファイルシステムスキャンとAIデータセットインベントリの準備。
+
+### AI Test LLM Demo
+
+![AI Test LLM Demo](screenshots/AITestLLM.jpg)
+
+プロンプト評価器およびLLM接続テスター。
+
 
 ---
 

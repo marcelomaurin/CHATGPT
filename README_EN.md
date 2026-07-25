@@ -1,4 +1,4 @@
-﻿# TCHATGPT — AI Component Suite for Lazarus / Free Pascal
+# TCHATGPT — AI Component Suite for Lazarus / Free Pascal
 
 🌍 **Languages / Idiomas**
 
@@ -682,6 +682,13 @@ Asynchronous filesystem scanning and AI dataset inventory preparation.
 ![DB Dictionary Demo](screenshots/db_dicitionary_demo.jpg)
 
 Data dictionary generation from database connections (PostgreSQL and SQLite) to feed AI prompts.
+
+### AI Test LLM Demo
+
+![AI Test LLM Demo](screenshots/AITestLLM.jpg)
+
+Prompt evaluator and LLM connection tester.
+
 
 ---
 

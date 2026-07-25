@@ -1,4 +1,4 @@
-﻿# 📂 Projetos de Demonstração (Samples)
+# 📂 Projetos de Demonstração (Samples)
 
 > [!NOTE]
 > Este diretório contém a suíte completa de exemplos desenvolvidos para demonstrar e testar todos os componentes de Inteligência Artificial, Aprendizado de Máquina (Machine Learning), Processamento de Imagens, Processamento de Sinais (DSP), Automação de Hardware e Geração de Documentos da Lazarus AI Suite.
@@ -26,19 +26,20 @@ Os exemplos a seguir são projetos visuais prontos para compilação e execuçã
 
 | Exemplo | Caminho | Descrição |
 |---|---|---|
+| **[action_builder_recovery_test](AI Agent/action_builder_recovery_test/)** | `pacote/samples/AI Agent/action_builder_recovery_test` | Nenhuma descrição disponível. |
 | **[agent_demo](AI Agent/agent_demo/)** | `pacote/samples/AI Agent/agent_demo` | Simulação de agentes inteligentes autônomos para tomada de decisão e disparo de saídas. |
 | **[agent_memorymap_demo](AI Agent/agent_memorymap_demo/)** | `pacote/samples/AI Agent/agent_memorymap_demo` | Demonstração de fluxo multiagente com histórico estruturado persistente no componente TAIMapaDeMemoria. |
+| **[agent_serial_demo](AI Agent/agent_serial_demo/)** | `pacote/samples/AI Agent/agent_serial_demo` | Nenhuma descrição disponível. |
 | **[agent_task_memory_action_demo](AI Agent/agent_task_memory_action_demo/)** | `pacote/samples/AI Agent/agent_task_memory_action_demo` | Demonstração visual avançada de fluxo multiagente orientado por tarefas, com mapa de memória e execução simulada/real de ações. |
+| **[tests](AI Agent/agent_serial_demo/tests/)** | `pacote/samples/AI Agent/agent_serial_demo/tests` | Nenhuma descrição disponível. |
 
 ### 📦 AI Core
 
 | Exemplo | Caminho | Descrição |
 |---|---|---|
+| **[AITestLLM](AI Core/AITestLLM/)**<br><br>![AITestLLM](../../screenshots/AITestLLM.jpg) | `pacote/samples/AI Core/AITestLLM` | Nenhuma descrição disponível. |
 | **[codeassistant_demo](AI Core/codeassistant_demo/)** | `pacote/samples/AI Core/codeassistant_demo` | Assistente interativo de código para refatoração e documentação automática em Pascal. |
-| **[modelregistry_demo](AI Core/modelregistry_demo/)** | `pacote/samples/AI Core/modelregistry_demo` | Gerenciamento e registro centralizado de modelos de linguagem inteligência artificial. |
 | **[pipeline_full_demo](AI Core/pipeline_full_demo/)** | `pacote/samples/AI Core/pipeline_full_demo` | Criação e execução de pipelines complexos de processamento sequencial de texto. |
-| **[promptbuilder_demo](AI Core/promptbuilder_demo/)** | `pacote/samples/AI Core/promptbuilder_demo` | Ferramenta visual de construção, modelagem e otimização de prompts de IA. |
-| **[wizard_config_demo](AI Core/wizard_config_demo/)** | `pacote/samples/AI Core/wizard_config_demo` | Assistente interativo passo-a-passo para configuração inicial de projetos de IA. |
 
 ### 📦 AI DBase
 
@@ -67,8 +68,7 @@ Os exemplos a seguir são projetos visuais prontos para compilação e execuçã
 | **[dataset_analyzer_demo](AI Graph/dataset_analyzer_demo/)** | `pacote/samples/AI Graph/dataset_analyzer_demo` | Ferramenta gráfica de análise estatística de bases de treinamento. |
 | **[graph_visualizer_demo](AI Graph/graph_visualizer_demo/)** | `pacote/samples/AI Graph/graph_visualizer_demo` | Visualizador interativo de grafos e nós relacionais de termos. |
 | **[graphmap_basic](AI Graph/graphmap_basic/)** | `pacote/samples/AI Graph/graphmap_basic` | Versão básica em linha de comando de classificação por mapa de grafos. |
-| **[training_exporter_demo](AI Graph/training_exporter_demo/)** | `pacote/samples/AI Graph/training_exporter_demo` | Exportador estruturado de dados de treinamento em mapas de relações. |
-| **[training_report_demo](AI Graph/training_report_demo/)** | `pacote/samples/AI Graph/training_report_demo` | Gerador de relatórios visuais sobre o status do aprendizado em grafos. |
+| **[graphmaproad](AI Graph/graphmaproad/)** | `pacote/samples/AI Graph/graphmaproad` | Nenhuma descrição disponível. |
 
 ### 📦 AI Graphic
 
@@ -83,6 +83,12 @@ Os exemplos a seguir são projetos visuais prontos para compilação e execuçã
 | **[skeleton_rig_demo](AI Graphic/skeleton_rig_demo/)** | `pacote/samples/AI Graphic/skeleton_rig_demo` | Controle de esqueleto em malhas e deformação de vértices gráficos 3D. |
 | **[tripo3d_demo](AI Graphic/tripo3d_demo/)** | `pacote/samples/AI Graphic/tripo3d_demo` | Geração de malhas 3D a partir de texto ou imagens usando a API Tripo3D. |
 
+### 📦 AI Hardware
+
+| Exemplo | Caminho | Descrição |
+|---|---|---|
+| **[hardware_system_manager_demo](AI Hardware/hardware_system_manager_demo/)** | `pacote/samples/AI Hardware/hardware_system_manager_demo` | Nenhuma descrição disponível. |
+
 ### 📦 AI Image
 
 | Exemplo | Caminho | Descrição |
@@ -93,8 +99,9 @@ Os exemplos a seguir são projetos visuais prontos para compilação e execuçã
 
 | Exemplo | Caminho | Descrição |
 |---|---|---|
+| **[AI_Arm_robot](AI Industrial/AI_Arm_robot/)** | `pacote/samples/AI Industrial/AI_Arm_robot` | Nenhuma descrição disponível. |
+| **[arduino_modbus_pinmap_demo](AI Industrial/arduino_modbus_pinmap_demo/)** | `pacote/samples/AI Industrial/arduino_modbus_pinmap_demo` | Nenhuma descrição disponível. |
 | **[industrial_bridge_demo](AI Industrial/industrial_bridge_demo/)** | `pacote/samples/AI Industrial/industrial_bridge_demo` | Ponte de comunicação industrial ligando brokers IoT e CLPs. |
-| **[AI_Arm_robot](AI Industrial/AI_Arm_robot/)** | `pacote/samples/AI Industrial/AI_Arm_robot` | 3D model for calculating and visualizing the angles of a 6-axis robotic arm. |
 | **[modbus_demo](AI Industrial/modbus_demo/)** | `pacote/samples/AI Industrial/modbus_demo` | Demonstração de leitura/escrita física no protocolo industrial Modbus. |
 | **[mqtt_demo](AI Industrial/mqtt_demo/)** | `pacote/samples/AI Industrial/mqtt_demo` | Conexão e publicação de eventos em brokers MQTT. |
 
@@ -102,15 +109,16 @@ Os exemplos a seguir são projetos visuais prontos para compilação e execuçã
 
 | Exemplo | Caminho | Descrição |
 |---|---|---|
+| **[aiusb_devices_demo](AI Input/aiusb_devices_demo/)** | `pacote/samples/AI Input/aiusb_devices_demo` | Nenhuma descrição disponível. |
 | **[capture_source_demo](AI Input/capture_source_demo/)** | `pacote/samples/AI Input/capture_source_demo` | Demonstração de captura física de frames a partir de múltiplas fontes. |
 | **[chromium_capture_demo](AI Input/chromium_capture_demo/)** | `pacote/samples/AI Input/chromium_capture_demo` | Captura visual programada de telas de navegadores embarcados (CEF). |
 | **[email_classifier_demo](AI Input/email_classifier_demo/)** | `pacote/samples/AI Input/email_classifier_demo` | Classificação inteligente e triagem automatizada de caixas de entrada de e-mails. |
 | **[hardware_net_demo](AI Input/hardware_net_demo/)** | `pacote/samples/AI Input/hardware_net_demo` | Demonstração de integração com câmeras, brokers MQTT, e-mails e pontes CLP. |
+| **[kinect_capture_demo](AI Input/kinect_capture_demo/)** | `pacote/samples/AI Input/kinect_capture_demo` | Nenhuma descrição disponível. |
+| **[kinect_frame_capture_test](AI Input/kinect_frame_capture_test/)** | `pacote/samples/AI Input/kinect_frame_capture_test` | Nenhuma descrição disponível. |
+| **[kinect_sdk10_direct_frame_test](AI Input/kinect_sdk10_direct_frame_test/)** | `pacote/samples/AI Input/kinect_sdk10_direct_frame_test` | Nenhuma descrição disponível. |
+| **[kinect_skeleton_demo](AI Input/kinect_skeleton_demo/)** | `pacote/samples/AI Input/kinect_skeleton_demo` | Nenhuma descrição disponível. |
 | **[serial_demo](AI Input/serial_demo/)** | `pacote/samples/AI Input/serial_demo` | Comunicação direta bidirecional com portas seriais e Arduino. |
-| **[kinect_capture_demo](AI Input/kinect_capture_demo/)** | `pacote/samples/AI Input/kinect_capture_demo` | Demo gráfico para captura de vídeo colorido e profundidade do Kinect com log integrado. |
-| **[kinect_skeleton_demo](AI Input/kinect_skeleton_demo/)** | `pacote/samples/AI Input/kinect_skeleton_demo` | Demo gráfico para rastreamento de esqueleto do Kinect, overlay sobre vídeo RGB e exportação de pose em JSON. |
-| **[kinect_frame_capture_test](AI Input/kinect_frame_capture_test/)** | `pacote/samples/AI Input/kinect_frame_capture_test` | Teste de console que captura um frame colorido via componentes Kinect e salva log/imagem em disco. |
-| **[kinect_sdk10_direct_frame_test](AI Input/kinect_sdk10_direct_frame_test/)** | `pacote/samples/AI Input/kinect_sdk10_direct_frame_test` | Teste direto da `Kinect10.dll` para diagnosticar inicialização, stream, frame, `LockRect` e `ReleaseFrame`. |
 | **[socket_server_client_demo](AI Input/socket_server_client_demo/)** | `pacote/samples/AI Input/socket_server_client_demo` | Servidor e cliente TCP/UDP nativo para troca rápida de pacotes de dados. |
 | **[webserver_demo](AI Input/webserver_demo/)** | `pacote/samples/AI Input/webserver_demo` | Servidor HTTP leve nativo para disponibilizar serviços locais. |
 
@@ -156,6 +164,9 @@ Os exemplos a seguir são projetos visuais prontos para compilação e execuçã
 
 | Exemplo | Caminho | Descrição |
 |---|---|---|
+| **[AI Project](AI Project/)** | `pacote/samples/AI Project` | Nenhuma descrição disponível. |
+| **[Demo_AI_Project](AI Project/Demo_AI_Project/)** | `pacote/samples/AI Project/Demo_AI_Project` | Nenhuma descrição disponível. |
+| **[framework_graph_explorer](AI Project/framework_graph_explorer/)** | `pacote/samples/AI Project/framework_graph_explorer` | Nenhuma descrição disponível. |
 | **[project_tasklist_ai_demo](AI Project/project_tasklist_ai_demo/)** | `pacote/samples/AI Project/project_tasklist_ai_demo` | Nenhuma descrição disponível. |
 
 ### 📦 AI Python
@@ -200,6 +211,7 @@ Os exemplos a seguir são projetos visuais prontos para compilação e execuçã
 |---|---|---|
 | **[audio_capture_demo](AI Voice/audio_capture_demo/)**<br><br>![audio_capture_demo](../../screenshots/audio_capture_demo.jpg) | `pacote/samples/AI Voice/audio_capture_demo` | Demo gráfico para captura real de áudio do microfone, salvando em WAV, sem modo simulado. |
 | **[sound_filters_visual_demo](AI Voice/sound_filters_visual_demo/)**<br><br>![sound_filters_visual_demo](../../screenshots/sound_filters_visual_demo.jpg) | `pacote/samples/AI Voice/sound_filters_visual_demo` | Equalizador e painel visual de filtros sonoros aplicados em tempo real. |
+| **[speech_recognizer_demo](AI Voice/speech_recognizer_demo/)** | `pacote/samples/AI Voice/speech_recognizer_demo` | Nenhuma descrição disponível. |
 | **[voice_synthesizer_complete_demo](AI Voice/voice_synthesizer_complete_demo/)**<br><br>![voice_synthesizer_complete_demo](../../screenshots/voice_synthesizer_complete_demo.jpg) | `pacote/samples/AI Voice/voice_synthesizer_complete_demo` | Demo gráfico completo para síntese real de voz usando vozes locais do sistema ou a API de voz da OpenAI. |
 | **[voicesynthesizer_demo](AI Voice/voicesynthesizer_demo/)**<br><br>![voicesynthesizer_demo](../../screenshots/voicesynthesizer_demo.jpg) | `pacote/samples/AI Voice/voicesynthesizer_demo` | Demonstração de sintetização de voz (Text-to-Speech) nativa e multiplataforma. |
 
@@ -233,6 +245,15 @@ Estes exemplos demonstram a invocação direta de componentes via linha de coman
 |---|---|---|
 | **[aioutput_sample.lpr](AI Output/aioutput_sample.lpr)** | `pacote/samples/AI Output/aioutput_sample.lpr` | Demonstração de console do componente de saída de dados estruturados em JSON ou texto puro. |
 | **[math_output_docs_demo.lpr](AI Output/math_output_docs_demo.lpr)** | `pacote/samples/AI Output/math_output_docs_demo.lpr` | Geração simplificada de documentos e planilhas matemáticas via linha de comando. |
+
+### ⌨️ AI Project
+
+| Exemplo | Caminho | Descrição |
+|---|---|---|
+| **[fgx_findings_tests.lpr](AI Project/framework_graph_explorer/src/fgx_findings_tests.lpr)** | `pacote/samples/AI Project/framework_graph_explorer/src/fgx_findings_tests.lpr` | Nenhuma descrição disponível. |
+| **[fgx_graph_tests.lpr](AI Project/framework_graph_explorer/src/fgx_graph_tests.lpr)** | `pacote/samples/AI Project/framework_graph_explorer/src/fgx_graph_tests.lpr` | Nenhuma descrição disponível. |
+| **[fgx_parser_tests.lpr](AI Project/framework_graph_explorer/src/fgx_parser_tests.lpr)** | `pacote/samples/AI Project/framework_graph_explorer/src/fgx_parser_tests.lpr` | Nenhuma descrição disponível. |
+| **[fgxcli.lpr](AI Project/framework_graph_explorer/src/fgxcli.lpr)** | `pacote/samples/AI Project/framework_graph_explorer/src/fgxcli.lpr` | Nenhuma descrição disponível. |
 
 ### ⌨️ AI Voice
 

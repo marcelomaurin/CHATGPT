@@ -1,4 +1,4 @@
-﻿# TCHATGPT — AI Component Suite for Lazarus / Free Pascal
+# TCHATGPT — AI Component Suite for Lazarus / Free Pascal
 
 🌍 **Languages / Lingue**
 
@@ -635,6 +635,13 @@ Dimostrazione della sintesi vocale.
 ![Disk Tree AI Dataset Demo](screenshots/disk_tree_ai_dataset_demo.jpg)
 
 Scansione asincrona del file system e preparazione dell'inventario del dataset IA.
+
+### AI Test LLM Demo
+
+![AI Test LLM Demo](screenshots/AITestLLM.jpg)
+
+Valutatore di prompt e tester di connessione LLM.
+
 
 ---
 

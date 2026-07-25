@@ -830,6 +830,7 @@ SCREENSHOT_MAPPING = {
     'audio_capture_demo': 'audio_capture_demo.jpg',
     'aiframeprocessor_demo': 'TAIFrameProcessor Demo.jpg',
     'ai_sqlite_query_assistant_demo': 'ai_sqlite_query_assistant_demo.jpg',
+    'aitestllm': 'AITestLLM.jpg',
     'cnn_classifier_complete_demo': 'cnn_classifier_complete_demo.jpg',
     'cnn_demo': 'cnn_demo.jpg',
     'db_dictionary_demo': 'db_dicitionary_demo.jpg',

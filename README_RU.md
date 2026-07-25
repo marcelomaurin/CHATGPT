@@ -1,4 +1,4 @@
-﻿# TCHATGPT — AI Component Suite for Lazarus / Free Pascal
+# TCHATGPT — AI Component Suite for Lazarus / Free Pascal
 
 🌍 **Languages / Языки**
 
@@ -637,6 +637,13 @@ OFDM-компонент с использованием FFT/IFFT.
 ![Disk Tree AI Dataset Demo](screenshots/disk_tree_ai_dataset_demo.jpg)
 
 Асинхронное сканирование файловой системы и подготовка инвентаря набора данных ИИ.
+
+### AI Test LLM Demo
+
+![AI Test LLM Demo](screenshots/AITestLLM.jpg)
+
+Оценка промптов и тестирование подключения к LLM.
+
 
 ---
 

@@ -1,4 +1,4 @@
-﻿# 📂 مشاريع توضيحية (Samples)
+# 📂 مشاريع توضيحية (Samples)
 
 > [!NOTE]
 > يحتوي هذا المجلد على مجموعة كاملة من الأمثلة والمشاريع المطورة لتوضيح واختبار جميع مكونات الذكاء الاصطناعي، تعلم الآلة، معالجة الصور، معالجة الإشارات الرقمية (DSP)، أتمتة الأجهزة، وتوليد المستندات لحزمة Lazarus AI Suite.
@@ -26,19 +26,20 @@
 
 | المشروع | المسار | الوصف |
 |---|---|---|
+| **[action_builder_recovery_test](AI Agent/action_builder_recovery_test/)** | `pacote/samples/AI Agent/action_builder_recovery_test` | لا يوجد وصف متاح. |
 | **[agent_demo](AI Agent/agent_demo/)** | `pacote/samples/AI Agent/agent_demo` | محاكاة الوكلاء الأذكياء المستقلين لاتخاذ القرارات وتنفيذ الإجراءات. |
 | **[agent_memorymap_demo](AI Agent/agent_memorymap_demo/)** | `pacote/samples/AI Agent/agent_memorymap_demo` | عرض توضيحي لتدفق العمل متعدد الوكلاء مع سجل هيكلي مستمر في مكون TAIMapaDeMemoria. |
+| **[agent_serial_demo](AI Agent/agent_serial_demo/)** | `pacote/samples/AI Agent/agent_serial_demo` | لا يوجد وصف متاح. |
 | **[agent_task_memory_action_demo](AI Agent/agent_task_memory_action_demo/)** | `pacote/samples/AI Agent/agent_task_memory_action_demo` | عرض توضيحي مرئي متقدم لتدفقات العمل متعددة الوكلاء الموجهة بالمهام، ويتميز بخريطة ذاكرة وتنفيذ إجراءات محاكاة أو حقيقية. |
+| **[tests](AI Agent/agent_serial_demo/tests/)** | `pacote/samples/AI Agent/agent_serial_demo/tests` | لا يوجد وصف متاح. |
 
 ### 📦 AI Core
 
 | المشروع | المسار | الوصف |
 |---|---|---|
+| **[AITestLLM](AI Core/AITestLLM/)**<br><br>![AITestLLM](../../screenshots/AITestLLM.jpg) | `pacote/samples/AI Core/AITestLLM` | لا يوجد وصف متاح. |
 | **[codeassistant_demo](AI Core/codeassistant_demo/)** | `pacote/samples/AI Core/codeassistant_demo` | مساعد برمجيات تفاعلي لإعادة هيكلة وتوثيق التعليمات البرمجية تلقائيًا في باسكال. |
-| **[modelregistry_demo](AI Core/modelregistry_demo/)** | `pacote/samples/AI Core/modelregistry_demo` | إدارة وسجل مركزي لنماذج الذكاء الاصطناعي اللغوية. |
 | **[pipeline_full_demo](AI Core/pipeline_full_demo/)** | `pacote/samples/AI Core/pipeline_full_demo` | إنشاء وتشغيل خطوط معالجة معقدة لمعالجة النصوص التسلسلية. |
-| **[promptbuilder_demo](AI Core/promptbuilder_demo/)** | `pacote/samples/AI Core/promptbuilder_demo` | أداة مرئية لبناء وصياغة وتحسين نصوص التوجيه (prompts) للذكاء الاصطناعي. |
-| **[wizard_config_demo](AI Core/wizard_config_demo/)** | `pacote/samples/AI Core/wizard_config_demo` | معالج تفاعلي خطوة بخطوة للإعداد الأولي لمشاريع الذكاء الاصطناعي. |
 
 ### 📦 AI DBase
 
@@ -67,8 +68,7 @@
 | **[dataset_analyzer_demo](AI Graph/dataset_analyzer_demo/)** | `pacote/samples/AI Graph/dataset_analyzer_demo` | أداة تحليل إحصائي رسومي لمجموعات بيانات التدريب. |
 | **[graph_visualizer_demo](AI Graph/graph_visualizer_demo/)** | `pacote/samples/AI Graph/graph_visualizer_demo` | مستعرض تفاعلي لرسوم بيانية وربط العقد بين المصطلحات. |
 | **[graphmap_basic](AI Graph/graphmap_basic/)** | `pacote/samples/AI Graph/graphmap_basic` | نسخة سطر أوامر أساسية لتصنيف النصوص باستخدام خرائط الرسوم البيانية. |
-| **[training_exporter_demo](AI Graph/training_exporter_demo/)** | `pacote/samples/AI Graph/training_exporter_demo` | مصدّر منظم لبيانات التدريب في خرائط العلاقات. |
-| **[training_report_demo](AI Graph/training_report_demo/)** | `pacote/samples/AI Graph/training_report_demo` | مولد تقارير مرئية حول حالة التعلم في الرسوم البيانية. |
+| **[graphmaproad](AI Graph/graphmaproad/)** | `pacote/samples/AI Graph/graphmaproad` | لا يوجد وصف متاح. |
 
 ### 📦 AI Graphic
 
@@ -83,6 +83,12 @@
 | **[skeleton_rig_demo](AI Graphic/skeleton_rig_demo/)** | `pacote/samples/AI Graphic/skeleton_rig_demo` | التحكم في الهيكل العظمي وتشوه نقاط المجسمات ثلاثية الأبعاد. |
 | **[tripo3d_demo](AI Graphic/tripo3d_demo/)** | `pacote/samples/AI Graphic/tripo3d_demo` | إنشاء مجسمات ثلاثية الأبعاد من النصوص أو الصور باستخدام واجهة برمجة تطبيقات Tripo3D. |
 
+### 📦 AI Hardware
+
+| المشروع | المسار | الوصف |
+|---|---|---|
+| **[hardware_system_manager_demo](AI Hardware/hardware_system_manager_demo/)** | `pacote/samples/AI Hardware/hardware_system_manager_demo` | لا يوجد وصف متاح. |
+
 ### 📦 AI Image
 
 | المشروع | المسار | الوصف |
@@ -93,6 +99,8 @@
 
 | المشروع | المسار | الوصف |
 |---|---|---|
+| **[AI_Arm_robot](AI Industrial/AI_Arm_robot/)** | `pacote/samples/AI Industrial/AI_Arm_robot` | لا يوجد وصف متاح. |
+| **[arduino_modbus_pinmap_demo](AI Industrial/arduino_modbus_pinmap_demo/)** | `pacote/samples/AI Industrial/arduino_modbus_pinmap_demo` | لا يوجد وصف متاح. |
 | **[industrial_bridge_demo](AI Industrial/industrial_bridge_demo/)** | `pacote/samples/AI Industrial/industrial_bridge_demo` | جسر اتصالات صناعي يربط بين وسطاء إنترنت الأشياء (IoT) وأجهزة الـ PLC. |
 | **[modbus_demo](AI Industrial/modbus_demo/)** | `pacote/samples/AI Industrial/modbus_demo` | محاكاة القراءة والكتابة في بروتوكول Modbus الصناعي. |
 | **[mqtt_demo](AI Industrial/mqtt_demo/)** | `pacote/samples/AI Industrial/mqtt_demo` | الاتصال ونشر الأحداث in وسطاء MQTT. |
@@ -101,15 +109,16 @@
 
 | المشروع | المسار | الوصف |
 |---|---|---|
+| **[aiusb_devices_demo](AI Input/aiusb_devices_demo/)** | `pacote/samples/AI Input/aiusb_devices_demo` | لا يوجد وصف متاح. |
 | **[capture_source_demo](AI Input/capture_source_demo/)** | `pacote/samples/AI Input/capture_source_demo` | التقاط الإطارات من مصادر إشارات وكاميرات متعددة. |
 | **[chromium_capture_demo](AI Input/chromium_capture_demo/)** | `pacote/samples/AI Input/chromium_capture_demo` | التقاط لقطات شاشة مجدولة لمتصفحات Chromium المضمنة (CEF). |
 | **[email_classifier_demo](AI Input/email_classifier_demo/)** | `pacote/samples/AI Input/email_classifier_demo` | التصنيف الذكي والفرز التلقائي لرسائل البريد الإلكتروني الواردة. |
 | **[hardware_net_demo](AI Input/hardware_net_demo/)** | `pacote/samples/AI Input/hardware_net_demo` | عرض متكامل يجمع الكاميرات، ووسطاء MQTT، والبريد الإلكتروني، وجسور PLC. |
+| **[kinect_capture_demo](AI Input/kinect_capture_demo/)** | `pacote/samples/AI Input/kinect_capture_demo` | لا يوجد وصف متاح. |
+| **[kinect_frame_capture_test](AI Input/kinect_frame_capture_test/)** | `pacote/samples/AI Input/kinect_frame_capture_test` | لا يوجد وصف متاح. |
+| **[kinect_sdk10_direct_frame_test](AI Input/kinect_sdk10_direct_frame_test/)** | `pacote/samples/AI Input/kinect_sdk10_direct_frame_test` | لا يوجد وصف متاح. |
+| **[kinect_skeleton_demo](AI Input/kinect_skeleton_demo/)** | `pacote/samples/AI Input/kinect_skeleton_demo` | لا يوجد وصف متاح. |
 | **[serial_demo](AI Input/serial_demo/)** | `pacote/samples/AI Input/serial_demo` | اتصال ثنائي الاتجاه مباشر مع المنافذ التسلسلية ولوحات Arduino. |
-| **[kinect_capture_demo](AI Input/kinect_capture_demo/)** | `pacote/samples/AI Input/kinect_capture_demo` | عرض رسومي لالتقاط اللون والعمق من Kinect مع سجل مدمج. |
-| **[kinect_skeleton_demo](AI Input/kinect_skeleton_demo/)** | `pacote/samples/AI Input/kinect_skeleton_demo` | عرض رسومي لتتبع هيكل Kinect مع تراكب فيديو RGB وتصدير الوضعية بصيغة JSON. |
-| **[kinect_frame_capture_test](AI Input/kinect_frame_capture_test/)** | `pacote/samples/AI Input/kinect_frame_capture_test` | اختبار سطر أوامر يلتقط إطارا ملونا عبر مكونات Kinect ويحفظ السجل والصورة. |
-| **[kinect_sdk10_direct_frame_test](AI Input/kinect_sdk10_direct_frame_test/)** | `pacote/samples/AI Input/kinect_sdk10_direct_frame_test` | اختبار مباشر لـ `Kinect10.dll` لتشخيص التهيئة والتدفق والإطار و `LockRect` و `ReleaseFrame`. |
 | **[socket_server_client_demo](AI Input/socket_server_client_demo/)** | `pacote/samples/AI Input/socket_server_client_demo` | أداة خادم وعميل TCP/UDP أصلية لتبادل البيانات السريع. |
 | **[webserver_demo](AI Input/webserver_demo/)** | `pacote/samples/AI Input/webserver_demo` | خادم HTTP محلي خفيف الوزن لتقديم الخدمات المحلية. |
 
@@ -155,6 +164,9 @@
 
 | المشروع | المسار | الوصف |
 |---|---|---|
+| **[AI Project](AI Project/)** | `pacote/samples/AI Project` | لا يوجد وصف متاح. |
+| **[Demo_AI_Project](AI Project/Demo_AI_Project/)** | `pacote/samples/AI Project/Demo_AI_Project` | لا يوجد وصف متاح. |
+| **[framework_graph_explorer](AI Project/framework_graph_explorer/)** | `pacote/samples/AI Project/framework_graph_explorer` | لا يوجد وصف متاح. |
 | **[project_tasklist_ai_demo](AI Project/project_tasklist_ai_demo/)** | `pacote/samples/AI Project/project_tasklist_ai_demo` | لا يوجد وصف متاح. |
 
 ### 📦 AI Python
@@ -199,6 +211,7 @@
 |---|---|---|
 | **[audio_capture_demo](AI Voice/audio_capture_demo/)**<br><br>![audio_capture_demo](../../screenshots/audio_capture_demo.jpg) | `pacote/samples/AI Voice/audio_capture_demo` | عرض رسومي لالتقاط الصوت الحقيقي من الميكروفون وحفظه بصيغة WAV، بدون وضع المحاكاة. |
 | **[sound_filters_visual_demo](AI Voice/sound_filters_visual_demo/)**<br><br>![sound_filters_visual_demo](../../screenshots/sound_filters_visual_demo.jpg) | `pacote/samples/AI Voice/sound_filters_visual_demo` | لوحة تحكم فلاتر الصوت المرئية وموازن الصوت في الوقت الفعلي. |
+| **[speech_recognizer_demo](AI Voice/speech_recognizer_demo/)** | `pacote/samples/AI Voice/speech_recognizer_demo` | لا يوجد وصف متاح. |
 | **[voice_synthesizer_complete_demo](AI Voice/voice_synthesizer_complete_demo/)**<br><br>![voice_synthesizer_complete_demo](../../screenshots/voice_synthesizer_complete_demo.jpg) | `pacote/samples/AI Voice/voice_synthesizer_complete_demo` | عرض توضيحي كامل لتوليد الكلام يدعم القراءة المتزامنة وغير المتزامنة. |
 | **[voicesynthesizer_demo](AI Voice/voicesynthesizer_demo/)**<br><br>![voicesynthesizer_demo](../../screenshots/voicesynthesizer_demo.jpg) | `pacote/samples/AI Voice/voicesynthesizer_demo` | عرض توضيحي لتوليد الكلام (Text-to-Speech) بشكل أصلي ومتعدد المنصات. |
 
@@ -232,6 +245,15 @@
 |---|---|---|
 | **[aioutput_sample.lpr](AI Output/aioutput_sample.lpr)** | `pacote/samples/AI Output/aioutput_sample.lpr` | اختبار كونسول لمكونات إنشاء المخرجات بصيغة JSON المنسقة أو النصوص البسيطة. |
 | **[math_output_docs_demo.lpr](AI Output/math_output_docs_demo.lpr)** | `pacote/samples/AI Output/math_output_docs_demo.lpr` | مولد مستندات وجداول رياضية مبسطة عبر سطر الأوامر. |
+
+### ⌨️ AI Project
+
+| المشروع | المسار | الوصف |
+|---|---|---|
+| **[fgx_findings_tests.lpr](AI Project/framework_graph_explorer/src/fgx_findings_tests.lpr)** | `pacote/samples/AI Project/framework_graph_explorer/src/fgx_findings_tests.lpr` | لا يوجد وصف متاح. |
+| **[fgx_graph_tests.lpr](AI Project/framework_graph_explorer/src/fgx_graph_tests.lpr)** | `pacote/samples/AI Project/framework_graph_explorer/src/fgx_graph_tests.lpr` | لا يوجد وصف متاح. |
+| **[fgx_parser_tests.lpr](AI Project/framework_graph_explorer/src/fgx_parser_tests.lpr)** | `pacote/samples/AI Project/framework_graph_explorer/src/fgx_parser_tests.lpr` | لا يوجد وصف متاح. |
+| **[fgxcli.lpr](AI Project/framework_graph_explorer/src/fgxcli.lpr)** | `pacote/samples/AI Project/framework_graph_explorer/src/fgxcli.lpr` | لا يوجد وصف متاح. |
 
 ### ⌨️ AI Voice
 
