@@ -112,6 +112,7 @@ type
     function CleanJSONResponse(const AResponse: string): string;
     function IsKnownActionPlan(const APlanID: string): Boolean;
     function ValidateClassificationOutput(const AOutput: string; out AClassification: string; out AError: string): Boolean;
+    procedure RunContractTests;
     function ExecuteClassifierOnly(const AText: string; out AClassification: string): Boolean;
     procedure SetupScenario;
     function ConfigureChatGPT: Boolean;
@@ -334,6 +335,37 @@ begin
   end;
 end;
 
+procedure TfrmAgentMemoryMapDemo.RunContractTests;
+var
+  LClass: string;
+  LErr: string;
+  LPassed: Boolean;
+begin
+  memLogs.Lines.Add('=== EXECUTANDO TESTES DE CONTRATO DO CLASSIFICADOR ===');
+
+  { Teste 1: Raiz de array (inválido) }
+  LPassed := not ValidateClassificationOutput('["nenhuma"]', LClass, LErr);
+  memLogs.Lines.Add(Format('Teste 1 (Raiz de array): %s (Erro esperado: %s)', [BoolToStr(LPassed, 'PASSOU', 'FALHOU'), LErr]));
+
+  { Teste 2: Array de target_agents vazio (inválido) }
+  LPassed := not ValidateClassificationOutput('{"target_agents": []}', LClass, LErr);
+  memLogs.Lines.Add(Format('Teste 2 (Array vazio): %s (Erro esperado: %s)', [BoolToStr(LPassed, 'PASSOU', 'FALHOU'), LErr]));
+
+  { Teste 3: Array de target_agents com múltiplos itens (inválido) }
+  LPassed := not ValidateClassificationOutput('{"target_agents": ["suporte_rede", "manutencao_equipamentos"]}', LClass, LErr);
+  memLogs.Lines.Add(Format('Teste 3 (Múltiplos itens): %s (Erro esperado: %s)', [BoolToStr(LPassed, 'PASSOU', 'FALHOU'), LErr]));
+
+  { Teste 4: Identificador desconhecido (inválido) }
+  LPassed := not ValidateClassificationOutput('{"target_agents": ["monitor"]}', LClass, LErr);
+  memLogs.Lines.Add(Format('Teste 4 (Identificador desconhecido): %s (Erro esperado: %s)', [BoolToStr(LPassed, 'PASSOU', 'FALHOU'), LErr]));
+
+  { Teste 5: Identificador válido (válido) }
+  LPassed := ValidateClassificationOutput('{"target_agents": ["suporte_rede"]}', LClass, LErr);
+  memLogs.Lines.Add(Format('Teste 5 (Identificador válido): %s (Valor: %s, Erro: %s)', [BoolToStr(LPassed, 'PASSOU', 'FALHOU'), LClass, LErr]));
+
+  memLogs.Lines.Add('=== FIM DOS TESTES DE CONTRATO ===' + sLineBreak);
+end;
+
 function TfrmAgentMemoryMapDemo.IsKnownActionPlan(
   const APlanID: string
 ): Boolean;
@@ -472,6 +504,8 @@ begin
     LoadScriptFromFile(edtScriptPath.Text)
   else
     btnNewScriptClick(nil);
+
+  RunContractTests;
 end;
 
 procedure TfrmAgentMemoryMapDemo.cbProviderChange(Sender: TObject);
