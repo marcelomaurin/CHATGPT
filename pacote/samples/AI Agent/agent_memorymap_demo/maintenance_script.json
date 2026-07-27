@@ -33,6 +33,379 @@
         "O roteador do corredor começou a piscar uma luz vermelha estranha.",
         "E agora nenhum notebook daquela área consegue navegar."
       ]
+    },
+    {
+      "id" : 4,
+      "expected_action_plan" : "manutencao_equipamentos",
+      "turns" : [
+        "A impressora do RH está atolando papel toda vez que mandamos imprimir."
+      ]
+    },
+    {
+      "id" : 5,
+      "expected_action_plan" : "suporte_rede",
+      "turns" : [
+        "O Wi-Fi da sala de reuniões está caindo toda hora.",
+        "Fica pedindo a senha toda vez que tento reconectar."
+      ]
+    },
+    {
+      "id" : 6,
+      "expected_action_plan" : "manutencao_equipamentos",
+      "turns" : [
+        "O computador da recepção começou a fazer um barulho muito alto no cooler.",
+        "E depois de alguns minutos ele desliga sozinho."
+      ]
+    },
+    {
+      "id" : 7,
+      "expected_action_plan" : "suporte_rede",
+      "turns" : [
+        "Não estou conseguindo acessar a pasta compartilhada no servidor da rede local."
+      ]
+    },
+    {
+      "id" : 8,
+      "expected_action_plan" : "manutencao_equipamentos",
+      "turns" : [
+        "O teclado do meu computador parou de funcionar a tecla Enter.",
+        "Já tentei limpar mas não adiantou."
+      ]
+    },
+    {
+      "id" : 9,
+      "expected_action_plan" : "suporte_rede",
+      "turns" : [
+        "A internet aqui do setor administrativo está extremamente lenta hoje.",
+        "Não carrega nem a página de e-mails."
+      ]
+    },
+    {
+      "id" : 10,
+      "expected_action_plan" : "manutencao_equipamentos",
+      "turns" : [
+        "Minha tela do notebook quebrou após uma queda.",
+        "A metade direita ficou toda preta."
+      ]
+    },
+    {
+      "id" : 11,
+      "expected_action_plan" : "suporte_rede",
+      "turns" : [
+        "Não consigo conectar na VPN da empresa de casa.",
+        "Dá erro de timeout durante a autenticação."
+      ]
+    },
+    {
+      "id" : 12,
+      "expected_action_plan" : "manutencao_equipamentos",
+      "turns" : [
+        "O mouse óptico do faturamento parou de acender a luz vermelha.",
+        "Ele não move o cursor na tela de jeito nenhum."
+      ]
+    },
+    {
+      "id" : 13,
+      "expected_action_plan" : "suporte_rede",
+      "turns" : [
+        "Trocaram o cabo de rede da minha mesa e agora aparece rede não identificada.",
+        "Fica com aquele triângulo amarelo no ícone."
+      ]
+    },
+    {
+      "id" : 14,
+      "expected_action_plan" : "manutencao_equipamentos",
+      "turns" : [
+        "A impressora está imprimindo tudo borrado.",
+        "Acho que precisa trocar o toner ou o cilindro."
+      ]
+    },
+    {
+      "id" : 15,
+      "expected_action_plan" : "suporte_rede",
+      "turns" : [
+        "O sinal do Wi-Fi não chega na minha mesa nova no fundo da sala.",
+        "Fica oscilando entre uma barra e nenhuma."
+      ]
+    },
+    {
+      "id" : 16,
+      "expected_action_plan" : "manutencao_equipamentos",
+      "turns" : [
+        "O botão de ligar do gabinete afundou e não consigo mais ligar a máquina."
+      ]
+    },
+    {
+      "id" : 17,
+      "expected_action_plan" : "suporte_rede",
+      "turns" : [
+        "Estou recebendo uma mensagem de conflito de endereço IP na minha estação."
+      ]
+    },
+    {
+      "id" : 18,
+      "expected_action_plan" : "manutencao_equipamentos",
+      "turns" : [
+        "A porta USB frontal do meu computador quebrou fisicamente.",
+        "Ao colocar o pendrive ele fica frouxo e não lê."
+      ]
+    },
+    {
+      "id" : 19,
+      "expected_action_plan" : "suporte_rede",
+      "turns" : [
+        "O roteador principal parece ter reiniciado.",
+        "Todas as luzes se apagaram de repente."
+      ]
+    },
+    {
+      "id" : 20,
+      "expected_action_plan" : "manutencao_equipamentos",
+      "turns" : [
+        "Meu notebook está esquentando muito por baixo.",
+        "Está tão quente que queima a mão ao tocar."
+      ]
+    },
+    {
+      "id" : 21,
+      "expected_action_plan" : "suporte_rede",
+      "turns" : [
+        "Não consigo acessar nenhum site externo, apenas os sistemas internos da prefeitura."
+      ]
+    },
+    {
+      "id" : 22,
+      "expected_action_plan" : "manutencao_equipamentos",
+      "turns" : [
+        "A gaveta de CD/DVD do computador da TI não quer abrir de jeito nenhum."
+      ]
+    },
+    {
+      "id" : 23,
+      "expected_action_plan" : "suporte_rede",
+      "turns" : [
+        "A rede cabeada da sala de treinamento parou de funcionar completamente.",
+        "Nenhum dos computadores lá está pegando IP."
+      ]
+    },
+    {
+      "id" : 24,
+      "expected_action_plan" : "manutencao_equipamentos",
+      "turns" : [
+        "O leitor de código de barras USB parou de funcionar.",
+        "Ele liga o laser mas não faz o bip de leitura."
+      ]
+    },
+    {
+      "id" : 25,
+      "expected_action_plan" : "suporte_rede",
+      "turns" : [
+        "O modem da operadora está com a luz 'DSL' piscando rápido.",
+        "Parece que estamos sem sinal de link de internet externa."
+      ]
+    },
+    {
+      "id" : 26,
+      "expected_action_plan" : "manutencao_equipamentos",
+      "turns" : [
+        "A tela do meu computador está exibindo listras verticais verdes e roxas."
+      ]
+    },
+    {
+      "id" : 27,
+      "expected_action_plan" : "suporte_rede",
+      "turns" : [
+        "Não consigo pingar o servidor de banco de dados.",
+        "Dá a mensagem de host de destino inacessível."
+      ]
+    },
+    {
+      "id" : 28,
+      "expected_action_plan" : "manutencao_equipamentos",
+      "turns" : [
+        "O estabilizador ou no-break começou a apitar continuamente.",
+        "E a luz vermelha de sobrecarga acendeu."
+      ]
+    },
+    {
+      "id" : 29,
+      "expected_action_plan" : "suporte_rede",
+      "turns" : [
+        "O cabo de rede da impressora central está quebrado na travinha plástica.",
+        "Ele fica caindo da tomada traseira e ela some da rede."
+      ]
+    },
+    {
+      "id" : 30,
+      "expected_action_plan" : "manutencao_equipamentos",
+      "turns" : [
+        "Minha impressora térmica de etiquetas parou de puxar o rolo de papel.",
+        "Ela faz barulho de rotação mas o papel não anda."
+      ]
+    },
+    {
+      "id" : 31,
+      "expected_action_plan" : "suporte_rede",
+      "turns" : [
+        "A rede Wi-Fi de visitantes está sem acesso à internet.",
+        "Conectamos nela mas não navega de forma alguma."
+      ]
+    },
+    {
+      "id" : 32,
+      "expected_action_plan" : "manutencao_equipamentos",
+      "turns" : [
+        "O HD externo caiu no chão e agora faz um barulho de clique constante.",
+        "O Windows não reconhece o drive."
+      ]
+    },
+    {
+      "id" : 33,
+      "expected_action_plan" : "suporte_rede",
+      "turns" : [
+        "Não consigo abrir o portal de intranet corporativo.",
+        "Aparece erro de DNS 'servidor não encontrado'."
+      ]
+    },
+    {
+      "id" : 34,
+      "expected_action_plan" : "manutencao_equipamentos",
+      "turns" : [
+        "O monitor de vídeo está mostrando uma imagem muito escura.",
+        "Quase não dá para enxergar nada mesmo no brilho máximo."
+      ]
+    },
+    {
+      "id" : 35,
+      "expected_action_plan" : "suporte_rede",
+      "turns" : [
+        "O switch do rack do segundo andar está com todas as luzes apagadas.",
+        "Acho que queimou a fonte dele com o raio."
+      ]
+    },
+    {
+      "id" : 36,
+      "expected_action_plan" : "manutencao_equipamentos",
+      "turns" : [
+        "Derramaram café no teclado do meu notebook.",
+        "Agora algumas teclas estão disparando sozinhas."
+      ]
+    },
+    {
+      "id" : 37,
+      "expected_action_plan" : "suporte_rede",
+      "turns" : [
+        "A conexão de internet oscila muito de tarde.",
+        "Fica caindo e voltando a cada 5 minutos."
+      ]
+    },
+    {
+      "id" : 38,
+      "expected_action_plan" : "manutencao_equipamentos",
+      "turns" : [
+        "O fone de ouvido com microfone USB parou de funcionar o lado esquerdo."
+      ]
+    },
+    {
+      "id" : 39,
+      "expected_action_plan" : "suporte_rede",
+      "turns" : [
+        "O proxy da empresa está bloqueando meu acesso a um site de pesquisa legítimo."
+      ]
+    },
+    {
+      "id" : 40,
+      "expected_action_plan" : "manutencao_equipamentos",
+      "turns" : [
+        "O no-break do servidor começou a cheirar a queimado e saiu um pouco de fumaça."
+      ]
+    },
+    {
+      "id" : 41,
+      "expected_action_plan" : "suporte_rede",
+      "turns" : [
+        "Não consigo autenticar na rede sem fio corporativa com minhas credenciais."
+      ]
+    },
+    {
+      "id" : 42,
+      "expected_action_plan" : "manutencao_equipamentos",
+      "turns" : [
+        "O computador liga mas não dá vídeo, o monitor fica piscando a luz do botão de energia."
+      ]
+    },
+    {
+      "id" : 43,
+      "expected_action_plan" : "suporte_rede",
+      "turns" : [
+        "A porta de rede na parede da minha sala parece estar desativada.",
+        "Conectando o cabo, a placa de rede fica apagada."
+      ]
+    },
+    {
+      "id" : 44,
+      "expected_action_plan" : "manutencao_equipamentos",
+      "turns" : [
+        "A fonte do meu desktop queimou durante a oscilação de energia."
+      ]
+    },
+    {
+      "id" : 45,
+      "expected_action_plan" : "suporte_rede",
+      "turns" : [
+        "Estou tentando enviar um e-mail mas ele fica travado na caixa de saída.",
+        "Diz que não consegue conectar com o servidor SMTP."
+      ]
+    },
+    {
+      "id" : 46,
+      "expected_action_plan" : "manutencao_equipamentos",
+      "turns" : [
+        "O cooler traseiro do gabinete travou por completo e está cheio de poeira."
+      ]
+    },
+    {
+      "id" : 47,
+      "expected_action_plan" : "suporte_rede",
+      "turns" : [
+        "O link dedicado de fibra óptica caiu.",
+        "Estamos todos navegando pelo link reserva em 4G temporário."
+      ]
+    },
+    {
+      "id" : 48,
+      "expected_action_plan" : "manutencao_equipamentos",
+      "turns" : [
+        "A tela do tablet corporativo está trincada e o touch screen não responde na parte de cima."
+      ]
+    },
+    {
+      "id" : 49,
+      "expected_action_plan" : "suporte_rede",
+      "turns" : [
+        "A conexão Wi-Fi corporativa está pedindo uma nova chave WPA que ninguém sabe."
+      ]
+    },
+    {
+      "id" : 50,
+      "expected_action_plan" : "manutencao_equipamentos",
+      "turns" : [
+        "O suporte articulado do meu monitor duplo quebrou e a tela está pendurada pelos cabos."
+      ]
+    },
+    {
+      "id" : 51,
+      "expected_action_plan" : "suporte_rede",
+      "turns" : [
+        "Não consigo acessar a internet via cabo de rede, apenas pelo Wi-Fi."
+      ]
+    },
+    {
+      "id" : 52,
+      "expected_action_plan" : "manutencao_equipamentos",
+      "turns" : [
+        "Minha webcam USB caiu e a lente trincou por dentro, a imagem ficou toda embaçada."
+      ]
     }
   ]
 }
