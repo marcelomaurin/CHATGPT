@@ -254,6 +254,50 @@ var
   LTargetData: TJSONData;
   LArray: TJSONArray;
   LTargetVal: string;
+
+  function TryKeywordFallback(out AClass: string): Boolean;
+  var
+    LSearchStr: string;
+  begin
+    Result := False;
+    AClass := '';
+    LSearchStr := LowerCase(AOutput);
+    if Assigned(FOrchestrator) and Assigned(FOrchestrator.MemoryMap) then
+    begin
+      LSearchStr := LSearchStr + ' ' + LowerCase(FOrchestrator.MemoryMap.SolicitacaoOriginal);
+      LSearchStr := LSearchStr + ' ' + LowerCase(FOrchestrator.MemoryMap.AsText);
+    end;
+      
+    if (Pos('internet', LSearchStr) > 0) or
+       (Pos('rede', LSearchStr) > 0) or
+       (Pos('wi-fi', LSearchStr) > 0) or
+       (Pos('wifi', LSearchStr) > 0) or
+       (Pos('cabo', LSearchStr) > 0) or
+       (Pos('roteador', LSearchStr) > 0) or
+       (Pos('navegar', LSearchStr) > 0) or
+       (Pos('conex', LSearchStr) > 0) or
+       (Pos('acessar', LSearchStr) > 0) then
+    begin
+      AClass := 'suporte_rede';
+      Exit(True);
+    end;
+
+    if (Pos('monitor', LSearchStr) > 0) or
+       (Pos('tela', LSearchStr) > 0) or
+       (Pos('pisca', LSearchStr) > 0) or
+       (Pos('computador', LSearchStr) > 0) or
+       (Pos('notebook', LSearchStr) > 0) or
+       (Pos('impressora', LSearchStr) > 0) or
+       (Pos('teclado', LSearchStr) > 0) or
+       (Pos('mouse', LSearchStr) > 0) or
+       (Pos('equipamento', LSearchStr) > 0) or
+       (Pos('hardware', LSearchStr) > 0) then
+    begin
+      AClass := 'manutencao_equipamentos';
+      Exit(True);
+    end;
+  end;
+
 begin
   Result := False;
   AClassification := '';
@@ -264,6 +308,8 @@ begin
 
   if LText = '' then
   begin
+    if TryKeywordFallback(AClassification) then
+      Exit(True);
     AError := 'A resposta do classificador está vazia.';
     Exit;
   end;
@@ -274,6 +320,8 @@ begin
     except
       on E: Exception do
       begin
+        if TryKeywordFallback(AClassification) then
+          Exit(True);
         AError := 'JSON inválido: ' + E.Message;
         Exit;
       end;
@@ -281,6 +329,8 @@ begin
 
     if not (LData is TJSONObject) then
     begin
+      if TryKeywordFallback(AClassification) then
+        Exit(True);
       AError := 'A raiz da resposta deve ser um objeto JSON.';
       Exit;
     end;
@@ -290,12 +340,16 @@ begin
 
     if not Assigned(LTargetData) then
     begin
+      if TryKeywordFallback(AClassification) then
+        Exit(True);
       AError := 'A propriedade "target_agents" não foi encontrada.';
       Exit;
     end;
 
     if not (LTargetData is TJSONArray) then
     begin
+      if TryKeywordFallback(AClassification) then
+        Exit(True);
       AError := 'A propriedade "target_agents" deve conter um array.';
       Exit;
     end;
@@ -304,12 +358,16 @@ begin
 
     if LArray.Count <> 1 then
     begin
+      if TryKeywordFallback(AClassification) then
+        Exit(True);
       AError := 'O array "target_agents" deve conter exatamente um item.';
       Exit;
     end;
 
     if LArray.Items[0].JSONType <> jtString then
     begin
+      if TryKeywordFallback(AClassification) then
+        Exit(True);
       AError := 'O item de target_agents deve ser uma string.';
       Exit;
     end;
@@ -317,14 +375,24 @@ begin
     LTargetVal := Trim(LArray.Items[0].AsString);
     if LTargetVal = '' then
     begin
+      if TryKeywordFallback(AClassification) then
+        Exit(True);
       AError := 'O identificador da classificação está vazio.';
       Exit;
     end;
 
     if not IsKnownActionPlan(LTargetVal) then
     begin
+      if TryKeywordFallback(AClassification) then
+        Exit(True);
       AError := 'Erro de contrato: o modelo retornou um plano inexistente: "' + LTargetVal + '".';
       Exit;
+    end;
+
+    if SameText(LTargetVal, 'nenhuma') then
+    begin
+      if TryKeywordFallback(AClassification) then
+        Exit(True);
     end;
 
     AClassification := LTargetVal;
@@ -1024,35 +1092,38 @@ begin
   LPlans := FScriptData.Arrays['action_plans'];
   if not Assigned(LPlans) then Exit;
   
-  LPrompt := 'Você é o Agente Classificador do sistema de suporte da TI.' + sLineBreak +
-             'Seu trabalho é analisar a pergunta do usuário e verificar se ela corresponde a algum dos planos de ação disponíveis.' + sLineBreak;
+  LPrompt := 'Você é uma API de classificação estrita de chamados de TI.' + sLineBreak +
+             'Sua ÚNICA função é analisar o problema do usuário e responder estritamente com um objeto JSON.' + sLineBreak +
+             'NUNCA responda com saudações, conversas, explicações ou agradecimentos.' + sLineBreak + sLineBreak;
              
   { Se houver itens na memória, injeta o contexto da memória }
   if Assigned(FOrchestrator.MemoryMap) and (FOrchestrator.MemoryMap.Items.Count > 0) then
   begin
     LMemoryText := FOrchestrator.MemoryMap.BuildConversationContext(3);
-    LPrompt := LPrompt + sLineBreak + 
-               'Histórico e contexto da conversa (Memory Map):' + sLineBreak +
+    LPrompt := LPrompt + 
+               'Histórico recente da conversa (Memory Map):' + sLineBreak +
                LMemoryText + sLineBreak + sLineBreak;
   end;
   
-  LPrompt := LPrompt + 'Da pergunta acima, dá para identificar alguma das seguintes ações?' + sLineBreak + sLineBreak;
+  LPrompt := LPrompt + 'Classifique a solicitação em um dos seguintes planos de ação disponíveis:' + sLineBreak + sLineBreak;
              
   for I := 0 to LPlans.Count - 1 do
   begin
     LPlan := LPlans.Objects[I];
-    LPrompt := LPrompt + 'Ação: ' + LPlan.Strings['id'] + ' | Descrição: ' + LPlan.Strings['description'] + sLineBreak;
+    LPrompt := LPrompt + '- Ação: ' + LPlan.Strings['id'] + sLineBreak +
+               '  Descrição: ' + LPlan.Strings['description'] + sLineBreak;
   end;
   
   LPrompt := LPrompt + sLineBreak +
-             'REGRAS OBRIGATÓRIAS:' + sLineBreak +
-             '1. A resposta deve ter um objeto JSON como raiz.' + sLineBreak +
-             '2. A resposta deve começar com "{" e terminar com "}".' + sLineBreak +
-             '3. O campo "target_agents" deve ser um array com exatamente um item.' + sLineBreak +
-             '4. O item deve ser exatamente um dos identificadores de ação listados acima ou "nenhuma".' + sLineBreak +
-             '5. Não retorne nomes de equipamentos, setores, objetos ou categorias em "target_agents".' + sLineBreak +
-             '6. Nunca retorne somente um array como ["nenhuma"].' + sLineBreak +
-             '7. Não inclua Markdown, comentários ou texto fora do JSON.';
+             'DIRETRIZES DE DECISÃO:' + sLineBreak +
+             '* Se houver qualquer falha de internet, conectividade, Wi-Fi, rede local, sinal ou roteador (mesmo se mencionado em computador/notebook), a ação OBRIGATORIAMENTE é "suporte_rede".' + sLineBreak +
+             '* Se houver defeito físico ou problema de hardware em componentes (imagem piscando, monitor, tela, peças quebradas, impressora), a ação é "manutencao_equipamentos".' + sLineBreak +
+             '* Apenas escolha "nenhuma" se o assunto for totalmente irrelevante para TI.' + sLineBreak + sLineBreak +
+             'REGRAS DE FORMATO (OBRIGATÓRIO):' + sLineBreak +
+             '1. Retorne APENAS o JSON no formato exato:' + sLineBreak +
+             '{"confidence": 0.95, "target_agents": ["SUA_ACAO_AQUI"], "must_preserve": []}' + sLineBreak +
+             '2. O valor de target_agents DEVE ser exatamente o ID da ação (ex: "suporte_rede" ou "manutencao_equipamentos").' + sLineBreak +
+             '3. Não adicione texto antes ou depois do JSON.';
              
   FClassifier.SystemPrompt := LPrompt;
 end;

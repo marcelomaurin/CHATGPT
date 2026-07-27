@@ -193,9 +193,9 @@ object frmAgentMemoryMapDemo: TfrmAgentMemoryMapDemo
         end
         object chkClassifierOnly: TCheckBox
           Left = 490
-          Height = 30
+          Height = 19
           Top = 25
-          Width = 300
+          Width = 190
           Caption = 'Executar somente o classificador'
           Checked = True
           State = cbChecked
@@ -437,7 +437,7 @@ object frmAgentMemoryMapDemo: TfrmAgentMemoryMapDemo
           Left = 15
           Height = 15
           Top = 15
-          Width = 180
+          Width = 193
           Caption = 'Perguntas e Respostas em Execução:'
           ParentColor = False
         end
@@ -471,13 +471,13 @@ object frmAgentMemoryMapDemo: TfrmAgentMemoryMapDemo
           Left = 10
           Height = 15
           Top = 15
-          Width = 160
+          Width = 168
           Caption = 'Mapa de Memória da Conversa:'
           ParentColor = False
         end
         object memConvMemoryMap: TMemo
           Left = 10
-          Height = 620
+          Height = 622
           Top = 35
           Width = 517
           Align = alClient
