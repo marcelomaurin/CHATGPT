@@ -25,6 +25,10 @@
         <UnitName Value="aibase"/>
       </Item>
       <Item>
+        <Filename Value="..\AI\airagbridge.pas"/>
+        <UnitName Value="airagbridge"/>
+      </Item>
+      <Item>
         <Filename Value="..\AI\aiplatform.pas"/>
         <UnitName Value="aiplatform"/>
       </Item>

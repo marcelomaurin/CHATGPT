@@ -567,11 +567,11 @@ begin
     ClienteHTTP.RequestBody := BodyStream;
 
     try
-      Result := ClienteHTTP.Post(UTF8Encode(LURL));
+      Result := UTF8ToUTF16(ClienteHTTP.Post(UTF8Encode(LURL)));
     except
       on E: Exception do
-        Result := Format('{"error":{"message":"%s"}}',
-          [StringReplace(E.Message, '"', '\"', [rfReplaceAll])]);
+        Result := UTF8ToUTF16(Format('{"error":{"message":"%s"}}',
+          [StringReplace(E.Message, '"', '\"', [rfReplaceAll])]));
     end;
   finally
     BodyStream.Free;

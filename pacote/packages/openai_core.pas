@@ -8,7 +8,7 @@ unit openai_core;
 interface
 
 uses
-  funcoes, aibase, aiplatform, airuntimepaths, ailibraryloader, 
+  funcoes, aibase, airagbridge, aiplatform, airuntimepaths, ailibraryloader, 
   aiprocessrunner, chatgpt, tokenizer, aicodeassistant, aipromptbuilder, 
   aimodelregistry, DBTokenList, GroupResponse, iaschedule, LazarusPackageIntf;
 

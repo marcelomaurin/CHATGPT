@@ -6,6 +6,7 @@ interface
 
 uses
   Classes, SysUtils, chatgpt, fpjson, jsonparser, fphttpclient, TypInfo,
+  airagbridge,
   aibase, aiagentsafety,
   // AI Input components
   aiaudio, aiwebserver, aisockets, aiserial, aiposprinter,
@@ -81,11 +82,14 @@ type
   TAIAgent = class(TAIBaseComponent)
   private
     FChatGPT: TCHATGPT;
+    FRAG: TComponent;
     FOptions: TAIAgentOptions;
     FAction: TAIAgentAction;
     FResource: TAIAgentResource;
     FSystemPrompt: string;
     FLastRationale: string;
+    FLastRAGContext: string;
+    FLastRAGSources: TStringList;
     FOnActionTriggered: TAgentActionEvent;
     FMemory: TStrings;
     FMaxMemoryLimit: Integer;
@@ -93,7 +97,9 @@ type
     FSafety: TAIAgentSafety;
     FLastDecision: TAIAgentDecision;
     procedure SetMemory(AValue: TStrings);
+    procedure SetRAG(AValue: TComponent);
     procedure SetSafety(AValue: TAIAgentSafety);
+    function LoadRAGContext(const AQuestion: string): Boolean;
   protected
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
@@ -103,12 +109,15 @@ type
     procedure ClearMemory;
   published
     property ChatGPT: TCHATGPT read FChatGPT write FChatGPT;
+    property RAG: TComponent read FRAG write SetRAG;
     property Options: TAIAgentOptions read FOptions write FOptions;
     property Action: TAIAgentAction read FAction write FAction;
     property Resource: TAIAgentResource read FResource write FResource;
     property Safety: TAIAgentSafety read FSafety write SetSafety;
     property SystemPrompt: string read FSystemPrompt write FSystemPrompt;
     property LastRationale: string read FLastRationale;
+    property LastRAGContext: string read FLastRAGContext;
+    property LastRAGSources: TStringList read FLastRAGSources;
     property Memory: TStrings read FMemory write SetMemory;
     property MaxMemoryLimit: Integer read FMaxMemoryLimit write FMaxMemoryLimit;
     property MaxRetries: Integer read FMaxRetries write FMaxRetries;
@@ -388,11 +397,14 @@ begin
   inherited Create(AOwner);
   FCategory := ccAction;
   FChatGPT := nil;
+  FRAG := nil;
   FOptions := nil;
   FAction := nil;
   FResource := nil;
   FSystemPrompt := '';
   FLastRationale := '';
+  FLastRAGContext := '';
+  FLastRAGSources := TStringList.Create;
   FMemory := TStringList.Create;
   FMaxMemoryLimit := 20;
   FMaxRetries := 3;
@@ -403,6 +415,7 @@ end;
 
 destructor TAIAgent.Destroy;
 begin
+  FLastRAGSources.Free;
   FMemory.Free;
   FLastDecision.Free;
   inherited Destroy;
@@ -411,6 +424,16 @@ end;
 procedure TAIAgent.SetMemory(AValue: TStrings);
 begin
   FMemory.Assign(AValue);
+end;
+
+procedure TAIAgent.SetRAG(AValue: TComponent);
+begin
+  if FRAG <> AValue then
+  begin
+    FRAG := AValue;
+    if FRAG <> nil then
+      FRAG.FreeNotification(Self);
+  end;
 end;
 
 procedure TAIAgent.SetSafety(AValue: TAIAgentSafety);
@@ -429,11 +452,39 @@ begin
   if Operation = opRemove then
   begin
     if AComponent = FChatGPT then FChatGPT := nil;
+    if AComponent = FRAG then FRAG := nil;
     if AComponent = FOptions then FOptions := nil;
     if AComponent = FAction then FAction := nil;
     if AComponent = FResource then FResource := nil;
     if AComponent = FSafety then FSafety := nil;
   end;
+end;
+
+function TAIAgent.LoadRAGContext(const AQuestion: string): Boolean;
+var
+  RAGProvider: IAIRAGProvider;
+begin
+  Result := False;
+  FLastRAGContext := '';
+  FLastRAGSources.Clear;
+
+  if not Assigned(FRAG) then
+    Exit;
+
+  if not Supports(FRAG, IAIRAGProvider, RAGProvider) then
+  begin
+    SetError('Componente RAG associado não suporta IAIRAGProvider.');
+    Exit;
+  end;
+
+  if not RAGProvider.BuildContext(AQuestion) then
+    Exit;
+
+  FLastRAGContext := RAGProvider.GetLastContext;
+  if Assigned(RAGProvider.GetLastSources) then
+    FLastRAGSources.Assign(RAGProvider.GetLastSources);
+
+  Result := Trim(FLastRAGContext) <> '';
 end;
 
 procedure TAIAgent.ClearMemory;
@@ -517,6 +568,22 @@ begin
 
   LPrompt := LPrompt + sLineBreak + '=== DADOS DE ENTRADA A ANALISAR ===' + sLineBreak;
   LPrompt := LPrompt + AInputData + sLineBreak;
+
+  if LoadRAGContext(AInputData) then
+  begin
+    if FLastRAGContext <> '' then
+    begin
+      LPrompt := LPrompt + sLineBreak + '=== CONTEXTO RAG ===' + sLineBreak;
+      LPrompt := LPrompt + FLastRAGContext + sLineBreak;
+    end;
+
+    if FLastRAGSources.Count > 0 then
+    begin
+      LPrompt := LPrompt + sLineBreak + '=== FONTES RAG ===' + sLineBreak;
+      for I := 0 to FLastRAGSources.Count - 1 do
+        LPrompt := LPrompt + ' - ' + FLastRAGSources[I] + sLineBreak;
+    end;
+  end;
 
   if MemoryText <> '' then
     LPrompt := LPrompt + MemoryText;
