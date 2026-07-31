@@ -187,7 +187,7 @@ begin
                 begin
                   ContentData := ChoicesArray.Objects[0].Find('text');
                   if (ContentData <> nil) and (ContentData.JSONType = jtString) then
-                    Result := ContentData.AsString;
+                    Result := UTF8ToUTF16(ContentData.AsString);
                 end;
               end;
             end;
@@ -231,7 +231,7 @@ begin
                         begin
                           ContentData := ChoicesArray.Objects[0].Find('text');
                           if (ContentData <> nil) and (ContentData.JSONType = jtString) then
-                            Result := ContentData.AsString;
+                            Result := UTF8ToUTF16(ContentData.AsString);
                         end;
                       end;
                     end;
@@ -272,7 +272,7 @@ begin
                 begin
                   ContentData := MessageObject.Find('content');
                   if (ContentData <> nil) and (ContentData.JSONType = jtString) then
-                    Result := ContentData.AsString;
+                    Result := UTF8ToUTF16(ContentData.AsString);
                 end;
               end;
             end;
@@ -476,6 +476,7 @@ begin
       else
         root.Add('max_tokens', 4096);
 
+      root.Add('stream', False);
       payload := UTF8Encode(root.AsJSON);
     finally
       root.Free;
@@ -539,6 +540,7 @@ begin
       if FMaxTokens > 0 then
         root.Add('max_tokens', FMaxTokens);
 
+      root.Add('stream', False);
       payload := UTF8Encode(root.AsJSON);
     finally
       root.Free;
@@ -551,7 +553,7 @@ begin
     AddProviderHeaders(ClienteHTTP);
 
     ClienteHTTP.AllowRedirect := True;
-    ClienteHTTP.KeepConnection := True;
+    ClienteHTTP.KeepConnection := False;
 
     if FProvider = AIP_LOCAL then
     begin
