@@ -136,6 +136,7 @@ type
 
 function GetAIProviderName(AProvider: TAIProvider): string;
 function GetAIProviderFromIndex(AIndex: Integer): TAIProvider;
+function GetDefaultEndpointForProvider(AProvider: TAIProvider): string;
 procedure GetAIProviderList(AOutList: TStrings);
 procedure GetAIModelListForProvider(AProvider: TAIProvider; AOutList: TStrings);
 
@@ -160,6 +161,21 @@ begin
     AIP_DEEPSEEK:   Result := 'DeepSeek Direct';
   else
     Result := 'OpenAI';
+  end;
+end;
+
+function GetDefaultEndpointForProvider(AProvider: TAIProvider): string;
+begin
+  case AProvider of
+    AIP_OPENAI:     Result := 'https://api.openai.com/v1/chat/completions';
+    AIP_OPENROUTER: Result := 'https://openrouter.ai/api/v1/chat/completions';
+    AIP_CEREBRAS:   Result := 'https://api.cerebras.ai/v1/chat/completions';
+    AIP_DEEPSEEK:   Result := 'https://api.deepseek.com/v1/chat/completions';
+    AIP_GEMINI:     Result := 'https://generativelanguage.googleapis.com/v1beta/models/';
+    AIP_CLAUDE:     Result := 'https://api.anthropic.com/v1/messages';
+    AIP_LOCAL:      Result := 'http://localhost:11434/v1/chat/completions';
+  else
+    Result := 'https://api.openai.com/v1/chat/completions';
   end;
 end;
 
@@ -464,10 +480,29 @@ begin
 end;
 
 function TCHATGPT.GetEndpoint: WideString;
+var
+  CleanURL: WideString;
 begin
-  if Trim(FURL) <> '' then
+  CleanURL := Trim(FURL);
+  if CleanURL <> '' then
   begin
-    Result := FURL;
+    Result := CleanURL;
+    // Se a URL fornecida não tiver a rota específica de completions/messages/generateContent, anexa automaticamente a rota do provedor
+    if (Pos('/v1/chat/completions', Result) = 0) and
+       (Pos('/messages', Result) = 0) and
+       (Pos('/generateContent', Result) = 0) and
+       (Pos('/v1/completions', Result) = 0) then
+    begin
+      if Copy(Result, Length(Result), 1) = '/' then
+        Delete(Result, Length(Result), 1);
+
+      if FProvider = AIP_CLAUDE then
+        Result := Result + '/v1/messages'
+      else if FProvider = AIP_GEMINI then
+        Result := Result + '/v1beta/models/' + GetModelName + ':generateContent?key=' + FToken
+      else
+        Result := Result + '/v1/chat/completions';
+    end;
     Exit;
   end;
 

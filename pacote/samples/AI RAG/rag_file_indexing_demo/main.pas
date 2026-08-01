@@ -135,6 +135,19 @@ begin
     else
       cmbModel.ItemIndex := 0;
   end;
+
+  // Se a URL estiver vazia ou for o endpoint padrao de algum provedor, atualiza para o endpoint padrao do novo provedor
+  if (Trim(edtURL.Text) = '') or 
+     (Pos('api.openai.com', edtURL.Text) > 0) or
+     (Pos('openrouter.ai', edtURL.Text) > 0) or
+     (Pos('api.cerebras.ai', edtURL.Text) > 0) or
+     (Pos('api.deepseek.com', edtURL.Text) > 0) or
+     (Pos('googleapis.com', edtURL.Text) > 0) or
+     (Pos('anthropic.com', edtURL.Text) > 0) or
+     (Pos('localhost:11434', edtURL.Text) > 0) then
+  begin
+    edtURL.Text := GetDefaultEndpointForProvider(SelectedProvider);
+  end;
 end;
 
 procedure TfrmRAGFileIndexingDemo.cmbProviderChange(Sender: TObject);
@@ -169,7 +182,7 @@ begin
 
     edtApiKey.Text := Ini.ReadString('IA', 'ApiKey', GetEnvironmentVariable('OPENAI_API_KEY'));
     cmbModel.Text := Ini.ReadString('IA', 'Model', cmbModel.Text);
-    edtURL.Text := Ini.ReadString('IA', 'URL', '');
+    edtURL.Text := Ini.ReadString('IA', 'URL', GetDefaultEndpointForProvider(GetAIProviderFromIndex(cmbProvider.ItemIndex)));
     edtChunkSize.Text := Ini.ReadString('RAG', 'ChunkSize', '1200');
     edtChunkOverlap.Text := Ini.ReadString('RAG', 'ChunkOverlap', '150');
     edtTopK.Text := Ini.ReadString('RAG', 'TopK', '4');
