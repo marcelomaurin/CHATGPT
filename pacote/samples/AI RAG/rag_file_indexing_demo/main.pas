@@ -38,7 +38,10 @@ type
     lblDocsPath: TLabel;
     edtDocsPath: TEdit;
     btnSelecionarPasta: TButton;
-    btnCarregarPastaDocs: TButton;
+    btnVarrerPasta: TButton;
+    chkRecursive: TCheckBox;
+    lblExtensions: TLabel;
+    edtExtensions: TEdit;
     memDocsInfo: TMemo;
     tsLogs: TTabSheet;
     memLogs: TMemo;
@@ -55,7 +58,7 @@ type
     procedure btnPerguntarClick(Sender: TObject);
     procedure btnClearClick(Sender: TObject);
     procedure btnSelecionarPastaClick(Sender: TObject);
-    procedure btnCarregarPastaDocsClick(Sender: TObject);
+    procedure btnVarrerPastaClick(Sender: TObject);
   private
     FChatGPT: TCHATGPT;
     FGraphMap: TAIGraphMap;
@@ -132,39 +135,27 @@ end;
 
 procedure TfrmRAGFileIndexingDemo.CarregarDocumentosDaPasta(const APasta: string);
 var
-  SearchRec: TSearchRec;
-  FilePath: string;
-  Count: Integer;
+  TotalFiles: Integer;
 begin
   if not DirectoryExists(APasta) then Exit;
 
   FAIRAG.Clear;
   lstArquivos.Clear;
   memDocsInfo.Lines.Clear;
-  memDocsInfo.Lines.Add('Diretório de Documentos: ' + APasta);
+  memDocsInfo.Lines.Add('Diretório de Varredura RAG: ' + APasta);
+  memDocsInfo.Lines.Add('Extensões Filtradas: ' + edtExtensions.Text);
+  memDocsInfo.Lines.Add('Varredura Recursiva: ' + BoolToStr(chkRecursive.Checked, True));
   memDocsInfo.Lines.Add('========================================');
 
-  // Procura arquivos .txt e .md
-  if FindFirst(IncludeTrailingPathDelimiter(APasta) + '*.*', faAnyFile, SearchRec) = 0 then
-  begin
-    repeat
-      if (SearchRec.Attr and faDirectory) = 0 then
-      begin
-        if SameText(ExtractFileExt(SearchRec.Name), '.txt') or SameText(ExtractFileExt(SearchRec.Name), '.md') then
-        begin
-          FilePath := IncludeTrailingPathDelimiter(APasta) + SearchRec.Name;
-          Count := FAIRAG.AddFile(FilePath);
-          lstArquivos.Items.Add(SearchRec.Name + Format(' (%d chunks)', [Count]));
-          memDocsInfo.Lines.Add(Format('Arquivo: %s | Chunks: %d | Tamanho: %d bytes', [SearchRec.Name, Count, SearchRec.Size]));
-        end;
-      end;
-    until FindNext(SearchRec) <> 0;
-    FindClose(SearchRec);
-  end;
+  TotalFiles := FAIRAG.AddFolder(APasta, chkRecursive.Checked, edtExtensions.Text);
 
   memDocsInfo.Lines.Add('========================================');
-  memDocsInfo.Lines.Add(Format('Total de Arquivos Carregados: %d', [lstArquivos.Count]));
-  memLogs.Lines.Add(Format('Varredura concluida em %s: %d arquivos adicionados ao RAG.', [APasta, lstArquivos.Count]));
+  memDocsInfo.Lines.Add(Format('Total de Arquivos Processados: %d', [TotalFiles]));
+  memDocsInfo.Lines.Add(Format('Total de Chunks em Memória: %d', [FGraphMap.Training.Count]));
+
+  // Atualiza lista de arquivos na interface
+  lstArquivos.Items.Add(Format('%d arquivos varridos em %s', [TotalFiles, ExtractFileName(APasta)]));
+  memLogs.Lines.Add(Format('Varredura concluída em %s: %d arquivos adicionados ao RAG.', [APasta, TotalFiles]));
 end;
 
 procedure TfrmRAGFileIndexingDemo.btnSelecionarPastaClick(Sender: TObject);
@@ -177,7 +168,7 @@ begin
   end;
 end;
 
-procedure TfrmRAGFileIndexingDemo.btnCarregarPastaDocsClick(Sender: TObject);
+procedure TfrmRAGFileIndexingDemo.btnVarrerPastaClick(Sender: TObject);
 begin
   CarregarDocumentosDaPasta(edtDocsPath.Text);
   btnIndexarClick(Sender);

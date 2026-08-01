@@ -179,11 +179,11 @@ object frmRAGFileIndexingDemo: TfrmRAGFileIndexingDemo
       ClientWidth = 572
       object pnlConfigTop: TPanel
         Left = 0
-        Height = 70
+        Height = 105
         Top = 0
         Width = 572
         Align = alTop
-        ClientHeight = 70
+        ClientHeight = 105
         ClientWidth = 572
         TabOrder = 0
         object lblDocsPath: TLabel
@@ -191,7 +191,7 @@ object frmRAGFileIndexingDemo: TfrmRAGFileIndexingDemo
           Height = 15
           Top = 15
           Width = 117
-          Caption = 'Pasta de Documentos:'
+          Caption = 'Pasta de Varredura:'
           ParentColor = False
         end
         object edtDocsPath: TEdit
@@ -210,20 +210,46 @@ object frmRAGFileIndexingDemo: TfrmRAGFileIndexingDemo
           OnClick = btnSelecionarPastaClick
           TabOrder = 1
         end
-        object btnCarregarPastaDocs: TButton
+        object lblExtensions: TLabel
+          Left = 12
+          Height = 15
+          Top = 45
+          Width = 110
+          Caption = 'Filtro de Extensões:'
+          ParentColor = False
+        end
+        object edtExtensions: TEdit
           Left = 135
-          Height = 25
-          Top = 38
-          Width = 220
-          Caption = 'Carregar & Indexar Pasta Docs'
-          OnClick = btnCarregarPastaDocsClick
+          Height = 23
+          Top = 42
+          Width = 230
           TabOrder = 2
+          Text = '.txt;.md;.pas;.json;.csv'
+        end
+        object chkRecursive: TCheckBox
+          Left = 380
+          Height = 19
+          Top = 44
+          Width = 160
+          Caption = 'Varredura Recursiva'
+          Checked = True
+          State = cbChecked
+          TabOrder = 3
+        end
+        object btnVarrerPasta: TButton
+          Left = 135
+          Height = 28
+          Top = 70
+          Width = 230
+          Caption = 'Varrer e Indexar Pasta (AddFolder)'
+          OnClick = btnVarrerPastaClick
+          TabOrder = 4
         end
       end
       object memDocsInfo: TMemo
         Left = 0
-        Height = 492
-        Top = 70
+        Height = 457
+        Top = 105
         Width = 572
         Align = alClient
         ReadOnly = True

@@ -5,13 +5,11 @@ unit airag;
 interface
 
 uses
-  Classes, SysUtils, LResources, aibase, chatgpt, aigraphmap, airagbridge;
+  Classes, SysUtils, chatgpt, aigraphmap, aibase, LResources;
 
 type
-  TAIRAGLogEvent = procedure(
-    Sender: TObject;
-    const AMessage: string
-  ) of object;
+
+  { TAIRAG }
 
   TAIRAGChunkEvent = procedure(
     Sender: TObject;
@@ -25,8 +23,7 @@ type
     const AChunkID: string;
     const ASource: string;
     const AText: string;
-    const AScore: Double;
-    var AInclude: Boolean
+    const AScore: Double
   ) of object;
 
   TAIRAGPromptEvent = procedure(
@@ -36,15 +33,19 @@ type
     var APrompt: string
   ) of object;
 
-  { TAIRAG }
+  TAIRAGLogEvent = procedure(
+    Sender: TObject;
+    const AMessage: string
+  ) of object;
 
-  TAIRAG = class(TAIBaseComponent, IAIRAGProvider)
+  TAIRAG = class(TAIBaseComponent)
   private
     FChatGPT: TCHATGPT;
     FGraphMap: TAIGraphMap;
 
     FChunkSize: Integer;
     FChunkOverlap: Integer;
+
     FTopK: Integer;
     FMinimumScore: Double;
     FMaximumContextLength: Integer;
@@ -114,6 +115,12 @@ type
       const AFileName: string
     ): Integer;
 
+    function AddFolder(
+      const AFolderPath: string;
+      ARecursive: Boolean = True;
+      const AFileExtensions: string = '.txt;.md;.pas;.py;.json;.csv;.xml;.html;.log'
+    ): Integer;
+
     function BuildIndex: Boolean;
 
     function FindChunkText(
@@ -143,20 +150,14 @@ type
     ): Boolean;
 
     function SaveIndex(
-      const AGraphFile: string;
-      const ATrainingFile: string
+      const AGraphFileName: string;
+      const ATrainingFileName: string = ''
     ): Boolean;
 
     function LoadIndex(
-      const AGraphFile: string;
-      const ATrainingFile: string
+      const AGraphFileName: string;
+      const ATrainingFileName: string = ''
     ): Boolean;
-
-    // Interface IAIRAGProvider implementation
-    function GetLastQuestion: string;
-    function GetLastContext: string;
-    function GetLastAnswer: string;
-    function GetLastSources: TStrings;
 
     property LastQuestion: string read FLastQuestion;
     property LastContext: string read FLastContext;
@@ -165,77 +166,33 @@ type
     property LastSources: TStringList read FLastSources;
 
   published
-    property ChatGPT: TCHATGPT
-      read FChatGPT write SetChatGPT;
+    property ChatGPT: TCHATGPT read FChatGPT write SetChatGPT;
+    property GraphMap: TAIGraphMap read FGraphMap write SetGraphMap;
 
-    property GraphMap: TAIGraphMap
-      read FGraphMap write SetGraphMap;
+    property ChunkSize: Integer read FChunkSize write SetChunkSize default 1200;
+    property ChunkOverlap: Integer read FChunkOverlap write SetChunkOverlap default 150;
 
-    property ChunkSize: Integer
-      read FChunkSize write SetChunkSize default 1200;
+    property TopK: Integer read FTopK write SetTopK default 4;
+    property MinimumScore: Double read FMinimumScore write FMinimumScore;
+    property MaximumContextLength: Integer read FMaximumContextLength write SetMaximumContextLength default 12000;
 
-    property ChunkOverlap: Integer
-      read FChunkOverlap write SetChunkOverlap default 150;
+    property Instructions: string read FInstructions write FInstructions;
+    property NoAnswerText: string read FNoAnswerText write FNoAnswerText;
+    property SourcePrefix: string read FSourcePrefix write FSourcePrefix;
+    property ReplaceExistingSource: Boolean read FReplaceExistingSource write FReplaceExistingSource default True;
 
-    property TopK: Integer
-      read FTopK write SetTopK default 4;
-
-    property MinimumScore: Double
-      read FMinimumScore write FMinimumScore;
-
-    property MaximumContextLength: Integer
-      read FMaximumContextLength
-      write SetMaximumContextLength default 12000;
-
-    property Instructions: string
-      read FInstructions write FInstructions;
-
-    property NoAnswerText: string
-      read FNoAnswerText write FNoAnswerText;
-
-    property SourcePrefix: string
-      read FSourcePrefix write FSourcePrefix;
-
-    property ReplaceExistingSource: Boolean
-      read FReplaceExistingSource write FReplaceExistingSource default True;
-
-    property OnBeforeIndex: TNotifyEvent
-      read FOnBeforeIndex write FOnBeforeIndex;
-
-    property OnAfterIndex: TNotifyEvent
-      read FOnAfterIndex write FOnAfterIndex;
-
-    property OnChunkCreated: TAIRAGChunkEvent
-      read FOnChunkCreated write FOnChunkCreated;
-
-    property OnBeforeRetrieve: TNotifyEvent
-      read FOnBeforeRetrieve write FOnBeforeRetrieve;
-
-    property OnAfterRetrieve: TNotifyEvent
-      read FOnAfterRetrieve write FOnAfterRetrieve;
-
-    property OnChunkRetrieved: TAIRAGRetrieveEvent
-      read FOnChunkRetrieved write FOnChunkRetrieved;
-
-    property OnContextBuilt: TAIRAGLogEvent
-      read FOnContextBuilt write FOnContextBuilt;
-
-    property OnBuildPrompt: TAIRAGPromptEvent
-      read FOnBuildPrompt write FOnBuildPrompt;
-
-    property OnBeforeGenerate: TNotifyEvent
-      read FOnBeforeGenerate write FOnBeforeGenerate;
-
-    property OnAfterGenerate: TNotifyEvent
-      read FOnAfterGenerate write FOnAfterGenerate;
-
-    property OnRAGLog: TAIRAGLogEvent
-      read FOnRAGLog write FOnRAGLog;
+    property OnBeforeIndex: TNotifyEvent read FOnBeforeIndex write FOnBeforeIndex;
+    property OnAfterIndex: TNotifyEvent read FOnAfterIndex write FOnAfterIndex;
+    property OnChunkCreated: TAIRAGChunkEvent read FOnChunkCreated write FOnChunkCreated;
+    property OnBeforeRetrieve: TNotifyEvent read FOnBeforeRetrieve write FOnBeforeRetrieve;
+    property OnAfterRetrieve: TNotifyEvent read FOnAfterRetrieve write FOnAfterRetrieve;
+    property OnChunkRetrieved: TAIRAGRetrieveEvent read FOnChunkRetrieved write FOnChunkRetrieved;
+    property OnContextBuilt: TAIRAGLogEvent read FOnContextBuilt write FOnContextBuilt;
+    property OnBuildPrompt: TAIRAGPromptEvent read FOnBuildPrompt write FOnBuildPrompt;
+    property OnBeforeGenerate: TNotifyEvent read FOnBeforeGenerate write FOnBeforeGenerate;
+    property OnAfterGenerate: TNotifyEvent read FOnAfterGenerate write FOnAfterGenerate;
+    property OnRAGLog: TAIRAGLogEvent read FOnRAGLog write FOnRAGLog;
   end;
-
-procedure Register;
-
-implementation
 
 type
   TRAGRetrievedChunk = class
@@ -245,6 +202,10 @@ type
     Text: string;
     Score: Double;
   end;
+
+procedure Register;
+
+implementation
 
 procedure Register;
 begin
@@ -271,13 +232,13 @@ begin
   FLastAnswer := '';
   FLastSources := TStringList.Create;
   FReplaceExistingSource := True;
-  FPrompt := 'TAIRAG indexes text chunks with TAIGraphMap and builds answer context for TCHATGPT.';
+  FPrompt := 'TAIRAG realiza fatiamento, indexacao relacional e geracao de respostas com fontes.';
   ClearError;
 end;
 
 destructor TAIRAG.Destroy;
 begin
-  FreeAndNil(FLastSources);
+  FLastSources.Free;
   inherited Destroy;
 end;
 
@@ -285,7 +246,6 @@ procedure TAIRAG.SetChatGPT(AValue: TCHATGPT);
 begin
   if FChatGPT = AValue then
     Exit;
-
   FChatGPT := AValue;
   if Assigned(FChatGPT) then
     FChatGPT.FreeNotification(Self);
@@ -295,7 +255,6 @@ procedure TAIRAG.SetGraphMap(AValue: TAIGraphMap);
 begin
   if FGraphMap = AValue then
     Exit;
-
   FGraphMap := AValue;
   if Assigned(FGraphMap) then
     FGraphMap.FreeNotification(Self);
@@ -303,16 +262,11 @@ end;
 
 procedure TAIRAG.SetChunkSize(AValue: Integer);
 begin
-  if AValue < 100 then
-    AValue := 100
-  else if AValue > 100000 then
-    AValue := 100000;
-
+  if AValue < 50 then
+    AValue := 50;
   FChunkSize := AValue;
   if FChunkOverlap >= FChunkSize then
-    FChunkOverlap := FChunkSize - 1;
-  if FChunkOverlap < 0 then
-    FChunkOverlap := 0;
+    FChunkOverlap := FChunkSize div 4;
 end;
 
 procedure TAIRAG.SetChunkOverlap(AValue: Integer);
@@ -320,18 +274,14 @@ begin
   if AValue < 0 then
     AValue := 0;
   if AValue >= FChunkSize then
-    AValue := FChunkSize - 1;
-  if AValue < 0 then
-    AValue := 0;
+    AValue := FChunkSize div 4;
   FChunkOverlap := AValue;
 end;
 
 procedure TAIRAG.SetTopK(AValue: Integer);
 begin
   if AValue < 1 then
-    AValue := 1
-  else if AValue > 100 then
-    AValue := 100;
+    AValue := 1;
   FTopK := AValue;
 end;
 
@@ -391,35 +341,27 @@ begin
     if Assigned(AStrings.Objects[I]) then
       AStrings.Objects[I].Free;
   end;
+  AStrings.Clear;
 end;
 
 function TAIRAG.NormalizeSourceName(const ASource: string): string;
+var
+  S: string;
 begin
-  Result := Trim(ASource);
-  if Result = '' then
-    Result := 'documento';
-
-  Result := StringReplace(Result, sLineBreak, '_', [rfReplaceAll]);
-  Result := StringReplace(Result, #10, '_', [rfReplaceAll]);
-  Result := StringReplace(Result, #13, '_', [rfReplaceAll]);
-  Result := StringReplace(Result, #9, '_', [rfReplaceAll]);
-  Result := StringReplace(Result, ' ', '_', [rfReplaceAll]);
-  Result := StringReplace(Result, '=', '_', [rfReplaceAll]);
-  Result := StringReplace(Result, '#', '_', [rfReplaceAll]);
-  Result := StringReplace(Result, '\', '_', [rfReplaceAll]);
-  Result := StringReplace(Result, '/', '_', [rfReplaceAll]);
-  Result := StringReplace(Result, ':', '_', [rfReplaceAll]);
+  S := ExtractFileName(ASource);
+  if S = '' then
+    S := ASource;
+  S := StringReplace(S, ' ', '_', [rfReplaceAll]);
+  S := StringReplace(S, ':', '_', [rfReplaceAll]);
+  S := StringReplace(S, '#', '_', [rfReplaceAll]);
+  Result := LowerCase(S);
 end;
 
 procedure TAIRAG.SplitText(const AText: string; AChunks: TStrings);
 var
-  StartPos: Integer;
-  Remaining: Integer;
-  ChunkEnd: Integer;
-  Slice: string;
-  BreakPos: Integer;
+  StartPos, NextStart, ChunkEnd, BreakPos, I: Integer;
   Chunk: string;
-  NextStart: Integer;
+  Delim: Char;
 begin
   if AChunks = nil then
     Exit;
@@ -428,25 +370,31 @@ begin
   if Trim(AText) = '' then
     Exit;
 
-  if Length(AText) <= FChunkSize then
-  begin
-    AChunks.Add(Trim(AText));
-    Exit;
-  end;
-
   StartPos := 1;
   while StartPos <= Length(AText) do
   begin
-    Remaining := Length(AText) - StartPos + 1;
-    if Remaining <= FChunkSize then
+    ChunkEnd := StartPos + FChunkSize - 1;
+    if ChunkEnd >= Length(AText) then
       ChunkEnd := Length(AText)
     else
     begin
-      ChunkEnd := StartPos + FChunkSize - 1;
-      Slice := Copy(AText, StartPos, FChunkSize);
-      BreakPos := LastDelimiter(#10#13, Slice);
+      BreakPos := 0;
+      for Delim in [#10, '.', '!', '?', ';'] do
+      begin
+        for I := ChunkEnd downto StartPos + (FChunkSize div 2) do
+        begin
+          if AText[I] = Delim then
+          begin
+            BreakPos := I;
+            Break;
+          end;
+        end;
+        if BreakPos > 0 then
+          Break;
+      end;
+
       if BreakPos > 0 then
-        ChunkEnd := StartPos + BreakPos - 1;
+        ChunkEnd := BreakPos;
     end;
 
     if ChunkEnd < StartPos then
@@ -561,7 +509,6 @@ end;
 function TAIRAG.AddFile(const AFileName: string): Integer;
 var
   LList: TStringList;
-  Ext: string;
 begin
   Result := 0;
   ClearError;
@@ -578,19 +525,113 @@ begin
     Exit;
   end;
 
-  Ext := LowerCase(ExtractFileExt(AFileName));
-  if (Ext <> '.txt') and (Ext <> '.md') then
-  begin
-    SetError('Formato nao suportado: ' + Ext);
-    Exit;
-  end;
-
   LList := TStringList.Create;
   try
-    LList.LoadFromFile(AFileName);
-    Result := AddText(ExtractFileName(AFileName), LList.Text);
+    try
+      LList.LoadFromFile(AFileName);
+      Result := AddText(ExtractFileName(AFileName), LList.Text);
+    except
+      on E: Exception do
+      begin
+        SetError('Erro ao ler arquivo ' + AFileName + ': ' + E.Message);
+        Result := 0;
+      end;
+    end;
   finally
     LList.Free;
+  end;
+end;
+
+function TAIRAG.AddFolder(const AFolderPath: string; ARecursive: Boolean; const AFileExtensions: string): Integer;
+var
+  ExtList: TStringList;
+
+  procedure ScanDir(const ADir: string);
+  var
+    SearchRec: TSearchRec;
+    FilePath, Ext: string;
+    I: Integer;
+    Match: Boolean;
+  begin
+    if not DirectoryExists(ADir) then Exit;
+
+    if FindFirst(IncludeTrailingPathDelimiter(ADir) + '*.*', faAnyFile, SearchRec) = 0 then
+    begin
+      try
+        repeat
+          if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
+          begin
+            FilePath := IncludeTrailingPathDelimiter(ADir) + SearchRec.Name;
+            if (SearchRec.Attr and faDirectory) <> 0 then
+            begin
+              if ARecursive then
+                ScanDir(FilePath);
+            end
+            else
+            begin
+              Ext := LowerCase(ExtractFileExt(SearchRec.Name));
+              Match := False;
+              if ExtList.Count = 0 then
+                Match := True
+              else
+              begin
+                for I := 0 to ExtList.Count - 1 do
+                begin
+                  if SameText(Ext, ExtList[I]) then
+                  begin
+                    Match := True;
+                    Break;
+                  end;
+                end;
+              end;
+
+              if Match then
+              begin
+                DoLog('Indexando arquivo da pasta: ' + SearchRec.Name);
+                AddFile(FilePath);
+                Inc(Result);
+              end;
+            end;
+          end;
+        until FindNext(SearchRec) <> 0;
+      finally
+        FindClose(SearchRec);
+      end;
+    end;
+  end;
+
+var
+  RawExts: string;
+  I: Integer;
+begin
+  Result := 0;
+  ClearError;
+
+  if not DirectoryExists(AFolderPath) then
+  begin
+    SetError('Diretorio nao encontrado: ' + AFolderPath);
+    Exit(0);
+  end;
+
+  ExtList := TStringList.Create;
+  try
+    RawExts := StringReplace(AFileExtensions, ',', ';', [rfReplaceAll]);
+    ExtList.Delimiter := ';';
+    ExtList.StrictDelimiter := True;
+    ExtList.DelimitedText := LowerCase(RawExts);
+
+    for I := 0 to ExtList.Count - 1 do
+    begin
+      ExtList[I] := Trim(ExtList[I]);
+      if (ExtList[I] <> '') and (ExtList[I][1] <> '.') then
+        ExtList[I] := '.' + ExtList[I];
+    end;
+
+    DoLog('Iniciando varredura na pasta: ' + AFolderPath);
+    ScanDir(AFolderPath);
+    DoLog(Format('Varredura concluida: %d arquivos processados.', [Result]));
+  finally
+    ExtList.Free;
   end;
 end;
 
@@ -618,16 +659,21 @@ begin
     FGraphMap.Train;
     if Trim(FGraphMap.LastError) <> '' then
     begin
-      SetError(FGraphMap.LastError);
+      SetError('Erro ao treinar grafo: ' + FGraphMap.LastError);
       Exit;
     end;
 
-    Result := FGraphMap.NodeCount > 0;
-    if Result then
-      FLastResult := 'Indice construído com sucesso.';
-  finally
+    Result := True;
+    FLastSuccess := True;
+    DoLog('Indice RAG construido com sucesso.');
     if Assigned(FOnAfterIndex) then
       FOnAfterIndex(Self);
+  except
+    on E: Exception do
+    begin
+      SetError('Erro na construcao do indice: ' + E.Message);
+      Result := False;
+    end;
   end;
 end;
 
@@ -642,101 +688,101 @@ begin
   for I := 0 to FGraphMap.Training.Count - 1 do
   begin
     if SameText(FGraphMap.Training[I].OutputCategory, AChunkID) then
-      Exit(FGraphMap.Training[I].InputText);
+    begin
+      Result := FGraphMap.Training[I].InputText;
+      Exit;
+    end;
   end;
 end;
 
 function TAIRAG.ExtractSourceName(const AChunkID: string): string;
 var
-  Temp: string;
-  P: Integer;
+  S: string;
+  HashPos: Integer;
 begin
-  Result := '';
-  Temp := AChunkID;
-  if SameText(Copy(Temp, 1, Length(FSourcePrefix)), FSourcePrefix) then
-    Delete(Temp, 1, Length(FSourcePrefix));
+  Result := AChunkID;
+  S := AChunkID;
+  if SameText(Copy(S, 1, Length(FSourcePrefix)), FSourcePrefix) then
+    Delete(S, 1, Length(FSourcePrefix));
 
-  P := Pos('#', Temp);
-  if P > 0 then
-    Result := Copy(Temp, 1, P - 1)
+  HashPos := Pos('#', S);
+  if HashPos > 0 then
+    Result := Copy(S, 1, HashPos - 1)
   else
-    Result := Temp;
+    Result := S;
 end;
 
 function TAIRAG.Retrieve(const AQuestion: string; AResults: TStrings): Boolean;
 var
-  Ranking: TStringList;
+  PredictionList: TStringList;
   I: Integer;
-  LCategory: string;
-  ScoreText: string;
+  ChunkID, ChunkText, SrcName: string;
   Score: Double;
-  ChunkText: string;
-  Include: Boolean;
   Item: TRAGRetrievedChunk;
-  SourceName: string;
 begin
   Result := False;
+  ClearError;
+
   if AResults = nil then
+  begin
+    SetError('StringList de resultados nao instanciada.');
     Exit;
+  end;
 
-  ClearStringListObjects(AResults);
-  AResults.Clear;
-
-  if Trim(AQuestion) = '' then
-    Exit;
-
+  FreeResultObjects(AResults);
   if not ValidateComponents(False) then
     Exit;
 
-  if FGraphMap.Training.Count = 0 then
+  if Trim(AQuestion) = '' then
+  begin
+    SetError('Pergunta em branco.');
     Exit;
+  end;
 
   if Assigned(FOnBeforeRetrieve) then
     FOnBeforeRetrieve(Self);
 
-  Ranking := TStringList.Create;
+  PredictionList := TStringList.Create;
   try
-    FGraphMap.PredictRanking(AQuestion, Ranking);
-    for I := 0 to Ranking.Count - 1 do
+    FGraphMap.PredictRanking(AQuestion, PredictionList);
+    for I := 0 to PredictionList.Count - 1 do
     begin
-      LCategory := Ranking.Names[I];
-      if LCategory = '' then
-        LCategory := Ranking[I];
+      if AResults.Count >= FTopK then
+        Break;
 
-      if Copy(LCategory, 1, Length(FSourcePrefix)) <> FSourcePrefix then
+      ChunkID := PredictionList[I];
+      if not SameText(Copy(ChunkID, 1, Length(FSourcePrefix)), FSourcePrefix) then
         Continue;
 
-      ScoreText := Ranking.ValueFromIndex[I];
-      Score := StrToFloatDef(ScoreText, 0.0);
+      Score := PtrInt(PredictionList.Objects[I]);
       if Score < FMinimumScore then
         Continue;
 
-      ChunkText := FindChunkText(LCategory);
-      if Trim(ChunkText) = '' then
+      ChunkText := FindChunkText(ChunkID);
+      if ChunkText = '' then
         Continue;
 
-      Include := True;
-      SourceName := ExtractSourceName(LCategory);
-      if Assigned(FOnChunkRetrieved) then
-        FOnChunkRetrieved(Self, LCategory, SourceName, ChunkText, Score, Include);
-      if not Include then
-        Continue;
+      SrcName := ExtractSourceName(ChunkID);
 
       Item := TRAGRetrievedChunk.Create;
-      Item.ChunkID := LCategory;
-      Item.Source := SourceName;
+      Item.ChunkID := ChunkID;
+      Item.Source := SrcName;
       Item.Text := ChunkText;
       Item.Score := Score;
-      AResults.AddObject(LCategory, Item);
-      if AResults.Count >= FTopK then
-        Break;
+
+      AResults.AddObject(ChunkID, Item);
+
+      if Assigned(FOnChunkRetrieved) then
+        FOnChunkRetrieved(Self, ChunkID, SrcName, ChunkText, Score);
     end;
 
     Result := AResults.Count > 0;
-  finally
-    Ranking.Free;
+    FLastSuccess := Result;
+    DoLog(Format('Retrieve concluido: %d trechos recuperados.', [AResults.Count]));
     if Assigned(FOnAfterRetrieve) then
       FOnAfterRetrieve(Self);
+  finally
+    PredictionList.Free;
   end;
 end;
 
@@ -745,47 +791,50 @@ var
   Results: TStringList;
   I: Integer;
   Item: TRAGRetrievedChunk;
-  Block: string;
+  ContextBlock, SourceLine: string;
 begin
   Result := False;
+  ClearError;
   FLastQuestion := AQuestion;
   FLastContext := '';
   FLastSources.Clear;
 
-  if Trim(AQuestion) = '' then
-    Exit;
-
-  if not ValidateComponents(False) then
-    Exit;
-
   Results := TStringList.Create;
   try
     if not Retrieve(AQuestion, Results) then
-      Exit;
+    begin
+      FLastContext := '';
+      Exit(False);
+    end;
 
+    ContextBlock := '';
     for I := 0 to Results.Count - 1 do
     begin
       Item := TRAGRetrievedChunk(Results.Objects[I]);
-      if not Assigned(Item) then
+      if Item = nil then
         Continue;
 
-      Block := '[FONTE ' + IntToStr(FLastSources.Count + 1) + ']' + sLineBreak +
-        'Identificacao: ' + Item.ChunkID + sLineBreak +
-        'Fonte: ' + Item.Source + sLineBreak + sLineBreak +
-        Item.Text;
+      SourceLine := Format('[FONTE %d: %s (Chunk: %s, Score: %.2f)]', [I + 1, Item.Source, Item.ChunkID, Item.Score]);
+      if FLastSources.IndexOf(Item.Source) < 0 then
+        FLastSources.Add(Item.Source);
 
-      if (Length(FLastContext) > 0) then
-        Block := sLineBreak + sLineBreak + Block;
+      if ContextBlock <> '' then
+        ContextBlock := ContextBlock + sLineBreak + sLineBreak;
 
-      if Length(FLastContext) + Length(Block) > FMaximumContextLength then
+      ContextBlock := ContextBlock + SourceLine + sLineBreak + Item.Text;
+
+      if Length(ContextBlock) >= FMaximumContextLength then
+      begin
+        ContextBlock := Copy(ContextBlock, 1, FMaximumContextLength);
         Break;
-
-      FLastContext := FLastContext + Block;
-      FLastSources.Add(Format('%s | %s | score=%.2f', [Item.Source, Item.ChunkID, Item.Score]));
-      Result := True;
+      end;
     end;
 
-    if Result and Assigned(FOnContextBuilt) then
+    FLastContext := ContextBlock;
+    Result := FLastContext <> '';
+    FLastSuccess := Result;
+    DoLog('Contexto RAG construido.');
+    if Assigned(FOnContextBuilt) then
       FOnContextBuilt(Self, FLastContext);
   finally
     FreeResultObjects(Results);
@@ -793,65 +842,107 @@ begin
   end;
 end;
 
-function TAIRAG.BuildPrompt(const AQuestion, AContext: string): string;
+function TAIRAG.BuildPrompt(const AQuestion: string; const AContext: string): string;
 begin
   Result := FInstructions + sLineBreak + sLineBreak +
-    'Utilize exclusivamente o contexto abaixo para responder.' + sLineBreak +
-    'Caso a informacao nao esteja no contexto, responda: "' + FNoAnswerText + '".' + sLineBreak + sLineBreak +
-    'CONTEXTO:' + sLineBreak +
-    AContext + sLineBreak + sLineBreak +
-    'PERGUNTA:' + sLineBreak +
-    AQuestion;
+    'Sua resposta deve ser estritamente baseada no contexto de documentos fornecido abaixo.' + sLineBreak +
+    'Se a informação não estiver presente no contexto, responda: "' + FNoAnswerText + '"' + sLineBreak + sLineBreak +
+    '=== INICIO DO CONTEXTO DE DOCUMENTOS ===' + sLineBreak +
+    AContext + sLineBreak +
+    '=== FIM DO CONTEXTO DE DOCUMENTOS ===' + sLineBreak + sLineBreak +
+    'Pergunta do Usuário: ' + AQuestion;
 
+  FLastPrompt := Result;
   if Assigned(FOnBuildPrompt) then
     FOnBuildPrompt(Self, AQuestion, AContext, Result);
 end;
 
 function TAIRAG.Ask(const AQuestion: string): Boolean;
+var
+  FullPrompt: string;
 begin
   Result := False;
   ClearError;
-
-  if Trim(AQuestion) = '' then
-    Exit;
+  FLastAnswer := '';
 
   if not ValidateComponents(True) then
     Exit;
+
+  if not BuildContext(AQuestion) then
+  begin
+    FLastAnswer := FNoAnswerText;
+    DoLog('Nenhum contexto relevante encontrado para a pergunta.');
+    Exit(False);
+  end;
+
+  FullPrompt := BuildPrompt(AQuestion, FLastContext);
 
   if Assigned(FOnBeforeGenerate) then
     FOnBeforeGenerate(Self);
 
   try
-    if not BuildContext(AQuestion) or (Trim(FLastContext) = '') then
+    FChatGPT.Prompt := FullPrompt;
+    if FChatGPT.SendQuestion(FullPrompt) then
     begin
-      FLastAnswer := FNoAnswerText;
+      FLastAnswer := FChatGPT.LastResult;
       FLastResult := FLastAnswer;
-      FLastSuccess := True;
       Result := True;
-      Exit;
-    end;
-
-    FLastPrompt := BuildPrompt(AQuestion, FLastContext);
-    if not FChatGPT.SendQuestion(FLastPrompt) then
+      FLastSuccess := True;
+      DoLog('Resposta RAG gerada com sucesso.');
+      if Assigned(FOnAfterGenerate) then
+        FOnAfterGenerate(Self);
+    end
+    else
     begin
-      if Trim(FChatGPT.LastError) <> '' then
-        SetError(FChatGPT.LastError)
-      else
-        SetError(FChatGPT.Response);
-      Exit(False);
+      SetError('Erro no componente TCHATGPT: ' + FChatGPT.LastError);
+      Result := False;
     end;
+  except
+    on E: Exception do
+    begin
+      SetError('Erro ao gerar resposta RAG: ' + E.Message);
+      Result := False;
+    end;
+  end;
+end;
 
-    FLastAnswer := FChatGPT.Response;
-    FLastResult := FLastAnswer;
+function TAIRAG.SaveIndex(const AGraphFileName: string; const ATrainingFileName: string): Boolean;
+var
+  TrainFile: string;
+begin
+  Result := False;
+  ClearError;
+
+  if not Assigned(FGraphMap) then
+  begin
+    SetError('Componente TAIGraphMap nao associado.');
+    Exit;
+  end;
+
+  try
+    FGraphMap.SaveGraphToFile(AGraphFileName);
+
+    TrainFile := ATrainingFileName;
+    if TrainFile = '' then
+      TrainFile := ChangeFileExt(AGraphFileName, '.json');
+
+    FGraphMap.SaveTrainingToFile(TrainFile);
+
+    Result := True;
     FLastSuccess := True;
-    Result := True;
-  finally
-    if Assigned(FOnAfterGenerate) then
-      FOnAfterGenerate(Self);
+    DoLog('Indice RAG e grafo salvos com sucesso.');
+  except
+    on E: Exception do
+    begin
+      SetError('Erro ao salvar indice RAG: ' + E.Message);
+      Result := False;
+    end;
   end;
 end;
 
-function TAIRAG.SaveIndex(const AGraphFile, ATrainingFile: string): Boolean;
+function TAIRAG.LoadIndex(const AGraphFileName: string; const ATrainingFileName: string): Boolean;
+var
+  TrainFile: string;
 begin
   Result := False;
   ClearError;
@@ -863,60 +954,26 @@ begin
   end;
 
   try
-    if ATrainingFile <> '' then
-      FGraphMap.SaveTrainingToFile(ATrainingFile);
-    if AGraphFile <> '' then
-      FGraphMap.SaveGraphToFile(AGraphFile);
-    Result := True;
-  except
-    on E: Exception do
-      SetError(E.Message);
-  end;
-end;
+    TrainFile := ATrainingFileName;
+    if TrainFile = '' then
+      TrainFile := ChangeFileExt(AGraphFileName, '.json');
 
-function TAIRAG.LoadIndex(const AGraphFile, ATrainingFile: string): Boolean;
-begin
-  Result := False;
-  ClearError;
+    if FileExists(TrainFile) then
+      FGraphMap.LoadTrainingFromFile(TrainFile);
 
-  if not Assigned(FGraphMap) then
-  begin
-    SetError('Componente TAIGraphMap nao associado.');
-    Exit;
-  end;
-
-  try
-    if (ATrainingFile <> '') and FileExists(ATrainingFile) then
-      FGraphMap.LoadTrainingFromFile(ATrainingFile);
-
-    if (AGraphFile <> '') and FileExists(AGraphFile) then
-      FGraphMap.LoadGraphFromFile(AGraphFile);
+    if FileExists(AGraphFileName) then
+      FGraphMap.LoadGraphFromFile(AGraphFileName);
 
     Result := True;
+    FLastSuccess := True;
+    DoLog('Indice RAG e grafo carregados com sucesso.');
   except
     on E: Exception do
-      SetError(E.Message);
+    begin
+      SetError('Erro ao carregar indice RAG: ' + E.Message);
+      Result := False;
+    end;
   end;
-end;
-
-function TAIRAG.GetLastQuestion: string;
-begin
-  Result := FLastQuestion;
-end;
-
-function TAIRAG.GetLastContext: string;
-begin
-  Result := FLastContext;
-end;
-
-function TAIRAG.GetLastAnswer: string;
-begin
-  Result := FLastAnswer;
-end;
-
-function TAIRAG.GetLastSources: TStrings;
-begin
-  Result := FLastSources;
 end;
 
 end.
