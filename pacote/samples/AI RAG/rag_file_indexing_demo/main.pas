@@ -7,7 +7,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
-  ComCtrls, chatgpt, aigraphmap, airag;
+  ComCtrls, IniFiles, chatgpt, aigraphmap, airag;
 
 type
 
@@ -33,6 +33,23 @@ type
     memContexto: TMemo;
     tsFontes: TTabSheet;
     memFontes: TMemo;
+    tsConfigIA: TTabSheet;
+    pnlConfigIABox: TPanel;
+    lblApiKey: TLabel;
+    edtApiKey: TEdit;
+    lblModel: TLabel;
+    cmbModel: TComboBox;
+    lblChunkSize: TLabel;
+    edtChunkSize: TEdit;
+    lblChunkOverlap: TLabel;
+    edtChunkOverlap: TEdit;
+    lblTopK: TLabel;
+    edtTopK: TEdit;
+    lblMinScore: TLabel;
+    edtMinScore: TEdit;
+    lblInstructions: TLabel;
+    memInstructions: TMemo;
+    btnSalvarConfigIA: TButton;
     tsConfiguracao: TTabSheet;
     pnlConfigTop: TPanel;
     lblDocsPath: TLabel;
@@ -59,6 +76,7 @@ type
     procedure btnClearClick(Sender: TObject);
     procedure btnSelecionarPastaClick(Sender: TObject);
     procedure btnVarrerPastaClick(Sender: TObject);
+    procedure btnSalvarConfigIAClick(Sender: TObject);
   private
     FChatGPT: TCHATGPT;
     FGraphMap: TAIGraphMap;
@@ -66,6 +84,10 @@ type
     procedure SetupComponents;
     procedure AIRAGLog(Sender: TObject; const AMessage: string);
     function CarregarDocumentosDaPasta(const APasta: string): Integer;
+    function GetConfigFilePath: string;
+    procedure CarregarConfiguracoesAppData;
+    procedure SalvarConfiguracoesAppData;
+    procedure AplicarConfiguracoesIA;
   public
 
   end;
@@ -79,26 +101,112 @@ implementation
 
 { TfrmRAGFileIndexingDemo }
 
-procedure TfrmRAGFileIndexingDemo.FormCreate(Sender: TObject);
+function TfrmRAGFileIndexingDemo.GetConfigFilePath: string;
 var
-  DocsDir: string;
+  ConfigDir: string;
+begin
+  ConfigDir := GetAppConfigDir(False);
+  if not DirectoryExists(ConfigDir) then
+    ForceDirectories(ConfigDir);
+  Result := IncludeTrailingPathDelimiter(ConfigDir) + 'rag_config.ini';
+end;
+
+procedure TfrmRAGFileIndexingDemo.CarregarConfiguracoesAppData;
+var
+  Ini: TIniFile;
+  ConfigFile, DocsDir: string;
+begin
+  ConfigFile := GetConfigFilePath;
+  Ini := TIniFile.Create(ConfigFile);
+  try
+    // Localiza pasta docs padrão caso a configuração em disco não exista
+    DocsDir := ExtractFilePath(ParamStr(0)) + 'docs';
+    if not DirectoryExists(DocsDir) then
+      DocsDir := ExpandFileName(ExtractFilePath(ParamStr(0)) + '..\..\docs');
+    if not DirectoryExists(DocsDir) then
+      DocsDir := ExpandFileName('D:\projetos\maurinsoft\CHATGPT\pacote\samples\AI RAG\rag_file_indexing_demo\docs');
+
+    edtApiKey.Text := Ini.ReadString('IA', 'ApiKey', GetEnvironmentVariable('OPENAI_API_KEY'));
+    cmbModel.Text := Ini.ReadString('IA', 'Model', 'gpt-4o-mini');
+    edtChunkSize.Text := Ini.ReadString('RAG', 'ChunkSize', '1200');
+    edtChunkOverlap.Text := Ini.ReadString('RAG', 'ChunkOverlap', '150');
+    edtTopK.Text := Ini.ReadString('RAG', 'TopK', '4');
+    edtMinScore.Text := Ini.ReadString('RAG', 'MinScore', '0.0');
+    memInstructions.Text := Ini.ReadString('IA', 'Instructions', 'Voce e um assistente especializado nos documentos fornecidos.');
+
+    edtDocsPath.Text := Ini.ReadString('Pasta', 'DocsPath', DocsDir);
+    edtExtensions.Text := Ini.ReadString('Pasta', 'Extensions', '.txt;.md;.pas;.json;.csv');
+    chkRecursive.Checked := Ini.ReadBool('Pasta', 'Recursive', True);
+
+    memLogs.Lines.Add('Configurações carregadas de AppData: ' + ConfigFile);
+  finally
+    Ini.Free;
+  end;
+end;
+
+procedure TfrmRAGFileIndexingDemo.SalvarConfiguracoesAppData;
+var
+  Ini: TIniFile;
+  ConfigFile: string;
+begin
+  ConfigFile := GetConfigFilePath;
+  Ini := TIniFile.Create(ConfigFile);
+  try
+    Ini.WriteString('IA', 'ApiKey', edtApiKey.Text);
+    Ini.WriteString('IA', 'Model', cmbModel.Text);
+    Ini.WriteString('RAG', 'ChunkSize', edtChunkSize.Text);
+    Ini.WriteString('RAG', 'ChunkOverlap', edtChunkOverlap.Text);
+    Ini.WriteString('RAG', 'TopK', edtTopK.Text);
+    Ini.WriteString('RAG', 'MinScore', edtMinScore.Text);
+    Ini.WriteString('IA', 'Instructions', memInstructions.Text);
+
+    Ini.WriteString('Pasta', 'DocsPath', edtDocsPath.Text);
+    Ini.WriteString('Pasta', 'Extensions', edtExtensions.Text);
+    Ini.WriteBool('Pasta', 'Recursive', chkRecursive.Checked);
+
+    memLogs.Lines.Add('Configurações salvas com sucesso em AppData: ' + ConfigFile);
+  finally
+    Ini.Free;
+  end;
+end;
+
+procedure TfrmRAGFileIndexingDemo.AplicarConfiguracoesIA;
+begin
+  if Assigned(FChatGPT) then
+  begin
+    if Trim(edtApiKey.Text) <> '' then
+      FChatGPT.TOKEN := edtApiKey.Text;
+    if Trim(cmbModel.Text) <> '' then
+    begin
+      FChatGPT.TipoChat := VCT_CUSTOM;
+      FChatGPT.CustomModel := cmbModel.Text;
+    end;
+  end;
+
+  if Assigned(FAIRAG) then
+  begin
+    FAIRAG.ChunkSize := StrToIntDef(edtChunkSize.Text, 1200);
+    FAIRAG.ChunkOverlap := StrToIntDef(edtChunkOverlap.Text, 150);
+    FAIRAG.TopK := StrToIntDef(edtTopK.Text, 4);
+    FAIRAG.MinimumScore := StrToFloatDef(StringReplace(edtMinScore.Text, ',', '.', [rfReplaceAll]), 0.0);
+    if Trim(memInstructions.Text) <> '' then
+      FAIRAG.Instructions := memInstructions.Text;
+  end;
+end;
+
+procedure TfrmRAGFileIndexingDemo.FormCreate(Sender: TObject);
 begin
   SetupComponents;
+  CarregarConfiguracoesAppData;
+  AplicarConfiguracoesIA;
 
-  // Localiza pasta docs padrão
-  DocsDir := ExtractFilePath(ParamStr(0)) + 'docs';
-  if not DirectoryExists(DocsDir) then
-    DocsDir := ExpandFileName(ExtractFilePath(ParamStr(0)) + '..\..\docs');
-  if not DirectoryExists(DocsDir) then
-    DocsDir := ExpandFileName('D:\projetos\maurinsoft\CHATGPT\pacote\samples\AI RAG\rag_file_indexing_demo\docs');
-
-  edtDocsPath.Text := DocsDir;
-  if DirectoryExists(DocsDir) then
-    CarregarDocumentosDaPasta(DocsDir);
+  if DirectoryExists(edtDocsPath.Text) then
+    CarregarDocumentosDaPasta(edtDocsPath.Text);
 end;
 
 procedure TfrmRAGFileIndexingDemo.FormDestroy(Sender: TObject);
 begin
+  SalvarConfiguracoesAppData;
   FAIRAG.Free;
   FGraphMap.Free;
   FChatGPT.Free;
@@ -125,7 +233,7 @@ begin
   FAIRAG.TopK := 4;
   FAIRAG.OnRAGLog := @AIRAGLog;
 
-  edtPergunta.Text := 'Qual a época de florada do Ipê-Amarelo e quais são os doces tradicionais brasileiros?';
+  edtPergunta.Text := 'Em janeiro qual planta florece?';
 end;
 
 procedure TfrmRAGFileIndexingDemo.AIRAGLog(Sender: TObject; const AMessage: string);
@@ -146,6 +254,7 @@ begin
     Exit(0);
   end;
 
+  AplicarConfiguracoesIA;
   FAIRAG.Clear;
   lstArquivos.Clear;
   memDocsInfo.Lines.Clear;
@@ -191,6 +300,7 @@ begin
   begin
     edtDocsPath.Text := SelectDirectoryDialog1.FileName;
     CarregarDocumentosDaPasta(SelectDirectoryDialog1.FileName);
+    SalvarConfiguracoesAppData;
   end;
 end;
 
@@ -208,10 +318,18 @@ begin
   end;
 end;
 
+procedure TfrmRAGFileIndexingDemo.btnSalvarConfigIAClick(Sender: TObject);
+begin
+  AplicarConfiguracoesIA;
+  SalvarConfiguracoesAppData;
+  ShowMessage('Configurações da IA salvas com sucesso em AppData!');
+end;
+
 procedure TfrmRAGFileIndexingDemo.btnAdicionarArquivoClick(Sender: TObject);
 var
   Count, I: Integer;
 begin
+  AplicarConfiguracoesIA;
   OpenDialog1.Filter := 'Arquivos de Texto (*.txt;*.md)|*.txt;*.md|Todos os Arquivos (*.*)|*.*';
   if OpenDialog1.Execute then
   begin
@@ -233,6 +351,7 @@ begin
     Exit;
   end;
 
+  AplicarConfiguracoesIA;
   memLogs.Lines.Add('Iniciando construção de índice RAG...');
   if FAIRAG.BuildIndex then
   begin
@@ -307,6 +426,7 @@ begin
     Exit;
   end;
 
+  AplicarConfiguracoesIA;
   memLogs.Lines.Add('Consultando RAG...');
   if FAIRAG.Ask(edtPergunta.Text) then
   begin

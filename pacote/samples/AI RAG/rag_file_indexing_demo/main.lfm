@@ -173,6 +173,150 @@ object frmRAGFileIndexingDemo: TfrmRAGFileIndexingDemo
         TabOrder = 0
       end
     end
+    object tsConfigIA: TTabSheet
+      Caption = 'Configuração IA'
+      ClientHeight = 562
+      ClientWidth = 572
+      object pnlConfigIABox: TPanel
+        Left = 0
+        Height = 562
+        Top = 0
+        Width = 572
+        Align = alClient
+        ClientHeight = 562
+        ClientWidth = 572
+        TabOrder = 0
+        object lblApiKey: TLabel
+          Left = 16
+          Height = 15
+          Top = 18
+          Width = 92
+          Caption = 'Chave API OpenAI:'
+          ParentColor = False
+        end
+        object edtApiKey: TEdit
+          Left = 130
+          Height = 23
+          Top = 15
+          Width = 420
+          PasswordChar = '*'
+          TabOrder = 0
+        end
+        object lblModel: TLabel
+          Left = 16
+          Height = 15
+          Top = 50
+          Width = 71
+          Caption = 'Modelo IA:'
+          ParentColor = False
+        end
+        object cmbModel: TComboBox
+          Left = 130
+          Height = 23
+          Top = 47
+          Width = 200
+          ItemHeight = 15
+          Items.Strings = (
+            'gpt-4o-mini'
+            'gpt-4o'
+            'gpt-3.5-turbo'
+          )
+          TabOrder = 1
+          Text = 'gpt-4o-mini'
+        end
+        object lblChunkSize: TLabel
+          Left = 16
+          Height = 15
+          Top = 85
+          Width = 96
+          Caption = 'Tamanho Chunk:'
+          ParentColor = False
+        end
+        object edtChunkSize: TEdit
+          Left = 130
+          Height = 23
+          Top = 82
+          Width = 100
+          TabOrder = 2
+          Text = '1200'
+        end
+        object lblChunkOverlap: TLabel
+          Left = 250
+          Height = 15
+          Top = 85
+          Width = 90
+          Caption = 'Sobreposição:'
+          ParentColor = False
+        end
+        object edtChunkOverlap: TEdit
+          Left = 350
+          Height = 23
+          Top = 82
+          Width = 100
+          TabOrder = 3
+          Text = '150'
+        end
+        object lblTopK: TLabel
+          Left = 16
+          Height = 15
+          Top = 120
+          Width = 79
+          Caption = 'Top K Trechos:'
+          ParentColor = False
+        end
+        object edtTopK: TEdit
+          Left = 130
+          Height = 23
+          Top = 117
+          Width = 100
+          TabOrder = 4
+          Text = '4'
+        end
+        object lblMinScore: TLabel
+          Left = 250
+          Height = 15
+          Top = 120
+          Width = 95
+          Caption = 'Score Mínimo:'
+          ParentColor = False
+        end
+        object edtMinScore: TEdit
+          Left = 350
+          Height = 23
+          Top = 117
+          Width = 100
+          TabOrder = 5
+          Text = '0.0'
+        end
+        object lblInstructions: TLabel
+          Left = 16
+          Height = 15
+          Top = 155
+          Width = 150
+          Caption = 'Instruções do Sistema (Prompt):'
+          ParentColor = False
+        end
+        object memInstructions: TMemo
+          Left = 16
+          Height = 320
+          Top = 175
+          Width = 534
+          Anchors = [akTop, akLeft, akRight, akBottom]
+          ScrollBars = ssAutoBoth
+          TabOrder = 6
+        end
+        object btnSalvarConfigIA: TButton
+          Left = 16
+          Height = 30
+          Top = 510
+          Width = 534
+          Anchors = [akLeft, akRight, akBottom]
+          Caption = 'Salvar Configurações da IA em AppData'
+          OnClick = btnSalvarConfigIAClick
+          TabOrder = 7
+        end
+      end
+    end
     object tsConfiguracao: TTabSheet
       Caption = 'Configuração / Pasta Docs'
       ClientHeight = 562
