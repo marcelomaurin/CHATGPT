@@ -320,9 +320,11 @@ var
 begin
   if not Assigned(FGraphMap) then
     Exit;
+  if FGraphMap.Training.Count = 0 then
+    Exit;
 
   Prefix := FSourcePrefix + ASourceName + '#';
-  for I := FGraphMap.Training.Count - 1 to 0 do
+  for I := FGraphMap.Training.Count - 1 downto 0 do
   begin
     if SameText(Copy(FGraphMap.Training[I].OutputCategory, 1, Length(Prefix)), Prefix) then
       FGraphMap.Training.Delete(I);
