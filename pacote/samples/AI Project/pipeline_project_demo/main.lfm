@@ -1,0 +1,146 @@
+object frmPipelineProjectDemo: TfrmPipelineProjectDemo
+  Left = 300
+  Height = 600
+  Top = 150
+  Width = 850
+  Caption = 'Demonstração de AI Pipeline & Project (LCL Form)'
+  ClientHeight = 600
+  ClientWidth = 850
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '3.4.0.0'
+  object pnlTop: TPanel
+    Left = 0
+    Height = 70
+    Top = 0
+    Width = 850
+    Align = alTop
+    ClientHeight = 70
+    ClientWidth = 850
+    TabOrder = 0
+    object lblProject: TLabel
+      Left = 16
+      Height = 15
+      Top = 15
+      Width = 43
+      Caption = 'Projeto:'
+      ParentColor = False
+    end
+    object edtProjectName: TEdit
+      Left = 70
+      Height = 23
+      Top = 12
+      Width = 300
+      TabOrder = 0
+      Text = 'MNote2 Visual Studio IDE'
+    end
+    object lblPrompt: TLabel
+      Left = 16
+      Height = 15
+      Top = 42
+      Width = 43
+      Caption = 'Prompt:'
+      ParentColor = False
+    end
+    object edtPrompt: TEdit
+      Left = 70
+      Height = 23
+      Top = 39
+      Width = 530
+      TabOrder = 1
+      Text = 'Descreva a arquitetura do projeto MNote2.'
+    end
+    object btnExecutarPipeline: TButton
+      Left = 610
+      Height = 25
+      Top = 38
+      Width = 110
+      Caption = 'Executar Pipeline'
+      OnClick = btnExecutarPipelineClick
+      TabOrder = 2
+    end
+    object btnClear: TButton
+      Left = 730
+      Height = 25
+      Top = 38
+      Width = 80
+      Caption = 'Limpar'
+      OnClick = btnClearClick
+      TabOrder = 3
+    end
+  end
+  object pnlLeft: TPanel
+    Left = 0
+    Height = 530
+    Top = 70
+    Width = 200
+    Align = alLeft
+    ClientHeight = 530
+    ClientWidth = 200
+    TabOrder = 1
+    object btnGerarPrompt: TButton
+      Left = 10
+      Height = 35
+      Top = 20
+      Width = 180
+      Caption = 'Gerar System Prompt'
+      OnClick = btnGerarPromptClick
+      TabOrder = 0
+    end
+  end
+  object pcResults: TPageControl
+    Left = 200
+    Height = 530
+    Top = 70
+    Width = 650
+    ActivePage = tsResultado
+    Align = alClient
+    TabIndex = 0
+    TabOrder = 2
+    object tsResultado: TTabSheet
+      Caption = 'Resultado do Pipeline'
+      ClientHeight = 502
+      ClientWidth = 642
+      object memResultado: TMemo
+        Left = 0
+        Height = 502
+        Top = 0
+        Width = 642
+        Align = alClient
+        ReadOnly = True
+        ScrollBars = ssAutoBoth
+        TabOrder = 0
+      end
+    end
+    object tsSystemPrompt: TTabSheet
+      Caption = 'System Prompt do Projeto'
+      ClientHeight = 502
+      ClientWidth = 642
+      object memSystemPrompt: TMemo
+        Left = 0
+        Height = 502
+        Top = 0
+        Width = 642
+        Align = alClient
+        ReadOnly = True
+        ScrollBars = ssAutoBoth
+        TabOrder = 0
+      end
+    end
+    object tsLogs: TTabSheet
+      Caption = 'Logs'
+      ClientHeight = 502
+      ClientWidth = 642
+      object memLogs: TMemo
+        Left = 0
+        Height = 502
+        Top = 0
+        Width = 642
+        Align = alClient
+        ReadOnly = True
+        ScrollBars = ssAutoBoth
+        TabOrder = 0
+      end
+    end
+  end
+end
