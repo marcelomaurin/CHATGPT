@@ -781,8 +781,8 @@ end;
 function TAIRAG.Retrieve(const AQuestion: string; AResults: TStrings): Boolean;
 var
   PredictionList: TStringList;
-  I: Integer;
-  ChunkID, ChunkText, SrcName: string;
+  I, EqualPos: Integer;
+  RawLine, ChunkID, ScoreStr, ChunkText, SrcName: string;
   Score: Double;
   Item: TRAGRetrievedChunk;
 begin
@@ -824,11 +824,31 @@ begin
       if AResults.Count >= FTopK then
         Break;
 
-      ChunkID := PredictionList[I];
+      RawLine := PredictionList[I];
+      ChunkID := PredictionList.Names[I];
+      if ChunkID = '' then
+      begin
+        EqualPos := Pos('=', RawLine);
+        if EqualPos > 0 then
+        begin
+          ChunkID := Copy(RawLine, 1, EqualPos - 1);
+          ScoreStr := Copy(RawLine, EqualPos + 1, Length(RawLine));
+        end
+        else
+        begin
+          ChunkID := RawLine;
+          ScoreStr := '0';
+        end;
+      end
+      else
+        ScoreStr := PredictionList.ValueFromIndex[I];
+
+      ScoreStr := StringReplace(ScoreStr, ',', '.', [rfReplaceAll]);
+      Score := StrToFloatDef(ScoreStr, 0.0);
+
       if not SameText(Copy(ChunkID, 1, Length(FSourcePrefix)), FSourcePrefix) then
         Continue;
 
-      Score := PtrInt(PredictionList.Objects[I]);
       DoLog(Format('  Ranking #%d: Categoria "%s" | Score: %.2f', [I + 1, ChunkID, Score]));
 
       if Score < FMinimumScore then
