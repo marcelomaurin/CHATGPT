@@ -952,8 +952,10 @@ end;
 function TAIRAG.BuildPrompt(const AQuestion: string; const AContext: string): string;
 begin
   Result := FInstructions + sLineBreak + sLineBreak +
-    'Sua resposta deve ser estritamente baseada no contexto de documentos fornecido abaixo.' + sLineBreak +
-    'Se a informação não estiver presente no contexto, responda: "' + FNoAnswerText + '"' + sLineBreak + sLineBreak +
+    'Sua resposta deve ser baseada no contexto de documentos fornecido abaixo.' + sLineBreak +
+    'Analise as informações do contexto para responder à pergunta do usuário de forma clara e objetiva.' + sLineBreak +
+    'Leve em consideração sinônimos, variações gramaticais e pequenas incorreções de grafia (ex: "florece" -> "floresce"/"florada").' + sLineBreak +
+    'Se e somente se a informação for completamente inexistente no contexto, responda exatamente: "' + FNoAnswerText + '"' + sLineBreak + sLineBreak +
     '=== INICIO DO CONTEXTO DE DOCUMENTOS ===' + sLineBreak +
     AContext + sLineBreak +
     '=== FIM DO CONTEXTO DE DOCUMENTOS ===' + sLineBreak + sLineBreak +
