@@ -1,0 +1,35 @@
+# Geografia e Estrutura Territorial de Ribeirão Preto (Foco na Saúde Pública)
+
+## 1. Localização e Dados Gerais
+- **Município**: Ribeirão Preto - SP
+- **Região**: Nordeste do Estado de São Paulo (Região Metropolitana de Ribeirão Preto - RMRP)
+- **Área Territorial**: Aproximadamente 650 km²
+- **População Estimada**: Superior a 700.000 habitantes (Pólo regional de saúde com mais de 3 milhões de habitantes na RMRP)
+- **Clima**: Tropical de altitude, com verão chuvoso e inverno seco.
+
+## 2. Divisão Administrativa da Saúde (Distritos Sanitários)
+A Secretaria Municipal da Saúde (SMS) de Ribeirão Preto organiza a assistência pública à saúde em 5 Distritos Sanitários:
+
+1. **Distrito Central**:
+   - Abrange o Centro histórico, Campos Elíseos e bairros adjacentes.
+   - Sede de importantes Unidades Básicas de Saúde (UBS) e Unidades de Pronto Atendimento.
+
+2. **Distrito Norte**:
+   - Abrange bairros como Adelino Simioni, Ipiranga, Quintino Facci e Ribeirão Verde.
+   - Possui alta densidade populacional e cobertura da Estratégia Saúde da Família (ESF).
+
+3. **Distrito Sul**:
+   - Abrange bairros como Vila Virgínia, Alto da Boa Vista, Bonfim Paulista e Jardim Irajá.
+   - Atende à população da zona sul urbana e do distrito de Bonfim Paulista.
+
+4. **Distrito Leste**:
+   - Abrange bairros como Castelo Branco, Jardim Paulista, Parque Ribeirão e Lagoinha.
+   - Conta com UBSs e Unidades de Atendimento Especializado.
+
+5. **Distrito Oeste**:
+   - Abrange bairros como Vila Tibério, Sumarezinho, Jardim Novo Técnico e entorno do Campus da USP.
+   - Integração com o Hospital das Clínicas da FMRP-USP (HCFMRP-USP).
+
+## 3. Rede Hospitalar e de Referência Regional
+- **Hospital das Clínicas da USP (HC Campus e HC Emergência)**: Referência em média e alta complexidade de nível terciário para toda a RMRP.
+- **UBDS / UPA**: Unidades de Pronto Atendimento 24h estrategicamente distribuídas para urgências e emergências.

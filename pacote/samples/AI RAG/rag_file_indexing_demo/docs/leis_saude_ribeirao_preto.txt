@@ -1,0 +1,15 @@
+# Legislação Municipal e Organização da Secretaria de Saúde de Ribeirão Preto
+
+## 1. Diretrizes da Lei Orgânica do Município relativas à Saúde
+- A Saúde é direito de todos os munícipes e dever do Município, garantida mediante políticas sociais e econômicas que visem à prevenção de doenças e ao acesso universal e igualitário às ações e serviços.
+- O Município integra o Sistema Único de Saúde (SUS) sob a direção única da Secretaria Municipal da Saúde (SMS).
+
+## 2. Atribuições da Secretaria Municipal da Saúde (SMS)
+- **Planejamento e Gestão**: Elaboração e execução do Plano Municipal de Saúde (PMS) quadrienal.
+- **Vigilância em Saúde**: Compreende a Vigilância Sanitária (VISA), Vigilância Epidemiológica (DVE) e Vigilância Ambiental (controle da DENGUE, Febre Amarela e Leishmaniose).
+- **Conselho Municipal de Saúde (CMS)**: Órgão colegiado e deliberativo, com participação paritária dos usuários, trabalhadores de saúde, prestadores de serviços e governo municipal.
+- **Fundo Municipal de Saúde (FMS)**: Unidade orçamentária responsável pela gestão financeira dos recursos destinados à saúde pública no município.
+
+## 3. Normas de Regulação de Exames e Consultas no Município
+- Todo agendamento de consultas especializadas e exames de média/alta complexidade deve ser submetido à Central de Regulação Ambulatorial da Secretaria da Saúde.
+- É obrigatória a apresentação do Cartão Nacional de Saúde (CNS) e documento oficial com foto para atendimento nas Unidades Básicas e UPAs do município.

@@ -1,0 +1,27 @@
+# Documentação de Uso e Operação do Sistema HYGIA (Gestão de Saúde Municipal)
+
+## 1. Visão Geral do Sistema HYGIA
+O Sistema HYGIA é a plataforma de software para gestão da saúde pública municipal (Prontuário Eletrônico, Agendamento e Regulação) adotada em diversos municípios brasileiros, incluindo Ribeirão Preto.
+
+## 2. Módulos Principais do HYGIA
+
+### A. Módulo de Cadastramento e Identificação do Paciente (CADPAC)
+- Registro único do cidadão vinculado ao Cartão Nacional de Saúde (CNS) e ao CPF.
+- Cadastro de endereço, telefone e vínculo com a Unidade Básica de Saúde (UBS) de referência do bairro.
+
+### B. Módulo de Agendamento de Consultas e Exames (AGEND)
+- Agendamento de consultas médicas em Atenção Básica (Clínica Médica, Pediatria, Ginecologia/Obstetrícia).
+- Controle de grade de horários de profissionais de saúde por unidade.
+- Gestão de faltas e remanejamentos de agendas médicas.
+
+### C. Módulo de Prontuário Eletrônico do Cidadão / Atendimento Médico (PRONT)
+- Registro de anamnese, evolução clínica, diagnóstico (CID-10 / CID-11) e prescreve medicamentos padronizados pelo município (REMUME).
+- Solicitação eletrônica de exames laboratoriais e exames de imagem.
+
+### D. Módulo de Regulação e Encaminhamento (REG)
+- Encaminhamento de pacientes da Atenção Básica para a Atenção Especializada ou leitos hospitalares.
+- Classificação de risco e prioridade médica para fila de regulação.
+
+### E. Módulo de Farmácia e Dispensação de Medicamentos (FARM)
+- Controle de estoque municipal de medicamentos.
+- Baixa automática no estoque no momento da dispensação com leitura do código do paciente e receita válida.

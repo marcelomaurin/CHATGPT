@@ -1,0 +1,23 @@
+# Sistemas de Informação em Saúde do Governo Federal (Ministério da Saúde / DATASUS)
+
+## 1. e-SUS APS (Atenção Primária à Saúde)
+- Sistema nacional de reestruturação das informações da Atenção Primária no Ministério da Saúde.
+- Integra os dados da Atenção Básica através do Prontuário Eletrônico do Cidadão (PEC) e Coleta de Dados Simplificada (CDS).
+
+## 2. SISAB (Sistema de Informação em Saúde para a Atenção Básica)
+- Base de dados central alimentada pelo e-SUS APS para financiamento e monitoramento dos indicadores do programa Previne Brasil.
+
+## 3. CADSUS (Sistema de Cadastramento de Usuários do SUS) / CNS
+- Base de dados nacional que armazena os dados cadastrais dos cidadãos e gera o **Cartão Nacional de Saúde (CNS)**.
+
+## 4. SISREG (Sistema Nacional de Regulação)
+- Sistema web criado para o gerenciamento de todo o complexo regulador (consultas, exames, internações hospitalares e leitos UTI).
+
+## 5. CNES (Cadastro Nacional de Estabelecimentos de Saúde)
+- Base de dados oficial de cadastramento de todas as unidades de saúde, hospitais, clínicas, equipamentos e profissionais em todo o território nacional.
+
+## 6. HÓRUS (Sistema Nacional de Gestão da Assistência Farmacêutica)
+- Qualifica a gestão e o controle do estoque de medicamentos disponibilizados no SUS.
+
+## 7. SIVEP-Gripe (Sistema de Informação de Vigilância Epidemiológica da Gripe)
+- Monitoramento epidemiológico dos casos de Síndrome Respiratória Aguda Grave (SRAG).

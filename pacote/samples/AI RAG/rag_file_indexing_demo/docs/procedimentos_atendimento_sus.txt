@@ -1,0 +1,20 @@
+# Manual de Procedimentos e Fluxos de Atendimento no Sistema Único de Saúde (SUS)
+
+## 1. Porta de Entrada e Atenção Primária à Saúde (APS)
+- **Unidade Básica de Saúde (UBS) / Estratégia Saúde da Família (ESF)**: É a porta de entrada preferencial do cidadão no SUS.
+- **Acolhimento com Classificação de Risco**: Todo paciente que chega à unidade deve passar por escuta qualificada da equipe multiprofissional.
+
+## 2. Protocolo de Acolhimento e Triagem nas UPAs / Prontos Atendimentos (Protocolo de Manchester)
+Nas Unidades de Pronto Atendimento (UPA) e Pronto Socorro, os pacientes são triados pelas cores de prioridade médica:
+
+- **Vermelho (Emergência)**: Atendimento imediato (risco iminente de morte).
+- **Laranja (Muito Urgente)**: Atendimento em até 10 minutos.
+- **Amarelo (Urgente)**: Atendimento em até 60 minutos.
+- **Verde (Pouco Urgente)**: Atendimento em até 120 minutos.
+- **Azul (Não Urgente)**: Atendimento em até 240 minutos (encaminhamento preferencial para a UBS de origem).
+
+## 3. Fluxo de Encaminhamento para Especialistas (Atenção Secundária/Terciária)
+1. O paciente realiza consulta inicial com o médico generalista na UBS.
+2. Havendo necessidade de parecer especializado, o médico emite uma **Guia de Encaminhamento**.
+3. O pedido é inserido no sistema de regulação amulatorial para análise da equipe médica reguladora.
+4. O paciente aguarda o agendamento de acordo com a prioridade clínica estabelecida no sistema.
