@@ -5,7 +5,7 @@ unit aiindustrial;
 interface
 
 uses
-  Classes, SysUtils, DynLibs, aibase, LResources, aiarm_robot;
+  Classes, SysUtils, DynLibs, aibase, LResources;
 
 type
   TPLCConnectFunc = function(IP: PChar; Rack, Slot: Integer): Integer; stdcall;
@@ -55,7 +55,6 @@ implementation
 procedure Register;
 begin
   RegisterComponents('AI Automation', [TAIIndustrialBridge]);
-  RegisterComponents('AI Industrial', [TAI_Arm_robotPosition]);
 end;
 
 { TAIIndustrialBridge }
