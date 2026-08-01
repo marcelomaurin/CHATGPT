@@ -33,10 +33,18 @@ type
     memContexto: TMemo;
     tsFontes: TTabSheet;
     memFontes: TMemo;
+    tsConfiguracao: TTabSheet;
+    pnlConfigTop: TPanel;
+    lblDocsPath: TLabel;
+    edtDocsPath: TEdit;
+    btnSelecionarPasta: TButton;
+    btnCarregarPastaDocs: TButton;
+    memDocsInfo: TMemo;
     tsLogs: TTabSheet;
     memLogs: TMemo;
     OpenDialog1: TOpenDialog;
     SaveDialog1: TSaveDialog;
+    SelectDirectoryDialog1: TSelectDirectoryDialog;
 
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -46,12 +54,15 @@ type
     procedure btnCarregarIndiceClick(Sender: TObject);
     procedure btnPerguntarClick(Sender: TObject);
     procedure btnClearClick(Sender: TObject);
+    procedure btnSelecionarPastaClick(Sender: TObject);
+    procedure btnCarregarPastaDocsClick(Sender: TObject);
   private
     FChatGPT: TCHATGPT;
     FGraphMap: TAIGraphMap;
     FAIRAG: TAIRAG;
     procedure SetupComponents;
     procedure AIRAGLog(Sender: TObject; const AMessage: string);
+    procedure CarregarDocumentosDaPasta(const APasta: string);
   public
 
   end;
@@ -66,8 +77,21 @@ implementation
 { TfrmRAGFileIndexingDemo }
 
 procedure TfrmRAGFileIndexingDemo.FormCreate(Sender: TObject);
+var
+  DocsDir: string;
 begin
   SetupComponents;
+
+  // Localiza pasta docs padrão
+  DocsDir := ExtractFilePath(ParamStr(0)) + 'docs';
+  if not DirectoryExists(DocsDir) then
+    DocsDir := ExpandFileName(ExtractFilePath(ParamStr(0)) + '..\..\docs');
+  if not DirectoryExists(DocsDir) then
+    DocsDir := ExpandFileName('D:\projetos\maurinsoft\CHATGPT\pacote\samples\AI RAG\rag_file_indexing_demo\docs');
+
+  edtDocsPath.Text := DocsDir;
+  if DirectoryExists(DocsDir) then
+    CarregarDocumentosDaPasta(DocsDir);
 end;
 
 procedure TfrmRAGFileIndexingDemo.FormDestroy(Sender: TObject);
@@ -80,7 +104,7 @@ end;
 procedure TfrmRAGFileIndexingDemo.SetupComponents;
 begin
   FChatGPT := TCHATGPT.Create(Self);
-  FChatGPT.Prompt := 'Você é um assistente RAG especializado.';
+  FChatGPT.Prompt := 'Você é um assistente RAG especializado em botanica e culinaria brasileira.';
 
   FGraphMap := TAIGraphMap.Create(Self);
   FGraphMap.AutoClearBeforeTrain := True;
@@ -98,12 +122,65 @@ begin
   FAIRAG.TopK := 4;
   FAIRAG.OnRAGLog := @AIRAGLog;
 
-  edtPergunta.Text := 'Quais são as instruções gerais dos documentos carregados?';
+  edtPergunta.Text := 'Qual a época de florada do Ipê-Amarelo e quais são os doces tradicionais brasileiros?';
 end;
 
 procedure TfrmRAGFileIndexingDemo.AIRAGLog(Sender: TObject; const AMessage: string);
 begin
   memLogs.Lines.Add('[RAG LOG] ' + AMessage);
+end;
+
+procedure TfrmRAGFileIndexingDemo.CarregarDocumentosDaPasta(const APasta: string);
+var
+  SearchRec: TSearchRec;
+  FilePath: string;
+  Count: Integer;
+begin
+  if not DirectoryExists(APasta) then Exit;
+
+  FAIRAG.Clear;
+  lstArquivos.Clear;
+  memDocsInfo.Lines.Clear;
+  memDocsInfo.Lines.Add('Diretório de Documentos: ' + APasta);
+  memDocsInfo.Lines.Add('========================================');
+
+  // Procura arquivos .txt e .md
+  if FindFirst(IncludeTrailingPathDelimiter(APasta) + '*.*', faAnyFile, SearchRec) = 0 then
+  begin
+    repeat
+      if (SearchRec.Attr and faDirectory) = 0 then
+      begin
+        if SameText(ExtractFileExt(SearchRec.Name), '.txt') or SameText(ExtractFileExt(SearchRec.Name), '.md') then
+        begin
+          FilePath := IncludeTrailingPathDelimiter(APasta) + SearchRec.Name;
+          Count := FAIRAG.AddFile(FilePath);
+          lstArquivos.Items.Add(SearchRec.Name + Format(' (%d chunks)', [Count]));
+          memDocsInfo.Lines.Add(Format('Arquivo: %s | Chunks: %d | Tamanho: %d bytes', [SearchRec.Name, Count, SearchRec.Size]));
+        end;
+      end;
+    until FindNext(SearchRec) <> 0;
+    FindClose(SearchRec);
+  end;
+
+  memDocsInfo.Lines.Add('========================================');
+  memDocsInfo.Lines.Add(Format('Total de Arquivos Carregados: %d', [lstArquivos.Count]));
+  memLogs.Lines.Add(Format('Varredura concluida em %s: %d arquivos adicionados ao RAG.', [APasta, lstArquivos.Count]));
+end;
+
+procedure TfrmRAGFileIndexingDemo.btnSelecionarPastaClick(Sender: TObject);
+begin
+  SelectDirectoryDialog1.InitialDir := edtDocsPath.Text;
+  if SelectDirectoryDialog1.Execute then
+  begin
+    edtDocsPath.Text := SelectDirectoryDialog1.FileName;
+    CarregarDocumentosDaPasta(SelectDirectoryDialog1.FileName);
+  end;
+end;
+
+procedure TfrmRAGFileIndexingDemo.btnCarregarPastaDocsClick(Sender: TObject);
+begin
+  CarregarDocumentosDaPasta(edtDocsPath.Text);
+  btnIndexarClick(Sender);
 end;
 
 procedure TfrmRAGFileIndexingDemo.btnAdicionarArquivoClick(Sender: TObject);
@@ -128,7 +205,7 @@ begin
   if FAIRAG.BuildIndex then
   begin
     memLogs.Lines.Add('Índice RAG gerado com sucesso.');
-    ShowMessage('Índice RAG construído!');
+    ShowMessage('Índice RAG construído com sucesso!');
   end
   else
   begin

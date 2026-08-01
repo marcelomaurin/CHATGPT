@@ -1,0 +1,33 @@
+# Catálogo de Doces Tradicionais Brasileiros
+
+## Brigadeiro
+- Descrição: O doce mais famoso do Brasil, feito com leite condensado, cacau em pó e manteiga, enrolado e coberto com granulado de chocolate.
+- Origem: Rio de Janeiro (década de 1940).
+
+## Quindim
+- Descrição: Doce amarelo brilhante feito com gemas de ovo, açúcar e coco ralado.
+- Origem: Nordeste do Brasil, com influências da doçaria portuguesa.
+
+## Beijinho de Coco
+- Descrição: Doce feito de leite condensado, coco ralado e manteiga, decorado com um cravo-da-índia no topo.
+- Origem: Tradicional em festas infantis em todo o Brasil.
+
+## Pudim de Leite Condensado
+- Descrição: Sobremesa cremosa assada em banho-maria com calda de açúcar caramelizado.
+- Origem: Adaptação brasileira do pudim de ovos português.
+
+## Romeu e Julieta
+- Descrição: Combinação clássica de uma fatia de queijo minas frescal com goiabada cascão.
+- Origem: Minas Gerais.
+
+## Cocada Cremosa
+- Descrição: Doce de coco ralado cozido com açúcar ou leite condensado, servido mole ou em pedaços firmes.
+- Origem: Bahia.
+
+## Bolo de Rolo
+- Descrição: Massa finíssima enrolada em camadas intercaladas com goiabada derretida. Reconhecido como Patrimônio Imaterial de Pernambuco.
+- Origem: Pernambuco.
+
+## Pé de Moleque
+- Descrição: Doce crocante feito com amendoim torrado e rapadura ou açúcar caramelizado.
+- Origem: São Paulo e Minas Gerais (Festas Juninas).

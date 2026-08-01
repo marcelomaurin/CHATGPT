@@ -173,6 +173,64 @@ object frmRAGFileIndexingDemo: TfrmRAGFileIndexingDemo
         TabOrder = 0
       end
     end
+    object tsConfiguracao: TTabSheet
+      Caption = 'Configuração / Pasta Docs'
+      ClientHeight = 562
+      ClientWidth = 572
+      object pnlConfigTop: TPanel
+        Left = 0
+        Height = 70
+        Top = 0
+        Width = 572
+        Align = alTop
+        ClientHeight = 70
+        ClientWidth = 572
+        TabOrder = 0
+        object lblDocsPath: TLabel
+          Left = 12
+          Height = 15
+          Top = 15
+          Width = 117
+          Caption = 'Pasta de Documentos:'
+          ParentColor = False
+        end
+        object edtDocsPath: TEdit
+          Left = 135
+          Height = 23
+          Top = 12
+          Width = 330
+          TabOrder = 0
+        end
+        object btnSelecionarPasta: TButton
+          Left = 470
+          Height = 25
+          Top = 11
+          Width = 85
+          Caption = 'Selecionar...'
+          OnClick = btnSelecionarPastaClick
+          TabOrder = 1
+        end
+        object btnCarregarPastaDocs: TButton
+          Left = 135
+          Height = 25
+          Top = 38
+          Width = 220
+          Caption = 'Carregar & Indexar Pasta Docs'
+          OnClick = btnCarregarPastaDocsClick
+          TabOrder = 2
+        end
+      end
+      object memDocsInfo: TMemo
+        Left = 0
+        Height = 492
+        Top = 70
+        Width = 572
+        Align = alClient
+        ReadOnly = True
+        ScrollBars = ssAutoBoth
+        TabOrder = 1
+      end
+    end
     object tsLogs: TTabSheet
       Caption = 'Logs RAG'
       ClientHeight = 562
@@ -195,6 +253,10 @@ object frmRAGFileIndexingDemo: TfrmRAGFileIndexingDemo
   end
   object SaveDialog1: TSaveDialog
     Left = 410
+    Top = 150
+  end
+  object SelectDirectoryDialog1: TSelectDirectoryDialog
+    Left = 470
     Top = 150
   end
 end
