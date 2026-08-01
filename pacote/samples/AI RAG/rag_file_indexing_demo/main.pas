@@ -41,6 +41,8 @@ type
     edtApiKey: TEdit;
     lblModel: TLabel;
     cmbModel: TComboBox;
+    lblURL: TLabel;
+    edtURL: TEdit;
     lblChunkSize: TLabel;
     edtChunkSize: TEdit;
     lblChunkOverlap: TLabel;
@@ -143,7 +145,7 @@ end;
 procedure TfrmRAGFileIndexingDemo.CarregarConfiguracoesAppData;
 var
   Ini: TIniFile;
-  ConfigFile, DocsDir, ProviderStr: string;
+  ConfigFile, DocsDir: string;
   ProviderIdx: Integer;
 begin
   ConfigFile := GetConfigFilePath;
@@ -167,6 +169,7 @@ begin
 
     edtApiKey.Text := Ini.ReadString('IA', 'ApiKey', GetEnvironmentVariable('OPENAI_API_KEY'));
     cmbModel.Text := Ini.ReadString('IA', 'Model', cmbModel.Text);
+    edtURL.Text := Ini.ReadString('IA', 'URL', '');
     edtChunkSize.Text := Ini.ReadString('RAG', 'ChunkSize', '1200');
     edtChunkOverlap.Text := Ini.ReadString('RAG', 'ChunkOverlap', '150');
     edtTopK.Text := Ini.ReadString('RAG', 'TopK', '4');
@@ -195,6 +198,7 @@ begin
     Ini.WriteString('IA', 'ProviderName', cmbProvider.Text);
     Ini.WriteString('IA', 'ApiKey', edtApiKey.Text);
     Ini.WriteString('IA', 'Model', cmbModel.Text);
+    Ini.WriteString('IA', 'URL', edtURL.Text);
     Ini.WriteString('RAG', 'ChunkSize', edtChunkSize.Text);
     Ini.WriteString('RAG', 'ChunkOverlap', edtChunkOverlap.Text);
     Ini.WriteString('RAG', 'TopK', edtTopK.Text);
@@ -228,6 +232,8 @@ begin
       FChatGPT.TipoChat := VCT_CUSTOM;
       FChatGPT.CustomModel := cmbModel.Text;
     end;
+
+    FChatGPT.URL := Trim(edtURL.Text);
   end;
 
   if Assigned(FAIRAG) then
