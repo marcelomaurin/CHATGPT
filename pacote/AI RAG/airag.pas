@@ -1018,7 +1018,9 @@ begin
     FChatGPT.Prompt := FullPrompt;
     if FChatGPT.SendQuestion(FullPrompt) then
     begin
-      FLastAnswer := FChatGPT.LastResult;
+      FLastAnswer := FChatGPT.Response;
+      if FLastAnswer = '' then
+        FLastAnswer := FChatGPT.LastResult;
       FLastResult := FLastAnswer;
       Result := True;
       FLastSuccess := True;

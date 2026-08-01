@@ -742,6 +742,7 @@ begin
       try
         RawResponse := HTTP.Post(Endpoint);
         FResponse := PegaMensagem(UTF8ToUTF16(RawResponse));
+        FLastResult := UTF8Encode(FResponse);
         Result := Trim(FResponse) <> '';
         FLastSuccess := Result;
         if not Result then
