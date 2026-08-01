@@ -61,6 +61,14 @@ Use esta classificação para documentação, README de abas, samples e planejam
 
 ---
 
+## RAG
+
+| Componente | Unit | Pacote | Status | Observação |
+|---|---|---|---|---|
+| `TAIRAG` | `airag.pas` | `openai_rag` | Beta | Motor RAG com fatiamento de arquivos, índice conectivo por grafo semântico e consulta LLM |
+
+---
+
 ## Python
 
 | Componente | Unit | Pacote | Status | Observação |

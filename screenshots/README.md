@@ -123,3 +123,7 @@
 
 ![AI Test LLM Demo](AITestLLM.jpg)
 
+## RAG File Indexing Demo
+
+![RAG File Indexing Demo](rag_file_indexing_demo.jpg)
+

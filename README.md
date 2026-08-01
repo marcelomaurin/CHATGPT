@@ -75,6 +75,7 @@ pacote/packages/
 | `openai_agent.lpk` | Agentes, memória, ações, segurança e pipeline | Stable / Beta; `TAIPipeline` e `TAIWizardConfig` Experimental |
 | `openai_project.lpk` | Projetos, tarefas, armazenamento e especificações | Stable / Beta; integração de pipeline Experimental |
 | `openai_aidbase.lpk` | Dicionários e metadados de bancos de dados | Stable / Beta |
+| `openai_rag.lpk` | RAG, fatiamento de arquivos, índice conectivo por grafo e consulta semântica | Stable / Beta |
 
 > O pacote monolítico legado `openai.lpk` foi removido. Use somente os pacotes modulares.
 
@@ -100,6 +101,7 @@ A tabela foi construída relacionando cada projeto encontrado pelo Graph Explore
 | openai_project | Stable / Beta | `TAIProject`, `TAIProjectTasks`, `TAIProjectStorage`, `TAIProjectSpecification`<br>`TAIProjectTasks`, `TAIProjectStorage`, `TAIProjectSpecification` | `Demo_AI_Project`, `project_tasklist_ai_demo` | — |
 | openai_project + openai_agent | Stable / Beta + Experimental |  |  | `pipeline_project_demo` |
 | openai_project + openai_graph + openai_files | Stable / Beta | `TCHATGPT`, `TAIDiskTreeScanner`, `TAIDependencyGraph`, `TAIGraphStructuralAdapter` | `framework_graph_explorer` | — |
+| openai_rag | Stable / Beta | `TAIRAG` | `rag_file_indexing_demo` | — |
 | openai_python | Stable / Beta | `TCNNClassifier`<br>`TLSTMPredictor`<br>`TAIPythonRuntime`<br>`TYoloDetect`<br>`TFaceDetection`<br>`TPythonConnector` | `cnn_classifier_complete_demo`, `lstm_timeseries_demo`, `python_runtime_check_demo`, `yolo_detection_complete_demo`, `cnn_demo`, `face_detection_demo`, `lstm_demo`, `python_demo`, `yolo_demo` | — |
 | openai_simulation | Stable / Beta | `TAISimulationEngine`, `TAIRuleEngine`, `TAITriggerEngine`, `TAISimulationStats`<br>`TAIGridWorld`, `TAIMovementEngine`, `TAIRuleEngine`<br>`TAIGridWorld`, `TAISimEntity`, `TAISimulationEngine`, `TAISimulationStats`<br>`TAIGridWorld`, `TAIEntityFactory`, `TAIMovementEngine` | `contamination_demo`, `robot_grid_demo`, `service_queue_demo`, `warehouse_agents_demo` | — |
 | openai_vision | Stable / Beta | `TAIHumanPoseDetector`<br>`TAIMotionTracker`<br>`TAINativeImageFilter`<br>`TAIFrameProcessor`<br>backend `aicamera_vfw`<br>`TAIFrameDiff`<br>`TAIImageInfo`<br>`TAIOpenCV`<br>`TAIOpenCV`, `aiopencvruntime`<br>`TAIOpenCV`, recursos de câmera e rastreamento | `human_pose_detector_demo`, `motion_tracker_demo`, `native_image_filter_demo`, `aiframeprocessor_demo`, `camera_capture_windows_demo`, `frame_diff_demo`, `image_info_demo`, `opencv_filter_demo`, `opencv_image_real_demo`, `opencv_vision_demo` | — |
@@ -136,6 +138,7 @@ A relação abaixo é a classificação completa obtida pelo cruzamento entre os
 | **openai_ml** | `TAIDatasetGenerator`, `TAMatrizComponent`, `TNumPS`, `TNeuralNetwork`, `TPerceptron`, `TSOMMap` |
 | **openai_output** | `TAIOutputDocs`, `TAIOutputData`, `TAIPDFOutput`, `TAIWordOutput`, `TAIExcelOutput`, `TAIWordDocument`, `TAIWordViewer` |
 | **openai_project** | `TAIProject`, `TAIProjectTasks`, `TAIProjectStorage`, `TAIProjectSpecification` |
+| **openai_rag** | `TAIRAG` |
 | **openai_python** | `TPythonConnector`, `TAIPythonRuntime`, `TCNNClassifier`, `TFaceDetection`, `TLSTMPredictor`, `TYoloDetect` |
 | **openai_simulation** | `TAIGridWorld`, `TAISimEntity`, `TAIEntityFactory`, `TAISimulationEngine`, `TAIRuleEngine`, `TAITriggerEngine`, `TAIMovementEngine`, `TAISimulationStats` |
 | **openai_vision** | `TAIHumanPoseDetector`, `TAIMotionTracker`, `TAINativeImageFilter`, `TAIFrameProcessor`, `TAIFrameDiff`, `TAIImageInfo`, `TAIOpenCV` |
