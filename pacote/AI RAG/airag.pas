@@ -545,12 +545,50 @@ end;
 function TAIRAG.AddFolder(const AFolderPath: string; ARecursive: Boolean; const AFileExtensions: string): Integer;
 var
   ExtList: TStringList;
+  TargetDir: string;
+
+  procedure ParseExtensions(const AInput: string);
+  var
+    S, Token: string;
+    P: Integer;
+  begin
+    ExtList.Clear;
+    S := Trim(AInput);
+    if (S = '') or (S = '*') or (S = '*.*') then Exit;
+
+    S := StringReplace(S, ',', ';', [rfReplaceAll]);
+    S := StringReplace(S, ' ', ';', [rfReplaceAll]);
+
+    while S <> '' do
+    begin
+      P := Pos(';', S);
+      if P > 0 then
+      begin
+        Token := Trim(Copy(S, 1, P - 1));
+        Delete(S, 1, P);
+      end
+      else
+      begin
+        Token := Trim(S);
+        S := '';
+      end;
+
+      if Token <> '' then
+      begin
+        Token := LowerCase(Token);
+        if Token[1] <> '.' then
+          Token := '.' + Token;
+        if ExtList.IndexOf(Token) < 0 then
+          ExtList.Add(Token);
+      end;
+    end;
+  end;
 
   procedure ScanDir(const ADir: string);
   var
     SearchRec: TSearchRec;
     FilePath, Ext: string;
-    I: Integer;
+    I, ChunksAdded: Integer;
     Match: Boolean;
   begin
     if not DirectoryExists(ADir) then Exit;
@@ -587,9 +625,10 @@ var
 
               if Match then
               begin
-                DoLog('Indexando arquivo da pasta: ' + SearchRec.Name);
-                AddFile(FilePath);
-                Inc(Result);
+                DoLog('Indexando arquivo: ' + SearchRec.Name);
+                ChunksAdded := AddFile(FilePath);
+                if ChunksAdded > 0 then
+                  Inc(Result);
               end;
             end;
           end;
@@ -600,36 +639,26 @@ var
     end;
   end;
 
-var
-  RawExts: string;
-  I: Integer;
 begin
   Result := 0;
   ClearError;
 
-  if not DirectoryExists(AFolderPath) then
+  TargetDir := ExpandFileName(AFolderPath);
+  if not DirectoryExists(TargetDir) then
+    TargetDir := AFolderPath;
+
+  if not DirectoryExists(TargetDir) then
   begin
-    SetError('Diretorio nao encontrado: ' + AFolderPath);
+    SetError('Diretório não encontrado: ' + AFolderPath);
     Exit(0);
   end;
 
   ExtList := TStringList.Create;
   try
-    RawExts := StringReplace(AFileExtensions, ',', ';', [rfReplaceAll]);
-    ExtList.Delimiter := ';';
-    ExtList.StrictDelimiter := True;
-    ExtList.DelimitedText := LowerCase(RawExts);
-
-    for I := 0 to ExtList.Count - 1 do
-    begin
-      ExtList[I] := Trim(ExtList[I]);
-      if (ExtList[I] <> '') and (ExtList[I][1] <> '.') then
-        ExtList[I] := '.' + ExtList[I];
-    end;
-
-    DoLog('Iniciando varredura na pasta: ' + AFolderPath);
-    ScanDir(AFolderPath);
-    DoLog(Format('Varredura concluida: %d arquivos processados.', [Result]));
+    ParseExtensions(AFileExtensions);
+    DoLog('Iniciando varredura na pasta: ' + TargetDir);
+    ScanDir(TargetDir);
+    DoLog(Format('Varredura concluída: %d arquivos (%d chunks no total).', [Result, FGraphMap.Training.Count]));
   finally
     ExtList.Free;
   end;
@@ -648,7 +677,7 @@ begin
 
   if FGraphMap.Training.Count = 0 then
   begin
-    SetError('Nao ha textos treinados para indexacao.');
+    SetError('Nao ha textos treinados para indexacao. Adicione arquivos ou varra uma pasta primeiro.');
     Exit;
   end;
 
@@ -868,11 +897,27 @@ begin
   if not ValidateComponents(True) then
     Exit;
 
+  // Auto constroi o indice se o grafo ainda nao foi treinado
+  if (FGraphMap.NodeCount = 0) and (FGraphMap.Training.Count > 0) then
+  begin
+    DoLog('Grafo nao treinado. Gerando indice RAG automaticamente...');
+    if not BuildIndex then
+      Exit(False);
+  end;
+
+  if FGraphMap.Training.Count = 0 then
+  begin
+    SetError('Nenhum documento foi adicionado para busca RAG. Adicione arquivos ou varra uma pasta primeiro.');
+    Exit(False);
+  end;
+
   if not BuildContext(AQuestion) then
   begin
     FLastAnswer := FNoAnswerText;
+    FLastResult := FNoAnswerText;
     DoLog('Nenhum contexto relevante encontrado para a pergunta.');
-    Exit(False);
+    Result := True;
+    Exit;
   end;
 
   FullPrompt := BuildPrompt(AQuestion, FLastContext);

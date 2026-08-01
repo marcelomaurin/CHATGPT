@@ -65,7 +65,7 @@ type
     FAIRAG: TAIRAG;
     procedure SetupComponents;
     procedure AIRAGLog(Sender: TObject; const AMessage: string);
-    procedure CarregarDocumentosDaPasta(const APasta: string);
+    function CarregarDocumentosDaPasta(const APasta: string): Integer;
   public
 
   end;
@@ -107,7 +107,7 @@ end;
 procedure TfrmRAGFileIndexingDemo.SetupComponents;
 begin
   FChatGPT := TCHATGPT.Create(Self);
-  FChatGPT.Prompt := 'Você é um assistente RAG especializado em botanica e culinaria brasileira.';
+  FChatGPT.Prompt := 'Você é um assistente RAG especializado em botânica e culinária brasileira.';
 
   FGraphMap := TAIGraphMap.Create(Self);
   FGraphMap.AutoClearBeforeTrain := True;
@@ -133,11 +133,17 @@ begin
   memLogs.Lines.Add('[RAG LOG] ' + AMessage);
 end;
 
-procedure TfrmRAGFileIndexingDemo.CarregarDocumentosDaPasta(const APasta: string);
+function TfrmRAGFileIndexingDemo.CarregarDocumentosDaPasta(const APasta: string): Integer;
 var
   TotalFiles: Integer;
+  SearchRec: TSearchRec;
 begin
-  if not DirectoryExists(APasta) then Exit;
+  Result := 0;
+  if not DirectoryExists(APasta) then
+  begin
+    ShowMessage('Diretório não encontrado: ' + APasta);
+    Exit(0);
+  end;
 
   FAIRAG.Clear;
   lstArquivos.Clear;
@@ -149,13 +155,28 @@ begin
 
   TotalFiles := FAIRAG.AddFolder(APasta, chkRecursive.Checked, edtExtensions.Text);
 
+  // Exibe lista de arquivos encontrados na pasta
+  if FindFirst(IncludeTrailingPathDelimiter(APasta) + '*.*', faAnyFile, SearchRec) = 0 then
+  begin
+    try
+      repeat
+        if (SearchRec.Attr and faDirectory) = 0 then
+        begin
+          if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
+            lstArquivos.Items.Add(SearchRec.Name);
+        end;
+      until FindNext(SearchRec) <> 0;
+    finally
+      FindClose(SearchRec);
+    end;
+  end;
+
   memDocsInfo.Lines.Add('========================================');
   memDocsInfo.Lines.Add(Format('Total de Arquivos Processados: %d', [TotalFiles]));
   memDocsInfo.Lines.Add(Format('Total de Chunks em Memória: %d', [FGraphMap.Training.Count]));
 
-  // Atualiza lista de arquivos na interface
-  lstArquivos.Items.Add(Format('%d arquivos varridos em %s', [TotalFiles, ExtractFileName(APasta)]));
-  memLogs.Lines.Add(Format('Varredura concluída em %s: %d arquivos adicionados ao RAG.', [APasta, TotalFiles]));
+  memLogs.Lines.Add(Format('Varredura concluída em %s: %d arquivos (%d chunks).', [APasta, TotalFiles, FGraphMap.Training.Count]));
+  Result := TotalFiles;
 end;
 
 procedure TfrmRAGFileIndexingDemo.btnSelecionarPastaClick(Sender: TObject);
@@ -169,9 +190,14 @@ begin
 end;
 
 procedure TfrmRAGFileIndexingDemo.btnVarrerPastaClick(Sender: TObject);
+var
+  FilesCount: Integer;
 begin
-  CarregarDocumentosDaPasta(edtDocsPath.Text);
-  btnIndexarClick(Sender);
+  FilesCount := CarregarDocumentosDaPasta(edtDocsPath.Text);
+  if (FilesCount > 0) or (FGraphMap.Training.Count > 0) then
+    btnIndexarClick(Sender)
+  else
+    ShowMessage('Nenhum arquivo correspondente aos filtros foi encontrado na pasta ' + edtDocsPath.Text);
 end;
 
 procedure TfrmRAGFileIndexingDemo.btnAdicionarArquivoClick(Sender: TObject);
@@ -192,6 +218,12 @@ end;
 
 procedure TfrmRAGFileIndexingDemo.btnIndexarClick(Sender: TObject);
 begin
+  if FGraphMap.Training.Count = 0 then
+  begin
+    ShowMessage('Nenhum arquivo ou texto foi adicionado para indexação.');
+    Exit;
+  end;
+
   memLogs.Lines.Add('Iniciando construção de índice RAG...');
   if FAIRAG.BuildIndex then
   begin
