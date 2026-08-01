@@ -45,6 +45,10 @@
         <UnitName Value="aiprocessrunner"/>
       </Item>
       <Item>
+        <Filename Value="..\AI\aimodelmanager.pas"/>
+        <UnitName Value="aimodelmanager"/>
+      </Item>
+      <Item>
         <Filename Value="..\AI\chatgpt.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="chatgpt"/>
@@ -84,7 +88,6 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="iaschedule"/>
       </Item>
-
     </Files>
     <RequiredPkgs>
       <Item>

@@ -9,8 +9,9 @@ interface
 
 uses
   funcoes, aibase, airagbridge, aiplatform, airuntimepaths, ailibraryloader, 
-  aiprocessrunner, chatgpt, tokenizer, aicodeassistant, aipromptbuilder, 
-  aimodelregistry, DBTokenList, GroupResponse, iaschedule, LazarusPackageIntf;
+  aiprocessrunner, aimodelmanager, chatgpt, tokenizer, aicodeassistant, 
+  aipromptbuilder, aimodelregistry, DBTokenList, GroupResponse, iaschedule, 
+  LazarusPackageIntf;
 
 implementation
 

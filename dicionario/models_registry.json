@@ -1,0 +1,23 @@
+{
+  "registry_version": "1.0",
+  "models": [
+    {
+      "name": "pt_core_news_sm",
+      "version": "1.0.0",
+      "language": "pt",
+      "description": "Modelo SpaCy em Português para POS Tagging e NER (Small)",
+      "url": "https://raw.githubusercontent.com/marcelomaurin/CHATGPT/main/dicionario/pt_core_news_sm.bin",
+      "file_name": "pt_core_news_sm.bin",
+      "size_bytes": 1048576
+    },
+    {
+      "name": "en_core_web_sm",
+      "version": "1.0.0",
+      "language": "en",
+      "description": "SpaCy English model for POS Tagging and NER (Small)",
+      "url": "https://raw.githubusercontent.com/marcelomaurin/CHATGPT/main/dicionario/en_core_web_sm.bin",
+      "file_name": "en_core_web_sm.bin",
+      "size_bytes": 1048576
+    }
+  ]
+}

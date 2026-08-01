@@ -9,7 +9,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\AI Agents;..\AI Output;.."/>
+        <OtherUnitFiles Value="..\AI Agent;..\AI Output;.."/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
@@ -17,77 +17,84 @@
     <License Value="OPEN SOURCE GPL3"/>
     <Files>
       <Item>
-        <Filename Value="..\AI Agents\aiagents.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="aiagents"/>
-      </Item>
-      <Item>
-        <Filename Value="..\AI Agents\aiagent.pas"/>
+        <Filename Value="..\AI Agent\aiagent.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiagent"/>
       </Item>
       <Item>
-        <Filename Value="..\AI Agents\aiagent_executors.pas"/>
+        <Filename Value="..\AI Agent\aiagent_executors.pas"/>
         <HasRegisterProc Value="False"/>
         <UnitName Value="aiagent_executors"/>
       </Item>
       <Item>
-        <Filename Value="..\AI Agents\aipipeline.pas"/>
+        <Filename Value="..\AI Agent\aipipeline.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aipipeline"/>
       </Item>
       <Item>
-        <Filename Value="..\AI Agents\aiagent_flowevents.pas"/>
+        <Filename Value="..\AI Agent\aiagent_flowevents.pas"/>
         <HasRegisterProc Value="False"/>
         <UnitName Value="aiagent_flowevents"/>
       </Item>
       <Item>
-        <Filename Value="..\AI Agents\aiagent_memorymap.pas"/>
+        <Filename Value="..\AI Agent\aiagent_memorymap.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiagent_memorymap"/>
       </Item>
       <Item>
-        <Filename Value="..\AI Agents\aiagent_core.pas"/>
+        <Filename Value="..\AI Agent\aiagent_core.pas"/>
         <HasRegisterProc Value="False"/>
         <UnitName Value="aiagent_core"/>
       </Item>
       <Item>
-        <Filename Value="..\AI Agents\aiagent_classifier.pas"/>
+        <Filename Value="..\AI Agent\aiagent_classifier.pas"/>
         <HasRegisterProc Value="False"/>
         <UnitName Value="aiagent_classifier"/>
       </Item>
       <Item>
-        <Filename Value="..\AI Agents\aiagent_decision.pas"/>
+        <Filename Value="..\AI Agent\aiagent_decision.pas"/>
         <HasRegisterProc Value="False"/>
         <UnitName Value="aiagent_decision"/>
       </Item>
       <Item>
-        <Filename Value="..\AI Agents\aiagent_actionbuilder.pas"/>
+        <Filename Value="..\AI Agent\aiagent_actionbuilder.pas"/>
         <HasRegisterProc Value="False"/>
         <UnitName Value="aiagent_actionbuilder"/>
       </Item>
       <Item>
-        <Filename Value="..\AI Agents\aiagent_executor.pas"/>
+        <Filename Value="..\AI Agent\aiagent_executor.pas"/>
         <HasRegisterProc Value="False"/>
         <UnitName Value="aiagent_executor"/>
       </Item>
       <Item>
-        <Filename Value="..\AI Agents\aiagent_actions.pas"/>
+        <Filename Value="..\AI Agent\aiagent_actions.pas"/>
         <HasRegisterProc Value="False"/>
         <UnitName Value="aiagent_actions"/>
       </Item>
       <Item>
-        <Filename Value="..\AI Agents\aiagent_orchestrator.pas"/>
+        <Filename Value="..\AI Agent\aiagent_orchestrator.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiagent_orchestrator"/>
       </Item>
       <Item>
-        <Filename Value="..\AI Agents\aiagentserial.pas"/>
+        <Filename Value="..\AI Agent\aiagentserial.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiagentserial"/>
       </Item>
     </Files>
     <RequiredPkgs>
+      <Item>
+        <PackageName Value="openai_agentcore"/>
+      </Item>
+      <Item>
+        <PackageName Value="openai_core"/>
+      </Item>
+      <Item>
+        <PackageName Value="openai_ml"/>
+      </Item>
+      <Item>
+        <PackageName Value="openai_input"/>
+      </Item>
       <Item>
         <PackageName Value="openai_output"/>
       </Item>
