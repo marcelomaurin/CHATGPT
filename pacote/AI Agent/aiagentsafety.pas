@@ -47,7 +47,7 @@ type
     property Enabled: Boolean read FEnabled write FEnabled default True;
     property RequireConfirmation: Boolean read FRequireConfirmation write FRequireConfirmation default True;
     property ReadOnlyMode: Boolean read FReadOnlyMode write FReadOnlyMode default True;
-    property SimulationMode: Boolean read FSimulationMode write FSimulationMode default True;
+    property SimulationMode: Boolean read FSimulationMode write FSimulationMode default False;
 
     property AllowFileWrite: Boolean read FAllowFileWrite write FAllowFileWrite default False;
     property AllowNetwork: Boolean read FAllowNetwork write FAllowNetwork default False;
@@ -78,7 +78,7 @@ begin
   FEnabled := True;
   FRequireConfirmation := True;
   FReadOnlyMode := True;
-  FSimulationMode := True;
+  FSimulationMode := False;
   FAllowFileWrite := False;
   FAllowNetwork := False;
   FAllowIndustrialWrite := False;
@@ -133,8 +133,9 @@ begin
   end;
 
   // File Write Check
-  if (Pos('FILE', LActionUpper) > 0) or (Pos('SAVE', LActionUpper) > 0) or 
-     (Pos('WRITE', LActionUpper) > 0) or (Pos('PDF', LActionUpper) > 0) or 
+  if (Pos('CREATEFILE', LActionUpper) > 0) or
+     (Pos('SAVE', LActionUpper) > 0) or (Pos('WRITE', LActionUpper) > 0) or
+     (Pos('DELETEFILE', LActionUpper) > 0) or (Pos('PDF', LActionUpper) > 0) or 
      (Pos('WORD', LActionUpper) > 0) or (Pos('EXCEL', LActionUpper) > 0) or 
      (Pos('TXT', LActionUpper) > 0) or (Pos('DOCS', LActionUpper) > 0) then
   begin
@@ -255,7 +256,9 @@ begin
   begin
     SafePath := IncludeTrailingPathDelimiter(ExpandFileName(FSafeBasePath));
     FullPath := ExpandFileName(AFileName);
-    if Pos(SafePath, FullPath) <> 1 then
+    if (Length(FullPath) < Length(SafePath)) or
+       (not SameFileName(Copy(IncludeTrailingPathDelimiter(FullPath), 1,
+         Length(SafePath)), SafePath)) then
     begin
       AError := 'Acesso ao arquivo "' + AFileName + '" fora do diretório seguro base ("' + FSafeBasePath + '") é negado.';
       Exit(False);

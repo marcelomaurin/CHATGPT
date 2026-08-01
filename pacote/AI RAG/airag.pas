@@ -42,89 +42,195 @@ type
   private
     FChatGPT: TCHATGPT;
     FGraphMap: TAIGraphMap;
+
     FChunkSize: Integer;
     FChunkOverlap: Integer;
     FTopK: Integer;
     FMinimumScore: Double;
     FMaximumContextLength: Integer;
+
     FInstructions: string;
     FNoAnswerText: string;
     FSourcePrefix: string;
+
     FLastQuestion: string;
     FLastContext: string;
     FLastPrompt: string;
     FLastAnswer: string;
     FLastSources: TStringList;
+
     FReplaceExistingSource: Boolean;
-    FOnRAGLog: TAIRAGLogEvent;
-    FOnChunkCreated: TAIRAGChunkEvent;
-    FOnChunkRetrieved: TAIRAGRetrieveEvent;
-    FOnBuildPrompt: TAIRAGPromptEvent;
+
     FOnBeforeIndex: TNotifyEvent;
     FOnAfterIndex: TNotifyEvent;
+    FOnChunkCreated: TAIRAGChunkEvent;
     FOnBeforeRetrieve: TNotifyEvent;
     FOnAfterRetrieve: TNotifyEvent;
+    FOnChunkRetrieved: TAIRAGRetrieveEvent;
+    FOnContextBuilt: TAIRAGLogEvent;
+    FOnBuildPrompt: TAIRAGPromptEvent;
     FOnBeforeGenerate: TNotifyEvent;
     FOnAfterGenerate: TNotifyEvent;
+    FOnRAGLog: TAIRAGLogEvent;
+
     procedure SetChatGPT(AValue: TCHATGPT);
     procedure SetGraphMap(AValue: TAIGraphMap);
     procedure SetChunkSize(AValue: Integer);
     procedure SetChunkOverlap(AValue: Integer);
     procedure SetTopK(AValue: Integer);
     procedure SetMaximumContextLength(AValue: Integer);
+
     procedure DoLog(const AMessage: string);
     procedure ClearStringListObjects(AStrings: TStrings);
     procedure RemoveSourceChunks(const ASourceName: string);
     procedure FreeResultObjects(AStrings: TStrings);
     function NormalizeSourceName(const ASource: string): string;
-    procedure SplitText(const AText: string; AChunks: TStrings);
+
+    procedure SplitText(
+      const AText: string;
+      AChunks: TStrings
+    );
+
     function ValidateComponents(ARequireChatGPT: Boolean): Boolean;
+
   protected
-    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+    procedure Notification(
+      AComponent: TComponent;
+      Operation: TOperation
+    ); override;
+
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+
     procedure Clear;
-    function AddText(const ASource: string; const AText: string): Integer;
-    function AddFile(const AFileName: string): Integer;
+
+    function AddText(
+      const ASource: string;
+      const AText: string
+    ): Integer;
+
+    function AddFile(
+      const AFileName: string
+    ): Integer;
+
     function BuildIndex: Boolean;
-    function FindChunkText(const AChunkID: string): string;
-    function ExtractSourceName(const AChunkID: string): string;
-    function Retrieve(const AQuestion: string; AResults: TStrings): Boolean;
-    function BuildContext(const AQuestion: string): Boolean;
-    function BuildPrompt(const AQuestion, AContext: string): string;
-    function Ask(const AQuestion: string): Boolean;
+
+    function FindChunkText(
+      const AChunkID: string
+    ): string;
+
+    function ExtractSourceName(
+      const AChunkID: string
+    ): string;
+
+    function Retrieve(
+      const AQuestion: string;
+      AResults: TStrings
+    ): Boolean;
+
+    function BuildContext(
+      const AQuestion: string
+    ): Boolean;
+
+    function BuildPrompt(
+      const AQuestion: string;
+      const AContext: string
+    ): string;
+
+    function Ask(
+      const AQuestion: string
+    ): Boolean;
+
+    function SaveIndex(
+      const AGraphFile: string;
+      const ATrainingFile: string
+    ): Boolean;
+
+    function LoadIndex(
+      const AGraphFile: string;
+      const ATrainingFile: string
+    ): Boolean;
+
+    // Interface IAIRAGProvider implementation
     function GetLastQuestion: string;
     function GetLastContext: string;
     function GetLastAnswer: string;
     function GetLastSources: TStrings;
-  published
-    property ChatGPT: TCHATGPT read FChatGPT write SetChatGPT;
-    property GraphMap: TAIGraphMap read FGraphMap write SetGraphMap;
-    property ChunkSize: Integer read FChunkSize write SetChunkSize default 1200;
-    property ChunkOverlap: Integer read FChunkOverlap write SetChunkOverlap default 150;
-    property TopK: Integer read FTopK write SetTopK default 4;
-    property MinimumScore: Double read FMinimumScore write FMinimumScore;
-    property MaximumContextLength: Integer read FMaximumContextLength write SetMaximumContextLength default 12000;
-    property Instructions: string read FInstructions write FInstructions;
-    property NoAnswerText: string read FNoAnswerText write FNoAnswerText;
-    property SourcePrefix: string read FSourcePrefix write FSourcePrefix;
-    property ReplaceExistingSource: Boolean read FReplaceExistingSource write FReplaceExistingSource default True;
+
     property LastQuestion: string read FLastQuestion;
     property LastContext: string read FLastContext;
     property LastPrompt: string read FLastPrompt;
     property LastAnswer: string read FLastAnswer;
     property LastSources: TStringList read FLastSources;
-    property OnRAGLog: TAIRAGLogEvent read FOnRAGLog write FOnRAGLog;
-    property OnChunkCreated: TAIRAGChunkEvent read FOnChunkCreated write FOnChunkCreated;
-    property OnChunkRetrieved: TAIRAGRetrieveEvent read FOnChunkRetrieved write FOnChunkRetrieved;
-    property OnBuildPrompt: TAIRAGPromptEvent read FOnBuildPrompt write FOnBuildPrompt;
-    property OnBeforeIndex: TNotifyEvent read FOnBeforeIndex write FOnBeforeIndex;
-    property OnAfterIndex: TNotifyEvent read FOnAfterIndex write FOnAfterIndex;
-    property OnBeforeRetrieve: TNotifyEvent read FOnBeforeRetrieve write FOnBeforeRetrieve;
-    property OnAfterRetrieve: TNotifyEvent read FOnAfterRetrieve write FOnAfterRetrieve;
-    property OnBeforeGenerate: TNotifyEvent read FOnBeforeGenerate write FOnBeforeGenerate;
-    property OnAfterGenerate: TNotifyEvent read FOnAfterGenerate write FOnAfterGenerate;
+
+  published
+    property ChatGPT: TCHATGPT
+      read FChatGPT write SetChatGPT;
+
+    property GraphMap: TAIGraphMap
+      read FGraphMap write SetGraphMap;
+
+    property ChunkSize: Integer
+      read FChunkSize write SetChunkSize default 1200;
+
+    property ChunkOverlap: Integer
+      read FChunkOverlap write SetChunkOverlap default 150;
+
+    property TopK: Integer
+      read FTopK write SetTopK default 4;
+
+    property MinimumScore: Double
+      read FMinimumScore write FMinimumScore;
+
+    property MaximumContextLength: Integer
+      read FMaximumContextLength
+      write SetMaximumContextLength default 12000;
+
+    property Instructions: string
+      read FInstructions write FInstructions;
+
+    property NoAnswerText: string
+      read FNoAnswerText write FNoAnswerText;
+
+    property SourcePrefix: string
+      read FSourcePrefix write FSourcePrefix;
+
+    property ReplaceExistingSource: Boolean
+      read FReplaceExistingSource write FReplaceExistingSource default True;
+
+    property OnBeforeIndex: TNotifyEvent
+      read FOnBeforeIndex write FOnBeforeIndex;
+
+    property OnAfterIndex: TNotifyEvent
+      read FOnAfterIndex write FOnAfterIndex;
+
+    property OnChunkCreated: TAIRAGChunkEvent
+      read FOnChunkCreated write FOnChunkCreated;
+
+    property OnBeforeRetrieve: TNotifyEvent
+      read FOnBeforeRetrieve write FOnBeforeRetrieve;
+
+    property OnAfterRetrieve: TNotifyEvent
+      read FOnAfterRetrieve write FOnAfterRetrieve;
+
+    property OnChunkRetrieved: TAIRAGRetrieveEvent
+      read FOnChunkRetrieved write FOnChunkRetrieved;
+
+    property OnContextBuilt: TAIRAGLogEvent
+      read FOnContextBuilt write FOnContextBuilt;
+
+    property OnBuildPrompt: TAIRAGPromptEvent
+      read FOnBuildPrompt write FOnBuildPrompt;
+
+    property OnBeforeGenerate: TNotifyEvent
+      read FOnBeforeGenerate write FOnBeforeGenerate;
+
+    property OnAfterGenerate: TNotifyEvent
+      read FOnAfterGenerate write FOnAfterGenerate;
+
+    property OnRAGLog: TAIRAGLogEvent
+      read FOnRAGLog write FOnRAGLog;
   end;
 
 procedure Register;
@@ -154,10 +260,10 @@ begin
   FChunkSize := 1200;
   FChunkOverlap := 150;
   FTopK := 4;
-  FMinimumScore := 0;
+  FMinimumScore := 0.0;
   FMaximumContextLength := 12000;
-  FInstructions := 'You are an assistant that answers using only the provided context.';
-  FNoAnswerText := 'I could not find this information in the knowledge base.';
+  FInstructions := 'Voce e um assistente especializado nos documentos fornecidos.';
+  FNoAnswerText := 'Nao encontrei essa informacao na base de conhecimento.';
   FSourcePrefix := 'rag:';
   FLastQuestion := '';
   FLastContext := '';
@@ -165,7 +271,7 @@ begin
   FLastAnswer := '';
   FLastSources := TStringList.Create;
   FReplaceExistingSource := True;
-  FPrompt := 'TAIRAG indexes text chunks with TAIGraphMap and builds answer context for TAIAgent.';
+  FPrompt := 'TAIRAG indexes text chunks with TAIGraphMap and builds answer context for TCHATGPT.';
   ClearError;
 end;
 
@@ -443,7 +549,7 @@ begin
       Item.OutputCategory := ChunkID;
       Item.Weight := 1.0;
       Inc(Result);
-      DoLog('Chunk created: ' + ChunkID);
+      DoLog('Chunk criado: ' + ChunkID);
       if Assigned(FOnChunkCreated) then
         FOnChunkCreated(Self, ChunkID, SourceName, Chunks[I]);
     end;
@@ -518,7 +624,7 @@ begin
 
     Result := FGraphMap.NodeCount > 0;
     if Result then
-      FLastResult := 'Index built successfully.';
+      FLastResult := 'Indice construído com sucesso.';
   finally
     if Assigned(FOnAfterIndex) then
       FOnAfterIndex(Self);
@@ -669,7 +775,7 @@ begin
         Item.Text;
 
       if (Length(FLastContext) > 0) then
-        Block := sLineBreak + Block;
+        Block := sLineBreak + sLineBreak + Block;
 
       if Length(FLastContext) + Length(Block) > FMaximumContextLength then
         Break;
@@ -678,6 +784,9 @@ begin
       FLastSources.Add(Format('%s | %s | score=%.2f', [Item.Source, Item.ChunkID, Item.Score]));
       Result := True;
     end;
+
+    if Result and Assigned(FOnContextBuilt) then
+      FOnContextBuilt(Self, FLastContext);
   finally
     FreeResultObjects(Results);
     Results.Free;
@@ -687,9 +796,8 @@ end;
 function TAIRAG.BuildPrompt(const AQuestion, AContext: string): string;
 begin
   Result := FInstructions + sLineBreak + sLineBreak +
-    'Use only the provided context.' + sLineBreak +
-    'If the answer is not in the context, respond with:' + sLineBreak +
-    FNoAnswerText + sLineBreak + sLineBreak +
+    'Utilize exclusivamente o contexto abaixo para responder.' + sLineBreak +
+    'Caso a informacao nao esteja no contexto, responda: "' + FNoAnswerText + '".' + sLineBreak + sLineBreak +
     'CONTEXTO:' + sLineBreak +
     AContext + sLineBreak + sLineBreak +
     'PERGUNTA:' + sLineBreak +
@@ -740,6 +848,54 @@ begin
   finally
     if Assigned(FOnAfterGenerate) then
       FOnAfterGenerate(Self);
+  end;
+end;
+
+function TAIRAG.SaveIndex(const AGraphFile, ATrainingFile: string): Boolean;
+begin
+  Result := False;
+  ClearError;
+
+  if not Assigned(FGraphMap) then
+  begin
+    SetError('Componente TAIGraphMap nao associado.');
+    Exit;
+  end;
+
+  try
+    if ATrainingFile <> '' then
+      FGraphMap.SaveTrainingToFile(ATrainingFile);
+    if AGraphFile <> '' then
+      FGraphMap.SaveGraphToFile(AGraphFile);
+    Result := True;
+  except
+    on E: Exception do
+      SetError(E.Message);
+  end;
+end;
+
+function TAIRAG.LoadIndex(const AGraphFile, ATrainingFile: string): Boolean;
+begin
+  Result := False;
+  ClearError;
+
+  if not Assigned(FGraphMap) then
+  begin
+    SetError('Componente TAIGraphMap nao associado.');
+    Exit;
+  end;
+
+  try
+    if (ATrainingFile <> '') and FileExists(ATrainingFile) then
+      FGraphMap.LoadTrainingFromFile(ATrainingFile);
+
+    if (AGraphFile <> '') and FileExists(AGraphFile) then
+      FGraphMap.LoadGraphFromFile(AGraphFile);
+
+    Result := True;
+  except
+    on E: Exception do
+      SetError(E.Message);
   end;
 end;
 

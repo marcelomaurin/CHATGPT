@@ -88,6 +88,8 @@ type
     FLastURL         : WideString;
     FURL             : WideString;
     FTemperature     : Double;
+    FActiveHTTP      : TFPHttpClient;
+    FHTTPGuard       : TRTLCriticalSection;
 
     function RequestJson(const LURL, token, ASK: WideString): WideString;
     function PegaMensagem(const JSON: WideString): WideString;
@@ -102,6 +104,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function SendQuestion(ASK: WideString): Boolean;
+    procedure Cancel;
     function TipoModelo: WideString;
     function ProviderName: WideString;
     function VersaoBiblioteca: WideString;
@@ -548,6 +551,12 @@ begin
   end;
 
   ClienteHTTP := TFPHttpClient.Create(nil);
+  EnterCriticalSection(FHTTPGuard);
+  try
+    FActiveHTTP := ClienteHTTP;
+  finally
+    LeaveCriticalSection(FHTTPGuard);
+  end;
   BodyStream := TStringStream.Create(payload);
   try
     AddProviderHeaders(ClienteHTTP);
@@ -576,8 +585,24 @@ begin
           [StringReplace(E.Message, '"', '\"', [rfReplaceAll])]));
     end;
   finally
+    EnterCriticalSection(FHTTPGuard);
+    try
+      if FActiveHTTP = ClienteHTTP then FActiveHTTP := nil;
+    finally
+      LeaveCriticalSection(FHTTPGuard);
+    end;
     BodyStream.Free;
     ClienteHTTP.Free;
+  end;
+end;
+
+procedure TCHATGPT.Cancel;
+begin
+  EnterCriticalSection(FHTTPGuard);
+  try
+    if FActiveHTTP <> nil then FActiveHTTP.Terminate;
+  finally
+    LeaveCriticalSection(FHTTPGuard);
   end;
 end;
 
@@ -701,6 +726,8 @@ end;
 constructor TCHATGPT.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  InitCriticalSection(FHTTPGuard);
+  FActiveHTTP := nil;
   FProvider := AIP_OPENAI;
   FTipoChat := VCT_GPT4o;
 
@@ -720,6 +747,8 @@ end;
 
 destructor TCHATGPT.Destroy;
 begin
+  Cancel;
+  DoneCriticalSection(FHTTPGuard);
   FParams.Free;
   inherited;
 end;

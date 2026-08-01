@@ -17,11 +17,6 @@
     <License Value="OPEN SOURCE GPL3"/>
     <Files>
       <Item>
-        <Filename Value="..\AI Graph\aidependencygraph.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="aidependencygraph"/>
-      </Item>
-      <Item>
         <Filename Value="..\AI Graph\aigraphmap.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aigraphmap"/>
@@ -86,6 +81,9 @@
       </Item>
     </Files>
     <RequiredPkgs>
+      <Item>
+        <PackageName Value="openai_graphcore"/>
+      </Item>
       <Item>
         <PackageName Value="openai_core"/>
       </Item>

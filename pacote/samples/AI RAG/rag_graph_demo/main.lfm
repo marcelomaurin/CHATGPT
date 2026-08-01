@@ -1,0 +1,203 @@
+object frmRAGGraphDemo: TfrmRAGGraphDemo
+  Left = 300
+  Height = 650
+  Top = 150
+  Width = 900
+  Caption = 'Demonstração de AI RAG (Retrieval Augmented Generation)'
+  ClientHeight = 650
+  ClientWidth = 900
+  OnCreate = FormCreate
+  LCLVersion = '3.4.0.0'
+  object pnlTop: TPanel
+    Left = 0
+    Height = 60
+    Top = 0
+    Width = 900
+    Align = alTop
+    ClientHeight = 60
+    ClientWidth = 900
+    TabOrder = 0
+    object lblPergunta: TLabel
+      Left = 16
+      Height = 15
+      Top = 22
+      Width = 51
+      Caption = 'Pergunta:'
+      ParentColor = False
+    end
+    object edtPergunta: TEdit
+      Left = 75
+      Height = 23
+      Top = 18
+      Width = 540
+      TabOrder = 0
+    end
+    object btnPerguntar: TButton
+      Left = 625
+      Height = 25
+      Top = 17
+      Width = 100
+      Caption = 'Perguntar'
+      OnClick = btnPerguntarClick
+      TabOrder = 1
+    end
+    object btnClear: TButton
+      Left = 735
+      Height = 25
+      Top = 17
+      Width = 80
+      Caption = 'Limpar'
+      OnClick = btnClearClick
+      TabOrder = 2
+    end
+  end
+  object pnlLeft: TPanel
+    Left = 0
+    Height = 590
+    Top = 60
+    Width = 350
+    Align = alLeft
+    ClientHeight = 590
+    ClientWidth = 350
+    TabOrder = 1
+    object lblDocumentos: TLabel
+      Left = 10
+      Height = 15
+      Top = 10
+      Width = 120
+      Caption = 'Documento de Treino:'
+      ParentColor = False
+    end
+    object memDocumento: TMemo
+      Left = 10
+      Height = 510
+      Top = 30
+      Width = 330
+      Anchors = [akTop, akLeft, akRight, akBottom]
+      ScrollBars = ssAutoBoth
+      TabOrder = 0
+    end
+    object btnIndexar: TButton
+      Left = 10
+      Height = 30
+      Top = 550
+      Width = 330
+      Anchors = [akLeft, akRight, akBottom]
+      Caption = 'Indexar Documento (BuildIndex)'
+      OnClick = btnIndexarClick
+      TabOrder = 1
+    end
+  end
+  object pcResults: TPageControl
+    Left = 350
+    Height = 590
+    Top = 60
+    Width = 550
+    ActivePage = tsResposta
+    Align = alClient
+    TabIndex = 0
+    TabOrder = 2
+    object tsResposta: TTabSheet
+      Caption = 'Resposta'
+      ClientHeight = 562
+      ClientWidth = 542
+      object memResposta: TMemo
+        Left = 0
+        Height = 562
+        Top = 0
+        Width = 542
+        Align = alClient
+        ReadOnly = True
+        ScrollBars = ssAutoBoth
+        TabOrder = 0
+      end
+    end
+    object tsContexto: TTabSheet
+      Caption = 'Contexto Recuperado'
+      ClientHeight = 562
+      ClientWidth = 542
+      object memContexto: TMemo
+        Left = 0
+        Height = 562
+        Top = 0
+        Width = 542
+        Align = alClient
+        ReadOnly = True
+        ScrollBars = ssAutoBoth
+        TabOrder = 0
+      end
+    end
+    object tsFontes: TTabSheet
+      Caption = 'Fontes Utilizadas'
+      ClientHeight = 562
+      ClientWidth = 542
+      object memFontes: TMemo
+        Left = 0
+        Height = 562
+        Top = 0
+        Width = 542
+        Align = alClient
+        ReadOnly = True
+        ScrollBars = ssAutoBoth
+        TabOrder = 0
+      end
+    end
+    object tsLogs: TTabSheet
+      Caption = 'Logs RAG'
+      ClientHeight = 562
+      ClientWidth = 542
+      object memLogs: TMemo
+        Left = 0
+        Height = 562
+        Top = 0
+        Width = 542
+        Align = alClient
+        ReadOnly = True
+        ScrollBars = ssAutoBoth
+        TabOrder = 0
+      end
+    end
+  end
+  object CHATGPT1: TCHATGPT
+    Prompt = 'Você é um assistente.'
+    Dev = 'Você é um assistente.'
+    TipoChat = VCT_GPT4o
+    Provider = AIP_OPENAI
+    LocalIP = 'http://localhost:11434'
+    MaxTokens = 4096
+    Left = 400
+    Top = 150
+  end
+  object AIGraphMapRAG: TAIGraphMap
+    Prompt = 'Factual Graph Classifier'
+    Category = ccOther
+    AutoClearBeforeTrain = True
+    UseTokenCategoryEdges = True
+    UseTokenSequenceEdges = False
+    UseGraphDepthSearch = False
+    MaxDepth = 0
+    NormalizeScores = True
+    RemoveAccents = True
+    RemoveStopWords = True
+    UniqueTokensPerText = True
+    Left = 480
+    Top = 150
+  end
+  object AIRAG1: TAIRAG
+    Prompt = 'RAG Component'
+    Category = ccOther
+    ChatGPT = CHATGPT1
+    GraphMap = AIGraphMapRAG
+    ChunkSize = 1200
+    ChunkOverlap = 150
+    TopK = 4
+    MinimumScore = 0
+    MaximumContextLength = 12000
+    Instructions = 'Você é um assistente especializado nos documentos fornecidos.'
+    NoAnswerText = 'Não encontrei essa informação na base de conhecimento.'
+    SourcePrefix = 'rag:'
+    OnRAGLog = AIRAG1RAGLog
+    Left = 560
+    Top = 150
+  end
+end

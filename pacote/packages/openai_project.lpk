@@ -9,7 +9,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\AI Agent;..\AI Project;.."/>
+        <OtherUnitFiles Value="..\AI Project;.."/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
@@ -118,6 +118,9 @@
       </Item>
     </Files>
     <RequiredPkgs>
+      <Item>
+        <PackageName Value="openai_project_core"/>
+      </Item>
       <Item>
         <PackageName Value="openai_agent"/>
       </Item>

@@ -321,6 +321,8 @@ end;
 
 procedure TAIDiskScanThread.SyncFinish;
 begin
+  FScanner.FLastError := FErrorMsg;
+  FScanner.SetBusy(False);
   if Assigned(FScanner.FOnTaskFinish) then
     FScanner.FOnTaskFinish(FScanner, FTaskId, FTaskState, FProcessedDirs, FProcessedFiles, FFoundItemsCount, FErrorMsg);
 end;
