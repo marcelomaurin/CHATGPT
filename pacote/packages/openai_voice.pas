@@ -8,13 +8,14 @@ unit openai_voice;
 interface
 
 uses
-  aivoicesynthesizer, soundfilters, LazarusPackageIntf;
+  aivoicesynthesizer, aivoicerecognizer, soundfilters, LazarusPackageIntf;
 
 implementation
 
 procedure Register;
 begin
   RegisterUnit('aivoicesynthesizer', @aivoicesynthesizer.Register);
+  RegisterUnit('aivoicerecognizer', @aivoicerecognizer.Register);
   RegisterUnit('soundfilters', @soundfilters.Register);
 end;
 
