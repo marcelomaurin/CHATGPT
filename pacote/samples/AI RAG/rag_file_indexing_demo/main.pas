@@ -114,7 +114,7 @@ begin
   FGraphMap.UseTokenCategoryEdges := True;
   FGraphMap.UseTokenSequenceEdges := False;
   FGraphMap.NormalizeScores := True;
-  FGraphMap.RemoveAccents := True;
+  FGraphMap.RemoveAccents := False; // Preserva UTF-8
   FGraphMap.RemoveStopWords := True;
 
   FAIRAG := TAIRAG.Create(Self);
@@ -141,6 +141,7 @@ begin
   Result := 0;
   if not DirectoryExists(APasta) then
   begin
+    memLogs.Lines.Add('[ERRO GUI] Diretório de documentos não encontrado: ' + APasta);
     ShowMessage('Diretório não encontrado: ' + APasta);
     Exit(0);
   end;
@@ -173,9 +174,13 @@ begin
 
   memDocsInfo.Lines.Add('========================================');
   memDocsInfo.Lines.Add(Format('Total de Arquivos Processados: %d', [TotalFiles]));
-  memDocsInfo.Lines.Add(Format('Total de Chunks em Memória: %d', [FGraphMap.Training.Count]));
+  memDocsInfo.Lines.Add(Format('Total de Chunks no Treinamento do Grafo: %d', [FGraphMap.Training.Count]));
 
-  memLogs.Lines.Add(Format('Varredura concluída em %s: %d arquivos (%d chunks).', [APasta, TotalFiles, FGraphMap.Training.Count]));
+  if TotalFiles = 0 then
+    memLogs.Lines.Add('[AVISO GUI] Nenhum arquivo correspondente às extensões foi encontrado em ' + APasta)
+  else
+    memLogs.Lines.Add(Format('Varredura concluída em %s: %d arquivos (%d chunks no grafo).', [APasta, TotalFiles, FGraphMap.Training.Count]));
+
   Result := TotalFiles;
 end;
 
@@ -194,10 +199,13 @@ var
   FilesCount: Integer;
 begin
   FilesCount := CarregarDocumentosDaPasta(edtDocsPath.Text);
-  if (FilesCount > 0) or (FGraphMap.Training.Count > 0) then
+  if FilesCount > 0 then
     btnIndexarClick(Sender)
   else
-    ShowMessage('Nenhum arquivo correspondente aos filtros foi encontrado na pasta ' + edtDocsPath.Text);
+  begin
+    memLogs.Lines.Add('[ERRO VARREDURA] Nenhum arquivo válido foi encontrado na pasta ' + edtDocsPath.Text);
+    ShowMessage('Nenhum arquivo correspondente às extensões (' + edtExtensions.Text + ') foi encontrado na pasta.');
+  end;
 end;
 
 procedure TfrmRAGFileIndexingDemo.btnAdicionarArquivoClick(Sender: TObject);
@@ -220,7 +228,8 @@ procedure TfrmRAGFileIndexingDemo.btnIndexarClick(Sender: TObject);
 begin
   if FGraphMap.Training.Count = 0 then
   begin
-    ShowMessage('Nenhum arquivo ou texto foi adicionado para indexação.');
+    memLogs.Lines.Add('[ERRO GUI] Tentativa de indexação com 0 chunks no treinamento.');
+    ShowMessage('Nenhum documento ou texto foi adicionado. Varra uma pasta ou adicione um arquivo primeiro.');
     Exit;
   end;
 
@@ -232,7 +241,7 @@ begin
   end
   else
   begin
-    memLogs.Lines.Add('Erro ao gerar índice: ' + FAIRAG.LastError);
+    memLogs.Lines.Add('[ERRO GUILOG] Erro ao gerar índice RAG: ' + FAIRAG.LastError);
     ShowMessage('Erro: ' + FAIRAG.LastError);
   end;
 end;
@@ -253,7 +262,10 @@ begin
       ShowMessage('Índice RAG salvo em disco!');
     end
     else
+    begin
+      memLogs.Lines.Add('[ERRO GUI] Erro ao salvar índice: ' + FAIRAG.LastError);
       ShowMessage('Erro ao salvar índice: ' + FAIRAG.LastError);
+    end;
   end;
 end;
 
@@ -273,7 +285,10 @@ begin
       ShowMessage('Índice RAG carregado com sucesso!');
     end
     else
+    begin
+      memLogs.Lines.Add('[ERRO GUI] Erro ao carregar índice: ' + FAIRAG.LastError);
       ShowMessage('Erro ao carregar índice: ' + FAIRAG.LastError);
+    end;
   end;
 end;
 
@@ -285,6 +300,13 @@ begin
     Exit;
   end;
 
+  if FGraphMap.Training.Count = 0 then
+  begin
+    memLogs.Lines.Add('[ERRO CONSULTA] Tentativa de pergunta sem documentos indexados.');
+    ShowMessage('Nenhum documento foi adicionado para busca RAG. Adicione arquivos ou varra uma pasta primeiro.');
+    Exit;
+  end;
+
   memLogs.Lines.Add('Consultando RAG...');
   if FAIRAG.Ask(edtPergunta.Text) then
   begin
@@ -292,11 +314,12 @@ begin
     memContexto.Text := FAIRAG.LastContext;
     memFontes.Lines.Assign(FAIRAG.LastSources);
     pcResults.ActivePage := tsResposta;
-    memLogs.Lines.Add('Resposta obtida com sucesso.');
+    memLogs.Lines.Add('Consulta concluída.');
   end
   else
   begin
     memResposta.Text := 'ERRO: ' + FAIRAG.LastError;
+    memLogs.Lines.Add('[ERRO CONSULTA] ' + FAIRAG.LastError);
     ShowMessage('Erro RAG: ' + FAIRAG.LastError);
   end;
 end;
@@ -309,6 +332,7 @@ begin
   memContexto.Clear;
   memFontes.Clear;
   memLogs.Clear;
+  memLogs.Lines.Add('Estado do RAG limpo.');
 end;
 
 end.
