@@ -35,6 +35,8 @@ type
     memFontes: TMemo;
     tsConfigIA: TTabSheet;
     pnlConfigIABox: TPanel;
+    lblProvider: TLabel;
+    cmbProvider: TComboBox;
     lblApiKey: TLabel;
     edtApiKey: TEdit;
     lblModel: TLabel;
@@ -77,6 +79,7 @@ type
     procedure btnSelecionarPastaClick(Sender: TObject);
     procedure btnVarrerPastaClick(Sender: TObject);
     procedure btnSalvarConfigIAClick(Sender: TObject);
+    procedure cmbProviderChange(Sender: TObject);
   private
     FChatGPT: TCHATGPT;
     FGraphMap: TAIGraphMap;
@@ -88,6 +91,7 @@ type
     procedure CarregarConfiguracoesAppData;
     procedure SalvarConfiguracoesAppData;
     procedure AplicarConfiguracoesIA;
+    procedure AtualizarModelosDoProvedor;
   public
 
   end;
@@ -111,23 +115,58 @@ begin
   Result := IncludeTrailingPathDelimiter(ConfigDir) + 'rag_config.ini';
 end;
 
+procedure TfrmRAGFileIndexingDemo.AtualizarModelosDoProvedor;
+var
+  SelectedProvider: TAIProvider;
+  CurrentModel: string;
+begin
+  CurrentModel := cmbModel.Text;
+  SelectedProvider := GetAIProviderFromIndex(cmbProvider.ItemIndex);
+
+  cmbModel.Items.Clear;
+  GetAIModelListForProvider(SelectedProvider, cmbModel.Items);
+
+  if cmbModel.Items.Count > 0 then
+  begin
+    if cmbModel.Items.IndexOf(CurrentModel) >= 0 then
+      cmbModel.Text := CurrentModel
+    else
+      cmbModel.ItemIndex := 0;
+  end;
+end;
+
+procedure TfrmRAGFileIndexingDemo.cmbProviderChange(Sender: TObject);
+begin
+  AtualizarModelosDoProvedor;
+end;
+
 procedure TfrmRAGFileIndexingDemo.CarregarConfiguracoesAppData;
 var
   Ini: TIniFile;
-  ConfigFile, DocsDir: string;
+  ConfigFile, DocsDir, ProviderStr: string;
+  ProviderIdx: Integer;
 begin
   ConfigFile := GetConfigFilePath;
   Ini := TIniFile.Create(ConfigFile);
   try
-    // Localiza pasta docs padrão caso a configuração em disco não exista
     DocsDir := ExtractFilePath(ParamStr(0)) + 'docs';
     if not DirectoryExists(DocsDir) then
       DocsDir := ExpandFileName(ExtractFilePath(ParamStr(0)) + '..\..\docs');
     if not DirectoryExists(DocsDir) then
       DocsDir := ExpandFileName('D:\projetos\maurinsoft\CHATGPT\pacote\samples\AI RAG\rag_file_indexing_demo\docs');
 
+    // Carrega Provedores
+    GetAIProviderList(cmbProvider.Items);
+    ProviderIdx := Ini.ReadInteger('IA', 'ProviderIndex', 0);
+    if (ProviderIdx >= 0) and (ProviderIdx < cmbProvider.Items.Count) then
+      cmbProvider.ItemIndex := ProviderIdx
+    else
+      cmbProvider.ItemIndex := 0;
+
+    AtualizarModelosDoProvedor;
+
     edtApiKey.Text := Ini.ReadString('IA', 'ApiKey', GetEnvironmentVariable('OPENAI_API_KEY'));
-    cmbModel.Text := Ini.ReadString('IA', 'Model', 'gpt-4o-mini');
+    cmbModel.Text := Ini.ReadString('IA', 'Model', cmbModel.Text);
     edtChunkSize.Text := Ini.ReadString('RAG', 'ChunkSize', '1200');
     edtChunkOverlap.Text := Ini.ReadString('RAG', 'ChunkOverlap', '150');
     edtTopK.Text := Ini.ReadString('RAG', 'TopK', '4');
@@ -152,6 +191,8 @@ begin
   ConfigFile := GetConfigFilePath;
   Ini := TIniFile.Create(ConfigFile);
   try
+    Ini.WriteInteger('IA', 'ProviderIndex', cmbProvider.ItemIndex);
+    Ini.WriteString('IA', 'ProviderName', cmbProvider.Text);
     Ini.WriteString('IA', 'ApiKey', edtApiKey.Text);
     Ini.WriteString('IA', 'Model', cmbModel.Text);
     Ini.WriteString('RAG', 'ChunkSize', edtChunkSize.Text);
@@ -171,11 +212,17 @@ begin
 end;
 
 procedure TfrmRAGFileIndexingDemo.AplicarConfiguracoesIA;
+var
+  SelProvider: TAIProvider;
 begin
   if Assigned(FChatGPT) then
   begin
+    SelProvider := GetAIProviderFromIndex(cmbProvider.ItemIndex);
+    FChatGPT.Provider := SelProvider;
+
     if Trim(edtApiKey.Text) <> '' then
       FChatGPT.TOKEN := edtApiKey.Text;
+
     if Trim(cmbModel.Text) <> '' then
     begin
       FChatGPT.TipoChat := VCT_CUSTOM;

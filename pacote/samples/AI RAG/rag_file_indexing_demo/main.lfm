@@ -186,26 +186,44 @@ object frmRAGFileIndexingDemo: TfrmRAGFileIndexingDemo
         ClientHeight = 562
         ClientWidth = 572
         TabOrder = 0
-        object lblApiKey: TLabel
+        object lblProvider: TLabel
           Left = 16
           Height = 15
           Top = 18
+          Width = 52
+          Caption = 'Provedor:'
+          ParentColor = False
+        end
+        object cmbProvider: TComboBox
+          Left = 130
+          Height = 23
+          Top = 15
+          Width = 240
+          ItemHeight = 15
+          OnChange = cmbProviderChange
+          Style = csDropDownList
+          TabOrder = 0
+        end
+        object lblApiKey: TLabel
+          Left = 16
+          Height = 15
+          Top = 50
           Width = 92
-          Caption = 'Chave API OpenAI:'
+          Caption = 'Chave API / Token:'
           ParentColor = False
         end
         object edtApiKey: TEdit
           Left = 130
           Height = 23
-          Top = 15
+          Top = 47
           Width = 420
           PasswordChar = '*'
-          TabOrder = 0
+          TabOrder = 1
         end
         object lblModel: TLabel
           Left = 16
           Height = 15
-          Top = 50
+          Top = 82
           Width = 71
           Caption = 'Modelo IA:'
           ParentColor = False
@@ -213,21 +231,15 @@ object frmRAGFileIndexingDemo: TfrmRAGFileIndexingDemo
         object cmbModel: TComboBox
           Left = 130
           Height = 23
-          Top = 47
-          Width = 200
+          Top = 79
+          Width = 240
           ItemHeight = 15
-          Items.Strings = (
-            'gpt-4o-mini'
-            'gpt-4o'
-            'gpt-3.5-turbo'
-          )
-          TabOrder = 1
-          Text = 'gpt-4o-mini'
+          TabOrder = 2
         end
         object lblChunkSize: TLabel
           Left = 16
           Height = 15
-          Top = 85
+          Top = 117
           Width = 96
           Caption = 'Tamanho Chunk:'
           ParentColor = False
@@ -235,15 +247,15 @@ object frmRAGFileIndexingDemo: TfrmRAGFileIndexingDemo
         object edtChunkSize: TEdit
           Left = 130
           Height = 23
-          Top = 82
+          Top = 114
           Width = 100
-          TabOrder = 2
+          TabOrder = 3
           Text = '1200'
         end
         object lblChunkOverlap: TLabel
           Left = 250
           Height = 15
-          Top = 85
+          Top = 117
           Width = 90
           Caption = 'Sobreposição:'
           ParentColor = False
@@ -251,15 +263,15 @@ object frmRAGFileIndexingDemo: TfrmRAGFileIndexingDemo
         object edtChunkOverlap: TEdit
           Left = 350
           Height = 23
-          Top = 82
+          Top = 114
           Width = 100
-          TabOrder = 3
+          TabOrder = 4
           Text = '150'
         end
         object lblTopK: TLabel
           Left = 16
           Height = 15
-          Top = 120
+          Top = 152
           Width = 79
           Caption = 'Top K Trechos:'
           ParentColor = False
@@ -267,15 +279,15 @@ object frmRAGFileIndexingDemo: TfrmRAGFileIndexingDemo
         object edtTopK: TEdit
           Left = 130
           Height = 23
-          Top = 117
+          Top = 149
           Width = 100
-          TabOrder = 4
+          TabOrder = 5
           Text = '4'
         end
         object lblMinScore: TLabel
           Left = 250
           Height = 15
-          Top = 120
+          Top = 152
           Width = 95
           Caption = 'Score Mínimo:'
           ParentColor = False
@@ -283,27 +295,27 @@ object frmRAGFileIndexingDemo: TfrmRAGFileIndexingDemo
         object edtMinScore: TEdit
           Left = 350
           Height = 23
-          Top = 117
+          Top = 149
           Width = 100
-          TabOrder = 5
+          TabOrder = 6
           Text = '0.0'
         end
         object lblInstructions: TLabel
           Left = 16
           Height = 15
-          Top = 155
+          Top = 187
           Width = 150
           Caption = 'Instruções do Sistema (Prompt):'
           ParentColor = False
         end
         object memInstructions: TMemo
           Left = 16
-          Height = 320
-          Top = 175
+          Height = 285
+          Top = 207
           Width = 534
           Anchors = [akTop, akLeft, akRight, akBottom]
           ScrollBars = ssAutoBoth
-          TabOrder = 6
+          TabOrder = 7
         end
         object btnSalvarConfigIA: TButton
           Left = 16
@@ -313,7 +325,7 @@ object frmRAGFileIndexingDemo: TfrmRAGFileIndexingDemo
           Anchors = [akLeft, akRight, akBottom]
           Caption = 'Salvar Configurações da IA em AppData'
           OnClick = btnSalvarConfigIAClick
-          TabOrder = 7
+          TabOrder = 8
         end
       end
     end

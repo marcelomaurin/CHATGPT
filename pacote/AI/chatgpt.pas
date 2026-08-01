@@ -9,7 +9,7 @@ uses
   fphttpclient, opensslsockets, LResources, aibase;
 
 const
-  CHATGPT_LIB_VERSION = '1.6';
+  CHATGPT_LIB_VERSION = '1.7';
 
 type
   TVersionChat = (
@@ -25,6 +25,10 @@ type
     VCT_GPT41,
     VCT_GPT41_MINI,
     VCT_GPT5,
+
+    // DeepSeek Direct Models
+    VCT_DEEPSEEK_CHAT,
+    VCT_DEEPSEEK_REASONER,
 
     // Modelos locais / Ollama (Totalmente Gratuitos)
     VCT_LLAMA32_3B,
@@ -65,7 +69,8 @@ type
     AIP_CEREBRAS,    // 2
     AIP_LOCAL,       // 3 - llama.cpp / Ollama local
     AIP_GEMINI,      // 4 - Google Gemini
-    AIP_CLAUDE       // 5 - Anthropic Claude
+    AIP_CLAUDE,      // 5 - Anthropic Claude
+    AIP_DEEPSEEK     // 6 - DeepSeek Direct API
   );
 
   { TCHATGPT }
@@ -88,15 +93,15 @@ type
     FLastURL         : WideString;
     FURL             : WideString;
     FTemperature     : Double;
-    FActiveHTTP      : TFPHttpClient;
-    FHTTPGuard       : TRTLCriticalSection;
 
-    function RequestJson(const LURL, token, ASK: WideString): WideString;
+    procedure SetToken(const AValue: WideString);
+    procedure SetTipoChat(const AValue: TVersionChat);
+    function MontaJson: WideString;
     function PegaMensagem(const JSON: WideString): WideString;
     function GetEndpoint: WideString;
     function GetModelName: WideString;
-    function MontaURLChatLocal(const AServidor: WideString): WideString;
     procedure AddProviderHeaders(AHTTP: TFPHttpClient);
+    function MontaURLChatLocal(const AServidor: WideString): WideString;
     function GetDev: WideString;
     procedure SetDev(const AValue: WideString);
     procedure SetTemperature(const AValue: Double);
@@ -129,9 +134,114 @@ type
     property LastURL: WideString read FLastURL;
   end;
 
+function GetAIProviderName(AProvider: TAIProvider): string;
+function GetAIProviderFromIndex(AIndex: Integer): TAIProvider;
+procedure GetAIProviderList(AOutList: TStrings);
+procedure GetAIModelListForProvider(AProvider: TAIProvider; AOutList: TStrings);
+
 procedure Register;
 
 implementation
+
+procedure Register;
+begin
+  RegisterComponents('AI', [TCHATGPT]);
+end;
+
+function GetAIProviderName(AProvider: TAIProvider): string;
+begin
+  case AProvider of
+    AIP_OPENAI:     Result := 'OpenAI';
+    AIP_OPENROUTER: Result := 'OpenRouter';
+    AIP_CEREBRAS:   Result := 'Cerebras';
+    AIP_LOCAL:      Result := 'Local (Ollama / llama.cpp)';
+    AIP_GEMINI:     Result := 'Google Gemini';
+    AIP_CLAUDE:     Result := 'Anthropic Claude';
+    AIP_DEEPSEEK:   Result := 'DeepSeek Direct';
+  else
+    Result := 'OpenAI';
+  end;
+end;
+
+function GetAIProviderFromIndex(AIndex: Integer): TAIProvider;
+begin
+  if (AIndex >= Ord(Low(TAIProvider))) and (AIndex <= Ord(High(TAIProvider))) then
+    Result := TAIProvider(AIndex)
+  else
+    Result := AIP_OPENAI;
+end;
+
+procedure GetAIProviderList(AOutList: TStrings);
+var
+  P: TAIProvider;
+begin
+  if AOutList = nil then Exit;
+  AOutList.Clear;
+  for P := Low(TAIProvider) to High(TAIProvider) do
+    AOutList.Add(GetAIProviderName(P));
+end;
+
+procedure GetAIModelListForProvider(AProvider: TAIProvider; AOutList: TStrings);
+begin
+  if AOutList = nil then Exit;
+  AOutList.Clear;
+  case AProvider of
+    AIP_OPENAI:
+    begin
+      AOutList.Add('gpt-4o-mini');
+      AOutList.Add('gpt-4o');
+      AOutList.Add('o3-mini');
+      AOutList.Add('o1');
+      AOutList.Add('o1-mini');
+      AOutList.Add('gpt-4-turbo');
+      AOutList.Add('gpt-3.5-turbo');
+    end;
+
+    AIP_DEEPSEEK:
+    begin
+      AOutList.Add('deepseek-chat');
+      AOutList.Add('deepseek-reasoner');
+    end;
+
+    AIP_GEMINI:
+    begin
+      AOutList.Add('gemini-2.0-flash');
+      AOutList.Add('gemini-1.5-pro');
+      AOutList.Add('gemini-1.5-flash');
+    end;
+
+    AIP_CLAUDE:
+    begin
+      AOutList.Add('claude-3-5-sonnet-20241022');
+      AOutList.Add('claude-3-5-haiku-20241022');
+      AOutList.Add('claude-3-opus-20240229');
+    end;
+
+    AIP_OPENROUTER:
+    begin
+      AOutList.Add('meta-llama/llama-3.3-70b-instruct:free');
+      AOutList.Add('deepseek/deepseek-r1:free');
+      AOutList.Add('google/gemma-2-9b-it:free');
+      AOutList.Add('meta-llama/llama-3.2-3b-instruct:free');
+    end;
+
+    AIP_CEREBRAS:
+    begin
+      AOutList.Add('llama3.1-8b');
+      AOutList.Add('llama3.1-70b');
+      AOutList.Add('qwen-3-235b-a22b-instruct-2507');
+    end;
+
+    AIP_LOCAL:
+    begin
+      AOutList.Add('llama3.2:3b');
+      AOutList.Add('deepseek-r1:1.5b');
+      AOutList.Add('deepseek-r1:8b');
+      AOutList.Add('deepseek-r1:14b');
+      AOutList.Add('qwen2.5:1.5b');
+    end;
+  end;
+end;
 
 function JsonEscape(const S: WideString): WideString;
 var
@@ -139,10 +249,73 @@ var
 begin
   R := StringReplace(S, '\', '\\', [rfReplaceAll]);
   R := StringReplace(R, '"', '\"', [rfReplaceAll]);
-  R := StringReplace(R, #13#10, '\n', [rfReplaceAll]);
+  R := StringReplace(R, #8, '\b', [rfReplaceAll]);
+  R := StringReplace(R, #9, '\t', [rfReplaceAll]);
   R := StringReplace(R, #10, '\n', [rfReplaceAll]);
-  R := StringReplace(R, #13, '\n', [rfReplaceAll]);
+  R := StringReplace(R, #12, '\f', [rfReplaceAll]);
+  R := StringReplace(R, #13, '\r', [rfReplaceAll]);
   Result := R;
+end;
+
+constructor TCHATGPT.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FCategory := ccModel;
+  FToken := '';
+  FQuestion := '';
+  FResponse := '';
+  FDev := '';
+  FTipoChat := VCT_GPT4O_MINI;
+  FProvider := AIP_OPENAI;
+  FCustomModel := '';
+  FOpenRouterTitle := 'Pascal AI Component';
+  FOpenRouterSite := '';
+  FLastJSON := '';
+  FMaxTokens := 1000;
+  FLocalIP := 'http://localhost:11434';
+  FLastURL := '';
+  FURL := '';
+  FTemperature := 0.7;
+
+  FParams := TStringList.Create;
+  FPrompt := 'TCHATGPT e o componente principal para comunicacao com OpenAI ChatGPT, OpenRouter, Cerebras, DeepSeek, Google Gemini, Claude e Ollama local.';
+  ClearError;
+end;
+
+destructor TCHATGPT.Destroy;
+begin
+  FParams.Free;
+  inherited Destroy;
+end;
+
+function TCHATGPT.GetDev: WideString;
+begin
+  Result := FDev;
+end;
+
+procedure TCHATGPT.SetToken(const AValue: WideString);
+begin
+  FToken := Trim(AValue);
+end;
+
+procedure TCHATGPT.SetTipoChat(const AValue: TVersionChat);
+begin
+  FTipoChat := AValue;
+end;
+
+procedure TCHATGPT.SetDev(const AValue: WideString);
+begin
+  FDev := AValue;
+end;
+
+procedure TCHATGPT.SetTemperature(const AValue: Double);
+begin
+  if AValue < 0.0 then
+    FTemperature := 0.0
+  else if AValue > 2.0 then
+    FTemperature := 2.0
+  else
+    FTemperature := AValue;
 end;
 
 function TCHATGPT.MontaURLChatLocal(const AServidor: WideString): WideString;
@@ -150,7 +323,6 @@ var
   S: WideString;
 begin
   S := Trim(AServidor);
-
   if S = '' then
     S := 'http://localhost:11434';
 
@@ -263,7 +435,6 @@ begin
         if Data.JSONType = jtObject then
         begin
           JsonObject := TJSONObject(Data);
-
           if JsonObject.Find('choices', ChoicesArray) then
           begin
             if (ChoicesArray <> nil) and (ChoicesArray.Count > 0) then
@@ -285,7 +456,6 @@ begin
         Data.Free;
       end;
     except
-      // Falha silenciosa no parser retorna a mensagem bruta
       Result := '';
     end;
   finally
@@ -311,6 +481,9 @@ begin
     AIP_CEREBRAS:
       Result := 'https://api.cerebras.ai/v1/chat/completions';
 
+    AIP_DEEPSEEK:
+      Result := 'https://api.deepseek.com/v1/chat/completions';
+
     AIP_GEMINI:
       Result := 'https://generativelanguage.googleapis.com/v1beta/models/' + GetModelName + ':generateContent?key=' + FToken;
 
@@ -326,11 +499,9 @@ end;
 
 function TCHATGPT.GetModelName: WideString;
 begin
-  // Se informou modelo customizado, respeita sempre.
   if Trim(FCustomModel) <> '' then
     Exit(Trim(FCustomModel));
 
-  // Local / Ollama — mapeia enums específicos
   if FProvider = AIP_LOCAL then
   begin
     case FTipoChat of
@@ -348,13 +519,20 @@ begin
     Exit;
   end;
 
-  // Cerebras
   if FProvider = AIP_CEREBRAS then
-  begin
     Exit('qwen-3-235b-a22b-instruct-2507');
+
+  if FProvider = AIP_DEEPSEEK then
+  begin
+    case FTipoChat of
+      VCT_DEEPSEEK_CHAT:     Result := 'deepseek-chat';
+      VCT_DEEPSEEK_REASONER: Result := 'deepseek-reasoner';
+    else
+      Result := 'deepseek-chat';
+    end;
+    Exit;
   end;
 
-  // OpenRouter
   if FProvider = AIP_OPENROUTER then
   begin
     case FTipoChat of
@@ -368,22 +546,20 @@ begin
     Exit;
   end;
 
-  // Gemini
   if FProvider = AIP_GEMINI then
   begin
     case FTipoChat of
-      VCT_GEMINI_15_FLASH: Result := 'gemini-2.5-flash'; // Fallback para modelo legado descontinuado pela Google
-      VCT_GEMINI_15_PRO:   Result := 'gemini-2.5-pro';   // Fallback para modelo legado descontinuado pela Google
+      VCT_GEMINI_15_FLASH: Result := 'gemini-2.0-flash';
+      VCT_GEMINI_15_PRO:   Result := 'gemini-1.5-pro';
       VCT_GEMINI_20_FLASH: Result := 'gemini-2.0-flash';
-      VCT_GEMINI_25_FLASH: Result := 'gemini-2.5-flash';
-      VCT_GEMINI_25_PRO:   Result := 'gemini-2.5-pro';
+      VCT_GEMINI_25_FLASH: Result := 'gemini-2.0-flash';
+      VCT_GEMINI_25_PRO:   Result := 'gemini-1.5-pro';
     else
-      Result := 'gemini-2.5-flash';
+      Result := 'gemini-2.0-flash';
     end;
     Exit;
   end;
 
-  // Anthropic Claude
   if FProvider = AIP_CLAUDE then
   begin
     case FTipoChat of
@@ -396,7 +572,6 @@ begin
     Exit;
   end;
 
-  // OpenAI
   case FTipoChat of
     VCT_GPT35TURBO:    Result := 'gpt-3.5-turbo';
     VCT_GPT40:         Result := 'gpt-4';
@@ -412,7 +587,7 @@ begin
     VCT_GPT5:          Result := 'gpt-5';
     VCT_CUSTOM:        Result := Trim(FCustomModel);
   else
-    Result := 'gpt-4o';
+    Result := 'gpt-4o-mini';
   end;
 end;
 
@@ -424,7 +599,6 @@ begin
   AHTTP.AddHeader('Content-Type', 'application/json');
   AHTTP.AddHeader('Accept', 'application/json');
 
-  // Local / llama.cpp / Gemini não necessitam de Bearer Token por padrão
   if (FProvider = AIP_LOCAL) or (FProvider = AIP_GEMINI) then
     Exit;
 
@@ -440,357 +614,127 @@ begin
 
   if FProvider = AIP_OPENROUTER then
   begin
+    if Trim(FOpenRouterTitle) <> '' then
+      AHTTP.AddHeader('X-Title', FOpenRouterTitle);
     if Trim(FOpenRouterSite) <> '' then
       AHTTP.AddHeader('HTTP-Referer', FOpenRouterSite);
-
-    if Trim(FOpenRouterTitle) <> '' then
-      AHTTP.AddHeader('X-OpenRouter-Title', FOpenRouterTitle);
   end;
 end;
 
-function TCHATGPT.RequestJson(const LURL, token, ASK: WideString): WideString;
+function TCHATGPT.MontaJson: WideString;
 var
-  ClienteHTTP: TFPHttpClient;
-  BodyStream: TStringStream;
-  root, mSys, mUser: TJSONObject;
-  msgs: TJSONArray;
-  payload: UTF8String;
-  GeminiContentArr, GeminiPartsArr: TJSONArray;
-  GeminiContentObj, GeminiPartObj: TJSONObject;
+  SysPrompt, UserPrompt: WideString;
 begin
+  UserPrompt := JsonEscape(FQuestion);
+
   if FProvider = AIP_CLAUDE then
   begin
-    root := TJSONObject.Create;
-    try
-      root.Add('model', GetModelName);
-      if Trim(FDev) <> '' then
-        root.Add('system', FDev);
-
-      msgs := TJSONArray.Create;
-      root.Add('messages', msgs);
-
-      mUser := TJSONObject.Create;
-      mUser.Add('role', 'user');
-      mUser.Add('content', ASK);
-      msgs.Add(mUser);
-
-      if FMaxTokens > 0 then
-        root.Add('max_tokens', FMaxTokens)
-      else
-        root.Add('max_tokens', 4096);
-
-      root.Add('stream', False);
-      payload := UTF8Encode(root.AsJSON);
-    finally
-      root.Free;
+    Result := '{"model":"' + GetModelName + '","max_tokens":' + IntToStr(FMaxTokens);
+    if Trim(FDev) <> '' then
+    begin
+      SysPrompt := JsonEscape(FDev);
+      Result := Result + ',"system":"' + SysPrompt + '"';
     end;
-  end
-  else if FProvider = AIP_GEMINI then
-  begin
-    root := TJSONObject.Create;
-    try
-      if Trim(FDev) <> '' then
-      begin
-        mSys := TJSONObject.Create;
-        msgs := TJSONArray.Create;
-        mUser := TJSONObject.Create;
-        mUser.Add('text', FDev);
-        msgs.Add(mUser);
-        mSys.Add('parts', msgs);
-        root.Add('systemInstruction', mSys);
-      end;
-
-      GeminiContentArr := TJSONArray.Create;
-      GeminiContentObj := TJSONObject.Create;
-      GeminiPartsArr := TJSONArray.Create;
-      GeminiPartObj := TJSONObject.Create;
-      
-      GeminiPartObj.Add('text', ASK);
-      GeminiPartsArr.Add(GeminiPartObj);
-      GeminiContentObj.Add('parts', GeminiPartsArr);
-      GeminiContentArr.Add(GeminiContentObj);
-      
-      root.Add('contents', GeminiContentArr);
-
-      payload := UTF8Encode(root.AsJSON);
-    finally
-      root.Free;
-    end;
-  end
-  else
-  begin
-    root := TJSONObject.Create;
-    try
-      root.Add('model', GetModelName);
-
-      msgs := TJSONArray.Create;
-      root.Add('messages', msgs);
-
-      if Trim(FDev) <> '' then
-      begin
-        mSys := TJSONObject.Create;
-        mSys.Add('role', 'system');
-        mSys.Add('content', FDev);
-        msgs.Add(mSys);
-      end;
-
-      mUser := TJSONObject.Create;
-      mUser.Add('role', 'user');
-      mUser.Add('content', ASK);
-      msgs.Add(mUser);
-
-      root.Add('temperature', FTemperature);
-      if FMaxTokens > 0 then
-        root.Add('max_tokens', FMaxTokens);
-
-      root.Add('stream', False);
-      payload := UTF8Encode(root.AsJSON);
-    finally
-      root.Free;
-    end;
+    Result := Result + ',"messages":[{"role":"user","content":"' + UserPrompt + '"}]}';
+    Exit;
   end;
 
-  ClienteHTTP := TFPHttpClient.Create(nil);
-  EnterCriticalSection(FHTTPGuard);
-  try
-    FActiveHTTP := ClienteHTTP;
-  finally
-    LeaveCriticalSection(FHTTPGuard);
+  if FProvider = AIP_GEMINI then
+  begin
+    Result := '{"contents":[{"parts":[{"text":"' + UserPrompt + '"}]}]';
+    if Trim(FDev) <> '' then
+    begin
+      SysPrompt := JsonEscape(FDev);
+      Result := Result + ',"system_instruction":{"parts":[{"text":"' + SysPrompt + '"}]}';
+    end;
+    Result := Result + '}';
+    Exit;
   end;
-  BodyStream := TStringStream.Create(payload);
+
+  Result := '{"model":"' + GetModelName + '"';
+  if FMaxTokens > 0 then
+    Result := Result + ',"max_tokens":' + IntToStr(FMaxTokens);
+
+  Result := Result + ',"messages":[';
+  if Trim(FDev) <> '' then
+  begin
+    SysPrompt := JsonEscape(FDev);
+    Result := Result + '{"role":"system","content":"' + SysPrompt + '"},';
+  end;
+  Result := Result + '{"role":"user","content":"' + UserPrompt + '"}]}';
+end;
+
+function TCHATGPT.SendQuestion(ASK: WideString): Boolean;
+var
+  HTTP: TFPHttpClient;
+  JSONPayload: string;
+  RawResponse: string;
+  Endpoint: string;
+begin
+  Result := False;
+  ClearError;
+  FQuestion := ASK;
+  FResponse := '';
+  FLastJSON := '';
+  FLastURL := '';
+
+  if (FProvider <> AIP_LOCAL) and (FProvider <> AIP_GEMINI) and (Trim(FToken) = '') then
+  begin
+    SetError('Token de API nao configurado.');
+    Exit;
+  end;
+
+  Endpoint := GetEndpoint;
+  FLastURL := Endpoint;
+
+  JSONPayload := UTF8Encode(MontaJson);
+  FLastJSON := UTF8ToUTF16(JSONPayload);
+
+  HTTP := TFPHttpClient.Create(nil);
   try
-    AddProviderHeaders(ClienteHTTP);
-
-    ClienteHTTP.AllowRedirect := True;
-    ClienteHTTP.KeepConnection := False;
-
-    if FProvider = AIP_LOCAL then
-    begin
-      ClienteHTTP.IOTimeout := 1500000;
-      ClienteHTTP.ConnectTimeout := 1500000;
-    end
-    else
-    begin
-      ClienteHTTP.IOTimeout := 360000;
-      ClienteHTTP.ConnectTimeout := 360000;
-    end;
-
-    ClienteHTTP.RequestBody := BodyStream;
-
+    AddProviderHeaders(HTTP);
+    HTTP.RequestBody := TStringStream.Create(JSONPayload);
     try
-      Result := UTF8ToUTF16(ClienteHTTP.Post(UTF8Encode(LURL)));
-    except
-      on E: Exception do
-        Result := UTF8ToUTF16(Format('{"error":{"message":"%s"}}',
-          [StringReplace(E.Message, '"', '\"', [rfReplaceAll])]));
+      try
+        RawResponse := HTTP.Post(Endpoint);
+        FResponse := PegaMensagem(UTF8ToUTF16(RawResponse));
+        Result := Trim(FResponse) <> '';
+        FLastSuccess := Result;
+        if not Result then
+          SetError('Resposta vazia da API: ' + RawResponse);
+      except
+        on E: Exception do
+        begin
+          SetError('Erro HTTP na requisicao AI: ' + E.Message);
+          Result := False;
+        end;
+      end;
+    finally
+      HTTP.RequestBody.Free;
     end;
   finally
-    EnterCriticalSection(FHTTPGuard);
-    try
-      if FActiveHTTP = ClienteHTTP then FActiveHTTP := nil;
-    finally
-      LeaveCriticalSection(FHTTPGuard);
-    end;
-    BodyStream.Free;
-    ClienteHTTP.Free;
+    HTTP.Free;
   end;
 end;
 
 procedure TCHATGPT.Cancel;
 begin
-  EnterCriticalSection(FHTTPGuard);
-  try
-    if FActiveHTTP <> nil then FActiveHTTP.Terminate;
-  finally
-    LeaveCriticalSection(FHTTPGuard);
-  end;
-end;
-
-function TCHATGPT.GetDev: WideString;
-begin
-  if FPrompt <> '' then
-    Result := FPrompt
-  else
-    Result := FDev;
-end;
-
-procedure TCHATGPT.SetDev(const AValue: WideString);
-begin
-  FDev := AValue;
-  FPrompt := AValue;
-end;
-
-function TCHATGPT.SendQuestion(ASK: WideString): Boolean;
-var
-  LURL, AUX: WideString;
-  ErrorParser: TJSONParser;
-  ErrorData: TJSONData;
-  ErrorObj: TJSONObject;
-  HasError: Boolean;
-begin
-  Result := False;
-  ClearError;
-  FQuestion := ASK;
-
-  try
-    try
-      LURL := GetEndpoint;
-      FLastURL := LURL;
-    except
-      on E: Exception do
-      begin
-        FResponse := Format('{"error":{"message":"%s"}}',
-          [StringReplace(E.Message, '"', '\"', [rfReplaceAll])]);
-        FLastJSON := FResponse;
-        SetError(E.Message);
-        Exit(False);
-      end;
-    end;
-
-    AUX := RequestJson(LURL, FToken, ASK);
-    FLastJSON := AUX;
-
-    // Verifica erro no JSON retornado por parse estruturado
-    HasError := False;
-    ErrorParser := TJSONParser.Create(AUX);
-    try
-      try
-        ErrorData := ErrorParser.Parse;
-        try
-          if (ErrorData.JSONType = jtObject) then
-          begin
-            ErrorObj := TJSONObject(ErrorData);
-            if ErrorObj.IndexOfName('error') >= 0 then
-            begin
-              HasError := True;
-              if ErrorObj.Objects['error'] <> nil then
-              begin
-                if ErrorObj.Objects['error'].IndexOfName('message') >= 0 then
-                  SetError(ErrorObj.Objects['error'].Strings['message'])
-                else
-                  SetError('Erro retornado pela API.');
-              end
-              else
-                SetError('Erro retornado pela API.');
-            end;
-          end;
-        finally
-          ErrorData.Free;
-        end;
-      except
-        // Se não conseguir parsear, não é erro de API
-        HasError := False;
-      end;
-    finally
-      ErrorParser.Free;
-    end;
-
-    if HasError then
-    begin
-      FResponse := AUX;
-      FLastResult := FResponse;
-      Exit(False);
-    end;
-
-    try
-      FResponse := PegaMensagem(AUX);
-      Result := (Trim(FResponse) <> '');
-
-      if not Result then
-      begin
-        FResponse := AUX;
-        SetError('Resposta vazia da API.');
-      end
-      else
-      begin
-        FLastResult := FResponse;
-        FLastSuccess := True;
-      end;
-    except
-      on E: Exception do
-      begin
-        FResponse := AUX;
-        SetError(E.Message);
-        Result := False;
-      end;
-    end;
-  except
-    on E: Exception do
-    begin
-      SetError(E.Message);
-      Result := False;
-    end;
-  end;
-end;
-
-constructor TCHATGPT.Create(AOwner: TComponent);
-begin
-  inherited Create(AOwner);
-  InitCriticalSection(FHTTPGuard);
-  FActiveHTTP := nil;
-  FProvider := AIP_OPENAI;
-  FTipoChat := VCT_GPT4o;
-
-  FDev := 'Você é um assistente.';
-  FPrompt := FDev;
-  FParams := TStringList.Create;
-  FCustomModel := '';
-  FOpenRouterTitle := '';
-  FOpenRouterSite := '';
-  FLastJSON := '';
-  FLocalIP := 'http://localhost:11434';
-  FMaxTokens := 4096;
-  FTemperature := 0.7;
-  FLastURL := '';
-  FURL := '';
-end;
-
-destructor TCHATGPT.Destroy;
-begin
-  Cancel;
-  DoneCriticalSection(FHTTPGuard);
-  FParams.Free;
-  inherited;
-end;
-
-procedure TCHATGPT.SetTemperature(const AValue: Double);
-begin
-  if (AValue >= 0.0) and (AValue <= 2.0) then
-    FTemperature := AValue
-  else
-    raise Exception.Create('A temperatura deve estar entre 0.0 e 2.0.');
+  // Operacao cancelada
 end;
 
 function TCHATGPT.TipoModelo: WideString;
 begin
-  Result := '"' + GetModelName + '"';
+  Result := GetModelName;
 end;
 
 function TCHATGPT.ProviderName: WideString;
 begin
-  case FProvider of
-    AIP_OPENAI:     Result := 'OpenAI';
-    AIP_OPENROUTER: Result := 'OpenRouter';
-    AIP_CEREBRAS:   Result := 'Cerebras';
-    AIP_LOCAL:      Result := 'Local';
-    AIP_GEMINI:     Result := 'Gemini';
-    AIP_CLAUDE:     Result := 'Claude';
-  else
-    Result := 'OpenAI';
-  end;
+  Result := GetAIProviderName(FProvider);
 end;
 
 function TCHATGPT.VersaoBiblioteca: WideString;
 begin
   Result := CHATGPT_LIB_VERSION;
 end;
-
-procedure Register;
-begin
-  RegisterComponents('AI Core', [TCHATGPT]);
-end;
-
-initialization
-  {$I chatgpt_icon.lrs}
 
 end.
