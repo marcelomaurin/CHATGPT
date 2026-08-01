@@ -51,6 +51,8 @@ type
     edtTopK: TEdit;
     lblMinScore: TLabel;
     edtMinScore: TEdit;
+    lblTimeout: TLabel;
+    edtTimeout: TEdit;
     lblInstructions: TLabel;
     memInstructions: TMemo;
     btnSalvarConfigIA: TButton;
@@ -183,6 +185,7 @@ begin
     edtApiKey.Text := Ini.ReadString('IA', 'ApiKey', GetEnvironmentVariable('OPENAI_API_KEY'));
     cmbModel.Text := Ini.ReadString('IA', 'Model', cmbModel.Text);
     edtURL.Text := Ini.ReadString('IA', 'URL', GetDefaultEndpointForProvider(GetAIProviderFromIndex(cmbProvider.ItemIndex)));
+    edtTimeout.Text := Ini.ReadString('IA', 'TimeoutSeconds', '120');
     edtChunkSize.Text := Ini.ReadString('RAG', 'ChunkSize', '1200');
     edtChunkOverlap.Text := Ini.ReadString('RAG', 'ChunkOverlap', '150');
     edtTopK.Text := Ini.ReadString('RAG', 'TopK', '4');
@@ -212,6 +215,7 @@ begin
     Ini.WriteString('IA', 'ApiKey', edtApiKey.Text);
     Ini.WriteString('IA', 'Model', cmbModel.Text);
     Ini.WriteString('IA', 'URL', edtURL.Text);
+    Ini.WriteString('IA', 'TimeoutSeconds', edtTimeout.Text);
     Ini.WriteString('RAG', 'ChunkSize', edtChunkSize.Text);
     Ini.WriteString('RAG', 'ChunkOverlap', edtChunkOverlap.Text);
     Ini.WriteString('RAG', 'TopK', edtTopK.Text);
@@ -247,6 +251,7 @@ begin
     end;
 
     FChatGPT.URL := Trim(edtURL.Text);
+    FChatGPT.Timeout := StrToIntDef(edtTimeout.Text, 120) * 1000;
   end;
 
   if Assigned(FAIRAG) then

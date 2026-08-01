@@ -1023,6 +1023,7 @@ begin
       Result := True;
       FLastSuccess := True;
       DoLog('========== RESPOSTA RAG GERADA COM SUCESSO ==========');
+      DoLog('Resposta da IA:' + sLineBreak + FLastAnswer);
       if Assigned(FOnAfterGenerate) then
         FOnAfterGenerate(Self);
     end

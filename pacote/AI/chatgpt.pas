@@ -93,6 +93,7 @@ type
     FLastURL         : WideString;
     FURL             : WideString;
     FTemperature     : Double;
+    FTimeout         : Integer;
 
     procedure SetToken(const AValue: WideString);
     procedure SetTipoChat(const AValue: TVersionChat);
@@ -125,6 +126,7 @@ type
     property MaxTokens: Integer read FMaxTokens write FMaxTokens;
     property Temperature: Double read FTemperature write SetTemperature;
     property URL: WideString read FURL write FURL;
+    property Timeout: Integer read FTimeout write FTimeout;
 
     // Opcionais para OpenRouter
     property OpenRouterTitle: WideString read FOpenRouterTitle write FOpenRouterTitle;
@@ -292,6 +294,7 @@ begin
   FLastURL := '';
   FURL := '';
   FTemperature := 0.7;
+  FTimeout := 120000; // 120 segundos por padrao
 
   FParams := TStringList.Create;
   FPrompt := 'TCHATGPT e o componente principal para comunicacao com OpenAI ChatGPT, OpenRouter, Cerebras, DeepSeek, Google Gemini, Claude e Ollama local.';
@@ -727,6 +730,12 @@ begin
 
   HTTP := TFPHttpClient.Create(nil);
   try
+    if FTimeout > 0 then
+    begin
+      HTTP.ConnectTimeout := FTimeout;
+      HTTP.IOTimeout := FTimeout;
+    end;
+
     AddProviderHeaders(HTTP);
     HTTP.RequestBody := TStringStream.Create(JSONPayload);
     try

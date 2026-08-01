@@ -311,9 +311,25 @@ object frmRAGFileIndexingDemo: TfrmRAGFileIndexingDemo
           Left = 350
           Height = 23
           Top = 175
-          Width = 100
+          Width = 95
           TabOrder = 7
           Text = '0.0'
+        end
+        object lblTimeout: TLabel
+          Left = 455
+          Height = 15
+          Top = 178
+          Width = 55
+          Caption = 'Timeout(s):'
+          ParentColor = False
+        end
+        object edtTimeout: TEdit
+          Left = 512
+          Height = 23
+          Top = 175
+          Width = 38
+          TabOrder = 8
+          Text = '120'
         end
         object lblInstructions: TLabel
           Left = 16
@@ -330,7 +346,7 @@ object frmRAGFileIndexingDemo: TfrmRAGFileIndexingDemo
           Width = 534
           Anchors = [akTop, akLeft, akRight, akBottom]
           ScrollBars = ssAutoBoth
-          TabOrder = 8
+          TabOrder = 9
         end
         object btnSalvarConfigIA: TButton
           Left = 16
@@ -340,7 +356,7 @@ object frmRAGFileIndexingDemo: TfrmRAGFileIndexingDemo
           Anchors = [akLeft, akRight, akBottom]
           Caption = 'Salvar Configurações da IA em AppData'
           OnClick = btnSalvarConfigIAClick
-          TabOrder = 9
+          TabOrder = 10
         end
       end
     end
