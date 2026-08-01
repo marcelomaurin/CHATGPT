@@ -1,0 +1,200 @@
+object frmRAGFileIndexingDemo: TfrmRAGFileIndexingDemo
+  Left = 300
+  Height = 650
+  Top = 150
+  Width = 900
+  Caption = 'Demonstração de Indexação de Arquivos RAG e Persistência de Índice'
+  ClientHeight = 650
+  ClientWidth = 900
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '3.4.0.0'
+  object pnlTop: TPanel
+    Left = 0
+    Height = 60
+    Top = 0
+    Width = 900
+    Align = alTop
+    ClientHeight = 60
+    ClientWidth = 900
+    TabOrder = 0
+    object lblPergunta: TLabel
+      Left = 16
+      Height = 15
+      Top = 22
+      Width = 51
+      Caption = 'Pergunta:'
+      ParentColor = False
+    end
+    object edtPergunta: TEdit
+      Left = 75
+      Height = 23
+      Top = 18
+      Width = 540
+      TabOrder = 0
+    end
+    object btnPerguntar: TButton
+      Left = 625
+      Height = 25
+      Top = 17
+      Width = 100
+      Caption = 'Perguntar'
+      OnClick = btnPerguntarClick
+      TabOrder = 1
+    end
+    object btnClear: TButton
+      Left = 735
+      Height = 25
+      Top = 17
+      Width = 80
+      Caption = 'Limpar'
+      OnClick = btnClearClick
+      TabOrder = 2
+    end
+  end
+  object pnlLeft: TPanel
+    Left = 0
+    Height = 590
+    Top = 60
+    Width = 320
+    Align = alLeft
+    ClientHeight = 590
+    ClientWidth = 320
+    TabOrder = 1
+    object lblArquivos: TLabel
+      Left = 10
+      Height = 15
+      Top = 10
+      Width = 120
+      Caption = 'Arquivos Indexados:'
+      ParentColor = False
+    end
+    object lstArquivos: TListBox
+      Left = 10
+      Height = 430
+      Top = 30
+      Width = 300
+      Anchors = [akTop, akLeft, akRight, akBottom]
+      ItemHeight = 0
+      TabOrder = 0
+    end
+    object btnAdicionarArquivo: TButton
+      Left = 10
+      Height = 30
+      Top = 470
+      Width = 300
+      Anchors = [akLeft, akRight, akBottom]
+      Caption = '1. Adicionar Arquivo (.txt/.md)'
+      OnClick = btnAdicionarArquivoClick
+      TabOrder = 1
+    end
+    object btnIndexar: TButton
+      Left = 10
+      Height = 30
+      Top = 505
+      Width = 300
+      Anchors = [akLeft, akRight, akBottom]
+      Caption = '2. Gerar Índice RAG (BuildIndex)'
+      OnClick = btnIndexarClick
+      TabOrder = 2
+    end
+    object btnSalvarIndice: TButton
+      Left = 10
+      Height = 25
+      Top = 540
+      Width = 145
+      Anchors = [akLeft, akBottom]
+      Caption = 'Salvar Índice'
+      OnClick = btnSalvarIndiceClick
+      TabOrder = 3
+    end
+    object btnCarregarIndice: TButton
+      Left = 165
+      Height = 25
+      Top = 540
+      Width = 145
+      Anchors = [akRight, akBottom]
+      Caption = 'Carregar Índice'
+      OnClick = btnCarregarIndiceClick
+      TabOrder = 4
+    end
+  end
+  object pcResults: TPageControl
+    Left = 320
+    Height = 590
+    Top = 60
+    Width = 580
+    ActivePage = tsResposta
+    Align = alClient
+    TabIndex = 0
+    TabOrder = 2
+    object tsResposta: TTabSheet
+      Caption = 'Resposta RAG'
+      ClientHeight = 562
+      ClientWidth = 572
+      object memResposta: TMemo
+        Left = 0
+        Height = 562
+        Top = 0
+        Width = 572
+        Align = alClient
+        ReadOnly = True
+        ScrollBars = ssAutoBoth
+        TabOrder = 0
+      end
+    end
+    object tsContexto: TTabSheet
+      Caption = 'Contexto Recuperado'
+      ClientHeight = 562
+      ClientWidth = 572
+      object memContexto: TMemo
+        Left = 0
+        Height = 562
+        Top = 0
+        Width = 572
+        Align = alClient
+        ReadOnly = True
+        ScrollBars = ssAutoBoth
+        TabOrder = 0
+      end
+    end
+    object tsFontes: TTabSheet
+      Caption = 'Fontes Utilizadas'
+      ClientHeight = 562
+      ClientWidth = 572
+      object memFontes: TMemo
+        Left = 0
+        Height = 562
+        Top = 0
+        Width = 572
+        Align = alClient
+        ReadOnly = True
+        ScrollBars = ssAutoBoth
+        TabOrder = 0
+      end
+    end
+    object tsLogs: TTabSheet
+      Caption = 'Logs RAG'
+      ClientHeight = 562
+      ClientWidth = 572
+      object memLogs: TMemo
+        Left = 0
+        Height = 562
+        Top = 0
+        Width = 572
+        Align = alClient
+        ReadOnly = True
+        ScrollBars = ssAutoBoth
+        TabOrder = 0
+      end
+    end
+  end
+  object OpenDialog1: TOpenDialog
+    Left = 350
+    Top = 150
+  end
+  object SaveDialog1: TSaveDialog
+    Left = 410
+    Top = 150
+  end
+end
