@@ -91,12 +91,6 @@
     </Files>
     <RequiredPkgs>
       <Item>
-        <PackageName Value="LCL"/>
-      </Item>
-      <Item>
-        <PackageName Value="FCL"/>
-      </Item>
-      <Item>
         <PackageName Value="zcomponent"/>
       </Item>
       <Item>
