@@ -236,6 +236,8 @@ begin
   FLastAnswer := '';
   FLastSources := TStringList.Create;
   FReplaceExistingSource := True;
+  FBulkLoading := False;
+  FBulkSavedReplace := True;
   FPrompt := 'TAIRAG realiza fatiamento, indexacao relacional e geracao de respostas com fontes.';
   ClearError;
 end;
