@@ -62,6 +62,9 @@ type
 
     FReplaceExistingSource: Boolean;
 
+    FBulkLoading: Boolean;
+    FBulkSavedReplace: Boolean;
+
     FOnBeforeIndex: TNotifyEvent;
     FOnAfterIndex: TNotifyEvent;
     FOnChunkCreated: TAIRAGChunkEvent;
