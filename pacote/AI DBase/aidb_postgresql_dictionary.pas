@@ -38,11 +38,14 @@ begin
   Query := CreateQuery;
   try
     Query.SQL.Text :=
-      'SELECT table_schema, table_name, table_type ' +
-      'FROM information_schema.tables ' +
-      'WHERE table_schema NOT IN (''pg_catalog'', ''information_schema'') ' +
-      '  AND (:schema = '''' OR table_schema = :schema) ' +
-      'ORDER BY table_schema, table_name;';
+      'SELECT t.table_schema, t.table_name, t.table_type, ' +
+      '       COALESCE(obj_description(c.oid, ''pg_class''), '''') AS table_comment ' +
+      'FROM information_schema.tables t ' +
+      '  LEFT JOIN pg_namespace n ON n.nspname = t.table_schema ' +
+      '  LEFT JOIN pg_class c ON c.relname = t.table_name AND c.relnamespace = n.oid ' +
+      'WHERE t.table_schema NOT IN (''pg_catalog'', ''information_schema'') ' +
+      '  AND (:schema = '''' OR t.table_schema = :schema) ' +
+      'ORDER BY t.table_schema, t.table_name;';
     Query.ParamByName('schema').AsString := SchemaName;
     Query.Open;
 
@@ -52,7 +55,7 @@ begin
       Table.SchemaName := Query.FieldByName('table_schema').AsString;
       Table.TableName := Query.FieldByName('table_name').AsString;
       Table.TableType := Query.FieldByName('table_type').AsString;
-      Table.Description := '';
+      Table.Description := Query.FieldByName('table_comment').AsString;
       Table.RowCount := 0;
 
       DoTableFound(Table.TableName);
