@@ -636,6 +636,24 @@ object frmPGSchemaRAG: TfrmPGSchemaRAG
         TabOrder = 0
       end
     end
+    object tsMapaMemoria: TTabSheet
+      Caption = '7. Mapa de Memória'
+      ClientHeight = 692
+      ClientWidth = 1016
+      object memMapaMemoria: TMemo
+        Left = 0
+        Height = 692
+        Top = 0
+        Width = 1016
+        Align = alClient
+        Font.Height = -12
+        Font.Name = 'Courier New'
+        ParentFont = False
+        ReadOnly = True
+        ScrollBars = ssAutoBoth
+        TabOrder = 0
+      end
+    end
   end
   object ZConnection1: TZConnection
     Protocol = 'postgresql'
@@ -699,6 +717,10 @@ object frmPGSchemaRAG: TfrmPGSchemaRAG
     IncludeRowCount = False
     OutputFormat = dofMarkdown
     Left = 880
+    Top = 580
+  end
+  object AIAgentMemoryMap1: TAIAgentMemoryMap
+    Left = 940
     Top = 580
   end
 end

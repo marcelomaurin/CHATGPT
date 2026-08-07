@@ -9,7 +9,8 @@ uses
   StdCtrls, ExtCtrls, ComCtrls, DBGrids, DB,
   ZConnection, ZDataset,
   chatgpt, aigraphmap, airag,
-  aidb_types, aidb_dictionary_base, aidb_postgresql_dictionary;
+  aidb_types, aidb_dictionary_base, aidb_postgresql_dictionary,
+  aiagent_flowevents, aiagent_memorymap;
 
 type
 
@@ -101,6 +102,10 @@ type
     tsLogs: TTabSheet;
     memLogs: TMemo;
 
+    // --- Aba Mapa de Memoria ---
+    tsMapaMemoria: TTabSheet;
+    memMapaMemoria: TMemo;
+
     // --- Nao visuais ---
     ZConnection1: TZConnection;
     ZQuery1: TZQuery;
@@ -111,6 +116,7 @@ type
     AIGraphMap1: TAIGraphMap;
     AIRAG1: TAIRAG;
     AIPostgreSQLDictionary1: TAIPostgreSQLDictionary;
+    AIAgentMemoryMap1: TAIAgentMemoryMap;
 
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -144,6 +150,13 @@ type
     procedure AplicarParametrosConexao;
     function EstaConectado: Boolean;
     procedure AtualizarStatusConexao;
+
+    function GarantirConexao: Boolean;
+    function GarantirDicionario: Boolean;
+    function GarantirIndiceRAG: Boolean;
+    function GarantirPipelineCompleto: Boolean;
+    function ExecutarSQLComAutoCorrecao(var ASQL: string; const AFontes: TStrings): Boolean;
+    procedure AtualizarExibicaoMapaMemoria;
 
     function SerializarTabela(ATable: TAIDBTableInfo): string;
     procedure EnriquecerComComentarios;
@@ -533,6 +546,215 @@ procedure TfrmPGSchemaRAG.btnSalvarConexaoClick(Sender: TObject);
 begin
   SalvarConfig;
   ShowMessage('Parametros de conexao salvos em:'#13#10 + CaminhoConfig);
+end;
+
+// ---------------------------------------------------------------------------
+// Auto-Pipeline & Memory Map Helpers
+// ---------------------------------------------------------------------------
+
+function TfrmPGSchemaRAG.GarantirConexao: Boolean;
+var
+  LStep: TAIAgentMemoryMapItem;
+begin
+  if not EstaConectado then
+  begin
+    Log('Auto-Pipeline: Etapa 1 - Conectando ao Banco de Dados...');
+    if Assigned(AIAgentMemoryMap1) then
+      LStep := AIAgentMemoryMap1.BeginAgentStep('Etapa1_Conexao', tamExecutor, 'Conectar ao PostgreSQL')
+    else
+      LStep := nil;
+    btnConectarClick(nil);
+    if EstaConectado then
+    begin
+      if Assigned(AIAgentMemoryMap1) and (LStep <> nil) then
+        AIAgentMemoryMap1.EndAgentStep(LStep, 'Conexao estabelecida com sucesso', '', 'SUCCESS', 'Conectado');
+    end
+    else
+    begin
+      if Assigned(AIAgentMemoryMap1) and (LStep <> nil) then
+        AIAgentMemoryMap1.EndAgentStep(LStep, 'Falha ao conectar no PostgreSQL', ZConnection1.HostName, 'ERROR', 'Desconectado');
+    end;
+  end;
+  Result := EstaConectado;
+end;
+
+function TfrmPGSchemaRAG.GarantirDicionario: Boolean;
+var
+  LStep: TAIAgentMemoryMapItem;
+begin
+  if not GarantirConexao then
+    Exit(False);
+
+  if AIPostgreSQLDictionary1.DataDictionary.Tables.Count = 0 then
+  begin
+    Log('Auto-Pipeline: Etapa 2 - Gerando Dicionario de Dados...');
+    if Assigned(AIAgentMemoryMap1) then
+      LStep := AIAgentMemoryMap1.BeginAgentStep('Etapa2_Dicionario', tamCustom, 'Gerar Dicionario')
+    else
+      LStep := nil;
+    btnGerarDicionarioClick(nil);
+    if AIPostgreSQLDictionary1.DataDictionary.Tables.Count > 0 then
+    begin
+      if Assigned(AIAgentMemoryMap1) and (LStep <> nil) then
+        AIAgentMemoryMap1.EndAgentStep(LStep, Format('Dicionario gerado: %d tabelas', [AIPostgreSQLDictionary1.DataDictionary.Tables.Count]), '', 'SUCCESS', Format('%d tabelas', [AIPostgreSQLDictionary1.DataDictionary.Tables.Count]));
+    end
+    else
+    begin
+      if Assigned(AIAgentMemoryMap1) and (LStep <> nil) then
+        AIAgentMemoryMap1.EndAgentStep(LStep, 'Falha ao gerar dicionario', AIPostgreSQLDictionary1.LastError, 'ERROR', '');
+    end;
+  end;
+  Result := AIPostgreSQLDictionary1.DataDictionary.Tables.Count > 0;
+end;
+
+function TfrmPGSchemaRAG.GarantirIndiceRAG: Boolean;
+var
+  LStep: TAIAgentMemoryMapItem;
+begin
+  if not GarantirDicionario then
+    Exit(False);
+
+  if AIGraphMap1.NodeCount = 0 then
+  begin
+    Log('Auto-Pipeline: Etapa 3 - Construindo Indice RAG...');
+    if Assigned(AIAgentMemoryMap1) then
+      LStep := AIAgentMemoryMap1.BeginAgentStep('Etapa3_IndiceRAG', tamCustom, 'Construir Indice RAG')
+    else
+      LStep := nil;
+    btnConstruirIndiceClick(nil);
+    if AIGraphMap1.NodeCount > 0 then
+    begin
+      if Assigned(AIAgentMemoryMap1) and (LStep <> nil) then
+        AIAgentMemoryMap1.EndAgentStep(LStep, Format('Indice RAG construido: %d nos, %d arestas', [AIGraphMap1.NodeCount, AIGraphMap1.EdgeCount]), '', 'SUCCESS', Format('%d nos', [AIGraphMap1.NodeCount]));
+    end
+    else
+    begin
+      if Assigned(AIAgentMemoryMap1) and (LStep <> nil) then
+        AIAgentMemoryMap1.EndAgentStep(LStep, 'Falha ao construir indice RAG', AIRAG1.LastError, 'ERROR', '');
+    end;
+  end;
+  Result := AIGraphMap1.NodeCount > 0;
+end;
+
+function TfrmPGSchemaRAG.GarantirPipelineCompleto: Boolean;
+begin
+  Result := GarantirIndiceRAG;
+end;
+
+procedure TfrmPGSchemaRAG.AtualizarExibicaoMapaMemoria;
+begin
+  if Assigned(AIAgentMemoryMap1) then
+    memMapaMemoria.Text := AIAgentMemoryMap1.AsText;
+end;
+
+function TfrmPGSchemaRAG.ExecutarSQLComAutoCorrecao(var ASQL: string; const AFontes: TStrings): Boolean;
+var
+  LAttempt: Integer;
+  LMotivo, LErro, LPromptFix, LRespostaIA: string;
+  LStepExec, LStepFix: TAIAgentMemoryMapItem;
+begin
+  Result := False;
+  ASQL := Trim(ASQL);
+
+  for LAttempt := 1 to 3 do
+  begin
+    if ASQL = '' then
+      Exit;
+
+    if not SQLSomenteSelect(ASQL, LMotivo) then
+    begin
+      Log('[BLOQUEADO] ' + LMotivo);
+      ShowMessage('Execucao bloqueada.'#13#10#13#10 + LMotivo);
+      Exit;
+    end;
+
+    Log(Format('Executando SQL (Tentativa %d de 3)...', [LAttempt]));
+    memSQL.Text := ASQL;
+
+    if Assigned(AIAgentMemoryMap1) then
+      LStepExec := AIAgentMemoryMap1.BeginAgentStep('ExecutarSQL', tamExecutor, ASQL)
+    else
+      LStepExec := nil;
+
+    try
+      if ZQuery1.Active then
+        ZQuery1.Close;
+
+      ZConnection1.ExecuteDirect('SET statement_timeout = 30000');
+      ZQuery1.SQL.Text := ASQL;
+      ZQuery1.Open;
+
+      if Assigned(AIAgentMemoryMap1) and (LStepExec <> nil) then
+        AIAgentMemoryMap1.EndAgentStep(LStepExec,
+          Format('SQL executado com sucesso na tentativa %d (%d registros)', [LAttempt, ZQuery1.RecordCount]),
+          '', 'SUCCESS', ASQL);
+
+      Log(Format('Consulta executada com SUCESSO na tentativa %d. Registros: %d', [LAttempt, ZQuery1.RecordCount]));
+      pcMain.ActivePage := tsConsulta;
+      Result := True;
+      Break;
+    except
+      on E: Exception do
+      begin
+        LErro := E.Message;
+        Log(Format('[ERRO EXECUCAO - Tentativa %d/3]: %s', [LAttempt, LErro]));
+        if Assigned(AIAgentMemoryMap1) and (LStepExec <> nil) then
+          AIAgentMemoryMap1.EndAgentStep(LStepExec,
+            Format('Falha na tentativa %d: %s', [LAttempt, LErro]),
+            LErro, 'ERROR', ASQL);
+
+        if LAttempt < 3 then
+        begin
+          Log('Enviando erro para a IA corrigir o SQL...');
+          if Assigned(AIAgentMemoryMap1) then
+            LStepFix := AIAgentMemoryMap1.BeginAgentStep('IA_SelfCorrection', tamDecisor, LErro)
+          else
+            LStepFix := nil;
+
+          LPromptFix :=
+            memInstrucoes.Text + sLineBreak + sLineBreak +
+            'A instrucao SQL anterior gerou um erro no PostgreSQL.' + sLineBreak + sLineBreak +
+            'REGRAS DE CORRECAO:' + sLineBreak +
+            '1. Retorne APENAS o comando SQL corrigido sem explicacoes nem cerca de markdown.' + sLineBreak +
+            '2. Corrija o nome de colunas, tabelas, JOINs ou tipos de dados com base no erro retornado.' + sLineBreak +
+            '3. Qualifique tabelas como esquema.tabela.' + sLineBreak + sLineBreak +
+            '=== ESQUEMA DISPONIVEL ===' + sLineBreak +
+            MontarContextoDDL(AFontes) + sLineBreak +
+            '=== FIM DO ESQUEMA ===' + sLineBreak + sLineBreak +
+            'Pergunta Original: ' + edtPergunta.Text + sLineBreak + sLineBreak +
+            'SQL com erro:' + sLineBreak + ASQL + sLineBreak + sLineBreak +
+            'Erro PostgreSQL:' + sLineBreak + LErro;
+
+          CHATGPT1.Prompt := LPromptFix;
+          if CHATGPT1.SendQuestion(LPromptFix) then
+          begin
+            LRespostaIA := CHATGPT1.Response;
+            if Trim(LRespostaIA) = '' then
+              LRespostaIA := CHATGPT1.LastResult;
+
+            ASQL := LimparCercaMarkdown(LRespostaIA);
+            if Assigned(AIAgentMemoryMap1) and (LStepFix <> nil) then
+              AIAgentMemoryMap1.EndAgentStep(LStepFix,
+                'SQL Corrigido recebido da IA', '', 'FIX_GENERATED', ASQL);
+            Log('IA retornou SQL corrigido:' + sLineBreak + ASQL);
+          end
+          else
+          begin
+            Log('[ERRO IA CORRECAO] ' + CHATGPT1.LastError);
+            if Assigned(AIAgentMemoryMap1) and (LStepFix <> nil) then
+              AIAgentMemoryMap1.EndAgentStep(LStepFix,
+                'Falha na chamada da IA para correcao', CHATGPT1.LastError, 'ERROR', '');
+            Break;
+          end;
+        end
+        else
+        begin
+          Log('[FALHA FINAL] Limite de 3 tentativas atingido sem sucesso.');
+          ShowMessage('Falha ao executar o SQL apos 3 tentativas.'#13#10#13#10 + LErro);
+        end;
+      end;
+    end;
+  end;
 end;
 
 // ---------------------------------------------------------------------------
@@ -1016,9 +1238,11 @@ end;
 
 procedure TfrmPGSchemaRAG.btnRecuperarClick(Sender: TObject);
 var
-  LResultados: TStringList;
+  LResultados, LFontes: TStringList;
   LChunk: TRAGRetrievedChunk;
   I: Integer;
+  LStepRAG, LStepGen: TAIAgentMemoryMapItem;
+  LSQL: string;
 begin
   if Trim(edtPergunta.Text) = '' then
   begin
@@ -1026,9 +1250,10 @@ begin
     Exit;
   end;
 
-  if AIGraphMap1.NodeCount = 0 then
+  // Garante automaticamente Conexao -> Dicionario -> Indice RAG
+  if not GarantirPipelineCompleto then
   begin
-    ShowMessage('Construa ou carregue o indice antes de consultar.');
+    ShowMessage('Nao foi possivel concluir as etapas previas (Conexao/Dicionario/Indice RAG).');
     Exit;
   end;
 
@@ -1036,15 +1261,27 @@ begin
   try
     try
       AplicarConfigIA;
+      if Assigned(AIAgentMemoryMap1) then
+        AIAgentMemoryMap1.StartFlow(edtPergunta.Text, 'Consulta Schema RAG e Execucao Auto-Corrigida');
+
+      if Assigned(AIAgentMemoryMap1) then
+        LStepRAG := AIAgentMemoryMap1.BeginAgentStep('AIRAG_Retrieve', tamCustom, edtPergunta.Text)
+      else
+        LStepRAG := nil;
+
       memRecuperadas.Lines.Clear;
 
       LResultados := TStringList.Create;
+      LFontes := TStringList.Create;
       try
         if not AIRAG1.Retrieve(edtPergunta.Text, LResultados) then
         begin
           memRecuperadas.Lines.Add('Nenhuma tabela relevante encontrada.');
           memRecuperadas.Lines.Add('Erro: ' + AIRAG1.LastError);
           Log('[AVISO] Recuperacao vazia: ' + AIRAG1.LastError);
+          if Assigned(AIAgentMemoryMap1) and (LStepRAG <> nil) then
+            AIAgentMemoryMap1.EndAgentStep(LStepRAG, 'Recuperacao RAG vazia', AIRAG1.LastError, 'ERROR', '');
+          AtualizarExibicaoMapaMemoria;
           Exit;
         end;
 
@@ -1057,24 +1294,54 @@ begin
           LChunk := TRAGRetrievedChunk(LResultados.Objects[I]);
           if LChunk = nil then
             Continue;
+          LFontes.Add(LChunk.Source);
           memRecuperadas.Lines.Add(Format('%d. %-35s score %.4f',
             [I + 1, LChunk.Source, LChunk.Score]));
         end;
 
         Log(Format('Recuperacao concluida: %d tabelas.', [LResultados.Count]));
+        if Assigned(AIAgentMemoryMap1) and (LStepRAG <> nil) then
+          AIAgentMemoryMap1.EndAgentStep(LStepRAG,
+            Format('RAG recuperou %d tabelas', [LFontes.Count]), '', 'SUCCESS', LFontes.Text);
+
+        // --- GERACAO E EXECUCAO AUTOMATICA DO SQL ---
+        Log('Iniciando geracao e execucao automatica do SQL...');
+        if Assigned(AIAgentMemoryMap1) then
+          LStepGen := AIAgentMemoryMap1.BeginAgentStep('IA_GerarSQL', tamDecisor, edtPergunta.Text)
+        else
+          LStepGen := nil;
+
+        btnGerarSQLClick(nil);
+        LSQL := Trim(memSQL.Text);
+
+        if LSQL <> '' then
+        begin
+          if Assigned(AIAgentMemoryMap1) and (LStepGen <> nil) then
+            AIAgentMemoryMap1.EndAgentStep(LStepGen, 'SQL Gerado com sucesso pela IA', '', 'SUCCESS', LSQL);
+
+          // Executa com autocorrecao (ate 3 tentativas)
+          ExecutarSQLComAutoCorrecao(LSQL, LFontes);
+        end
+        else
+        begin
+          if Assigned(AIAgentMemoryMap1) and (LStepGen <> nil) then
+            AIAgentMemoryMap1.EndAgentStep(LStepGen, 'Falha ao gerar SQL pela IA', CHATGPT1.LastError, 'ERROR', '');
+        end;
+
       finally
-        // Retrieve devolve objetos que passam a ser responsabilidade do chamador.
         for I := 0 to LResultados.Count - 1 do
           if LResultados.Objects[I] <> nil then
             LResultados.Objects[I].Free;
         LResultados.Clear;
         LResultados.Free;
+        LFontes.Free;
       end;
     except
       on E: Exception do
-        LogExcecao('RECUPERAR TABELAS', E);
+        LogExcecao('RECUPERAR TABELAS E EXECUTAR', E);
     end;
   finally
+    AtualizarExibicaoMapaMemoria;
     SetOcupado(False);
   end;
 end;
@@ -1274,9 +1541,11 @@ end;
 
 procedure TfrmPGSchemaRAG.btnExecutarSQLClick(Sender: TObject);
 var
-  LSQL, LMotivo: string;
+  LSQL: string;
+  LFontes: TStringList;
+  I: Integer;
 begin
-  if not EstaConectado then
+  if not GarantirConexao then
   begin
     ShowMessage('Conecte-se ao banco antes de executar.');
     Exit;
@@ -1289,45 +1558,24 @@ begin
     Exit;
   end;
 
-  if not SQLSomenteSelect(LSQL, LMotivo) then
-  begin
-    Log('[BLOQUEADO] ' + LMotivo);
-    ShowMessage('Execucao bloqueada.'#13#10#13#10 + LMotivo +
-      #13#10#13#10'Este sample executa apenas consultas de leitura.');
-    Exit;
-  end;
-
-  if MessageDlg('Confirmar execucao',
-       'O comando abaixo sera executado no banco:'#13#10#13#10 + LSQL,
-       mtConfirmation, [mbYes, mbNo], 0) <> mrYes then
-  begin
-    Log('Execucao cancelada pelo usuario.');
-    Exit;
-  end;
-
-  SetOcupado(True);
+  LFontes := TStringList.Create;
   try
+    if Assigned(AIPostgreSQLDictionary1.DataDictionary) then
+    begin
+      for I := 0 to AIPostgreSQLDictionary1.DataDictionary.Tables.Count - 1 do
+        LFontes.Add(AIPostgreSQLDictionary1.DataDictionary.Tables[I].SchemaName + '.' +
+                   AIPostgreSQLDictionary1.DataDictionary.Tables[I].TableName);
+    end;
+
+    SetOcupado(True);
     try
-      if ZQuery1.Active then
-        ZQuery1.Close;
-
-      // Trava de tempo: impede que uma consulta mal formada prenda a sessao.
-      ZConnection1.ExecuteDirect('SET statement_timeout = 30000');
-
-      ZQuery1.SQL.Text := LSQL;
-      ZQuery1.Open;
-
-      pcMain.ActivePage := tsConsulta;
-      Log(Format('Consulta executada. Registros retornados: %d', [ZQuery1.RecordCount]));
-    except
-      on E: Exception do
-      begin
-        LogExcecao('EXECUTAR SQL', E);
-        Log('SQL que falhou: ' + LSQL);
-      end;
+      ExecutarSQLComAutoCorrecao(LSQL, LFontes);
+    finally
+      SetOcupado(False);
+      AtualizarExibicaoMapaMemoria;
     end;
   finally
-    SetOcupado(False);
+    LFontes.Free;
   end;
 end;
 
