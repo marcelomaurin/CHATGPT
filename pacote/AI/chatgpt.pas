@@ -636,6 +636,7 @@ begin
 
   AHTTP.AddHeader('Content-Type', 'application/json');
   AHTTP.AddHeader('Accept', 'application/json');
+  AHTTP.AddHeader('Connection', 'close');
 
   if (FProvider = AIP_LOCAL) or (FProvider = AIP_GEMINI) then
     Exit;
@@ -708,6 +709,9 @@ var
   JSONPayload: string;
   RawResponse: string;
   Endpoint: string;
+  LAttempt: Integer;
+  LSuccess: Boolean;
+  LLastErrorMsg: string;
 begin
   Result := False;
   ClearError;
@@ -716,45 +720,53 @@ begin
   FLastJSON := '';
   FLastURL := '';
 
-  // Token de API e opcional: servidores locais/customizados (Ollama, LM Studio, etc.) nao exigem chave.
-
   Endpoint := GetEndpoint;
   FLastURL := Endpoint;
 
   JSONPayload := UTF8Encode(MontaJson);
   FLastJSON := UTF8ToUTF16(JSONPayload);
 
-  HTTP := TFPHttpClient.Create(nil);
-  try
-    if FTimeout > 0 then
-    begin
-      HTTP.ConnectTimeout := FTimeout;
-      HTTP.IOTimeout := FTimeout;
-    end;
-
-    AddProviderHeaders(HTTP);
-    HTTP.RequestBody := TStringStream.Create(JSONPayload);
+  LSuccess := False;
+  for LAttempt := 1 to 2 do
+  begin
+    HTTP := TFPHttpClient.Create(nil);
     try
+      if FTimeout > 0 then
+      begin
+        HTTP.ConnectTimeout := FTimeout;
+        HTTP.IOTimeout := FTimeout;
+      end;
+
+      AddProviderHeaders(HTTP);
+      HTTP.RequestBody := TStringStream.Create(JSONPayload);
       try
-        RawResponse := HTTP.Post(Endpoint);
-        FResponse := PegaMensagem(UTF8ToUTF16(RawResponse));
-        FLastResult := UTF8Encode(FResponse);
-        Result := Trim(FResponse) <> '';
-        FLastSuccess := Result;
-        if not Result then
-          SetError('Resposta vazia da API: ' + RawResponse);
-      except
-        on E: Exception do
-        begin
-          SetError('Erro HTTP na requisicao AI: ' + E.Message);
-          Result := False;
+        try
+          RawResponse := HTTP.Post(Endpoint);
+          FResponse := PegaMensagem(UTF8ToUTF16(RawResponse));
+          FLastResult := UTF8Encode(FResponse);
+          LSuccess := Trim(FResponse) <> '';
+          FLastSuccess := LSuccess;
+          if not LSuccess then
+            SetError('Resposta vazia da API: ' + RawResponse);
+          Result := LSuccess;
+          Break;
+        except
+          on E: Exception do
+          begin
+            LLastErrorMsg := E.Message;
+            SetError('Erro HTTP na requisicao AI: ' + LLastErrorMsg);
+            LSuccess := False;
+            Result := False;
+            if LAttempt < 2 then
+              Sleep(300);
+          end;
         end;
+      finally
+        HTTP.RequestBody.Free;
       end;
     finally
-      HTTP.RequestBody.Free;
+      HTTP.Free;
     end;
-  finally
-    HTTP.Free;
   end;
 end;
 
