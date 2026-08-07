@@ -80,13 +80,16 @@ begin
   Query := CreateQuery;
   try
     Query.SQL.Text :=
-      'SELECT table_schema, table_name, column_name, ordinal_position, ' +
-      '       data_type, udt_name, character_maximum_length, ' +
-      '       numeric_precision, numeric_scale, is_nullable, column_default ' +
-      'FROM information_schema.columns ' +
-      'WHERE table_schema NOT IN (''pg_catalog'', ''information_schema'') ' +
-      '  AND (:schema = '''' OR table_schema = :schema) ' +
-      'ORDER BY table_schema, table_name, ordinal_position;';
+      'SELECT c.table_schema, c.table_name, c.column_name, c.ordinal_position, ' +
+      '       c.data_type, c.udt_name, c.character_maximum_length, ' +
+      '       c.numeric_precision, c.numeric_scale, c.is_nullable, c.column_default, ' +
+      '       COALESCE(col_description(cl.oid, c.ordinal_position::int), '''') AS column_comment ' +
+      'FROM information_schema.columns c ' +
+      '  LEFT JOIN pg_namespace n ON n.nspname = c.table_schema ' +
+      '  LEFT JOIN pg_class cl ON cl.relname = c.table_name AND cl.relnamespace = n.oid ' +
+      'WHERE c.table_schema NOT IN (''pg_catalog'', ''information_schema'') ' +
+      '  AND (:schema = '''' OR c.table_schema = :schema) ' +
+      'ORDER BY c.table_schema, c.table_name, c.ordinal_position;';
     Query.ParamByName('schema').AsString := SchemaName;
     Query.Open;
 
@@ -110,7 +113,7 @@ begin
         Col.IsForeignKey := False;
         Col.IsUnique := False;
         Col.OrdinalPosition := Query.FieldByName('ordinal_position').AsInteger;
-        Col.Description := '';
+        Col.Description := Query.FieldByName('column_comment').AsString;
 
         DoColumnFound(TName, Col.ColumnName);
       end;
