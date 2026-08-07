@@ -620,7 +620,7 @@ var
   procedure ScanDir(const ADir: string);
   var
     SearchRec: TSearchRec;
-    FilePath, Ext: string;
+    FilePath, Ext, RelName: string;
     I, ChunksAdded: Integer;
     Match: Boolean;
   begin
@@ -663,7 +663,10 @@ var
               if Match then
               begin
                 DoLog(Format('Encontrado arquivo correspondente: %s (%d bytes)', [SearchRec.Name, SearchRec.Size]));
-                ChunksAdded := AddFile(FilePath);
+                RelName := ExtractRelativePath(IncludeTrailingPathDelimiter(TargetDir), FilePath);
+                if Trim(RelName) = '' then
+                  RelName := SearchRec.Name;
+                ChunksAdded := AddFile(FilePath, RelName);
                 if ChunksAdded > 0 then
                   Inc(Result)
                 else
