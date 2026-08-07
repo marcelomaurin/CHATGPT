@@ -38,6 +38,13 @@ type
     const AMessage: string
   ) of object;
 
+  TAIRAGResolveTextEvent = procedure(
+    Sender: TObject;
+    const AChunkID: string;
+    var AText: string;
+    var AHandled: Boolean
+  ) of object;
+
   TAIRAG = class(TAIBaseComponent)
   private
     FChatGPT: TCHATGPT;
