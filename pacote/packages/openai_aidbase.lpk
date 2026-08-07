@@ -71,6 +71,12 @@
       <Item>
         <PackageName Value="zcomponent"/>
       </Item>
+      <Item>
+        <PackageName Value="openai_graph"/>
+      </Item>
+      <Item>
+        <PackageName Value="openai_rag"/>
+      </Item>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>
