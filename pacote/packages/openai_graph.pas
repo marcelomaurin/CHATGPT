@@ -8,15 +8,16 @@ unit openai_graph;
 interface
 
 uses
-  aigraphmap, aigraphstructuraladapter, aitrainingexporter, aidatasetanalyzer, 
-  aitrainingreport, aigraphvisualizer, airoutegraph_types, airoutegraph_utils, 
-  airoutegraph, airoutespeedprofile, airoutecityindex, airoutecalculator, 
-  aigeojsonrouteimporter, LazarusPackageIntf;
+  aidependencygraph, aigraphmap, aigraphstructuraladapter, aitrainingexporter, 
+  aidatasetanalyzer, aitrainingreport, aigraphvisualizer, airoutegraph_types, 
+  airoutegraph_utils, airoutegraph, airoutespeedprofile, airoutecityindex, 
+  airoutecalculator, aigeojsonrouteimporter, LazarusPackageIntf;
 
 implementation
 
 procedure Register;
 begin
+  RegisterUnit('aidependencygraph', @aidependencygraph.Register);
   RegisterUnit('aigraphmap', @aigraphmap.Register);
   RegisterUnit('aigraphstructuraladapter', @aigraphstructuraladapter.Register);
   RegisterUnit('aitrainingexporter', @aitrainingexporter.Register);

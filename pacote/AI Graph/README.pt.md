@@ -1,37 +1,36 @@
-# Aba AI Graph
+# 📊 Documentação da Aba AI Graph
 
-> Esta pasta contem os componentes Lazarus da aba **AI Graph**.
+> [!NOTE]
+> Esta pasta contém a suíte de componentes do Lazarus sob a aba **AI Graph**.
 
-## Classificacao de texto e grafos estruturais
+## Classificação de Texto por Mapas de Grafos Ponderados.
+Componente de classificação explicável de textos curtos e chamados baseado em mapas de grafos de tokens locais.
 
-### Referencia detalhada dos componentes
+### Referência Detalhada dos Componentes
 
-| Componente | Descricao | Propriedades Importantes | Metodos Principais | Papel do Agente de IA |
+| Componente | Descrição | Propriedades Importantes | Métodos Principais | Papel do Agente de IA |
 |---|---|---|---|---|
-| **TAIGraphMap** | Classificador textual por grafo ponderado. | `Training, LowerCaseTokens, RemoveAccents, RemoveStopWords, WindowSize, UseGraphDepthSearch, MaxDepth, DepthDecay` | `Train, TrainItem, Predict, PredictRanking, ExplainPrediction, SaveGraphToFile, LoadGraphFromFile` | Classificar textos curtos localmente sem dependencias de rede. |
-| **TAIDependencyGraph** | Grafo factual com evidencia obrigatoria e arestas inferidas separadas. | `NodeCount, EdgeCount, Validated, LastError` | `AddNode, AddEdge, AddInferredEdge, FindNode, Clear, Validate, CountNodesOfType, CountEdgesOfType, SaveToJSON, LoadFromJSON, SaveToDOT, SaveToMermaid` | Registrar fatos estruturais do repositorio sem misturar hipotese e evidencia. |
-| **TAIGraphStructuralAdapter** | Projecao estrutural para o visualizer atual. | `DependencyGraph, GraphMap` | `Refresh, AttachToVisualizer` | Reutilizar o visualizador sem quebrar os samples existentes. |
+| **TAIGraphMap** | Classificador textual por grafo ponderado. | `Training, LowerCaseTokens, RemoveAccents, RemoveStopWords, WindowSize, UseGraphDepthSearch, MaxDepth, DepthDecay` | `Train, TrainItem, Predict, PredictRanking, ExplainPrediction, SaveGraphToFile, LoadGraphFromFile` | Classificar textos curtos localmente sem dependências de rede. |
 
-### Exemplo de codigo Lazarus
+### 💻 Exemplo de Código Lazarus (TAIGraphMap)
 
 ```pascal
 var
-  Graph: TAIDependencyGraph;
-  Adapter: TAIGraphStructuralAdapter;
+  MyComponent: TAIGraphMap;
 begin
-  Graph := TAIDependencyGraph.Create(Self);
-  Adapter := TAIGraphStructuralAdapter.Create(Self);
+  MyComponent := TAIGraphMap.Create(Self);
   try
-    Adapter.DependencyGraph := Graph;
-    Adapter.Refresh;
-    // Visualizer.GraphMap := Adapter.GraphMap;
+    // Configuration properties
+    // MyComponent.Property := Value;
+    
+    // Execute call
+    // MyComponent.ExecuteMethod;
   finally
-    Adapter.Free;
-    Graph.Free;
+    MyComponent.Free;
   end;
 end;
 ```
 
-### Observacoes
 
-Cada componente desta pasta expõe uma propriedade published `Prompt` que documenta sua API interna para `TAIAgent`.
+### ⚡ Ponte de IA e Hardware
+Cada um destes componentes possui uma propriedade published `Prompt` que documenta sua API interna de forma transparente para orientar Agentes de IA (`TAIAgent`) de forma automática!
