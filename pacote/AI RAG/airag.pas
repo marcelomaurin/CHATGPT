@@ -83,6 +83,7 @@ type
     FOnBeforeGenerate: TNotifyEvent;
     FOnAfterGenerate: TNotifyEvent;
     FOnRAGLog: TAIRAGLogEvent;
+    FOnResolveChunkText: TAIRAGResolveTextEvent;
 
     procedure SetChatGPT(AValue: TCHATGPT);
     procedure SetGraphMap(AValue: TAIGraphMap);
@@ -207,6 +208,7 @@ type
     property OnBeforeGenerate: TNotifyEvent read FOnBeforeGenerate write FOnBeforeGenerate;
     property OnAfterGenerate: TNotifyEvent read FOnAfterGenerate write FOnAfterGenerate;
     property OnRAGLog: TAIRAGLogEvent read FOnRAGLog write FOnRAGLog;
+    property OnResolveChunkText: TAIRAGResolveTextEvent read FOnResolveChunkText write FOnResolveChunkText;
   end;
 
 type
@@ -249,6 +251,7 @@ begin
   FReplaceExistingSource := True;
   FBulkLoading := False;
   FBulkSavedReplace := True;
+  FOnResolveChunkText := nil;
   FPrompt := 'TAIRAG realiza fatiamento, indexacao relacional e geracao de respostas com fontes.';
   ClearError;
 end;
