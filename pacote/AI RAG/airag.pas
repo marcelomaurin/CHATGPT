@@ -796,8 +796,21 @@ end;
 function TAIRAG.FindChunkText(const AChunkID: string): string;
 var
   I: Integer;
+  LHandled: Boolean;
 begin
   Result := '';
+
+  // Se o host resolveu o texto (ex.: consulta ao banco por chunk_id), usa a
+  // resposta dele e nao percorre a colecao Training, que e busca linear.
+  if Assigned(FOnResolveChunkText) then
+  begin
+    LHandled := False;
+    FOnResolveChunkText(Self, AChunkID, Result, LHandled);
+    if LHandled then
+      Exit;
+    Result := '';
+  end;
+
   if not Assigned(FGraphMap) then
     Exit;
 
