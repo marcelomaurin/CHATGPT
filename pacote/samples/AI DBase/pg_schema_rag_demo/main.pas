@@ -470,6 +470,8 @@ end;
 // ---------------------------------------------------------------------------
 
 procedure TfrmPGSchemaRAG.AplicarParametrosConexao;
+var
+  LAppDir, LLibPath: string;
 begin
   ZConnection1.Protocol := 'postgresql';
   ZConnection1.HostName := Trim(edtHost.Text);
@@ -477,6 +479,14 @@ begin
   ZConnection1.Database := Trim(edtDatabase.Text);
   ZConnection1.User     := Trim(edtUsuario.Text);
   ZConnection1.Password := edtSenha.Text;
+
+  // Garante busca das DLLs de conexao (ex: libpq.dll) no mesmo diretorio da aplicacao
+  LAppDir := ExtractFilePath(ParamStr(0));
+  LLibPath := IncludeTrailingPathDelimiter(LAppDir) + 'libpq.dll';
+  if FileExists(LLibPath) then
+    ZConnection1.LibraryLocation := LLibPath
+  else
+    ZConnection1.LibraryLocation := LAppDir;
 end;
 
 function TfrmPGSchemaRAG.EstaConectado: Boolean;
