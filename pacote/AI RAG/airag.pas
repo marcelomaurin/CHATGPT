@@ -350,9 +350,12 @@ function TAIRAG.NormalizeSourceName(const ASource: string): string;
 var
   S: string;
 begin
-  S := ExtractFileName(ASource);
+  // NAO usar ExtractFileName aqui: isso descartaria o caminho relativo e faria
+  // fontes distintas colidirem no mesmo ChunkID.
+  S := Trim(ASource);
   if S = '' then
-    S := ASource;
+    S := 'sem_nome';
+  S := StringReplace(S, '\', '/', [rfReplaceAll]);
   S := StringReplace(S, ' ', '_', [rfReplaceAll]);
   S := StringReplace(S, ':', '_', [rfReplaceAll]);
   S := StringReplace(S, '#', '_', [rfReplaceAll]);
