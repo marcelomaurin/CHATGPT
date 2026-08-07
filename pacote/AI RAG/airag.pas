@@ -109,6 +109,9 @@ type
 
     procedure Clear;
 
+    procedure BeginBulkLoad;
+    procedure EndBulkLoad;
+
     function AddText(
       const ASource: string;
       const AText: string
@@ -477,6 +480,25 @@ begin
   FLastSources.Clear;
   FLastResult := '';
   DoLog('Base RAG e estado do grafo limpos.');
+end;
+
+procedure TAIRAG.BeginBulkLoad;
+begin
+  if FBulkLoading then
+    Exit;
+  FBulkSavedReplace := FReplaceExistingSource;
+  FReplaceExistingSource := False;
+  FBulkLoading := True;
+  DoLog('Carga em massa INICIADA. ReplaceExistingSource desativado temporariamente.');
+end;
+
+procedure TAIRAG.EndBulkLoad;
+begin
+  if not FBulkLoading then
+    Exit;
+  FBulkLoading := False;
+  FReplaceExistingSource := FBulkSavedReplace;
+  DoLog('Carga em massa FINALIZADA. ReplaceExistingSource restaurado.');
 end;
 
 function TAIRAG.AddText(const ASource: string; const AText: string): Integer;
