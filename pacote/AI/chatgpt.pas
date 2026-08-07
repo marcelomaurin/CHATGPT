@@ -716,11 +716,7 @@ begin
   FLastJSON := '';
   FLastURL := '';
 
-  if (FProvider <> AIP_LOCAL) and (FProvider <> AIP_GEMINI) and (Trim(FToken) = '') then
-  begin
-    SetError('Token de API nao configurado.');
-    Exit;
-  end;
+  // Token de API e opcional: servidores locais/customizados (Ollama, LM Studio, etc.) nao exigem chave.
 
   Endpoint := GetEndpoint;
   FLastURL := Endpoint;
