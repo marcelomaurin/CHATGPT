@@ -112,7 +112,8 @@ type
     ): Integer;
 
     function AddFile(
-      const AFileName: string
+      const AFileName: string;
+      const ASourceName: string = ''
     ): Integer;
 
     function AddFolder(
@@ -522,10 +523,11 @@ begin
   end;
 end;
 
-function TAIRAG.AddFile(const AFileName: string): Integer;
+function TAIRAG.AddFile(const AFileName: string; const ASourceName: string): Integer;
 var
   LList: TStringList;
   FullFilePath: string;
+  LSourceName: string;
 begin
   Result := 0;
   ClearError;
@@ -553,7 +555,11 @@ begin
     try
       LList.LoadFromFile(FullFilePath);
       DoLog(Format('Lendo arquivo: %s (%d linhas, %d caracteres)', [ExtractFileName(FullFilePath), LList.Count, Length(LList.Text)]));
-      Result := AddText(ExtractFileName(FullFilePath), LList.Text);
+      if Trim(ASourceName) <> '' then
+        LSourceName := ASourceName
+      else
+        LSourceName := ExtractFileName(FullFilePath);
+      Result := AddText(LSourceName, LList.Text);
       if Result = 0 then
         DoLog('[AVISO ADDFILE] O arquivo ' + ExtractFileName(FullFilePath) + ' resultou em 0 chunks no RAG.');
     except
