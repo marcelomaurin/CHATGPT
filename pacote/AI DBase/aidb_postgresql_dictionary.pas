@@ -300,11 +300,14 @@ begin
   Query := CreateQuery;
   try
     Query.SQL.Text :=
-      'SELECT table_schema, table_name, view_definition ' +
-      'FROM information_schema.views ' +
-      'WHERE table_schema NOT IN (''pg_catalog'', ''information_schema'') ' +
-      '  AND (:schema = '''' OR table_schema = :schema) ' +
-      'ORDER BY table_schema, table_name;';
+      'SELECT v.table_schema, v.table_name, v.view_definition, ' +
+      '       COALESCE(obj_description(c.oid, ''pg_class''), '''') AS view_comment ' +
+      'FROM information_schema.views v ' +
+      '  LEFT JOIN pg_namespace n ON n.nspname = v.table_schema ' +
+      '  LEFT JOIN pg_class c ON c.relname = v.table_name AND c.relnamespace = n.oid ' +
+      'WHERE v.table_schema NOT IN (''pg_catalog'', ''information_schema'') ' +
+      '  AND (:schema = '''' OR v.table_schema = :schema) ' +
+      'ORDER BY v.table_schema, v.table_name;';
     Query.ParamByName('schema').AsString := SchemaName;
     Query.Open;
 
@@ -314,7 +317,7 @@ begin
       V.SchemaName := Query.FieldByName('table_schema').AsString;
       V.ViewName := Query.FieldByName('table_name').AsString;
       V.SQLDefinition := Query.FieldByName('view_definition').AsString;
-      V.Description := '';
+      V.Description := Query.FieldByName('view_comment').AsString;
 
       Query.Next;
     end;
