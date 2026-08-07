@@ -30,7 +30,9 @@
 *.exe
 !pacote/samples/AI Industrial/modbus_demo/modbus_demo.exe
 !pacote/samples/AI\ Industrial/modbus_demo/modbus_demo.exe
+!pacote/samples/AI DBase/pg_schema_rag_demo/pg_schema_rag_demo.exe
 *.dll
+!pacote/samples/AI DBase/pg_schema_rag_demo/*.dll
 *.bpl
 *.bpi
 *.dcp
