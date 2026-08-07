@@ -171,6 +171,7 @@ type
     property LastPrompt: string read FLastPrompt;
     property LastAnswer: string read FLastAnswer;
     property LastSources: TStringList read FLastSources;
+    property BulkLoading: Boolean read FBulkLoading;
 
   published
     property ChatGPT: TCHATGPT read FChatGPT write SetChatGPT;
