@@ -661,4 +661,44 @@ object frmPGSchemaRAG: TfrmPGSchemaRAG
     Left = 940
     Top = 640
   end
+  object CHATGPT1: TCHATGPT
+    Left = 700
+    Top = 580
+  end
+  object AIGraphMap1: TAIGraphMap
+    AutoClearBeforeTrain = True
+    UseTokenCategoryEdges = True
+    UseTokenSequenceEdges = False
+    NormalizeScores = True
+    RemoveAccents = True
+    RemoveStopWords = True
+    Left = 760
+    Top = 580
+  end
+  object AIRAG1: TAIRAG
+    ChatGPT = CHATGPT1
+    GraphMap = AIGraphMap1
+    ChunkSize = 8000
+    ChunkOverlap = 0
+    TopK = 8
+    OnRAGLog = AIRAGLog
+    Left = 820
+    Top = 580
+  end
+  object AIPostgreSQLDictionary1: TAIPostgreSQLDictionary
+    Connection = ZConnection1
+    AutoConnect = False
+    IncludeTables = True
+    IncludeViews = True
+    IncludePrimaryKeys = True
+    IncludeForeignKeys = True
+    IncludeIndexes = True
+    IncludeTriggers = False
+    IncludeSequences = False
+    IncludeRoutines = False
+    IncludeRowCount = False
+    OutputFormat = dofMarkdown
+    Left = 880
+    Top = 580
+  end
 end

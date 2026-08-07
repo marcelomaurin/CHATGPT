@@ -107,6 +107,10 @@ type
     DataSource1: TDataSource;
     OpenDialog1: TOpenDialog;
     SaveDialog1: TSaveDialog;
+    CHATGPT1: TCHATGPT;
+    AIGraphMap1: TAIGraphMap;
+    AIRAG1: TAIRAG;
+    AIPostgreSQLDictionary1: TAIPostgreSQLDictionary;
 
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -125,13 +129,8 @@ type
     procedure btnLimparConsultaClick(Sender: TObject);
     procedure btnSalvarConfigIAClick(Sender: TObject);
     procedure cmbProviderChange(Sender: TObject);
+    procedure AIRAGLog(Sender: TObject; const AMessage: string);
   private
-    FDicionario: TAIPostgreSQLDictionary;
-    FGraphMap: TAIGraphMap;
-    FAIRAG: TAIRAG;
-    FChatGPT: TCHATGPT;
-
-    procedure CriarComponentes;
     procedure Log(const AMensagem: string);
     procedure LogExcecao(const AContexto: string; E: Exception);
     procedure SetOcupado(AOcupado: Boolean);
@@ -145,8 +144,6 @@ type
     procedure AplicarParametrosConexao;
     function EstaConectado: Boolean;
     procedure AtualizarStatusConexao;
-
-    procedure AIRAGLog(Sender: TObject; const AMessage: string);
 
     function SerializarTabela(ATable: TAIDBTableInfo): string;
     procedure EnriquecerComComentarios;
@@ -247,47 +244,8 @@ begin
   Log('[RAG] ' + AMessage);
 end;
 
-procedure TfrmPGSchemaRAG.CriarComponentes;
-begin
-  FChatGPT := TCHATGPT.Create(Self);
-
-  FGraphMap := TAIGraphMap.Create(Self);
-  FGraphMap.AutoClearBeforeTrain := True;
-  FGraphMap.UseTokenCategoryEdges := True;
-  FGraphMap.UseTokenSequenceEdges := False;
-  FGraphMap.NormalizeScores := True;
-  FGraphMap.RemoveAccents := True;
-  FGraphMap.RemoveStopWords := True;
-
-  FAIRAG := TAIRAG.Create(Self);
-  FAIRAG.GraphMap := FGraphMap;
-  FAIRAG.ChatGPT := FChatGPT;
-  // Um chunk por tabela: ChunkSize alto evita que a descricao de uma tabela
-  // seja fatiada em pedacos que perdem o cabecalho.
-  FAIRAG.ChunkSize := 8000;
-  FAIRAG.ChunkOverlap := 0;
-  FAIRAG.TopK := 8;
-  FAIRAG.MinimumScore := 0.0;
-  FAIRAG.OnRAGLog := @AIRAGLog;
-
-  FDicionario := TAIPostgreSQLDictionary.Create(Self);
-  FDicionario.Connection := ZConnection1;
-  FDicionario.AutoConnect := False;
-  FDicionario.IncludeTables := True;
-  FDicionario.IncludeViews := True;
-  FDicionario.IncludePrimaryKeys := True;
-  FDicionario.IncludeForeignKeys := True;
-  FDicionario.IncludeIndexes := True;
-  FDicionario.IncludeTriggers := False;
-  FDicionario.IncludeSequences := False;
-  FDicionario.IncludeRoutines := False;
-  FDicionario.IncludeRowCount := False;
-  FDicionario.OutputFormat := dofMarkdown;
-end;
-
 procedure TfrmPGSchemaRAG.FormCreate(Sender: TObject);
 begin
-  CriarComponentes;
   CarregarConfig;
   AplicarConfigIA;
   AtualizarStatusConexao;
@@ -443,19 +401,19 @@ end;
 
 procedure TfrmPGSchemaRAG.AplicarConfigIA;
 begin
-  if Assigned(FChatGPT) then
+  if Assigned(CHATGPT1) then
   begin
-    FChatGPT.Provider := GetAIProviderFromIndex(cmbProvider.ItemIndex);
-    FChatGPT.TOKEN := Trim(edtApiKey.Text);
-    FChatGPT.TipoChat := VCT_CUSTOM;
-    FChatGPT.CustomModel := Trim(cmbModel.Text);
-    FChatGPT.URL := Trim(edtURL.Text);
-    FChatGPT.Timeout := StrToIntDef(edtTimeout.Text, 120) * 1000;
-    FChatGPT.MaxTokens := StrToIntDef(edtMaxTokens.Text, 1200);
+    CHATGPT1.Provider := GetAIProviderFromIndex(cmbProvider.ItemIndex);
+    CHATGPT1.TOKEN := Trim(edtApiKey.Text);
+    CHATGPT1.TipoChat := VCT_CUSTOM;
+    CHATGPT1.CustomModel := Trim(cmbModel.Text);
+    CHATGPT1.URL := Trim(edtURL.Text);
+    CHATGPT1.Timeout := StrToIntDef(edtTimeout.Text, 120) * 1000;
+    CHATGPT1.MaxTokens := StrToIntDef(edtMaxTokens.Text, 1200);
   end;
 
-  if Assigned(FAIRAG) then
-    FAIRAG.TopK := StrToIntDef(edtTopK.Text, 8);
+  if Assigned(AIRAG1) then
+    AIRAG1.TopK := StrToIntDef(edtTopK.Text, 8);
 end;
 
 procedure TfrmPGSchemaRAG.btnSalvarConfigIAClick(Sender: TObject);
@@ -621,7 +579,7 @@ begin
       LNomeObjeto := LQuery.FieldByName('objeto').AsString;
       LNomeColuna := LQuery.FieldByName('coluna').AsString;
 
-      LTabela := FDicionario.DataDictionary.Tables.FindTable(LNomeObjeto);
+      LTabela := AIPostgreSQLDictionary1.DataDictionary.Tables.FindTable(LNomeObjeto);
 
       // Comentario do objeto
       LComentario := LQuery.FieldByName('coment_objeto').AsString;
@@ -633,9 +591,9 @@ begin
           Inc(LTotalTabelas);
         end;
 
-        for I := 0 to FDicionario.DataDictionary.Views.Count - 1 do
+        for I := 0 to AIPostgreSQLDictionary1.DataDictionary.Views.Count - 1 do
         begin
-          LView := FDicionario.DataDictionary.Views[I];
+          LView := AIPostgreSQLDictionary1.DataDictionary.Views[I];
           if SameText(LView.ViewName, LNomeObjeto) and (LView.Description = '') then
             LView.Description := LComentario;
         end;
@@ -726,9 +684,9 @@ begin
 
     // FKs que saem desta tabela
     LTemFKSaida := False;
-    for I := 0 to FDicionario.DataDictionary.ForeignKeys.Count - 1 do
+    for I := 0 to AIPostgreSQLDictionary1.DataDictionary.ForeignKeys.Count - 1 do
     begin
-      LFK := FDicionario.DataDictionary.ForeignKeys[I];
+      LFK := AIPostgreSQLDictionary1.DataDictionary.ForeignKeys[I];
       if SameText(LFK.TableName, ATable.TableName) then
       begin
         if not LTemFKSaida then
@@ -743,9 +701,9 @@ begin
 
     // FKs que apontam para esta tabela
     LTemFKEntrada := False;
-    for I := 0 to FDicionario.DataDictionary.ForeignKeys.Count - 1 do
+    for I := 0 to AIPostgreSQLDictionary1.DataDictionary.ForeignKeys.Count - 1 do
     begin
-      LFK := FDicionario.DataDictionary.ForeignKeys[I];
+      LFK := AIPostgreSQLDictionary1.DataDictionary.ForeignKeys[I];
       if SameText(LFK.RefTableName, ATable.TableName) then
       begin
         if not LTemFKEntrada then
@@ -780,32 +738,32 @@ begin
       lstTabelas.Items.Clear;
       memChunkTabela.Lines.Clear;
 
-      FDicionario.SchemaName := Trim(edtSchema.Text);
-      FDicionario.Clear;
+      AIPostgreSQLDictionary1.SchemaName := Trim(edtSchema.Text);
+      AIPostgreSQLDictionary1.Clear;
 
-      Log('Gerando dicionario de dados do esquema "' + FDicionario.SchemaName + '"...');
+      Log('Gerando dicionario de dados do esquema "' + AIPostgreSQLDictionary1.SchemaName + '"...');
 
-      if not FDicionario.Generate then
+      if not AIPostgreSQLDictionary1.Generate then
       begin
-        Log('[ERRO] Falha ao gerar dicionario: ' + FDicionario.LastError);
-        ShowMessage('Falha ao gerar dicionario: ' + FDicionario.LastError);
+        Log('[ERRO] Falha ao gerar dicionario: ' + AIPostgreSQLDictionary1.LastError);
+        ShowMessage('Falha ao gerar dicionario: ' + AIPostgreSQLDictionary1.LastError);
         Exit;
       end;
 
       if chkCarregarComentarios.Checked then
         EnriquecerComComentarios;
 
-      for I := 0 to FDicionario.DataDictionary.Tables.Count - 1 do
+      for I := 0 to AIPostgreSQLDictionary1.DataDictionary.Tables.Count - 1 do
       begin
-        LTabela := FDicionario.DataDictionary.Tables[I];
+        LTabela := AIPostgreSQLDictionary1.DataDictionary.Tables[I];
         lstTabelas.Items.Add(LTabela.SchemaName + '.' + LTabela.TableName);
       end;
 
       lblResumoDic.Caption := Format('Tabelas: %d   Colunas: %d   Views: %d   FKs: %d',
-        [FDicionario.DataDictionary.TableCount,
-         FDicionario.DataDictionary.ColumnCount,
-         FDicionario.DataDictionary.Views.Count,
-         FDicionario.DataDictionary.ForeignKeys.Count]);
+        [AIPostgreSQLDictionary1.DataDictionary.TableCount,
+         AIPostgreSQLDictionary1.DataDictionary.ColumnCount,
+         AIPostgreSQLDictionary1.DataDictionary.Views.Count,
+         AIPostgreSQLDictionary1.DataDictionary.ForeignKeys.Count]);
 
       Log('Dicionario gerado. ' + lblResumoDic.Caption);
 
@@ -830,10 +788,10 @@ begin
   memChunkTabela.Lines.Clear;
   if lstTabelas.ItemIndex < 0 then
     Exit;
-  if lstTabelas.ItemIndex >= FDicionario.DataDictionary.Tables.Count then
+  if lstTabelas.ItemIndex >= AIPostgreSQLDictionary1.DataDictionary.Tables.Count then
     Exit;
 
-  LTabela := FDicionario.DataDictionary.Tables[lstTabelas.ItemIndex];
+  LTabela := AIPostgreSQLDictionary1.DataDictionary.Tables[lstTabelas.ItemIndex];
   memChunkTabela.Text := SerializarTabela(LTabela);
 end;
 
@@ -847,7 +805,7 @@ var
   LTabela: TAIDBTableInfo;
   LFonte, LTexto: string;
 begin
-  if FDicionario.DataDictionary.Tables.Count = 0 then
+  if AIPostgreSQLDictionary1.DataDictionary.Tables.Count = 0 then
   begin
     ShowMessage('Gere o dicionario de dados antes de construir o indice.');
     Exit;
@@ -858,41 +816,41 @@ begin
     try
       AplicarConfigIA;
       memIndice.Lines.Clear;
-      FAIRAG.Clear;
+      AIRAG1.Clear;
 
       Log('Construindo indice de esquema...');
 
-      for I := 0 to FDicionario.DataDictionary.Tables.Count - 1 do
+      for I := 0 to AIPostgreSQLDictionary1.DataDictionary.Tables.Count - 1 do
       begin
-        LTabela := FDicionario.DataDictionary.Tables[I];
+        LTabela := AIPostgreSQLDictionary1.DataDictionary.Tables[I];
 
         // Nome de fonte com PONTO, nao barra. Isso atravessa NormalizeSourceName
         // sem perder informacao e nao depende de nenhuma alteracao no core.
         LFonte := LTabela.SchemaName + '.' + LTabela.TableName;
         LTexto := SerializarTabela(LTabela);
 
-        LChunks := FAIRAG.AddText(LFonte, LTexto);
+        LChunks := AIRAG1.AddText(LFonte, LTexto);
         memIndice.Lines.Add(Format('%-40s %d chunk(s)', [LFonte, LChunks]));
       end;
 
       memIndice.Lines.Add('');
-      memIndice.Lines.Add(Format('Total de itens de treino: %d', [FGraphMap.Training.Count]));
+      memIndice.Lines.Add(Format('Total de itens de treino: %d', [AIGraphMap1.Training.Count]));
 
-      if FGraphMap.Training.Count <> FDicionario.DataDictionary.Tables.Count then
+      if AIGraphMap1.Training.Count <> AIPostgreSQLDictionary1.DataDictionary.Tables.Count then
         memIndice.Lines.Add(Format(
           '[ATENCAO] %d tabelas geraram %d itens. Se forem numeros diferentes, ' +
           'ha tabela vazia ou colisao de nome de fonte.',
-          [FDicionario.DataDictionary.Tables.Count, FGraphMap.Training.Count]));
+          [AIPostgreSQLDictionary1.DataDictionary.Tables.Count, AIGraphMap1.Training.Count]));
 
-      if not FAIRAG.BuildIndex then
+      if not AIRAG1.BuildIndex then
       begin
-        Log('[ERRO] Falha ao treinar o grafo: ' + FAIRAG.LastError);
-        ShowMessage('Falha ao construir indice: ' + FAIRAG.LastError);
+        Log('[ERRO] Falha ao treinar o grafo: ' + AIRAG1.LastError);
+        ShowMessage('Falha ao construir indice: ' + AIRAG1.LastError);
         Exit;
       end;
 
       lblIndiceInfo.Caption := Format('Nos: %d   Arestas: %d   Chunks: %d',
-        [FGraphMap.NodeCount, FGraphMap.EdgeCount, FGraphMap.Training.Count]);
+        [AIGraphMap1.NodeCount, AIGraphMap1.EdgeCount, AIGraphMap1.Training.Count]);
 
       memIndice.Lines.Add('');
       memIndice.Lines.Add('Indice construido com sucesso. ' + lblIndiceInfo.Caption);
@@ -908,7 +866,7 @@ end;
 
 procedure TfrmPGSchemaRAG.btnSalvarIndiceClick(Sender: TObject);
 begin
-  if FGraphMap.Training.Count = 0 then
+  if AIGraphMap1.Training.Count = 0 then
   begin
     ShowMessage('Nao ha indice para salvar.');
     Exit;
@@ -923,7 +881,7 @@ begin
   SetOcupado(True);
   try
     try
-      if FAIRAG.SaveIndex(SaveDialog1.FileName,
+      if AIRAG1.SaveIndex(SaveDialog1.FileName,
                           ChangeFileExt(SaveDialog1.FileName, '.json')) then
       begin
         Log('Indice salvo em: ' + SaveDialog1.FileName);
@@ -931,8 +889,8 @@ begin
       end
       else
       begin
-        Log('[ERRO] ' + FAIRAG.LastError);
-        ShowMessage('Falha ao salvar: ' + FAIRAG.LastError);
+        Log('[ERRO] ' + AIRAG1.LastError);
+        ShowMessage('Falha ao salvar: ' + AIRAG1.LastError);
       end;
     except
       on E: Exception do
@@ -953,11 +911,11 @@ begin
   SetOcupado(True);
   try
     try
-      if FAIRAG.LoadIndex(OpenDialog1.FileName,
+      if AIRAG1.LoadIndex(OpenDialog1.FileName,
                           ChangeFileExt(OpenDialog1.FileName, '.json')) then
       begin
         lblIndiceInfo.Caption := Format('Nos: %d   Arestas: %d   Chunks: %d',
-          [FGraphMap.NodeCount, FGraphMap.EdgeCount, FGraphMap.Training.Count]);
+          [AIGraphMap1.NodeCount, AIGraphMap1.EdgeCount, AIGraphMap1.Training.Count]);
         Log('Indice carregado. ' + lblIndiceInfo.Caption);
         memIndice.Lines.Add('Indice carregado de: ' + OpenDialog1.FileName);
 
@@ -967,8 +925,8 @@ begin
       end
       else
       begin
-        Log('[ERRO] ' + FAIRAG.LastError);
-        ShowMessage('Falha ao carregar: ' + FAIRAG.LastError);
+        Log('[ERRO] ' + AIRAG1.LastError);
+        ShowMessage('Falha ao carregar: ' + AIRAG1.LastError);
       end;
     except
       on E: Exception do
@@ -989,9 +947,9 @@ var
   LTabela: TAIDBTableInfo;
 begin
   Result := nil;
-  for I := 0 to FDicionario.DataDictionary.Tables.Count - 1 do
+  for I := 0 to AIPostgreSQLDictionary1.DataDictionary.Tables.Count - 1 do
   begin
-    LTabela := FDicionario.DataDictionary.Tables[I];
+    LTabela := AIPostgreSQLDictionary1.DataDictionary.Tables[I];
     if SameText(LTabela.SchemaName + '.' + LTabela.TableName, AFonte) then
       Exit(LTabela);
   end;
@@ -1035,9 +993,9 @@ begin
     // Bloco explicito de ligacoes entre as tabelas recuperadas: o LLM erra
     // muito menos o JOIN quando o par de colunas vem escrito.
     LTemLigacao := False;
-    for J := 0 to FDicionario.DataDictionary.ForeignKeys.Count - 1 do
+    for J := 0 to AIPostgreSQLDictionary1.DataDictionary.ForeignKeys.Count - 1 do
     begin
-      LFK := FDicionario.DataDictionary.ForeignKeys[J];
+      LFK := AIPostgreSQLDictionary1.DataDictionary.ForeignKeys[J];
       if FonteSelecionada(LFK.TableName) and FonteSelecionada(LFK.RefTableName) then
       begin
         if not LTemLigacao then
@@ -1068,7 +1026,7 @@ begin
     Exit;
   end;
 
-  if FGraphMap.NodeCount = 0 then
+  if AIGraphMap1.NodeCount = 0 then
   begin
     ShowMessage('Construa ou carregue o indice antes de consultar.');
     Exit;
@@ -1082,11 +1040,11 @@ begin
 
       LResultados := TStringList.Create;
       try
-        if not FAIRAG.Retrieve(edtPergunta.Text, LResultados) then
+        if not AIRAG1.Retrieve(edtPergunta.Text, LResultados) then
         begin
           memRecuperadas.Lines.Add('Nenhuma tabela relevante encontrada.');
-          memRecuperadas.Lines.Add('Erro: ' + FAIRAG.LastError);
-          Log('[AVISO] Recuperacao vazia: ' + FAIRAG.LastError);
+          memRecuperadas.Lines.Add('Erro: ' + AIRAG1.LastError);
+          Log('[AVISO] Recuperacao vazia: ' + AIRAG1.LastError);
           Exit;
         end;
 
@@ -1214,7 +1172,7 @@ begin
     Exit;
   end;
 
-  if FGraphMap.NodeCount = 0 then
+  if AIGraphMap1.NodeCount = 0 then
   begin
     ShowMessage('Construa ou carregue o indice antes de gerar SQL.');
     Exit;
@@ -1235,7 +1193,7 @@ begin
       LResultados := TStringList.Create;
       LFontes := TStringList.Create;
       try
-        if not FAIRAG.Retrieve(edtPergunta.Text, LResultados) then
+        if not AIRAG1.Retrieve(edtPergunta.Text, LResultados) then
         begin
           ShowMessage('Nenhuma tabela relevante foi recuperada. ' +
                       'Reformule a pergunta ou revise os comentarios do banco.');
@@ -1283,17 +1241,17 @@ begin
         Log(Format('Enviando prompt de %d caracteres com %d tabelas.',
           [Length(LPrompt), LFontes.Count]));
 
-        FChatGPT.Prompt := LPrompt;
-        if not FChatGPT.SendQuestion(LPrompt) then
+        CHATGPT1.Prompt := LPrompt;
+        if not CHATGPT1.SendQuestion(LPrompt) then
         begin
-          Log('[ERRO IA] ' + FChatGPT.LastError);
-          ShowMessage('Falha na chamada a IA: ' + FChatGPT.LastError);
+          Log('[ERRO IA] ' + CHATGPT1.LastError);
+          ShowMessage('Falha na chamada a IA: ' + CHATGPT1.LastError);
           Exit;
         end;
 
-        LResposta := FChatGPT.Response;
+        LResposta := CHATGPT1.Response;
         if Trim(LResposta) = '' then
-          LResposta := FChatGPT.LastResult;
+          LResposta := CHATGPT1.LastResult;
 
         memSQL.Text := LimparCercaMarkdown(LResposta);
         Log('SQL gerado com sucesso.');
