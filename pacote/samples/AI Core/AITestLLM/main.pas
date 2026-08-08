@@ -223,7 +223,7 @@ begin
     else
       S := GetEnumName(TypeInfo(TAIProvider), Ord(Prov));
     end;
-    cbProvider.Items.AddObject(S, TObject(Pointer(Prov)));
+    cbProvider.Items.Add(S);
   end;
 end;
 
@@ -293,7 +293,7 @@ var
   Prov: TAIProvider;
 begin
   if cbProvider.ItemIndex = -1 then Exit;
-  Prov := TAIProvider(Pointer(cbProvider.Items.Objects[cbProvider.ItemIndex]));
+  Prov := TAIProvider(cbProvider.ItemIndex);
   PopulateModels(Prov);
 end;
 
@@ -675,8 +675,9 @@ begin
     gridResults.Cells[4, I] := '';
   end;
 
-  SelectedProv := TAIProvider(Pointer(cbProvider.Items.Objects[cbProvider.ItemIndex]));
-  SelectedModel := TVersionChat(Pointer(cbModel.Items.Objects[cbModel.ItemIndex]));
+  SelectedProv := TAIProvider(cbProvider.ItemIndex);
+  SelectedModel := TVersionChat(
+    PtrUInt(cbModel.Items.Objects[cbModel.ItemIndex]));
 
   AddLog('=== Iniciando Execução Bateria de Testes (' + IntToStr(TotalTests) + ') ===');
 

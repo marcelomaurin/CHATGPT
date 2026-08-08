@@ -1,0 +1,66 @@
+object frmMain: TfrmMain
+  Left = 320
+  Height = 360
+  Top = 180
+  Width = 560
+  Caption = 'llama.cpp Model'
+  ClientHeight = 360
+  ClientWidth = 560
+  OnCreate = FormCreate
+  Position = poScreenCenter
+  object edtModelFile: TEdit
+    Left = 16
+    Height = 28
+    Top = 16
+    Width = 416
+    Anchors = [akTop, akLeft, akRight]
+    ReadOnly = True
+    TabOrder = 0
+  end
+  object btnSelectModel: TButton
+    Left = 440
+    Height = 28
+    Top = 16
+    Width = 104
+    Anchors = [akTop, akRight]
+    Caption = 'Selecionar...'
+    OnClick = btnSelectModelClick
+    TabOrder = 1
+  end
+  object btnShowParameters: TButton
+    Left = 16
+    Height = 28
+    Top = 56
+    Width = 160
+    Caption = 'Mostrar parametros'
+    OnClick = btnShowParametersClick
+    TabOrder = 2
+  end
+  object memValidation: TMemo
+    Left = 16
+    Height = 248
+    Top = 96
+    Width = 528
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    Font.Name = 'Consolas'
+    ParentFont = False
+    ReadOnly = True
+    ScrollBars = ssAutoBoth
+    TabOrder = 3
+  end
+  object LlamaRuntime: TAILlamaCppRuntime
+  end
+  object LlamaModel: TAILlamaCppModel
+    Runtime = LlamaRuntime
+  end
+  object LlamaServer: TAILlamaCppServer
+    Runtime = LlamaRuntime
+    Model = LlamaModel
+  end
+  object OpenGGUFDialog: TOpenDialog
+    DefaultExt = '.gguf'
+    Filter = 'Modelos GGUF (*.gguf)|*.gguf'
+    Options = [ofFileMustExist, ofEnableSizing, ofViewDetail]
+    Title = 'Selecionar modelo GGUF'
+  end
+end

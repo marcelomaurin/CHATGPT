@@ -99,7 +99,7 @@ begin
     else
       S := GetEnumName(TypeInfo(TAIProvider), Ord(Prov));
     end;
-    cbProvider.Items.AddObject(S, TObject(Pointer(Prov)));
+    cbProvider.Items.Add(S);
   end;
 end;
 
@@ -194,7 +194,7 @@ var
   Prov: TAIProvider;
 begin
   if cbProvider.ItemIndex = -1 then Exit;
-  Prov := TAIProvider(Pointer(cbProvider.Items.Objects[cbProvider.ItemIndex]));
+  Prov := TAIProvider(cbProvider.ItemIndex);
 
   cbModel.Items.Clear;
   edtEndpoint.Text := '';
@@ -306,7 +306,7 @@ begin
     
     if cbProvider.ItemIndex <> -1 then
     begin
-      LProv := TAIProvider(Pointer(cbProvider.Items.Objects[cbProvider.ItemIndex]));
+      LProv := TAIProvider(cbProvider.ItemIndex);
       FAICodeAssistant.ChatGPT.Provider := LProv;
     end;
     
@@ -320,7 +320,8 @@ begin
     end
     else if cbModel.ItemIndex <> -1 then
     begin
-      FAICodeAssistant.ChatGPT.TipoChat := TVersionChat(Pointer(cbModel.Items.Objects[cbModel.ItemIndex]));
+      FAICodeAssistant.ChatGPT.TipoChat := TVersionChat(
+        PtrUInt(cbModel.Items.Objects[cbModel.ItemIndex]));
       FAICodeAssistant.ChatGPT.CustomModel := cbModel.Text;
     end;
     

@@ -1,0 +1,118 @@
+object frmMain: TfrmMain
+  Left = 260
+  Height = 500
+  Top = 140
+  Width = 760
+  Caption = 'llama.cpp Native Streaming'
+  ClientHeight = 500
+  ClientWidth = 760
+  OnCreate = FormCreate
+  Position = poScreenCenter
+  object lblModel: TLabel
+    Left = 16
+    Height = 15
+    Top = 16
+    Width = 42
+    Caption = 'Modelo'
+  end
+  object edtModelFile: TEdit
+    Left = 16
+    Height = 28
+    Top = 36
+    Width = 616
+    Anchors = [akTop, akLeft, akRight]
+    TabOrder = 0
+  end
+  object btnSelectModel: TButton
+    Left = 640
+    Height = 28
+    Top = 36
+    Width = 104
+    Anchors = [akTop, akRight]
+    Caption = 'Selecionar...'
+    OnClick = btnSelectModelClick
+    TabOrder = 1
+  end
+  object lblPrompt: TLabel
+    Left = 16
+    Height = 15
+    Top = 76
+    Width = 42
+    Caption = 'Prompt'
+  end
+  object edtPrompt: TEdit
+    Left = 16
+    Height = 28
+    Top = 96
+    Width = 728
+    Anchors = [akTop, akLeft, akRight]
+    Text = 'Explique em uma frase o que e SQLite.'
+    TabOrder = 2
+  end
+  object btnGenerate: TButton
+    Left = 16
+    Height = 32
+    Top = 136
+    Width = 104
+    Caption = 'Gerar'
+    OnClick = btnGenerateClick
+    TabOrder = 3
+  end
+  object btnCancel: TButton
+    Left = 128
+    Height = 32
+    Top = 136
+    Width = 104
+    Caption = 'Cancelar'
+    Enabled = False
+    OnClick = btnCancelClick
+    TabOrder = 4
+  end
+  object lblStatus: TLabel
+    Left = 248
+    Height = 15
+    Top = 145
+    Width = 35
+    Caption = 'Pronto'
+  end
+  object memOutput: TMemo
+    Left = 16
+    Height = 304
+    Top = 180
+    Width = 728
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    Font.Name = 'Consolas'
+    ParentFont = False
+    ReadOnly = True
+    ScrollBars = ssAutoVertical
+    TabOrder = 5
+  end
+  object LlamaRuntime: TAILlamaCppRuntime
+  end
+  object LlamaModel: TAILlamaCppModel
+    Runtime = LlamaRuntime
+    ContextSize = 2048
+  end
+  object LlamaInference: TAILlamaCppInference
+    Model = LlamaModel
+    AccessMode = llamNative
+    MaxTokens = 32
+    Temperature = 0.8
+    Seed = 1
+    OnToken = LlamaInferenceToken
+    OnStart = LlamaInferenceStart
+    OnFinish = LlamaInferenceFinish
+    OnError = LlamaInferenceError
+  end
+  object OpenGGUFDialog: TOpenDialog
+    DefaultExt = '.gguf'
+    Filter = 'Modelos GGUF (*.gguf)|*.gguf'
+    Options = [ofFileMustExist, ofEnableSizing, ofViewDetail]
+    Title = 'Selecionar modelo GGUF'
+  end
+  object SelfTestTimer: TTimer
+    Enabled = False
+    Interval = 120000
+    OnTimer = SelfTestTimerTimer
+  end
+end

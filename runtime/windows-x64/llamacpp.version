@@ -1,0 +1,9 @@
+[LlamaCpp]
+Version=b5200
+Build=5200
+Commit=c0a97b762e5ec767dc414f0dc4979befd4c09a52
+Architecture=x86_64
+Backend=CPU
+BackendVariant=AVX2
+Asset=llama-b5200-bin-win-avx2-x64.zip
+SHA256=BD37C76F6986AE8A3E64AE9929E1103A161C0B72837BA3925E9628D8D868823A
