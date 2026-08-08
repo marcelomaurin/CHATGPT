@@ -27,6 +27,24 @@ This demo shows how to combine ChatGPT with the AI DBase Dictionary component to
 7. Execute the SQL using ZeosLib.
 8. View the result in a DBGrid.
 
+## Configuration
+
+The database path and LLM settings follow the same persisted-configuration
+pattern used by `pg_schema_rag_demo`. They are stored in:
+
+```text
+%APPDATA%\maurinsoft\ai_sqlite_query_assistant_demo\ai_sqlite_query_assistant_demo.ini
+```
+
+The LLM configuration includes provider, API key, model, endpoint, timeout and
+maximum tokens. Provider and model lists are obtained from the OpenAI package
+helpers, while the model field remains editable for custom models.
+
+## Windows target
+
+The Lazarus project targets `i386-win32`. The `sqlite3.dll` distributed beside
+the executable must therefore also be the 32-bit version.
+
 ## Demo database
 
 The demo creates a sales database with the following tables:
@@ -57,6 +75,10 @@ The demo creates a sales database with the following tables:
 The demo only allows SELECT and WITH queries to be executed.
 
 Commands such as INSERT, UPDATE, DELETE, DROP, ALTER, CREATE, PRAGMA, ATTACH, DETACH, VACUUM, BEGIN, COMMIT and ROLLBACK are blocked before execution.
+
+If SQLite rejects a query, the application sends the SQLite error, failed SQL,
+original request and database dictionary back to the LLM. It validates and
+retries the corrected SQL, with a maximum of three execution attempts.
 
 ## Important note
 

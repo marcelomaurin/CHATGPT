@@ -80,6 +80,15 @@ object frmMain: TfrmMain
           OnClick = btnGenerateDictionaryClick
           TabOrder = 4
         end
+        object btnSaveDatabaseConfig: TButton
+          Left = 374
+          Height = 25
+          Top = 44
+          Width = 160
+          Caption = 'Save Configuration'
+          OnClick = btnSaveDatabaseConfigClick
+          TabOrder = 5
+        end
         object lblDatabaseStatus: TLabel
           Left = 16
           Height = 15
@@ -146,9 +155,8 @@ object frmMain: TfrmMain
           Left = 110
           Height = 23
           Top = 52
-          Width = 200
+          Width = 350
           ItemHeight = 15
-          Style = csDropDownList
           TabOrder = 1
         end
         object lblToken: TLabel
@@ -169,29 +177,69 @@ object frmMain: TfrmMain
           TabOrder = 2
         end
         object lblMaxTokens: TLabel
-          Left = 16
+          Left = 230
           Height = 15
-          Top = 136
+          Top = 176
           Width = 64
           Caption = 'Max tokens:'
           ParentColor = False
         end
         object edtMaxTokens: TEdit
+          Left = 330
+          Height = 23
+          Top = 172
+          Width = 100
+          TabOrder = 5
+          Text = '2048'
+        end
+        object lblURL: TLabel
+          Left = 16
+          Height = 15
+          Top = 136
+          Width = 90
+          Caption = 'URL / Endpoint:'
+          ParentColor = False
+        end
+        object edtURL: TEdit
           Left = 110
           Height = 23
           Top = 132
-          Width = 100
+          Width = 350
           TabOrder = 3
-          Text = '2048'
+        end
+        object lblTimeout: TLabel
+          Left = 16
+          Height = 15
+          Top = 176
+          Width = 61
+          Caption = 'Timeout (s):'
+          ParentColor = False
+        end
+        object edtTimeout: TEdit
+          Left = 110
+          Height = 23
+          Top = 172
+          Width = 100
+          TabOrder = 4
+          Text = '120'
         end
         object btnTestLLM: TButton
           Left = 110
           Height = 30
-          Top = 176
+          Top = 216
           Width = 120
           Caption = 'Test LLM'
           OnClick = btnTestLLMClick
-          TabOrder = 4
+          TabOrder = 6
+        end
+        object btnSaveLLMConfig: TButton
+          Left = 246
+          Height = 30
+          Top = 216
+          Width = 180
+          Caption = 'Save LLM Configuration'
+          OnClick = btnSaveLLMConfigClick
+          TabOrder = 7
         end
       end
       object memoLLMLog: TMemo

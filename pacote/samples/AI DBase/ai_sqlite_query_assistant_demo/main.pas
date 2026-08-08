@@ -5,7 +5,7 @@ unit main;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls,
+  Classes, SysUtils, IniFiles, Forms, Controls, Graphics, Dialogs, ComCtrls,
   ExtCtrls, StdCtrls, DBGrids, DB, ZConnection, ZDataset, strutils,
   chatgpt,
   aidb_types,
@@ -27,6 +27,7 @@ type
     btnCreateDatabase: TButton;
     btnConnectDatabase: TButton;
     btnGenerateDictionary: TButton;
+    btnSaveDatabaseConfig: TButton;
     lblDatabaseStatus: TLabel;
     memoDictionary: TMemo;
     pnlLlmConfig: TPanel;
@@ -36,9 +37,14 @@ type
     cbModel: TComboBox;
     lblToken: TLabel;
     edtToken: TEdit;
+    lblURL: TLabel;
+    edtURL: TEdit;
+    lblTimeout: TLabel;
+    edtTimeout: TEdit;
     lblMaxTokens: TLabel;
     edtMaxTokens: TEdit;
     btnTestLLM: TButton;
+    btnSaveLLMConfig: TButton;
     memoLLMLog: TMemo;
     pnlPromptTop: TPanel;
     lblUserPrompt: TLabel;
@@ -68,7 +74,9 @@ type
     procedure btnCreateDatabaseClick(Sender: TObject);
     procedure btnConnectDatabaseClick(Sender: TObject);
     procedure btnGenerateDictionaryClick(Sender: TObject);
+    procedure btnSaveDatabaseConfigClick(Sender: TObject);
     procedure btnTestLLMClick(Sender: TObject);
+    procedure btnSaveLLMConfigClick(Sender: TObject);
     procedure btnAddExamplePromptClick(Sender: TObject);
     procedure btnGenerateSQLClick(Sender: TObject);
     procedure btnValidateSQLClick(Sender: TObject);
@@ -83,15 +91,22 @@ type
     FDictionaryGenerated: Boolean;
     FExampleIndex: Integer;
 
+    function ConfigFileName: string;
+    procedure LoadConfig;
+    procedure SaveConfig;
+    procedure UpdateProviderModels;
     function GetDemoDatabaseFileName: string;
+    procedure ApplyDatabaseConfig(const AFileName: string);
     procedure CreateDemoDatabase(const AFileName: string);
     procedure ExecuteScript(const AScript: string);
     procedure ConnectSQLite(const AFileName: string);
     function GenerateDatabaseDictionary: Boolean;
     procedure SyncChatGPTConfig;
     function BuildSQLPrompt(const AUserRequest: string; const ADatabaseDictionary: string): string;
+    function BuildSQLCorrectionPrompt(const AFailedSQL, AError: string): string;
     function ExtractSQLFromLLMResponse(const AResponse: string): string;
     function IsSafeSelectSQL(const ASQL: string; out AError: string): Boolean;
+    function ExecuteSQLWithAutoCorrection(var ASQL: string): Boolean;
   public
   end;
 
@@ -103,6 +118,9 @@ implementation
 {$R *.lfm}
 
 const
+  APP_NAME = 'ai_sqlite_query_assistant_demo';
+  MAX_SQL_ATTEMPTS = 3;
+
   ExamplePrompts: array[0..9] of string = (
     'Show total sales by customer.',
     'List the best-selling products.',
@@ -131,21 +149,7 @@ begin
   FDictionaryGenerated := False;
   FExampleIndex := 0;
 
-  // Set startup defaults
-  edtMaxTokens.Text := '2048';
-  
-  cbProvider.Items.Clear;
-  cbProvider.Items.Add('OpenAI');
-  cbProvider.Items.Add('OpenRouter');
-  cbProvider.Items.Add('Cerebras');
-  cbProvider.Items.Add('Local/Ollama');
-  cbProvider.Items.Add('Gemini');
-  cbProvider.Items.Add('Claude');
-  cbProvider.ItemIndex := 0;
-  cbProviderChange(Self);
-
   memoUserPrompt.Text := ExamplePrompts[0];
-  edtDatabasePath.Text := GetDemoDatabaseFileName;
   lblDatabaseStatus.Caption := 'Status: Not connected';
   lblRows.Caption := 'Rows: 0';
 
@@ -154,10 +158,20 @@ begin
   memoGeneratedSQL.Clear;
   memoExecutionLog.Clear;
   memoLLMLog.Clear;
+
+  LoadConfig;
+  SyncChatGPTConfig;
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
+  try
+    SaveConfig;
+  except
+    // Destruction must not propagate configuration errors.
+    on E: Exception do ;
+  end;
+
   if FQueryResult.Active then
     FQueryResult.Close;
   if FConnection.Connected then
@@ -166,43 +180,128 @@ end;
 
 procedure TfrmMain.cbProviderChange(Sender: TObject);
 begin
-  cbModel.Items.Clear;
-  if cbProvider.Text = 'OpenAI' then
-  begin
-    cbModel.Items.Add('gpt-4o-mini');
-    cbModel.Items.Add('gpt-4o');
-    cbModel.Items.Add('o3-mini');
-    cbModel.Items.Add('gpt-4-turbo-preview');
-    cbModel.Items.Add('gpt-3.5-turbo');
-    cbModel.ItemIndex := 0;
-  end
-  else if cbProvider.Text = 'Local/Ollama' then
-  begin
-    cbModel.Items.Add('llama3.2:3b');
-    cbModel.Items.Add('deepseek-r1:8b');
-    cbModel.ItemIndex := 0;
-  end
-  else if cbProvider.Text = 'Gemini' then
-  begin
-    cbModel.Items.Add('gemini-2.5-flash');
-    cbModel.Items.Add('gemini-2.5-pro');
-    cbModel.ItemIndex := 0;
-  end
-  else if cbProvider.Text = 'Claude' then
-  begin
-    cbModel.Items.Add('claude-3-5-sonnet-latest');
-    cbModel.ItemIndex := 0;
-  end
+  edtURL.Text := GetDefaultEndpointForProvider(
+    GetAIProviderFromIndex(cbProvider.ItemIndex));
+  UpdateProviderModels;
+end;
+
+function TfrmMain.ConfigFileName: string;
+var
+  LDir: string;
+begin
+  LDir := GetEnvironmentVariable('APPDATA');
+  if LDir <> '' then
+    LDir := IncludeTrailingPathDelimiter(LDir) + 'maurinsoft' +
+      DirectorySeparator + APP_NAME
   else
+    LDir := GetAppConfigDir(False);
+
+  if not DirectoryExists(LDir) then
+    ForceDirectories(LDir);
+  Result := IncludeTrailingPathDelimiter(LDir) + APP_NAME + '.ini';
+end;
+
+procedure TfrmMain.UpdateProviderModels;
+var
+  LProvider: TAIProvider;
+  LCurrentModel: string;
+begin
+  LCurrentModel := cbModel.Text;
+  LProvider := GetAIProviderFromIndex(cbProvider.ItemIndex);
+
+  cbModel.Items.Clear;
+  GetAIModelListForProvider(LProvider, cbModel.Items);
+
+  if cbModel.Items.Count > 0 then
   begin
-    cbModel.Items.Add('default');
-    cbModel.ItemIndex := 0;
+    if cbModel.Items.IndexOf(LCurrentModel) >= 0 then
+      cbModel.Text := LCurrentModel
+    else
+      cbModel.ItemIndex := 0;
+  end;
+
+  if Trim(edtURL.Text) = '' then
+    edtURL.Text := GetDefaultEndpointForProvider(LProvider);
+end;
+
+procedure TfrmMain.LoadConfig;
+var
+  LIni: TIniFile;
+  LProviderName: string;
+  LProviderIndex: Integer;
+begin
+  LIni := TIniFile.Create(ConfigFileName);
+  try
+    edtDatabasePath.Text := LIni.ReadString('Conexao', 'DatabasePath',
+      GetDemoDatabaseFileName);
+
+    GetAIProviderList(cbProvider.Items);
+    LProviderName := LIni.ReadString('IA', 'ProviderName', '');
+    LProviderIndex := -1;
+    if LProviderName <> '' then
+      LProviderIndex := cbProvider.Items.IndexOf(LProviderName);
+    if LProviderIndex < 0 then
+      LProviderIndex := LIni.ReadInteger('IA', 'ProviderIndex', 0);
+    if (LProviderIndex >= 0) and (LProviderIndex < cbProvider.Items.Count) then
+      cbProvider.ItemIndex := LProviderIndex
+    else
+      cbProvider.ItemIndex := 0;
+
+    UpdateProviderModels;
+
+    edtToken.Text := LIni.ReadString('IA', 'ApiKey', '');
+    cbModel.Text := LIni.ReadString('IA', 'Model', cbModel.Text);
+    edtURL.Text := LIni.ReadString('IA', 'URL',
+      GetDefaultEndpointForProvider(
+        GetAIProviderFromIndex(cbProvider.ItemIndex)));
+    edtTimeout.Text := LIni.ReadString('IA', 'TimeoutSegundos', '120');
+    edtMaxTokens.Text := LIni.ReadString('IA', 'MaxTokens', '2048');
+
+    memoLLMLog.Lines.Add('Configuration loaded from: ' + ConfigFileName);
+  finally
+    LIni.Free;
+  end;
+end;
+
+procedure TfrmMain.SaveConfig;
+var
+  LIni: TIniFile;
+begin
+  LIni := TIniFile.Create(ConfigFileName);
+  try
+    LIni.WriteString('Conexao', 'DatabasePath', edtDatabasePath.Text);
+    LIni.WriteInteger('IA', 'ProviderIndex', cbProvider.ItemIndex);
+    LIni.WriteString('IA', 'ProviderName', cbProvider.Text);
+    LIni.WriteString('IA', 'ApiKey', edtToken.Text);
+    LIni.WriteString('IA', 'Model', cbModel.Text);
+    LIni.WriteString('IA', 'URL', edtURL.Text);
+    LIni.WriteString('IA', 'TimeoutSegundos', edtTimeout.Text);
+    LIni.WriteString('IA', 'MaxTokens', edtMaxTokens.Text);
+  finally
+    LIni.Free;
   end;
 end;
 
 function TfrmMain.GetDemoDatabaseFileName: string;
 begin
   Result := ExtractFilePath(Application.ExeName) + 'database' + DirectorySeparator + 'sales_ai_demo.db';
+end;
+
+procedure TfrmMain.ApplyDatabaseConfig(const AFileName: string);
+var
+  LAppDir, LLibraryPath: string;
+begin
+  FConnection.Protocol := 'sqlite';
+  FConnection.Database := AFileName;
+
+  // Keep the database client lookup local to the application, as in the
+  // PostgreSQL reference demo. The bundled sqlite3.dll must be Win32.
+  LAppDir := ExtractFilePath(ParamStr(0));
+  LLibraryPath := IncludeTrailingPathDelimiter(LAppDir) + 'sqlite3.dll';
+  if FileExists(LLibraryPath) then
+    FConnection.LibraryLocation := LLibraryPath
+  else
+    FConnection.LibraryLocation := LAppDir;
 end;
 
 procedure TfrmMain.ExecuteScript(const AScript: string);
@@ -254,8 +353,7 @@ begin
 
     ForceDirectories(ExtractFilePath(AFileName));
 
-    FConnection.Protocol := 'sqlite';
-    FConnection.Database := AFileName;
+    ApplyDatabaseConfig(AFileName);
     FConnection.Connect;
 
     LSchema :=
@@ -399,8 +497,7 @@ begin
     if FConnection.Connected then
       FConnection.Disconnect;
 
-    FConnection.Protocol := 'sqlite';
-    FConnection.Database := AFileName;
+    ApplyDatabaseConfig(AFileName);
     FConnection.Connect;
 
     FQueryResult.Connection := FConnection;
@@ -450,41 +547,13 @@ end;
 
 procedure TfrmMain.SyncChatGPTConfig;
 begin
+  FChatGPT.Provider := GetAIProviderFromIndex(cbProvider.ItemIndex);
   FChatGPT.TOKEN := Trim(edtToken.Text);
+  FChatGPT.TipoChat := VCT_CUSTOM;
+  FChatGPT.CustomModel := Trim(cbModel.Text);
+  FChatGPT.URL := Trim(edtURL.Text);
+  FChatGPT.Timeout := StrToIntDef(edtTimeout.Text, 120) * 1000;
   FChatGPT.MaxTokens := StrToIntDef(edtMaxTokens.Text, 2048);
-
-  if cbProvider.Text = 'OpenAI' then
-  begin
-    FChatGPT.Provider := AIP_OPENAI;
-    if cbModel.Text = 'gpt-4o' then
-      FChatGPT.TipoChat := VCT_GPT4o
-    else if cbModel.Text = 'gpt-4o-mini' then
-      FChatGPT.TipoChat := VCT_GPT4O_MINI
-    else if cbModel.Text = 'o3-mini' then
-      FChatGPT.TipoChat := VCT_GPTo3_mini
-    else if cbModel.Text = 'gpt-4-turbo-preview' then
-      FChatGPT.TipoChat := VCT_GPT40_TURBO
-    else
-      FChatGPT.TipoChat := VCT_GPT35TURBO;
-  end
-  else if cbProvider.Text = 'Local/Ollama' then
-  begin
-    FChatGPT.Provider := AIP_LOCAL;
-    if cbModel.Text = 'deepseek-r1:8b' then
-      FChatGPT.TipoChat := VCT_DEEPSEEK_R1_8B
-    else
-      FChatGPT.TipoChat := VCT_LLAMA32_3B;
-  end
-  else if cbProvider.Text = 'Gemini' then
-  begin
-    FChatGPT.Provider := AIP_GEMINI;
-    FChatGPT.TipoChat := VCT_GEMINI_25_FLASH;
-  end
-  else if cbProvider.Text = 'Claude' then
-  begin
-    FChatGPT.Provider := AIP_CLAUDE;
-    FChatGPT.TipoChat := VCT_CLAUDE_35_SONNET;
-  end;
 end;
 
 function TfrmMain.BuildSQLPrompt(const AUserRequest: string; const ADatabaseDictionary: string): string;
@@ -511,6 +580,30 @@ begin
     'User request:' + sLineBreak + sLineBreak +
     AUserRequest + sLineBreak + sLineBreak +
     'Return only the SQLite SQL:';
+end;
+
+function TfrmMain.BuildSQLCorrectionPrompt(const AFailedSQL, AError: string): string;
+begin
+  Result :=
+    'You are correcting a SQLite SELECT query that failed.' + sLineBreak + sLineBreak +
+    'Correction rules:' + sLineBreak +
+    '- Return only the corrected SQL query.' + sLineBreak +
+    '- Do not explain and do not use Markdown.' + sLineBreak +
+    '- Generate only a SELECT statement or a WITH query ending in SELECT.' + sLineBreak +
+    '- Use only tables and columns from the database dictionary.' + sLineBreak +
+    '- Use SQLite-compatible syntax.' + sLineBreak +
+    '- Correct table names, column names, JOINs, aliases and data types based on the error.' + sLineBreak +
+    '- Never generate INSERT, UPDATE, DELETE, DROP, ALTER, CREATE, PRAGMA, ATTACH, ' +
+      'DETACH, VACUUM, BEGIN, COMMIT or ROLLBACK.' + sLineBreak + sLineBreak +
+    'Database dictionary:' + sLineBreak + sLineBreak +
+    FDictionary.AsAIPrompt + sLineBreak + sLineBreak +
+    'Original user request:' + sLineBreak +
+    memoUserPrompt.Text + sLineBreak + sLineBreak +
+    'SQL that failed:' + sLineBreak +
+    AFailedSQL + sLineBreak + sLineBreak +
+    'SQLite error or validation error:' + sLineBreak +
+    AError + sLineBreak + sLineBreak +
+    'Return only the corrected SQLite SQL:';
 end;
 
 function TfrmMain.ExtractSQLFromLLMResponse(const AResponse: string): string;
@@ -571,6 +664,114 @@ begin
   Result := True;
 end;
 
+function TfrmMain.ExecuteSQLWithAutoCorrection(var ASQL: string): Boolean;
+var
+  LAttempt, LAttemptsUsed: Integer;
+  LValidationMessage, LError, LPrompt, LResponse: string;
+begin
+  Result := False;
+  ASQL := Trim(ASQL);
+  LAttemptsUsed := 0;
+  LError := '';
+
+  SyncChatGPTConfig;
+
+  for LAttempt := 1 to MAX_SQL_ATTEMPTS do
+  begin
+    LAttemptsUsed := LAttempt;
+    memoGeneratedSQL.Text := ASQL;
+
+    if not IsSafeSelectSQL(ASQL, LValidationMessage) then
+      LError := 'SQL safety validation failed: ' + LValidationMessage
+    else
+    begin
+      memoExecutionLog.Lines.Add(Format('Executing SQL (attempt %d of %d)...',
+        [LAttempt, MAX_SQL_ATTEMPTS]));
+      try
+        if FQueryResult.Active then
+          FQueryResult.Close;
+
+        FQueryResult.SQL.Text := ASQL;
+        FQueryResult.Open;
+
+        lblRows.Caption := 'Rows: ' + IntToStr(FQueryResult.RecordCount);
+        memoExecutionLog.Lines.Add(Format(
+          'SQL executed successfully on attempt %d. Rows: %d',
+          [LAttempt, FQueryResult.RecordCount]));
+        PageControl1.ActivePage := tabResult;
+        Result := True;
+        Exit;
+      except
+        on E: Exception do
+          LError := E.Message;
+      end;
+    end;
+
+    memoExecutionLog.Lines.Add(Format(
+      'SQL failed on attempt %d of %d: %s',
+      [LAttempt, MAX_SQL_ATTEMPTS, LError]));
+
+    if LAttempt >= MAX_SQL_ATTEMPTS then
+      Break;
+
+    if not FDictionaryGenerated then
+    begin
+      if not GenerateDatabaseDictionary then
+      begin
+        LError := 'Could not generate the SQLite database dictionary for correction.';
+        memoExecutionLog.Lines.Add(LError);
+        Break;
+      end;
+    end;
+
+    if (FChatGPT.Provider <> AIP_LOCAL) and (FChatGPT.TOKEN = '') then
+    begin
+      LError := 'API token is required to send the SQLite error to the LLM.';
+      memoExecutionLog.Lines.Add(LError);
+      Break;
+    end;
+
+    LPrompt := BuildSQLCorrectionPrompt(ASQL, LError);
+    memoPromptSentToLLM.Text := LPrompt;
+    memoExecutionLog.Lines.Add('Sending the SQLite error to the LLM for correction...');
+
+    try
+      if not FChatGPT.SendQuestion(LPrompt) then
+      begin
+        LError := 'LLM correction failed: ' + FChatGPT.LastError;
+        memoExecutionLog.Lines.Add(LError);
+        Break;
+      end;
+
+      LResponse := FChatGPT.Response;
+      ASQL := ExtractSQLFromLLMResponse(LResponse);
+      if ASQL = '' then
+      begin
+        LError := 'The LLM returned an empty SQL correction.';
+        memoExecutionLog.Lines.Add(LError);
+        Break;
+      end;
+
+      memoGeneratedSQL.Text := ASQL;
+      memoExecutionLog.Lines.Add('The LLM returned corrected SQLite SQL. Retrying...');
+    except
+      on E: Exception do
+      begin
+        LError := 'LLM correction failed: ' + E.Message;
+        memoExecutionLog.Lines.Add(LError);
+        Break;
+      end;
+    end;
+  end;
+
+  memoExecutionLog.Lines.Add(Format(
+    'Final failure after %d attempt(s). Last error: %s',
+    [LAttemptsUsed, LError]));
+  ShowMessage(Format(
+    'Failed to execute the SQLite SQL after %d attempt(s).' + sLineBreak +
+    sLineBreak + '%s', [LAttemptsUsed, LError]));
+end;
+
 procedure TfrmMain.btnSelectDatabaseClick(Sender: TObject);
 begin
   OpenDialog1.Filter := 'SQLite Database (*.db)|*.db|All files (*.*)|*.*';
@@ -595,6 +796,19 @@ end;
 procedure TfrmMain.btnGenerateDictionaryClick(Sender: TObject);
 begin
   GenerateDatabaseDictionary;
+end;
+
+procedure TfrmMain.btnSaveDatabaseConfigClick(Sender: TObject);
+begin
+  SaveConfig;
+  ShowMessage('Database configuration saved to:' + sLineBreak + ConfigFileName);
+end;
+
+procedure TfrmMain.btnSaveLLMConfigClick(Sender: TObject);
+begin
+  SyncChatGPTConfig;
+  SaveConfig;
+  ShowMessage('LLM configuration saved.');
 end;
 
 procedure TfrmMain.btnTestLLMClick(Sender: TObject);
@@ -692,7 +906,7 @@ end;
 
 procedure TfrmMain.btnExecuteSQLClick(Sender: TObject);
 var
-  LErr: string;
+  LSQL: string;
 begin
   if not FConnection.Connected then
   begin
@@ -700,29 +914,13 @@ begin
     Exit;
   end;
 
-  if not IsSafeSelectSQL(memoGeneratedSQL.Text, LErr) then
-  begin
-    ShowMessage('Cannot execute SQL: ' + LErr);
-    Exit;
-  end;
-
-  memoExecutionLog.Lines.Add('Executing SQL...');
+  LSQL := memoGeneratedSQL.Text;
+  Screen.Cursor := crHourGlass;
   try
-    if FQueryResult.Active then
-      FQueryResult.Close;
-
-    FQueryResult.SQL.Text := memoGeneratedSQL.Text;
-    FQueryResult.Open;
-
-    lblRows.Caption := 'Rows: ' + IntToStr(FQueryResult.RecordCount);
-    memoExecutionLog.Lines.Add('SQL executed successfully.');
-    PageControl1.ActivePage := tabResult;
-  except
-    on E: Exception do
-    begin
-      memoExecutionLog.Lines.Add('Execution failed: ' + E.Message);
-      ShowMessage('Execution failed: ' + E.Message);
-    end;
+    ExecuteSQLWithAutoCorrection(LSQL);
+  finally
+    memoGeneratedSQL.Text := LSQL;
+    Screen.Cursor := crDefault;
   end;
 end;
 
