@@ -83,6 +83,10 @@ pacote/packages/openai_graphic.lpk
 pacote/packages/openai_agent.lpk
 pacote/packages/openai_simulation.lpk
 pacote/packages/openai_files.lpk
+pacote/packages/openai_rag.lpk
+pacote/packages/openai_mcp.lpk
+pacote/packages/openai_evaluation.lpk
+pacote/packages/openai_observability.lpk
 ```
 
 Recommended order:
@@ -101,6 +105,10 @@ Recommended order:
 11. openai_agent.lpk
 12. openai_simulation.lpk
 13. openai_files.lpk
+14. openai_rag.lpk
+15. openai_mcp.lpk
+16. openai_evaluation.lpk
+17. openai_observability.lpk
 ```
 
 ---

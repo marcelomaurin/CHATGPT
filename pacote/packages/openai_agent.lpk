@@ -78,6 +78,21 @@
         <UnitName Value="aiagent_actions"/>
       </Item>
       <Item>
+        <Filename Value="..\AI Agent\aitools.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aitools"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Agent\aiagentgraph.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiagentgraph"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Agent\aiguardrails.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiguardrails"/>
+      </Item>
+      <Item>
         <Filename Value="..\AI Agent\aiagent_executor.pas"/>
         <UnitName Value="aiagent_executor"/>
       </Item>

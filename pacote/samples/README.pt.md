@@ -10,6 +10,8 @@ Os exemplos a seguir são projetos visuais prontos para compilação e execuçã
 
 | Exemplo | Caminho | Descrição |
 |---|---|---|
+| **[async_chat_demo](AI/async_chat_demo/)** | `pacote/samples/AI/async_chat_demo` | Chat visual assincrono com streaming, estados, Temperature e cancelamento. |
+| **[llm_provider_demo](AI/llm_provider_demo/)** | `pacote/samples/AI/llm_provider_demo` | Factory de providers, payload configuravel e catalogo central de modelos. |
 | **[cnn_demo](AI/cnn_demo/)**<br><br>![cnn_demo](../../screenshots/cnn_demo.jpg) | `pacote/samples/AI/cnn_demo` | Classificação de imagens usando redes convolucionais com TensorFlow e Python. |
 | **[face_detection_demo](AI/face_detection_demo/)** | `pacote/samples/AI/face_detection_demo` | Detecção e rastreamento facial em tempo real com OpenCV. |
 | **[graphmap_demo](AI/graphmap_demo/)** | `pacote/samples/AI/graphmap_demo` | Classificação e mapeamento de texto usando grafos de tokens ponderados. |
@@ -28,6 +30,10 @@ Os exemplos a seguir são projetos visuais prontos para compilação e execuçã
 |---|---|---|
 | **[action_builder_recovery_test](AI Agent/action_builder_recovery_test/)** | `pacote/samples/AI Agent/action_builder_recovery_test` | Nenhuma descrição disponível. |
 | **[agent_demo](AI Agent/agent_demo/)** | `pacote/samples/AI Agent/agent_demo` | Simulação de agentes inteligentes autônomos para tomada de decisão e disparo de saídas. |
+| **[agent_rag_demo](AI Agent/agent_rag_demo/)** | `pacote/samples/AI Agent/agent_rag_demo` | Fluxo console TAIAgent -> TAIRAG -> TAIGraphMap -> TCHATGPT, com contexto, fontes e erros visíveis. |
+| **[tool_call_demo](AI Agent/tool_call_demo/)** | `pacote/samples/AI Agent/tool_call_demo` | Tool segura e tool sensível com schema, política, rejeição e confirmação explícita. |
+| **[agent_graph_demo](AI Agent/agent_graph_demo/)** | `pacote/samples/AI Agent/agent_graph_demo` | Grafo de Agent com condições, checkpoint/resume, aprovação humana, delegação e dry-run. |
+| **[guardrail_demo](AI Agent/guardrail_demo/)** | `pacote/samples/AI Agent/guardrail_demo` | Guardrails de entrada, saída e tools com decisões estruturadas. |
 | **[agent_memorymap_demo](AI Agent/agent_memorymap_demo/)** | `pacote/samples/AI Agent/agent_memorymap_demo` | Demonstração de fluxo multiagente com histórico estruturado persistente no componente TAIMapaDeMemoria. |
 | **[agent_serial_demo](AI Agent/agent_serial_demo/)** | `pacote/samples/AI Agent/agent_serial_demo` | Nenhuma descrição disponível. |
 | **[agent_task_memory_action_demo](AI Agent/agent_task_memory_action_demo/)** | `pacote/samples/AI Agent/agent_task_memory_action_demo` | Demonstração visual avançada de fluxo multiagente orientado por tarefas, com mapa de memória e execução simulada/real de ações. |
@@ -69,6 +75,30 @@ Os exemplos a seguir são projetos visuais prontos para compilação e execuçã
 | **[graph_visualizer_demo](AI Graph/graph_visualizer_demo/)** | `pacote/samples/AI Graph/graph_visualizer_demo` | Visualizador interativo de grafos e nós relacionais de termos. |
 | **[graphmap_basic](AI Graph/graphmap_basic/)** | `pacote/samples/AI Graph/graphmap_basic` | Versão básica em linha de comando de classificação por mapa de grafos. |
 | **[graphmaproad](AI Graph/graphmaproad/)** | `pacote/samples/AI Graph/graphmaproad` | Nenhuma descrição disponível. |
+
+### 📦 AI RAG
+
+| Exemplo | Caminho | Descrição |
+|---|---|---|
+| **[hybrid_retrieval_demo](AI RAG/hybrid_retrieval_demo/)** | `pacote/samples/AI RAG/hybrid_retrieval_demo` | Combina grafo, embedding local e BM25 por Reciprocal Rank Fusion, sem API externa. |
+
+### 📦 AI MCP
+
+| Exemplo | Caminho | Descrição |
+|---|---|---|
+| **[mcp_demo](AI MCP/mcp_demo/)** | `pacote/samples/AI MCP/mcp_demo` | Servidor e cliente MCP em memória com tool de soma, resource e execução pelo Agent. |
+
+### 📦 AI Evaluation
+
+| Exemplo | Caminho | Descrição |
+|---|---|---|
+| **[eval_demo](AI Evaluation/eval_demo/)** | `pacote/samples/AI Evaluation/eval_demo` | Dataset, avaliação lexical/RAG e relatório de regressão reproduzível. |
+
+### 📦 AI Observability
+
+| Exemplo | Caminho | Descrição |
+|---|---|---|
+| **[trace_viewer_demo](AI Observability/trace_viewer_demo/)** | `pacote/samples/AI Observability/trace_viewer_demo` | Visualizador de TraceID, spans, duração, status, métricas e JSON exportável. |
 
 ### 📦 AI Graphic
 
@@ -212,6 +242,10 @@ Os exemplos a seguir são projetos visuais prontos para compilação e execuçã
 | **[audio_capture_demo](AI Voice/audio_capture_demo/)**<br><br>![audio_capture_demo](../../screenshots/audio_capture_demo.jpg) | `pacote/samples/AI Voice/audio_capture_demo` | Demo gráfico para captura real de áudio do microfone, salvando em WAV, sem modo simulado. |
 | **[sound_filters_visual_demo](AI Voice/sound_filters_visual_demo/)**<br><br>![sound_filters_visual_demo](../../screenshots/sound_filters_visual_demo.jpg) | `pacote/samples/AI Voice/sound_filters_visual_demo` | Equalizador e painel visual de filtros sonoros aplicados em tempo real. |
 | **[speech_recognizer_demo](AI Voice/speech_recognizer_demo/)** | `pacote/samples/AI Voice/speech_recognizer_demo` | Nenhuma descrição disponível. |
+| **[speech_file_demo](AI Voice/speech_file_demo/)** | `pacote/samples/AI Voice/speech_file_demo` | Transcrição de WAV por engine Whisper configurável, com estados e erros visíveis. |
+| **[speech_microphone_demo](AI Voice/speech_microphone_demo/)** | `pacote/samples/AI Voice/speech_microphone_demo` | Captura pelo microfone reutilizando TAIAudioInput, transcrição e modo contínuo em blocos. |
+| **[voice_clone_demo](AI Voice/voice_clone_demo/)** | `pacote/samples/AI Voice/voice_clone_demo` | Clonagem/síntese autorizada via F5-TTS e reprodução somente após WAV válido. |
+| **[voice_assistant_demo](AI Voice/voice_assistant_demo/)** | `pacote/samples/AI Voice/voice_assistant_demo` | Fluxo microfone -> STT -> LLM -> voz clonada -> reprodução, com cancelamento. |
 | **[voice_synthesizer_complete_demo](AI Voice/voice_synthesizer_complete_demo/)**<br><br>![voice_synthesizer_complete_demo](../../screenshots/voice_synthesizer_complete_demo.jpg) | `pacote/samples/AI Voice/voice_synthesizer_complete_demo` | Demo gráfico completo para síntese real de voz usando vozes locais do sistema ou a API de voz da OpenAI. |
 | **[voicesynthesizer_demo](AI Voice/voicesynthesizer_demo/)**<br><br>![voicesynthesizer_demo](../../screenshots/voicesynthesizer_demo.jpg) | `pacote/samples/AI Voice/voicesynthesizer_demo` | Demonstração de sintetização de voz (Text-to-Speech) nativa e multiplataforma. |
 

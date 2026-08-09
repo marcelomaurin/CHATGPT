@@ -1,7 +1,8 @@
 # 🗣️ Lazarus AI Suite — Tab: `AI Voice`
 
 > [!NOTE]
-> Native multi-timbre Text-To-Speech (TTS) synthesizers.
+> Speech recognition, microphone capture, classic TTS, authorized voice
+> cloning and an integrated STT -> LLM -> voice assistant pipeline.
 
 Please select your preferred language for the component reference manual:
 

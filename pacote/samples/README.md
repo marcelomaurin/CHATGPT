@@ -10,6 +10,8 @@ Os exemplos a seguir são projetos visuais prontos para compilação e execuçã
 
 | Exemplo | Caminho | Descrição |
 |---|---|---|
+| **[async_chat_demo](AI/async_chat_demo/)** | `pacote/samples/AI/async_chat_demo` | Chat visual assincrono com streaming, estados, Temperature e cancelamento. |
+| **[llm_provider_demo](AI/llm_provider_demo/)** | `pacote/samples/AI/llm_provider_demo` | Factory de providers, payload configuravel e catalogo central de modelos. |
 | **[cnn_demo](AI/cnn_demo/)**<br><br>![cnn_demo](../../screenshots/cnn_demo.jpg) | `pacote/samples/AI/cnn_demo` | Classificação de imagens usando redes convolucionais com TensorFlow e Python. |
 | **[face_detection_demo](AI/face_detection_demo/)** | `pacote/samples/AI/face_detection_demo` | Detecção e rastreamento facial em tempo real com OpenCV. |
 | **[graphmap_demo](AI/graphmap_demo/)** | `pacote/samples/AI/graphmap_demo` | Classificação e mapeamento de texto usando grafos de tokens ponderados. |
@@ -28,6 +30,7 @@ Os exemplos a seguir são projetos visuais prontos para compilação e execuçã
 |---|---|---|
 | **[action_builder_recovery_test](AI Agent/action_builder_recovery_test/)** | `pacote/samples/AI Agent/action_builder_recovery_test` | Nenhuma descrição disponível. |
 | **[agent_demo](AI Agent/agent_demo/)** | `pacote/samples/AI Agent/agent_demo` | Simulação de agentes inteligentes autônomos para tomada de decisão e disparo de saídas. |
+| **[agent_rag_demo](AI Agent/agent_rag_demo/)** | `pacote/samples/AI Agent/agent_rag_demo` | Fluxo console TAIAgent -> TAIRAG -> TAIGraphMap -> TCHATGPT, com contexto, fontes e erros visíveis. |
 | **[agent_memorymap_demo](AI Agent/agent_memorymap_demo/)** | `pacote/samples/AI Agent/agent_memorymap_demo` | Demonstração de fluxo multiagente com histórico estruturado persistente no componente TAIMapaDeMemoria. |
 | **[agent_serial_demo](AI Agent/agent_serial_demo/)** | `pacote/samples/AI Agent/agent_serial_demo` | Nenhuma descrição disponível. |
 | **[agent_task_memory_action_demo](AI Agent/agent_task_memory_action_demo/)** | `pacote/samples/AI Agent/agent_task_memory_action_demo` | Demonstração visual avançada de fluxo multiagente orientado por tarefas, com mapa de memória e execução simulada/real de ações. |

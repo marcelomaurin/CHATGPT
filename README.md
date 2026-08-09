@@ -76,6 +76,9 @@ pacote/packages/
 | `openai_project.lpk` | Projetos, tarefas, armazenamento e especificações | Stable / Beta; integração de pipeline Experimental |
 | `openai_aidbase.lpk` | Dicionários e metadados de bancos de dados | Stable / Beta |
 | `openai_rag.lpk` | RAG, fatiamento de arquivos, índice conectivo por grafo e consulta semântica | Stable / Beta |
+| `openai_mcp.lpk` | MCP JSON-RPC, tools/resources e bridge para o Agent | Stable / Beta |
+| `openai_evaluation.lpk` | Datasets, avaliação lexical/RAG, LLM-as-Judge e regressão | Stable / Beta |
+| `openai_observability.lpk` | TraceID, spans e métricas de LLM, RAG, Agent e tools | Stable / Beta |
 
 > O pacote monolítico legado `openai.lpk` foi removido. Use somente os pacotes modulares.
 
@@ -216,6 +219,10 @@ A relação abaixo é a classificação completa obtida pelo cruzamento entre os
 13. openai_project.lpk
 14. openai_graph.lpk
 15. openai_aidbase.lpk
+16. openai_rag.lpk
+17. openai_mcp.lpk
+18. openai_evaluation.lpk
+19. openai_observability.lpk
 ```
 
 A ordem final deve respeitar as dependências registradas nos próprios arquivos `.lpk`.

@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, SysUtils, LazUTF8, fpjson, jsonparser,
-  fphttpclient, opensslsockets, LResources, aibase;
+  fphttpclient, opensslsockets, LResources, aibase, aillmproviders,
+  aillmmodelcatalog, aitracebridge;
 
 const
   CHATGPT_LIB_VERSION = '1.7';
@@ -70,8 +71,30 @@ type
     AIP_LOCAL,       // 3 - llama.cpp / Ollama local
     AIP_GEMINI,      // 4 - Google Gemini
     AIP_CLAUDE,      // 5 - Anthropic Claude
-    AIP_DEEPSEEK     // 6 - DeepSeek Direct API
+    AIP_DEEPSEEK,    // 6 - DeepSeek Direct API
+    AIP_OPENAI_COMPATIBLE, // 7 - API configuravel /v1/chat/completions
+    AIP_LLAMA_CPP,   // 8 - servidor llama.cpp
+    AIP_NEURAL_API   // 9 - servidor neural-api
   );
+
+  TAILLMRequestState = (
+    lrsIdle,
+    lrsConnecting,
+    lrsReceiving,
+    lrsCompleted,
+    lrsCancelled,
+    lrsError
+  );
+
+  TAILLMStreamNotifyEvent = procedure(Sender: TObject) of object;
+  TAILLMStreamDataEvent = procedure(Sender: TObject;
+    const AData: WideString) of object;
+  TAILLMRequestStateEvent = procedure(Sender: TObject;
+    AState: TAILLMRequestState) of object;
+  TAILLMRequestCompleteEvent = procedure(Sender: TObject;
+    ASuccess: Boolean) of object;
+  TAILLMRequestErrorEvent = procedure(Sender: TObject;
+    const AMessage: WideString) of object;
 
   { TCHATGPT }
 
@@ -94,6 +117,22 @@ type
     FURL             : WideString;
     FTemperature     : Double;
     FTimeout         : Integer;
+    FStreaming       : Boolean;
+    FRequestState    : TAILLMRequestState;
+    FOnStreamStart   : TAILLMStreamNotifyEvent;
+    FOnStreamData    : TAILLMStreamDataEvent;
+    FOnStreamEnd     : TAILLMStreamNotifyEvent;
+    FOnStateChange   : TAILLMRequestStateEvent;
+    FOnRequestComplete: TAILLMRequestCompleteEvent;
+    FOnRequestError  : TAILLMRequestErrorEvent;
+    FActiveProvider  : IAILLMProvider;
+    FWorker          : TThread;
+    FCancelRequested : Boolean;
+    FDestroying      : Boolean;
+    FRequestLock     : TRTLCriticalSection;
+    FTrace           : TComponent;
+    FActiveTraceSpanID: string;
+    FLastTraceID     : string;
 
     procedure SetToken(const AValue: WideString);
     procedure SetTipoChat(const AValue: TVersionChat);
@@ -106,10 +145,25 @@ type
     function GetDev: WideString;
     procedure SetDev(const AValue: WideString);
     procedure SetTemperature(const AValue: Double);
+    function ProviderKind: TAILLMProviderKind;
+    procedure BuildProviderConfig(out AConfig: TAILLMProviderConfig;
+      const AQuestion: WideString);
+    procedure SetActiveProvider(const AProvider: IAILLMProvider);
+    function GetActiveProvider: IAILLMProvider;
+    procedure SetRequestState(AState: TAILLMRequestState);
+    function GetBusy: Boolean;
+    procedure DirectStreamData(Sender: TObject; const AData: string);
+    procedure CleanupWorker;
+    procedure SetTrace(AValue: TComponent);
+    procedure BeginLLMTrace;
+    procedure EndLLMTrace(ASuccess: Boolean; const AError, ARawResponse: string);
+  protected
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function SendQuestion(ASK: WideString): Boolean;
+    function SendQuestionAsync(ASK: WideString): Boolean;
     procedure Cancel;
     function TipoModelo: WideString;
     function ProviderName: WideString;
@@ -127,6 +181,11 @@ type
     property Temperature: Double read FTemperature write SetTemperature;
     property URL: WideString read FURL write FURL;
     property Timeout: Integer read FTimeout write FTimeout;
+    property Streaming: Boolean read FStreaming write FStreaming default False;
+    property RequestState: TAILLMRequestState read FRequestState;
+    property Busy: Boolean read GetBusy;
+    property Trace: TComponent read FTrace write SetTrace;
+    property LastTraceID: string read FLastTraceID;
 
     // Opcionais para OpenRouter
     property OpenRouterTitle: WideString read FOpenRouterTitle write FOpenRouterTitle;
@@ -134,6 +193,12 @@ type
 
     property LastJSON: WideString read FLastJSON;
     property LastURL: WideString read FLastURL;
+    property OnStreamStart: TAILLMStreamNotifyEvent read FOnStreamStart write FOnStreamStart;
+    property OnStreamData: TAILLMStreamDataEvent read FOnStreamData write FOnStreamData;
+    property OnStreamEnd: TAILLMStreamNotifyEvent read FOnStreamEnd write FOnStreamEnd;
+    property OnStateChange: TAILLMRequestStateEvent read FOnStateChange write FOnStateChange;
+    property OnRequestComplete: TAILLMRequestCompleteEvent read FOnRequestComplete write FOnRequestComplete;
+    property OnRequestError: TAILLMRequestErrorEvent read FOnRequestError write FOnRequestError;
   end;
 
 function GetAIProviderName(AProvider: TAIProvider): string;
@@ -145,6 +210,118 @@ procedure GetAIModelListForProvider(AProvider: TAIProvider; AOutList: TStrings);
 procedure Register;
 
 implementation
+
+type
+  { TCHATGPTWorker }
+
+  TCHATGPTWorker = class(TThread)
+  private
+    FOwner: TCHATGPT;
+    FProvider: IAILLMProvider;
+    FConfig: TAILLMProviderConfig;
+    FAnswer: string;
+    FData: string;
+    FSuccess: Boolean;
+    FError: string;
+    FCancelled: Boolean;
+    procedure SyncStart;
+    procedure SyncData;
+    procedure QueueFinish;
+    procedure ProviderData(Sender: TObject; const AData: string);
+  protected
+    procedure Execute; override;
+  public
+    constructor Create(AOwner: TCHATGPT; const AProvider: IAILLMProvider;
+      const AConfig: TAILLMProviderConfig);
+  end;
+
+constructor TCHATGPTWorker.Create(AOwner: TCHATGPT;
+  const AProvider: IAILLMProvider; const AConfig: TAILLMProviderConfig);
+begin
+  inherited Create(True);
+  FreeOnTerminate := False;
+  FOwner := AOwner;
+  FProvider := AProvider;
+  FConfig := AConfig;
+end;
+
+procedure TCHATGPTWorker.SyncStart;
+begin
+  if (FOwner = nil) or FOwner.FDestroying then
+    Exit;
+  FOwner.SetRequestState(lrsConnecting);
+  if FConfig.Stream and Assigned(FOwner.FOnStreamStart) then
+    FOwner.FOnStreamStart(FOwner);
+end;
+
+procedure TCHATGPTWorker.ProviderData(Sender: TObject; const AData: string);
+begin
+  FData := AData;
+  Synchronize(@SyncData);
+end;
+
+procedure TCHATGPTWorker.SyncData;
+begin
+  if (FOwner = nil) or FOwner.FDestroying then
+    Exit;
+  FOwner.SetRequestState(lrsReceiving);
+  FOwner.FResponse := FOwner.FResponse + UTF8ToUTF16(FData);
+  if Assigned(FOwner.FOnStreamData) then
+    FOwner.FOnStreamData(FOwner, UTF8ToUTF16(FData));
+end;
+
+procedure TCHATGPTWorker.QueueFinish;
+begin
+  if (FOwner = nil) or FOwner.FDestroying then
+    Exit;
+  FOwner.FResponse := UTF8ToUTF16(FAnswer);
+  FOwner.FLastResult := FAnswer;
+  FOwner.FLastSuccess := FSuccess;
+  FOwner.EndLLMTrace(FSuccess and (not FCancelled), FError,
+    FProvider.GetLastRawResponse);
+  FOwner.SetActiveProvider(nil);
+  if FCancelled or FOwner.FCancelRequested then
+  begin
+    FOwner.SetRequestState(lrsCancelled);
+    FOwner.FLastError := 'Requisicao cancelada.';
+  end
+  else if FSuccess then
+    FOwner.SetRequestState(lrsCompleted)
+  else
+  begin
+    FOwner.SetRequestState(lrsError);
+    FOwner.SetError(FError);
+  end;
+  if FConfig.Stream and Assigned(FOwner.FOnStreamEnd) then
+    FOwner.FOnStreamEnd(FOwner);
+  if (not FSuccess) and (not FCancelled) and Assigned(FOwner.FOnRequestError) then
+    FOwner.FOnRequestError(FOwner, UTF8ToUTF16(FError));
+  if Assigned(FOwner.FOnRequestComplete) then
+    FOwner.FOnRequestComplete(FOwner, FSuccess and (not FCancelled));
+end;
+
+procedure TCHATGPTWorker.Execute;
+begin
+  Synchronize(@SyncStart);
+  if Terminated then
+  begin
+    FCancelled := True;
+    TThread.Queue(Self, @QueueFinish);
+    Exit;
+  end;
+  try
+    FSuccess := FProvider.Send(FConfig, @ProviderData, FAnswer);
+    FError := FProvider.GetLastError;
+    FCancelled := Pos('cancelad', LowerCase(FError)) > 0;
+  except
+    on E: Exception do
+    begin
+      FSuccess := False;
+      FError := E.Message;
+    end;
+  end;
+  TThread.Queue(Self, @QueueFinish);
+end;
 
 procedure Register;
 begin
@@ -161,6 +338,9 @@ begin
     AIP_GEMINI:     Result := 'Google Gemini';
     AIP_CLAUDE:     Result := 'Anthropic Claude';
     AIP_DEEPSEEK:   Result := 'DeepSeek Direct';
+    AIP_OPENAI_COMPATIBLE: Result := 'OpenAI-compatible';
+    AIP_LLAMA_CPP:  Result := 'llama.cpp';
+    AIP_NEURAL_API: Result := 'neural-api';
   else
     Result := 'OpenAI';
   end;
@@ -176,6 +356,9 @@ begin
     AIP_GEMINI:     Result := 'https://generativelanguage.googleapis.com/v1beta/models/';
     AIP_CLAUDE:     Result := 'https://api.anthropic.com/v1/messages';
     AIP_LOCAL:      Result := 'http://localhost:11434/v1/chat/completions';
+    AIP_OPENAI_COMPATIBLE: Result := 'http://localhost:8000/v1/chat/completions';
+    AIP_LLAMA_CPP:  Result := 'http://localhost:8080/v1/chat/completions';
+    AIP_NEURAL_API: Result := 'http://localhost:8000/v1/chat/completions';
   else
     Result := 'https://api.openai.com/v1/chat/completions';
   end;
@@ -200,65 +383,25 @@ begin
 end;
 
 procedure GetAIModelListForProvider(AProvider: TAIProvider; AOutList: TStrings);
+var
+  LProvider: string;
 begin
   if AOutList = nil then Exit;
-  AOutList.Clear;
   case AProvider of
-    AIP_OPENAI:
-    begin
-      AOutList.Add('gpt-4o-mini');
-      AOutList.Add('gpt-4o');
-      AOutList.Add('o3-mini');
-      AOutList.Add('o1');
-      AOutList.Add('o1-mini');
-      AOutList.Add('gpt-4-turbo');
-      AOutList.Add('gpt-3.5-turbo');
-    end;
-
-    AIP_DEEPSEEK:
-    begin
-      AOutList.Add('deepseek-chat');
-      AOutList.Add('deepseek-reasoner');
-    end;
-
-    AIP_GEMINI:
-    begin
-      AOutList.Add('gemini-2.0-flash');
-      AOutList.Add('gemini-1.5-pro');
-      AOutList.Add('gemini-1.5-flash');
-    end;
-
-    AIP_CLAUDE:
-    begin
-      AOutList.Add('claude-3-5-sonnet-20241022');
-      AOutList.Add('claude-3-5-haiku-20241022');
-      AOutList.Add('claude-3-opus-20240229');
-    end;
-
-    AIP_OPENROUTER:
-    begin
-      AOutList.Add('meta-llama/llama-3.3-70b-instruct:free');
-      AOutList.Add('deepseek/deepseek-r1:free');
-      AOutList.Add('google/gemma-2-9b-it:free');
-      AOutList.Add('meta-llama/llama-3.2-3b-instruct:free');
-    end;
-
-    AIP_CEREBRAS:
-    begin
-      AOutList.Add('llama3.1-8b');
-      AOutList.Add('llama3.1-70b');
-      AOutList.Add('qwen-3-235b-a22b-instruct-2507');
-    end;
-
-    AIP_LOCAL:
-    begin
-      AOutList.Add('llama3.2:3b');
-      AOutList.Add('deepseek-r1:1.5b');
-      AOutList.Add('deepseek-r1:8b');
-      AOutList.Add('deepseek-r1:14b');
-      AOutList.Add('qwen2.5:1.5b');
-    end;
+    AIP_OPENAI: LProvider := 'OpenAI';
+    AIP_OPENROUTER: LProvider := 'OpenRouter';
+    AIP_CEREBRAS: LProvider := 'Cerebras';
+    AIP_LOCAL: LProvider := 'Local';
+    AIP_GEMINI: LProvider := 'Gemini';
+    AIP_CLAUDE: LProvider := 'Claude';
+    AIP_DEEPSEEK: LProvider := 'DeepSeek';
+    AIP_OPENAI_COMPATIBLE: LProvider := 'OpenAI-compatible';
+    AIP_LLAMA_CPP: LProvider := 'llama.cpp';
+    AIP_NEURAL_API: LProvider := 'neural-api';
+  else
+    LProvider := 'OpenAI';
   end;
+  GetAILLMModelsForProvider(LProvider, AOutList);
 end;
 
 function JsonEscape(const S: WideString): WideString;
@@ -278,6 +421,7 @@ end;
 constructor TCHATGPT.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  InitCriticalSection(FRequestLock);
   FCategory := ccModel;
   FToken := '';
   FQuestion := '';
@@ -295,6 +439,14 @@ begin
   FURL := '';
   FTemperature := 0.7;
   FTimeout := 120000; // 120 segundos por padrao
+  FStreaming := False;
+  FRequestState := lrsIdle;
+  FWorker := nil;
+  FCancelRequested := False;
+  FDestroying := False;
+  FTrace := nil;
+  FActiveTraceSpanID := '';
+  FLastTraceID := '';
 
   FParams := TStringList.Create;
   FPrompt := 'TCHATGPT e o componente principal para comunicacao com OpenAI ChatGPT, OpenRouter, Cerebras, DeepSeek, Google Gemini, Claude e Ollama local.';
@@ -303,8 +455,191 @@ end;
 
 destructor TCHATGPT.Destroy;
 begin
+  FDestroying := True;
+  Cancel;
+  if FWorker <> nil then
+  begin
+    FWorker.Terminate;
+    FWorker.WaitFor;
+    TThread.RemoveQueuedEvents(FWorker);
+    FreeAndNil(FWorker);
+  end;
+  SetActiveProvider(nil);
   FParams.Free;
+  DoneCriticalSection(FRequestLock);
   inherited Destroy;
+end;
+
+procedure TCHATGPT.SetTrace(AValue: TComponent);
+begin
+  if FTrace = AValue then Exit;
+  if Assigned(FTrace) then FTrace.RemoveFreeNotification(Self);
+  FTrace := AValue;
+  if Assigned(FTrace) then FTrace.FreeNotification(Self);
+end;
+
+procedure TCHATGPT.Notification(AComponent: TComponent; Operation: TOperation);
+begin
+  inherited Notification(AComponent, Operation);
+  if (Operation = opRemove) and (AComponent = FTrace) then FTrace := nil;
+end;
+
+procedure TCHATGPT.BeginLLMTrace;
+var Obj: TJSONObject;
+begin
+  FActiveTraceSpanID := '';
+  if not Assigned(FTrace) then Exit;
+  Obj := TJSONObject.Create;
+  try
+    Obj.Add('provider', UTF16ToUTF8(ProviderName));
+    Obj.Add('model', UTF16ToUTF8(GetModelName));
+    Obj.Add('question_chars', Length(FQuestion));
+    Obj.Add('streaming', FStreaming);
+    if AITraceAllowsSensitiveContent(FTrace) then
+      Obj.Add('question', UTF16ToUTF8(FQuestion));
+    FActiveTraceSpanID := AITraceBegin(FTrace, 'llm', 'SendQuestion', '',
+      Obj.AsJSON);
+    FLastTraceID := AITraceID(FTrace);
+  finally Obj.Free; end;
+end;
+
+procedure TCHATGPT.EndLLMTrace(ASuccess: Boolean; const AError,
+  ARawResponse: string);
+var
+  Obj: TJSONObject;
+  Data, TokenData: TJSONData;
+  PromptTokens, CompletionTokens, TotalTokens: Int64;
+  TokensAvailable: Boolean;
+begin
+  if FActiveTraceSpanID = '' then Exit;
+  PromptTokens := 0;
+  CompletionTokens := 0;
+  TotalTokens := 0;
+  TokensAvailable := False;
+  Data := nil;
+  if Trim(ARawResponse) <> '' then
+    try
+      Data := GetJSON(ARawResponse);
+      TokenData := Data.FindPath('usage.prompt_tokens');
+      if Assigned(TokenData) then begin PromptTokens := TokenData.AsInt64; TokensAvailable := True; end;
+      TokenData := Data.FindPath('usage.completion_tokens');
+      if Assigned(TokenData) then begin CompletionTokens := TokenData.AsInt64; TokensAvailable := True; end;
+      TokenData := Data.FindPath('usage.total_tokens');
+      if Assigned(TokenData) then begin TotalTokens := TokenData.AsInt64; TokensAvailable := True; end;
+    except
+      FreeAndNil(Data);
+      TokensAvailable := False;
+    end;
+  Obj := TJSONObject.Create;
+  try
+    Obj.Add('success', ASuccess);
+    Obj.Add('provider', UTF16ToUTF8(ProviderName));
+    Obj.Add('model', UTF16ToUTF8(GetModelName));
+    Obj.Add('response_chars', Length(FResponse));
+    Obj.Add('tokens_available', TokensAvailable);
+    if TokensAvailable then
+    begin
+      Obj.Add('prompt_tokens', PromptTokens);
+      Obj.Add('completion_tokens', CompletionTokens);
+      Obj.Add('total_tokens', TotalTokens);
+    end;
+    if AITraceAllowsSensitiveContent(FTrace) then
+      Obj.Add('response', UTF16ToUTF8(FResponse));
+    AITraceEnd(FTrace, FActiveTraceSpanID, AError, Obj.AsJSON);
+  finally
+    Obj.Free;
+    Data.Free;
+    FActiveTraceSpanID := '';
+  end;
+end;
+
+function TCHATGPT.ProviderKind: TAILLMProviderKind;
+begin
+  case FProvider of
+    AIP_OPENAI: Result := llmOpenAI;
+    AIP_OPENROUTER: Result := llmOpenRouter;
+    AIP_CEREBRAS: Result := llmCerebras;
+    AIP_LOCAL: Result := llmOllama;
+    AIP_GEMINI: Result := llmGemini;
+    AIP_CLAUDE: Result := llmClaude;
+    AIP_DEEPSEEK: Result := llmDeepSeek;
+    AIP_OPENAI_COMPATIBLE: Result := llmOpenAICompatible;
+    AIP_LLAMA_CPP: Result := llmLlamaCpp;
+    AIP_NEURAL_API: Result := llmNeuralAPI;
+  else
+    Result := llmOpenAI;
+  end;
+end;
+
+procedure TCHATGPT.BuildProviderConfig(out AConfig: TAILLMProviderConfig;
+  const AQuestion: WideString);
+begin
+  InitAILLMProviderConfig(AConfig);
+  AConfig.Endpoint := UTF8Encode(FURL);
+  if (FProvider = AIP_LOCAL) and (Trim(FURL) = '') then
+    AConfig.Endpoint := UTF8Encode(MontaURLChatLocal(FLocalIP));
+  AConfig.Token := UTF8Encode(FToken);
+  AConfig.Model := UTF8Encode(GetModelName);
+  AConfig.SystemPrompt := UTF8Encode(FDev);
+  AConfig.UserPrompt := UTF8Encode(AQuestion);
+  AConfig.OpenRouterTitle := UTF8Encode(FOpenRouterTitle);
+  AConfig.OpenRouterSite := UTF8Encode(FOpenRouterSite);
+  AConfig.Timeout := FTimeout;
+  AConfig.MaxTokens := FMaxTokens;
+  AConfig.Temperature := FTemperature;
+  AConfig.Stream := FStreaming;
+end;
+
+procedure TCHATGPT.SetActiveProvider(const AProvider: IAILLMProvider);
+begin
+  EnterCriticalSection(FRequestLock);
+  try
+    FActiveProvider := AProvider;
+  finally
+    LeaveCriticalSection(FRequestLock);
+  end;
+end;
+
+function TCHATGPT.GetActiveProvider: IAILLMProvider;
+begin
+  EnterCriticalSection(FRequestLock);
+  try
+    Result := FActiveProvider;
+  finally
+    LeaveCriticalSection(FRequestLock);
+  end;
+end;
+
+procedure TCHATGPT.SetRequestState(AState: TAILLMRequestState);
+begin
+  if FRequestState = AState then
+    Exit;
+  FRequestState := AState;
+  if Assigned(FOnStateChange) then
+    FOnStateChange(Self, AState);
+end;
+
+function TCHATGPT.GetBusy: Boolean;
+begin
+  Result := FRequestState in [lrsConnecting, lrsReceiving];
+end;
+
+procedure TCHATGPT.DirectStreamData(Sender: TObject; const AData: string);
+begin
+  SetRequestState(lrsReceiving);
+  FResponse := FResponse + UTF8ToUTF16(AData);
+  if Assigned(FOnStreamData) then
+    FOnStreamData(Self, UTF8ToUTF16(AData));
+end;
+
+procedure TCHATGPT.CleanupWorker;
+begin
+  if (FWorker <> nil) and (not GetBusy) then
+  begin
+    FWorker.WaitFor;
+    TThread.RemoveQueuedEvents(FWorker);
+    FreeAndNil(FWorker);
+  end;
 end;
 
 function TCHATGPT.GetDev: WideString;
@@ -705,74 +1040,103 @@ end;
 
 function TCHATGPT.SendQuestion(ASK: WideString): Boolean;
 var
-  HTTP: TFPHttpClient;
-  JSONPayload: string;
-  RawResponse: string;
-  Endpoint: string;
-  LAttempt: Integer;
-  LSuccess: Boolean;
-  LLastErrorMsg: string;
+  LConfig: TAILLMProviderConfig;
+  LProvider: IAILLMProvider;
+  LAnswer: string;
 begin
   Result := False;
+  if GetBusy then
+  begin
+    SetError('Ja existe uma requisicao AI em andamento.');
+    Exit;
+  end;
+  CleanupWorker;
   ClearError;
+  FCancelRequested := False;
   FQuestion := ASK;
   FResponse := '';
   FLastJSON := '';
   FLastURL := '';
-
-  Endpoint := GetEndpoint;
-  FLastURL := Endpoint;
-
-  JSONPayload := UTF8Encode(MontaJson);
-  FLastJSON := UTF8ToUTF16(JSONPayload);
-
-  LSuccess := False;
-  for LAttempt := 1 to 2 do
-  begin
-    HTTP := TFPHttpClient.Create(nil);
-    try
-      if FTimeout > 0 then
-      begin
-        HTTP.ConnectTimeout := FTimeout;
-        HTTP.IOTimeout := FTimeout;
-      end;
-
-      AddProviderHeaders(HTTP);
-      HTTP.RequestBody := TStringStream.Create(JSONPayload);
-      try
-        try
-          RawResponse := HTTP.Post(Endpoint);
-          FResponse := PegaMensagem(UTF8ToUTF16(RawResponse));
-          FLastResult := UTF8Encode(FResponse);
-          LSuccess := Trim(FResponse) <> '';
-          FLastSuccess := LSuccess;
-          if not LSuccess then
-            SetError('Resposta vazia da API: ' + RawResponse);
-          Result := LSuccess;
-          Break;
-        except
-          on E: Exception do
-          begin
-            LLastErrorMsg := E.Message;
-            SetError('Erro HTTP na requisicao AI: ' + LLastErrorMsg);
-            LSuccess := False;
-            Result := False;
-            if LAttempt < 2 then
-              Sleep(300);
-          end;
-        end;
-      finally
-        HTTP.RequestBody.Free;
-      end;
-    finally
-      HTTP.Free;
+  BuildProviderConfig(LConfig, ASK);
+  LProvider := TAILLMProviderFactory.CreateProvider(ProviderKind);
+  SetActiveProvider(LProvider);
+  FLastURL := UTF8ToUTF16(LProvider.BuildEndpoint(LConfig));
+  FLastJSON := UTF8ToUTF16(LProvider.BuildRequest(LConfig));
+  BeginLLMTrace;
+  SetRequestState(lrsConnecting);
+  if FStreaming and Assigned(FOnStreamStart) then
+    FOnStreamStart(Self);
+  try
+    Result := LProvider.Send(LConfig, @DirectStreamData, LAnswer);
+    FResponse := UTF8ToUTF16(LAnswer);
+    FLastResult := LAnswer;
+    FLastSuccess := Result;
+    if FCancelRequested or (Pos('cancelad', LowerCase(LProvider.GetLastError)) > 0) then
+    begin
+      Result := False;
+      FLastSuccess := False;
+      FLastError := 'Requisicao cancelada.';
+      SetRequestState(lrsCancelled);
+    end
+    else if Result then
+      SetRequestState(lrsCompleted)
+    else
+    begin
+      SetError(LProvider.GetLastError);
+      SetRequestState(lrsError);
+      if Assigned(FOnRequestError) then
+        FOnRequestError(Self, UTF8ToUTF16(FLastError));
     end;
+  finally
+    EndLLMTrace(Result, FLastError, LProvider.GetLastRawResponse);
+    SetActiveProvider(nil);
+    if FStreaming and Assigned(FOnStreamEnd) then
+      FOnStreamEnd(Self);
+    if Assigned(FOnRequestComplete) then
+      FOnRequestComplete(Self, Result);
   end;
 end;
 
-procedure TCHATGPT.Cancel;
+function TCHATGPT.SendQuestionAsync(ASK: WideString): Boolean;
+var
+  LConfig: TAILLMProviderConfig;
+  LProvider: IAILLMProvider;
 begin
-  // Operacao cancelada
+  Result := False;
+  if GetBusy then
+  begin
+    SetError('Ja existe uma requisicao AI em andamento.');
+    Exit;
+  end;
+  CleanupWorker;
+  ClearError;
+  FCancelRequested := False;
+  FQuestion := ASK;
+  FResponse := '';
+  FLastJSON := '';
+  FLastURL := '';
+  BuildProviderConfig(LConfig, ASK);
+  LProvider := TAILLMProviderFactory.CreateProvider(ProviderKind);
+  SetActiveProvider(LProvider);
+  FLastURL := UTF8ToUTF16(LProvider.BuildEndpoint(LConfig));
+  FLastJSON := UTF8ToUTF16(LProvider.BuildRequest(LConfig));
+  BeginLLMTrace;
+  SetRequestState(lrsConnecting);
+  FWorker := TCHATGPTWorker.Create(Self, LProvider, LConfig);
+  FWorker.Start;
+  Result := True;
+end;
+
+procedure TCHATGPT.Cancel;
+var
+  LProvider: IAILLMProvider;
+begin
+  FCancelRequested := True;
+  LProvider := GetActiveProvider;
+  if LProvider <> nil then
+    LProvider.Cancel;
+  if FWorker <> nil then
+    FWorker.Terminate;
 end;
 
 function TCHATGPT.TipoModelo: WideString;

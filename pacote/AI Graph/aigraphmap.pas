@@ -141,6 +141,7 @@ type
     FNodeIndex: TStringList;
     FNodeIdIndex: TStringList;
     FEdgeIndex: TStringList;
+    FAdjacencyIndex: TStringList;
     
     // Events
     FOnBeforeTrain: TNotifyEvent;
@@ -153,6 +154,8 @@ type
     
     function CreateNode(const AText: string; AType: TAIGraphNodeType): TAIGraphNode;
     function CreateEdge(AFromId, AToId: Integer; AWeight: Double): TAIGraphEdge;
+    function GetAdjacencyEdges(AFromId: Integer): TList;
+    procedure IndexEdge(LEdge: TAIGraphEdge);
     
     procedure TraverseGraph(
       ANodeId: Integer;
@@ -172,6 +175,7 @@ type
     function FindNode(const AText: string; AType: TAIGraphNodeType): TAIGraphNode;
     function FindNodeById(AId: Integer): TAIGraphNode;
     function FindEdge(AFromId, AToId: Integer): TAIGraphEdge;
+    function AdjacentEdgeCount(AFromId: Integer): Integer;
 
     procedure ClearGraph;
     procedure ClearTraining;
@@ -318,23 +322,20 @@ begin
   Result := StringReplace(Result, 'Ç', 'C', [rfReplaceAll]);
 end;
 
-procedure SortScoreItems(AList: TList);
+function CompareScoreItems(Item1, Item2: Pointer): Integer;
 var
-  i, j: Integer;
-  Temp: TScoreItem;
+  A, B: TScoreItem;
 begin
-  for i := 0 to AList.Count - 2 do
-  begin
-    for j := i + 1 to AList.Count - 1 do
-    begin
-      if TScoreItem(AList[j]).Score > TScoreItem(AList[i]).Score then
-      begin
-        Temp := TScoreItem(AList[i]);
-        AList[i] := AList[j];
-        AList[j] := Temp;
-      end;
-    end;
-  end;
+  A := TScoreItem(Item1);
+  B := TScoreItem(Item2);
+  if A.Score > B.Score then Result := -1
+  else if A.Score < B.Score then Result := 1
+  else Result := CompareText(A.Category, B.Category);
+end;
+
+procedure SortScoreItems(AList: TList);
+begin
+  AList.Sort(@CompareScoreItems);
 end;
 
 { TAITrainingCollection }
@@ -416,6 +417,10 @@ begin
   FEdgeIndex := TStringList.Create;
   FEdgeIndex.Sorted := True;
   FEdgeIndex.Duplicates := dupError;
+
+  FAdjacencyIndex := TStringList.Create;
+  FAdjacencyIndex.Sorted := True;
+  FAdjacencyIndex.Duplicates := dupError;
   
   FTokenizer := nil;
   
@@ -487,6 +492,7 @@ begin
   FNodeIndex.Free;
   FNodeIdIndex.Free;
   FEdgeIndex.Free;
+  FAdjacencyIndex.Free;
   FTraining.Free;
   FStopWords.Free;
   FSynonyms.Free;
@@ -512,6 +518,9 @@ begin
   FNodeIndex.Clear;
   FNodeIdIndex.Clear;
   FEdgeIndex.Clear;
+  for i := 0 to FAdjacencyIndex.Count - 1 do
+    FAdjacencyIndex.Objects[i].Free;
+  FAdjacencyIndex.Clear;
   
   FNodeCounter := 0;
   FNodeCount := 0;
@@ -558,6 +567,38 @@ begin
     Result := TAIGraphEdge(FEdgeIndex.Objects[LIdx]);
 end;
 
+function TAIGraphMap.GetAdjacencyEdges(AFromId: Integer): TList;
+var
+  LIndex: Integer;
+begin
+  if FAdjacencyIndex.Find(IntToStr(AFromId), LIndex) then
+    Result := TList(FAdjacencyIndex.Objects[LIndex])
+  else
+    Result := nil;
+end;
+
+procedure TAIGraphMap.IndexEdge(LEdge: TAIGraphEdge);
+var
+  LEdges: TList;
+begin
+  if LEdge = nil then Exit;
+  LEdges := GetAdjacencyEdges(LEdge.FromNodeId);
+  if LEdges = nil then
+  begin
+    LEdges := TList.Create;
+    FAdjacencyIndex.AddObject(IntToStr(LEdge.FromNodeId), LEdges);
+  end;
+  LEdges.Add(LEdge);
+end;
+
+function TAIGraphMap.AdjacentEdgeCount(AFromId: Integer): Integer;
+var
+  LEdges: TList;
+begin
+  LEdges := GetAdjacencyEdges(AFromId);
+  if LEdges = nil then Result := 0 else Result := LEdges.Count;
+end;
+
 function TAIGraphMap.CreateNode(const AText: string; AType: TAIGraphNodeType): TAIGraphNode;
 begin
   Inc(FNodeCounter);
@@ -579,6 +620,7 @@ begin
   FEdgeCount := FEdges.Count;
   
   FEdgeIndex.AddObject(IntToStr(AFromId) + '_' + IntToStr(AToId), Result);
+  IndexEdge(Result);
   
   if Assigned(FOnGraphChanged) then
     FOnGraphChanged(Self);
@@ -804,6 +846,7 @@ procedure TAIGraphMap.TraverseGraph(
 );
 var
   i: Integer;
+  LAdjacent: TList;
   LEdge: TAIGraphEdge;
   LTargetNode: TAIGraphNode;
   LTempIdx: Integer;
@@ -815,38 +858,37 @@ begin
 
   AVisited.Add(Pointer(ANodeId));
   try
-    for i := 0 to FEdges.Count - 1 do
+    LAdjacent := GetAdjacencyEdges(ANodeId);
+    if LAdjacent = nil then Exit;
+    for i := 0 to LAdjacent.Count - 1 do
     begin
-      LEdge := TAIGraphEdge(FEdges[i]);
-      if LEdge.FromNodeId = ANodeId then
+      LEdge := TAIGraphEdge(LAdjacent[i]);
+      LTargetNode := FindNodeById(LEdge.ToNodeId);
+      if Assigned(LTargetNode) then
       begin
-        LTargetNode := FindNodeById(LEdge.ToNodeId);
-        if Assigned(LTargetNode) then
+        if LTargetNode.NodeType = ntCategory then
         begin
-          if LTargetNode.NodeType = ntCategory then
+          LWeightContrib := LEdge.Weight * ACurrentFactor;
+          LTempIdx := AScores.IndexOfName(LTargetNode.Text);
+          if LTempIdx >= 0 then
           begin
-            LWeightContrib := LEdge.Weight * ACurrentFactor;
-            LTempIdx := AScores.IndexOfName(LTargetNode.Text);
-            if LTempIdx >= 0 then
-            begin
-              LPrevScore := StrToFloatDef(AScores.ValueFromIndex[LTempIdx], 0.0);
-              AScores.Strings[LTempIdx] := LTargetNode.Text + '=' + FloatToStr(LPrevScore + LWeightContrib);
-            end
-            else
-            begin
-              AScores.Add(LTargetNode.Text + '=' + FloatToStr(LWeightContrib));
-            end;
+            LPrevScore := StrToFloatDef(AScores.ValueFromIndex[LTempIdx], 0.0);
+            AScores.Strings[LTempIdx] := LTargetNode.Text + '=' + FloatToStr(LPrevScore + LWeightContrib);
           end
-          else if LTargetNode.NodeType = ntToken then
+          else
           begin
-            TraverseGraph(
-              LTargetNode.Id,
-              ACurrentDepth + 1,
-              ACurrentFactor * FDepthDecay,
-              AScores,
-              AVisited
-            );
+            AScores.Add(LTargetNode.Text + '=' + FloatToStr(LWeightContrib));
           end;
+        end
+        else if LTargetNode.NodeType = ntToken then
+        begin
+          TraverseGraph(
+            LTargetNode.Id,
+            ACurrentDepth + 1,
+            ACurrentFactor * FDepthDecay,
+            AScores,
+            AVisited
+          );
         end;
       end;
     end;
@@ -1403,6 +1445,7 @@ begin
           FEdges.Add(LEdge);
           
           FEdgeIndex.AddObject(IntToStr(LEdge.FromNodeId) + '_' + IntToStr(LEdge.ToNodeId), LEdge);
+          IndexEdge(LEdge);
         end;
       end;
     finally

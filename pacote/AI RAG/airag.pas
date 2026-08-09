@@ -5,7 +5,8 @@ unit airag;
 interface
 
 uses
-  Classes, SysUtils, chatgpt, aigraphmap, aibase, LResources;
+  Classes, SysUtils, TypInfo, fpjson, chatgpt, aigraphmap, aibase,
+  airagbridge, airetrieval, aitracebridge, LResources;
 
 type
 
@@ -45,7 +46,7 @@ type
     var AHandled: Boolean
   ) of object;
 
-  TAIRAG = class(TAIBaseComponent)
+  TAIRAG = class(TAIBaseComponent, IAIRAGProvider)
   private
     FChatGPT: TCHATGPT;
     FGraphMap: TAIGraphMap;
@@ -56,6 +57,14 @@ type
     FTopK: Integer;
     FMinimumScore: Double;
     FMaximumContextLength: Integer;
+    FContextTokenBudget: Integer;
+    FRetrievalMode: TRAGRetrievalMode;
+    FVectorRetriever: TAIVectorRetriever;
+    FBM25Retriever: TAIBM25Retriever;
+    FReranker: TComponent;
+    FRRFRankConstant: Integer;
+    FTrace: TComponent;
+    FLastTraceID: string;
 
     FInstructions: string;
     FNoAnswerText: string;
@@ -66,6 +75,7 @@ type
     FLastPrompt: string;
     FLastAnswer: string;
     FLastSources: TStringList;
+    FChunkIndex: TStringList;
 
     FReplaceExistingSource: Boolean;
 
@@ -91,12 +101,18 @@ type
     procedure SetChunkOverlap(AValue: Integer);
     procedure SetTopK(AValue: Integer);
     procedure SetMaximumContextLength(AValue: Integer);
+    procedure SetVectorRetriever(AValue: TAIVectorRetriever);
+    procedure SetBM25Retriever(AValue: TAIBM25Retriever);
+    procedure SetReranker(AValue: TComponent);
+    procedure SetTrace(AValue: TComponent);
+    function RetrieveAdvanced(const AQuestion: string; AResults: TStrings): Boolean;
 
     procedure DoLog(const AMessage: string);
     procedure ClearStringListObjects(AStrings: TStrings);
     procedure RemoveSourceChunks(const ASourceName: string);
     procedure FreeResultObjects(AStrings: TStrings);
     function NormalizeSourceName(const ASource: string): string;
+    procedure RebuildChunkIndex;
 
     procedure SplitText(
       const AText: string;
@@ -142,6 +158,8 @@ type
       const AChunkID: string
     ): string;
 
+    procedure ReindexChunks;
+
     function ExtractSourceName(
       const AChunkID: string
     ): string;
@@ -154,6 +172,11 @@ type
     function BuildContext(
       const AQuestion: string
     ): Boolean;
+
+    function GetLastQuestion: string;
+    function GetLastContext: string;
+    function GetLastAnswer: string;
+    function GetLastSources: TStrings;
 
     function BuildPrompt(
       const AQuestion: string;
@@ -180,6 +203,7 @@ type
     property LastAnswer: string read FLastAnswer;
     property LastSources: TStringList read FLastSources;
     property BulkLoading: Boolean read FBulkLoading;
+    property LastTraceID: string read FLastTraceID;
 
   published
     property ChatGPT: TCHATGPT read FChatGPT write SetChatGPT;
@@ -191,6 +215,13 @@ type
     property TopK: Integer read FTopK write SetTopK default 4;
     property MinimumScore: Double read FMinimumScore write FMinimumScore;
     property MaximumContextLength: Integer read FMaximumContextLength write SetMaximumContextLength default 12000;
+    property ContextTokenBudget: Integer read FContextTokenBudget write FContextTokenBudget default 3000;
+    property RetrievalMode: TRAGRetrievalMode read FRetrievalMode write FRetrievalMode default rrmGraph;
+    property VectorRetriever: TAIVectorRetriever read FVectorRetriever write SetVectorRetriever;
+    property BM25Retriever: TAIBM25Retriever read FBM25Retriever write SetBM25Retriever;
+    property Reranker: TComponent read FReranker write SetReranker;
+    property RRFRankConstant: Integer read FRRFRankConstant write FRRFRankConstant default 60;
+    property Trace: TComponent read FTrace write SetTrace;
 
     property Instructions: string read FInstructions write FInstructions;
     property NoAnswerText: string read FNoAnswerText write FNoAnswerText;
@@ -212,13 +243,7 @@ type
   end;
 
 type
-  TRAGRetrievedChunk = class
-  public
-    ChunkID: string;
-    Source: string;
-    Text: string;
-    Score: Double;
-  end;
+  TRAGRetrievedChunk = TAIRetrievalResult;
 
 procedure Register;
 
@@ -240,6 +265,14 @@ begin
   FTopK := 4;
   FMinimumScore := 0.0;
   FMaximumContextLength := 12000;
+  FContextTokenBudget := 3000;
+  FRetrievalMode := rrmGraph;
+  FVectorRetriever := nil;
+  FBM25Retriever := nil;
+  FReranker := nil;
+  FRRFRankConstant := 60;
+  FTrace := nil;
+  FLastTraceID := '';
   FInstructions := 'Voce e um assistente especializado nos documentos fornecidos.';
   FNoAnswerText := 'Nao encontrei essa informacao na base de conhecimento.';
   FSourcePrefix := 'rag:';
@@ -248,6 +281,10 @@ begin
   FLastPrompt := '';
   FLastAnswer := '';
   FLastSources := TStringList.Create;
+  FChunkIndex := TStringList.Create;
+  FChunkIndex.Sorted := True;
+  FChunkIndex.CaseSensitive := False;
+  FChunkIndex.Duplicates := dupIgnore;
   FReplaceExistingSource := True;
   FBulkLoading := False;
   FBulkSavedReplace := True;
@@ -258,6 +295,7 @@ end;
 
 destructor TAIRAG.Destroy;
 begin
+  FChunkIndex.Free;
   FLastSources.Free;
   inherited Destroy;
 end;
@@ -268,7 +306,19 @@ begin
     Exit;
   FChatGPT := AValue;
   if Assigned(FChatGPT) then
+  begin
     FChatGPT.FreeNotification(Self);
+    if Assigned(FTrace) then FChatGPT.Trace := FTrace;
+  end;
+end;
+
+procedure TAIRAG.SetTrace(AValue: TComponent);
+begin
+  if FTrace = AValue then Exit;
+  if Assigned(FTrace) then FTrace.RemoveFreeNotification(Self);
+  FTrace := AValue;
+  if Assigned(FTrace) then FTrace.FreeNotification(Self);
+  if Assigned(FChatGPT) then FChatGPT.Trace := FTrace;
 end;
 
 procedure TAIRAG.SetGraphMap(AValue: TAIGraphMap);
@@ -349,6 +399,7 @@ begin
     if SameText(Copy(FGraphMap.Training[I].OutputCategory, 1, Length(Prefix)), Prefix) then
       FGraphMap.Training.Delete(I);
   end;
+  RebuildChunkIndex;
 end;
 
 procedure TAIRAG.FreeResultObjects(AStrings: TStrings);
@@ -472,6 +523,14 @@ begin
       FChatGPT := nil;
     if AComponent = FGraphMap then
       FGraphMap := nil;
+    if AComponent = FVectorRetriever then
+      FVectorRetriever := nil;
+    if AComponent = FBM25Retriever then
+      FBM25Retriever := nil;
+    if AComponent = FReranker then
+      FReranker := nil;
+    if AComponent = FTrace then
+      FTrace := nil;
   end;
 end;
 
@@ -483,6 +542,11 @@ begin
     FGraphMap.ClearTraining;
     FGraphMap.ClearGraph;
   end;
+  FChunkIndex.Clear;
+  if Assigned(FVectorRetriever) and Assigned(FVectorRetriever.VectorStore) then
+    FVectorRetriever.VectorStore.Clear;
+  if Assigned(FBM25Retriever) then
+    FBM25Retriever.Clear;
 
   FLastQuestion := '';
   FLastContext := '';
@@ -551,6 +615,11 @@ begin
       Item.InputText := Chunks[I];
       Item.OutputCategory := ChunkID;
       Item.Weight := 1.0;
+      FChunkIndex.AddObject(ChunkID, Item);
+      if Assigned(FVectorRetriever) then
+        FVectorRetriever.AddDocument(ChunkID, SourceName, Chunks[I]);
+      if Assigned(FBM25Retriever) then
+        FBM25Retriever.AddDocument(ChunkID, SourceName, Chunks[I]);
       Inc(Result);
       DoLog(Format('  -> Chunk #%d criado [%s] (%d caracteres)', [Result, ChunkID, Length(Chunks[I])]));
       if Assigned(FOnChunkCreated) then
@@ -770,6 +839,7 @@ begin
     FOnBeforeIndex(Self);
 
   try
+    RebuildChunkIndex;
     FGraphMap.Train;
     if Trim(FGraphMap.LastError) <> '' then
     begin
@@ -796,6 +866,8 @@ end;
 function TAIRAG.FindChunkText(const AChunkID: string): string;
 var
   I: Integer;
+  LIndex: Integer;
+  LItem: TAITrainingItem;
   LHandled: Boolean;
 begin
   Result := '';
@@ -814,11 +886,19 @@ begin
   if not Assigned(FGraphMap) then
     Exit;
 
+  if FChunkIndex.Find(AChunkID, LIndex) then
+  begin
+    LItem := TAITrainingItem(FChunkIndex.Objects[LIndex]);
+    if LItem <> nil then Exit(LItem.InputText);
+  end;
+
+  // Compatibilidade com colecoes Training alteradas diretamente pelo host.
   for I := 0 to FGraphMap.Training.Count - 1 do
   begin
     if SameText(FGraphMap.Training[I].OutputCategory, AChunkID) then
     begin
       Result := FGraphMap.Training[I].InputText;
+      RebuildChunkIndex;
       Exit;
     end;
   end;
@@ -841,6 +921,106 @@ begin
     Result := S;
 end;
 
+procedure TAIRAG.RebuildChunkIndex;
+var
+  I: Integer;
+  Item: TAITrainingItem;
+begin
+  FChunkIndex.Clear;
+  if FGraphMap = nil then Exit;
+  for I := 0 to FGraphMap.Training.Count - 1 do
+  begin
+    Item := FGraphMap.Training[I];
+    if Item.OutputCategory <> '' then
+      FChunkIndex.AddObject(Item.OutputCategory, Item);
+  end;
+end;
+
+procedure TAIRAG.ReindexChunks;
+begin
+  RebuildChunkIndex;
+end;
+
+function TAIRAG.RetrieveAdvanced(const AQuestion: string;
+  AResults: TStrings): Boolean;
+var
+  GraphResults, VectorResults, BM25Results: TStringList;
+  GraphRetriever: TAIGraphMapRetriever;
+  RerankerIntf: IAIReranker;
+  I: Integer;
+  Item: TAIRetrievalResult;
+begin
+  Result := False;
+  GraphResults := TStringList.Create;
+  VectorResults := TStringList.Create;
+  BM25Results := TStringList.Create;
+  GraphRetriever := nil;
+  try
+    case FRetrievalMode of
+      rrmVector:
+        if Assigned(FVectorRetriever) then
+          Result := FVectorRetriever.Retrieve(AQuestion, FTopK, AResults)
+        else
+          SetError('VectorRetriever nao associado.');
+      rrmBM25:
+        if Assigned(FBM25Retriever) then
+          Result := FBM25Retriever.Retrieve(AQuestion, FTopK, AResults)
+        else
+          SetError('BM25Retriever nao associado.');
+      rrmHybrid:
+        begin
+          GraphRetriever := TAIGraphMapRetriever.Create(nil);
+          GraphRetriever.GraphMap := FGraphMap;
+          GraphRetriever.SourcePrefix := FSourcePrefix;
+          GraphRetriever.Retrieve(AQuestion, FTopK * 2, GraphResults);
+          if Assigned(FVectorRetriever) then
+            FVectorRetriever.Retrieve(AQuestion, FTopK * 2, VectorResults);
+          if Assigned(FBM25Retriever) then
+            FBM25Retriever.Retrieve(AQuestion, FTopK * 2, BM25Results);
+          TAIRankFusion.FuseRRF([GraphResults, VectorResults, BM25Results],
+            FRRFRankConstant, FTopK, AResults);
+          Result := AResults.Count > 0;
+        end;
+    end;
+
+    I := 0;
+    while I < AResults.Count do
+    begin
+      Item := TAIRetrievalResult(AResults.Objects[I]);
+      if Item.Score < FMinimumScore then
+      begin
+        Item.Free;
+        AResults.Delete(I);
+      end
+      else
+        Inc(I);
+    end;
+
+    if Assigned(FReranker) and Supports(FReranker, IAIReranker, RerankerIntf) then
+      RerankerIntf.Rerank(AQuestion, AResults, FTopK);
+    ApplyTokenBudget(AResults, FContextTokenBudget);
+
+    for I := 0 to AResults.Count - 1 do
+    begin
+      Item := TAIRetrievalResult(AResults.Objects[I]);
+      DoLog(Format('  -> Chunk "%s" aceito por %s (Score: %.4f).',
+        [Item.ChunkID, GetEnumName(TypeInfo(TRAGRetrievalMode), Ord(FRetrievalMode)), Item.Score]));
+      if Assigned(FOnChunkRetrieved) then
+        FOnChunkRetrieved(Self, Item.ChunkID, Item.Source, Item.Text, Item.Score);
+    end;
+    Result := AResults.Count > 0;
+    FLastSuccess := Result;
+  finally
+    FreeRetrievalResults(GraphResults);
+    FreeRetrievalResults(VectorResults);
+    FreeRetrievalResults(BM25Results);
+    GraphResults.Free;
+    VectorResults.Free;
+    BM25Results.Free;
+    GraphRetriever.Free;
+  end;
+end;
+
 function TAIRAG.Retrieve(const AQuestion: string; AResults: TStrings): Boolean;
 var
   PredictionList: TStringList;
@@ -848,7 +1028,19 @@ var
   RawLine, ChunkID, ScoreStr, ChunkText, SrcName: string;
   Score: Double;
   Item: TRAGRetrievedChunk;
+  SpanID: string;
+  TraceObj: TJSONObject;
+  Scores, Sources: TJSONArray;
 begin
+  TraceObj := TJSONObject.Create;
+  try
+    TraceObj.Add('top_k', FTopK);
+    TraceObj.Add('mode', Ord(FRetrievalMode));
+    if AITraceAllowsSensitiveContent(FTrace) then TraceObj.Add('question', AQuestion);
+    SpanID := AITraceBegin(FTrace, 'rag', 'Retrieve', '', TraceObj.AsJSON);
+    FLastTraceID := AITraceID(FTrace);
+  finally TraceObj.Free; end;
+  try
   Result := False;
   ClearError;
 
@@ -876,6 +1068,14 @@ begin
   DoLog('Pesquisando pergunta no Grafo RAG: "' + AQuestion + '"');
   if Assigned(FOnBeforeRetrieve) then
     FOnBeforeRetrieve(Self);
+
+  if FRetrievalMode <> rrmGraph then
+  begin
+    Result := RetrieveAdvanced(AQuestion, AResults);
+    if Assigned(FOnAfterRetrieve) then
+      FOnAfterRetrieve(Self);
+    Exit;
+  end;
 
   PredictionList := TStringList.Create;
   try
@@ -954,6 +1154,29 @@ begin
   finally
     PredictionList.Free;
   end;
+  finally
+    TraceObj := TJSONObject.Create;
+    try
+      TraceObj.Add('success', Result);
+      TraceObj.Add('top_k', FTopK);
+      TraceObj.Add('minimum_score', FMinimumScore);
+      if Assigned(AResults) then TraceObj.Add('returned', AResults.Count)
+      else TraceObj.Add('returned', 0);
+      Scores := TJSONArray.Create;
+      TraceObj.Add('scores', Scores);
+      Sources := TJSONArray.Create;
+      TraceObj.Add('sources', Sources);
+      if Assigned(AResults) then
+        for I := 0 to AResults.Count - 1 do
+          if Assigned(AResults.Objects[I]) then
+          begin
+            Item := TRAGRetrievedChunk(AResults.Objects[I]);
+            Scores.Add(Item.Score);
+            Sources.Add(Item.Source);
+          end;
+      AITraceEnd(FTrace, SpanID, FLastError, TraceObj.AsJSON);
+    finally TraceObj.Free; end;
+  end;
 end;
 
 function TAIRAG.BuildContext(const AQuestion: string): Boolean;
@@ -1010,6 +1233,50 @@ begin
     FreeResultObjects(Results);
     Results.Free;
   end;
+end;
+
+procedure TAIRAG.SetVectorRetriever(AValue: TAIVectorRetriever);
+begin
+  if FVectorRetriever = AValue then Exit;
+  if FVectorRetriever <> nil then FVectorRetriever.RemoveFreeNotification(Self);
+  FVectorRetriever := AValue;
+  if FVectorRetriever <> nil then FVectorRetriever.FreeNotification(Self);
+end;
+
+procedure TAIRAG.SetBM25Retriever(AValue: TAIBM25Retriever);
+begin
+  if FBM25Retriever = AValue then Exit;
+  if FBM25Retriever <> nil then FBM25Retriever.RemoveFreeNotification(Self);
+  FBM25Retriever := AValue;
+  if FBM25Retriever <> nil then FBM25Retriever.FreeNotification(Self);
+end;
+
+procedure TAIRAG.SetReranker(AValue: TComponent);
+begin
+  if FReranker = AValue then Exit;
+  if FReranker <> nil then FReranker.RemoveFreeNotification(Self);
+  FReranker := AValue;
+  if FReranker <> nil then FReranker.FreeNotification(Self);
+end;
+
+function TAIRAG.GetLastQuestion: string;
+begin
+  Result := FLastQuestion;
+end;
+
+function TAIRAG.GetLastContext: string;
+begin
+  Result := FLastContext;
+end;
+
+function TAIRAG.GetLastAnswer: string;
+begin
+  Result := FLastAnswer;
+end;
+
+function TAIRAG.GetLastSources: TStrings;
+begin
+  Result := FLastSources;
 end;
 
 function TAIRAG.BuildPrompt(const AQuestion: string; const AContext: string): string;
@@ -1170,6 +1437,8 @@ begin
 
     if FileExists(AGraphFileName) then
       FGraphMap.LoadGraphFromFile(AGraphFileName);
+
+    RebuildChunkIndex;
 
     Result := True;
     FLastSuccess := True;

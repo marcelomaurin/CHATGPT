@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, chatgpt, fpjson, jsonparser, fphttpclient, TypInfo,
   airagbridge,
-  aibase, aiagentsafety,
+  aibase, aiagentsafety, aitools, aiguardrails, aitracebridge,
   // AI Input components
   aiaudio, aiwebserver, aisockets, aiserial, aiposprinter,
   aimodbus, aimqtt, aiemail, aimessenger, aiindustrial, aichromiumbrowser,
@@ -95,10 +95,21 @@ type
     FMaxMemoryLimit: Integer;
     FMaxRetries: Integer;
     FSafety: TAIAgentSafety;
+    FToolRegistry: TAIToolRegistry;
+    FInputGuardrail: TAIInputGuardrail;
+    FOutputGuardrail: TAIOutputGuardrail;
+    FLastGuardrailDecision: TAIGuardrailDecision;
+    FLastGuardrailReason: string;
+    FTrace: TComponent;
+    FLastTraceID: string;
     FLastDecision: TAIAgentDecision;
     procedure SetMemory(AValue: TStrings);
     procedure SetRAG(AValue: TComponent);
     procedure SetSafety(AValue: TAIAgentSafety);
+    procedure SetToolRegistry(AValue: TAIToolRegistry);
+    procedure SetInputGuardrail(AValue: TAIInputGuardrail);
+    procedure SetOutputGuardrail(AValue: TAIOutputGuardrail);
+    procedure SetTrace(AValue: TComponent);
     function LoadRAGContext(const AQuestion: string): Boolean;
   protected
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
@@ -106,6 +117,10 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function Execute(const AInputData: string): Boolean;
+    function ExecuteToolCall(ACall: TAIToolCall;
+      AResult: TAIToolResult): Boolean;
+    function ExecuteToolJSON(const AToolCallJSON: string;
+      out AToolResultJSON: string): Boolean;
     procedure ClearMemory;
   published
     property ChatGPT: TCHATGPT read FChatGPT write FChatGPT;
@@ -114,6 +129,10 @@ type
     property Action: TAIAgentAction read FAction write FAction;
     property Resource: TAIAgentResource read FResource write FResource;
     property Safety: TAIAgentSafety read FSafety write SetSafety;
+    property ToolRegistry: TAIToolRegistry read FToolRegistry write SetToolRegistry;
+    property InputGuardrail: TAIInputGuardrail read FInputGuardrail write SetInputGuardrail;
+    property OutputGuardrail: TAIOutputGuardrail read FOutputGuardrail write SetOutputGuardrail;
+    property Trace: TComponent read FTrace write SetTrace;
     property SystemPrompt: string read FSystemPrompt write FSystemPrompt;
     property LastRationale: string read FLastRationale;
     property LastRAGContext: string read FLastRAGContext;
@@ -123,6 +142,9 @@ type
     property MaxRetries: Integer read FMaxRetries write FMaxRetries;
     property OnActionTriggered: TAgentActionEvent read FOnActionTriggered write FOnActionTriggered;
     property LastDecision: TAIAgentDecision read FLastDecision;
+    property LastGuardrailDecision: TAIGuardrailDecision read FLastGuardrailDecision;
+    property LastGuardrailReason: string read FLastGuardrailReason;
+    property LastTraceID: string read FLastTraceID;
   end;
 
   { TAIAgentResource }
@@ -410,6 +432,13 @@ begin
   FMaxRetries := 3;
   FOnActionTriggered := nil;
   FSafety := nil;
+  FToolRegistry := nil;
+  FInputGuardrail := nil;
+  FOutputGuardrail := nil;
+  FLastGuardrailDecision := agdAllow;
+  FLastGuardrailReason := '';
+  FTrace := nil;
+  FLastTraceID := '';
   FLastDecision := TAIAgentDecision.Create;
 end;
 
@@ -432,7 +461,11 @@ begin
   begin
     FRAG := AValue;
     if FRAG <> nil then
+    begin
       FRAG.FreeNotification(Self);
+      if Assigned(FTrace) and IsPublishedProp(FRAG, 'Trace') then
+        SetObjectProp(FRAG, 'Trace', FTrace);
+    end;
   end;
 end;
 
@@ -446,6 +479,46 @@ begin
   end;
 end;
 
+procedure TAIAgent.SetToolRegistry(AValue: TAIToolRegistry);
+begin
+  if FToolRegistry <> AValue then
+  begin
+    if Assigned(FToolRegistry) then
+      FToolRegistry.RemoveFreeNotification(Self);
+    FToolRegistry := AValue;
+    if Assigned(FToolRegistry) then
+      FToolRegistry.FreeNotification(Self);
+  end;
+end;
+
+procedure TAIAgent.SetInputGuardrail(AValue: TAIInputGuardrail);
+begin
+  if FInputGuardrail = AValue then Exit;
+  if Assigned(FInputGuardrail) then FInputGuardrail.RemoveFreeNotification(Self);
+  FInputGuardrail := AValue;
+  if Assigned(FInputGuardrail) then FInputGuardrail.FreeNotification(Self);
+end;
+
+procedure TAIAgent.SetOutputGuardrail(AValue: TAIOutputGuardrail);
+begin
+  if FOutputGuardrail = AValue then Exit;
+  if Assigned(FOutputGuardrail) then FOutputGuardrail.RemoveFreeNotification(Self);
+  FOutputGuardrail := AValue;
+  if Assigned(FOutputGuardrail) then FOutputGuardrail.FreeNotification(Self);
+end;
+
+procedure TAIAgent.SetTrace(AValue: TComponent);
+begin
+  if FTrace = AValue then Exit;
+  if Assigned(FTrace) then FTrace.RemoveFreeNotification(Self);
+  FTrace := AValue;
+  if Assigned(FTrace) then FTrace.FreeNotification(Self);
+  if Assigned(FChatGPT) then FChatGPT.Trace := FTrace;
+  if Assigned(FToolRegistry) then FToolRegistry.Trace := FTrace;
+  if Assigned(FRAG) and IsPublishedProp(FRAG, 'Trace') then
+    SetObjectProp(FRAG, 'Trace', FTrace);
+end;
+
 procedure TAIAgent.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   inherited Notification(AComponent, Operation);
@@ -457,6 +530,10 @@ begin
     if AComponent = FAction then FAction := nil;
     if AComponent = FResource then FResource := nil;
     if AComponent = FSafety then FSafety := nil;
+    if AComponent = FToolRegistry then FToolRegistry := nil;
+    if AComponent = FInputGuardrail then FInputGuardrail := nil;
+    if AComponent = FOutputGuardrail then FOutputGuardrail := nil;
+    if AComponent = FTrace then FTrace := nil;
   end;
 end;
 
@@ -492,6 +569,96 @@ begin
   FMemory.Clear;
 end;
 
+function TAIAgent.ExecuteToolCall(ACall: TAIToolCall;
+  AResult: TAIToolResult): Boolean;
+var
+  Params: TStringList;
+  I: Integer;
+  Value: TJSONData;
+  Err: string;
+begin
+  Result := False;
+  ClearError;
+  if AResult = nil then
+  begin
+    SetError('ToolResult nulo.');
+    Exit;
+  end;
+  if ACall = nil then
+  begin
+    AResult.Clear;
+    AResult.ErrorText := 'ToolCall nulo.';
+    SetError(AResult.ErrorText);
+    Exit;
+  end;
+  if FToolRegistry = nil then
+  begin
+    AResult.Clear;
+    AResult.CallID := ACall.CallID;
+    AResult.ToolName := ACall.ToolName;
+    AResult.ErrorText := 'ToolRegistry nao associado ao Agent.';
+    SetError(AResult.ErrorText);
+    Exit;
+  end;
+
+  if Assigned(FSafety) then
+  begin
+    Params := TStringList.Create;
+    try
+      for I := 0 to ACall.Arguments.Count - 1 do
+      begin
+        Value := ACall.Arguments.Items[I];
+        if Value.JSONType in [jtArray, jtObject] then
+          Params.Values[ACall.Arguments.Names[I]] := Value.AsJSON
+        else
+          Params.Values[ACall.Arguments.Names[I]] := Value.AsString;
+      end;
+      if not FSafety.ValidateAction(ACall.ToolName, Params, Err) then
+      begin
+        AResult.Clear;
+        AResult.CallID := ACall.CallID;
+        AResult.ToolName := ACall.ToolName;
+        AResult.ErrorText := Err;
+        SetError(Err);
+        Exit;
+      end;
+    finally
+      Params.Free;
+    end;
+  end;
+  if Assigned(FTrace) then FToolRegistry.Trace := FTrace;
+  Result := FToolRegistry.Execute(ACall, AResult);
+  FLastTraceID := FToolRegistry.LastTraceID;
+  if not Result then SetError(AResult.ErrorText)
+  else FLastResult := AResult.Output;
+  FLastSuccess := Result;
+end;
+
+function TAIAgent.ExecuteToolJSON(const AToolCallJSON: string;
+  out AToolResultJSON: string): Boolean;
+var
+  Call: TAIToolCall;
+  ToolResult: TAIToolResult;
+  Err: string;
+begin
+  Call := TAIToolCall.Create;
+  ToolResult := TAIToolResult.Create;
+  try
+    if not Call.ParseJSON(AToolCallJSON, Err) then
+    begin
+      ToolResult.ErrorText := Err;
+      SetError(Err);
+      Result := False;
+    end
+    else
+      Result := ExecuteToolCall(Call, ToolResult);
+    AToolResultJSON := ToolResult.ToJSON;
+  finally
+    ToolResult.Free;
+    Call.Free;
+  end;
+end;
+
 function TAIAgent.Execute(const AInputData: string): Boolean;
 var
   LPrompt: string;
@@ -511,15 +678,45 @@ var
   CurrentPrompt: string;
   CompPrompt: string;
   Err: string;
+  GuardrailDecision: TAIGuardrailDecision;
+  GuardrailReason: string;
+  SpanID: string;
+  TraceObj: TJSONObject;
 begin
   Result := False;
   ClearError;
+  if Assigned(FChatGPT) then FChatGPT.Trace := FTrace;
+  if Assigned(FToolRegistry) then FToolRegistry.Trace := FTrace;
+  if Assigned(FRAG) and IsPublishedProp(FRAG, 'Trace') then
+    SetObjectProp(FRAG, 'Trace', FTrace);
+  TraceObj := TJSONObject.Create;
+  try
+    TraceObj.Add('input_chars', Length(AInputData));
+    if AITraceAllowsSensitiveContent(FTrace) then TraceObj.Add('input', AInputData);
+    SpanID := AITraceBegin(FTrace, 'agent', 'Execute', '', TraceObj.AsJSON);
+    FLastTraceID := AITraceID(FTrace);
+  finally TraceObj.Free; end;
+  try
   FLastRationale := '';
+  FLastGuardrailDecision := agdAllow;
+  FLastGuardrailReason := '';
   
   FLastDecision.ActionName := '';
   FLastDecision.Parameters.Clear;
   FLastDecision.Rationale := '';
   FLastDecision.RawJSON := '';
+
+  if Assigned(FInputGuardrail) then
+  begin
+    FInputGuardrail.Evaluate(AInputData, GuardrailDecision, GuardrailReason);
+    FLastGuardrailDecision := GuardrailDecision;
+    FLastGuardrailReason := GuardrailReason;
+    if GuardrailDecision = agdBlock then
+    begin
+      SetError('Entrada bloqueada pelo guardrail: ' + GuardrailReason);
+      Exit;
+    end;
+  end;
 
   if not Assigned(FChatGPT) then
   begin
@@ -671,6 +868,19 @@ begin
       Continue;
     end;
 
+    if Assigned(FOutputGuardrail) then
+    begin
+      FOutputGuardrail.Evaluate(FChatGPT.Response, GuardrailDecision,
+        GuardrailReason);
+      FLastGuardrailDecision := GuardrailDecision;
+      FLastGuardrailReason := GuardrailReason;
+      if GuardrailDecision = agdBlock then
+      begin
+        SetError('Saida bloqueada pelo guardrail: ' + GuardrailReason);
+        Exit;
+      end;
+    end;
+
     // Parse JSON Response
     try
       JSONData := GetJSON(FChatGPT.Response);
@@ -780,6 +990,18 @@ begin
 
   if not ParsedSuccessfully and (FLastError = '') then
     SetError('Excedeu o número máximo de tentativas de auto-correção do Agente.');
+  finally
+    TraceObj := TJSONObject.Create;
+    try
+      TraceObj.Add('success', Result);
+      TraceObj.Add('action', FLastDecision.ActionName);
+      TraceObj.Add('memory_items', FMemory.Count);
+      TraceObj.Add('rag_sources', FLastRAGSources.Count);
+      if AITraceAllowsSensitiveContent(FTrace) then
+        TraceObj.Add('response', FLastDecision.RawJSON);
+      AITraceEnd(FTrace, SpanID, FLastError, TraceObj.AsJSON);
+    finally TraceObj.Free; end;
+  end;
 end;
 
 { TAIAgentResourceItem }

@@ -8,11 +8,11 @@ unit openai_agent;
 interface
 
 uses
-  aiagent, aiagent_executors, aiwizardconfig, frm_aiwizardconfig, aipipeline, 
-  aiagent_browseractions, aiagentserial, aiagent_flowevents, aiagent_memorymap,
-  aiagent_core, aiagent_classifier, aiagent_decision, aiagent_actionbuilder,
-  aiagent_actions, aiagent_executor, aiagent_orchestrator, aiagentsafety,
-  LazarusPackageIntf;
+  aiagent, aiagent_executors, aiwizardconfig, frm_aiwizardconfig, aipipeline,
+  aiagent_browseractions, aiagentserial, aiagent_flowevents,
+  aiagent_memorymap, aiagent_core, aiagent_classifier, aiagent_decision,
+  aiagent_actionbuilder, aiagent_actions, aitools, aiagentgraph, aiguardrails,
+  aiagent_executor, aiagent_orchestrator, aiagentsafety, LazarusPackageIntf;
 
 implementation
 
@@ -23,6 +23,9 @@ begin
   RegisterUnit('aipipeline', @aipipeline.Register);
   RegisterUnit('aiagentserial', @aiagentserial.Register);
   RegisterUnit('aiagent_memorymap', @aiagent_memorymap.Register);
+  RegisterUnit('aitools', @aitools.Register);
+  RegisterUnit('aiagentgraph', @aiagentgraph.Register);
+  RegisterUnit('aiguardrails', @aiguardrails.Register);
   RegisterUnit('aiagent_orchestrator', @aiagent_orchestrator.Register);
   RegisterUnit('aiagentsafety', @aiagentsafety.Register);
 end;

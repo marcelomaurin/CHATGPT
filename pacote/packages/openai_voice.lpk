@@ -17,6 +17,44 @@
     <License Value="OPEN SOURCE GPL3"/>
     <Files>
       <Item>
+        <Filename Value="..\AI Voice\aispeechtypes.pas"/>
+        <UnitName Value="aispeechtypes"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Voice\aiwhisperengine.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiwhisperengine"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Voice\aispeechrecognizer.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aispeechrecognizer"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Voice\aivoiceclonetypes.pas"/>
+        <UnitName Value="aivoiceclonetypes"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Voice\aif5ttsengine.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aif5ttsengine"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Voice\aivoiceclone.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aivoiceclone"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Voice\aivoiceassistant.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aivoiceassistant"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Voice\aiaudioplayback.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiaudioplayback"/>
+      </Item>
+      <Item>
         <Filename Value="..\AI Voice\aivoicesynthesizer.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aivoicesynthesizer"/>

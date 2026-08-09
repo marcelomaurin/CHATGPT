@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="5">
+    <PathDelim Value="\"/>
+    <Name Value="openai_mcp"/>
+    <Type Value="RunAndDesignTime"/>
+    <Author Value="Marcelo Maurin Martins"/>
+    <CompilerOptions>
+      <Version Value="11"/><PathDelim Value="\"/>
+      <SearchPaths>
+        <OtherUnitFiles Value="..\AI MCP"/>
+        <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+      </SearchPaths>
+    </CompilerOptions>
+    <Description Value="Lazarus AI Suite: MCP JSON-RPC client, server, transports and Agent tool bridge."/>
+    <License Value="OPEN SOURCE GPL3"/>
+    <Files>
+      <Item><Filename Value="..\AI MCP\aimcp.pas"/><HasRegisterProc Value="True"/><UnitName Value="aimcp"/></Item>
+      <Item><Filename Value="..\AI MCP\aimcp_types.pas"/><UnitName Value="aimcp_types"/></Item>
+      <Item><Filename Value="..\AI MCP\aimcp_transport.pas"/><UnitName Value="aimcp_transport"/></Item>
+      <Item><Filename Value="..\AI MCP\aimcp_client.pas"/><UnitName Value="aimcp_client"/></Item>
+      <Item><Filename Value="..\AI MCP\aimcp_server.pas"/><UnitName Value="aimcp_server"/></Item>
+      <Item><Filename Value="..\AI MCP\aimcp_agent.pas"/><UnitName Value="aimcp_agent"/></Item>
+    </Files>
+    <RequiredPkgs>
+      <Item><PackageName Value="openai_agent"/></Item>
+      <Item><PackageName Value="LCL"/></Item>
+      <Item><PackageName Value="FCL"/></Item>
+    </RequiredPkgs>
+    <UsageOptions><UnitPath Value="$(PkgOutDir)"/></UsageOptions>
+    <PublishOptions><Version Value="2"/><UseFileFilters Value="True"/></PublishOptions>
+  </Package>
+</CONFIG>

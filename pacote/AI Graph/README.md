@@ -35,3 +35,10 @@ end;
 ### Notes
 
 Each component in this folder exposes a published `Prompt` property that documents its internal API for `TAIAgent`.
+
+`TAIGraphMap` maintains indices for nodes, IDs, edges and outgoing adjacency.
+Traversal reads only adjacent edges, and `PredictRanking` uses a deterministic
+`TList.Sort` ordering (score descending, category ascending on ties). The
+adjacency index is rebuilt by `LoadGraphFromFile`; `AdjacentEdgeCount` is
+available for diagnostics. See `tests/rag_retrieval_graph_benchmark` for
+correctness, persistence and throughput checks.

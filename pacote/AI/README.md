@@ -22,3 +22,5 @@ Please select your preferred language for the component reference manual:
 
 ### ⚡ AI and Hardware Integration
 Each component in this folder features a published `Prompt` property that documents its API structure to automatically guide AI Agents (`TAIAgent`) in runtime.
+
+LLM provider, streaming and async architecture: [LLM_PROVIDERS.md](LLM_PROVIDERS.md).

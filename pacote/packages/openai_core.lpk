@@ -29,6 +29,18 @@
         <UnitName Value="airagbridge"/>
       </Item>
       <Item>
+        <Filename Value="..\AI\aitracebridge.pas"/>
+        <UnitName Value="aitracebridge"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI\aillmproviders.pas"/>
+        <UnitName Value="aillmproviders"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI\aillmmodelcatalog.pas"/>
+        <UnitName Value="aillmmodelcatalog"/>
+      </Item>
+      <Item>
         <Filename Value="..\AI\aiplatform.pas"/>
         <UnitName Value="aiplatform"/>
       </Item>

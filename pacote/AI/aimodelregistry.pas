@@ -5,7 +5,8 @@ unit aimodelregistry;
 interface
 
 uses
-  Classes, SysUtils, fpjson, jsonparser, aibase, chatgpt, LResources;
+  Classes, SysUtils, fpjson, jsonparser, aibase, chatgpt, LResources,
+  aillmmodelcatalog;
 
 type
   { TAIModelItem }
@@ -156,35 +157,16 @@ begin
 end;
 
 procedure TAIModelRegistry.LoadDefaultModels;
+var
+  I: Integer;
+  Info: TAILLMModelInfo;
 begin
-  // OpenAI
-  RegisterModel('OpenAI', 'gpt-4o', 'GPT-4o (OpenAI)', 'https://api.openai.com/v1/chat/completions', 4096, 0.7, True, True, True, True, True);
-  RegisterModel('OpenAI', 'gpt-4o-mini', 'GPT-4o Mini (OpenAI)', 'https://api.openai.com/v1/chat/completions', 4096, 0.7, True, True, True, True, True);
-  RegisterModel('OpenAI', 'o3-mini', 'o3-mini (OpenAI Reasoning)', 'https://api.openai.com/v1/chat/completions', 4096, 1.0, True, False, True, True, False);
-  RegisterModel('OpenAI', 'gpt-3.5-turbo', 'GPT-3.5 Turbo (OpenAI)', 'https://api.openai.com/v1/chat/completions', 4096, 0.7, True, False, True, True, True);
-  
-  // Gemini
-  RegisterModel('Gemini', 'gemini-2.5-flash', 'Gemini 2.5 Flash (Google)', '', 8192, 0.7, True, True, True, True, False);
-  RegisterModel('Gemini', 'gemini-2.0-flash', 'Gemini 2.0 Flash (Google)', '', 8192, 0.7, True, True, True, True, False);
-  RegisterModel('Gemini', 'gemini-2.5-pro', 'Gemini 2.5 Pro (Google)', '', 8192, 0.7, True, True, True, True, False);
-  
-  // Claude
-  RegisterModel('Claude', 'claude-3-5-sonnet-20241022', 'Claude 3.5 Sonnet (Anthropic)', 'https://api.anthropic.com/v1/messages', 4096, 0.7, True, True, True, True, False);
-  RegisterModel('Claude', 'claude-3-5-haiku-20241022', 'Claude 3.5 Haiku (Anthropic)', 'https://api.anthropic.com/v1/messages', 4096, 0.7, True, False, True, True, False);
-  
-  // Local (Ollama)
-  RegisterModel('Local', 'llama3.2:3b', 'Llama 3.2 3B (Ollama)', 'http://localhost:11434/v1/chat/completions', 4096, 0.7, False, False, False, True, False);
-  RegisterModel('Local', 'qwen2.5:1.5b', 'Qwen 2.5 1.5B (Ollama)', 'http://localhost:11434/v1/chat/completions', 4096, 0.7, False, False, False, True, False);
-  RegisterModel('Local', 'deepseek-r1:1.5b', 'DeepSeek R1 1.5B (Ollama)', 'http://localhost:11434/v1/chat/completions', 4096, 0.6, False, False, False, True, False);
-  RegisterModel('Local', 'deepseek-r1:8b', 'DeepSeek R1 8B (Ollama)', 'http://localhost:11434/v1/chat/completions', 4096, 0.6, False, False, False, True, False);
-  
-  // OpenRouter
-  RegisterModel('OpenRouter', 'meta-llama/llama-3-8b-instruct:free', 'Llama 3 8B Free (OpenRouter)', 'https://openrouter.ai/api/v1/chat/completions', 4096, 0.7, True, False, False, True, False);
-  RegisterModel('OpenRouter', 'google/gemma-2-9b-it:free', 'Gemma 2 9B Free (OpenRouter)', 'https://openrouter.ai/api/v1/chat/completions', 4096, 0.7, True, False, False, True, False);
-  RegisterModel('OpenRouter', 'deepseek/deepseek-r1:free', 'DeepSeek R1 Free (OpenRouter)', 'https://openrouter.ai/api/v1/chat/completions', 4096, 0.6, True, False, False, True, False);
-  
-  // Cerebras
-  RegisterModel('Cerebras', 'qwen-3-235b-a22b-instruct-2507', 'Cerebras Qwen 3.2 35B', 'https://api.cerebras.ai/v1/chat/completions', 4096, 0.7, True, False, True, True, False);
+  for I := 0 to AILLMModelCount - 1 do
+    if GetAILLMModelInfo(I, Info) then
+      RegisterModel(Info.Provider, Info.InternalName, Info.FriendlyName,
+        Info.DefaultEndpoint, Info.MaxTokens, Info.DefaultTemperature,
+        Info.RequiresAPIKey, Info.SupportsVision, Info.SupportsTools,
+        Info.SupportsStreaming, Info.SupportsFineTuning);
 end;
 
 procedure TAIModelRegistry.GetProviders(AList: TStrings);
@@ -252,11 +234,16 @@ begin
   else if LProvUpper = 'LOCAL' then AChatGPT.Provider := AIP_LOCAL
   else if LProvUpper = 'GEMINI' then AChatGPT.Provider := AIP_GEMINI
   else if LProvUpper = 'CLAUDE' then AChatGPT.Provider := AIP_CLAUDE
+  else if LProvUpper = 'DEEPSEEK' then AChatGPT.Provider := AIP_DEEPSEEK
+  else if LProvUpper = 'OPENAI-COMPATIBLE' then AChatGPT.Provider := AIP_OPENAI_COMPATIBLE
+  else if LProvUpper = 'LLAMA.CPP' then AChatGPT.Provider := AIP_LLAMA_CPP
+  else if LProvUpper = 'NEURAL-API' then AChatGPT.Provider := AIP_NEURAL_API
   else AChatGPT.Provider := AIP_OPENAI;
   
   // Map Model enum and custom model
   AChatGPT.CustomModel := LModel.InternalName;
   AChatGPT.MaxTokens := LModel.MaxTokens;
+  AChatGPT.Temperature := LModel.DefaultTemperature;
   
   // Try to map default types to TypeChat for backward compatibility if names match
   if SameText(LModel.InternalName, 'gpt-3.5-turbo') then AChatGPT.TipoChat := VCT_GPT35TURBO
@@ -276,10 +263,7 @@ begin
   else AChatGPT.TipoChat := VCT_CUSTOM;
   
   if LModel.DefaultEndpoint <> '' then
-  begin
-    if LModel.Provider = 'Local' then
-      AChatGPT.LocalIP := LModel.DefaultEndpoint;
-  end;
+    AChatGPT.URL := LModel.DefaultEndpoint;
   
   FLastResult := 'Modelo aplicado: ' + LModel.FriendlyName;
   FLastSuccess := True;

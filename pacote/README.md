@@ -22,6 +22,10 @@ pacote/
   AI Math/            # matemática, matrizes e estatística
   AI Output/          # documentos, relatórios e saídas
   AI Project/         # gestão de projetos, tarefas e pipelines
+  AI RAG/             # recuperação por grafo, vetor, BM25 e RRF
+  AI MCP/             # cliente/servidor MCP e bridge de tools
+  AI Evaluation/      # datasets, métricas e regressões
+  AI Observability/   # traces, spans e métricas
   AI Schedule/        # agenda e programação
   AI Simulation/      # simulação 2D
   AI Vision/          # visão computacional
@@ -53,6 +57,10 @@ pacote/
 | `openai_simulation.lpk` | Simulação e comportamento em grade. | Opcional |
 | `openai_project.lpk` | Ferramentas de projeto, tarefas e pipeline. | Opcional |
 | `openai_agent.lpk` | Agentes, regras, segurança e automação. | Beta |
+| `openai_rag.lpk` | RAG híbrido, embeddings, BM25, RRF e reranking. | Beta |
+| `openai_mcp.lpk` | MCP JSON-RPC, tools, resources e bridge para Agent. | Beta |
+| `openai_evaluation.lpk` | Avaliação lexical/RAG, LLM-as-Judge e regressões. | Beta |
+| `openai_observability.lpk` | TraceID, spans e métricas de LLM/RAG/Agent/tools. | Beta |
 | `openai_industrial.lpk` | Integrações industriais. | Experimental |
 
 ## Dependências externas
@@ -82,7 +90,11 @@ pacote/
 16. `packages/openai_simulation.lpk`
 17. `packages/openai_project.lpk`
 18. `packages/openai_agent.lpk`
-19. `packages/openai_industrial.lpk`
+19. `packages/openai_rag.lpk`
+20. `packages/openai_mcp.lpk`
+21. `packages/openai_evaluation.lpk`
+22. `packages/openai_observability.lpk`
+23. `packages/openai_industrial.lpk`
 
 ## Samples
 
@@ -97,6 +109,9 @@ Os diretórios mais úteis hoje incluem:
 - `samples/AI Project/`
 - `samples/AI Vision/`
 - `samples/AI Voice/`
+- `samples/AI MCP/`
+- `samples/AI Evaluation/`
+- `samples/AI Observability/`
 
 ## Observações
 

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="5">
+    <PathDelim Value="\"/>
+    <Name Value="openai_observability"/>
+    <Type Value="RunAndDesignTime"/>
+    <Author Value="Marcelo Maurin Martins"/>
+    <CompilerOptions><Version Value="11"/><PathDelim Value="\"/><SearchPaths><OtherUnitFiles Value="..\AI Observability"/><UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/></SearchPaths></CompilerOptions>
+    <Description Value="Lazarus AI Suite: trace IDs, spans, events and privacy-aware AI metrics."/>
+    <License Value="OPEN SOURCE GPL3"/>
+    <Files><Item><Filename Value="..\AI Observability\aitrace.pas"/><HasRegisterProc Value="True"/><UnitName Value="aitrace"/></Item></Files>
+    <RequiredPkgs><Item><PackageName Value="openai_core"/></Item><Item><PackageName Value="LCL"/></Item><Item><PackageName Value="FCL"/></Item></RequiredPkgs>
+    <UsageOptions><UnitPath Value="$(PkgOutDir)"/></UsageOptions><PublishOptions><Version Value="2"/><UseFileFilters Value="True"/></PublishOptions>
+  </Package>
+</CONFIG>

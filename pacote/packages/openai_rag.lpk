@@ -17,6 +17,10 @@
     <License Value="OPEN SOURCE GPL3"/>
     <Files>
       <Item>
+        <Filename Value="..\AI RAG\airetrieval.pas"/>
+        <UnitName Value="airetrieval"/>
+      </Item>
+      <Item>
         <Filename Value="..\AI RAG\airag.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="airag"/>
