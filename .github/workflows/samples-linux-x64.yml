@@ -7,6 +7,12 @@ on:
       - 'pacote/**'
       - 'tools/ci/compile_samples_linux_x64.sh'
       - '.github/workflows/samples-linux-x64.yml'
+  push:
+    branches: [ main ]
+    paths:
+      - 'pacote/**'
+      - 'tools/ci/compile_samples_linux_x64.sh'
+      - '.github/workflows/samples-linux-x64.yml'
   workflow_dispatch:
 
 permissions:
