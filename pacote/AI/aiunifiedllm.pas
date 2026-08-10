@@ -5,11 +5,10 @@ unit aiunifiedllm;
 interface
 
 uses
-  Classes, SysUtils, aibase, aillmproviders, aicapabilities, aimodelrouter;
+  Classes, SysUtils, LResources, aibase, aillmproviders, aicapabilities,
+  aimodelrouter;
 
 type
-  { TAIUnifiedLLM }
-
   TAIUnifiedLLM = class(TAIBaseComponent)
   private
     FProviderKind: TAILLMProviderKind;
@@ -28,6 +27,7 @@ type
     FOnStreamData: TAILLMStreamDataEvent;
     FProvider: IAILLMProvider;
     procedure ApplyRouter;
+    procedure SetRouter(AValue: TAIModelRouter);
   protected
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
@@ -50,7 +50,7 @@ type
     property Stream: Boolean read FStream write FStream default False;
     property AutoRoute: Boolean read FAutoRoute write FAutoRoute default False;
     property PreferLocal: Boolean read FPreferLocal write FPreferLocal default True;
-    property Router: TAIModelRouter read FRouter write FRouter;
+    property Router: TAIModelRouter read FRouter write SetRouter;
     property OnStreamData: TAILLMStreamDataEvent read FOnStreamData write FOnStreamData;
   end;
 
@@ -77,6 +77,17 @@ begin
   FRequiredCapabilities := [aicChat];
 end;
 
+procedure TAIUnifiedLLM.SetRouter(AValue: TAIModelRouter);
+begin
+  if FRouter = AValue then
+    Exit;
+  if Assigned(FRouter) then
+    FRouter.RemoveFreeNotification(Self);
+  FRouter := AValue;
+  if Assigned(FRouter) then
+    FRouter.FreeNotification(Self);
+end;
+
 procedure TAIUnifiedLLM.Notification(AComponent: TComponent;
   Operation: TOperation);
 begin
@@ -89,7 +100,8 @@ procedure TAIUnifiedLLM.ApplyRouter;
 var
   R: TAIModelRoute;
 begin
-  if not FAutoRoute then Exit;
+  if not FAutoRoute then
+    Exit;
   if FRouter = nil then
     raise Exception.Create('AutoRoute ativo sem TAIModelRouter configurado.');
 
