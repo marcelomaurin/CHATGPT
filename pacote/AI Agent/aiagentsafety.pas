@@ -15,6 +15,17 @@ type
     var AConfirmed: Boolean
   ) of object;
 
+  TAIActionCapability = (
+    acFileRead,
+    acFileWrite,
+    acNetwork,
+    acEmailSend,
+    acIndustrialWrite,
+    acProcessExec,
+    acStateMutation
+  );
+  TAIActionCapabilities = set of TAIActionCapability;
+
   { TAIAgentSafety }
 
   TAIAgentSafety = class(TComponent)
@@ -27,6 +38,8 @@ type
     FAllowNetwork: Boolean;
     FAllowIndustrialWrite: Boolean;
     FAllowEmailSend: Boolean;
+    FAllowProcessExec: Boolean;
+    FAllowAnyDomain: Boolean;
     FSafeBasePath: string;
     FAllowedDomains: TStrings;
     FAllowedPorts: TStrings;
@@ -36,6 +49,7 @@ type
     procedure SetAllowedDomains(AValue: TStrings);
     procedure SetAllowedPorts(AValue: TStrings);
     procedure SetAllowedActions(AValue: TStrings);
+    function IsActionCapabilityAllowed(ACap: TAIActionCapability; out AError: string): Boolean;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -53,6 +67,8 @@ type
     property AllowNetwork: Boolean read FAllowNetwork write FAllowNetwork default False;
     property AllowIndustrialWrite: Boolean read FAllowIndustrialWrite write FAllowIndustrialWrite default False;
     property AllowEmailSend: Boolean read FAllowEmailSend write FAllowEmailSend default False;
+    property AllowProcessExec: Boolean read FAllowProcessExec write FAllowProcessExec default False;
+    property AllowAnyDomain: Boolean read FAllowAnyDomain write FAllowAnyDomain default False;
 
     property SafeBasePath: string read FSafeBasePath write FSafeBasePath;
     property AllowedDomains: TStrings read FAllowedDomains write SetAllowedDomains;
@@ -61,9 +77,84 @@ type
     property OnConfirmAction: TAIConfirmActionEvent read FOnConfirmAction write FOnConfirmAction;
   end;
 
+procedure RegisterActionCapability(const AActionName: string; ACaps: TAIActionCapabilities);
+function GetActionCapabilities(const AActionName: string; out ACaps: TAIActionCapabilities): Boolean;
 procedure Register;
 
 implementation
+
+type
+  TAIActionRegItem = record
+    Name: string;
+    Caps: TAIActionCapabilities;
+  end;
+
+var
+  GActionRegistry: array of TAIActionRegItem;
+
+procedure RegisterActionCapability(const AActionName: string; ACaps: TAIActionCapabilities);
+var
+  I, Idx: Integer;
+begin
+  Idx := -1;
+  for I := 0 to High(GActionRegistry) do
+  begin
+    if CompareText(GActionRegistry[I].Name, AActionName) = 0 then
+    begin
+      Idx := I;
+      Break;
+    end;
+  end;
+  if Idx < 0 then
+  begin
+    Idx := Length(GActionRegistry);
+    SetLength(GActionRegistry, Idx + 1);
+    GActionRegistry[Idx].Name := UpperCase(AActionName);
+  end;
+  GActionRegistry[Idx].Caps := ACaps;
+end;
+
+function GetActionCapabilities(const AActionName: string; out ACaps: TAIActionCapabilities): Boolean;
+var
+  I: Integer;
+  UpperName: string;
+begin
+  Result := False;
+  ACaps := [];
+  UpperName := UpperCase(AActionName);
+  for I := 0 to High(GActionRegistry) do
+  begin
+    if GActionRegistry[I].Name = UpperName then
+    begin
+      ACaps := GActionRegistry[I].Caps;
+      Result := True;
+      Exit;
+    end;
+  end;
+end;
+
+procedure InitDefaultActionRegistry;
+begin
+  SetLength(GActionRegistry, 0);
+  RegisterActionCapability('BROWSER_NAVIGATE', [acNetwork]);
+  RegisterActionCapability('BROWSER_READ_PAGE', [acNetwork, acFileRead]);
+  RegisterActionCapability('BROWSER_DOM_LIST', [acNetwork]);
+  RegisterActionCapability('BROWSER_CAPTURE_TEXT', [acNetwork]);
+  RegisterActionCapability('BROWSER_WAIT_SELECTOR', [acNetwork]);
+  RegisterActionCapability('BROWSER_FOCUS', [acNetwork]);
+  RegisterActionCapability('BROWSER_CLICK', [acNetwork, acStateMutation]);
+  RegisterActionCapability('BROWSER_PRESS_ENTER', [acNetwork, acStateMutation]);
+  RegisterActionCapability('BROWSER_SET_VALUE', [acNetwork, acStateMutation]);
+  RegisterActionCapability('BROWSER_SUBMIT_FORM', [acNetwork, acStateMutation]);
+  RegisterActionCapability('BROWSER_SCREENSHOT', [acNetwork, acFileWrite]);
+  RegisterActionCapability('CREATE_TEXT_DOCUMENT', [acFileWrite]);
+  RegisterActionCapability('READ_WORD_DOCUMENT', [acFileRead]);
+  RegisterActionCapability('LIST_PDF_FILES', [acFileRead]);
+  RegisterActionCapability('SEND_EMAIL', [acEmailSend, acNetwork]);
+  RegisterActionCapability('REGISTER_RESULT', [acStateMutation]);
+  RegisterActionCapability('SALVAR_RELATORIO', [acFileWrite]);
+  RegisterActionCapability('CHAMAR_API', [acNetwork]);
+end;
 
 procedure Register;
 begin
@@ -83,6 +174,8 @@ begin
   FAllowNetwork := False;
   FAllowIndustrialWrite := False;
   FAllowEmailSend := False;
+  FAllowProcessExec := False;
+  FAllowAnyDomain := False;
   FSafeBasePath := '';
   FAllowedDomains := TStringList.Create;
   FAllowedPorts := TStringList.Create;
@@ -112,117 +205,110 @@ begin
   FAllowedActions.Assign(AValue);
 end;
 
+function TAIAgentSafety.IsActionCapabilityAllowed(ACap: TAIActionCapability; out AError: string): Boolean;
+begin
+  Result := True;
+  AError := '';
+  case ACap of
+    acFileRead:
+      ; // Read operations are allowed by default unless constrained by path or specific rule
+    acFileWrite:
+      if not FAllowFileWrite then
+      begin
+        AError := 'Escrita de arquivos bloqueada (AllowFileWrite = False).';
+        Exit(False);
+      end;
+    acNetwork:
+      if not FAllowNetwork then
+      begin
+        AError := 'Acesso de rede bloqueado (AllowNetwork = False).';
+        Exit(False);
+      end;
+    acEmailSend:
+      if not FAllowEmailSend then
+      begin
+        AError := 'Envio de email bloqueado (AllowEmailSend = False).';
+        Exit(False);
+      end;
+    acIndustrialWrite:
+      if not FAllowIndustrialWrite then
+      begin
+        AError := 'Escrita industrial bloqueada (AllowIndustrialWrite = False).';
+        Exit(False);
+      end;
+    acProcessExec:
+      if not FAllowProcessExec then
+      begin
+        AError := 'Execucao de processos bloqueada (AllowProcessExec = False).';
+        Exit(False);
+      end;
+    acStateMutation:
+      if FReadOnlyMode and not FSimulationMode then
+      begin
+        AError := 'Mutacao de estado bloqueada no modo Somente Leitura (ReadOnlyMode).';
+        Exit(False);
+      end;
+  end;
+end;
+
 function TAIAgentSafety.ValidateAction(const AActionName: string; AParams: TStrings; out AError: string): Boolean;
 var
-  LActionUpper: string;
-  LParamVal: string;
+  Caps: TAIActionCapabilities;
+  Cap: TAIActionCapability;
   I: Integer;
+  ParamName, ParamVal, UpperName: string;
   Confirmed: Boolean;
 begin
   Result := True;
   AError := '';
   if not FEnabled then Exit;
 
-  LActionUpper := UpperCase(AActionName);
-
-  // Check AllowedActions list if populated
   if (FAllowedActions.Count > 0) and (FAllowedActions.IndexOf(AActionName) < 0) then
   begin
-    AError := 'Ação "' + AActionName + '" não está na lista de ações permitidas.';
+    AError := 'Acao "' + AActionName + '" nao esta na lista de acoes permitidas.';
     Exit(False);
   end;
 
-  // File Write Check
-  if (Pos('CREATEFILE', LActionUpper) > 0) or
-     (Pos('SAVE', LActionUpper) > 0) or (Pos('WRITE', LActionUpper) > 0) or
-     (Pos('DELETEFILE', LActionUpper) > 0) or (Pos('PDF', LActionUpper) > 0) or 
-     (Pos('WORD', LActionUpper) > 0) or (Pos('EXCEL', LActionUpper) > 0) or 
-     (Pos('TXT', LActionUpper) > 0) or (Pos('DOCS', LActionUpper) > 0) then
+  if not GetActionCapabilities(AActionName, Caps) then
   begin
-    if not FAllowFileWrite then
-    begin
-      AError := 'Escrita de arquivos bloqueada pelas regras de segurança (AllowFileWrite = False).';
-      Exit(False);
-    end;
+    AError := 'Acao nao registrada no catalogo de seguranca (Fail-Closed): ' + AActionName;
+    Exit(False);
   end;
 
-  // Email / Messenger Send Check
-  if (Pos('EMAIL', LActionUpper) > 0) or (Pos('MAIL', LActionUpper) > 0) or 
-     (Pos('WHATSAPP', LActionUpper) > 0) or (Pos('SMS', LActionUpper) > 0) or 
-     (Pos('MESSENGER', LActionUpper) > 0) then
+  for Cap in Caps do
   begin
-    if not FAllowEmailSend then
-    begin
-      AError := 'Envio de mensagens/e-mails bloqueado pelas regras de segurança (AllowEmailSend = False).';
+    if not IsActionCapabilityAllowed(Cap, AError) then
       Exit(False);
-    end;
   end;
 
-  // Industrial Write Check
-  if (Pos('MODBUS', LActionUpper) > 0) or (Pos('CLP', LActionUpper) > 0) or 
-     (Pos('INDUSTRIAL', LActionUpper) > 0) then
-  begin
-    if not FAllowIndustrialWrite then
-    begin
-      AError := 'Escrita industrial (CLP/Modbus) bloqueada pelas regras de segurança (AllowIndustrialWrite = False).';
-      Exit(False);
-    end;
-  end;
-
-  // Network Access Check
-  if (Pos('MQTT', LActionUpper) > 0) or (Pos('SOCKET', LActionUpper) > 0) or 
-     (Pos('TCP', LActionUpper) > 0) or (Pos('UDP', LActionUpper) > 0) or 
-     (Pos('WEBAPI', LActionUpper) > 0) or (Pos('URL', LActionUpper) > 0) or
-     (Pos('HTTP', LActionUpper) > 0) then
-  begin
-    if not FAllowNetwork then
-    begin
-      AError := 'Acesso de rede bloqueado pelas regras de segurança (AllowNetwork = False).';
-      Exit(False);
-    end;
-  end;
-
-  // ReadOnlyMode Check
-  if FReadOnlyMode and not FSimulationMode then
-  begin
-    if (Pos('WRITE', LActionUpper) > 0) or (Pos('SAVE', LActionUpper) > 0) or 
-       (Pos('SEND', LActionUpper) > 0) or (Pos('PUBLISH', LActionUpper) > 0) or 
-       (Pos('POST', LActionUpper) > 0) or (Pos('DELETE', LActionUpper) > 0) or
-       (Pos('MODBUS', LActionUpper) > 0) then
-    begin
-      AError := 'Operações de escrita/modificação bloqueadas no modo Somente Leitura (ReadOnlyMode).';
-      Exit(False);
-    end;
-  end;
-
-  // Validate parameters (filenames, URLs)
   if Assigned(AParams) then
   begin
     for I := 0 to AParams.Count - 1 do
     begin
-      LParamVal := AParams.ValueFromIndex[I];
-      if LParamVal <> '' then
+      ParamName := UpperCase(AParams.Names[I]);
+      ParamVal := AParams.ValueFromIndex[I];
+      if ParamVal <> '' then
       begin
-        // Validate File Path if parameter looks like a path/filename
-        if (Pos('FILE', UpperCase(AParams.Names[I])) > 0) or 
-           (Pos('PATH', UpperCase(AParams.Names[I])) > 0) then
+        if (Pos('FILE', ParamName) > 0) or (Pos('PATH', ParamName) > 0) or
+           (Pos('ARQUIVO', ParamName) > 0) or (Pos('CAMINHO', ParamName) > 0) or
+           (Pos('PASTA', ParamName) > 0) or (Pos('DESTINO', ParamName) > 0) or
+           (Pos('SAIDA', ParamName) > 0) or (Pos('ENTRADA', ParamName) > 0) then
         begin
-          if not ValidateFilePath(LParamVal, AError) then
+          if not ValidateFilePath(ParamVal, AError) then
             Exit(False);
         end;
-        // Validate URL if parameter looks like URL/APIUrl/Host
-        if (Pos('URL', UpperCase(AParams.Names[I])) > 0) or 
-           (Pos('HOST', UpperCase(AParams.Names[I])) > 0) or
-           (Pos('API', UpperCase(AParams.Names[I])) > 0) then
+
+        if (Pos('URL', ParamName) > 0) or (Pos('HOST', ParamName) > 0) or
+           (Pos('API', ParamName) > 0) or (Pos('ENDERECO', ParamName) > 0) or
+           (Pos('DESTINO', ParamName) > 0) or (Pos('://', ParamVal) > 0) then
         begin
-          if not ValidateURL(LParamVal, AError) then
+          if not ValidateURL(ParamVal, AError) then
             Exit(False);
         end;
       end;
     end;
   end;
 
-  // Require Confirmation Check
   if FRequireConfirmation then
   begin
     Confirmed := False;
@@ -230,7 +316,7 @@ begin
       FOnConfirmAction(Self, AActionName, AParams, Confirmed);
     if not Confirmed then
     begin
-      AError := 'Ação "' + AActionName + '" rejeitada pelo usuário na confirmação.';
+      AError := 'Acao "' + AActionName + '" rejeitada pelo usuario na confirmacao.';
       Exit(False);
     end;
   end;
@@ -238,17 +324,21 @@ end;
 
 function TAIAgentSafety.ValidateFilePath(const AFileName: string; out AError: string): Boolean;
 var
-  FullPath: string;
+  NormalizedPath: string;
   SafePath: string;
+  FullPath: string;
+  I: Integer;
 begin
   Result := True;
   AError := '';
   if not FEnabled then Exit;
 
-  // Prevent directory traversal
-  if Pos('..', AFileName) > 0 then
+  NormalizedPath := StringReplace(AFileName, '\', '/', [rfReplaceAll]);
+  if (NormalizedPath = '..') or (Copy(NormalizedPath, 1, 3) = '../') or 
+     (Pos('/../', NormalizedPath) > 0) or 
+     ((Length(NormalizedPath) >= 3) and (Copy(NormalizedPath, Length(NormalizedPath) - 2, 3) = '/..')) then
   begin
-    AError := 'Acesso a caminho contendo travessia de diretório ("..") é negado.';
+    AError := 'Acesso a caminho contendo travessia de diretorio ("..") e negado: ' + AFileName;
     Exit(False);
   end;
 
@@ -257,10 +347,17 @@ begin
     SafePath := IncludeTrailingPathDelimiter(ExpandFileName(FSafeBasePath));
     FullPath := ExpandFileName(AFileName);
     if (Length(FullPath) < Length(SafePath)) or
-       (not SameFileName(Copy(IncludeTrailingPathDelimiter(FullPath), 1,
-         Length(SafePath)), SafePath)) then
+       (not SameFileName(Copy(IncludeTrailingPathDelimiter(FullPath), 1, Length(SafePath)), SafePath)) then
     begin
-      AError := 'Acesso ao arquivo "' + AFileName + '" fora do diretório seguro base ("' + FSafeBasePath + '") é negado.';
+      AError := 'Acesso ao arquivo "' + AFileName + '" fora do diretorio seguro base ("' + FSafeBasePath + '") e negado.';
+      Exit(False);
+    end;
+  end
+  else
+  begin
+    if (Length(AFileName) > 0) and ((AFileName[1] = '/') or (Pos(':', AFileName) > 1)) then
+    begin
+      AError := 'Caminho absoluto desabilitado quando SafeBasePath nao esta configurado: ' + AFileName;
       Exit(False);
     end;
   end;
@@ -271,9 +368,9 @@ var
   LDomain: string;
   LPort: string;
   LProtocolPos: Integer;
-  LSlashPos: Integer;
-  LColonPos: Integer;
-  LTemp: string;
+  LSlashPos, LQuestionPos, LHashPos: Integer;
+  LColonPos, LBracketPos: Integer;
+  LTemp, LAuthority: string;
   LProtocol: string;
 begin
   Result := True;
@@ -285,47 +382,90 @@ begin
   LProtocolPos := Pos('://', LTemp);
   if LProtocolPos > 0 then
   begin
-    LProtocol := Copy(LTemp, 1, LProtocolPos - 1);
+    LProtocol := LowerCase(Copy(LTemp, 1, LProtocolPos - 1));
     Delete(LTemp, 1, LProtocolPos + 2);
   end;
 
-  LSlashPos := Pos('/', LTemp);
-  if LSlashPos > 0 then
-    LTemp := Copy(LTemp, 1, LSlashPos - 1);
-
-  LColonPos := Pos(':', LTemp);
-  if LColonPos > 0 then
+  if (LProtocol <> 'http') and (LProtocol <> 'https') then
   begin
-    LDomain := Copy(LTemp, 1, LColonPos - 1);
-    LPort := Copy(LTemp, LColonPos + 1, MaxInt);
-  end
-  else
-  begin
-    LDomain := LTemp;
-    if SameText(LProtocol, 'https') then
-      LPort := '443'
-    else
-      LPort := '80';
-  end;
-
-  // Check AllowedDomains list
-  if (FAllowedDomains.Count > 0) and (FAllowedDomains.IndexOf(LDomain) < 0) then
-  begin
-    AError := 'Acesso ao domínio "' + LDomain + '" não é permitido pelas regras de segurança.';
+    AError := 'Esquema de URL nao permitido: ' + LProtocol;
     Exit(False);
   end;
 
-  // Check AllowedPorts list
+  LQuestionPos := Pos('?', LTemp);
+  if LQuestionPos > 0 then LTemp := Copy(LTemp, 1, LQuestionPos - 1);
+  LHashPos := Pos('#', LTemp);
+  if LHashPos > 0 then LTemp := Copy(LTemp, 1, LHashPos - 1);
+
+  LSlashPos := Pos('/', LTemp);
+  if LSlashPos > 0 then
+    LAuthority := Copy(LTemp, 1, LSlashPos - 1)
+  else
+    LAuthority := LTemp;
+
+  if Pos('@', LAuthority) > 0 then
+  begin
+    AError := 'Credenciais na URL nao sao permitidas.';
+    Exit(False);
+  end;
+
+  if (Length(LAuthority) > 0) and (LAuthority[1] = '[') then
+  begin
+    LBracketPos := Pos(']', LAuthority);
+    if LBracketPos > 0 then
+    begin
+      LDomain := Copy(LAuthority, 1, LBracketPos);
+      LTemp := Copy(LAuthority, LBracketPos + 1, MaxInt);
+      if (Length(LTemp) > 0) and (LTemp[1] = ':') then
+        LPort := Copy(LTemp, 2, MaxInt)
+      else if LProtocol = 'https' then
+        LPort := '443'
+      else
+        LPort := '80';
+    end;
+  end
+  else
+  begin
+    LColonPos := Pos(':', LAuthority);
+    if LColonPos > 0 then
+    begin
+      LDomain := Copy(LAuthority, 1, LColonPos - 1);
+      LPort := Copy(LAuthority, LColonPos + 1, MaxInt);
+    end
+    else
+    begin
+      LDomain := LAuthority;
+      if LProtocol = 'https' then
+        LPort := '443'
+      else
+        LPort := '80';
+    end;
+  end;
+
+  if not FAllowAnyDomain then
+  begin
+    if FAllowedDomains.Count = 0 then
+    begin
+      AError := 'Acesso a rede bloqueado (AllowedDomains esta vazia).';
+      Exit(False);
+    end;
+
+    if FAllowedDomains.IndexOf(LDomain) < 0 then
+    begin
+      AError := 'Acesso ao dominio "' + LDomain + '" nao e permitido pelas regras de seguranca.';
+      Exit(False);
+    end;
+  end;
+
   if (FAllowedPorts.Count > 0) and (FAllowedPorts.IndexOf(LPort) < 0) then
   begin
-    AError := 'Conexão na porta "' + LPort + '" não é permitida pelas regras de segurança.';
+    AError := 'Conexao na porta "' + LPort + '" nao e permitida pelas regras de seguranca.';
     Exit(False);
   end;
 end;
 
 initialization
-  {$I taiagentsafety_icon.lrs}
-
+  InitDefaultActionRegistry;
   {$I aiagentsafety_icon.lrs}
 
 end.

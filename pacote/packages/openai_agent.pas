@@ -1,4 +1,4 @@
-{ This file was automatically created by Lazarus. Do not edit!
+{ This unit was automatically created by Lazarus. Do not edit!
   This source is only used to compile and install the package.
  }
 
@@ -8,11 +8,11 @@ unit openai_agent;
 interface
 
 uses
-  aiagent, aiagent_executors, aiwizardconfig, frm_aiwizardconfig, aipipeline,
-  aiagent_browseractions, aiagentserial, aiagent_flowevents,
-  aiagent_memorymap, aiagent_core, aiagent_classifier, aiagent_decision,
-  aiagent_actionbuilder, aiagent_actions, aitools, aiagentgraph, aiguardrails,
-  aiagent_executor, aiagent_orchestrator, aiagentsafety, LazarusPackageIntf;
+  aiagent, aiwizardconfig, frm_aiwizardconfig, aiagent_browseractions, 
+  aiagentserial, aiagent_flowevents, aiagent_memorymap, aiagent_core, 
+  aiagent_classifier, aiagent_decision, aiagent_actionbuilder, 
+  aiagent_actions, aitools, aiagentgraph, aiguardrails, aiagent_executor, 
+  aiagent_orchestrator, aiagentsafety, LazarusPackageIntf;
 
 implementation
 
@@ -20,7 +20,6 @@ procedure Register;
 begin
   RegisterUnit('aiagent', @aiagent.Register);
   RegisterUnit('aiwizardconfig', @aiwizardconfig.Register);
-  RegisterUnit('aipipeline', @aipipeline.Register);
   RegisterUnit('aiagentserial', @aiagentserial.Register);
   RegisterUnit('aiagent_memorymap', @aiagent_memorymap.Register);
   RegisterUnit('aitools', @aitools.Register);

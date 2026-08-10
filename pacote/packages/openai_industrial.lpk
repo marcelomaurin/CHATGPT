@@ -9,7 +9,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\AI Agent;..\AI Voice;..\AI Filtros Sonoros;..\AI Image;..\AI Schedule;..\AI Math;..\AI Input;..\AI Output;..\AI Graph;..\AI Graphic;..\AI Vision;..;..\AI Industrial"/>
+        <OtherUnitFiles Value="..\AI Industrial"/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
@@ -53,9 +53,6 @@
       </Item>
     </Files>
     <RequiredPkgs>
-      <Item>
-        <PackageName Value="openai_agent"/>
-      </Item>
       <Item>
         <PackageName Value="GLScene_DesignTime"/>
       </Item>

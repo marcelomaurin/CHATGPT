@@ -42,6 +42,7 @@ type
     FEngine: IAIPDFTextEngine;
     FExecutablePath: string;
     FMetadata: TAIDocumentMetadata;
+    procedure SetExecutablePath(const AValue: string);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -57,10 +58,24 @@ type
     property Metadata: TAIDocumentMetadata read FMetadata;
   published
     property FileName: string read FFileName write FFileName;
-    property ExecutablePath: string read FExecutablePath write FExecutablePath;
+    property ExecutablePath: string read FExecutablePath write SetExecutablePath;
   end;
 
+procedure Register;
+
 implementation
+
+procedure Register;
+begin
+  RegisterComponents('AI Documents', [TAIPDFInput]);
+end;
+
+procedure TAIPDFInput.SetExecutablePath(const AValue: string);
+begin
+  FExecutablePath := AValue;
+  if (FEngine <> nil) and (FEngine is TAIPDFToTextProcessEngine) then
+    TAIPDFToTextProcessEngine(FEngine).ExecutablePath := AValue;
+end;
 
 { TAIPDFToTextProcessEngine }
 
@@ -191,9 +206,9 @@ begin
     Exit;
   end;
 
-  if FExecutablePath <> '' then
+  if (FExecutablePath <> '') and (FEngine <> nil) and (FEngine is TAIPDFToTextProcessEngine) then
   begin
-    // Update path if process engine is used
+    TAIPDFToTextProcessEngine(FEngine).ExecutablePath := FExecutablePath;
   end;
 
   Ext := LowerCase(ExtractFileExt(FFileName));
@@ -202,10 +217,43 @@ begin
 
   if FEngine.ExtractText(FFileName, ExtractedText, ErrorStr) then
   begin
-    SetLength(FPages, 1);
-    FPages[0].PageNumber := 1;
-    FPages[0].Text := ExtractedText;
-    FMetadata.PageCount := 1;
+    // Split text by FormFeed (#12) characters inserted by pdftotext for page breaks
+    var PageList: TStringList := TStringList.Create;
+    try
+      PageList.Text := StringReplace(ExtractedText, #12, sLineBreak + '---[PAGEBREAK]---' + sLineBreak, [rfReplaceAll]);
+      var RawPages: TArray<string>;
+      SetLength(RawPages, 0);
+      var CurrPage: string := '';
+      for var LineIdx: Integer := 0 to PageList.Count - 1 do
+      begin
+        if Trim(PageList[LineIdx]) = '---[PAGEBREAK]---' then
+        begin
+          SetLength(RawPages, Length(RawPages) + 1);
+          RawPages[High(RawPages)] := CurrPage;
+          CurrPage := '';
+        end
+        else
+        begin
+          if CurrPage <> '' then CurrPage := CurrPage + sLineBreak;
+          CurrPage := CurrPage + PageList[LineIdx];
+        end;
+      end;
+      if (CurrPage <> '') or (Length(RawPages) = 0) then
+      begin
+        SetLength(RawPages, Length(RawPages) + 1);
+        RawPages[High(RawPages)] := CurrPage;
+      end;
+
+      SetLength(FPages, Length(RawPages));
+      for var PIdx: Integer := 0 to High(RawPages) do
+      begin
+        FPages[PIdx].PageNumber := PIdx + 1;
+        FPages[PIdx].Text := RawPages[PIdx];
+      end;
+      FMetadata.PageCount := Length(FPages);
+    finally
+      PageList.Free;
+    end;
 
     FLastResult := 'PDF Loaded successfully: ' + FFileName;
     FLastSuccess := True;

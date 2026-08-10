@@ -9,11 +9,11 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\AI Agent;..\AI Voice;..\AI Filtros Sonoros;..\AI Image;..\AI Schedule;..\AI Math;..\AI Input;..\AI Input\AIAudio;..\AI Input\AICaptureSource;..\AI Input\AIChromiumBrowser;..\AI Input\AIEmail;..\AI Input\AIInput;..\AI Input\AIMessenger;..\AI Input\AISerial;..\AI Input\AISockets;..\AI Input\AIWebServer;..\AI Input\AIUSB;..\AI Input\AIKinect;..\AI Output;..\AI Graph;..\AI Graphic;..\AI Vision;.."/>
+        <OtherUnitFiles Value="..\AI Input;..\AI Input\AIAudio;..\AI Input\AICaptureSource;..\AI Input\AIChromiumBrowser;..\AI Input\AIEmail;..\AI Input\AIInput;..\AI Input\AIMessenger;..\AI Input\AISerial;..\AI Input\AISockets;..\AI Input\AIWebServer;..\AI Input\AIUSB;..\AI Input\AIKinect"/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Description Value="Lazarus AI Suite: Generic inputs, cameras, web servers, serial ports and Chromium integrations."/>
+    <Description Value="Lazarus AI Suite: Generic inputs, cameras, web servers, serial ports and Kinect integrations."/>
     <License Value="OPEN SOURCE GPL3"/>
     <Files>
       <Item>
@@ -23,18 +23,22 @@
       </Item>
       <Item>
         <Filename Value="..\AI Input\aidocumentreader.pas"/>
+        <HasRegisterProc Value="True"/>
         <UnitName Value="aidocumentreader"/>
       </Item>
       <Item>
         <Filename Value="..\AI Input\aipdfinput.pas"/>
+        <HasRegisterProc Value="True"/>
         <UnitName Value="aipdfinput"/>
       </Item>
       <Item>
         <Filename Value="..\AI Input\aidocxinput.pas"/>
+        <HasRegisterProc Value="True"/>
         <UnitName Value="aidocxinput"/>
       </Item>
       <Item>
         <Filename Value="..\AI Input\aiexcelinput.pas"/>
+        <HasRegisterProc Value="True"/>
         <UnitName Value="aiexcelinput"/>
       </Item>
       <Item>
@@ -84,11 +88,6 @@
         <Filename Value="..\AI Input\AIMessenger\aimessenger.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aimessenger"/>
-      </Item>
-      <Item>
-        <Filename Value="..\AI Input\AIChromiumBrowser\aichromiumbrowser.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="aichromiumbrowser"/>
       </Item>
       <Item>
         <Filename Value="..\AI Input\AIUSB\aiusb.pas"/>
@@ -142,9 +141,6 @@
       </Item>
     </Files>
     <RequiredPkgs>
-      <Item>
-        <PackageName Value="CEF4Delphi_Lazarus"/>
-      </Item>
       <Item>
         <PackageName Value="openai_core"/>
       </Item>

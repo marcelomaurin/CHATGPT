@@ -9,7 +9,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\AI Agent;..\AI Project;..\AI Voice;..\AI Filtros Sonoros;..\AI Image;..\AI Schedule;..\AI Math;..\AI Input;..\AI Output;..\AI Graph;..\AI Graphic;..\AI Vision;..\AI Industrial;.."/>
+        <OtherUnitFiles Value="..\AI Agent"/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
@@ -22,10 +22,6 @@
         <UnitName Value="aiagent"/>
       </Item>
       <Item>
-        <Filename Value="..\AI Agent\aiagent_executors.pas"/>
-        <UnitName Value="aiagent_executors"/>
-      </Item>
-      <Item>
         <Filename Value="..\AI Agent\aiwizardconfig.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiwizardconfig"/>
@@ -33,11 +29,6 @@
       <Item>
         <Filename Value="..\AI Agent\frm_aiwizardconfig.pas"/>
         <UnitName Value="frm_aiwizardconfig"/>
-      </Item>
-      <Item>
-        <Filename Value="..\AI Agent\aipipeline.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="aipipeline"/>
       </Item>
       <Item>
         <Filename Value="..\AI Agent\aiagent_browseractions.pas"/>
@@ -108,9 +99,6 @@
       </Item>
     </Files>
     <RequiredPkgs>
-      <Item>
-        <PackageName Value="GLScene_DesignTime"/>
-      </Item>
       <Item>
         <PackageName Value="GLScene_DesignTime"/>
       </Item>

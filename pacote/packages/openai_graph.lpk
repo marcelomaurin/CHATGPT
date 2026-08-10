@@ -9,7 +9,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\AI Graph;..\AI;..\AI Agent"/>
+        <OtherUnitFiles Value="..\AI Graph"/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
@@ -97,9 +97,6 @@
       </Item>
       <Item>
         <PackageName Value="openai_output"/>
-      </Item>
-      <Item>
-        <PackageName Value="openai_agent"/>
       </Item>
       <Item>
         <PackageName Value="LCL"/>

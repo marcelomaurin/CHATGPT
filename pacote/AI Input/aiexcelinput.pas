@@ -40,7 +40,14 @@ type
     property FileName: string read FFileName write FFileName;
   end;
 
+procedure Register;
+
 implementation
+
+procedure Register;
+begin
+  RegisterComponents('AI Documents', [TAIExcelInput]);
+end;
 
 constructor TAIExcelInput.Create(AOwner: TComponent);
 begin

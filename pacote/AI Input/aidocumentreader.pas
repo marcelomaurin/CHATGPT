@@ -56,8 +56,14 @@ type
   end;
 
 procedure InitDocumentMetadata(out AMeta: TAIDocumentMetadata);
+procedure Register;
 
 implementation
+
+procedure Register;
+begin
+  RegisterComponents('AI Documents', [TAIDocumentInput]);
+end;
 
 procedure InitDocumentMetadata(out AMeta: TAIDocumentMetadata);
 begin

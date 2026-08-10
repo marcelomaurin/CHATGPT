@@ -7,18 +7,7 @@ interface
 uses
   Classes, SysUtils, chatgpt, fpjson, jsonparser, fphttpclient, TypInfo,
   airagbridge,
-  aibase, aiagentsafety, aitools, aiguardrails, aitracebridge,
-  // AI Input components
-  aiaudio, aiwebserver, aisockets, aiserial, aiposprinter,
-  aimodbus, aimqtt, aiemail, aimessenger, aiindustrial, aichromiumbrowser,
-  aicapturesource, aiinput,
-  // AI Output components
-  aioutput, aioutput_docs, LResources, aiagent_executors;
-
-type
-  TAIAgentAction = class;
-  TAIAgentOptions = class;
-  TAIAgentResource = class;
+  aibase, aiagentsafety, aitools, aiguardrails, aitracebridge, LResources;
 
   { TAgentActionEvent }
   TAgentActionEvent = procedure(Sender: TObject; const AActionName: string; AParams: TStrings) of object;
@@ -1103,23 +1092,6 @@ begin
         begin
           if FBlockedProperties.IndexOf(VKey) >= 0 then Continue;
           if (FAllowedProperties.Count > 0) and (FAllowedProperties.IndexOf(VKey) < 0) then Continue;
-          SetPropValueByName(FComponent, VKey, VVal);
-        end;
-      end;
-    end;
-
-    // 2. Despachar a execução com tipagem forte para a suite AI Input / AI Output via Executores
-    if DispatchResourceExecution(FComponent, AData, AParams, ALog) then
-    begin
-      Result := True;
-      Exit;
-    end;
-
-    // Fallback para componentes customizados com propriedade Prompt
-    CompPrompt := GetPropString(FComponent, 'Prompt');
-    if CompPrompt <> '' then
-    begin
-      ALog := 'Componente customizado "' + FComponent.ClassName + '" executado. Prompt: ' + CompPrompt;
       Result := True;
       Exit;
     end;

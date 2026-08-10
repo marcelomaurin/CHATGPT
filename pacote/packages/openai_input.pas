@@ -20,6 +20,10 @@ implementation
 procedure Register;
 begin
   RegisterUnit('aiinput', @aiinput.Register);
+  RegisterUnit('aidocumentreader', @aidocumentreader.Register);
+  RegisterUnit('aipdfinput', @aipdfinput.Register);
+  RegisterUnit('aidocxinput', @aidocxinput.Register);
+  RegisterUnit('aiexcelinput', @aiexcelinput.Register);
   RegisterUnit('aiaudio', @aiaudio.Register);
   RegisterUnit('aicapturesource', @aicapturesource.Register);
   RegisterUnit('aiwebserver', @aiwebserver.Register);

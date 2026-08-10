@@ -33,7 +33,14 @@ type
     property IncludeTables: Boolean read FIncludeTables write FIncludeTables default True;
   end;
 
+procedure Register;
+
 implementation
+
+procedure Register;
+begin
+  RegisterComponents('AI Documents', [TAIDOCXInput]);
+end;
 
 constructor TAIDOCXInput.Create(AOwner: TComponent);
 begin

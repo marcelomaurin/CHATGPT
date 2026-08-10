@@ -118,7 +118,7 @@ begin
     end;
   end;
 
-  if (not Result) then
+  if (not Result) and ((Ext = '.txt') or (Ext = '.md') or (Ext = '.json') or (Ext = '.csv') or (Ext = '.log') or (Ext = '.pas')) then
   begin
     TXTIn := TAIDocumentInput.Create(nil);
     try
