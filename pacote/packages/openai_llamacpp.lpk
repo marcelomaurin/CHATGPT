@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="5">
+    <PathDelim Value="\"/>
+    <Name Value="openai_llamacpp"/>
+    <Type Value="RunAndDesignTime"/>
+    <Author Value="Marcelo Maurin Martins"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <PathDelim Value="\"/>
+      <SearchPaths>
+        <OtherUnitFiles Value="..\AI LlamaCpp;..\AI;.."/>
+        <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+      </SearchPaths>
+      <CodeGeneration>
+        <TargetCPU Value="x86_64"/>
+        <TargetOS Value="win64"/>
+      </CodeGeneration>
+    </CompilerOptions>
+    <Description Value="Lazarus AI Suite: llama.cpp x64 integration components."/>
+    <License Value="OPEN SOURCE GPL3"/>
+    <Files>
+      <Item>
+        <Filename Value="..\AI LlamaCpp\aillamacpptypes.pas"/>
+        <UnitName Value="aillamacpptypes"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI LlamaCpp\aillamacppruntime.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aillamacppruntime"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI LlamaCpp\aillamacppmodel.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aillamacppmodel"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI LlamaCpp\aillamacppserver.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aillamacppserver"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI LlamaCpp\aillamacppapi.pas"/>
+        <UnitName Value="aillamacppapi"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI LlamaCpp\aillamacppinference.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aillamacppinference"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI LlamaCpp\aillamacpplora.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aillamacpplora"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI LlamaCpp\aillamacppquantizer.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aillamacppquantizer"/>
+      </Item>
+    </Files>
+    <RequiredPkgs>
+      <Item>
+        <PackageName Value="LCL"/>
+      </Item>
+      <Item>
+        <PackageName Value="FCL"/>
+      </Item>
+      <Item>
+        <PackageName Value="openai_core"/>
+      </Item>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+      <UseFileFilters Value="True"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>

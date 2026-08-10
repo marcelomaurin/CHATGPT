@@ -5,7 +5,8 @@ unit ailibraryloader;
 interface
 
 uses
-  Classes, SysUtils, DynLibs, aiplatform;
+  Classes, SysUtils, DynLibs, aiplatform
+  {$IFDEF WINDOWS}, Windows{$ENDIF};
 
 type
   TAILibraryLoader = class
@@ -37,13 +38,18 @@ begin
     Candidate := AICombinePath(ASearchPaths[I], LibName);
     if FileExists(Candidate) then
     begin
+      {$IFDEF WINDOWS}
+      Result := TLibHandle(Windows.LoadLibraryEx(PChar(Candidate), 0,
+        LOAD_WITH_ALTERED_SEARCH_PATH));
+      {$ELSE}
       Result := LoadLibrary(Candidate);
+      {$ENDIF}
       if Result <> NilHandle then
         Exit;
     end;
   end;
 
-  Result := LoadLibrary(LibName);
+  Result := DynLibs.LoadLibrary(LibName);
   if Result = NilHandle then
     FLastError := 'Library not found or could not be loaded: ' + LibName;
 end;

@@ -55,6 +55,12 @@ if /I "%MODE%"=="core" (
   goto :finish
 )
 
+if /I "%MODE%"=="llamacpp" (
+  call :install_package "pacote\packages\openai_core.lpk"
+  call :install_package "pacote\packages\openai_llamacpp.lpk"
+  goto :finish
+)
+
 if /I "%MODE%"=="recommended" (
   call :install_recommended
   goto :finish
@@ -109,6 +115,7 @@ goto :eof
 
 :install_all
 call :install_package "pacote\packages\openai_core.lpk"
+call :install_package "pacote\packages\openai_llamacpp.lpk"
 call :install_package "pacote\packages\openai_ml.lpk"
 call :install_package "pacote\packages\openai_output.lpk"
 call :install_package "pacote\packages\openai_input.lpk"
@@ -188,6 +195,7 @@ echo   install_components.bat [mode] [path_to_lazbuild.exe]
 echo.
 echo Modes:
 echo   core         Installs only openai_core.lpk
+echo   llamacpp     Installs openai_core and optional openai_llamacpp
 echo   recommended  Installs the safest base set. Default.
 echo   all          Installs all modular packages.
 echo.

@@ -34,6 +34,20 @@ Use esta classificação para documentação, README de abas, samples e planejam
 
 ---
 
+## llama.cpp (Windows x86_64)
+
+| Componente | Unit | Pacote | Status | ObservaÃ§Ã£o |
+|---|---|---|---|---|
+| `TAILlamaCppRuntime` | `aillamacppruntime.pas` | `openai_llamacpp` | Beta | Compila em x86_64 e validou o runtime oficial b5200, DLLs, CLI, manifesto e ferramentas em teste real |
+| `TAILlamaCppModel` | `aillamacppmodel.pas` | `openai_llamacpp` | Beta | Carga/descarga real em cinco ciclos e inferÃªncia GGUF nativa validadas com modelo pequeno |
+| `TAILlamaCppServer` | `aillamacppserver.pas` | `openai_llamacpp` | Beta | Processo real, health check e encerramento validados com `llama-server.exe` b5200 |
+| `TAILlamaCppInference` | `aillamacppinference.pas` | `openai_llamacpp` | Beta | GeraÃ§Ã£o nativa e streaming real validados; callbacks e resultado final consistentes |
+| `TAILlamaCppLoRA` | `aillamacpplora.pas` | `openai_llamacpp` | Experimental | API e demo compilam; teste funcional aguarda adapter GGUF compatÃ­vel com o modelo de teste |
+| `TAILlamaCppQuantizer` | `aillamacppquantizer.pas` | `openai_llamacpp` | Experimental | ExecutÃ¡vel e tipos b5200 verificados; componente e demo compilam, mas uma quantizaÃ§Ã£o completa ainda nÃ£o foi executada |
+| `TAILlamaCppTrainer` | nÃ£o implementado | `openai_llamacpp` | Experimental | Bloqueado: o llama.cpp b5200 nÃ£o entrega ferramenta real de treinamento/fine-tuning; nenhuma API ou executÃ¡vel foi inventado |
+
+---
+
 ## Machine Learning / Math
 
 | Componente | Unit | Pacote | Status | Observação |

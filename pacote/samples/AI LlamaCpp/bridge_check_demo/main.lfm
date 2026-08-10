@@ -1,0 +1,25 @@
+object frmMain: TfrmMain
+  Left = 340
+  Height = 260
+  Top = 200
+  Width = 640
+  Caption = 'llama.cpp Bridge Check'
+  ClientHeight = 260
+  ClientWidth = 640
+  OnCreate = FormCreate
+  Position = poScreenCenter
+  object memResult: TMemo
+    Left = 16
+    Height = 228
+    Top = 16
+    Width = 608
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    Font.Name = 'Consolas'
+    ParentFont = False
+    ReadOnly = True
+    ScrollBars = ssAutoBoth
+    TabOrder = 0
+  end
+  object LlamaRuntime: TAILlamaCppRuntime
+  end
+end
