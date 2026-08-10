@@ -16,105 +16,34 @@
     <Description Value="Lazarus AI Suite: Core components, platform helpers and runtime infrastructure."/>
     <License Value="OPEN SOURCE GPL3"/>
     <Files>
-      <Item>
-        <Filename Value="..\funcoes.pas"/>
-        <UnitName Value="funcoes"/>
-      </Item>
-      <Item>
-        <Filename Value="..\AI\aibase.pas"/>
-        <UnitName Value="aibase"/>
-      </Item>
-      <Item>
-        <Filename Value="..\AI\airagbridge.pas"/>
-        <UnitName Value="airagbridge"/>
-      </Item>
-      <Item>
-        <Filename Value="..\AI\aitracebridge.pas"/>
-        <UnitName Value="aitracebridge"/>
-      </Item>
-      <Item>
-        <Filename Value="..\AI\aillmproviders.pas"/>
-        <UnitName Value="aillmproviders"/>
-      </Item>
-      <Item>
-        <Filename Value="..\AI\aillmmodelcatalog.pas"/>
-        <UnitName Value="aillmmodelcatalog"/>
-      </Item>
-      <Item>
-        <Filename Value="..\AI\aiplatform.pas"/>
-        <UnitName Value="aiplatform"/>
-      </Item>
-      <Item>
-        <Filename Value="..\AI\airuntimepaths.pas"/>
-        <UnitName Value="airuntimepaths"/>
-      </Item>
-      <Item>
-        <Filename Value="..\AI\ailibraryloader.pas"/>
-        <UnitName Value="ailibraryloader"/>
-      </Item>
-      <Item>
-        <Filename Value="..\AI\aiprocessrunner.pas"/>
-        <UnitName Value="aiprocessrunner"/>
-      </Item>
-      <Item>
-        <Filename Value="..\AI\aimodelmanager.pas"/>
-        <UnitName Value="aimodelmanager"/>
-      </Item>
-      <Item>
-        <Filename Value="..\AI\chatgpt.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="chatgpt"/>
-      </Item>
-      <Item>
-        <Filename Value="..\AI\tokenizer.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="tokenizer"/>
-      </Item>
-      <Item>
-        <Filename Value="..\AI\aicodeassistant.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="aicodeassistant"/>
-      </Item>
-      <Item>
-        <Filename Value="..\AI\aipromptbuilder.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="aipromptbuilder"/>
-      </Item>
-      <Item>
-        <Filename Value="..\AI\aimodelregistry.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="aimodelregistry"/>
-      </Item>
-      <Item>
-        <Filename Value="..\AI\dbtokenlist.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="dbtokenlist"/>
-      </Item>
-      <Item>
-        <Filename Value="..\AI\groupresponse.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="groupresponse"/>
-      </Item>
-      <Item>
-        <Filename Value="..\AI Schedule\iaschedule.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="iaschedule"/>
-      </Item>
+      <Item><Filename Value="..\funcoes.pas"/><UnitName Value="funcoes"/></Item>
+      <Item><Filename Value="..\AI\aibase.pas"/><UnitName Value="aibase"/></Item>
+      <Item><Filename Value="..\AI\airagbridge.pas"/><UnitName Value="airagbridge"/></Item>
+      <Item><Filename Value="..\AI\aitracebridge.pas"/><UnitName Value="aitracebridge"/></Item>
+      <Item><Filename Value="..\AI\aillmproviders.pas"/><UnitName Value="aillmproviders"/></Item>
+      <Item><Filename Value="..\AI\aillmmodelcatalog.pas"/><UnitName Value="aillmmodelcatalog"/></Item>
+      <Item><Filename Value="..\AI\aicapabilities.pas"/><UnitName Value="aicapabilities"/></Item>
+      <Item><Filename Value="..\AI\aimodelrouter.pas"/><HasRegisterProc Value="True"/><UnitName Value="aimodelrouter"/></Item>
+      <Item><Filename Value="..\AI\aiunifiedllm.pas"/><HasRegisterProc Value="True"/><UnitName Value="aiunifiedllm"/></Item>
+      <Item><Filename Value="..\AI\aiplatform.pas"/><UnitName Value="aiplatform"/></Item>
+      <Item><Filename Value="..\AI\airuntimepaths.pas"/><UnitName Value="airuntimepaths"/></Item>
+      <Item><Filename Value="..\AI\ailibraryloader.pas"/><UnitName Value="ailibraryloader"/></Item>
+      <Item><Filename Value="..\AI\aiprocessrunner.pas"/><UnitName Value="aiprocessrunner"/></Item>
+      <Item><Filename Value="..\AI\aimodelmanager.pas"/><UnitName Value="aimodelmanager"/></Item>
+      <Item><Filename Value="..\AI\chatgpt.pas"/><HasRegisterProc Value="True"/><UnitName Value="chatgpt"/></Item>
+      <Item><Filename Value="..\AI\tokenizer.pas"/><HasRegisterProc Value="True"/><UnitName Value="tokenizer"/></Item>
+      <Item><Filename Value="..\AI\aicodeassistant.pas"/><HasRegisterProc Value="True"/><UnitName Value="aicodeassistant"/></Item>
+      <Item><Filename Value="..\AI\aipromptbuilder.pas"/><HasRegisterProc Value="True"/><UnitName Value="aipromptbuilder"/></Item>
+      <Item><Filename Value="..\AI\aimodelregistry.pas"/><HasRegisterProc Value="True"/><UnitName Value="aimodelregistry"/></Item>
+      <Item><Filename Value="..\AI\dbtokenlist.pas"/><HasRegisterProc Value="True"/><UnitName Value="dbtokenlist"/></Item>
+      <Item><Filename Value="..\AI\groupresponse.pas"/><HasRegisterProc Value="True"/><UnitName Value="groupresponse"/></Item>
+      <Item><Filename Value="..\AI Schedule\iaschedule.pas"/><HasRegisterProc Value="True"/><UnitName Value="iaschedule"/></Item>
     </Files>
     <RequiredPkgs>
-      <Item>
-        <PackageName Value="zcomponent"/>
-      </Item>
-      <Item>
-        <PackageName Value="TurboPowerIpro"/>
-      </Item>
+      <Item><PackageName Value="zcomponent"/></Item>
+      <Item><PackageName Value="TurboPowerIpro"/></Item>
     </RequiredPkgs>
-    <UsageOptions>
-      <UnitPath Value="$(PkgOutDir)"/>
-    </UsageOptions>
-    <PublishOptions>
-      <Version Value="2"/>
-      <UseFileFilters Value="True"/>
-    </PublishOptions>
+    <UsageOptions><UnitPath Value="$(PkgOutDir)"/></UsageOptions>
+    <PublishOptions><Version Value="2"/><UseFileFilters Value="True"/></PublishOptions>
   </Package>
 </CONFIG>
