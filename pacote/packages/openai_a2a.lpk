@@ -21,11 +21,18 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="aia2a"/>
       </Item>
+      <Item>
+        <Filename Value="..\AI A2A\aia2aserver.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aia2aserver"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item><PackageName Value="LCL"/></Item>
       <Item><PackageName Value="FCL"/></Item>
       <Item><PackageName Value="openai_core"/></Item>
+      <Item><PackageName Value="openai_agent"/></Item>
+      <Item><PackageName Value="openai_input"/></Item>
     </RequiredPkgs>
     <UsageOptions><UnitPath Value="$(PkgOutDir)"/></UsageOptions>
     <PublishOptions><Version Value="2"/><UseFileFilters Value="True"/></PublishOptions>
