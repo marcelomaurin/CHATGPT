@@ -5,8 +5,8 @@ unit aia2a;
 interface
 
 uses
-  Classes, SysUtils, fpjson, jsonparser, fphttpclient, opensslsockets,
-  LResources, aibase;
+  Classes, SysUtils, StrUtils, fpjson, jsonparser, fphttpclient,
+  opensslsockets, LResources, aibase;
 
 type
   TAIA2ABinding = (a2abJSONRPC, a2abHTTPJSON);
@@ -45,8 +45,6 @@ type
     property InterfaceCount: Integer read GetInterfaceCount;
     property Interfaces[AIndex: Integer]: TAIA2AInterface read GetInterface;
   end;
-
-  { TAIA2AClient }
 
   TAIA2AClient = class(TAIBaseComponent)
   private
@@ -116,8 +114,7 @@ begin
   Result := '';
   if AData = nil then Exit;
   D := AData.FindPath(APath);
-  if D <> nil then
-    Result := D.AsString;
+  if D <> nil then Result := D.AsString;
 end;
 
 function JSONBool(AData: TJSONData; const APath: string): Boolean;
@@ -127,11 +124,8 @@ begin
   Result := False;
   if AData = nil then Exit;
   D := AData.FindPath(APath);
-  if D <> nil then
-    Result := D.AsBoolean;
+  if D <> nil then Result := D.AsBoolean;
 end;
-
-{ TAIA2AAgentCard }
 
 constructor TAIA2AAgentCard.Create;
 begin
@@ -150,8 +144,7 @@ procedure TAIA2AAgentCard.Clear;
 var
   I: Integer;
 begin
-  for I := FInterfaces.Count - 1 downto 0 do
-    TObject(FInterfaces[I]).Free;
+  for I := FInterfaces.Count - 1 downto 0 do TObject(FInterfaces[I]).Free;
   FInterfaces.Clear;
   FName := '';
   FDescription := '';
@@ -200,10 +193,7 @@ begin
           Intf.ProtocolBinding := JSONString(Arr.Items[I], 'protocolBinding');
           Intf.ProtocolVersion := JSONString(Arr.Items[I], 'protocolVersion');
           Intf.Tenant := JSONString(Arr.Items[I], 'tenant');
-          if Intf.URL <> '' then
-            FInterfaces.Add(Intf)
-          else
-            Intf.Free;
+          if Intf.URL <> '' then FInterfaces.Add(Intf) else Intf.Free;
         end;
       end;
       Result := FName <> '';
@@ -233,8 +223,6 @@ begin
     end;
   end;
 end;
-
-{ TAIA2AClient }
 
 constructor TAIA2AClient.Create(AOwner: TComponent);
 begin
@@ -288,10 +276,7 @@ begin
     HTTP.AddHeader('Accept', AContentType);
     HTTP.AddHeader('Content-Type', AContentType);
     HTTP.AddHeader('A2A-Version', FProtocolVersion);
-    if FToken <> '' then
-      HTTP.AddHeader('Authorization', 'Bearer ' + FToken);
-    if FTenant <> '' then
-      HTTP.AddHeader('A2A-Tenant', FTenant);
+    if FToken <> '' then HTTP.AddHeader('Authorization', 'Bearer ' + FToken);
     HTTP.RequestBody := ABody;
     try
       HTTP.HTTPMethod(AMethod, AURL, ResponseStream, [200, 201, 202]);
@@ -345,8 +330,7 @@ begin
   if Intf = nil then Exit;
   FSelectedURL := NormalizeBaseURL(Intf.URL);
   FTenant := Intf.Tenant;
-  if Intf.ProtocolVersion <> '' then
-    FProtocolVersion := Intf.ProtocolVersion;
+  if Intf.ProtocolVersion <> '' then FProtocolVersion := Intf.ProtocolVersion;
 end;
 
 function TAIA2AClient.Discover: Boolean;
@@ -371,8 +355,7 @@ begin
     Exit;
   end;
   SelectDiscoveredInterface;
-  if FSelectedURL = '' then
-    FSelectedURL := NormalizeBaseURL(FBaseURL);
+  if FSelectedURL = '' then FSelectedURL := NormalizeBaseURL(FBaseURL);
   FLastResult := FAgentCard.Name;
   FLastSuccess := True;
 end;
@@ -460,10 +443,8 @@ begin
       Base := Root;
       Data := Root.FindPath('result');
       if Data <> nil then Base := Data;
-
       FLastTaskID := JSONString(Base, 'task.id');
       FLastContextID := JSONString(Base, 'task.contextId');
-
       PartsData := Base.FindPath('message.parts');
       if (PartsData <> nil) and (PartsData.JSONType = jtArray) then
       begin
@@ -478,7 +459,6 @@ begin
           end;
         end;
       end;
-
       if AText = '' then
       begin
         Data := Base.FindPath('task.artifacts');
@@ -498,10 +478,7 @@ begin
               end;
           end;
       end;
-
-      if AText = '' then
-        AText := JSONString(Base, 'task.status.message.parts[0].text');
-
+      if AText = '' then AText := JSONString(Base, 'task.status.message.parts[0].text');
       Result := (FLastTaskID <> '') or (AText <> '');
     finally
       Root.Free;
@@ -524,12 +501,10 @@ begin
     SetError('URL A2A nao configurada.');
     Exit(False);
   end;
-
   if FBinding = a2abJSONRPC then
     Result := SendJSONRPC('SendMessage', BuildMessageParams(AText, ''), Raw)
   else
     Result := SendHTTPJSON('/message:send', BuildMessageParams(AText, ''), Raw);
-
   if Result then Result := ExtractTextAndTask(Raw, AAnswer);
   FLastSuccess := Result;
   if Result then FLastResult := AAnswer;
@@ -548,12 +523,10 @@ begin
     end
     else
       FSelectedURL := NormalizeBaseURL(FBaseURL);
-
   if FBinding = a2abJSONRPC then
     Result := SendJSONRPC('SendMessage', BuildMessageParams(AText, ATaskID), Raw)
   else
     Result := SendHTTPJSON('/message:send', BuildMessageParams(AText, ATaskID), Raw);
-
   if Result then Result := ExtractTextAndTask(Raw, AAnswer);
   FLastSuccess := Result;
   if Result then FLastResult := AAnswer;
