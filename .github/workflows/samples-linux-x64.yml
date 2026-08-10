@@ -1,0 +1,63 @@
+name: Samples Linux x64
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'pacote/**'
+      - 'tools/ci/compile_samples_linux_x64.sh'
+      - '.github/workflows/samples-linux-x64.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-samples:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Lazarus and build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lazarus fpc fp-utils build-essential file xvfb zip unzip
+          lazbuild --version
+          fpc -iV
+          fpc -iTP
+          fpc -iTO
+
+      - name: Attempt to register project packages
+        continue-on-error: true
+        run: |
+          chmod +x ./install_components.sh
+          ./install_components.sh recommended /usr/bin/lazbuild
+
+      - name: Compile all samples for x86_64-linux
+        id: compile
+        continue-on-error: true
+        run: |
+          chmod +x tools/ci/compile_samples_linux_x64.sh
+          tools/ci/compile_samples_linux_x64.sh
+
+      - name: Upload Linux x64 sample binaries and logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: CHATGPT-samples-linux-x64
+          path: .sample-build/linux-x64/
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Publish report in job summary
+        if: always()
+        run: |
+          if [[ -f .sample-build/linux-x64/REPORT.md ]]; then
+            cat .sample-build/linux-x64/REPORT.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Fail when samples failed
+        if: steps.compile.outcome != 'success'
+        run: exit 1
