@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, TypInfo, fpjson, fphttpclient, aibase,
   aicapturesource, aiaudio, aiwebserver, aisockets, aiserial, aiposprinter,
-  aimodbus, aimqtt, aiemail, aimessenger, aiindustrial, aichromiumbrowser,
+  aimodbus, aimqtt, aiemail, aimessenger, aiindustrial,
   aiinput, aioutput, aioutput_docs;
 
 type

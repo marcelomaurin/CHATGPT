@@ -5,7 +5,7 @@ unit aitrainingexporter;
 interface
 
 uses
-  Classes, SysUtils, fpjson, jsonparser, aibase, aigraphmap, aipipeline, aiinput, aioutput, aidatasetgenerator, aioutput_docs, LazUTF8, LResources;
+  Classes, SysUtils, fpjson, jsonparser, aibase, aigraphmap, aiinput, aioutput, aidatasetgenerator, aioutput_docs, LazUTF8, LResources;
 
 type
   TAIExportFormat = (
@@ -30,7 +30,6 @@ type
   TAITrainingExporter = class(TAIBaseTrainingExporter)
   private
     FGraphMap: TAIGraphMap;
-    FPipeline: TAIPipeline;
     FInputData: TAIInputData;
     FOutputData: TAIOutputData;
     FDatasetGenerator: TAIDatasetGenerator;
@@ -69,7 +68,6 @@ type
     procedure GetDatasetStats(var ACount, ACategories, ATokens: Integer);
   published
     property GraphMap: TAIGraphMap read FGraphMap write FGraphMap;
-    property Pipeline: TAIPipeline read FPipeline write FPipeline;
     property InputData: TAIInputData read FInputData write FInputData;
     property OutputData: TAIOutputData read FOutputData write FOutputData;
     property DatasetGenerator: TAIDatasetGenerator read FDatasetGenerator write FDatasetGenerator;
@@ -109,7 +107,6 @@ begin
   FOverwrite := True;
   
   FGraphMap := nil;
-  FPipeline := nil;
   FInputData := nil;
   FOutputData := nil;
   FDatasetGenerator := nil;
@@ -188,18 +185,6 @@ begin
     LItem.Weight := FTrainingItems[i].Weight;
   end;
   
-  // 3. Collect from Pipeline's GraphMap if assigned
-  if Assigned(FPipeline) and Assigned(FPipeline.GraphMap) and Assigned(FPipeline.GraphMap.Training) then
-  begin
-    for i := 0 to FPipeline.GraphMap.Training.Count - 1 do
-    begin
-      LItem := AList.Add;
-      LItem.InputText := FPipeline.GraphMap.Training[i].InputText;
-      LItem.OutputCategory := FPipeline.GraphMap.Training[i].OutputCategory;
-      LItem.Weight := FPipeline.GraphMap.Training[i].Weight;
-    end;
-  end;
-
   // 4. Collect from DatasetGenerator
   if Assigned(FDatasetGenerator) and (FDatasetGenerator.Count > 0) then
   begin

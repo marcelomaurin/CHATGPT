@@ -9,6 +9,11 @@ uses
   airagbridge,
   aibase, aiagentsafety, aitools, aiguardrails, aitracebridge, LResources;
 
+type
+  TAIAgentAction = class;
+  TAIAgentOptions = class;
+  TAIAgentResource = class;
+
   { TAgentActionEvent }
   TAgentActionEvent = procedure(Sender: TObject; const AActionName: string; AParams: TStrings) of object;
 
@@ -1092,6 +1097,15 @@ begin
         begin
           if FBlockedProperties.IndexOf(VKey) >= 0 then Continue;
           if (FAllowedProperties.Count > 0) and (FAllowedProperties.IndexOf(VKey) < 0) then Continue;
+          SetPropValueByName(FComponent, VKey, VVal);
+        end;
+      end;
+    end;
+
+    CompPrompt := GetPropString(FComponent, 'Prompt');
+    if CompPrompt <> '' then
+    begin
+      ALog := 'Componente customizado "' + FComponent.ClassName + '" executado. Prompt: ' + CompPrompt;
       Result := True;
       Exit;
     end;

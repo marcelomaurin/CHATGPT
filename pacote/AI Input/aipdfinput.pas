@@ -73,8 +73,8 @@ end;
 procedure TAIPDFInput.SetExecutablePath(const AValue: string);
 begin
   FExecutablePath := AValue;
-  if (FEngine <> nil) and (FEngine is TAIPDFToTextProcessEngine) then
-    TAIPDFToTextProcessEngine(FEngine).ExecutablePath := AValue;
+  if FEngine is TAIPDFToTextProcessEngine then
+    (FEngine as TAIPDFToTextProcessEngine).ExecutablePath := AValue;
 end;
 
 { TAIPDFToTextProcessEngine }
@@ -183,6 +183,10 @@ end;
 function TAIPDFInput.LoadFromFile(const AFileName: string): Boolean;
 var
   Ext, ExtractedText, ErrorStr: string;
+  PageList: TStringList;
+  RawPages: array of string;
+  CurrPage: string;
+  LineIdx, PIdx: Integer;
 begin
   FFileName := AFileName;
   Result := False;
@@ -206,9 +210,9 @@ begin
     Exit;
   end;
 
-  if (FExecutablePath <> '') and (FEngine <> nil) and (FEngine is TAIPDFToTextProcessEngine) then
+  if (FExecutablePath <> '') and (FEngine is TAIPDFToTextProcessEngine) then
   begin
-    TAIPDFToTextProcessEngine(FEngine).ExecutablePath := FExecutablePath;
+    (FEngine as TAIPDFToTextProcessEngine).ExecutablePath := FExecutablePath;
   end;
 
   Ext := LowerCase(ExtractFileExt(FFileName));
@@ -217,14 +221,12 @@ begin
 
   if FEngine.ExtractText(FFileName, ExtractedText, ErrorStr) then
   begin
-    // Split text by FormFeed (#12) characters inserted by pdftotext for page breaks
-    var PageList: TStringList := TStringList.Create;
+    PageList := TStringList.Create;
     try
       PageList.Text := StringReplace(ExtractedText, #12, sLineBreak + '---[PAGEBREAK]---' + sLineBreak, [rfReplaceAll]);
-      var RawPages: TArray<string>;
       SetLength(RawPages, 0);
-      var CurrPage: string := '';
-      for var LineIdx: Integer := 0 to PageList.Count - 1 do
+      CurrPage := '';
+      for LineIdx := 0 to PageList.Count - 1 do
       begin
         if Trim(PageList[LineIdx]) = '---[PAGEBREAK]---' then
         begin
@@ -245,7 +247,7 @@ begin
       end;
 
       SetLength(FPages, Length(RawPages));
-      for var PIdx: Integer := 0 to High(RawPages) do
+      for PIdx := 0 to High(RawPages) do
       begin
         FPages[PIdx].PageNumber := PIdx + 1;
         FPages[PIdx].Text := RawPages[PIdx];

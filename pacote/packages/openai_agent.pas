@@ -8,7 +8,7 @@ unit openai_agent;
 interface
 
 uses
-  aiagent, aiwizardconfig, frm_aiwizardconfig, aiagent_browseractions, 
+  aiagent, aiwizardconfig, frm_aiwizardconfig, 
   aiagentserial, aiagent_flowevents, aiagent_memorymap, aiagent_core, 
   aiagent_classifier, aiagent_decision, aiagent_actionbuilder, 
   aiagent_actions, aitools, aiagentgraph, aiguardrails, aiagent_executor, 
