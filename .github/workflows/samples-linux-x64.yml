@@ -15,7 +15,7 @@ permissions:
 jobs:
   build-samples:
     runs-on: ubuntu-24.04
-    timeout-minutes: 90
+    timeout-minutes: 120
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,13 +23,48 @@ jobs:
       - name: Install Lazarus and build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y lazarus fpc fp-utils build-essential file xvfb zip unzip
+          sudo apt-get install -y lazarus fpc fp-utils build-essential file xvfb zip unzip git libgl1-mesa-dev libglu1-mesa-dev libx11-dev
           lazbuild --version
           fpc -iV
           fpc -iTP
           fpc -iTO
 
-      - name: Attempt to register project packages
+      - name: Register Lazarus bundled dependencies
+        run: |
+          set -e
+          IPRO="$(find /usr/lib/lazarus -type f \( -iname 'turbopoweripro.lpk' -o -iname '*ipro*.lpk' \) | head -1 || true)"
+          if [[ -n "$IPRO" ]]; then
+            echo "TurboPowerIpro: $IPRO"
+            lazbuild --add-package "$IPRO"
+          else
+            echo "ERRO: TurboPowerIpro não encontrado na instalação Lazarus" >&2
+            exit 1
+          fi
+
+      - name: Install ZeosLib
+        run: |
+          set -e
+          git clone --depth=1 https://github.com/frones/ZeosLib.git "$RUNNER_TEMP/ZeosLib"
+          Z="$RUNNER_TEMP/ZeosLib/packages/lazarus"
+          for P in zcore zparsesql zplain zdbc zcomponent; do
+            [[ -f "$Z/$P.lpk" ]] && lazbuild --add-package "$Z/$P.lpk"
+          done
+          lazbuild "$Z/zcomponent.lpk"
+
+      - name: Install GLScene/LZScene
+        run: |
+          set -e
+          git clone --depth=1 https://github.com/glscene/LZScene.git "$RUNNER_TEMP/LZScene"
+          lazbuild --add-package "$RUNNER_TEMP/LZScene/Packages/GLScene_RunTime.lpk"
+          lazbuild --add-package "$RUNNER_TEMP/LZScene/Packages/GLScene_DesignTime.lpk"
+
+      - name: Install CEF4Delphi Lazarus package
+        run: |
+          set -e
+          git clone --depth=1 https://github.com/salvadordf/CEF4Delphi.git "$RUNNER_TEMP/CEF4Delphi"
+          lazbuild --add-package "$RUNNER_TEMP/CEF4Delphi/packages/cef4delphi_lazarus.lpk"
+
+      - name: Register CHATGPT packages
         continue-on-error: true
         run: |
           chmod +x ./install_components.sh
