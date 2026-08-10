@@ -21,6 +21,7 @@ type
     function ResolveFile(const AFileName: string; out AResolved: string): Boolean;
     function ReadTextFile(const AFileName: string; out AText: string): Boolean;
     function StripCodeFence(const AText: string): string;
+    function CopyFileSafe(const ASource, ADest: string): Boolean;
   protected
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
@@ -45,13 +46,16 @@ type
     FBuildMode: string;
     FWorkingDirectory: string;
     FTimeoutMs: Integer;
+    function GetStdOutText: string;
+    function GetStdErrText: string;
+    function GetExitCode: Integer;
   public
     constructor Create(AOwner: TComponent); override;
     function Build: Boolean;
     procedure Stop;
-    property StdOutText: string read FRunner.StdOutText;
-    property StdErrText: string read FRunner.StdErrText;
-    property ExitCode: Integer read FRunner.LastExitCode;
+    property StdOutText: string read GetStdOutText;
+    property StdErrText: string read GetStdErrText;
+    property ExitCode: Integer read GetExitCode;
   published
     property LazBuildPath: string read FLazBuildPath write FLazBuildPath;
     property ProjectFile: string read FProjectFile write FProjectFile;
@@ -68,13 +72,16 @@ type
     FArguments: string;
     FTimeoutMs: Integer;
     function SplitArguments(const S: string): TStringList;
+    function GetStdOutText: string;
+    function GetStdErrText: string;
+    function GetExitCode: Integer;
   public
     constructor Create(AOwner: TComponent); override;
     function Run: Boolean;
     procedure Stop;
-    property StdOutText: string read FRunner.StdOutText;
-    property StdErrText: string read FRunner.StdErrText;
-    property ExitCode: Integer read FRunner.LastExitCode;
+    property StdOutText: string read GetStdOutText;
+    property StdErrText: string read GetStdErrText;
+    property ExitCode: Integer read GetExitCode;
   published
     property Executable: string read FExecutable write FExecutable;
     property WorkingDirectory: string read FWorkingDirectory write FWorkingDirectory;
@@ -120,6 +127,8 @@ begin
   {$ENDIF}
 end;
 
+{ TAISourceAgent }
+
 constructor TAISourceAgent.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -148,6 +157,7 @@ function TAISourceAgent.ResolveFile(const AFileName: string;
   out AResolved: string): Boolean;
 begin
   ClearError;
+  AResolved := '';
   if Trim(FRootDirectory) = '' then
   begin
     SetError('RootDirectory nao configurado.');
@@ -187,6 +197,29 @@ begin
   end;
 end;
 
+function TAISourceAgent.CopyFileSafe(const ASource, ADest: string): Boolean;
+var
+  SourceStream, DestStream: TFileStream;
+begin
+  Result := False;
+  try
+    SourceStream := TFileStream.Create(ASource, fmOpenRead or fmShareDenyWrite);
+    try
+      DestStream := TFileStream.Create(ADest, fmCreate);
+      try
+        DestStream.CopyFrom(SourceStream, 0);
+        Result := True;
+      finally
+        DestStream.Free;
+      end;
+    finally
+      SourceStream.Free;
+    end;
+  except
+    Result := False;
+  end;
+end;
+
 function TAISourceAgent.StripCodeFence(const AText: string): string;
 var
   S: string;
@@ -196,11 +229,8 @@ begin
   if Pos('```', S) <> 1 then Exit(AText);
   P := Pos(LineEnding, S);
   if P > 0 then Delete(S, 1, P + Length(LineEnding) - 1);
-  if RightStr(TrimRight(S), 3) = '```' then
-  begin
-    S := TrimRight(S);
-    Delete(S, Length(S) - 2, 3);
-  end;
+  S := TrimRight(S);
+  if RightStr(S, 3) = '```' then Delete(S, Length(S) - 2, 3);
   Result := S;
 end;
 
@@ -249,6 +279,7 @@ begin
   end;
   if not ResolveFile(AFileName, FileName) then Exit;
   if not ReadTextFile(FileName, Source) then Exit;
+
   PromptText := 'Reescreva o arquivo Lazarus/Free Pascal conforme a orientacao. ' +
     'Preserve compatibilidade e todo codigo nao relacionado. Retorne SOMENTE o fonte completo, sem markdown.' +
     LineEnding + 'ORIENTACAO:' + LineEnding + AInstruction + LineEnding +
@@ -258,6 +289,7 @@ begin
     SetError(FLLM.LastError);
     Exit;
   end;
+
   NewSource := StripCodeFence(FLLM.LastResult);
   if Trim(NewSource) = '' then
   begin
@@ -268,8 +300,12 @@ begin
   if FCreateBackup then
   begin
     BackupName := FileName + FBackupExtension;
-    if FileExists(BackupName) then DeleteFile(BackupName);
-    if not CopyFile(FileName, BackupName) then
+    if FileExists(BackupName) and (not DeleteFile(BackupName)) then
+    begin
+      SetError('Nao foi possivel substituir backup: ' + BackupName);
+      Exit;
+    end;
+    if not CopyFileSafe(FileName, BackupName) then
     begin
       SetError('Nao foi possivel criar backup: ' + BackupName);
       Exit;
@@ -310,7 +346,7 @@ begin
     SetError('Backup nao encontrado: ' + BackupName);
     Exit;
   end;
-  Result := CopyFile(BackupName, FileName);
+  Result := CopyFileSafe(BackupName, FileName);
   if Result then
   begin
     FLastSuccess := True;
@@ -319,6 +355,8 @@ begin
   else
     SetError('Falha ao restaurar backup.');
 end;
+
+{ TAILazarusBuildAgent }
 
 constructor TAILazarusBuildAgent.Create(AOwner: TComponent);
 begin
@@ -329,9 +367,25 @@ begin
   FRunner := TAIProcessRunner.Create(Self);
 end;
 
+function TAILazarusBuildAgent.GetStdOutText: string;
+begin
+  Result := FRunner.StdOutText;
+end;
+
+function TAILazarusBuildAgent.GetStdErrText: string;
+begin
+  Result := FRunner.StdErrText;
+end;
+
+function TAILazarusBuildAgent.GetExitCode: Integer;
+begin
+  Result := FRunner.LastExitCode;
+end;
+
 function TAILazarusBuildAgent.Build: Boolean;
 var
   Params: array of string;
+  ProjectPath: string;
 begin
   ClearError;
   if Trim(FProjectFile) = '' then
@@ -339,21 +393,22 @@ begin
     SetError('ProjectFile nao configurado.');
     Exit(False);
   end;
+  ProjectPath := ExpandFileName(FProjectFile);
   FRunner.Executable := FLazBuildPath;
   FRunner.WorkingDirectory := FWorkingDirectory;
   if FRunner.WorkingDirectory = '' then
-    FRunner.WorkingDirectory := ExtractFileDir(ExpandFileName(FProjectFile));
+    FRunner.WorkingDirectory := ExtractFileDir(ProjectPath);
   FRunner.TimeoutMs := FTimeoutMs;
   if Trim(FBuildMode) <> '' then
   begin
     SetLength(Params, 2);
     Params[0] := '--build-mode=' + FBuildMode;
-    Params[1] := ExpandFileName(FProjectFile);
+    Params[1] := ProjectPath;
   end
   else
   begin
     SetLength(Params, 1);
-    Params[0] := ExpandFileName(FProjectFile);
+    Params[0] := ProjectPath;
   end;
   Result := FRunner.Execute(Params);
   FLastSuccess := Result;
@@ -366,12 +421,29 @@ begin
   FRunner.Stop;
 end;
 
+{ TAITestAgent }
+
 constructor TAITestAgent.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FCategory := ccAction;
   FTimeoutMs := 120000;
   FRunner := TAIProcessRunner.Create(Self);
+end;
+
+function TAITestAgent.GetStdOutText: string;
+begin
+  Result := FRunner.StdOutText;
+end;
+
+function TAITestAgent.GetStdErrText: string;
+begin
+  Result := FRunner.StdErrText;
+end;
+
+function TAITestAgent.GetExitCode: Integer;
+begin
+  Result := FRunner.LastExitCode;
 end;
 
 function TAITestAgent.SplitArguments(const S: string): TStringList;
@@ -390,12 +462,18 @@ begin
     begin
       if C = Quote then Quote := #0 else Token := Token + C;
     end
-    else if C in ['"', ''''] then Quote := C
+    else if (C = '"') or (C = #39) then
+      Quote := C
     else if C in [' ', #9] then
     begin
-      if Token <> '' then begin Result.Add(Token); Token := ''; end;
+      if Token <> '' then
+      begin
+        Result.Add(Token);
+        Token := '';
+      end;
     end
-    else Token := Token + C;
+    else
+      Token := Token + C;
   end;
   if Token <> '' then Result.Add(Token);
 end;
@@ -433,6 +511,8 @@ begin
   FRunner.Stop;
 end;
 
+{ TAINetworkAgent }
+
 constructor TAINetworkAgent.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -452,16 +532,16 @@ begin
     SetError('Host vazio.');
     Exit(False);
   end;
+  if ACount < 1 then ACount := 1;
   FRunner.Executable := 'ping';
   FRunner.TimeoutMs := FTimeoutMs;
-  SetLength(Params, 2);
+  SetLength(Params, 3);
   {$IFDEF WINDOWS}
   Params[0] := '-n';
   {$ELSE}
   Params[0] := '-c';
   {$ENDIF}
-  Params[1] := IntToStr(Max(1, ACount));
-  SetLength(Params, 3);
+  Params[1] := IntToStr(ACount);
   Params[2] := AHost;
   Result := FRunner.Execute(Params);
   FLastSuccess := Result;
