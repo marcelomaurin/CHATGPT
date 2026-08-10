@@ -5,7 +5,8 @@ unit aimodelrouter;
 interface
 
 uses
-  Classes, SysUtils, Contnrs, aibase, aillmproviders, aicapabilities;
+  Classes, SysUtils, Contnrs, LResources, aibase, aillmproviders,
+  aicapabilities;
 
 type
   TAIModelRoute = class
@@ -29,8 +30,6 @@ type
     property Local: Boolean read FLocal write FLocal;
   end;
 
-  { TAIModelRouter }
-
   TAIModelRouter = class(TAIBaseComponent)
   private
     FRoutes: TObjectList;
@@ -50,7 +49,8 @@ type
       APriority: Integer = 100): TAIModelRoute;
     function Select(const ARequired: TAICapabilities): TAIModelRoute;
     function SelectProvider(const ARequired: TAICapabilities;
-      out AProvider: TAILLMProviderKind; out AModel, AEndpoint, AToken: string): Boolean;
+      out AProvider: TAILLMProviderKind; out AModel, AEndpoint,
+      AToken: string): Boolean;
     property RouteCount: Integer read GetRouteCount;
     property Routes[AIndex: Integer]: TAIModelRoute read GetRoute;
     property CapabilityRegistry: TAICapabilityRegistry read FCapabilities;
@@ -126,7 +126,8 @@ var
   C: TAICapability;
 begin
   Result := Assigned(ARoute) and ARoute.Enabled;
-  if not Result then Exit;
+  if not Result then
+    Exit;
   for C := Low(TAICapability) to High(TAICapability) do
     if (C in ARequired) and
        (not FCapabilities.Supports(ARoute.ProviderKind, C)) then
@@ -150,7 +151,8 @@ begin
   for I := 0 to FRoutes.Count - 1 do
   begin
     R := GetRoute(I);
-    if not RouteSupports(R, ARequired) then Continue;
+    if not RouteSupports(R, ARequired) then
+      Continue;
     S := ScoreRoute(R);
     if (Result = nil) or (S < BestScore) then
     begin
@@ -175,7 +177,8 @@ var
 begin
   R := Select(ARequired);
   Result := Assigned(R);
-  if not Result then Exit;
+  if not Result then
+    Exit;
   AProvider := R.ProviderKind;
   AModel := R.Model;
   AEndpoint := R.Endpoint;
