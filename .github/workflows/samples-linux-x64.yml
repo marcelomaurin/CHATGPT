@@ -1,0 +1,109 @@
+name: Samples Linux x64
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'pacote/**'
+      - 'tools/ci/compile_samples_linux_x64.sh'
+      - '.github/workflows/samples-linux-x64.yml'
+  push:
+    branches: [ main ]
+    paths:
+      - 'pacote/**'
+      - 'tools/ci/compile_samples_linux_x64.sh'
+      - '.github/workflows/samples-linux-x64.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-samples:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Lazarus and build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lazarus fpc fp-utils build-essential file xvfb zip unzip git libgl1-mesa-dev libglu1-mesa-dev libx11-dev
+          lazbuild --version
+          fpc -iV
+          fpc -iTP
+          fpc -iTO
+
+      - name: Register Lazarus bundled dependencies
+        run: |
+          set -e
+          IPRO="$(find /usr/lib/lazarus -type f \( -iname 'turbopoweripro.lpk' -o -iname '*ipro*.lpk' \) | head -1 || true)"
+          if [[ -n "$IPRO" ]]; then
+            echo "TurboPowerIpro: $IPRO"
+            lazbuild --add-package "$IPRO"
+          else
+            echo "ERRO: TurboPowerIpro não encontrado na instalação Lazarus" >&2
+            exit 1
+          fi
+
+      - name: Install ZeosLib
+        run: |
+          set -e
+          git clone --depth=1 https://github.com/frones/ZeosLib.git "$RUNNER_TEMP/ZeosLib"
+          Z="$RUNNER_TEMP/ZeosLib/packages/lazarus"
+          for P in zcore zparsesql zplain zdbc; do
+            if [[ -f "$Z/$P.lpk" ]]; then
+              echo "Linking Zeos runtime package: $P"
+              lazbuild --add-package-link "$Z/$P.lpk"
+            fi
+          done
+          lazbuild --add-package "$Z/zcomponent.lpk"
+          lazbuild --build-all "$Z/zcomponent.lpk"
+
+      - name: Install GLScene/LZScene
+        run: |
+          set -e
+          git clone --depth=1 https://github.com/glscene/LZScene.git "$RUNNER_TEMP/LZScene"
+          lazbuild --add-package-link "$RUNNER_TEMP/LZScene/Packages/GLScene_RunTime.lpk"
+          lazbuild --build-all "$RUNNER_TEMP/LZScene/Packages/GLScene_RunTime.lpk"
+          lazbuild --add-package "$RUNNER_TEMP/LZScene/Packages/GLScene_DesignTime.lpk"
+
+      - name: Install CEF4Delphi Lazarus package
+        run: |
+          set -e
+          git clone --depth=1 https://github.com/salvadordf/CEF4Delphi.git "$RUNNER_TEMP/CEF4Delphi"
+          lazbuild --add-package "$RUNNER_TEMP/CEF4Delphi/packages/cef4delphi_lazarus.lpk"
+
+      - name: Register CHATGPT packages
+        continue-on-error: true
+        run: |
+          chmod +x ./install_components.sh
+          ./install_components.sh recommended /usr/bin/lazbuild
+
+      - name: Compile all samples for x86_64-linux
+        id: compile
+        continue-on-error: true
+        run: |
+          chmod +x tools/ci/compile_samples_linux_x64.sh
+          tools/ci/compile_samples_linux_x64.sh
+
+      - name: Upload Linux x64 sample binaries and logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: CHATGPT-samples-linux-x64
+          path: .sample-build/linux-x64/
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Publish report in job summary
+        if: always()
+        run: |
+          if [[ -f .sample-build/linux-x64/REPORT.md ]]; then
+            cat .sample-build/linux-x64/REPORT.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Fail when samples failed
+        if: steps.compile.outcome != 'success'
+        run: exit 1
