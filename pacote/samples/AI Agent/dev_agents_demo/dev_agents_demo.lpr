@@ -6,8 +6,8 @@ uses
   {$IFDEF UNIX}
   cthreads,
   {$ENDIF}
-  Classes, SysUtils, aillmproviders, aimodelrouter, aiunifiedllm,
-  aidevagents;
+  Classes, SysUtils, aillmproviders, aicapabilities, aimodelrouter,
+  aiunifiedllm, aidevagents;
 
 var
   Router: TAIModelRouter;
