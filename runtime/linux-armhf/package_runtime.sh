@@ -13,7 +13,13 @@ command -v sha256sum >/dev/null 2>&1 || { echo "ERRO: sha256sum ausente" >&2; ex
 
 mkdir -p "$OUT_DIR/scripts" "$DIST_DIR"
 cp -f "$ROOT_DIR/runtime/linux-armhf/validate_runtime.sh" "$OUT_DIR/scripts/"
-chmod +x "$OUT_DIR/bin/llama-server" "$OUT_DIR/bin/whisper-cli" "$OUT_DIR/scripts/validate_runtime.sh"
+chmod +x \
+  "$OUT_DIR/bin/llama-server" \
+  "$OUT_DIR/bin/whisper-cli" \
+  "$OUT_DIR/bin/python3" \
+  "$OUT_DIR/bin/pdftotext" \
+  "$OUT_DIR/python/bootstrap.sh" \
+  "$OUT_DIR/scripts/validate_runtime.sh"
 
 rm -f "$DIST_DIR/$ASSET"
 (
