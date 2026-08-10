@@ -60,7 +60,9 @@ begin
   try
   FPDFOut.FileName := 'output_report.pdf';
   FWordOut.FileName := 'output_report.docx';
+  FWordOut.OutputFormat := wofDOCX;
   FExcelOut.FileName := 'output_report.xlsx';
+  FExcelOut.OutputFormat := eofXLSX;
   
   AddLog('Document Outputs Properties:');
   AddLog('  PDF File Name: ' + FPDFOut.FileName);

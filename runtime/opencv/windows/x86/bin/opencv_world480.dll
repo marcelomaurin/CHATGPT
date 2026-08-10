@@ -1,1 +1,3 @@
-This is a placeholder for windows/x86 opencv_world480.dll to allow simulation and testing of the OpenCV Vision components.
+version https://git-lfs.github.com/spec/v1
+oid sha256:13860c7b121926fcbc094854f2fa381fc542eeac67e401e72e0c55d9cbeb545a
+size 123

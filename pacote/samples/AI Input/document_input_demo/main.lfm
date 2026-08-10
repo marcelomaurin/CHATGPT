@@ -1,0 +1,100 @@
+object frmDocInputDemo: TfrmDocInputDemo
+  Left = 320
+  Height = 550
+  Top = 180
+  Width = 750
+  Caption = 'AI Document Input Demo'
+  ClientHeight = 550
+  ClientWidth = 750
+  OnCreate = FormCreate
+  LCLVersion = '3.0.0.3'
+  object pnlTop: TPanel
+    Left = 0
+    Height = 90
+    Top = 0
+    Width = 750
+    Align = alTop
+    ClientHeight = 90
+    ClientWidth = 750
+    TabOrder = 0
+    object lblTitle: TLabel
+      Left = 16
+      Height = 24
+      Top = 10
+      Width = 320
+      Caption = 'Ingestão e Leitura de Documentos'
+      Font.Height = -18
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object lblFile: TLabel
+      Left = 16
+      Height = 15
+      Top = 50
+      Width = 45
+      Caption = 'Arquivo:'
+      ParentColor = False
+    end
+    object edtFileName: TEdit
+      Left = 68
+      Height = 23
+      Top = 46
+      Width = 380
+      TabOrder = 0
+    end
+    object btnBrowse: TButton
+      Left = 456
+      Height = 25
+      Top = 45
+      Width = 75
+      Caption = 'Procurar...'
+      OnClick = btnBrowseClick
+      TabOrder = 1
+    end
+    object btnLoad: TButton
+      Left = 538
+      Height = 25
+      Top = 45
+      Width = 75
+      Caption = 'Carregar'
+      OnClick = btnLoadClick
+      TabOrder = 2
+    end
+    object btnClear: TButton
+      Left = 620
+      Height = 25
+      Top = 45
+      Width = 75
+      Caption = 'Limpar'
+      OnClick = btnClearClick
+      TabOrder = 3
+    end
+    object lblDocType: TLabel
+      Left = 360
+      Height = 20
+      Top = 12
+      Width = 60
+      Caption = 'Tipo: -'
+      Font.Height = -14
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+  end
+  object memoText: TMemo
+    Left = 0
+    Height = 460
+    Top = 90
+    Width = 750
+    Align = alClient
+    ScrollBars = ssAutoBoth
+    TabOrder = 1
+  end
+  object openDlg: TOpenDialog
+    Title = 'Selecionar Documento'
+    Filter = 'Todos os Documentos (*.pdf;*.docx;*.xlsx;*.txt)|*.pdf;*.docx;*.xlsx;*.txt|Arquivos PDF (*.pdf)|*.pdf|Arquivos DOCX (*.docx)|*.docx|Arquivos XLSX (*.xlsx)|*.xlsx|Arquivos Texto (*.txt)|*.txt'
+    Left = 670
+    Top = 100
+  end
+end

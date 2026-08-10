@@ -27,6 +27,14 @@
         <UnitName Value="aioutput_docs"/>
       </Item>
       <Item>
+        <Filename Value="..\AI Output\aidocxwriter.pas"/>
+        <UnitName Value="aidocxwriter"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Output\aixlsxwriter.pas"/>
+        <UnitName Value="aixlsxwriter"/>
+      </Item>
+      <Item>
         <Filename Value="..\AI Output\aiwordtypes.pas"/>
         <UnitName Value="aiwordtypes"/>
       </Item>

@@ -25,7 +25,7 @@ This folder contains the output layer of the project. It is responsible for tran
 | Area | Components / units | Purpose |
 |---|---|---|
 | AI decision output | `TAIOutputData` / `aioutput.pas` | Applies SoftMax, selects the most probable class and formats classification results. |
-| Document output | `TAIPDFOutput`, `TAIWordOutput`, `TAIExcelOutput`, `TAITXTOutput`, `TAIOutputDocs` / `aioutput_docs.pas` | Generates native reports and data exports in PDF, Word-compatible, Excel-compatible and TXT formats. |
+| Document output | `TAIPDFOutput`, `TAIWordOutput`, `TAIExcelOutput`, `TAITXTOutput`, `TAIOutputDocs` / `aioutput_docs.pas` | Generates native reports and data exports in PDF, native DOCX / HTML-compatible Word, native XLSX / HTML-compatible Excel and TXT formats. |
 | DOCX editing | `TAIWordDocument` / `aiworddocument.pas` | Creates, loads, edits and saves DOCX documents using OpenXML structures. |
 | DOCX preview | `TAIWordLayoutEngine`, `TAIWordRenderEngine` / `aiwordviewer.pas` | Builds a visual layout model and renders Word document pages on a Lazarus canvas. |
 | POS / label printing | `TAIPOSPrinter` / `aiposprinter.pas` | Sends raw printer commands by serial or TCP/IP for receipt and label printers. |

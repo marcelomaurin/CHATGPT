@@ -22,6 +22,22 @@
         <UnitName Value="aiinput"/>
       </Item>
       <Item>
+        <Filename Value="..\AI Input\aidocumentreader.pas"/>
+        <UnitName Value="aidocumentreader"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Input\aipdfinput.pas"/>
+        <UnitName Value="aipdfinput"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Input\aidocxinput.pas"/>
+        <UnitName Value="aidocxinput"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Input\aiexcelinput.pas"/>
+        <UnitName Value="aiexcelinput"/>
+      </Item>
+      <Item>
         <Filename Value="..\AI Input\AIAudio\aiaudio.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiaudio"/>

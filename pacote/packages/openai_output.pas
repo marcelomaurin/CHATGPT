@@ -8,10 +8,10 @@ unit openai_output;
 interface
 
 uses
-  aioutput, aioutput_docs, aiwordtypes, aiwordunits, aiwordpackage, aiwordxml, 
-  aiwordrelationships, aiwordstyles, aiwordobjects, aiworddocument, aiwordviewer, 
-  imp_generico, imp_elgini9, imp_qr203, imp_elginl42dt, aiposprinter,
-  LazarusPackageIntf;
+  aioutput, aioutput_docs, aidocxwriter, aixlsxwriter, aiwordtypes, 
+  aiwordunits, aiwordpackage, aiwordxml, aiwordrelationships, aiwordstyles, 
+  aiwordobjects, aiworddocument, aiwordviewer, imp_generico, imp_elgini9, 
+  imp_qr203, imp_elginl42dt, aiposprinter, LazarusPackageIntf;
 
 implementation
 

@@ -8,7 +8,7 @@ unit openai_rag;
 interface
 
 uses
-  airetrieval, airag, LazarusPackageIntf;
+  airetrieval, airag, aidocumentextractor, LazarusPackageIntf;
 
 implementation
 

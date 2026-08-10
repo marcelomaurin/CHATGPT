@@ -7,9 +7,20 @@ interface
 uses
   Classes, SysUtils, Math,
   // Native FPC PDF generator library
-  fpPDF, aibase, LResources;
+  fpPDF, aibase, LResources, aidocxwriter, aixlsxwriter;
 
 type
+  TAIWordOutputFormat = (
+    wofHTMLCompatible,
+    wofDOCX
+  );
+
+  TAIExcelOutputFormat = (
+    eofHTMLCompatible,
+    eofXLSX,
+    eofCSV
+  );
+
   { TAIPDFOutput }
 
   TAIPDFOutput = class(TAIBaseComponent)
@@ -18,22 +29,42 @@ type
     FTitle: string;
     FAuthor: string;
     FSubject: string;
+    FAutoCreateDirectories: Boolean;
+    FMarginLeft: Single;
+    FMarginTop: Single;
+    FMarginRight: Single;
+    FMarginBottom: Single;
+
+    FCursorX: Single;
+    FCursorY: Single;
+
     FPDFDoc: TPDFDocument;
     FPage: TPDFPage;
     FFontIndex: Integer;
+    
+    function CurrentPageHeight: Single;
+    function WrapText(const AText: string; AWidth: Single; AFontSize: Single): TStringList;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     
+    procedure Clear;
     procedure StartDocument;
     procedure AddPage;
     procedure AddText(const AText: string; X, Y: Single; FontSize: Single = 12.0);
+    procedure AddParagraph(const AText: string; FontSize: Single = 12.0);
+    procedure AddHeading(const AText: string; ALevel: Integer = 1);
     function SavePDF: Boolean;
   published
     property FileName: string read FFileName write FFileName;
     property Title: string read FTitle write FTitle;
     property Author: string read FAuthor write FAuthor;
     property Subject: string read FSubject write FSubject;
+    property AutoCreateDirectories: Boolean read FAutoCreateDirectories write FAutoCreateDirectories default True;
+    property MarginLeft: Single read FMarginLeft write FMarginLeft;
+    property MarginTop: Single read FMarginTop write FMarginTop;
+    property MarginRight: Single read FMarginRight write FMarginRight;
+    property MarginBottom: Single read FMarginBottom write FMarginBottom;
   end;
 
   { TAIWordOutput }
@@ -42,7 +73,13 @@ type
   private
     FFileName: string;
     FTitle: string;
+    FOutputFormat: TAIWordOutputFormat;
     FContent: TStringList;
+    FDOCXWriter: TAIDOCXWriter;
+
+    function HTMLEncode(const AText: string): string;
+    function SaveHTMLCompatible: Boolean;
+    function SaveDOCX: Boolean;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -54,6 +91,7 @@ type
   published
     property FileName: string read FFileName write FFileName;
     property Title: string read FTitle write FTitle;
+    property OutputFormat: TAIWordOutputFormat read FOutputFormat write FOutputFormat default wofHTMLCompatible;
   end;
 
   { TAIExcelOutput }
@@ -61,17 +99,27 @@ type
   TAIExcelOutput = class(TAIBaseComponent)
   private
     FFileName: string;
+    FOutputFormat: TAIExcelOutputFormat;
     FCells: TStringList;
     FMaxRow: Integer;
     FMaxCol: Integer;
+    FXLSXWriter: TAIXLSXWriter;
+
+    function HTMLEncode(const AText: string): string;
+    function SaveHTMLCompatible: Boolean;
+    function SaveXLSX: Boolean;
+    function SaveCSV: Boolean;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     
+    procedure Clear;
     procedure SetCell(ARow, ACol: Integer; const AValue: string);
+    function GetCell(ARow, ACol: Integer): string;
     function SaveExcel: Boolean;
   published
     property FileName: string read FFileName write FFileName;
+    property OutputFormat: TAIExcelOutputFormat read FOutputFormat write FOutputFormat default eofHTMLCompatible;
   end;
 
   { TAITXTOutput }
@@ -97,6 +145,7 @@ type
   TAIOutputDocs = class(TAIBaseComponent)
   private
     FFileNamePDF: string;
+    FLegacyToken: string;
     FFileNameWord: string;
     FFileNameExcel: string;
     FFileNameTXT: string;
@@ -104,13 +153,10 @@ type
     FAuthor: string;
     FSubject: string;
     
-    FParagraphs: TStringList;
-    FTableHeaders: TStringList;
-    FTableRows: TStringList;
-    FTableCols: Integer;
-    FCells: TStringList;
-    FMaxRow: Integer;
-    FMaxCol: Integer;
+    FPDFOutput: TAIPDFOutput;
+    FWordOutput: TAIWordOutput;
+    FExcelOutput: TAIExcelOutput;
+    FTXTOutput: TAITXTOutput;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -121,16 +167,15 @@ type
     procedure AddTable(const AHeaders: array of string; const ARows: array of string; ACols: Integer);
     procedure SetCell(ARow, ACol: Integer; const AValue: string);
     
-    // Novas propriedades e funções
     function SaveToPDF: Boolean;
     function SaveToWord: Boolean;
     function SaveToExcel: Boolean;
     function SaveToTXT: Boolean;
-    // Salva tudo ao mesmo tempo
     function SaveAll(const ABaseFileName: string = ''): Boolean;
   published
     property FileNamePDF: string read FFileNamePDF write FFileNamePDF;
-    property Token: string read FFileNamePDF write FFileNamePDF; // Added for forward compatibility with prompt builders or other units
+    // Legacy compatibility only. Not used for document generation.
+    property Token: string read FLegacyToken write FLegacyToken;
     property FileNameWord: string read FFileNameWord write FFileNameWord;
     property FileNameExcel: string read FFileNameExcel write FFileNameExcel;
     property FileNameTXT: string read FFileNameTXT write FFileNameTXT;
@@ -164,6 +209,13 @@ begin
   FTitle := 'Relatório de IA';
   FAuthor := 'Antigravity AI Suite';
   FSubject := 'Resultados de Modelos de IA';
+  FAutoCreateDirectories := True;
+  FMarginLeft := 40;
+  FMarginTop := 40;
+  FMarginRight := 40;
+  FMarginBottom := 40;
+  FCursorX := 40;
+  FCursorY := 40;
   FPDFDoc := nil;
   FPage := nil;
   FFontIndex := -1;
@@ -171,23 +223,37 @@ end;
 
 destructor TAIPDFOutput.Destroy;
 begin
-  if Assigned(FPDFDoc) then
-    FPDFDoc.Free;
+  Clear;
   inherited Destroy;
+end;
+
+procedure TAIPDFOutput.Clear;
+begin
+  if Assigned(FPDFDoc) then
+  begin
+    FPDFDoc.Free;
+    FPDFDoc := nil;
+  end;
+  FPage := nil;
+  FFontIndex := -1;
+  FCursorX := FMarginLeft;
+  FCursorY := FMarginTop;
+end;
+
+function TAIPDFOutput.CurrentPageHeight: Single;
+begin
+  Result := 842.0; // A4 portrait height in points
 end;
 
 procedure TAIPDFOutput.StartDocument;
 begin
-  if Assigned(FPDFDoc) then
-    FPDFDoc.Free;
-    
+  Clear;
   FPDFDoc := TPDFDocument.Create(nil);
   FPDFDoc.StartDocument;
   
   FPDFDoc.Infos.Title := FTitle;
   FPDFDoc.Infos.Author := FAuthor;
   
-  // Add standard Helvetica font to document catalog
   FFontIndex := FPDFDoc.AddFont('Helvetica');
 end;
 
@@ -199,6 +265,8 @@ begin
   FPage := FPDFDoc.Pages.AddPage;
   FPage.PaperType := ptA4;
   FPage.Orientation := ppoPortrait;
+  FCursorX := FMarginLeft;
+  FCursorY := FMarginTop;
 end;
 
 procedure TAIPDFOutput.AddText(const AText: string; X, Y: Single; FontSize: Single);
@@ -208,21 +276,113 @@ begin
     
   FPage.SetFont(FFontIndex, Round(FontSize));
   FPage.SetColor(clBlack, False);
-  // Y-axis is from bottom up in PDF specification, correct for standard top-down
-  FPage.WriteText(X, 842.0 - Y, AText);
+  FPage.WriteText(X, CurrentPageHeight - Y, AText);
+end;
+
+function TAIPDFOutput.WrapText(const AText: string; AWidth: Single; AFontSize: Single): TStringList;
+var
+  Words: TStringList;
+  I: Integer;
+  CurrentLine: string;
+  CharWidthEstimate: Single;
+  MaxCharsPerLine: Integer;
+begin
+  Result := TStringList.Create;
+  Words := TStringList.Create;
+  try
+    Words.Delimiter := ' ';
+    Words.DelimitedText := AText;
+
+    CharWidthEstimate := AFontSize * 0.55;
+    if CharWidthEstimate < 1.0 then CharWidthEstimate := 1.0;
+    MaxCharsPerLine := Max(1, Trunc(AWidth / CharWidthEstimate));
+
+    CurrentLine := '';
+    for I := 0 to Words.Count - 1 do
+    begin
+      if CurrentLine = '' then
+        CurrentLine := Words[I]
+      else if Length(CurrentLine) + 1 + Length(Words[I]) <= MaxCharsPerLine then
+        CurrentLine := CurrentLine + ' ' + Words[I]
+      else
+      begin
+        Result.Add(CurrentLine);
+        CurrentLine := Words[I];
+      end;
+    end;
+    if CurrentLine <> '' then
+      Result.Add(CurrentLine);
+  finally
+    Words.Free;
+  end;
+end;
+
+procedure TAIPDFOutput.AddParagraph(const AText: string; FontSize: Single);
+var
+  Lines: TStringList;
+  I: Integer;
+  LineHeight, UsableWidth: Single;
+begin
+  if not Assigned(FPage) then
+    AddPage;
+
+  LineHeight := FontSize * 1.4;
+  UsableWidth := 595.0 - FMarginLeft - FMarginRight;
+  Lines := WrapText(AText, UsableWidth, FontSize);
+  try
+    for I := 0 to Lines.Count - 1 do
+    begin
+      if FCursorY + LineHeight > CurrentPageHeight - FMarginBottom then
+        AddPage;
+
+      AddText(Lines[I], FMarginLeft, FCursorY, FontSize);
+      FCursorY := FCursorY + LineHeight;
+    end;
+    FCursorY := FCursorY + (FontSize * 0.5); // Paragraph spacing
+  finally
+    Lines.Free;
+  end;
+end;
+
+procedure TAIPDFOutput.AddHeading(const AText: string; ALevel: Integer);
+var
+  HSize: Single;
+  L: Integer;
+begin
+  L := ALevel;
+  if L < 1 then L := 1;
+  if L > 6 then L := 6;
+
+  HSize := Max(12.0, 24.0 - (L * 2.0));
+  AddParagraph(AText, HSize);
 end;
 
 function TAIPDFOutput.SavePDF: Boolean;
+var
+  Dir: string;
 begin
   Result := False;
   ClearError;
   try
+    if Trim(FFileName) = '' then
+    begin
+      SetError('Nome do arquivo PDF não pode ser vazio.');
+      Exit;
+    end;
+
     if not Assigned(FPDFDoc) then
     begin
       SetError('Documento PDF não foi iniciado. Chame StartDocument antes de salvar.');
       Exit;
     end;
     
+    if FAutoCreateDirectories then
+    begin
+      Dir := ExtractFileDir(ExpandFileName(FFileName));
+      if (Dir <> '') and (not DirectoryExists(Dir)) then
+        ForceDirectories(Dir);
+    end;
+
     FPDFDoc.SaveToFile(FFileName);
     FLastResult := 'PDF Document Saved: ' + FFileName;
     FLastSuccess := True;
@@ -242,55 +402,94 @@ constructor TAIWordOutput.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FPrompt := 'Component TAIWordOutput creates Microsoft Word compatible documents (.docx/HTML) natively. Properties: FileName: string, Title: string. Methods: AddHeading(const AText: string; ALevel: Integer = 1), AddParagraph(const AText: string), AddTable(const AHeaders: array of string; const ARows: array of string; ACols: Integer), SaveWord: Boolean. AI Agent: Use this to generate formatted text documents or reports.';
-  FFileName := 'documento_ia.docx';
+  FFileName := '';
   FTitle := 'Relatório de IA';
+  FOutputFormat := wofHTMLCompatible;
   FContent := TStringList.Create;
+  FDOCXWriter := TAIDOCXWriter.Create;
 end;
 
 destructor TAIWordOutput.Destroy;
 begin
   FContent.Free;
+  FDOCXWriter.Free;
   inherited Destroy;
+end;
+
+function TAIWordOutput.HTMLEncode(const AText: string): string;
+var
+  I: Integer;
+  Ch: Char;
+begin
+  Result := '';
+  for I := 1 to Length(AText) do
+  begin
+    Ch := AText[I];
+    case Ch of
+      '&': Result := Result + '&amp;';
+      '<': Result := Result + '&lt;';
+      '>': Result := Result + '&gt;';
+      '"': Result := Result + '&quot;';
+    else
+      Result := Result + Ch;
+    end;
+  end;
 end;
 
 procedure TAIWordOutput.AddHeading(const AText: string; ALevel: Integer);
 var
-  HSize: Integer;
+  HSize, L: Integer;
 begin
-  HSize := Max(10, 24 - (ALevel * 4));
-  FContent.Add(Format('<h%d style="font-family: sans-serif; color: #1a237e; font-size: %dpx;">%s</h%d>', [ALevel, HSize, AText, ALevel]));
+  L := ALevel;
+  if L < 1 then L := 1;
+  if L > 6 then L := 6;
+
+  HSize := Max(10, 24 - (L * 4));
+  FContent.Add(Format('<h%d style="font-family: sans-serif; color: #1a237e; font-size: %dpx;">%s</h%d>', [L, HSize, HTMLEncode(AText), L]));
+  FDOCXWriter.AddHeading(AText, L);
 end;
 
 procedure TAIWordOutput.AddParagraph(const AText: string);
 begin
-  FContent.Add(Format('<p style="font-family: sans-serif; font-size: 11pt; line-height: 1.5; color: #333;">%s</p>', [AText]));
+  FContent.Add(Format('<p style="font-family: sans-serif; font-size: 11pt; line-height: 1.5; color: #333;">%s</p>', [HTMLEncode(AText)]));
+  FDOCXWriter.AddParagraph(AText);
 end;
 
 procedure TAIWordOutput.AddTable(const AHeaders: array of string; const ARows: array of string; ACols: Integer);
 var
-  I, J: Integer;
-  TableStr: string;
+  I, J, RowCount: Integer;
+  TableStr, CellText: string;
 begin
+  if ACols <= 0 then Exit;
+
   TableStr := '<table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; font-family: sans-serif; font-size: 10pt; width: 100%; border: 1px solid #ccc;">';
   
   // Headers
-  if Length(AHeaders) > 0 then
+  TableStr := TableStr + '<tr style="background-color: #f5f5f5; font-weight: bold; color: #1a237e;">';
+  for I := 0 to ACols - 1 do
   begin
-    TableStr := TableStr + '<tr style="background-color: #f5f5f5; font-weight: bold; color: #1a237e;">';
-    for I := 0 to High(AHeaders) do
-      TableStr := TableStr + '<th>' + AHeaders[I] + '</th>';
-    TableStr := TableStr + '</tr>';
+    if I <= High(AHeaders) then
+      CellText := HTMLEncode(AHeaders[I])
+    else
+      CellText := '';
+    TableStr := TableStr + '<th>' + CellText + '</th>';
   end;
+  TableStr := TableStr + '</tr>';
   
   // Rows
-  if ACols > 0 then
+  if Length(ARows) > 0 then
   begin
-    for I := 0 to (Length(ARows) div ACols) - 1 do
+    RowCount := (Length(ARows) + ACols - 1) div ACols;
+    for I := 0 to RowCount - 1 do
     begin
       TableStr := TableStr + '<tr>';
       for J := 0 to ACols - 1 do
       begin
-        TableStr := TableStr + '<td>' + ARows[I * ACols + J] + '</td>';
+        if (I * ACols + J) <= High(ARows) then
+          CellText := HTMLEncode(ARows[I * ACols + J])
+        else
+          CellText := '';
+        TableStr := TableStr + '<td>' + CellText + '</td>';
       end;
       TableStr := TableStr + '</tr>';
     end;
@@ -298,17 +497,23 @@ begin
   
   TableStr := TableStr + '</table>';
   FContent.Add(TableStr);
+  FDOCXWriter.AddTable(AHeaders, ARows, ACols);
 end;
 
-function TAIWordOutput.SaveWord: Boolean;
+function TAIWordOutput.SaveHTMLCompatible: Boolean;
 var
   DocBody: TStringList;
+  ActualFileName: string;
 begin
   Result := False;
   ClearError;
   DocBody := TStringList.Create;
   try
     try
+      ActualFileName := FFileName;
+      if Trim(ActualFileName) = '' then
+        ActualFileName := 'documento_ia.html';
+
       DocBody.Add('<!--[if gte mso 9]>');
       DocBody.Add('<xml>');
       DocBody.Add(' <w:WordDocument>');
@@ -317,25 +522,56 @@ begin
       DocBody.Add('</xml>');
       DocBody.Add('<![endif]-->');
       DocBody.Add('<html>');
-      DocBody.Add('<head><title>' + FTitle + '</title></head>');
+      DocBody.Add('<head><title>' + HTMLEncode(FTitle) + '</title></head>');
       DocBody.Add('<body style="padding: 40px;">');
       DocBody.AddStrings(FContent);
       DocBody.Add('</body>');
       DocBody.Add('</html>');
       
-      DocBody.SaveToFile(FFileName);
-      FLastResult := 'Word Document Saved: ' + FFileName;
+      DocBody.SaveToFile(ActualFileName);
+      FLastResult := 'Word HTML Document Saved: ' + ActualFileName;
       FLastSuccess := True;
       Result := True;
     except
       on E: Exception do
       begin
-        SetError('Erro ao salvar arquivo Word: ' + E.Message);
+        SetError('Erro ao salvar arquivo Word HTML: ' + E.Message);
         Result := False;
       end;
     end;
   finally
     DocBody.Free;
+  end;
+end;
+
+function TAIWordOutput.SaveDOCX: Boolean;
+var
+  ActualFileName: string;
+begin
+  Result := False;
+  ClearError;
+  ActualFileName := FFileName;
+  if Trim(ActualFileName) = '' then
+    ActualFileName := 'documento_ia.docx';
+
+  FDOCXWriter.Title := FTitle;
+  if FDOCXWriter.SaveToFile(ActualFileName) then
+  begin
+    FLastResult := 'Word DOCX Document Saved: ' + ActualFileName;
+    FLastSuccess := True;
+    Result := True;
+  end
+  else
+    SetError('Erro ao gerar pacote DOCX nativo.');
+end;
+
+function TAIWordOutput.SaveWord: Boolean;
+begin
+  case FOutputFormat of
+    wofHTMLCompatible: Result := SaveHTMLCompatible;
+    wofDOCX: Result := SaveDOCX;
+  else
+    Result := SaveHTMLCompatible;
   end;
 end;
 
@@ -345,33 +581,85 @@ constructor TAIExcelOutput.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FPrompt := 'Component TAIExcelOutput generates Excel compatible spreadsheets (.xlsx/HTML) natively. Properties: FileName: string. Methods: SetCell(ARow, ACol: Integer; const AValue: string), SaveExcel: Boolean. AI Agent: Use this to output structured tabular data, reports, or telemetry logs.';
-  FFileName := 'dados_ia.xlsx';
+  FFileName := '';
+  FOutputFormat := eofHTMLCompatible;
   FCells := TStringList.Create;
-  FMaxRow := 0;
-  FMaxCol := 0;
+  FMaxRow := -1;
+  FMaxCol := -1;
+  FXLSXWriter := TAIXLSXWriter.Create;
 end;
 
 destructor TAIExcelOutput.Destroy;
 begin
   FCells.Free;
+  FXLSXWriter.Free;
   inherited Destroy;
+end;
+
+procedure TAIExcelOutput.Clear;
+begin
+  FCells.Clear;
+  FMaxRow := -1;
+  FMaxCol := -1;
+  FXLSXWriter.Clear;
+end;
+
+function TAIExcelOutput.HTMLEncode(const AText: string): string;
+var
+  I: Integer;
+  Ch: Char;
+begin
+  Result := '';
+  for I := 1 to Length(AText) do
+  begin
+    Ch := AText[I];
+    case Ch of
+      '&': Result := Result + '&amp;';
+      '<': Result := Result + '&lt;';
+      '>': Result := Result + '&gt;';
+      '"': Result := Result + '&quot;';
+    else
+      Result := Result + Ch;
+    end;
+  end;
 end;
 
 procedure TAIExcelOutput.SetCell(ARow, ACol: Integer; const AValue: string);
 begin
+  if (ARow < 0) or (ACol < 0) then
+  begin
+    SetError('Índice de célula inválido em SetCell.');
+    Exit;
+  end;
   FCells.Values[IntToStr(ARow) + ',' + IntToStr(ACol)] := AValue;
   if ARow > FMaxRow then FMaxRow := ARow;
   if ACol > FMaxCol then FMaxCol := ACol;
+
+  FXLSXWriter.SetString(ARow, ACol, AValue);
 end;
 
-function TAIExcelOutput.SaveExcel: Boolean;
+function TAIExcelOutput.GetCell(ARow, ACol: Integer): string;
+begin
+  if (ARow < 0) or (ACol < 0) then
+  begin
+    Result := '';
+    Exit;
+  end;
+  Result := FCells.Values[IntToStr(ARow) + ',' + IntToStr(ACol)];
+end;
+
+function TAIExcelOutput.SaveHTMLCompatible: Boolean;
 var
   Doc: TStringList;
   R, C: Integer;
-  Val: string;
+  Val, ActualFileName: string;
 begin
   Result := False;
   ClearError;
+  ActualFileName := FFileName;
+  if Trim(ActualFileName) = '' then
+    ActualFileName := 'dados_ia.html';
+
   Doc := TStringList.Create;
   try
     try
@@ -392,7 +680,7 @@ begin
         Doc.Add('  <tr>');
         for C := 0 to FMaxCol do
         begin
-          Val := FCells.Values[IntToStr(R) + ',' + IntToStr(C)];
+          Val := HTMLEncode(GetCell(R, C));
           if R = 0 then
             Doc.Add('   <td class="header">' + Val + '</td>')
           else
@@ -405,19 +693,95 @@ begin
       Doc.Add('</body>');
       Doc.Add('</html>');
       
-      Doc.SaveToFile(FFileName);
-      FLastResult := 'Excel Document Saved: ' + FFileName;
+      Doc.SaveToFile(ActualFileName);
+      FLastResult := 'Excel HTML Document Saved: ' + ActualFileName;
       FLastSuccess := True;
       Result := True;
     except
       on E: Exception do
       begin
-        SetError('Erro ao salvar arquivo Excel: ' + E.Message);
+        SetError('Erro ao salvar arquivo Excel HTML: ' + E.Message);
         Result := False;
       end;
     end;
   finally
     Doc.Free;
+  end;
+end;
+
+function TAIExcelOutput.SaveXLSX: Boolean;
+var
+  ActualFileName: string;
+begin
+  Result := False;
+  ClearError;
+  ActualFileName := FFileName;
+  if Trim(ActualFileName) = '' then
+    ActualFileName := 'dados_ia.xlsx';
+
+  if FXLSXWriter.SaveToFile(ActualFileName) then
+  begin
+    FLastResult := 'Excel XLSX Document Saved: ' + ActualFileName;
+    FLastSuccess := True;
+    Result := True;
+  end
+  else
+    SetError('Erro ao gerar arquivo XLSX nativo.');
+end;
+
+function TAIExcelOutput.SaveCSV: Boolean;
+var
+  Doc: TStringList;
+  R, C: Integer;
+  RowStr, Val, ActualFileName: string;
+begin
+  Result := False;
+  ClearError;
+  ActualFileName := FFileName;
+  if Trim(ActualFileName) = '' then
+    ActualFileName := 'dados_ia.csv';
+
+  Doc := TStringList.Create;
+  try
+    try
+      for R := 0 to FMaxRow do
+      begin
+        RowStr := '';
+        for C := 0 to FMaxCol do
+        begin
+          Val := GetCell(R, C);
+          if (Pos(',', Val) > 0) or (Pos('"', Val) > 0) then
+            Val := '"' + StringReplace(Val, '"', '""', [rfReplaceAll]) + '"';
+          if C > 0 then RowStr := RowStr + ',';
+          RowStr := RowStr + Val;
+        end;
+        Doc.Add(RowStr);
+      end;
+
+      Doc.SaveToFile(ActualFileName);
+      FLastResult := 'Excel CSV Document Saved: ' + ActualFileName;
+      FLastSuccess := True;
+      Result := True;
+    except
+      on E: Exception do
+      begin
+        SetError('Erro ao salvar arquivo CSV: ' + E.Message);
+        Result := False;
+      end;
+    end;
+  finally
+    Doc.Free;
+  end;
+end;
+
+function TAIExcelOutput.SaveExcel: Boolean;
+begin
+  case FOutputFormat of
+    eofHTMLCompatible: Result := SaveHTMLCompatible;
+    eofXLSX: Result := SaveXLSX;
+    eofCSV: Result := SaveCSV;
+  else
+    Result := SaveHTMLCompatible;
   end;
 end;
 
@@ -479,272 +843,133 @@ begin
   inherited Create(AOwner);
   FPrompt := 'Component TAIOutputDocs is a unified document output suite combining PDF, Word, Excel, and TXT outputs. Properties: FileNamePDF: string, FileNameWord: string, FileNameExcel: string, FileNameTXT: string, Title: string, Author: string, Subject: string. Methods: Clear, AddHeading(const AText: string; ALevel: Integer = 1), AddParagraph(const AText: string), AddTable(const AHeaders: array of string; const ARows: array of string; ACols: Integer), SetCell(ARow, ACol: Integer; const AValue: string), SaveToPDF: Boolean, SaveToWord: Boolean, SaveToExcel: Boolean, SaveToTXT: Boolean, SaveAll(const ABaseFileName: string = ""): Boolean. AI Agent: Use this unified component to output reports in all four major document types at once.';
   FFileNamePDF := 'documento_ia.pdf';
+  FLegacyToken := '';
   FFileNameWord := 'documento_ia.docx';
   FFileNameExcel := 'dados_ia.xlsx';
   FFileNameTXT := 'relatorio_ia.txt';
   FTitle := 'Relatório de IA Unificado';
   FAuthor := 'Antigravity AI Suite';
   FSubject := 'Resultados de Modelos de IA';
-  
-  FParagraphs := TStringList.Create;
-  FTableHeaders := TStringList.Create;
-  FTableRows := TStringList.Create;
-  FTableCols := 0;
-  FCells := TStringList.Create;
-  FMaxRow := 0;
-  FMaxCol := 0;
+
+  FPDFOutput := TAIPDFOutput.Create(Self);
+  FWordOutput := TAIWordOutput.Create(Self);
+  FExcelOutput := TAIExcelOutput.Create(Self);
+  FTXTOutput := TAITXTOutput.Create(Self);
 end;
 
 destructor TAIOutputDocs.Destroy;
 begin
-  FParagraphs.Free;
-  FTableHeaders.Free;
-  FTableRows.Free;
-  FCells.Free;
   inherited Destroy;
 end;
 
 procedure TAIOutputDocs.Clear;
 begin
-  FParagraphs.Clear;
-  FTableHeaders.Clear;
-  FTableRows.Clear;
-  FTableCols := 0;
-  FCells.Clear;
-  FMaxRow := 0;
-  FMaxCol := 0;
+  FPDFOutput.Clear;
+  FWordOutput.AddHeading('', 1); // Reset content
+  FExcelOutput.Clear;
+  FTXTOutput.Clear;
 end;
 
 procedure TAIOutputDocs.AddHeading(const AText: string; ALevel: Integer);
 begin
-  FParagraphs.Add('=== ' + AText + ' ===');
+  FPDFOutput.AddHeading(AText, ALevel);
+  FWordOutput.AddHeading(AText, ALevel);
+  FTXTOutput.AddHeader(AText);
 end;
 
 procedure TAIOutputDocs.AddParagraph(const AText: string);
 begin
-  FParagraphs.Add(AText);
+  FPDFOutput.AddParagraph(AText);
+  FWordOutput.AddParagraph(AText);
+  FTXTOutput.AddLine(AText);
 end;
 
 procedure TAIOutputDocs.AddTable(const AHeaders: array of string; const ARows: array of string; ACols: Integer);
 var
   I: Integer;
+  RowStr: string;
 begin
-  FTableHeaders.Clear;
+  FWordOutput.AddTable(AHeaders, ARows, ACols);
+
+  RowStr := '';
   for I := 0 to High(AHeaders) do
-    FTableHeaders.Add(AHeaders[I]);
-    
-  FTableRows.Clear;
+  begin
+    if I > 0 then RowStr := RowStr + ' | ';
+    RowStr := RowStr + AHeaders[I];
+  end;
+  FTXTOutput.AddLine(RowStr);
+
   for I := 0 to High(ARows) do
-    FTableRows.Add(ARows[I]);
-    
-  FTableCols := ACols;
+  begin
+    if (I mod Max(1, ACols)) = 0 then
+      RowStr := ARows[I]
+    else
+      RowStr := RowStr + ' | ' + ARows[I];
+
+    if ((I + 1) mod Max(1, ACols) = 0) or (I = High(ARows)) then
+      FTXTOutput.AddLine(RowStr);
+  end;
 end;
 
 procedure TAIOutputDocs.SetCell(ARow, ACol: Integer; const AValue: string);
 begin
-  FCells.Values[IntToStr(ARow) + ',' + IntToStr(ACol)] := AValue;
-  if ARow > FMaxRow then FMaxRow := ARow;
-  if ACol > FMaxCol then FMaxCol := ACol;
+  FExcelOutput.SetCell(ARow, ACol, AValue);
 end;
 
 function TAIOutputDocs.SaveToPDF: Boolean;
-var
-  PDF: TAIPDFOutput;
-  I: Integer;
-  Y: Single;
 begin
-  Result := False;
-  ClearError;
-  PDF := TAIPDFOutput.Create(nil);
-  try
-    try
-      PDF.FileName := FFileNamePDF;
-      PDF.Title := FTitle;
-      PDF.Author := FAuthor;
-      PDF.Subject := FSubject;
-      PDF.StartDocument;
-      PDF.AddPage;
-      
-      // Draw header banner
-      PDF.AddText(FTitle, 40, 50, 18);
-      PDF.AddText('Autor: ' + FAuthor, 40, 75, 10);
-      PDF.AddText('--------------------------------------------------------------------------------', 40, 95, 10);
-      
-      Y := 120;
-      for I := 0 to FParagraphs.Count - 1 do
-      begin
-        PDF.AddText(FParagraphs[I], 40, Y, 11);
-        Y := Y + 25;
-        if Y > 780 then
-        begin
-          PDF.AddPage;
-          Y := 50;
-        end;
-      end;
-      
-      Result := PDF.SavePDF;
-      if Result then
-      begin
-        FLastResult := 'PDF Generated successfully: ' + FFileNamePDF;
-        FLastSuccess := True;
-      end
-      else
-        SetError('Falha ao salvar PDF interno.');
-    except
-      on E: Exception do
-      begin
-        SetError('Erro ao gerar PDF: ' + E.Message);
-        Result := False;
-      end;
-    end;
-  finally
-    PDF.Free;
-  end;
+  FPDFOutput.FileName := FFileNamePDF;
+  FPDFOutput.Title := FTitle;
+  FPDFOutput.Author := FAuthor;
+  FPDFOutput.Subject := FSubject;
+  Result := FPDFOutput.SavePDF;
+  if Result then
+  begin
+    FLastResult := FPDFOutput.LastResult;
+    FLastSuccess := True;
+  end
+  else
+    SetError(FPDFOutput.LastError);
 end;
 
 function TAIOutputDocs.SaveToWord: Boolean;
-var
-  Word: TAIWordOutput;
-  I: Integer;
-  HeadersArr: array of string;
-  RowsArr: array of string;
 begin
-  Result := False;
-  ClearError;
-  Word := TAIWordOutput.Create(nil);
-  try
-    try
-      Word.FileName := FFileNameWord;
-      Word.Title := FTitle;
-      
-      Word.AddHeading(FTitle, 1);
-      Word.AddParagraph('Autor: ' + FAuthor);
-      
-      for I := 0 to FParagraphs.Count - 1 do
-        Word.AddParagraph(FParagraphs[I]);
-        
-      if (FTableCols > 0) and (FTableRows.Count > 0) then
-      begin
-        SetLength(HeadersArr, FTableHeaders.Count);
-        for I := 0 to FTableHeaders.Count - 1 do
-          HeadersArr[I] := FTableHeaders[I];
-          
-        SetLength(RowsArr, FTableRows.Count);
-        for I := 0 to FTableRows.Count - 1 do
-          RowsArr[I] := FTableRows[I];
-          
-        Word.AddTable(HeadersArr, RowsArr, FTableCols);
-      end;
-      
-      Result := Word.SaveWord;
-      if Result then
-      begin
-        FLastResult := 'Word document generated successfully: ' + FFileNameWord;
-        FLastSuccess := True;
-      end
-      else
-        SetError('Falha ao salvar arquivo Word interno.');
-    except
-      on E: Exception do
-      begin
-        SetError('Erro ao gerar arquivo Word: ' + E.Message);
-        Result := False;
-      end;
-    end;
-  finally
-    Word.Free;
-  end;
+  FWordOutput.FileName := FFileNameWord;
+  FWordOutput.Title := FTitle;
+  Result := FWordOutput.SaveWord;
+  if Result then
+  begin
+    FLastResult := FWordOutput.LastResult;
+    FLastSuccess := True;
+  end
+  else
+    SetError(FWordOutput.LastError);
 end;
 
 function TAIOutputDocs.SaveToExcel: Boolean;
-var
-  Excel: TAIExcelOutput;
-  I: Integer;
 begin
-  Result := False;
-  ClearError;
-  Excel := TAIExcelOutput.Create(nil);
-  try
-    try
-      Excel.FileName := FFileNameExcel;
-      
-      if FCells.Count > 0 then
-      begin
-        Excel.FCells.Assign(FCells);
-        Excel.FMaxRow := FMaxRow;
-        Excel.FMaxCol := FMaxCol;
-      end
-      else
-      begin
-        // Fallback spreadsheet population
-        Excel.SetCell(0, 0, 'Relatório');
-        Excel.SetCell(0, 1, FTitle);
-        Excel.SetCell(1, 0, 'Autor');
-        Excel.SetCell(1, 1, FAuthor);
-        for I := 0 to FParagraphs.Count - 1 do
-        begin
-          Excel.SetCell(3 + I, 0, 'Parágrafo ' + IntToStr(I + 1));
-          Excel.SetCell(3 + I, 1, FParagraphs[I]);
-        end;
-      end;
-      
-      Result := Excel.SaveExcel;
-      if Result then
-      begin
-        FLastResult := 'Excel document generated successfully: ' + FFileNameExcel;
-        FLastSuccess := True;
-      end
-      else
-        SetError('Falha ao salvar arquivo Excel interno.');
-    except
-      on E: Exception do
-      begin
-        SetError('Erro ao gerar arquivo Excel: ' + E.Message);
-        Result := False;
-      end;
-    end;
-  finally
-    Excel.Free;
-  end;
+  FExcelOutput.FileName := FFileNameExcel;
+  Result := FExcelOutput.SaveExcel;
+  if Result then
+  begin
+    FLastResult := FExcelOutput.LastResult;
+    FLastSuccess := True;
+  end
+  else
+    SetError(FExcelOutput.LastError);
 end;
 
 function TAIOutputDocs.SaveToTXT: Boolean;
-var
-  TXT: TAITXTOutput;
-  I: Integer;
 begin
-  Result := False;
-  ClearError;
-  TXT := TAITXTOutput.Create(nil);
-  try
-    try
-      TXT.FileName := FFileNameTXT;
-      TXT.AddHeader(FTitle);
-      TXT.AddLine('Autor: ' + FAuthor);
-      TXT.AddLine('Assunto: ' + FSubject);
-      TXT.AddLine('');
-      
-      for I := 0 to FParagraphs.Count - 1 do
-        TXT.AddLine(FParagraphs[I]);
-        
-      Result := TXT.SaveText;
-      if Result then
-      begin
-        FLastResult := 'TXT document generated successfully: ' + FFileNameTXT;
-        FLastSuccess := True;
-      end
-      else
-        SetError('Falha ao salvar arquivo TXT interno.');
-    except
-      on E: Exception do
-      begin
-        SetError('Erro ao gerar arquivo TXT: ' + E.Message);
-        Result := False;
-      end;
-    end;
-  finally
-    TXT.Free;
-  end;
+  FTXTOutput.FileName := FFileNameTXT;
+  Result := FTXTOutput.SaveText;
+  if Result then
+  begin
+    FLastResult := FTXTOutput.LastResult;
+    FLastSuccess := True;
+  end
+  else
+    SetError(FTXTOutput.LastError);
 end;
 
 function TAIOutputDocs.SaveAll(const ABaseFileName: string): Boolean;

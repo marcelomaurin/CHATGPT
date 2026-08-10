@@ -1,0 +1,105 @@
+object frmDocRAGDemo: TfrmDocRAGDemo
+  Left = 320
+  Height = 600
+  Top = 180
+  Width = 800
+  Caption = 'AI Document RAG Demo'
+  ClientHeight = 600
+  ClientWidth = 800
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '3.0.0.3'
+  object pnlTop: TPanel
+    Left = 0
+    Height = 130
+    Top = 0
+    Width = 800
+    Align = alTop
+    ClientHeight = 130
+    ClientWidth = 800
+    TabOrder = 0
+    object lblTitle: TLabel
+      Left = 16
+      Height = 22
+      Top = 10
+      Width = 370
+      Caption = 'Integração de Documentos (PDF/DOCX/XLSX) + RAG'
+      Font.Height = -16
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object lblFile: TLabel
+      Left = 16
+      Height = 15
+      Top = 48
+      Width = 55
+      Caption = 'Documento:'
+      ParentColor = False
+    end
+    object edtFileName: TEdit
+      Left = 78
+      Height = 23
+      Top = 44
+      Width = 440
+      TabOrder = 0
+    end
+    object btnBrowse: TButton
+      Left = 525
+      Height = 25
+      Top = 43
+      Width = 85
+      Caption = 'Procurar...'
+      OnClick = btnBrowseClick
+      TabOrder = 1
+    end
+    object btnAddRAG: TButton
+      Left = 616
+      Height = 25
+      Top = 43
+      Width = 110
+      Caption = 'Adicionar ao RAG'
+      OnClick = btnAddRAGClick
+      TabOrder = 2
+    end
+    object lblQuestion: TLabel
+      Left = 16
+      Height = 15
+      Top = 88
+      Width = 51
+      Caption = 'Pergunta:'
+      ParentColor = False
+    end
+    object edtQuestion: TEdit
+      Left = 78
+      Height = 23
+      Top = 84
+      Width = 532
+      TabOrder = 3
+    end
+    object btnAsk: TButton
+      Left = 616
+      Height = 25
+      Top = 83
+      Width = 110
+      Caption = 'Perguntar'
+      OnClick = btnAskClick
+      TabOrder = 4
+    end
+  end
+  object memoLog: TMemo
+    Left = 0
+    Height = 470
+    Top = 130
+    Width = 800
+    Align = alClient
+    ScrollBars = ssAutoBoth
+    TabOrder = 1
+  end
+  object openDlg: TOpenDialog
+    Title = 'Selecionar Documento para RAG'
+    Filter = 'Todos os Documentos (*.pdf;*.docx;*.xlsx;*.txt)|*.pdf;*.docx;*.xlsx;*.txt|Arquivos PDF (*.pdf)|*.pdf|Arquivos DOCX (*.docx)|*.docx|Arquivos XLSX (*.xlsx)|*.xlsx|Arquivos Texto (*.txt)|*.txt'
+    Left = 730
+    Top = 140
+  end
+end

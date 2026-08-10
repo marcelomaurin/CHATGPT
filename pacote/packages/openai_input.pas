@@ -8,11 +8,12 @@ unit openai_input;
 interface
 
 uses
-  aiinput, aiaudio, aicapturesource, aiwebserver, aisockets, aiserial, 
-  ailistserialdevices, aiserialfingerprint, aiemail, aimessenger, 
-  aichromiumbrowser, aiusb, aiusb_register, aikinect_types, aikinect_backend, 
-  aikinect_freenect, aikinect_sdk10, aikinectsensor, aikinectcolor, 
-  aikinectdepth, aikinectskeleton, aikinectaudio, LazarusPackageIntf;
+  aiinput, aidocumentreader, aipdfinput, aidocxinput, aiexcelinput, aiaudio, 
+  aicapturesource, aiwebserver, aisockets, aiserial, ailistserialdevices, 
+  aiserialfingerprint, aiemail, aimessenger, aichromiumbrowser, aiusb, 
+  aiusb_register, aikinect_types, aikinect_backend, aikinect_freenect, 
+  aikinect_sdk10, aikinectsensor, aikinectcolor, aikinectdepth, 
+  aikinectskeleton, aikinectaudio, LazarusPackageIntf;
 
 implementation
 

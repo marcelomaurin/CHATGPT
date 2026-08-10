@@ -157,13 +157,23 @@ Use esta classificação para documentação, README de abas, samples e planejam
 | Componente | Unit | Pacote | Status | Observação |
 |---|---|---|---|---|
 | `TAIOutputData` | `aioutput.pas` | `openai_output` | Beta | Saída estruturada |
-| `TAIOutputDocs` | `aioutput_docs.pas` | `openai_output` | Beta | Documentos; revisar formatos reais gerados |
-| `TAIPDFOutput` | `aioutput_docs.pas` | `openai_output` | Beta | PDF via FPC/fpPDF |
-| `TAIWordOutput` | `aioutput_docs.pas` | `openai_output` | Beta/Compatível | Gera HTML compatível salvo como arquivo Word; não é DOCX nativo |
-| `TAIExcelOutput` | `aioutput_docs.pas` | `openai_output` | Beta/Compatível | Gera HTML compatível salvo como arquivo Excel; não é XLSX nativo |
-| `TAITXTOutput` | `aioutput_docs.pas` | `openai_output` | Stable/Beta | Saída texto simples |
+| `TAIOutputDocs` | `aioutput_docs.pas` | `openai_output` | Beta | Suíte unificada de documentos (PDF, DOCX nativo/HTML, XLSX nativo/HTML, TXT) |
+| `TAIPDFOutput` | `aioutput_docs.pas` | `openai_output` | Beta | PDF nativo via FPC/fpPDF |
+| `TAIWordOutput` | `aioutput_docs.pas` | `openai_output` | Beta | Suporta DOCX nativo OpenXML (wofDOCX) e modo compatível HTML (wofHTMLCompatible) |
+| `TAIExcelOutput` | `aioutput_docs.pas` | `openai_output` | Beta | Suporta XLSX nativo OpenXML (eofXLSX), CSV (eofCSV) e modo compatível HTML (eofHTMLCompatible) |
+| `TAITXTOutput` | `aioutput_docs.pas` | `openai_output` | Stable | Saída texto simples |
 
 ---
+
+## Input / Document Readers
+
+| Componente | Unit | Pacote | Status | Observação |
+|---|---|---|---|---|
+| `TAIDocumentInput` | `aidocumentreader.pas` | `openai_input` | Stable | Componente base genérico de leitura de documentos |
+| `TAIPDFInput` | `aipdfinput.pas` | `openai_input` | Beta | Extração de texto de PDF textual via engine `pdftotext` |
+| `TAIDOCXInput` | `aidocxinput.pas` | `openai_input` | Beta | Leitor nativo de documentos OpenXML `.docx` via DOM/ZIP |
+| `TAIExcelInput` | `aiexcelinput.pas` | `openai_input` | Beta | Leitor nativo de planilhas OpenXML `.xlsx` via DOM/ZIP |
+| `TAIDocumentExtractorRegistry` | `aidocumentextractor.pas` | `openai_rag` | Beta | Registro automático de extratores de texto para integração com `TAIRAG` |
 
 ## Agent
 

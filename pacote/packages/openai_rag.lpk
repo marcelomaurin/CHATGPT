@@ -9,7 +9,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\AI RAG;..\AI;..\AI Schedule;.."/>
+        <OtherUnitFiles Value="..\AI RAG;..\AI Input;..\AI;..\AI Schedule;.."/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
@@ -25,6 +25,10 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="airag"/>
       </Item>
+      <Item>
+        <Filename Value="..\AI RAG\aidocumentextractor.pas"/>
+        <UnitName Value="aidocumentextractor"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>
@@ -38,6 +42,9 @@
       </Item>
       <Item>
         <PackageName Value="openai_graph"/>
+      </Item>
+      <Item>
+        <PackageName Value="openai_input"/>
       </Item>
     </RequiredPkgs>
     <UsageOptions>

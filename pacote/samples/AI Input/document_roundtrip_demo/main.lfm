@@ -1,0 +1,95 @@
+object frmRoundtripDemo: TfrmRoundtripDemo
+  Left = 320
+  Height = 550
+  Top = 180
+  Width = 780
+  Caption = 'Document Round-Trip Demo'
+  ClientHeight = 550
+  ClientWidth = 780
+  OnCreate = FormCreate
+  LCLVersion = '3.0.0.3'
+  object pnlTop: TPanel
+    Left = 0
+    Height = 80
+    Top = 0
+    Width = 780
+    Align = alTop
+    ClientHeight = 80
+    ClientWidth = 780
+    TabOrder = 0
+    object lblTitle: TLabel
+      Left = 16
+      Height = 22
+      Top = 10
+      Width = 330
+      Caption = 'Demonstração de Round-Trip de Documentos'
+      Font.Height = -16
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+    end
+    object btnCreateDOCX: TButton
+      Left = 16
+      Height = 25
+      Top = 42
+      Width = 105
+      Caption = 'Criar DOCX'
+      OnClick = btnCreateDOCXClick
+      TabOrder = 0
+    end
+    object btnReadDOCX: TButton
+      Left = 128
+      Height = 25
+      Top = 42
+      Width = 105
+      Caption = 'Ler DOCX'
+      OnClick = btnReadDOCXClick
+      TabOrder = 1
+    end
+    object btnCreateXLSX: TButton
+      Left = 250
+      Height = 25
+      Top = 42
+      Width = 105
+      Caption = 'Criar XLSX'
+      OnClick = btnCreateXLSXClick
+      TabOrder = 2
+    end
+    object btnReadXLSX: TButton
+      Left = 362
+      Height = 25
+      Top = 42
+      Width = 105
+      Caption = 'Ler XLSX'
+      OnClick = btnReadXLSXClick
+      TabOrder = 3
+    end
+    object btnCreatePDF: TButton
+      Left = 484
+      Height = 25
+      Top = 42
+      Width = 105
+      Caption = 'Criar PDF'
+      OnClick = btnCreatePDFClick
+      TabOrder = 4
+    end
+    object btnReadPDF: TButton
+      Left = 596
+      Height = 25
+      Top = 42
+      Width = 105
+      Caption = 'Ler PDF'
+      OnClick = btnReadPDFClick
+      TabOrder = 5
+    end
+  end
+  object memoLog: TMemo
+    Left = 0
+    Height = 470
+    Top = 80
+    Width = 780
+    Align = alClient
+    ScrollBars = ssAutoBoth
+    TabOrder = 1
+  end
+end

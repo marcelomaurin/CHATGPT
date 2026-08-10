@@ -44,3 +44,11 @@ Em caso de erro de inicialização do sensor, confirme:
 - se o SDK correto está instalado;
 - se não há driver alternativo de Kinect conflitando com o driver da Microsoft;
 - se a arquitetura do aplicativo e das bibliotecas instaladas está compatível com o Windows usado.
+
+## Demos de Entrada e Leitura de Documentos (PDF, DOCX, XLSX, TXT)
+
+Disponíveis em `pacote/samples/AI Input/`:
+
+- **`document_input_demo`**: Seleção e extração de texto/metadados de documentos.
+- **`document_roundtrip_demo`**: Teste de ciclo de vida (criação e leitura de DOCX, XLSX e PDF).
+- **`document_rag_demo`**: Ingestão automática de documentos em formato nativo no `TAIRAG`.
