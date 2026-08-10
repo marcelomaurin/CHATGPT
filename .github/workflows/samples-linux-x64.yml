@@ -46,16 +46,21 @@ jobs:
           set -e
           git clone --depth=1 https://github.com/frones/ZeosLib.git "$RUNNER_TEMP/ZeosLib"
           Z="$RUNNER_TEMP/ZeosLib/packages/lazarus"
-          for P in zcore zparsesql zplain zdbc zcomponent; do
-            [[ -f "$Z/$P.lpk" ]] && lazbuild --add-package "$Z/$P.lpk"
+          for P in zcore zparsesql zplain zdbc; do
+            if [[ -f "$Z/$P.lpk" ]]; then
+              echo "Linking Zeos runtime package: $P"
+              lazbuild --add-package-link "$Z/$P.lpk"
+            fi
           done
-          lazbuild "$Z/zcomponent.lpk"
+          lazbuild --add-package "$Z/zcomponent.lpk"
+          lazbuild --build-all "$Z/zcomponent.lpk"
 
       - name: Install GLScene/LZScene
         run: |
           set -e
           git clone --depth=1 https://github.com/glscene/LZScene.git "$RUNNER_TEMP/LZScene"
-          lazbuild --add-package "$RUNNER_TEMP/LZScene/Packages/GLScene_RunTime.lpk"
+          lazbuild --add-package-link "$RUNNER_TEMP/LZScene/Packages/GLScene_RunTime.lpk"
+          lazbuild --build-all "$RUNNER_TEMP/LZScene/Packages/GLScene_RunTime.lpk"
           lazbuild --add-package "$RUNNER_TEMP/LZScene/Packages/GLScene_DesignTime.lpk"
 
       - name: Install CEF4Delphi Lazarus package
