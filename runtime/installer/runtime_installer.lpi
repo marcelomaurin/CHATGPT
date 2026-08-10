@@ -9,9 +9,19 @@
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
     </General>
-    <BuildModes Count="2" Active="Release64">
-      <Item1 Name="Release64"><CompilerOptions><Version Value="11"/><Target><Filename Value="RuntimeInstaller_64"/></Target><SearchPaths><UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/></SearchPaths><CodeGeneration><TargetCPU Value="x86_64"/><TargetOS Value="win64"/><Optimizations><OptimizationLevel Value="3"/></Optimizations></CodeGeneration><Linking><Options><Win32><GraphicApplication Value="True"/></Win32></Options></Linking></CompilerOptions></Item1>
-      <Item2 Name="Release32"><CompilerOptions><Version Value="11"/><Target><Filename Value="RuntimeInstaller_32"/></Target><SearchPaths><UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/></SearchPaths><CodeGeneration><TargetCPU Value="i386"/><TargetOS Value="win32"/><Optimizations><OptimizationLevel Value="3"/></Optimizations></CodeGeneration><Linking><Options><Win32><GraphicApplication Value="True"/></Win32></Options></Linking></CompilerOptions></Item2>
+    <BuildModes Count="4" Active="Release64">
+      <Item1 Name="Release64">
+        <CompilerOptions><Version Value="11"/><Target><Filename Value="RuntimeInstaller_64"/></Target><SearchPaths><UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/></SearchPaths><CodeGeneration><TargetCPU Value="x86_64"/><TargetOS Value="win64"/><Optimizations><OptimizationLevel Value="3"/></Optimizations></CodeGeneration><Linking><Options><Win32><GraphicApplication Value="True"/></Win32></Options></Linking></CompilerOptions>
+      </Item1>
+      <Item2 Name="Release32">
+        <CompilerOptions><Version Value="11"/><Target><Filename Value="RuntimeInstaller_32"/></Target><SearchPaths><UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/></SearchPaths><CodeGeneration><TargetCPU Value="i386"/><TargetOS Value="win32"/><Optimizations><OptimizationLevel Value="3"/></Optimizations></CodeGeneration><Linking><Options><Win32><GraphicApplication Value="True"/></Win32></Options></Linking></CompilerOptions>
+      </Item2>
+      <Item3 Name="LinuxARM64">
+        <CompilerOptions><Version Value="11"/><Target><Filename Value="RuntimeInstaller_arm64"/></Target><SearchPaths><UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/></SearchPaths><CodeGeneration><TargetCPU Value="aarch64"/><TargetOS Value="linux"/><Optimizations><OptimizationLevel Value="3"/></Optimizations></CodeGeneration></CompilerOptions>
+      </Item3>
+      <Item4 Name="LinuxARMHF">
+        <CompilerOptions><Version Value="11"/><Target><Filename Value="RuntimeInstaller_armhf"/></Target><SearchPaths><UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/></SearchPaths><CodeGeneration><TargetCPU Value="arm"/><TargetOS Value="linux"/><Optimizations><OptimizationLevel Value="2"/></Optimizations></CodeGeneration></CompilerOptions>
+      </Item4>
     </BuildModes>
     <Units Count="3">
       <Unit0><Filename Value="runtime_installer.lpr"/><IsPartOfProject Value="True"/></Unit0>
