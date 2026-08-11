@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="5">
+    <PathDelim Value="\"/>
+    <Name Value="openai_a2a"/>
+    <Type Value="RunAndDesignTime"/>
+    <Author Value="Marcelo Maurin Martins"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <PathDelim Value="\"/>
+      <SearchPaths>
+        <OtherUnitFiles Value="..\AI A2A;..\AI"/>
+        <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+      </SearchPaths>
+    </CompilerOptions>
+    <Description Value="Lazarus AI Suite: Agent2Agent (A2A) protocol components for Free Pascal."/>
+    <License Value="OPEN SOURCE GPL3"/>
+    <Files>
+      <Item>
+        <Filename Value="..\AI A2A\aia2a.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aia2a"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI A2A\aia2aserver.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aia2aserver"/>
+      </Item>
+    </Files>
+    <RequiredPkgs>
+      <Item><PackageName Value="LCL"/></Item>
+      <Item><PackageName Value="FCL"/></Item>
+      <Item><PackageName Value="openai_core"/></Item>
+      <Item><PackageName Value="openai_agent"/></Item>
+      <Item><PackageName Value="openai_input"/></Item>
+    </RequiredPkgs>
+    <UsageOptions><UnitPath Value="$(PkgOutDir)"/></UsageOptions>
+    <PublishOptions><Version Value="2"/><UseFileFilters Value="True"/></PublishOptions>
+  </Package>
+</CONFIG>

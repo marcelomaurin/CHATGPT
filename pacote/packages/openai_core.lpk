@@ -41,6 +41,20 @@
         <UnitName Value="aillmmodelcatalog"/>
       </Item>
       <Item>
+        <Filename Value="..\AI\aicapabilities.pas"/>
+        <UnitName Value="aicapabilities"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI\aimodelrouter.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aimodelrouter"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI\aiunifiedllm.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiunifiedllm"/>
+      </Item>
+      <Item>
         <Filename Value="..\AI\aiplatform.pas"/>
         <UnitName Value="aiplatform"/>
       </Item>

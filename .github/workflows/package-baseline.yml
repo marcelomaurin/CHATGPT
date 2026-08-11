@@ -50,7 +50,7 @@ jobs:
           & $lazbuildPath --add-package-link=zeosdbo/packages/lazarus/zcomponent.lpk
           & $lazbuildPath --add-package-link=cef4delphi/packages/cef4delphi_lazarus.lpk
 
-      - name: Compile every tracked package
+      - name: Compile tracked Lazarus packages
         id: baseline
         shell: pwsh
         run: |
@@ -64,13 +64,12 @@ jobs:
           if ($lazbuildCmd) {
             $lazbuildPath = $lazbuildCmd.Source
           } elseif ($env:RUNNER_OS -eq 'Windows') {
-            $candidate = Get-ChildItem -Path 'C:\lazarus*' -Filter lazbuild.exe -File -Recurse -ErrorAction SilentlyContinue |
-              Select-Object -First 1
+            $candidate = Get-ChildItem -Path 'C:\lazarus*' -Filter lazbuild.exe -File -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
             if ($candidate) { $lazbuildPath = $candidate.FullName }
           }
           if (-not $lazbuildPath) { throw 'lazbuild was not found after installing Lazarus.' }
 
-          # C7.4: Ordem topológica de dependências do grafo
+          # Dependency order for the Lazarus/Free Pascal package graph.
           $orderedPackages = @(
             'openai_core.lpk',
             'openai_aidbase.lpk',
@@ -87,7 +86,12 @@ jobs:
             'openai_voice.lpk',
             'openai_agent.lpk',
             'openai_project.lpk',
-            'openai_graph.lpk'
+            'openai_graph.lpk',
+            'openai_rag.lpk',
+            'openai_mcp.lpk',
+            'openai_a2a.lpk',
+            'openai_evaluation.lpk',
+            'openai_observability.lpk'
           )
 
           $rows = [System.Collections.Generic.List[string]]::new()
@@ -107,7 +111,7 @@ jobs:
           }
 
           $rows | Set-Content -LiteralPath (Join-Path $resultDir "$env:RUNNER_OS.tsv") -Encoding utf8
-          if ($rows.Count -ne 16) { throw "Expected 16 packages, measured $($rows.Count)." }
+          if ($rows.Count -ne 21) { throw "Expected 21 packages, measured $($rows.Count)." }
 
       - name: Upload raw baseline
         if: always()
@@ -117,7 +121,7 @@ jobs:
           path: baseline-results/
 
   consolidate:
-    name: Consolidate 16 x 2 baseline
+    name: Consolidate 21 x 2 baseline
     if: always()
     needs: measure
     runs-on: ubuntu-latest
@@ -152,10 +156,10 @@ jobs:
             $out.Add("| ``$($row.Package)`` | $($row.OS) | $($row.Status) | $message |")
           }
           $out.Add('')
-          $out.Add("Measured results: $($rows.Count) (expected: 32).")
+          $out.Add("Measured results: $($rows.Count) (expected: 42).")
           New-Item -ItemType Directory -Force -Path DOC | Out-Null
           $out | Set-Content -LiteralPath 'DOC/FGX_STABILIZATION_BASELINE.md' -Encoding utf8
-          if ($rows.Count -ne 32) { throw "Expected 32 results, consolidated $($rows.Count)." }
+          if ($rows.Count -ne 42) { throw "Expected 42 results, consolidated $($rows.Count)." }
 
       - name: Publish consolidated baseline
         if: always()
