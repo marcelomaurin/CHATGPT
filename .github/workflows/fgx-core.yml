@@ -27,15 +27,12 @@ jobs:
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y fpc
 
-      - name: Instalar Free Pascal (Windows)
+      - name: Instalar Lazarus e Free Pascal completos (Windows)
         if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          choco install freepascal -y
-          $fpc = Get-ChildItem -Path 'C:\tools' -Recurse -Filter fpc.exe -ErrorAction SilentlyContinue | Select-Object -First 1
-          if ($null -eq $fpc) { throw 'fpc.exe não encontrado após instalação do Free Pascal.' }
-          $fpc.Directory.FullName | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          Write-Host "FPC encontrado em $($fpc.FullName)"
+        uses: gcarreno/setup-lazarus@v3.4.1
+        with:
+          lazarus-version: "4.4"
+          with-cache: false
 
       # -Sew: warning vira erro. Nada de "compila com avisos".
       - name: Compilar o nucleo
