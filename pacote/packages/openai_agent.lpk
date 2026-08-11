@@ -13,7 +13,7 @@
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Description Value="Lazarus AI Suite: Autonomous agents, planning options, executors and safety locks."/>
+    <Description Value="Lazarus AI Suite: Autonomous agents, planning options, executors, source correction actions and safety locks."/>
     <License Value="OPEN SOURCE GPL3"/>
     <Files>
       <Item><Filename Value="..\AI Agent\aiagent.pas"/><HasRegisterProc Value="True"/><UnitName Value="aiagent"/></Item>
@@ -27,6 +27,8 @@
       <Item><Filename Value="..\AI Agent\aiagent_decision.pas"/><UnitName Value="aiagent_decision"/></Item>
       <Item><Filename Value="..\AI Agent\aiagent_actionbuilder.pas"/><UnitName Value="aiagent_actionbuilder"/></Item>
       <Item><Filename Value="..\AI Agent\aiagent_actions.pas"/><UnitName Value="aiagent_actions"/></Item>
+      <Item><Filename Value="..\AI Agent\aiagent_sourceactions.pas"/><HasRegisterProc Value="True"/><UnitName Value="aiagent_sourceactions"/></Item>
+      <Item><Filename Value="..\AI Agent\aiagent_testaction.pas"/><HasRegisterProc Value="True"/><UnitName Value="aiagent_testaction"/></Item>
       <Item><Filename Value="..\AI Agent\aitools.pas"/><HasRegisterProc Value="True"/><UnitName Value="aitools"/></Item>
       <Item><Filename Value="..\AI Agent\aiagentgraph.pas"/><HasRegisterProc Value="True"/><UnitName Value="aiagentgraph"/></Item>
       <Item><Filename Value="..\AI Agent\aiguardrails.pas"/><HasRegisterProc Value="True"/><UnitName Value="aiguardrails"/></Item>
