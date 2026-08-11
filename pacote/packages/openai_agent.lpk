@@ -36,6 +36,7 @@
       <Item><Filename Value="..\AI Agent\aidevagents.pas"/><HasRegisterProc Value="True"/><UnitName Value="aidevagents"/></Item>
       <Item><Filename Value="..\AI Agent\aiserviceagents.pas"/><HasRegisterProc Value="True"/><UnitName Value="aiserviceagents"/></Item>
       <Item><Filename Value="..\AI Agent\aicommonserviceagents.pas"/><HasRegisterProc Value="True"/><UnitName Value="aicommonserviceagents"/></Item>
+      <Item><Filename Value="..\AI Agent\airosagent.pas"/><HasRegisterProc Value="True"/><UnitName Value="airosagent"/></Item>
     </Files>
     <RequiredPkgs>
       <Item><PackageName Value="GLScene_DesignTime"/></Item>
