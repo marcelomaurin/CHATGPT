@@ -36,7 +36,7 @@
       <Item><Filename Value="..\AI Agent\aicommonserviceagents.pas"/><HasRegisterProc Value="True"/><UnitName Value="aicommonserviceagents"/></Item>
       <Item><Filename Value="..\AI Agent\airosagent.pas"/><HasRegisterProc Value="True"/><UnitName Value="airosagent"/></Item>
     </Files>
-    <RequiredPkgs><Item><PackageName Value="GLScene_DesignTime"/></Item><Item><PackageName Value="openai_core"/></Item><Item><PackageName Value="openai_ml"/></Item><Item><PackageName Value="openai_input"/></Item><Item><PackageName Value="openai_output"/></Item><Item><PackageName Value="LCL"/></Item><Item><PackageName Value="FCL"/></Item></RequiredPkgs>
+    <RequiredPkgs><Item><PackageName Value="openai_core"/></Item><Item><PackageName Value="openai_ml"/></Item><Item><PackageName Value="openai_input"/></Item><Item><PackageName Value="openai_output"/></Item><Item><PackageName Value="LCL"/></Item><Item><PackageName Value="FCL"/></Item></RequiredPkgs>
     <UsageOptions><UnitPath Value="$(PkgOutDir)"/></UsageOptions><PublishOptions><Version Value="2"/><UseFileFilters Value="True"/></PublishOptions>
   </Package>
 </CONFIG>

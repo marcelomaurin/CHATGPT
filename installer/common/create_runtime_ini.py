@@ -14,6 +14,7 @@ def main() -> int:
     args = parser.parse_args()
 
     install_dir = Path(args.install_dir)
+    install_dir.mkdir(parents=True, exist_ok=True)
     config_file = install_dir / "chatgpt_ai_runtime.ini"
 
     lines = [

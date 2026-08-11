@@ -119,9 +119,6 @@
       <Item>
         <PackageName Value="zcomponent"/>
       </Item>
-      <Item>
-        <PackageName Value="TurboPowerIpro"/>
-      </Item>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>

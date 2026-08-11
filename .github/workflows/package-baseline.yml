@@ -1,4 +1,4 @@
-name: Package compilation baseline
+name: Package and installer baseline
 
 on:
   push:
@@ -6,14 +6,13 @@ on:
   workflow_dispatch:
 
 jobs:
-  measure:
-    name: Measure packages (${{ matrix.os }})
+  packages:
+    name: Installer + all packages (${{ matrix.os }})
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
-
     steps:
       - uses: actions/checkout@v4
 
@@ -21,149 +20,29 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y lazarus
+          sudo apt-get install -y lazarus libssl3
 
       - name: Install Lazarus (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: choco install lazarus -y --no-progress
 
-      - name: Instalar dependencias adicionais (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          git clone --depth 1 https://github.com/Zeoslib/Zeoslib.git zeosdbo
-          git clone --depth 1 https://github.com/salvadordf/CEF4Delphi.git cef4delphi
-          lazbuild --add-package-link=zeosdbo/packages/lazarus/zcomponent.lpk
-          lazbuild --add-package-link=cef4delphi/packages/cef4delphi_lazarus.lpk
-
-      - name: Instalar dependencias adicionais (Windows)
-        if: runner.os == 'Windows'
+      - name: Validate manifest and compile every package
         shell: pwsh
         run: |
-          git clone --depth 1 https://github.com/Zeoslib/Zeoslib.git zeosdbo
-          git clone --depth 1 https://github.com/salvadordf/CEF4Delphi.git cef4delphi
-          $lazbuildPath = 'lazbuild'
-          if (-not (Get-Command lazbuild -ErrorAction SilentlyContinue)) {
-            $candidate = Get-ChildItem -Path 'C:\lazarus*' -Filter lazbuild.exe -File -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
-            if ($candidate) { $lazbuildPath = $candidate.FullName }
-          }
-          & $lazbuildPath --add-package-link=zeosdbo/packages/lazarus/zcomponent.lpk
-          & $lazbuildPath --add-package-link=cef4delphi/packages/cef4delphi_lazarus.lpk
+          python installer/common/install_suite.py ci --profile all
 
-      - name: Compile tracked Lazarus packages
-        id: baseline
+      - name: Validate installer scripts and manifests
         shell: pwsh
         run: |
-          $ErrorActionPreference = 'Continue'
-          $resultDir = Join-Path $PWD 'baseline-results'
-          $logDir = Join-Path $resultDir 'logs'
-          New-Item -ItemType Directory -Force -Path $logDir | Out-Null
+          python -m py_compile installer/common/install_suite.py installer/common/check_runtime.py installer/common/create_runtime_ini.py
+          python -c "import json, pathlib; json.loads(pathlib.Path('installer/dependencies.json').read_text(encoding='utf-8'))"
 
-          $lazbuildPath = ''
-          $lazbuildCmd = Get-Command lazbuild -ErrorAction SilentlyContinue
-          if ($lazbuildCmd) {
-            $lazbuildPath = $lazbuildCmd.Source
-          } elseif ($env:RUNNER_OS -eq 'Windows') {
-            $candidate = Get-ChildItem -Path 'C:\lazarus*' -Filter lazbuild.exe -File -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
-            if ($candidate) { $lazbuildPath = $candidate.FullName }
-          }
-          if (-not $lazbuildPath) { throw 'lazbuild was not found after installing Lazarus.' }
-
-          # Dependency order for the Lazarus/Free Pascal package graph.
-          $orderedPackages = @(
-            'openai_core.lpk',
-            'openai_aidbase.lpk',
-            'openai_files.lpk',
-            'openai_graphic.lpk',
-            'openai_image.lpk',
-            'openai_ml.lpk',
-            'openai_output.lpk',
-            'openai_python.lpk',
-            'openai_simulation.lpk',
-            'openai_input.lpk',
-            'openai_industrial.lpk',
-            'openai_vision.lpk',
-            'openai_voice.lpk',
-            'openai_agent.lpk',
-            'openai_project.lpk',
-            'openai_graph.lpk',
-            'openai_rag.lpk',
-            'openai_mcp.lpk',
-            'openai_a2a.lpk',
-            'openai_evaluation.lpk',
-            'openai_observability.lpk'
-          )
-
-          $rows = [System.Collections.Generic.List[string]]::new()
-          foreach ($pkgName in $orderedPackages) {
-            $package = Get-Item "pacote/packages/$pkgName"
-            $log = Join-Path $logDir ($package.BaseName + '.log')
-            & $lazbuildPath $package.FullName 2>&1 | Tee-Object -FilePath $log
-            $exitCode = $LASTEXITCODE
-            $status = if ($exitCode -eq 0) { 'PASS' } else { 'FAIL' }
-            $message = if ($exitCode -eq 0) {
-              '-'
-            } else {
-              $lastLine = Get-Content -LiteralPath $log | Where-Object { $_.Trim() } | Select-Object -Last 1
-              if ($lastLine) { ($lastLine -replace "`t", ' ' -replace "`r|`n", ' ') } else { "lazbuild exit $exitCode" }
-            }
-            $rows.Add("$($package.Name)`t$env:RUNNER_OS`t$status`t$message")
-          }
-
-          $rows | Set-Content -LiteralPath (Join-Path $resultDir "$env:RUNNER_OS.tsv") -Encoding utf8
-          if ($rows.Count -ne 21) { throw "Expected 21 packages, measured $($rows.Count)." }
-
-      - name: Upload raw baseline
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: package-baseline-${{ runner.os }}
-          path: baseline-results/
-
-  consolidate:
-    name: Consolidate 21 x 2 baseline
-    if: always()
-    needs: measure
+  package-inventory:
+    name: Package inventory guard
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/download-artifact@v4
-        with:
-          pattern: package-baseline-*
-          path: downloaded-results
-
-      - name: Build baseline report
-        shell: pwsh
+      - uses: actions/checkout@v4
+      - name: Ensure every tracked LPK is declared
         run: |
-          $rows = Get-ChildItem 'downloaded-results' -Filter '*.tsv' -File -Recurse |
-            ForEach-Object { Get-Content -LiteralPath $_.FullName -Encoding utf8 } |
-            Where-Object { $_.Trim() } |
-            ForEach-Object {
-              $fields = $_ -split "`t", 4
-              [pscustomobject]@{ Package=$fields[0]; OS=$fields[1]; Status=$fields[2]; Message=$fields[3] }
-            } |
-            Sort-Object Package, OS
-
-          $out = [System.Collections.Generic.List[string]]::new()
-          $out.Add('# Lazarus AI Suite - Package Compilation Baseline')
-          $out.Add('')
-          $out.Add("Generated by GitHub Actions at $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss UTC').")
-          $out.Add('')
-          $out.Add('| Package | OS | Result | Build message |')
-          $out.Add('|---|---|---|---|')
-          foreach ($row in $rows) {
-            $message = $row.Message -replace '\|', '\|'
-            $out.Add("| ``$($row.Package)`` | $($row.OS) | $($row.Status) | $message |")
-          }
-          $out.Add('')
-          $out.Add("Measured results: $($rows.Count) (expected: 42).")
-          New-Item -ItemType Directory -Force -Path DOC | Out-Null
-          $out | Set-Content -LiteralPath 'DOC/FGX_STABILIZATION_BASELINE.md' -Encoding utf8
-          if ($rows.Count -ne 42) { throw "Expected 42 results, consolidated $($rows.Count)." }
-
-      - name: Publish consolidated baseline
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: fgx-stabilization-baseline
-          path: DOC/FGX_STABILIZATION_BASELINE.md
+          python installer/common/verify_manifest.py

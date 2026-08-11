@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "dependencies": [
+    {
+      "name": "ZeosLib",
+      "package": "zcomponent.lpk",
+      "environment": "ZEOS_ROOT",
+      "repository": "https://github.com/frones/ZeosLib.git",
+      "relative_package": "packages/lazarus/zcomponent.lpk",
+      "required_by": ["openai_core", "openai_aidbase", "openai_dbase"]
+    },
+    {
+      "name": "CEF4Delphi",
+      "package": "cef4delphi_lazarus.lpk",
+      "environment": "CEF4DELPHI_ROOT",
+      "repository": "https://github.com/salvadordf/CEF4Delphi.git",
+      "relative_package": "packages/cef4delphi_lazarus.lpk",
+      "required_by": ["openai_input"]
+    },
+    {
+      "name": "GLScene for Lazarus",
+      "package": "GLScene_DesignTime.lpk",
+      "environment": "GLSCENE_ROOT",
+      "repository": "",
+      "relative_package": "",
+      "required_by": ["openai_industrial"],
+      "note": "Informe GLSCENE_ROOT apontando para uma distribuição Lazarus que contenha GLScene_DesignTime.lpk."
+    }
+  ],
+  "profiles": {
+    "core": ["openai_core"],
+    "recommended": [
+      "openai_project_core", "openai_hardware", "openai_core", "openai_ml",
+      "openai_files", "openai_output", "openai_python", "openai_image",
+      "openai_graphic", "openai_simulation", "openai_evaluation",
+      "openai_observability", "openai_input", "openai_vision", "openai_voice",
+      "openai_agent", "openai_project", "openai_graph", "openai_rag",
+      "openai_aidbase", "openai_dbase", "openai_mcp", "openai_a2a"
+    ],
+    "all": [
+      "openai_project_core", "openai_hardware", "openai_core", "openai_ml", "openai_files",
+      "openai_output", "openai_python", "openai_image", "openai_graphic",
+      "openai_simulation", "openai_evaluation", "openai_observability",
+      "openai_input", "openai_vision", "openai_voice", "openai_agent",
+      "openai_project", "openai_graph", "openai_rag", "openai_aidbase",
+      "openai_dbase", "openai_mcp", "openai_a2a", "openai_industrial",
+      "openai_integration"
+    ]
+  },
+  "openssl": {
+    "windows-x86": {
+      "source": "runtime/OpenSSL/3.1.3/x86",
+      "files": ["libssl-3.dll", "libcrypto-3.dll"]
+    },
+    "windows-x86_64": {
+      "source": "runtime/OpenSSL/3.1.3/x64",
+      "files": ["libssl-3-x64.dll", "libcrypto-3-x64.dll"]
+    },
+    "linux-x86": {"system_libraries": ["ssl", "crypto"], "package": "libssl3"},
+    "linux-x86_64": {"system_libraries": ["ssl", "crypto"], "package": "libssl3"},
+    "linux-armhf": {"system_libraries": ["ssl", "crypto"], "package": "libssl3"},
+    "linux-aarch64": {"system_libraries": ["ssl", "crypto"], "package": "libssl3"}
+  }
+}

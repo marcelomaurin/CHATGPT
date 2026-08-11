@@ -2,6 +2,12 @@
 
 This document keeps CI evidence only. Local runs are excluded.
 
+> Historical baseline: the table below records the former 16-package job.
+> The active workflow now reads `installer/dependencies.json`, resolves the
+> installation dependencies and validates every tracked package. A separate
+> inventory guard fails whenever an `.lpk` is added or removed without updating
+> the manifest.
+
 ## C7.5 - Clean 16 x 2 CI baseline
 
 Topological order follows C7.4. The previous alphabetical table is discarded.

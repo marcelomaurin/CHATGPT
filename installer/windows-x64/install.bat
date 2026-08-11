@@ -1,23 +1,16 @@
 @echo off
-setlocal
+setlocal EnableExtensions
+set "ROOT_DIR=%~dp0..\.."
+set "TARGET_DIR=%~1"
+set "LAZBUILD=%~2"
+if "%TARGET_DIR%"=="" set "TARGET_DIR=C:\CHATGPT-AI"
 
-echo CHATGPT-AI Windows x64 installer
-
-echo Checking architecture...
-if not "%PROCESSOR_ARCHITECTURE%"=="AMD64" (
-  echo This installer requires Windows x64.
+if /I not "%PROCESSOR_ARCHITECTURE%"=="AMD64" (
+  echo [ERRO] Este instalador requer Windows x64.
   exit /b 1
 )
 
-echo Create the target runtime directory before copying packaged assets.
-echo Default path: C:/CHATGPT-AI
-
-echo Next steps implemented by release package:
-echo 1. Copy runtime assets.
-echo 2. Copy Lazarus packages.
-echo 3. Generate chatgpt_ai_runtime.ini.
-echo 4. Run runtime validation.
-echo 5. Install Lazarus packages with lazbuild.
-
-echo Installer skeleton finished.
-endlocal
+python "%ROOT_DIR%\installer\common\create_runtime_ini.py" --platform windows --arch x86_64 --install-dir "%TARGET_DIR%" --lazbuild "%LAZBUILD%" || exit /b 1
+python "%ROOT_DIR%\installer\common\install_suite.py" install --profile all --runtime-target "%TARGET_DIR%\runtime\openssl" --lazbuild "%LAZBUILD%" || exit /b 1
+python "%ROOT_DIR%\installer\common\check_runtime.py" --profile full --install-dir "%TARGET_DIR%"
+exit /b %ERRORLEVEL%
