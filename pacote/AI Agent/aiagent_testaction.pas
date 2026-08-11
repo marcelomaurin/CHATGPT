@@ -9,8 +9,8 @@ uses
   Classes, SysUtils, Process, aiagent_sourceactions, LResources;
 
 type
-  { Test runner action with trusted executable configuration and workspace-scoped
-    working directory. The LLM can pass arguments but cannot replace the runner. }
+  { Trusted test runner. The application configures the executable; the LLM may
+    supply only arguments. Workspace file access remains confined to WorkspaceRoot. }
   TAITrustedProjectTestAction = class(TAIDeveloperWorkspaceAction)
   private
     FTestExecutable: string;
@@ -49,12 +49,18 @@ begin
   for I := 1 to Length(AText) do
   begin
     C := AText[I];
-    if C = '"' then Quoted := not Quoted
+    if C = '"' then
+      Quoted := not Quoted
     else if (C in [' ', #9]) and not Quoted then
     begin
-      if Token <> '' then begin AArgs.Add(Token); Token := ''; end;
+      if Token <> '' then
+      begin
+        AArgs.Add(Token);
+        Token := '';
+      end;
     end
-    else Token := Token + C;
+    else
+      Token := Token + C;
   end;
   if Token <> '' then AArgs.Add(Token);
 end;
@@ -95,13 +101,18 @@ begin
     try
       P.Execute;
     except
-      on E: Exception do begin AError := E.Message; Exit(False); end;
+      on E: Exception do
+      begin
+        AError := E.Message;
+        Exit(False);
+      end;
     end;
     StartTick := GetTickCount64;
     while P.Running do
     begin
       AOutput := AOutput + ReadProcessOutput(P);
-      if (ATimeoutMs > 0) and (GetTickCount64 - StartTick > QWord(ATimeoutMs)) then
+      if (ATimeoutMs > 0) and
+         (GetTickCount64 - StartTick > QWord(ATimeoutMs)) then
       begin
         P.Terminate(1);
         AError := 'Tempo limite excedido ao executar testes.';
@@ -111,7 +122,8 @@ begin
     end;
     AOutput := AOutput + ReadProcessOutput(P);
     Result := P.ExitStatus = 0;
-    if not Result then AError := 'Testes terminaram com código ' + IntToStr(P.ExitStatus) + '.';
+    if not Result then
+      AError := 'Testes terminaram com código ' + IntToStr(P.ExitStatus) + '.';
   finally
     P.Free;
   end;
@@ -124,7 +136,8 @@ begin
   FTimeoutMs := 120000;
 end;
 
-function TAITrustedProjectTestAction.CommandExists(const ACommand: string): Boolean;
+function TAITrustedProjectTestAction.CommandExists(
+  const ACommand: string): Boolean;
 begin
   if FilenameIsAbsolute(ACommand) or (ExtractFilePath(ACommand) <> '') then
     Exit(FileExists(ACommand));
@@ -135,7 +148,8 @@ function TAITrustedProjectTestAction.RunAction(const AParams: TStrings;
   ASimulate: Boolean): Boolean;
 var
   ErrorText, OutputText, ExtraArgs, Root: string;
-  Args: TStringList;
+  Args, ExtraList: TStringList;
+  I: Integer;
 begin
   Result := False;
   SetOutput('');
@@ -157,28 +171,27 @@ begin
   end;
 
   Args := TStringList.Create;
+  ExtraList := TStringList.Create;
   try
     SplitArguments(FTestArguments, Args);
     ExtraArgs := ParamValue(AParams, 'arguments');
     if Trim(ExtraArgs) <> '' then
     begin
-      with TStringList.Create do
-      try
-        SplitArguments(ExtraArgs, Self);
-        while Count > 0 do begin Args.Add(Strings[0]); Delete(0); end;
-      finally
-        Free;
-      end;
+      SplitArguments(ExtraArgs, ExtraList);
+      for I := 0 to ExtraList.Count - 1 do
+        Args.Add(ExtraList[I]);
     end;
     if ASimulate then
     begin
       SetOutput('SIMULATE run_tests ' + FTestExecutable);
       Exit(True);
     end;
-    Result := RunProcess(FTestExecutable, Args, Root, FTimeoutMs, OutputText, ErrorText);
+    Result := RunProcess(FTestExecutable, Args, Root, FTimeoutMs,
+      OutputText, ErrorText);
     SetOutput(OutputText);
     if not Result then SetError(ErrorText + LineEnding + OutputText);
   finally
+    ExtraList.Free;
     Args.Free;
   end;
 end;
