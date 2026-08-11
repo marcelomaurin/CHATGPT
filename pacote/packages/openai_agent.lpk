@@ -98,6 +98,11 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="aidevagents"/>
       </Item>
+      <Item>
+        <Filename Value="..\AI Agent\aiserviceagents.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiserviceagents"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item><PackageName Value="GLScene_DesignTime"/></Item>
