@@ -6,7 +6,7 @@ unit aiagent_testaction;
 interface
 
 uses
-  Classes, SysUtils, Process, aiagent_sourceactions, LResources;
+  Classes, SysUtils, Process, aiagent_sourceactions, LResources, LazFileUtils;
 
 type
   { Trusted test runner. The application configures the executable; the LLM may

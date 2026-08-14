@@ -271,23 +271,23 @@ function TAIA2AServer.HandleJSONRPC(const AContent: string;
 var
   Root, Params: TJSONData;
   OutRoot, ResultObj, ErrObj: TJSONObject;
-  MethodName, RequestID, ErrText: string;
+  LMethodName, RequestID, ErrText: string;
 begin
   Result := False;
   AResponse := '';
   try
     Root := GetJSON(AContent);
     try
-      MethodName := '';
+      LMethodName := '';
       RequestID := '';
-      if Root.FindPath('method') <> nil then MethodName := Root.FindPath('method').AsString;
+      if Root.FindPath('method') <> nil then LMethodName := Root.FindPath('method').AsString;
       if Root.FindPath('id') <> nil then RequestID := Root.FindPath('id').AsString;
       Params := Root.FindPath('params');
       OutRoot := TJSONObject.Create;
       try
         OutRoot.Add('jsonrpc', '2.0');
         OutRoot.Add('id', RequestID);
-        if SameText(MethodName, 'SendMessage') then
+        if SameText(LMethodName, 'SendMessage') then
         begin
           if HandleSendMessage(Params, ResultObj, ErrText) then
           begin

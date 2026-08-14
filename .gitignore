@@ -94,6 +94,7 @@ installer/**/runtime/python/
 installer/**/runtime/venv/
 installer/**/output/
 dist/output/
+native/**/build/
 
 # Python caches and local environments
 venv/

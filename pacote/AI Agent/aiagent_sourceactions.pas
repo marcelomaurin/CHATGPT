@@ -6,7 +6,7 @@ unit aiagent_sourceactions;
 interface
 
 uses
-  Classes, SysUtils, Process, aiagent_actions, LResources;
+  Classes, SysUtils, Process, aiagent_actions, LResources, LazFileUtils;
 
 type
   TAIDeveloperWorkspaceAction = class(TAICustomAgentAction)

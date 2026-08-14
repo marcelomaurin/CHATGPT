@@ -5,8 +5,12 @@
     <General>
       <SessionStorage Value="InProjectDir"/>
       <Title Value="action_builder_recovery_test"/>
-      <UseAppBundle Value="False"/>
+      <Scaled Value="True"/>
       <ResourceType Value="res"/>
+      <UseXPManifest Value="True"/>
+      <XPManifest>
+        <DpiAware Value="True"/>
+      </XPManifest>
     </General>
     <BuildModes>
       <Item Name="Default" Default="True"/>
@@ -22,12 +26,19 @@
         <PackageName Value="openai_agent"/>
       </Item>
       <Item>
+        <PackageName Value="openai_core"/>
+      </Item>
+      <Item>
         <PackageName Value="LCL"/>
       </Item>
     </RequiredPackages>
     <Units>
       <Unit>
         <Filename Value="action_builder_recovery_test.lpr"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="main.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
     </Units>
@@ -38,12 +49,19 @@
       <Filename Value="action_builder_recovery_test"/>
     </Target>
     <SearchPaths>
+      <IncludeFiles Value="$(ProjOutDir)"/>
+      <OtherUnitFiles Value="..\..\..;..\..\..\AI;..\..\..\AI Agent;..\..\..\packages"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>
       <Debugging>
         <DebugInfoType Value="dsDwarf3"/>
       </Debugging>
+      <Options>
+        <Win32>
+          <GraphicApplication Value="True"/>
+        </Win32>
+      </Options>
     </Linking>
   </CompilerOptions>
 </CONFIG>

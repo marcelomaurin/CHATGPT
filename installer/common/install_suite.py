@@ -66,6 +66,12 @@ def search_package(filename: str, env_name: str, dependency_dir: Path, lazbuild:
     roots: list[Path] = []
     if os.environ.get(env_name):
         roots.append(Path(os.environ[env_name]))
+    local_app_data = os.environ.get("LOCALAPPDATA")
+    if local_app_data:
+        roots.append(Path(local_app_data) / "lazarus" / "onlinepackagemanager" / "packages")
+    app_data = os.environ.get("APPDATA")
+    if app_data:
+        roots.append(Path(app_data) / "lazarus" / "onlinepackagemanager" / "packages")
     roots.extend([dependency_dir, lazbuild.parent, lazbuild.parent.parent])
     for root in roots:
         if not root.exists():
@@ -108,7 +114,7 @@ def resolve_dependencies(
             ok = False
             continue
         print(f"[OK] {dep['name']}: {package}")
-        if not run([str(lazbuild), "--add-package-link=" + str(package)]):
+        if not run([str(lazbuild), "--add-package-link", str(package)]):
             ok = False
     return ok
 
@@ -142,6 +148,14 @@ def validate_openssl(manifest: dict, arch: str | None, target: Path | None) -> b
     return True
 
 
+def is_runtime_only(package: Path) -> bool:
+    try:
+        content = package.read_text(encoding="utf-8", errors="ignore")
+        return '<Type Value="RunTime"/>' in content or '<Type Value="RunTimeOnly"/>' in content
+    except Exception:
+        return False
+
+
 def process_packages(manifest: dict, lazbuild: Path, profile: str, install: bool) -> bool:
     names = manifest["profiles"][profile]
     tracked = {path.stem for path in (ROOT / "pacote" / "packages").glob("*.lpk")}
@@ -156,7 +170,7 @@ def process_packages(manifest: dict, lazbuild: Path, profile: str, install: bool
     if not install:
         for name in names:
             package = ROOT / "pacote" / "packages" / f"{name}.lpk"
-            if package.is_file() and not run([str(lazbuild), "--add-package-link=" + str(package)]):
+            if package.is_file() and not run([str(lazbuild), "--add-package-link", str(package)]):
                 print(f"[ERRO] Não foi possível registrar o link interno: {name}")
                 ok = False
         if not ok:
@@ -169,7 +183,11 @@ def process_packages(manifest: dict, lazbuild: Path, profile: str, install: bool
             continue
         arguments = [str(lazbuild)]
         if install:
-            arguments.append("--add-package=" + str(package))
+            if is_runtime_only(package):
+                run([str(lazbuild), "--add-package-link", str(package)])
+                arguments.append(str(package))
+            else:
+                arguments.extend(["--add-package", str(package)])
         else:
             arguments.append(str(package))
         if not run(arguments):
@@ -203,7 +221,7 @@ def main() -> int:
     packages_ok = dependencies_ok and process_packages(manifest, lazbuild, args.profile, args.action == "install")
     ide_ok = True
     if args.action == "install" and packages_ok and not args.skip_ide:
-        ide_ok = run([str(lazbuild), "--build-ide"])
+        ide_ok = run([str(lazbuild), "--build-ide="])
     return 0 if dependencies_ok and ssl_ok and packages_ok and ide_ok else 1
 
 

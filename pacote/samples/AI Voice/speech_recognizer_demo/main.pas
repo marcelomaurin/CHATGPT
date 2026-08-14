@@ -8,9 +8,17 @@ uses
   Classes, SysUtils, DateUtils, Math,
   Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls, StdCtrls, Clipbrd,
   LCLIntf, FileUtil,
-  aiaudio, aispeechrecognizer;
+  aiaudio, aispeechrecognizer, aiwhisperengine;
 
 type
+  TAISpeechBackend = (
+    sbAuto,
+    sbWhisperCpp,
+    sbSherpaOnnx,
+    sbOpenAI,
+    sbAzure
+  );
+
   TSpeechDemoState = (
     sdsIdle,
     sdsRecording,
@@ -26,6 +34,7 @@ type
   TfrmMain = class(TForm)
   private
     FRecognizer: TAISpeechRecognizer;
+    FWhisperEngine: TAIWhisperProcessEngine;
     FAudio: TAIAudioInput;
     FState: TSpeechDemoState;
     FRecordingStartedAt: TDateTime;
@@ -208,7 +217,9 @@ begin
   Height := 820;
   Position := poScreenCenter;
 
+  FWhisperEngine := TAIWhisperProcessEngine.Create(Self);
   FRecognizer := TAISpeechRecognizer.Create(Self);
+  FRecognizer.Engine := FWhisperEngine;
   FAudio := TAIAudioInput.Create(Self);
   FState := sdsIdle;
   FCancelRequested := False;
@@ -787,30 +798,18 @@ begin
   FAudio.SampleRate := StrToIntDef(FEditSampleRate.Text, 16000);
   FAudio.Channels := StrToIntDef(FEditChannels.Text, 1);
   FAudio.DurationLimit := StrToIntDef(FEditDurationLimit.Text, 30);
-  FRecognizer.Backend := SelectedBackend;
-  FRecognizer.InputFile := Trim(FEditFile.Text);
-  FRecognizer.Language := 'pt-BR';
-  FRecognizer.PromptText := '';
-  FRecognizer.StrictWavValidation := FChkStrictWav.Checked;
-  FRecognizer.WhisperCppExecutable := Trim(FEditWhisperExec.Text);
-  FRecognizer.WhisperCppModel := Trim(FEditWhisperModel.Text);
-  FRecognizer.WhisperCppThreads := StrToIntDef(FEditWhisperThreads.Text, 4);
-  FRecognizer.WhisperCppExtraArgs := Trim(FEditWhisperArgs.Text);
-  FRecognizer.SherpaLibraryPath := Trim(FEditSherpaLib.Text);
-  FRecognizer.SherpaEncoderFile := Trim(FEditSherpaEncoder.Text);
-  FRecognizer.SherpaDecoderFile := Trim(FEditSherpaDecoder.Text);
-  FRecognizer.SherpaTokensFile := Trim(FEditSherpaTokens.Text);
-  FRecognizer.SherpaProvider := Trim(FEditSherpaProvider.Text);
-  FRecognizer.SherpaNumThreads := StrToIntDef(FEditSherpaThreads.Text, 1);
-  FRecognizer.SherpaTask := Trim(FEditSherpaTask.Text);
-  FRecognizer.OpenAIToken := Trim(FEditOpenAIToken.Text);
-  FRecognizer.OpenAIModel := Trim(FEditOpenAIModel.Text);
-  FRecognizer.OpenAIEndpoint := Trim(FEditOpenAIEndpoint.Text);
-  FRecognizer.OpenAIResponseFormat := Trim(FEditOpenAIResponseFormat.Text);
-  FRecognizer.AzureSubscriptionKey := Trim(FEditAzureKey.Text);
-  FRecognizer.AzureRegion := Trim(FEditAzureRegion.Text);
-  FRecognizer.AzureEndpoint := Trim(FEditAzureEndpoint.Text);
-  FRecognizer.AzureFormat := Trim(FEditAzureFormat.Text);
+  if Assigned(FWhisperEngine) then
+  begin
+    FWhisperEngine.ExecutablePath := Trim(FEditWhisperExec.Text);
+    FWhisperEngine.ModelPath := Trim(FEditWhisperModel.Text);
+    FWhisperEngine.Threads := StrToIntDef(FEditWhisperThreads.Text, 4);
+  end;
+  if Assigned(FRecognizer) then
+  begin
+    FRecognizer.Language := 'pt';
+    FRecognizer.ModelPath := Trim(FEditWhisperModel.Text);
+    FRecognizer.Threads := StrToIntDef(FEditWhisperThreads.Text, 4);
+  end;
 end;
 
 procedure TfrmMain.AddLog(const AMsg: string);
@@ -942,20 +941,13 @@ end;
 
 procedure TfrmMain.TranscribeSelectedFile;
 var
-  Transcript: string;
+  Transcript, Err: string;
   WasSuccess: Boolean;
 begin
   ApplyUIToComponents;
   if Trim(FEditFile.Text) = '' then
   begin
     SetState(sdsError, 'arquivo WAV vazio.');
-    Exit;
-  end;
-
-  if IsOnlineBackend(SelectedBackend) and not FChkOnlineConsent.Checked then
-  begin
-    SetState(sdsError, 'consentimento online não marcado.');
-    AddLog('Bloqueio: backend online sem consentimento.');
     Exit;
   end;
 
@@ -966,40 +958,17 @@ begin
     Exit;
   end;
 
-  FRecognizer.Backend := SelectedBackend;
-  FRecognizer.InputFile := FEditFile.Text;
-  FRecognizer.StrictWavValidation := FChkStrictWav.Checked;
-  FRecognizer.WhisperCppExecutable := Trim(FEditWhisperExec.Text);
-  FRecognizer.WhisperCppModel := Trim(FEditWhisperModel.Text);
-  FRecognizer.WhisperCppThreads := StrToIntDef(FEditWhisperThreads.Text, 4);
-  FRecognizer.WhisperCppExtraArgs := Trim(FEditWhisperArgs.Text);
-  FRecognizer.SherpaLibraryPath := Trim(FEditSherpaLib.Text);
-  FRecognizer.SherpaEncoderFile := Trim(FEditSherpaEncoder.Text);
-  FRecognizer.SherpaDecoderFile := Trim(FEditSherpaDecoder.Text);
-  FRecognizer.SherpaTokensFile := Trim(FEditSherpaTokens.Text);
-  FRecognizer.SherpaProvider := Trim(FEditSherpaProvider.Text);
-  FRecognizer.SherpaNumThreads := StrToIntDef(FEditSherpaThreads.Text, 1);
-  FRecognizer.SherpaTask := Trim(FEditSherpaTask.Text);
-  FRecognizer.OpenAIToken := Trim(FEditOpenAIToken.Text);
-  FRecognizer.OpenAIModel := Trim(FEditOpenAIModel.Text);
-  FRecognizer.OpenAIEndpoint := Trim(FEditOpenAIEndpoint.Text);
-  FRecognizer.OpenAIResponseFormat := Trim(FEditOpenAIResponseFormat.Text);
-  FRecognizer.AzureSubscriptionKey := Trim(FEditAzureKey.Text);
-  FRecognizer.AzureRegion := Trim(FEditAzureRegion.Text);
-  FRecognizer.AzureEndpoint := Trim(FEditAzureEndpoint.Text);
-  FRecognizer.AzureFormat := Trim(FEditAzureFormat.Text);
-
-  if not FRecognizer.ValidateInputFile(FEditFile.Text) then
+  if FChkStrictWav.Checked and not FAudio.ValidateWavFile(FEditFile.Text, Err) then
   begin
-    SetState(sdsError, FRecognizer.LastError);
-    AddLog('Falha na validação do arquivo: ' + FRecognizer.LastError);
+    SetState(sdsError, Err);
+    AddLog('Falha na validação do arquivo: ' + Err);
     Exit;
   end;
 
   SetState(sdsTranscribing, 'transcrevendo');
   AddLog('Transcrição iniciada com backend ' + SelectedBackendName + '.');
   FCancelRequested := False;
-  WasSuccess := FRecognizer.RecognizeFile(FEditFile.Text);
+  WasSuccess := FRecognizer.TranscribeFile(FEditFile.Text);
   if FCancelRequested then
   begin
     SetState(sdsCancelled, 'resultado descartado por cancelamento.');
@@ -1007,9 +976,9 @@ begin
     Exit;
   end;
 
-  if WasSuccess and FRecognizer.LastSuccess and (Trim(FRecognizer.LastResult) <> '') then
+  if WasSuccess and (Trim(FRecognizer.LastText) <> '') then
   begin
-    Transcript := Trim(FRecognizer.LastResult);
+    Transcript := Trim(FRecognizer.LastText);
     SetResultTranscript(Transcript);
     FEditTranscriptFile.Text := FEditFile.Text;
     FEditResultFile.Text := FEditFile.Text;

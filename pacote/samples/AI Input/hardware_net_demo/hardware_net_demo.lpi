@@ -25,6 +25,18 @@
     </RunParams>
     <RequiredPackages>
       <Item>
+        <PackageName Value="CEF4Delphi_Lazarus"/>
+      </Item>
+      <Item>
+        <PackageName Value="openai_input"/>
+      </Item>
+      <Item>
+        <PackageName Value="openai_industrial"/>
+      </Item>
+      <Item>
+        <PackageName Value="openai_output"/>
+      </Item>
+      <Item>
         <PackageName Value="openai_core"/>
       </Item>
       <Item>
@@ -53,7 +65,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\..\.."/>
+      <OtherUnitFiles Value="..\..\..;..\..\..\AI;..\..\..\AI Agent;..\..\..\AI Voice;..\..\..\AI Filtros Sonoros;..\..\..\AI Image;..\..\..\AI Schedule;..\..\..\AI Math;..\..\..\AI Input;..\..\..\AI Input\AIAudio;..\..\..\AI Input\AIChromiumBrowser;..\..\..\AI Output;..\..\..\AI Industrial;..\..\..\AI Graph;..\..\..\AI Graphic;..\..\..\AI Vision;..\..\..\packages"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>
