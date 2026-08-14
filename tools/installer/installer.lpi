@@ -80,6 +80,14 @@
         <IsPartOfProject Value="True"/>
       </Unit2>
     </Units>
+    <RequiredPackages Count="2">
+      <Item1>
+        <PackageName Value="LazUtils"/>
+      </Item1>
+      <Item2>
+        <PackageName Value="LCL"/>
+      </Item2>
+    </RequiredPackages>
   </ProjectOptions>
   <CompilerOptions>
     <Version Value="11"/>

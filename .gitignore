@@ -28,6 +28,7 @@
 
 # Delphi compiler-generated binaries (safe to delete)
 *.exe
+!tools/installer/installer.exe
 !pacote/samples/AI Industrial/modbus_demo/modbus_demo.exe
 !pacote/samples/AI\ Industrial/modbus_demo/modbus_demo.exe
 !pacote/samples/AI DBase/pg_schema_rag_demo/pg_schema_rag_demo.exe
@@ -44,6 +45,9 @@
 *.rsm
 *.tds
 *.dcu
+*.ppu
+*.or
+*.rst
 *.lib
 *.a
 *.o

@@ -5,8 +5,6 @@ program CHATGPTInstaller;
 uses
   Interfaces, Forms, uinstaller;
 
-{$R *.res}
-
 begin
   RequireDerivedFormResource := False;
   Application.Scaled := True;

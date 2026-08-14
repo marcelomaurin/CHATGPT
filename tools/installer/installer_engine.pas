@@ -19,6 +19,7 @@ type
     Selected: Boolean;
     CompileOK: Boolean;
     InstallOK: Boolean;
+    IsRuntimeOnly: Boolean;
     constructor Create;
     destructor Destroy; override;
   end;
@@ -35,6 +36,11 @@ type
     FTargetCPU: string;
     FTargetOS: string;
     FTargetBits: Integer;
+    FSupportedTargets: TStringList;
+    FHasWin32: Boolean;
+    FHasWin64: Boolean;
+    FHasLinux32: Boolean;
+    FHasLinux64: Boolean;
     FPackages: TObjectList;
     FAbort: Boolean;
     FOnLog: TLogEvent;
@@ -43,6 +49,7 @@ type
       out AOutput: string; out AExitCode: Integer): Boolean;
     function FindExecutable(const AName: string; const ACandidates: array of string): string;
     function DetectConfigPath: string;
+    procedure DetectSupportedTargets;
     function GetAttr(AElement: TDOMElement; const AName: string): string;
     function PackageByName(const AName: string): TPackageInfo;
     function IsExternalPackageInstalled(const AName: string): Boolean;
@@ -76,15 +83,20 @@ type
     function CopyDocumentation(const ADestination: string; AResult: TStrings): Boolean;
 
     property RepoRoot: string read FRepoRoot write FRepoRoot;
-    property LazBuild: string read FLazBuild;
-    property FPC: string read FFPC;
-    property Git: string read FGit;
-    property PrimaryConfigPath: string read FPrimaryConfigPath;
+    property LazBuild: string read FLazBuild write FLazBuild;
+    property FPC: string read FFPC write FFPC;
+    property Git: string read FGit write FGit;
+    property PrimaryConfigPath: string read FPrimaryConfigPath write FPrimaryConfigPath;
     property LazarusVersion: string read FLazarusVersion;
     property FPCVersion: string read FFPCVersion;
     property TargetCPU: string read FTargetCPU;
     property TargetOS: string read FTargetOS;
     property TargetBits: Integer read FTargetBits;
+    property HasWin32: Boolean read FHasWin32;
+    property HasWin64: Boolean read FHasWin64;
+    property HasLinux32: Boolean read FHasLinux32;
+    property HasLinux64: Boolean read FHasLinux64;
+    property SupportedTargets: TStringList read FSupportedTargets;
     property Packages: TObjectList read FPackages;
     property OnLog: TLogEvent read FOnLog write FOnLog;
   end;
@@ -112,11 +124,14 @@ constructor TInstallerEngine.Create;
 begin
   inherited Create;
   FPackages := TObjectList.Create(True);
+  FSupportedTargets := TStringList.Create;
+  FSupportedTargets.CaseSensitive := False;
   FRepoRoot := ExpandFileName(ExtractFilePath(ParamStr(0)) + '..' + DirectorySeparator + '..');
 end;
 
 destructor TInstallerEngine.Destroy;
 begin
+  FSupportedTargets.Free;
   FPackages.Free;
   inherited Destroy;
 end;
@@ -254,6 +269,61 @@ begin
   {$ENDIF}
 end;
 
+procedure TInstallerEngine.DetectSupportedTargets;
+var
+  LDir, FPCUnitsDir: string;
+  SR: TSearchRec;
+  TargetName: string;
+begin
+  FSupportedTargets.Clear;
+  FHasWin32 := False;
+  FHasWin64 := False;
+  FHasLinux32 := False;
+  FHasLinux64 := False;
+
+  if FTargetOS = 'win32' then FHasWin32 := True;
+  if FTargetOS = 'win64' then FHasWin64 := True;
+  if (FTargetOS = 'linux') and (FTargetBits = 64) then FHasLinux64 := True;
+  if (FTargetOS = 'linux') and (FTargetBits = 32) then FHasLinux32 := True;
+
+  LDir := ExtractFilePath(FLazBuild);
+  FPCUnitsDir := IncludeTrailingPathDelimiter(LDir) + 'fpc' + DirectorySeparator + FFPCVersion + DirectorySeparator + 'units';
+  if not DirectoryExists(FPCUnitsDir) then
+    FPCUnitsDir := IncludeTrailingPathDelimiter(ExtractFilePath(FFPC)) + '..' + DirectorySeparator + 'units';
+  if not DirectoryExists(FPCUnitsDir) then
+    FPCUnitsDir := IncludeTrailingPathDelimiter(ExtractFilePath(FFPC)) + 'units';
+
+  if DirectoryExists(FPCUnitsDir) then
+  begin
+    if FindFirst(IncludeTrailingPathDelimiter(FPCUnitsDir) + '*', faDirectory, SR) = 0 then
+    try
+      repeat
+        if (SR.Name = '.') or (SR.Name = '..') then Continue;
+        if (SR.Attr and faDirectory) <> 0 then
+        begin
+          TargetName := LowerCase(SR.Name);
+          if FSupportedTargets.IndexOf(SR.Name) < 0 then
+            FSupportedTargets.Add(SR.Name);
+          if Pos('win32', TargetName) > 0 then FHasWin32 := True;
+          if Pos('win64', TargetName) > 0 then FHasWin64 := True;
+          if Pos('linux', TargetName) > 0 then
+          begin
+            if (Pos('64', TargetName) > 0) or (Pos('x86_64', TargetName) > 0) or (Pos('aarch64', TargetName) > 0) then
+              FHasLinux64 := True
+            else
+              FHasLinux32 := True;
+          end;
+        end;
+      until FindNext(SR) <> 0;
+    finally
+      FindClose(SR);
+    end;
+  end;
+
+  if (FSupportedTargets.Count = 0) and (FTargetCPU <> '') and (FTargetOS <> '') then
+    FSupportedTargets.Add(FTargetCPU + '-' + FTargetOS);
+end;
+
 function TInstallerEngine.DetectEnvironment: Boolean;
 var
   S: string;
@@ -263,17 +333,21 @@ begin
   Result := False;
   FAbort := False;
 
-  {$IFDEF Windows}
-  FLazBuild := FindExecutable('lazbuild.exe', [
-    'C:\lazarus\lazbuild.exe',
-    'C:\Lazarus\lazbuild.exe',
-    'C:\Program Files\Lazarus\lazbuild.exe',
-    'C:\Program Files (x86)\Lazarus\lazbuild.exe']);
-  {$ELSE}
-  FLazBuild := FindExecutable('lazbuild', [
-    '/usr/bin/lazbuild', '/usr/local/bin/lazbuild', '/opt/lazarus/lazbuild']);
-  {$ENDIF}
-  if FLazBuild = '' then
+  if (FLazBuild = '') or not FileExists(FLazBuild) then
+  begin
+    {$IFDEF Windows}
+    FLazBuild := FindExecutable('lazbuild.exe', [
+      'C:\lazarus\lazbuild.exe',
+      'C:\Lazarus\lazbuild.exe',
+      'C:\Program Files\Lazarus\lazbuild.exe',
+      'C:\Program Files (x86)\Lazarus\lazbuild.exe',
+      'D:\lazarus\lazbuild.exe']);
+    {$ELSE}
+    FLazBuild := FindExecutable('lazbuild', [
+      '/usr/bin/lazbuild', '/usr/local/bin/lazbuild', '/opt/lazarus/lazbuild']);
+    {$ENDIF}
+  end;
+  if (FLazBuild = '') or not FileExists(FLazBuild) then
   begin
     Log('[ERRO] lazbuild não encontrado.');
     Exit;
@@ -284,7 +358,9 @@ begin
   FFPC := FindExecutable('fpc.exe', [
     LDir + 'fpc.exe',
     LDir + 'fpc\bin\x86_64-win64\fpc.exe',
-    LDir + 'fpc\bin\i386-win32\fpc.exe']);
+    LDir + 'fpc\bin\i386-win32\fpc.exe',
+    LDir + 'fpc\3.2.2\bin\i386-win32\fpc.exe',
+    LDir + 'fpc\3.2.2\bin\x86_64-win64\fpc.exe']);
   FGit := FindExecutable('git.exe', [
     'C:\Program Files\Git\cmd\git.exe',
     'C:\Program Files\Git\bin\git.exe']);
@@ -316,10 +392,14 @@ begin
   else
     FTargetBits := 32;
 
-  FPrimaryConfigPath := DetectConfigPath;
+  if (FPrimaryConfigPath = '') or not DirectoryExists(FPrimaryConfigPath) then
+    FPrimaryConfigPath := DetectConfigPath;
+
+  DetectSupportedTargets;
+
   Log('[OK] Lazarus: ' + FLazarusVersion);
   Log('[OK] FPC: ' + FFPCVersion);
-  Log('[OK] Target: ' + FTargetCPU + '-' + FTargetOS +
+  Log('[OK] Target Ativo: ' + FTargetCPU + '-' + FTargetOS +
     ' (' + IntToStr(FTargetBits) + ' bits)');
   if FGit <> '' then Log('[OK] Git: ' + FGit)
   else Log('[ATENÇÃO] Git não encontrado; atualização automática indisponível.');
@@ -436,6 +516,16 @@ begin
         P := TPackageInfo.Create;
         P.Name := ChangeFileExt(SR.Name, '');
         P.FileName := FN;
+        P.IsRuntimeOnly := False;
+        Nodes := Doc.GetElementsByTagName('Type');
+        for I := 0 to Nodes.Count - 1 do
+          if Nodes.Item[I] is TDOMElement then
+          begin
+            N := GetAttr(TDOMElement(Nodes.Item[I]), 'Value');
+            if SameText(N, 'RunTime') or SameText(N, 'RunTimeOnly') then
+              P.IsRuntimeOnly := True;
+          end;
+
         Nodes := Doc.GetElementsByTagName('PackageName');
         for I := 0 to Nodes.Count - 1 do
           if Nodes.Item[I] is TDOMElement then
@@ -462,12 +552,23 @@ begin
 end;
 
 function TInstallerEngine.IsExternalPackageInstalled(const AName: string): Boolean;
+const
+  BUILTIN_PACKAGES: array[0..11] of string = (
+    'lcl', 'lclbase', 'lazutils', 'fcl', 'ideintf', 'codetools',
+    'synedit', 'lazcontrols', 'imagesforlazarus', 'debuggerintf',
+    'printer4lazarus', 'cthreads'
+  );
 var
   Files: array[0..2] of string;
   I: Integer;
   S: TStringList;
+  OPMDir, SearchFile: string;
+  SR: TSearchRec;
 begin
   Result := False;
+  for I := Low(BUILTIN_PACKAGES) to High(BUILTIN_PACKAGES) do
+    if SameText(AName, BUILTIN_PACKAGES[I]) then Exit(True);
+
   Files[0] := IncludeTrailingPathDelimiter(FPrimaryConfigPath) + 'packagefiles.xml';
   Files[1] := IncludeTrailingPathDelimiter(FPrimaryConfigPath) + 'environmentoptions.xml';
   Files[2] := IncludeTrailingPathDelimiter(ExtractFilePath(FLazBuild)) + 'packagefiles.xml';
@@ -482,6 +583,23 @@ begin
   finally
     S.Free;
   end;
+
+  {$IFDEF Windows}
+  OPMDir := GetEnvironmentVariable('LOCALAPPDATA');
+  if OPMDir <> '' then
+  begin
+    SearchFile := IncludeTrailingPathDelimiter(OPMDir) + 'lazarus' +
+      DirectorySeparator + 'onlinepackagemanager' + DirectorySeparator + 'packages';
+    if DirectoryExists(SearchFile) then
+    begin
+      if FindFirst(IncludeTrailingPathDelimiter(SearchFile) + '*' + AName + '*', faDirectory, SR) = 0 then
+      begin
+        FindClose(SR);
+        Exit(True);
+      end;
+    end;
+  end;
+  {$ENDIF}
 end;
 
 function TInstallerEngine.CheckPrerequisites(out AMissing: string): Boolean;
@@ -735,10 +853,20 @@ begin
   begin
     P := PackageByName(AOrder[I]);
     if not Assigned(P) or not P.CompileOK then Continue;
-    Log('[INSTALANDO] ' + P.Name);
-    P.InstallOK := RunCapture(FLazBuild,
-      ['--primary-config-path=' + FPrimaryConfigPath,
-       '--add-package', P.FileName], OutText, RC);
+    if P.IsRuntimeOnly then
+    begin
+      Log('[REGISTRANDO LINK RUNTIME] ' + P.Name);
+      P.InstallOK := RunCapture(FLazBuild,
+        ['--primary-config-path=' + FPrimaryConfigPath,
+         '--add-package-link', P.FileName], OutText, RC);
+    end
+    else
+    begin
+      Log('[INSTALANDO] ' + P.Name);
+      P.InstallOK := RunCapture(FLazBuild,
+        ['--primary-config-path=' + FPrimaryConfigPath,
+         '--add-package', P.FileName], OutText, RC);
+    end;
     if not P.InstallOK then
     begin
       Log(OutText);
@@ -763,6 +891,7 @@ function TInstallerEngine.VerifyInstalled(AOrder, AResult: TStrings): Boolean;
 var
   Installed: TStringList;
   I: Integer;
+  P: TPackageInfo;
 begin
   Installed := TStringList.Create;
   try
@@ -770,13 +899,16 @@ begin
     AResult.Clear;
     Result := True;
     for I := 0 to AOrder.Count - 1 do
-      if Installed.IndexOf(AOrder[I]) >= 0 then
+    begin
+      P := PackageByName(AOrder[I]);
+      if (Installed.IndexOf(AOrder[I]) >= 0) or (Assigned(P) and P.IsRuntimeOnly) then
         AResult.Add('[OK] ' + AOrder[I])
       else
       begin
         AResult.Add('[FALTA] ' + AOrder[I]);
         Result := False;
       end;
+    end;
   finally
     Installed.Free;
   end;

@@ -5,7 +5,7 @@ unit uinstaller;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, StdCtrls, ExtCtrls, ComCtrls,
+  Classes, SysUtils, Graphics, Forms, Controls, StdCtrls, ExtCtrls, ComCtrls,
   Dialogs, CheckLst, installer_engine;
 
 type
@@ -15,6 +15,9 @@ type
     FPages: TPageControl;
     FBack, FNext, FCancel: TButton;
     FRepoEdit, FLazEdit, FPCPEdit: TEdit;
+    FBtnBrowseRepo, FBtnBrowseLaz, FBtnBrowsePCP, FBtnRefreshEnv: TButton;
+    FRepoStatusLabel: TLabel;
+    FOpenDialog: TOpenDialog;
     FEnvMemo, FPrereqMemo, FReadyMemo, FLogMemo, FFinishMemo: TMemo;
     FPackageList: TCheckListBox;
     FProgress: TProgressBar;
@@ -34,6 +37,12 @@ type
     procedure BackClick(Sender: TObject);
     procedure NextClick(Sender: TObject);
     procedure CancelClick(Sender: TObject);
+    procedure BrowseRepoClick(Sender: TObject);
+    procedure BrowseLazClick(Sender: TObject);
+    procedure BrowsePCPClick(Sender: TObject);
+    procedure RefreshEnvClick(Sender: TObject);
+    procedure RepoEditChange(Sender: TObject);
+    procedure ValidateRepoPath;
     procedure EngineLog(Sender: TObject; const AMsg: string);
     function PrepareEnvironment: Boolean;
     function CheckAndUpdateRepository: Boolean;
@@ -166,20 +175,137 @@ begin
   L.Caption := 'Se houver alterações locais, o instalador não executa pull e não sobrescreve os arquivos.';
 end;
 
+procedure TfrmInstaller.ValidateRepoPath;
+var
+  Dir: string;
+  LpkCount: Integer;
+  SR: TSearchRec;
+begin
+  if not Assigned(FRepoStatusLabel) then Exit;
+  Dir := IncludeTrailingPathDelimiter(Trim(FRepoEdit.Text)) + 'pacote' + DirectorySeparator + 'packages';
+  if DirectoryExists(Dir) then
+  begin
+    LpkCount := 0;
+    if FindFirst(IncludeTrailingPathDelimiter(Dir) + 'openai_*.lpk', faAnyFile, SR) = 0 then
+    try
+      repeat
+        Inc(LpkCount);
+      until FindNext(SR) <> 0;
+    finally
+      FindClose(SR);
+    end;
+    FRepoStatusLabel.Font.Color := $008000;
+    FRepoStatusLabel.Caption := Format('OK: Projeto CHATGPT válido (%d pacotes encontrados em pacote\packages)', [LpkCount]);
+  end
+  else
+  begin
+    FRepoStatusLabel.Font.Color := clRed;
+    FRepoStatusLabel.Caption := 'AVISO: Pasta não contém a subpasta pacote\packages';
+  end;
+end;
+
+procedure TfrmInstaller.RepoEditChange(Sender: TObject);
+begin
+  ValidateRepoPath;
+end;
+
+procedure TfrmInstaller.BrowseRepoClick(Sender: TObject);
+var
+  SelectedDir: string;
+begin
+  SelectedDir := Trim(FRepoEdit.Text);
+  if SelectDirectory('Selecione a pasta raiz do projeto CHATGPT', '', SelectedDir, True) then
+  begin
+    FRepoEdit.Text := SelectedDir;
+    ValidateRepoPath;
+    PrepareEnvironment;
+  end;
+end;
+
+procedure TfrmInstaller.BrowseLazClick(Sender: TObject);
+begin
+  if not Assigned(FOpenDialog) then
+  begin
+    FOpenDialog := TOpenDialog.Create(Self);
+    FOpenDialog.Title := 'Selecionar executável lazbuild';
+    {$IFDEF Windows}
+    FOpenDialog.Filter := 'lazbuild (lazbuild.exe)|lazbuild.exe|Executáveis (*.exe)|*.exe|Todos os arquivos (*.*)|*.*';
+    {$ELSE}
+    FOpenDialog.Filter := 'lazbuild|lazbuild|Todos os arquivos (*.*)|*.*';
+    {$ENDIF}
+  end;
+  if FileExists(FLazEdit.Text) then
+    FOpenDialog.InitialDir := ExtractFilePath(FLazEdit.Text)
+  else
+    FOpenDialog.InitialDir := 'C:\lazarus';
+
+  if FOpenDialog.Execute then
+  begin
+    FLazEdit.Text := FOpenDialog.FileName;
+    PrepareEnvironment;
+  end;
+end;
+
+procedure TfrmInstaller.BrowsePCPClick(Sender: TObject);
+var
+  SelectedDir: string;
+begin
+  SelectedDir := Trim(FPCPEdit.Text);
+  if SelectDirectory('Selecione a pasta de configuração do Lazarus (Primary Config Path)', '', SelectedDir, True) then
+  begin
+    FPCPEdit.Text := SelectedDir;
+    PrepareEnvironment;
+  end;
+end;
+
+procedure TfrmInstaller.RefreshEnvClick(Sender: TObject);
+begin
+  PrepareEnvironment;
+end;
+
 procedure TfrmInstaller.AddEnvironmentPage;
 var
   T: TTabSheet;
   L: TLabel;
 begin
   T := NewPage('Ambiente');
-  L := TLabel.Create(T); L.Parent := T; L.Caption := 'Pasta do projeto:'; L.SetBounds(24,16,200,22);
-  FRepoEdit := TEdit.Create(T); FRepoEdit.Parent := T; FRepoEdit.SetBounds(24,40,760,28);
-  L := TLabel.Create(T); L.Parent := T; L.Caption := 'lazbuild:'; L.SetBounds(24,78,200,22);
-  FLazEdit := TEdit.Create(T); FLazEdit.Parent := T; FLazEdit.SetBounds(24,102,760,28); FLazEdit.ReadOnly := True;
-  L := TLabel.Create(T); L.Parent := T; L.Caption := 'Configuração do Lazarus:'; L.SetBounds(24,140,240,22);
-  FPCPEdit := TEdit.Create(T); FPCPEdit.Parent := T; FPCPEdit.SetBounds(24,164,760,28); FPCPEdit.ReadOnly := True;
-  FEnvMemo := TMemo.Create(T); FEnvMemo.Parent := T; FEnvMemo.SetBounds(24,212,760,220);
-  FEnvMemo.ReadOnly := True; FEnvMemo.ScrollBars := ssVertical;
+
+  // 1. Pasta do projeto
+  L := TLabel.Create(T); L.Parent := T; L.Caption := 'Pasta raiz do projeto:'; L.SetBounds(24, 10, 300, 20);
+  FRepoEdit := TEdit.Create(T); FRepoEdit.Parent := T; FRepoEdit.SetBounds(24, 30, 670, 26);
+  FRepoEdit.OnChange := @RepoEditChange;
+  FBtnBrowseRepo := TButton.Create(T); FBtnBrowseRepo.Parent := T; FBtnBrowseRepo.SetBounds(702, 30, 100, 26);
+  FBtnBrowseRepo.Caption := 'Localizar...'; FBtnBrowseRepo.OnClick := @BrowseRepoClick;
+
+  FRepoStatusLabel := TLabel.Create(T); FRepoStatusLabel.Parent := T; FRepoStatusLabel.SetBounds(24, 58, 778, 18);
+  FRepoStatusLabel.Font.Size := 9;
+  ValidateRepoPath;
+
+  // 2. Executável lazbuild
+  L := TLabel.Create(T); L.Parent := T; L.Caption := 'Executável lazbuild (compilador da IDE):'; L.SetBounds(24, 78, 350, 20);
+  FLazEdit := TEdit.Create(T); FLazEdit.Parent := T; FLazEdit.SetBounds(24, 98, 670, 26);
+  FBtnBrowseLaz := TButton.Create(T); FBtnBrowseLaz.Parent := T; FBtnBrowseLaz.SetBounds(702, 98, 100, 26);
+  FBtnBrowseLaz.Caption := 'Localizar...'; FBtnBrowseLaz.OnClick := @BrowseLazClick;
+
+  // 3. Configuração do Lazarus (PCP)
+  L := TLabel.Create(T); L.Parent := T; L.Caption := 'Pasta de configuração do Lazarus (Primary Config Path):'; L.SetBounds(24, 128, 450, 20);
+  FPCPEdit := TEdit.Create(T); FPCPEdit.Parent := T; FPCPEdit.SetBounds(24, 148, 670, 26);
+  FBtnBrowsePCP := TButton.Create(T); FBtnBrowsePCP.Parent := T; FBtnBrowsePCP.SetBounds(702, 148, 100, 26);
+  FBtnBrowsePCP.Caption := 'Localizar...'; FBtnBrowsePCP.OnClick := @BrowsePCPClick;
+
+  // 4. Botão Reanalisar
+  FBtnRefreshEnv := TButton.Create(T); FBtnRefreshEnv.Parent := T; FBtnRefreshEnv.SetBounds(24, 180, 160, 28);
+  FBtnRefreshEnv.Caption := 'Reanalisar Ambiente'; FBtnRefreshEnv.OnClick := @RefreshEnvClick;
+
+  // 5. Diagnóstico de Plataforma e Compilação
+  L := TLabel.Create(T); L.Parent := T;
+  L.Caption := 'Diagnóstico de Plataforma, Compilador e Alvos (Windows / Linux / 32 / 64 bits):';
+  L.SetBounds(24, 214, 600, 20);
+
+  FEnvMemo := TMemo.Create(T); FEnvMemo.Parent := T; FEnvMemo.SetBounds(24, 234, 778, 200);
+  FEnvMemo.ReadOnly := True; FEnvMemo.ScrollBars := ssBoth;
+  FEnvMemo.Font.Name := 'Courier New';
+  FEnvMemo.Font.Size := 9;
 end;
 
 procedure TfrmInstaller.AddPackagesPage;
@@ -188,10 +314,10 @@ var
   L: TLabel;
 begin
   T := NewPage('Packages');
-  L := TLabel.Create(T); L.Parent := T; L.Caption := 'Packages a instalar:'; L.SetBounds(24,14,300,22);
-  FPackageList := TCheckListBox.Create(T); FPackageList.Parent := T; FPackageList.SetBounds(24,40,350,390);
-  L := TLabel.Create(T); L.Parent := T; L.Caption := 'Pré-requisitos:'; L.SetBounds(394,14,300,22);
-  FPrereqMemo := TMemo.Create(T); FPrereqMemo.Parent := T; FPrereqMemo.SetBounds(394,40,390,390);
+  L := TLabel.Create(T); L.Parent := T; L.Caption := 'Packages a instalar:'; L.SetBounds(24, 14, 300, 22);
+  FPackageList := TCheckListBox.Create(T); FPackageList.Parent := T; FPackageList.SetBounds(24, 40, 350, 390);
+  L := TLabel.Create(T); L.Parent := T; L.Caption := 'Pré-requisitos:'; L.SetBounds(394, 14, 300, 22);
+  FPrereqMemo := TMemo.Create(T); FPrereqMemo.Parent := T; FPrereqMemo.SetBounds(394, 40, 390, 390);
   FPrereqMemo.ReadOnly := True; FPrereqMemo.ScrollBars := ssBoth;
 end;
 
@@ -200,11 +326,11 @@ var
   T: TTabSheet;
 begin
   T := NewPage('Pronto');
-  FChkSamples := TCheckBox.Create(T); FChkSamples.Parent := T; FChkSamples.SetBounds(24,10,280,28);
+  FChkSamples := TCheckBox.Create(T); FChkSamples.Parent := T; FChkSamples.SetBounds(24, 10, 280, 28);
   FChkSamples.Caption := 'Compilar e validar samples'; FChkSamples.Checked := True;
-  FChkDocs := TCheckBox.Create(T); FChkDocs.Parent := T; FChkDocs.SetBounds(320,10,300,28);
+  FChkDocs := TCheckBox.Create(T); FChkDocs.Parent := T; FChkDocs.SetBounds(320, 10, 300, 28);
   FChkDocs.Caption := 'Validar e copiar documentação'; FChkDocs.Checked := True;
-  FReadyMemo := TMemo.Create(T); FReadyMemo.Parent := T; FReadyMemo.SetBounds(24,46,760,384);
+  FReadyMemo := TMemo.Create(T); FReadyMemo.Parent := T; FReadyMemo.SetBounds(24, 46, 760, 384);
   FReadyMemo.ReadOnly := True; FReadyMemo.ScrollBars := ssVertical;
 end;
 
@@ -213,9 +339,9 @@ var
   T: TTabSheet;
 begin
   T := NewPage('Instalando');
-  FProgress := TProgressBar.Create(T); FProgress.Parent := T; FProgress.SetBounds(24,18,760,24);
+  FProgress := TProgressBar.Create(T); FProgress.Parent := T; FProgress.SetBounds(24, 18, 760, 24);
   FProgress.Min := 0; FProgress.Max := 100;
-  FLogMemo := TMemo.Create(T); FLogMemo.Parent := T; FLogMemo.SetBounds(24,58,760,372);
+  FLogMemo := TMemo.Create(T); FLogMemo.Parent := T; FLogMemo.SetBounds(24, 58, 760, 372);
   FLogMemo.ReadOnly := True; FLogMemo.ScrollBars := ssBoth;
 end;
 
@@ -249,25 +375,78 @@ begin
 end;
 
 function TfrmInstaller.PrepareEnvironment: Boolean;
+var
+  I: Integer;
+  TargetsStr: string;
 begin
   Screen.Cursor := crHourGlass;
   try
-    FEngine.RepoRoot := ExpandFileName(FRepoEdit.Text);
+    FEngine.RepoRoot := ExpandFileName(Trim(FRepoEdit.Text));
+    if Trim(FLazEdit.Text) <> '' then
+      FEngine.LazBuild := Trim(FLazEdit.Text);
+    if Trim(FPCPEdit.Text) <> '' then
+      FEngine.PrimaryConfigPath := Trim(FPCPEdit.Text);
+
     Result := FEngine.DetectEnvironment;
+    ValidateRepoPath;
     FEnvMemo.Clear;
     if Result then
     begin
       FLazEdit.Text := FEngine.LazBuild;
       FPCPEdit.Text := FEngine.PrimaryConfigPath;
-      FEnvMemo.Lines.Add('Lazarus: ' + FEngine.LazarusVersion);
-      FEnvMemo.Lines.Add('FPC: ' + FEngine.FPCVersion);
-      FEnvMemo.Lines.Add('CPU: ' + FEngine.TargetCPU);
-      FEnvMemo.Lines.Add('OS: ' + FEngine.TargetOS);
-      FEnvMemo.Lines.Add('Plataforma: ' + IntToStr(FEngine.TargetBits) + ' bits');
-      FEnvMemo.Lines.Add('Git: ' + FEngine.Git);
+
+      FEnvMemo.Lines.Add('=== DIAGNÓSTICO DO AMBIENTE LAZARUS / FPC ===');
+      FEnvMemo.Lines.Add('Lazarus IDE: ' + FEngine.LazarusVersion + ' (' + FEngine.LazBuild + ')');
+      FEnvMemo.Lines.Add('FPC Compiler: ' + FEngine.FPCVersion + ' (' + FEngine.FPC + ')');
+      FEnvMemo.Lines.Add('Configuração (PCP): ' + FEngine.PrimaryConfigPath);
+      FEnvMemo.Lines.Add('');
+      FEnvMemo.Lines.Add('--- ARQUITETURA E ALVOS DE COMPILAÇÃO ---');
+      FEnvMemo.Lines.Add(Format('Alvo Ativo: %s-%s (%d bits)', [FEngine.TargetCPU, FEngine.TargetOS, FEngine.TargetBits]));
+
+      if FEngine.TargetBits = 64 then
+        FEnvMemo.Lines.Add('Arquitetura Atual: 64 bits (x86_64 / x64)')
+      else
+        FEnvMemo.Lines.Add('Arquitetura Atual: 32 bits (i386 / x86)');
+
+      if FEngine.HasWin32 or FEngine.HasWin64 then
+      begin
+        TargetsStr := '';
+        if FEngine.HasWin32 then TargetsStr := TargetsStr + 'win32 (32b) ';
+        if FEngine.HasWin64 then TargetsStr := TargetsStr + 'win64 (64b) ';
+        FEnvMemo.Lines.Add('[OK] Compilação Windows: DISPONÍVEL (' + Trim(TargetsStr) + ')');
+      end
+      else
+        FEnvMemo.Lines.Add('[AVISO] Compilação Windows: Não detectada no FPC ativo');
+
+      if FEngine.HasLinux32 or FEngine.HasLinux64 then
+      begin
+        TargetsStr := '';
+        if FEngine.HasLinux32 then TargetsStr := TargetsStr + 'linux-i386 ';
+        if FEngine.HasLinux64 then TargetsStr := TargetsStr + 'linux-x86_64 ';
+        FEnvMemo.Lines.Add('[OK] Compilação Linux: DISPONÍVEL (' + Trim(TargetsStr) + ')');
+      end
+      else
+        FEnvMemo.Lines.Add('[INFO] Compilação Linux: Não instalada (cross-compiler ausente)');
+
+      if FEngine.SupportedTargets.Count > 0 then
+      begin
+        TargetsStr := '';
+        for I := 0 to FEngine.SupportedTargets.Count - 1 do
+        begin
+          if I > 0 then TargetsStr := TargetsStr + ', ';
+          TargetsStr := TargetsStr + FEngine.SupportedTargets[I];
+        end;
+        FEnvMemo.Lines.Add('Alvos FPC instalados: ' + TargetsStr);
+      end;
+
+      FEnvMemo.Lines.Add('');
+      if FEngine.Git <> '' then
+        FEnvMemo.Lines.Add('Git: ' + FEngine.Git)
+      else
+        FEnvMemo.Lines.Add('[ATENÇÃO] Git não encontrado no PATH');
     end
     else
-      MessageDlg('Não foi possível detectar Lazarus/FPC.', mtError, [mbOK], 0);
+      MessageDlg('Não foi possível detectar o Lazarus/FPC nos caminhos informados.', mtError, [mbOK], 0);
   finally
     Screen.Cursor := crDefault;
   end;
