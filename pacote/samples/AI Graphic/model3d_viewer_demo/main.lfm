@@ -1,80 +1,280 @@
 object frmMain: TfrmMain
-  Left = 300
-  Height = 600
-  Top = 150
-  Width = 800
+  Left = 250
+  Height = 650
+  Top = 100
+  Width = 950
   Caption = 'Model3D Viewer Demo (ai3dmodelviewer)'
-  ClientHeight = 600
-  ClientWidth = 800
+  ClientHeight = 650
+  ClientWidth = 950
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   LCLVersion = '3.0.0.3'
   object pnlTop: TPanel
-    Left = 10
-    Height = 150
-    Top = 10
-    Width = 780
+    Left = 0
+    Height = 80
+    Top = 0
+    Width = 950
     Align = alTop
-    BorderSpacing.Around = 10
-    ClientHeight = 150
-    ClientWidth = 780
+    BevelOuter = bvNone
+    ClientHeight = 80
+    ClientWidth = 950
+    Color = clMenuBar
+    ParentBackground = False
+    ParentColor = False
     TabOrder = 0
     object lblTitle: TLabel
-      Left = 15
-      Height = 25
-      Top = 15
-      Width = 500
-      Caption = 'Model3D Viewer Demo (ai3dmodelviewer)'
-      Font.Height = -18
+      Left = 12
+      Height = 21
+      Top = 8
+      Width = 430
+      Caption = 'Visualizador de Modelos 3D (TAI3DModelViewer & TAIModel3D)'
+      Font.Height = -16
       Font.Name = 'Segoe UI'
       Font.Style = [fsBold]
       ParentColor = False
     end
-    object lblStatus: TLabel
-      Left = 15
-      Height = 15
-      Top = 50
-      Width = 400
-      Caption = 'Status: Ready'
-      ParentColor = False
-    end
-    object chkSimulation: TCheckBox
-      Left = 15
-      Height = 19
-      Top = 80
-      Width = 150
-      Caption = 'Simulation Mode'
-      Checked = True
-      State = cbChecked
+    object btnOpenModel: TButton
+      Left = 12
+      Height = 32
+      Top = 38
+      Width = 140
+      Caption = 'Abrir Arquivo 3D...'
+      OnClick = btnOpenModelClick
       TabOrder = 0
     end
-    object btnRun: TButton
-      Left = 200
-      Height = 30
-      Top = 75
-      Width = 150
-      Caption = 'Execute Test'
-      OnClick = btnRunClick
+    object btnCube: TButton
+      Left = 158
+      Height = 32
+      Top = 38
+      Width = 90
+      Caption = 'Cubo 3D'
+      OnClick = btnCubeClick
       TabOrder = 1
     end
-    object btnClearLog: TButton
-      Left = 360
-      Height = 30
-      Top = 75
-      Width = 120
-      Caption = 'Clear Log'
-      OnClick = btnClearLogClick
+    object btnPyramid: TButton
+      Left = 254
+      Height = 32
+      Top = 38
+      Width = 95
+      Caption = 'Pirâmide 3D'
+      OnClick = btnPyramidClick
       TabOrder = 2
     end
+    object btnCylinder: TButton
+      Left = 355
+      Height = 32
+      Top = 38
+      Width = 95
+      Caption = 'Cilindro 3D'
+      OnClick = btnCylinderClick
+      TabOrder = 3
+    end
+    object lblRenderMode: TLabel
+      Left = 460
+      Height = 15
+      Top = 46
+      Width = 43
+      Caption = 'Modo:'
+      ParentColor = False
+    end
+    object cmbRenderMode: TComboBox
+      Left = 508
+      Height = 23
+      Top = 42
+      Width = 110
+      ItemHeight = 15
+      ItemIndex = 0
+      Items.Strings = (
+        'Sólido'
+        'Wireframe'
+        'Pontos'
+      )
+      OnChange = cmbRenderModeChange
+      Style = csDropDownList
+      TabOrder = 4
+      Text = 'Sólido'
+    end
+    object btnZoomIn: TButton
+      Left = 626
+      Height = 32
+      Top = 38
+      Width = 65
+      Caption = 'Zoom +'
+      OnClick = btnZoomInClick
+      TabOrder = 5
+    end
+    object btnZoomOut: TButton
+      Left = 696
+      Height = 32
+      Top = 38
+      Width = 65
+      Caption = 'Zoom -'
+      OnClick = btnZoomOutClick
+      TabOrder = 6
+    end
+    object btnResetCam: TButton
+      Left = 766
+      Height = 32
+      Top = 38
+      Width = 85
+      Caption = 'Reset Câmera'
+      OnClick = btnResetCamClick
+      TabOrder = 7
+    end
+    object btnExport: TButton
+      Left = 856
+      Height = 32
+      Top = 38
+      Width = 84
+      Caption = 'Exportar...'
+      OnClick = btnExportClick
+      TabOrder = 8
+    end
   end
-  object memoLog: TMemo
-    Left = 10
-    Height = 410
-    Top = 180
-    Width = 780
+  object pnlMain: TPanel
+    Left = 0
+    Height = 570
+    Top = 80
+    Width = 950
     Align = alClient
-    BorderSpacing.Around = 10
-    ScrollBars = ssAutoBoth
+    BevelOuter = bvNone
+    ClientHeight = 570
+    ClientWidth = 950
     TabOrder = 1
+    object pnlRight: TPanel
+      Left = 670
+      Height = 570
+      Top = 0
+      Width = 280
+      Align = alRight
+      BevelOuter = bvNone
+      ClientHeight = 570
+      ClientWidth = 280
+      Color = clForm
+      ParentBackground = False
+      ParentColor = False
+      TabOrder = 0
+      object grpStats: TGroupBox
+        Left = 8
+        Height = 220
+        Top = 8
+        Width = 264
+        Align = alTop
+        BorderSpacing.Around = 8
+        Caption = ' Propriedades do Modelo '
+        ClientHeight = 200
+        ClientWidth = 260
+        TabOrder = 0
+        object lblStats: TLabel
+          Left = 10
+          Height = 180
+          Top = 10
+          Width = 240
+          Align = alClient
+          BorderSpacing.Around = 10
+          Caption = 'Nenhum modelo carregado.'
+          Font.Name = 'Segoe UI'
+          ParentColor = False
+          WordWrap = True
+        end
+      end
+      object grpControls: TGroupBox
+        Left = 8
+        Height = 110
+        Top = 236
+        Width = 264
+        Align = alTop
+        BorderSpacing.Around = 8
+        Caption = ' Rotação Rápida '
+        ClientHeight = 90
+        ClientWidth = 260
+        TabOrder = 1
+        object btnRotX: TButton
+          Left = 10
+          Height = 28
+          Top = 10
+          Width = 72
+          Caption = 'Girar X'
+          OnClick = btnRotXClick
+          TabOrder = 0
+        end
+        object btnRotY: TButton
+          Left = 90
+          Height = 28
+          Top = 10
+          Width = 72
+          Caption = 'Girar Y'
+          OnClick = btnRotYClick
+          TabOrder = 1
+        end
+        object btnRotZ: TButton
+          Left = 170
+          Height = 28
+          Top = 10
+          Width = 72
+          Caption = 'Girar Z'
+          OnClick = btnRotZClick
+          TabOrder = 2
+        end
+        object lblDragHint: TLabel
+          Left = 10
+          Height = 30
+          Top = 48
+          Width = 240
+          Caption = 'Dica: Arraste o mouse na tela 3D para rotacionar e use a roda para zoom.'
+          Font.Height = -11
+          ParentColor = False
+          WordWrap = True
+        end
+      end
+      object grpLog: TGroupBox
+        Left = 8
+        Height = 200
+        Top = 354
+        Width = 264
+        Align = alClient
+        BorderSpacing.Around = 8
+        Caption = ' Histórico de Operações '
+        ClientHeight = 180
+        ClientWidth = 260
+        TabOrder = 2
+        object memoLog: TMemo
+          Left = 8
+          Height = 164
+          Top = 8
+          Width = 244
+          Align = alClient
+          BorderSpacing.Around = 8
+          ReadOnly = True
+          ScrollBars = ssAutoBoth
+          TabOrder = 0
+        end
+      end
+    end
+    object pnlViewerHost: TPanel
+      Left = 0
+      Height = 570
+      Top = 0
+      Width = 670
+      Align = alClient
+      BevelOuter = bvNone
+      Color = clBlack
+      ParentBackground = False
+      ParentColor = False
+      TabOrder = 1
+    end
+  end
+  object OpenDialog1: TOpenDialog
+    Title = 'Abrir Modelo 3D'
+    Filter = 'Modelos 3D (*.stl;*.obj)|*.stl;*.obj|Arquivos STL (*.stl)|*.stl|Arquivos OBJ (*.obj)|*.obj|Todos os Arquivos (*.*)|*.*'
+    Left = 180
+    Top = 150
+  end
+  object SaveDialog1: TSaveDialog
+    Title = 'Exportar Imagem 3D'
+    DefaultExt = '.png'
+    Filter = 'Imagem PNG (*.png)|*.png|Imagem Bitmap (*.bmp)|*.bmp'
+    Left = 260
+    Top = 150
   end
 end

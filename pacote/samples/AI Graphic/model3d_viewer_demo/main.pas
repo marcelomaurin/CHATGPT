@@ -15,18 +15,54 @@ type
   TfrmMain = class(TForm)
     pnlTop: TPanel;
     lblTitle: TLabel;
-    lblStatus: TLabel;
-    chkSimulation: TCheckBox;
-    btnRun: TButton;
-    btnClearLog: TButton;
+    btnOpenModel: TButton;
+    btnCube: TButton;
+    btnPyramid: TButton;
+    btnCylinder: TButton;
+    lblRenderMode: TLabel;
+    cmbRenderMode: TComboBox;
+    btnZoomIn: TButton;
+    btnZoomOut: TButton;
+    btnResetCam: TButton;
+    btnExport: TButton;
+    pnlMain: TPanel;
+    pnlViewerHost: TPanel;
+    pnlRight: TPanel;
+    grpStats: TGroupBox;
+    lblStats: TLabel;
+    grpControls: TGroupBox;
+    btnRotX: TButton;
+    btnRotY: TButton;
+    btnRotZ: TButton;
+    lblDragHint: TLabel;
+    grpLog: TGroupBox;
     memoLog: TMemo;
+    OpenDialog1: TOpenDialog;
+    SaveDialog1: TSaveDialog;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure btnRunClick(Sender: TObject);
-    procedure btnClearLogClick(Sender: TObject);
+    procedure btnOpenModelClick(Sender: TObject);
+    procedure btnCubeClick(Sender: TObject);
+    procedure btnPyramidClick(Sender: TObject);
+    procedure btnCylinderClick(Sender: TObject);
+    procedure cmbRenderModeChange(Sender: TObject);
+    procedure btnZoomInClick(Sender: TObject);
+    procedure btnZoomOutClick(Sender: TObject);
+    procedure btnResetCamClick(Sender: TObject);
+    procedure btnExportClick(Sender: TObject);
+    procedure btnRotXClick(Sender: TObject);
+    procedure btnRotYClick(Sender: TObject);
+    procedure btnRotZClick(Sender: TObject);
   private
-    FAI3DViewer: TAI3DModelViewer; FAIModel3D: TAIModel3D; FEditRotation: TEdit;
+    FAIModel3D: TAIModel3D;
+    FAI3DViewer: TAI3DModelViewer;
     procedure AddLog(const AMsg: string);
+    procedure UpdateModelStats;
+    procedure GenerateCubeMesh;
+    procedure GeneratePyramidMesh;
+    procedure GenerateCylinderMesh;
+    procedure OnModelLoadedHandler(Sender: TObject);
+    procedure OnModelErrorHandler(Sender: TObject);
   public
 
   end;
@@ -42,79 +78,329 @@ implementation
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
-  AddLog('Model3D Viewer Demo (ai3dmodelviewer) initialized.');
+  AddLog('Inicializando Model3D Viewer Demo (TAI3DModelViewer & TAIModel3D)...');
+  
   FAIModel3D := TAIModel3D.Create(Self);
+  
   FAI3DViewer := TAI3DModelViewer.Create(Self);
+  FAI3DViewer.Parent := pnlViewerHost;
+  FAI3DViewer.Align := alClient;
+  FAI3DViewer.BackgroundColor := RGBToColor(24, 28, 36);
+  FAI3DViewer.OnModelLoaded := @OnModelLoadedHandler;
+  FAI3DViewer.OnModelError := @OnModelErrorHandler;
   FAI3DViewer.Model := FAIModel3D;
   
-  FEditRotation := TEdit.Create(Self);
-  FEditRotation.Parent := pnlTop;
-  FEditRotation.Left := 15;
-  FEditRotation.Top := 115;
-  FEditRotation.Width := 100;
-  FEditRotation.Text := '45';
+  // Gera cubo 3D inicial para visualização imediata
+  GenerateCubeMesh;
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
-  // Handled by LCL Owner auto-free.
-end;
-
-procedure TfrmMain.btnRunClick(Sender: TObject);
-begin
-  lblStatus.Caption := 'Status: Processing...';
-  AddLog('--- Starting Execution ---');
-  try
-    AddLog('3D Model Viewer & Model 3D Properties:');
-    AddLog('  Rotation: ' + FEditRotation.Text + ' degrees');
-    
-    if chkSimulation.Checked then
-    begin
-      AddLog('Simulating 3D Model load...');
-      FAIModel3D.LoadFromFile('sample_part.stl');
-      AddLog('Model details (Simulated):');
-      AddLog('  Vertices: 1424');
-      AddLog('  Faces: 2848');
-      AddLog('Rotated 3D view by ' + FEditRotation.Text + ' degrees.');
-      AddLog('View rendered successfully.');
-    end
-    else
-    begin
-      AddLog('Loading actual model coordinates...');
-      try
-        if FileExists('sample_part.stl') then
-        begin
-          FAIModel3D.LoadFromFile('sample_part.stl');
-          AddLog('Model loaded successfully.');
-          FAIModel3D.Rotate(StrToIntDef(FEditRotation.Text, 45), 0, 0);
-          FAI3DViewer.Invalidate;
-          AddLog('Invalidate redraw method executed.');
-        end
-        else
-          AddLog('Model file not found: sample_part.stl');
-      except
-        on E: Exception do AddLog('Exception: ' + E.Message);
-      end;
-    end;
-    lblStatus.Caption := 'Status: Completed Successfully';
-  except
-    on E: Exception do
-    begin
-      AddLog('Critical Error: ' + E.Message);
-      lblStatus.Caption := 'Status: Execution Error';
-    end;
-  end;
-  AddLog('--- Execution Finished ---');
-end;
-
-procedure TfrmMain.btnClearLogClick(Sender: TObject);
-begin
-  memoLog.Clear;
+  // Componentes limpos pelo LCL Owner
 end;
 
 procedure TfrmMain.AddLog(const AMsg: string);
 begin
-  memoLog.Lines.Add(AMsg);
+  memoLog.Lines.Add(FormatDateTime('[hh:nn:ss] ', Now) + AMsg);
+end;
+
+procedure TfrmMain.UpdateModelStats;
+begin
+  if (FAIModel3D = nil) or (FAIModel3D.FacesCount = 0) then
+  begin
+    lblStats.Caption := 'Nenhum modelo carregado.';
+    Exit;
+  end;
+
+  lblStats.Caption := Format(
+    'Arquivo: %s' + LineEnding +
+    'Faces (Triângulos): %d' + LineEnding +
+    'Vértices Calculados: %d' + LineEnding + LineEnding +
+    'Dimensões da Malha:' + LineEnding +
+    '  X: [%.2f .. %.2f]' + LineEnding +
+    '  Y: [%.2f .. %.2f]' + LineEnding +
+    '  Z: [%.2f .. %.2f]' + LineEnding + LineEnding +
+    'Centro (Mid): (%.2f, %.2f, %.2f)' + LineEnding +
+    'Raio Esférico: %.2f',
+    [ExtractFileName(FAIModel3D.FilePath),
+     FAIModel3D.FacesCount,
+     FAIModel3D.VerticesCount,
+     FAIModel3D.MinX, FAIModel3D.MaxX,
+     FAIModel3D.MinY, FAIModel3D.MaxY,
+     FAIModel3D.MinZ, FAIModel3D.MaxZ,
+     FAIModel3D.MidX, FAIModel3D.MidY, FAIModel3D.MidZ,
+     FAIModel3D.ModelRadius]
+  );
+end;
+
+procedure TfrmMain.OnModelLoadedHandler(Sender: TObject);
+begin
+  AddLog('Evento OnModelLoaded: Modelo 3D carregado com sucesso!');
+  UpdateModelStats;
+end;
+
+procedure TfrmMain.OnModelErrorHandler(Sender: TObject);
+begin
+  AddLog('Evento OnModelError: Erro ao carregar modelo.');
+end;
+
+procedure TfrmMain.btnOpenModelClick(Sender: TObject);
+begin
+  if OpenDialog1.Execute then
+  begin
+    AddLog('Carregando arquivo 3D: ' + OpenDialog1.FileName);
+    try
+      FAIModel3D.LoadFromFile(OpenDialog1.FileName);
+      FAI3DViewer.ResetCamera;
+      FAI3DViewer.Invalidate;
+      UpdateModelStats;
+      AddLog(Format('Sucesso: %d triângulos carregados.', [FAIModel3D.FacesCount]));
+    except
+      on E: Exception do
+        AddLog('Erro ao carregar arquivo: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmMain.GenerateCubeMesh;
+var
+  TempFile: string;
+  SL: TStringList;
+begin
+  AddLog('Gerando malha procedural: Cubo 3D...');
+  TempFile := IncludeTrailingPathDelimiter(GetTempDir) + 'model3d_cube.obj';
+  SL := TStringList.Create;
+  try
+    SL.Add('# Wavefront OBJ - 3D Cube');
+    SL.Add('v -1.0 -1.0  1.0');
+    SL.Add('v  1.0 -1.0  1.0');
+    SL.Add('v  1.0  1.0  1.0');
+    SL.Add('v -1.0  1.0  1.0');
+    SL.Add('v -1.0 -1.0 -1.0');
+    SL.Add('v  1.0 -1.0 -1.0');
+    SL.Add('v  1.0  1.0 -1.0');
+    SL.Add('v -1.0  1.0 -1.0');
+    // Front face
+    SL.Add('f 1 2 3');
+    SL.Add('f 1 3 4');
+    // Back face
+    SL.Add('f 6 5 8');
+    SL.Add('f 6 8 7');
+    // Top face
+    SL.Add('f 4 3 7');
+    SL.Add('f 4 7 8');
+    // Bottom face
+    SL.Add('f 5 6 2');
+    SL.Add('f 5 2 1');
+    // Right face
+    SL.Add('f 2 6 7');
+    SL.Add('f 2 7 3');
+    // Left face
+    SL.Add('f 5 1 4');
+    SL.Add('f 5 4 8');
+    SL.SaveToFile(TempFile);
+  finally
+    SL.Free;
+  end;
+
+  FAIModel3D.LoadFromFile(TempFile);
+  FAIModel3D.FilePath := 'Cubo_Procedural.obj';
+  FAI3DViewer.ResetCamera;
+  FAI3DViewer.Invalidate;
+  UpdateModelStats;
+  AddLog('Cubo 3D pronto para visualização e rotação interativa.');
+end;
+
+procedure TfrmMain.GeneratePyramidMesh;
+var
+  TempFile: string;
+  SL: TStringList;
+begin
+  AddLog('Gerando malha procedural: Pirâmide 3D...');
+  TempFile := IncludeTrailingPathDelimiter(GetTempDir) + 'model3d_pyramid.obj';
+  SL := TStringList.Create;
+  try
+    SL.Add('# Wavefront OBJ - 3D Pyramid');
+    SL.Add('v  0.0  1.5  0.0'); // Apex (1)
+    SL.Add('v -1.0 -1.0  1.0'); // Base FL (2)
+    SL.Add('v  1.0 -1.0  1.0'); // Base FR (3)
+    SL.Add('v  1.0 -1.0 -1.0'); // Base BR (4)
+    SL.Add('v -1.0 -1.0 -1.0'); // Base BL (5)
+    // Front
+    SL.Add('f 1 2 3');
+    // Right
+    SL.Add('f 1 3 4');
+    // Back
+    SL.Add('f 1 4 5');
+    // Left
+    SL.Add('f 1 5 2');
+    // Base
+    SL.Add('f 2 5 4');
+    SL.Add('f 2 4 3');
+    SL.SaveToFile(TempFile);
+  finally
+    SL.Free;
+  end;
+
+  FAIModel3D.LoadFromFile(TempFile);
+  FAIModel3D.FilePath := 'Piramide_Procedural.obj';
+  FAI3DViewer.ResetCamera;
+  FAI3DViewer.Invalidate;
+  UpdateModelStats;
+  AddLog('Pirâmide 3D pronta para visualização.');
+end;
+
+procedure TfrmMain.GenerateCylinderMesh;
+var
+  TempFile: string;
+  SL: TStringList;
+  I, Segments: Integer;
+  Angle, R, H, X, Z: Double;
+begin
+  AddLog('Gerando malha procedural: Cilindro 3D...');
+  TempFile := IncludeTrailingPathDelimiter(GetTempDir) + 'model3d_cylinder.obj';
+  SL := TStringList.Create;
+  try
+    Segments := 16;
+    R := 1.0;
+    H := 2.0;
+    SL.Add('# Wavefront OBJ - 3D Cylinder');
+    // Top center = 1, Bottom center = 2
+    SL.Add(Format('v 0.0 %.4f 0.0', [H / 2.0]));
+    SL.Add(Format('v 0.0 %.4f 0.0', [-H / 2.0]));
+    
+    // Top ring: 3 .. Segments + 2
+    for I := 0 to Segments - 1 do
+    begin
+      Angle := (2.0 * Pi * I) / Segments;
+      X := R * Cos(Angle);
+      Z := R * Sin(Angle);
+      SL.Add(Format('v %.4f %.4f %.4f', [X, H / 2.0, Z]));
+    end;
+    
+    // Bottom ring: Segments + 3 .. 2 * Segments + 2
+    for I := 0 to Segments - 1 do
+    begin
+      Angle := (2.0 * Pi * I) / Segments;
+      X := R * Cos(Angle);
+      Z := R * Sin(Angle);
+      SL.Add(Format('v %.4f %.4f %.4f', [X, -H / 2.0, Z]));
+    end;
+    
+    // Faces
+    for I := 0 to Segments - 1 do
+    begin
+      // Top fan
+      SL.Add(Format('f 1 %d %d', [3 + I, 3 + ((I + 1) mod Segments)]));
+      // Bottom fan
+      SL.Add(Format('f 2 %d %d', [3 + Segments + ((I + 1) mod Segments), 3 + Segments + I]));
+      // Side quad (2 triangles)
+      SL.Add(Format('f %d %d %d', [3 + I, 3 + Segments + I, 3 + Segments + ((I + 1) mod Segments)]));
+      SL.Add(Format('f %d %d %d', [3 + I, 3 + Segments + ((I + 1) mod Segments), 3 + ((I + 1) mod Segments)]));
+    end;
+    SL.SaveToFile(TempFile);
+  finally
+    SL.Free;
+  end;
+
+  FAIModel3D.LoadFromFile(TempFile);
+  FAIModel3D.FilePath := 'Cilindro_Procedural.obj';
+  FAI3DViewer.ResetCamera;
+  FAI3DViewer.Invalidate;
+  UpdateModelStats;
+  AddLog('Cilindro 3D pronto para visualização.');
+end;
+
+procedure TfrmMain.btnCubeClick(Sender: TObject);
+begin
+  GenerateCubeMesh;
+end;
+
+procedure TfrmMain.btnPyramidClick(Sender: TObject);
+begin
+  GeneratePyramidMesh;
+end;
+
+procedure TfrmMain.btnCylinderClick(Sender: TObject);
+begin
+  GenerateCylinderMesh;
+end;
+
+procedure TfrmMain.cmbRenderModeChange(Sender: TObject);
+begin
+  case cmbRenderMode.ItemIndex of
+    0: FAI3DViewer.RenderMode := rmSolid;
+    1: FAI3DViewer.RenderMode := rmWireframe;
+    2: FAI3DViewer.RenderMode := rmPoints;
+  end;
+  FAI3DViewer.Invalidate;
+  AddLog('Modo de renderização alterado para: ' + cmbRenderMode.Text);
+end;
+
+procedure TfrmMain.btnZoomInClick(Sender: TObject);
+begin
+  FAI3DViewer.ZoomIn;
+  AddLog('Zoom aumentado.');
+end;
+
+procedure TfrmMain.btnZoomOutClick(Sender: TObject);
+begin
+  FAI3DViewer.ZoomOut;
+  AddLog('Zoom reduzido.');
+end;
+
+procedure TfrmMain.btnResetCamClick(Sender: TObject);
+begin
+  FAI3DViewer.ResetCamera;
+  FAI3DViewer.Invalidate;
+  AddLog('Câmera resetada para posição padrão.');
+end;
+
+procedure TfrmMain.btnExportClick(Sender: TObject);
+begin
+  if SaveDialog1.Execute then
+  begin
+    try
+      FAI3DViewer.ExportScreenshot(SaveDialog1.FileName);
+      AddLog('Captura 3D exportada com sucesso para: ' + SaveDialog1.FileName);
+    except
+      on E: Exception do
+        AddLog('Erro ao exportar imagem: ' + E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmMain.btnRotXClick(Sender: TObject);
+begin
+  if FAIModel3D <> nil then
+  begin
+    FAIModel3D.Rotate(15, 0, 0);
+    FAI3DViewer.Invalidate;
+    UpdateModelStats;
+    AddLog('Rotacionado X +15 graus na malha.');
+  end;
+end;
+
+procedure TfrmMain.btnRotYClick(Sender: TObject);
+begin
+  if FAIModel3D <> nil then
+  begin
+    FAIModel3D.Rotate(0, 15, 0);
+    FAI3DViewer.Invalidate;
+    UpdateModelStats;
+    AddLog('Rotacionado Y +15 graus na malha.');
+  end;
+end;
+
+procedure TfrmMain.btnRotZClick(Sender: TObject);
+begin
+  if FAIModel3D <> nil then
+  begin
+    FAIModel3D.Rotate(0, 0, 15);
+    FAI3DViewer.Invalidate;
+    UpdateModelStats;
+    AddLog('Rotacionado Z +15 graus na malha.');
+  end;
 end;
 
 end.
