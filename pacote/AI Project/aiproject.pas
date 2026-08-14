@@ -1391,7 +1391,7 @@ begin
 end;
 
 initialization
-  {$I taiproject_icon.lrs}
+  {$I aiproject_icon.lrs}
 
   {$I aiproject_icon.lrs}
 

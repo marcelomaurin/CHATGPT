@@ -135,6 +135,8 @@ begin
 end;
 
 initialization
-  {$I taiprojectllmconfig_icon.lrs}
+  {$I aiproject_llmconfig_icon.lrs}
+
+  {$I aiproject_llmconfig_icon.lrs}
 
 end.

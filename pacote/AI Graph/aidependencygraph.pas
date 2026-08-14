@@ -5,7 +5,7 @@ unit aidependencygraph;
 interface
 
 uses
-  Classes, SysUtils, fgl, fpjson, jsonparser, aibase, LResources;
+  Classes, SysUtils, fgl, fpjson, jsonparser, aibase;
 
 const
   AIDG_KIND_FACTUAL  = 'factual';
@@ -901,7 +901,12 @@ begin
   end;
 end;
 
+{$IFDEF LCL}
+uses
+  LResources;
+
 initialization
   {$I aidependencygraph_icon.lrs}
+{$ENDIF}
 
 end.

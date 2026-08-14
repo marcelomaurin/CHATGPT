@@ -156,7 +156,7 @@ def is_runtime_only(package: Path) -> bool:
         return False
 
 
-def process_packages(manifest: dict, lazbuild: Path, profile: str, install: bool) -> bool:
+def process_packages(manifest: dict, lazbuild: Path, profile: str, install: bool, report: dict | None = None) -> bool:
     names = manifest["profiles"][profile]
     tracked = {path.stem for path in (ROOT / "pacote" / "packages").glob("*.lpk")}
     declared = set(manifest["profiles"]["all"])
@@ -165,6 +165,8 @@ def process_packages(manifest: dict, lazbuild: Path, profile: str, install: bool
     if profile == "all" and (missing_manifest or missing_files):
         print(f"[ERRO] Pacotes fora do manifesto: {missing_manifest}")
         print(f"[ERRO] Pacotes declarados e ausentes: {missing_files}")
+        if report is not None:
+            report["errors"].append(f"Manifest mismatch: outside={missing_manifest}, missing={missing_files}")
         return False
     ok = True
     if not install:
@@ -179,6 +181,8 @@ def process_packages(manifest: dict, lazbuild: Path, profile: str, install: bool
         package = ROOT / "pacote" / "packages" / f"{name}.lpk"
         if not package.is_file():
             print(f"[ERRO] Pacote ausente: {package}")
+            if report is not None:
+                report["failed_packages"].append(name)
             ok = False
             continue
         arguments = [str(lazbuild)]
@@ -192,10 +196,38 @@ def process_packages(manifest: dict, lazbuild: Path, profile: str, install: bool
             arguments.append(str(package))
         if not run(arguments):
             print(f"[ERRO] Falha no pacote: {name}")
+            if report is not None:
+                report["failed_packages"].append(name)
             ok = False
         else:
             print(f"[OK] Pacote: {name}")
+            if report is not None:
+                report["compiled_packages"].append(name)
     return ok
+
+
+def print_summary_report(report: dict, success: bool):
+    print("\n" + "=" * 60)
+    print("         RELATÓRIO CONSOLIDADO DO INSTALADOR CHATGPT")
+    print("=" * 60)
+    print(f"Status Final       : {'SUCESSO' if success else 'FALHA'}")
+    print(f"Perfil de Instalação: {report.get('profile', 'N/A')}")
+    print(f"Ação Executada     : {report.get('action', 'N/A')}")
+    print(f"Plataforma         : {report.get('platform', 'N/A')}")
+    print(f"Executável lazbuild: {report.get('lazbuild', 'N/A')}")
+    print("-" * 60)
+    print(f"Dependências Externas : {len(report.get('installed_deps', []))} instaladas, {len(report.get('failed_deps', []))} falhas")
+    for dep in report.get('installed_deps', []):
+        print(f"  [OK] {dep}")
+    for dep in report.get('failed_deps', []):
+        print(f"  [ERRO] {dep}")
+    print("-" * 60)
+    print(f"Pacotes da Suíte      : {len(report.get('compiled_packages', []))} compilados, {len(report.get('failed_packages', []))} falhas")
+    for p in report.get('failed_packages', []):
+        print(f"  [FALHA] {p}")
+    if report.get('rebuild_ide'):
+        print(f"Rebuild da IDE Lazarus: {'OK' if report.get('rebuild_ide') == 'OK' else 'FALHOU'}")
+    print("=" * 60 + "\n")
 
 
 def main() -> int:
@@ -214,15 +246,36 @@ def main() -> int:
     if lazbuild is None:
         print("[ERRO] lazbuild não encontrado.")
         return 2
+
+    report = {
+        "action": args.action,
+        "profile": args.profile,
+        "platform": platform_key(args.arch or None),
+        "lazbuild": str(lazbuild),
+        "installed_deps": [],
+        "failed_deps": [],
+        "compiled_packages": [],
+        "failed_packages": [],
+        "errors": [],
+        "rebuild_ide": None,
+    }
+
     dependencies_ok = resolve_dependencies(
         manifest, lazbuild, Path(args.dependency_dir), args.no_download, args.profile
     )
+    if dependencies_ok:
+        report["installed_deps"] = [d["name"] for d in manifest["dependencies"] if set(manifest["profiles"][args.profile]).intersection(d["required_by"])]
+
     ssl_ok = validate_openssl(manifest, args.arch or None, Path(args.runtime_target) if args.runtime_target else None)
-    packages_ok = dependencies_ok and process_packages(manifest, lazbuild, args.profile, args.action == "install")
+    packages_ok = dependencies_ok and process_packages(manifest, lazbuild, args.profile, args.action == "install", report)
     ide_ok = True
     if args.action == "install" and packages_ok and not args.skip_ide:
         ide_ok = run([str(lazbuild), "--build-ide="])
-    return 0 if dependencies_ok and ssl_ok and packages_ok and ide_ok else 1
+        report["rebuild_ide"] = "OK" if ide_ok else "FALHOU"
+
+    total_ok = dependencies_ok and ssl_ok and packages_ok and ide_ok
+    print_summary_report(report, total_ok)
+    return 0 if total_ok else 1
 
 
 if __name__ == "__main__":

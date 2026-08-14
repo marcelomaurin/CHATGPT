@@ -195,6 +195,8 @@ begin
 end;
 
 initialization
-  {$I aikinect_icon.lrs}
+  {$I aikinectcolor_icon.lrs}
+
+  {$I aikinectcolor_icon.lrs}
 
 end.

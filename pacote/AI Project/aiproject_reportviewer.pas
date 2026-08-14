@@ -147,6 +147,8 @@ begin
 end;
 
 initialization
-  {$I taiprojectreportviewer_icon.lrs}
+  {$I aiproject_reportviewer_icon.lrs}
+
+  {$I aiproject_reportviewer_icon.lrs}
 
 end.

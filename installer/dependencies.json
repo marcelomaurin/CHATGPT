@@ -10,6 +10,14 @@
       "required_by": ["openai_core", "openai_aidbase", "openai_dbase"]
     },
     {
+      "name": "DCPcrypt",
+      "package": "dcpcrypt.lpk",
+      "environment": "DCPCRYPT_ROOT",
+      "repository": "https://github.com/graemeg/dcpcrypt.git",
+      "relative_package": "dcpcrypt.lpk",
+      "required_by": ["openai_input"]
+    },
+    {
       "name": "CEF4Delphi",
       "package": "cef4delphi_lazarus.lpk",
       "environment": "CEF4DELPHI_ROOT",
@@ -21,8 +29,8 @@
       "name": "GLScene for Lazarus",
       "package": "GLScene_DesignTime.lpk",
       "environment": "GLSCENE_ROOT",
-      "repository": "",
-      "relative_package": "",
+      "repository": "https://github.com/Pascal-Scripts/GLScene.git",
+      "relative_package": "Lazarus/GLScene_DesignTime.lpk",
       "required_by": ["openai_industrial"],
       "note": "Informe GLSCENE_ROOT apontando para uma distribuição Lazarus que contenha GLScene_DesignTime.lpk."
     }

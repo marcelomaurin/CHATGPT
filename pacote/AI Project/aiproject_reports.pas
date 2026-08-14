@@ -342,6 +342,8 @@ begin
 end;
 
 initialization
-  {$I taiprojectreports_icon.lrs}
+  {$I aiproject_reports_icon.lrs}
+
+  {$I aiproject_reports_icon.lrs}
 
 end.

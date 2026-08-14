@@ -46,3 +46,9 @@ jobs:
       - name: Ensure every tracked LPK is declared
         run: |
           python installer/common/verify_manifest.py
+      - name: Validate icon generation consistency (CHATGPT-003)
+        run: |
+          python pacote/generate_all_icons.py --check
+      - name: Validate icon and component registrations (CHATGPT-004)
+        run: |
+          python tests/ci_validate_icons.py

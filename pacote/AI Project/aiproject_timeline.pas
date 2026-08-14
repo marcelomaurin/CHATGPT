@@ -91,6 +91,8 @@ begin
 end;
 
 initialization
-  {$I taiprojecttimeline_icon.lrs}
+  {$I aiproject_timeline_icon.lrs}
+
+  {$I aiproject_timeline_icon.lrs}
 
 end.

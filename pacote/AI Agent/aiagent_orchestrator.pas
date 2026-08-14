@@ -420,6 +420,8 @@ begin
 end;
 
 initialization
-  {$I taiagentorchestrator_icon.lrs}
+  {$I aiagent_orchestrator_icon.lrs}
+
+  {$I aiagent_orchestrator_icon.lrs}
 
 end.

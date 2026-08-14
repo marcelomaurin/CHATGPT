@@ -196,6 +196,8 @@ begin
 end;
 
 initialization
-  {$I aikinect_icon.lrs}
+  {$I aikinectsensor_icon.lrs}
+
+  {$I aikinectsensor_icon.lrs}
 
 end.

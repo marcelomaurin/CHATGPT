@@ -152,6 +152,8 @@ begin
 end;
 
 initialization
-  {$I taiprojectrevisions_icon.lrs}
+  {$I aiproject_revisions_icon.lrs}
+
+  {$I aiproject_revisions_icon.lrs}
 
 end.

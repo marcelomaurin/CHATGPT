@@ -219,6 +219,8 @@ begin
 end;
 
 initialization
-  {$I aikinect_icon.lrs}
+  {$I aikinectdepth_icon.lrs}
+
+  {$I aikinectdepth_icon.lrs}
 
 end.

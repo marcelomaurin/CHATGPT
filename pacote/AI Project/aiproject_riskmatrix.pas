@@ -102,6 +102,8 @@ begin
 end;
 
 initialization
-  {$I tairiskmatrix_icon.lrs}
+  {$I aiproject_riskmatrix_icon.lrs}
+
+  {$I aiproject_riskmatrix_icon.lrs}
 
 end.

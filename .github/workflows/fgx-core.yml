@@ -34,6 +34,9 @@ jobs:
           lazarus-version: "4.4"
           with-cache: false
 
+      - name: Validar unidades puras FPC / FGX (CHATGPT-002)
+        run: python tests/ci_guard_fgx.py
+
       # -Sew: warning vira erro. Nada de "compila com avisos".
       - name: Compilar o nucleo
         shell: bash

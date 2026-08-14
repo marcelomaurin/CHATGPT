@@ -301,7 +301,7 @@ begin
 end;
 
 initialization
-  {$I taiwizardconfig_icon.lrs}
+  {$I aiwizardconfig_icon.lrs}
 
   {$I aiwizardconfig_icon.lrs}
 

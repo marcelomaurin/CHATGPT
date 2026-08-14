@@ -1,0 +1,38 @@
+name: Automated Unit and Guard Tests (CHATGPT-015)
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  unit-and-guards:
+    name: Unit & Guard Validation (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Validar Unidades FPC / FGX (CHATGPT-002)
+        run: python tests/ci_guard_fgx.py
+
+      - name: Validar Consistência de Ícones e Componentes (CHATGPT-003, CHATGPT-004)
+        run: |
+          python pacote/generate_all_icons.py --check
+          python tests/ci_validate_icons.py
+
+      - name: Validar Inventário de Samples (CHATGPT-013)
+        run: python tests/ci_validate_samples.py
+
+      - name: Validar Scripts Python e Manifesto de Dependências
+        run: |
+          python -m py_compile installer/common/install_suite.py installer/common/check_runtime.py installer/common/create_runtime_ini.py
+          python -c "import json, pathlib; json.loads(pathlib.Path('installer/dependencies.json').read_text(encoding='utf-8'))"

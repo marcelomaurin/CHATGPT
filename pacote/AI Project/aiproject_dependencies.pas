@@ -154,6 +154,8 @@ begin
 end;
 
 initialization
-  {$I taiprojectdependencies_icon.lrs}
+  {$I aiproject_dependencies_icon.lrs}
+
+  {$I aiproject_dependencies_icon.lrs}
 
 end.

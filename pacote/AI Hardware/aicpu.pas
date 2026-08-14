@@ -232,6 +232,8 @@ begin
 end;
 
 initialization
-  {$I aihardware_icons.lrs}
+  {$I aicpu_icon.lrs}
+
+  {$I aicpu_icon.lrs}
 
 end.

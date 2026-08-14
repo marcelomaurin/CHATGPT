@@ -116,6 +116,8 @@ begin
 end;
 
 initialization
-  {$I taiprojecttaskgrid_icon.lrs}
+  {$I aiproject_taskgrid_icon.lrs}
+
+  {$I aiproject_taskgrid_icon.lrs}
 
 end.

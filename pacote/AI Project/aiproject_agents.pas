@@ -186,6 +186,8 @@ begin
 end;
 
 initialization
-  {$I taiprojectagents_icon.lrs}
+  {$I aiproject_agents_icon.lrs}
+
+  {$I aiproject_agents_icon.lrs}
 
 end.

@@ -219,6 +219,8 @@ begin
 end;
 
 initialization
-  {$I taiagentmanagerframe_icon.lrs}
+  {$I aiproject_agentmanager_icon.lrs}
+
+  {$I aiproject_agentmanager_icon.lrs}
 
 end.

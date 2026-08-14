@@ -109,6 +109,8 @@ begin
 end;
 
 initialization
-  {$I taiprojectgantt_icon.lrs}
+  {$I aiproject_gantt_icon.lrs}
+
+  {$I aiproject_gantt_icon.lrs}
 
 end.

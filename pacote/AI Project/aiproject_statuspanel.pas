@@ -112,6 +112,8 @@ begin
 end;
 
 initialization
-  {$I taiprojectstatuspanel_icon.lrs}
+  {$I aiproject_statuspanel_icon.lrs}
+
+  {$I aiproject_statuspanel_icon.lrs}
 
 end.

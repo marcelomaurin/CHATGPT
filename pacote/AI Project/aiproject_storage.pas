@@ -147,6 +147,8 @@ begin
 end;
 
 initialization
-  {$I taiprojectstorage_icon.lrs}
+  {$I aiproject_storage_icon.lrs}
+
+  {$I aiproject_storage_icon.lrs}
 
 end.

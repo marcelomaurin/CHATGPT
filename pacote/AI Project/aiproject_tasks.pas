@@ -211,6 +211,8 @@ begin
 end;
 
 initialization
-  {$I taiprojecttasks_icon.lrs}
+  {$I aiproject_tasks_icon.lrs}
+
+  {$I aiproject_tasks_icon.lrs}
 
 end.

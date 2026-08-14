@@ -799,6 +799,8 @@ begin
 end;
 
 initialization
-  {$I taiagentserial_icon.lrs}
+  {$I aiagentserial_icon.lrs}
+
+  {$I aiagentserial_icon.lrs}
 
 end.

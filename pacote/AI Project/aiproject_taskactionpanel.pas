@@ -207,6 +207,8 @@ begin
 end;
 
 initialization
-  {$I taitaskactionpanel_icon.lrs}
+  {$I aiproject_taskactionpanel_icon.lrs}
+
+  {$I aiproject_taskactionpanel_icon.lrs}
 
 end.

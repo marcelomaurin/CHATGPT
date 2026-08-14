@@ -173,6 +173,8 @@ begin
 end;
 
 initialization
-  {$I aikinect_icon.lrs}
+  {$I aikinectskeleton_icon.lrs}
+
+  {$I aikinectskeleton_icon.lrs}
 
 end.

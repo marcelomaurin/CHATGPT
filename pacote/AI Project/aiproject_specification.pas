@@ -397,6 +397,8 @@ begin
 end;
 
 initialization
-  {$I taiprojectspecification_icon.lrs}
+  {$I aiproject_specification_icon.lrs}
+
+  {$I aiproject_specification_icon.lrs}
 
 end.

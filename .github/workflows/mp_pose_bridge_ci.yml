@@ -1,4 +1,4 @@
-name: MediaPipe Pose Bridge CI
+name: MediaPipe Pose Bridge CI (CHATGPT-016)
 
 on:
   push:
@@ -13,38 +13,38 @@ on:
 
 jobs:
   build:
-    name: Build & Test
+    name: Build & Test (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
 
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         submodules: recursive
 
-    - name: Set up CMake
-      uses: jwlawrence/actions-setup-cmake@v1
-      with:
-        cmake-version: '3.16.x'
-
-    - name: Set up Bazel (Bazelisk)
-      uses: bazelbuild/setup-bazelisk@v2
+    - name: Set up MSVC (Windows)
+      if: runner.os == 'Windows'
+      uses: ilammy/msvc-dev-cmd@v1
 
     - name: Configure CMake (SIM Backend)
+      shell: bash
       run: |
         mkdir -p bridge/mediapipe_pose/build/out
         cd bridge/mediapipe_pose/build/out
-        cmake -DMP_POSE_BUILD=ON -DMP_BRIDGE_BACKEND=SIM ..
+        cmake -DMP_POSE_BUILD=ON -DMP_BRIDGE_BACKEND=SIM ../..
 
     - name: Build Bridge Library (SIM Backend)
+      shell: bash
       run: |
         cd bridge/mediapipe_pose/build/out
         cmake --build . --config Release
 
     - name: Compile C Smoke Test
+      shell: bash
       run: |
         cd bridge/mediapipe_pose/tests
         if [ "${{ matrix.os }}" = "windows-latest" ]; then
@@ -52,22 +52,21 @@ jobs:
         else
           gcc smoke_test.c -I../include -ldl -o smoke_test
         fi
-      shell: bash
 
     - name: Run Smoke Test
+      shell: bash
+      working-directory: bridge/mediapipe_pose/tests
       run: |
         if [ "${{ matrix.os }}" = "windows-latest" ]; then
-          cp ../build/out/bin/Release/mp_pose_bridge.dll .
+          find ../build/out -name "mp_pose_bridge.dll" -exec cp {} . \; 2>/dev/null || true
           ./smoke_test.exe
         else
-          cp ../build/out/lib/libmp_pose_bridge.so .
+          find ../build/out -name "libmp_pose_bridge.so" -exec cp {} . \; 2>/dev/null || true
           ./smoke_test
         fi
-      working-directory: bridge/mediapipe_pose/tests
-      shell: bash
 
     - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: mp-pose-bridge-${{ matrix.os }}
         path: |

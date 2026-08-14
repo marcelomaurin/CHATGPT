@@ -105,6 +105,8 @@ begin
 end;
 
 initialization
-  {$I taittaskactions_icon.lrs}
+  {$I aiproject_actions_icon.lrs}
+
+  {$I aiproject_actions_icon.lrs}
 
 end.

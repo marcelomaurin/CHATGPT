@@ -200,6 +200,8 @@ begin
 end;
 
 initialization
-  {$I taiagiledocuments_icon.lrs}
+  {$I aiproject_documents_icon.lrs}
+
+  {$I aiproject_documents_icon.lrs}
 
 end.
