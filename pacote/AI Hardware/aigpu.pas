@@ -89,4 +89,7 @@ begin
   RegisterComponents('AI Hardware', [TAIGPU]);
 end;
 
+initialization
+  {$I aigpu_icon.lrs}
+
 end.

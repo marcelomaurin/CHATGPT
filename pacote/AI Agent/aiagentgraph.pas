@@ -508,4 +508,7 @@ begin
   Result := ContinueExecution;
 end;
 
+initialization
+  {$I aiagentgraph_icon.lrs}
+
 end.

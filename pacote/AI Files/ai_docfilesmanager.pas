@@ -5,7 +5,7 @@ unit ai_docfilesmanager;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, fpjson, jsonparser, contnrs;
+  Classes, SysUtils, FileUtil, fpjson, jsonparser, contnrs, LResources;
 
 type
   TAIDocFileEvent = procedure(
@@ -1419,5 +1419,8 @@ begin
     FileName
   );
 end;
+
+initialization
+  {$I ai_docfilesmanager_icon.lrs}
 
 end.

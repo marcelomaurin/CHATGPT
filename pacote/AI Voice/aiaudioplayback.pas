@@ -64,4 +64,7 @@ begin
   FPlaying := False;
 end;
 
+initialization
+  {$I aiaudioplayback_icon.lrs}
+
 end.

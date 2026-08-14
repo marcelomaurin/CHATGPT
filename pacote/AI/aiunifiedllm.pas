@@ -187,4 +187,7 @@ begin
   Result := ACapability in ProviderCapabilities;
 end;
 
+initialization
+  {$I aiunifiedllm_icon.lrs}
+
 end.

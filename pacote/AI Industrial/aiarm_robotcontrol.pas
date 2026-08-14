@@ -30,7 +30,7 @@ interface
 
 uses
   Classes, SysUtils, Math, Graphics, Controls, ExtCtrls, StdCtrls, ComCtrls,
-  aiarm_robot;
+  aiarm_robot, LResources;
 
 type
 
@@ -95,9 +95,6 @@ type
 procedure Register;
 
 implementation
-
-uses
-  LResources;
 
 procedure Register;
 begin
@@ -372,5 +369,8 @@ begin
     FUpdating := False;
   end;
 end;
+
+initialization
+  {$I aiarm_robotcontrol_icon.lrs}
 
 end.

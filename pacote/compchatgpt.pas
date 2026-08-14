@@ -3,7 +3,7 @@ unit compchatgpt;
 interface
 
 uses
-  Classes, Controls, Graphics;
+  Classes, Controls, Graphics, LResources;
 
 type
   TMyComponent = class(TCustomControl)
@@ -36,6 +36,9 @@ begin
   // Registrar o componente na aba "Samples"
   RegisterComponents('Samples', [TMyComponent]);
 end;
+
+initialization
+  {$I compchatgpt_icon.lrs}
 
 end.
 

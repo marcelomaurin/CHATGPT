@@ -169,4 +169,7 @@ end;
 procedure TAIF5TTSProcessEngine.Cancel;
 begin FRunner.Stop; end;
 
+initialization
+  {$I aif5ttsengine_icon.lrs}
+
 end.

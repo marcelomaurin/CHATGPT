@@ -398,4 +398,7 @@ begin
   AResponse := '{"error":"A2A route not found"}';
 end;
 
+initialization
+  {$I aia2aserver_icon.lrs}
+
 end.

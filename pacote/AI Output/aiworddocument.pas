@@ -745,4 +745,7 @@ begin
   end;
 end;
 
+initialization
+  {$I aiworddocument_icon.lrs}
+
 end.

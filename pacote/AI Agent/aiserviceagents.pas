@@ -384,4 +384,7 @@ begin
     'application/json; charset=utf-8', H.ToStringArray); finally H.Free; end;
 end;
 
+initialization
+  {$I aiserviceagents_icon.lrs}
+
 end.

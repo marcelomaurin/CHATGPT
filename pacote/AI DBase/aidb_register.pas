@@ -29,4 +29,7 @@ begin
   ]);
 end;
 
+initialization
+  {$I aidb_register_icon.lrs}
+
 end.

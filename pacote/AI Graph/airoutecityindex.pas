@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, fpjson, jsonparser, jsonscanner, Contnrs, aibase, airoutegraph_types,
-  airoutegraph, airoutegraph_utils;
+  airoutegraph, airoutegraph_utils, LResources;
 
 type
   { TAIRouteCityIndex }
@@ -194,6 +194,8 @@ begin
 end;
 
 initialization
+  {$I airoutecityindex_icon.lrs}
+
   RegisterClass(TAIRouteCityIndex);
 finalization
   UnRegisterClass(TAIRouteCityIndex);

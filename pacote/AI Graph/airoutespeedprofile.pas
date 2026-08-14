@@ -5,7 +5,7 @@ unit airoutespeedprofile;
 interface
 
 uses
-  Classes, SysUtils, Math, aibase, airoutegraph_types, airoutegraph_utils;
+  Classes, SysUtils, Math, aibase, airoutegraph_types, airoutegraph_utils, LResources;
 
 type
   { TAIRouteSpeedProfile }
@@ -97,6 +97,8 @@ begin
 end;
 
 initialization
+  {$I airoutespeedprofile_icon.lrs}
+
   RegisterClass(TAIRouteSpeedProfile);
 finalization
   UnRegisterClass(TAIRouteSpeedProfile);

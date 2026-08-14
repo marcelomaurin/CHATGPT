@@ -130,4 +130,7 @@ begin
   RegisterComponents('AI Hardware', [TAIOS]);
 end;
 
+initialization
+  {$I aiso_icon.lrs}
+
 end.

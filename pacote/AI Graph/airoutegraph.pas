@@ -5,7 +5,7 @@ unit airoutegraph;
 interface
 
 uses
-  Classes, SysUtils, Contnrs, Math, aibase, airoutegraph_types, airoutegraph_utils;
+  Classes, SysUtils, Contnrs, Math, aibase, airoutegraph_types, airoutegraph_utils, LResources;
 
 type
   { TAIRouteGraph }
@@ -513,6 +513,8 @@ begin
 end;
 
 initialization
+  {$I airoutegraph_icon.lrs}
+
   RegisterClass(TAIRouteGraph);
 finalization
   UnRegisterClass(TAIRouteGraph);

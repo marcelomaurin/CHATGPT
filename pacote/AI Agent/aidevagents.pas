@@ -576,4 +576,7 @@ begin
   FRunner.Stop;
 end;
 
+initialization
+  {$I aidevagents_icon.lrs}
+
 end.

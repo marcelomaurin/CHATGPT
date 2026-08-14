@@ -268,4 +268,7 @@ begin
   end;
 end;
 
+initialization
+  {$I aivoicerecognizer_icon.lrs}
+
 end.

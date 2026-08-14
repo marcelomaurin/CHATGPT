@@ -17,4 +17,7 @@ begin
     TAIMCPToolRegistryBridge]);
 end;
 
+initialization
+  {$I aimcp_icon.lrs}
+
 end.

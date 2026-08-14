@@ -5,7 +5,7 @@ unit aipdfinput;
 interface
 
 uses
-  Classes, SysUtils, Process, aibase, aidocumentreader;
+  Classes, SysUtils, Process, aibase, aidocumentreader, LResources;
 
 type
   { TAIDocumentPage }
@@ -269,5 +269,8 @@ function TAIPDFInput.Load: Boolean;
 begin
   Result := LoadFromFile(FFileName);
 end;
+
+initialization
+  {$I aipdfinput_icon.lrs}
 
 end.

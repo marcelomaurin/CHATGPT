@@ -5,7 +5,7 @@ unit aidocxinput;
 interface
 
 uses
-  Classes, SysUtils, Zipper, DOM, XMLRead, aibase, aidocumentreader;
+  Classes, SysUtils, Zipper, DOM, XMLRead, aibase, aidocumentreader, LResources;
 
 type
   { TAIDOCXInput }
@@ -251,5 +251,8 @@ function TAIDOCXInput.Load: Boolean;
 begin
   Result := LoadFromFile(FFileName);
 end;
+
+initialization
+  {$I aidocxinput_icon.lrs}
 
 end.

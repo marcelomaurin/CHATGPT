@@ -486,4 +486,7 @@ begin
   end;
 end;
 
+initialization
+  {$I aievaluation_icon.lrs}
+
 end.

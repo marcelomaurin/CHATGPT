@@ -227,4 +227,7 @@ begin
   else if APolicy = toolPolicyConfirm then AReason := 'Tool "' + ATool.Name + '" exige confirmacao.';
 end;
 
+initialization
+  {$I aiguardrails_icon.lrs}
+
 end.

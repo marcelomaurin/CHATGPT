@@ -312,4 +312,7 @@ begin
   finally Input.Free; end;
 end;
 
+initialization
+  {$I aispeechrecognizer_icon.lrs}
+
 end.

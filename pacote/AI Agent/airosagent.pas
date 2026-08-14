@@ -317,4 +317,7 @@ begin
   Result := Move(0.0, -Abs(AAngularSpeed));
 end;
 
+initialization
+  {$I airosagent_icon.lrs}
+
 end.

@@ -417,4 +417,7 @@ begin
     TAISourceReplaceAction, TAIProjectBuildAction]);
 end;
 
+initialization
+  {$I aiagent_sourceactions_icon.lrs}
+
 end.

@@ -133,4 +133,7 @@ begin
   RegisterComponents('AI Hardware', [TAIMemory]);
 end;
 
+initialization
+  {$I aimemory_icon.lrs}
+
 end.

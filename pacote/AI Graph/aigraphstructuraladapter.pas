@@ -5,7 +5,7 @@ unit aigraphstructuraladapter;
 interface
 
 uses
-  Classes, SysUtils, aibase, aigraphmap, aigraphvisualizer, aidependencygraph;
+  Classes, SysUtils, aibase, aigraphmap, aigraphvisualizer, aidependencygraph, LResources;
 
 type
   { TAIGraphStructuralAdapter }
@@ -141,5 +141,8 @@ begin
     Exit;
   AViz.GraphMap := FGraphMap;
 end;
+
+initialization
+  {$I aigraphstructuraladapter_icon.lrs}
 
 end.

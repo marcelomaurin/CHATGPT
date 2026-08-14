@@ -107,4 +107,7 @@ begin
   RegisterComponents('AI Hardware', [TAIDisk]);
 end;
 
+initialization
+  {$I aidisk_icon.lrs}
+
 end.

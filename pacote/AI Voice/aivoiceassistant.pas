@@ -180,4 +180,7 @@ begin
   SetState(vasCancelled);
 end;
 
+initialization
+  {$I aivoiceassistant_icon.lrs}
+
 end.

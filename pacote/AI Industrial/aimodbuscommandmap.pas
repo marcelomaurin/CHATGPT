@@ -5,7 +5,7 @@ unit aimodbuscommandmap;
 interface
 
 uses
-  Classes, SysUtils, strutils, aibase;
+  Classes, SysUtils, strutils, aibase, LResources;
 
 type
   TModbusCommandKind = (
@@ -356,5 +356,8 @@ begin
     end;
   end;
 end;
+
+initialization
+  {$I aimodbuscommandmap_icon.lrs}
 
 end.

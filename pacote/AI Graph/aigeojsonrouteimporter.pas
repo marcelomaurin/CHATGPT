@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Math, fpjson, jsonparser, jsonscanner, aibase, airoutegraph_types,
-  airoutegraph, airoutegraph_utils, airoutespeedprofile;
+  airoutegraph, airoutegraph_utils, airoutespeedprofile, LResources;
 
 type
   { TAIGeoJSONRouteImporter }
@@ -379,6 +379,8 @@ begin
 end;
 
 initialization
+  {$I aigeojsonrouteimporter_icon.lrs}
+
   RegisterClass(TAIGeoJSONRouteImporter);
 finalization
   UnRegisterClass(TAIGeoJSONRouteImporter);

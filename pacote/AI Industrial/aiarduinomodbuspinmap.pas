@@ -5,7 +5,7 @@ unit aiarduinomodbuspinmap;
 interface
 
 uses
-  Classes, SysUtils, strutils, typinfo, aibase, aimodbus, aimodbuscommandmap;
+  Classes, SysUtils, strutils, typinfo, aibase, aimodbus, aimodbuscommandmap, LResources;
 
 type
   TArduinoBoardType = (
@@ -1331,5 +1331,8 @@ begin
              BuildAISetupContext + LineEnding +
              GetInitializedPinsText;
 end;
+
+initialization
+  {$I aiarduinomodbuspinmap_icon.lrs}
 
 end.

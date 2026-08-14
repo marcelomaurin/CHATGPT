@@ -5,7 +5,7 @@ unit aidocumentreader;
 interface
 
 uses
-  Classes, SysUtils, aibase;
+  Classes, SysUtils, aibase, LResources;
 
 type
   { TAIDocumentMetadata }
@@ -155,5 +155,8 @@ function TAIDocumentInput.Load: Boolean;
 begin
   Result := LoadFromFile(FFileName);
 end;
+
+initialization
+  {$I aidocumentreader_icon.lrs}
 
 end.

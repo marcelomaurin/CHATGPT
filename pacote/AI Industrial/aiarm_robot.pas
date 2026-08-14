@@ -9,7 +9,7 @@ uses
   fpjson, jsonparser,
   GLScene, GLViewer, GLObjects, GLGeomObjects, GLMaterial,
   GLCoordinates, GLCrossPlatform, GLVectorGeometry, GLColor,
-  GLVectorFileObjects, ExtCtrls, StdCtrls, ComCtrls;
+  GLVectorFileObjects, ExtCtrls, StdCtrls, ComCtrls, LResources;
 
 type
   TAIArmVector3 = record
@@ -3780,5 +3780,8 @@ begin
     end;
   end;
 end;
+
+initialization
+  {$I aiarm_robot_icon.lrs}
 
 end.

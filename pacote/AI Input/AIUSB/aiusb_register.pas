@@ -5,7 +5,7 @@ unit aiusb_register;
 interface
 
 uses
-  Classes, aiusb;
+  Classes, aiusb, LResources;
 
 procedure Register;
 
@@ -15,5 +15,8 @@ procedure Register;
 begin
   RegisterComponents('AI Input', [TAIUSB]);
 end;
+
+initialization
+  {$I aiusb_register_icon.lrs}
 
 end.

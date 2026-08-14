@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Math, Contnrs, airoutegraph_types, airoutegraph,
-  airoutespeedprofile, airoutegraph_utils, aibase;
+  airoutespeedprofile, airoutegraph_utils, aibase, LResources;
 
 type
   TAIRouteAlgorithm = (raDijkstra, raAStar);
@@ -340,6 +340,8 @@ begin
 end;
 
 initialization
+  {$I airoutecalculator_icon.lrs}
+
   RegisterClass(TAIRouteCalculator);
 finalization
   UnRegisterClass(TAIRouteCalculator);

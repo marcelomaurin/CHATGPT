@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, Math
   {$IFDEF MSWINDOWS}, Windows{$ENDIF}
   {$IFDEF UNIX}, BaseUnix, Unix, Process{$ENDIF}
-  {$IFDEF DARWIN}, MacOSAll{$ENDIF};
+  {$IFDEF DARWIN}, MacOSAll{$ENDIF}, LResources;
 
 type
   TAITaskState = (tsUnknown, tsRunning, tsSleeping, tsDiskSleep, tsStopped,
@@ -1056,5 +1056,8 @@ procedure Register;
 begin
   RegisterComponents('AI Hardware', [TAITasks]);
 end;
+
+initialization
+  {$I ai_tasks_icon.lrs}
 
 end.

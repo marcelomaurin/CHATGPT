@@ -204,4 +204,7 @@ begin
   FState := vcsIdle;
 end;
 
+initialization
+  {$I aivoiceclone_icon.lrs}
+
 end.

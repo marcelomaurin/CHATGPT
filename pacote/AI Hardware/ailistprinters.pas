@@ -5,7 +5,7 @@ unit ailistprinters;
 interface
 
 uses
-  Classes, SysUtils, Printers;
+  Classes, SysUtils, Printers, LResources;
 
 type
   { TAIListPrinters }
@@ -80,5 +80,8 @@ begin
   else
     Result := '';
 end;
+
+initialization
+  {$I ailistprinters_icon.lrs}
 
 end.

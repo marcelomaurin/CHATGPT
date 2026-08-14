@@ -166,4 +166,7 @@ end;
 procedure TAIWhisperProcessEngine.Cancel;
 begin FRunner.Stop; end;
 
+initialization
+  {$I aiwhisperengine_icon.lrs}
+
 end.

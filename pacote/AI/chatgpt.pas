@@ -1154,4 +1154,7 @@ begin
   Result := CHATGPT_LIB_VERSION;
 end;
 
+initialization
+  {$I chatgpt_icon.lrs}
+
 end.

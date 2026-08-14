@@ -582,4 +582,7 @@ begin
   if Result then FLastResult := ATaskJSON;
 end;
 
+initialization
+  {$I aia2a_icon.lrs}
+
 end.

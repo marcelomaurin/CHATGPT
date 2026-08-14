@@ -185,4 +185,7 @@ begin
   AToken := R.Token;
 end;
 
+initialization
+  {$I aimodelrouter_icon.lrs}
+
 end.

@@ -231,4 +231,7 @@ begin
   try S.Text := ToJSON; S.SaveToFile(AFileName); finally S.Free; end;
 end;
 
+initialization
+  {$I aitrace_icon.lrs}
+
 end.

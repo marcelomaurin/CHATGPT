@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, ExtCtrls, Graphics, Dialogs, LCLType, LCLIntf,
-  aibase, aiwordtypes, aiwordunits, aiwordobjects, aiworddocument, aiwordxml;
+  aibase, aiwordtypes, aiwordunits, aiwordobjects, aiworddocument, aiwordxml, LResources;
 
 type
   { Forward declarations }
@@ -1027,5 +1027,8 @@ begin
     SetZoom(Round(((FScrollBox.ClientHeight - 40) / PageHPixels) * 100));
   end;
 end;
+
+initialization
+  {$I aiwordviewer_icon.lrs}
 
 end.

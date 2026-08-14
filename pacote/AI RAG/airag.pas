@@ -1453,4 +1453,7 @@ begin
   end;
 end;
 
+initialization
+  {$I airag_icon.lrs}
+
 end.

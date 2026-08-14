@@ -201,4 +201,7 @@ begin
   RegisterComponents('AI Agents', [TAITrustedProjectTestAction]);
 end;
 
+initialization
+  {$I aiagent_testaction_icon.lrs}
+
 end.

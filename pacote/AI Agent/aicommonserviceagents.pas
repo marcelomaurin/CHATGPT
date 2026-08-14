@@ -792,4 +792,7 @@ begin
     'Authorization', 'Bearer ' + AccessToken);
 end;
 
+initialization
+  {$I aicommonserviceagents_icon.lrs}
+
 end.

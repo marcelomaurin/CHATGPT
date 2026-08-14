@@ -734,4 +734,7 @@ begin
   end;
 end;
 
+initialization
+  {$I aitools_icon.lrs}
+
 end.
