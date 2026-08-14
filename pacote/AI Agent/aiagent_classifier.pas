@@ -279,7 +279,4 @@ begin
   end;
 end;
 
-initialization
-  {$I taiclassifieragent_icon.lrs}
-
 end.

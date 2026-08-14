@@ -76,7 +76,4 @@ begin
   Result := True;
 end;
 
-initialization
-  {$I aidb_firebird_dictionary_icon.lrs}
-
 end.

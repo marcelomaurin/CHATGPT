@@ -5,7 +5,7 @@ unit chatgpt;
 interface
 
 uses
-  Classes, SysUtils, LazUTF8, fpjson, jsonparser,
+  Classes, SysUtils, LazUTF8, IniFiles, fpjson, jsonparser,
   fphttpclient, opensslsockets, LResources, aibase, aillmproviders,
   aillmmodelcatalog, aitracebridge;
 
@@ -168,6 +168,10 @@ type
     function TipoModelo: WideString;
     function ProviderName: WideString;
     function VersaoBiblioteca: WideString;
+    function LoadFromIni(const AFileName: string): Boolean;
+    function SaveToIni(const AFileName: string): Boolean;
+    function LoadConfigFromAppData(const AAppName: string = 'ChatGPT'): Boolean;
+    function SaveConfigToAppData(const AAppName: string = 'ChatGPT'): Boolean;
   published
     property TOKEN: WideString read FToken write FToken;
     property Question: WideString read FQuestion;
@@ -1152,6 +1156,95 @@ end;
 function TCHATGPT.VersaoBiblioteca: WideString;
 begin
   Result := CHATGPT_LIB_VERSION;
+end;
+
+function TCHATGPT.LoadFromIni(const AFileName: string): Boolean;
+var
+  Ini: TIniFile;
+  LProvStr, LModelStr: string;
+  I: Integer;
+begin
+  Result := False;
+  if not FileExists(AFileName) then
+    Exit;
+  Ini := TIniFile.Create(AFileName);
+  try
+    LProvStr := Ini.ReadString('LLM', 'Provider', '');
+    if LProvStr <> '' then
+    begin
+      for I := Ord(Low(TAIProvider)) to Ord(High(TAIProvider)) do
+      begin
+        if SameText(GetAIProviderName(TAIProvider(I)), LProvStr) or
+           SameText(AILLMProviderKindName(TAILLMProviderKind(I)), LProvStr) then
+        begin
+          FProvider := TAIProvider(I);
+          Break;
+        end;
+      end;
+    end;
+    LModelStr := Ini.ReadString('LLM', 'Model', '');
+    if LModelStr <> '' then
+      FCustomModel := UTF8ToUTF16(LModelStr);
+    FToken := UTF8ToUTF16(Ini.ReadString('LLM', 'Token', Ini.ReadString('LLM', 'APIKey', UTF16ToUTF8(FToken))));
+    FURL := UTF8ToUTF16(Ini.ReadString('LLM', 'URL', Ini.ReadString('LLM', 'Endpoint', UTF16ToUTF8(FURL))));
+    FTemperature := Ini.ReadFloat('LLM', 'Temperature', FTemperature);
+    FMaxTokens := Ini.ReadInteger('LLM', 'MaxTokens', FMaxTokens);
+    FTimeout := Ini.ReadInteger('LLM', 'Timeout', FTimeout);
+    FStreaming := Ini.ReadBool('LLM', 'Streaming', FStreaming);
+    Result := True;
+  finally
+    Ini.Free;
+  end;
+end;
+
+function TCHATGPT.SaveToIni(const AFileName: string): Boolean;
+var
+  Ini: TIniFile;
+  Dir: string;
+begin
+  Result := False;
+  Dir := ExtractFilePath(AFileName);
+  if (Dir <> '') and not DirectoryExists(Dir) then
+    ForceDirectories(Dir);
+  Ini := TIniFile.Create(AFileName);
+  try
+    Ini.WriteString('LLM', 'Provider', GetAIProviderName(FProvider));
+    if FCustomModel <> '' then
+      Ini.WriteString('LLM', 'Model', UTF16ToUTF8(FCustomModel))
+    else
+      Ini.WriteString('LLM', 'Model', UTF16ToUTF8(GetModelName));
+    Ini.WriteString('LLM', 'Token', UTF16ToUTF8(FToken));
+    Ini.WriteString('LLM', 'URL', UTF16ToUTF8(FURL));
+    Ini.WriteFloat('LLM', 'Temperature', FTemperature);
+    Ini.WriteInteger('LLM', 'MaxTokens', FMaxTokens);
+    Ini.WriteInteger('LLM', 'Timeout', FTimeout);
+    Ini.WriteBool('LLM', 'Streaming', FStreaming);
+    Result := True;
+  finally
+    Ini.Free;
+  end;
+end;
+
+function TCHATGPT.LoadConfigFromAppData(const AAppName: string): Boolean;
+var
+  CfgDir, CfgFile: string;
+begin
+  CfgDir := IncludeTrailingPathDelimiter(GetAppConfigDir(False));
+  if AAppName <> '' then
+    CfgDir := IncludeTrailingPathDelimiter(ExtractFilePath(ExcludeTrailingPathDelimiter(CfgDir))) + AAppName + DirectorySeparator;
+  CfgFile := CfgDir + 'chatgpt.ini';
+  Result := LoadFromIni(CfgFile);
+end;
+
+function TCHATGPT.SaveConfigToAppData(const AAppName: string): Boolean;
+var
+  CfgDir, CfgFile: string;
+begin
+  CfgDir := IncludeTrailingPathDelimiter(GetAppConfigDir(False));
+  if AAppName <> '' then
+    CfgDir := IncludeTrailingPathDelimiter(ExtractFilePath(ExcludeTrailingPathDelimiter(CfgDir))) + AAppName + DirectorySeparator;
+  CfgFile := CfgDir + 'chatgpt.ini';
+  Result := SaveToIni(CfgFile);
 end;
 
 initialization

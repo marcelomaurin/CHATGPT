@@ -560,7 +560,4 @@ begin
     FOnAfterRefresh(Self);
 end;
 
-initialization
-  {$I aiusb_icon.lrs}
-
 end.

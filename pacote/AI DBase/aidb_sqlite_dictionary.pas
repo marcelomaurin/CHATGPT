@@ -303,7 +303,4 @@ begin
   Result := True;
 end;
 
-initialization
-  {$I aidb_sqlite_dictionary_icon.lrs}
-
 end.

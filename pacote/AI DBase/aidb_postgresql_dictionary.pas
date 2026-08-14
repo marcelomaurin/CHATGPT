@@ -439,7 +439,4 @@ begin
   Query.Free;
 end;
 
-initialization
-  {$I aidb_postgresql_dictionary_icon.lrs}
-
 end.

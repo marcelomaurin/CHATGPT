@@ -132,6 +132,11 @@ procedure Register;
 
 implementation
 
+{$IFDEF LCL}
+uses
+  LResources;
+{$ENDIF}
+
 function MakeAIDependencyEvidence(const ASourceFile: string; ALine: Integer;
   const AParser: string): TAIDependencyEvidence;
 begin
@@ -902,9 +907,6 @@ begin
 end;
 
 {$IFDEF LCL}
-uses
-  LResources;
-
 initialization
   {$I aidependencygraph_icon.lrs}
 {$ENDIF}

@@ -1276,7 +1276,4 @@ begin
   end;
 end;
 
-initialization
-  {$I taidecisionagent_icon.lrs}
-
 end.

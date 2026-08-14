@@ -75,7 +75,4 @@ begin
   Result := True;
 end;
 
-initialization
-  {$I aidb_oracle_dictionary_icon.lrs}
-
 end.

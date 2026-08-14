@@ -5,7 +5,7 @@ unit aiunifiedllm;
 interface
 
 uses
-  Classes, SysUtils, LResources, aibase, aillmproviders, aicapabilities,
+  Classes, SysUtils, IniFiles, LResources, aibase, aillmproviders, aicapabilities,
   aimodelrouter;
 
 type
@@ -37,6 +37,10 @@ type
     function AskText(const AUserPrompt: string): string;
     function ProviderCapabilities: TAICapabilities;
     function Supports(ACapability: TAICapability): Boolean;
+    function LoadFromIni(const AFileName: string): Boolean;
+    function SaveToIni(const AFileName: string): Boolean;
+    function LoadConfigFromAppData(const AAppName: string = 'ChatGPT'): Boolean;
+    function SaveConfigToAppData(const AAppName: string = 'ChatGPT'): Boolean;
     property RequiredCapabilities: TAICapabilities read FRequiredCapabilities write FRequiredCapabilities;
   published
     property ProviderKind: TAILLMProviderKind read FProviderKind write FProviderKind default llmOpenAICompatible;
@@ -185,6 +189,79 @@ end;
 function TAIUnifiedLLM.Supports(ACapability: TAICapability): Boolean;
 begin
   Result := ACapability in ProviderCapabilities;
+end;
+
+function TAIUnifiedLLM.LoadFromIni(const AFileName: string): Boolean;
+var
+  Ini: TIniFile;
+  LProvStr: string;
+begin
+  Result := False;
+  if not FileExists(AFileName) then
+    Exit;
+  Ini := TIniFile.Create(AFileName);
+  try
+    LProvStr := Ini.ReadString('LLM', 'Provider', '');
+    if LProvStr <> '' then
+      FProviderKind := TAILLMProviderFactory.KindFromName(LProvStr);
+    FModel := Ini.ReadString('LLM', 'Model', FModel);
+    FToken := Ini.ReadString('LLM', 'Token', Ini.ReadString('LLM', 'APIKey', FToken));
+    FEndpoint := Ini.ReadString('LLM', 'URL', Ini.ReadString('LLM', 'Endpoint', FEndpoint));
+    FTemperature := Ini.ReadFloat('LLM', 'Temperature', FTemperature);
+    FMaxTokens := Ini.ReadInteger('LLM', 'MaxTokens', FMaxTokens);
+    FTimeout := Ini.ReadInteger('LLM', 'Timeout', FTimeout);
+    FStream := Ini.ReadBool('LLM', 'Streaming', FStream);
+    Result := True;
+  finally
+    Ini.Free;
+  end;
+end;
+
+function TAIUnifiedLLM.SaveToIni(const AFileName: string): Boolean;
+var
+  Ini: TIniFile;
+  Dir: string;
+begin
+  Result := False;
+  Dir := ExtractFilePath(AFileName);
+  if (Dir <> '') and not DirectoryExists(Dir) then
+    ForceDirectories(Dir);
+  Ini := TIniFile.Create(AFileName);
+  try
+    Ini.WriteString('LLM', 'Provider', AILLMProviderKindName(FProviderKind));
+    Ini.WriteString('LLM', 'Model', FModel);
+    Ini.WriteString('LLM', 'Token', FToken);
+    Ini.WriteString('LLM', 'URL', FEndpoint);
+    Ini.WriteFloat('LLM', 'Temperature', FTemperature);
+    Ini.WriteInteger('LLM', 'MaxTokens', FMaxTokens);
+    Ini.WriteInteger('LLM', 'Timeout', FTimeout);
+    Ini.WriteBool('LLM', 'Streaming', FStream);
+    Result := True;
+  finally
+    Ini.Free;
+  end;
+end;
+
+function TAIUnifiedLLM.LoadConfigFromAppData(const AAppName: string): Boolean;
+var
+  CfgDir, CfgFile: string;
+begin
+  CfgDir := IncludeTrailingPathDelimiter(GetAppConfigDir(False));
+  if AAppName <> '' then
+    CfgDir := IncludeTrailingPathDelimiter(ExtractFilePath(ExcludeTrailingPathDelimiter(CfgDir))) + AAppName + DirectorySeparator;
+  CfgFile := CfgDir + 'chatgpt.ini';
+  Result := LoadFromIni(CfgFile);
+end;
+
+function TAIUnifiedLLM.SaveConfigToAppData(const AAppName: string): Boolean;
+var
+  CfgDir, CfgFile: string;
+begin
+  CfgDir := IncludeTrailingPathDelimiter(GetAppConfigDir(False));
+  if AAppName <> '' then
+    CfgDir := IncludeTrailingPathDelimiter(ExtractFilePath(ExcludeTrailingPathDelimiter(CfgDir))) + AAppName + DirectorySeparator;
+  CfgFile := CfgDir + 'chatgpt.ini';
+  Result := SaveToIni(CfgFile);
 end;
 
 initialization

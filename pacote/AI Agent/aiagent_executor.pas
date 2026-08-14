@@ -572,7 +572,4 @@ begin
   end;
 end;
 
-initialization
-  {$I taiactionexecutor_icon.lrs}
-
 end.

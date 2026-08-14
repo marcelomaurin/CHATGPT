@@ -528,7 +528,4 @@ begin
   end;
 end;
 
-initialization
-  {$I taiactionbuilderagent_icon.lrs}
-
 end.
