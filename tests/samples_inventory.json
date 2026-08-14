@@ -801,6 +801,86 @@
     "requires_gui": true,
     "status": "active"
   },
+  "pacote/samples/AI LlamaCpp/bridge_check_demo/bridge_check_demo.lpi": {
+    "name": "bridge_check_demo",
+    "category": "AI LlamaCpp",
+    "path": "pacote/samples/AI LlamaCpp/bridge_check_demo/bridge_check_demo.lpi",
+    "platforms": [
+      "windows"
+    ],
+    "requires_gui": true,
+    "status": "active"
+  },
+  "pacote/samples/AI LlamaCpp/llamacpp_chatgpt_demo/llamacpp_chatgpt_demo.lpi": {
+    "name": "llamacpp_chatgpt_demo",
+    "category": "AI LlamaCpp",
+    "path": "pacote/samples/AI LlamaCpp/llamacpp_chatgpt_demo/llamacpp_chatgpt_demo.lpi",
+    "platforms": [
+      "windows"
+    ],
+    "requires_gui": true,
+    "status": "active"
+  },
+  "pacote/samples/AI LlamaCpp/llamacpp_lora_demo/llamacpp_lora_demo.lpi": {
+    "name": "llamacpp_lora_demo",
+    "category": "AI LlamaCpp",
+    "path": "pacote/samples/AI LlamaCpp/llamacpp_lora_demo/llamacpp_lora_demo.lpi",
+    "platforms": [
+      "windows"
+    ],
+    "requires_gui": true,
+    "status": "active"
+  },
+  "pacote/samples/AI LlamaCpp/llamacpp_model_demo/llamacpp_model_demo.lpi": {
+    "name": "llamacpp_model_demo",
+    "category": "AI LlamaCpp",
+    "path": "pacote/samples/AI LlamaCpp/llamacpp_model_demo/llamacpp_model_demo.lpi",
+    "platforms": [
+      "windows"
+    ],
+    "requires_gui": true,
+    "status": "active"
+  },
+  "pacote/samples/AI LlamaCpp/llamacpp_quantize_demo/llamacpp_quantize_demo.lpi": {
+    "name": "llamacpp_quantize_demo",
+    "category": "AI LlamaCpp",
+    "path": "pacote/samples/AI LlamaCpp/llamacpp_quantize_demo/llamacpp_quantize_demo.lpi",
+    "platforms": [
+      "windows"
+    ],
+    "requires_gui": true,
+    "status": "active"
+  },
+  "pacote/samples/AI LlamaCpp/llamacpp_runtime_check_demo/llamacpp_runtime_check_demo.lpi": {
+    "name": "llamacpp_runtime_check_demo",
+    "category": "AI LlamaCpp",
+    "path": "pacote/samples/AI LlamaCpp/llamacpp_runtime_check_demo/llamacpp_runtime_check_demo.lpi",
+    "platforms": [
+      "windows"
+    ],
+    "requires_gui": true,
+    "status": "active"
+  },
+  "pacote/samples/AI LlamaCpp/llamacpp_server_demo/llamacpp_server_demo.lpi": {
+    "name": "llamacpp_server_demo",
+    "category": "AI LlamaCpp",
+    "path": "pacote/samples/AI LlamaCpp/llamacpp_server_demo/llamacpp_server_demo.lpi",
+    "platforms": [
+      "windows"
+    ],
+    "requires_gui": true,
+    "status": "active"
+  },
+  "pacote/samples/AI LlamaCpp/llamacpp_streaming_demo/llamacpp_streaming_demo.lpi": {
+    "name": "llamacpp_streaming_demo",
+    "category": "AI LlamaCpp",
+    "path": "pacote/samples/AI LlamaCpp/llamacpp_streaming_demo/llamacpp_streaming_demo.lpi",
+    "platforms": [
+      "windows"
+    ],
+    "requires_gui": true,
+    "status": "active"
+  },
   "pacote/samples/AI Math/math_input_output_demo/math_input_output_demo.lpi": {
     "name": "math_input_output_demo",
     "category": "AI Math",

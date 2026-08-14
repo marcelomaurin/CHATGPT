@@ -1,0 +1,77 @@
+object frmMain: TfrmMain
+  Left = 300
+  Height = 480
+  Top = 160
+  Width = 760
+  Caption = 'llama.cpp Server'
+  ClientHeight = 480
+  ClientWidth = 760
+  OnCreate = FormCreate
+  Position = poScreenCenter
+  object btnStart: TButton
+    Left = 16
+    Height = 32
+    Top = 16
+    Width = 104
+    Caption = 'Start'
+    OnClick = btnStartClick
+    TabOrder = 0
+  end
+  object btnStop: TButton
+    Left = 128
+    Height = 32
+    Top = 16
+    Width = 104
+    Caption = 'Stop'
+    OnClick = btnStopClick
+    TabOrder = 1
+  end
+  object lblRunning: TLabel
+    Left = 248
+    Height = 20
+    Top = 22
+    Width = 88
+    Caption = 'Running: False'
+  end
+  object lblBaseURL: TLabel
+    Left = 360
+    Height = 20
+    Top = 22
+    Width = 212
+    Caption = 'BaseURL: http://127.0.0.1:8080'
+  end
+  object memLog: TMemo
+    Left = 16
+    Height = 416
+    Top = 56
+    Width = 728
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    Font.Name = 'Consolas'
+    ParentFont = False
+    ReadOnly = True
+    ScrollBars = ssAutoBoth
+    TabOrder = 2
+  end
+  object LlamaRuntime: TAILlamaCppRuntime
+  end
+  object LlamaModel: TAILlamaCppModel
+    Runtime = LlamaRuntime
+  end
+  object LlamaServer: TAILlamaCppServer
+    Runtime = LlamaRuntime
+    Model = LlamaModel
+    OnError = ServerError
+    OnLog = ServerLog
+    OnServerStarted = ServerStarted
+  end
+  object OpenGGUFDialog: TOpenDialog
+    DefaultExt = '.gguf'
+    Filter = 'Modelos GGUF (*.gguf)|*.gguf'
+    Options = [ofFileMustExist, ofEnableSizing, ofViewDetail]
+    Title = 'Selecionar modelo GGUF'
+  end
+  object StatusTimer: TTimer
+    Interval = 250
+    OnTimer = StatusTimerTimer
+  end
+end

@@ -437,6 +437,24 @@ icons_config = {
     'AI Input/aipdfinput_icon.lrs': [
         ('taipdfinput', C_INPUT, 'PD'),
     ],
+    'AI LlamaCpp/aillamacppinference_icon.lrs': [
+        ('taillamacppinference', C_CORE, 'LC'),
+    ],
+    'AI LlamaCpp/aillamacpplora_icon.lrs': [
+        ('taillamacpplora', C_CORE, 'LC'),
+    ],
+    'AI LlamaCpp/aillamacppmodel_icon.lrs': [
+        ('taillamacppmodel', C_CORE, 'LC'),
+    ],
+    'AI LlamaCpp/aillamacppquantizer_icon.lrs': [
+        ('taillamacppquantizer', C_CORE, 'LC'),
+    ],
+    'AI LlamaCpp/aillamacppruntime_icon.lrs': [
+        ('taillamacppruntime', C_CORE, 'LC'),
+    ],
+    'AI LlamaCpp/aillamacppserver_icon.lrs': [
+        ('taillamacppserver', C_CORE, 'LC'),
+    ],
     'AI MCP/aimcp_icon.lrs': [
         ('taimcpclient', C_MCP, 'MC'),
         ('taimcpserver', C_MCP, 'MC'),
@@ -773,6 +791,12 @@ patches = [
     ('AI Input/aidocxinput.pas', 'aidocxinput_icon.lrs'),
     ('AI Input/aiexcelinput.pas', 'aiexcelinput_icon.lrs'),
     ('AI Input/aipdfinput.pas', 'aipdfinput_icon.lrs'),
+    ('AI LlamaCpp/aillamacppinference.pas', 'aillamacppinference_icon.lrs'),
+    ('AI LlamaCpp/aillamacpplora.pas', 'aillamacpplora_icon.lrs'),
+    ('AI LlamaCpp/aillamacppmodel.pas', 'aillamacppmodel_icon.lrs'),
+    ('AI LlamaCpp/aillamacppquantizer.pas', 'aillamacppquantizer_icon.lrs'),
+    ('AI LlamaCpp/aillamacppruntime.pas', 'aillamacppruntime_icon.lrs'),
+    ('AI LlamaCpp/aillamacppserver.pas', 'aillamacppserver_icon.lrs'),
     ('AI MCP/aimcp.pas', 'aimcp_icon.lrs'),
     ('AI Math/numps.pas', 'numps_icon.lrs'),
     ('AI Observability/aitrace.pas', 'aitrace_icon.lrs'),
