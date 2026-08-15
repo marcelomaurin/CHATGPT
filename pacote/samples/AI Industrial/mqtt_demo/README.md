@@ -1,5 +1,7 @@
 # MQTT Client Demo (TAIMQTTClient) — Baseado em test.mosquitto.org
 
+![MQTT Client Demo](../../../../screenshots/mqtt_demo.jpg)
+
 Este projeto demonstra a utilização prática do componente `TAIMQTTClient` do pacote `openai_industrial` para comunicação IoT e automação industrial utilizando o protocolo real MQTT (v3.1.1), estruturado em conformidade com as diretrizes e perfis oficiais do servidor de testes **[test.mosquitto.org](https://test.mosquitto.org/)**.
 
 ## Perfis e Modos do test.mosquitto.org Suportados
