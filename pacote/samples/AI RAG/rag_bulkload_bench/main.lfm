@@ -1,0 +1,331 @@
+object frmRAGBulkloadBench: TfrmRAGBulkloadBench
+  Left = 320
+  Height = 660
+  Top = 160
+  Width = 920
+  Caption = 'Benchmark de Carga em Massa (TAIRAG BulkLoad)'
+  ClientHeight = 660
+  ClientWidth = 920
+  Position = poScreenCenter
+  LCLVersion = '3.0.0.0'
+  OnCreate = FormCreate
+  object pnlTop: TPanel
+    Left = 0
+    Height = 60
+    Top = 0
+    Width = 920
+    Align = alTop
+    BevelOuter = bvNone
+    Color = clWhite
+    ParentBackground = False
+    ParentColor = False
+    ClientHeight = 60
+    ClientWidth = 920
+    TabOrder = 0
+    object lblTitle: TLabel
+      Left = 16
+      Height = 22
+      Top = 10
+      Width = 460
+      Caption = 'AI RAG - Benchmark de Inserção em Lote (BeginBulkLoad)'
+      Font.Height = -16
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object lblSubtitle: TLabel
+      Left = 16
+      Height = 15
+      Top = 35
+      Width = 580
+      Caption = 'Compara a velocidade de indexação convencional contra a carga em lote acelerada do componente TAIRAG.'
+      Font.Color = clGray
+      ParentFont = False
+    end
+  end
+  object pnlLeft: TPanel
+    Left = 0
+    Height = 575
+    Top = 60
+    Width = 320
+    Align = alLeft
+    BevelOuter = bvNone
+    ClientHeight = 575
+    ClientWidth = 320
+    TabOrder = 1
+    object gbConfig: TGroupBox
+      Left = 8
+      Height = 240
+      Top = 8
+      Width = 304
+      Align = alTop
+      BorderSpacing.Around = 8
+      Caption = ' Configurações do Teste '
+      ClientHeight = 220
+      ClientWidth = 300
+      TabOrder = 0
+      object lblQtdRegistros: TLabel
+        Left = 12
+        Height = 15
+        Top = 10
+        Width = 140
+        Caption = 'Quantidade de Registros:'
+      end
+      object edtQtdRegistros: TEdit
+        Left = 12
+        Height = 23
+        Top = 28
+        Width = 276
+        NumbersOnly = True
+        TabOrder = 0
+        Text = '20000'
+      end
+      object lblChunkSize: TLabel
+        Left = 12
+        Height = 15
+        Top = 60
+        Width = 110
+        Caption = 'Tamanho do Chunk:'
+      end
+      object edtChunkSize: TEdit
+        Left = 12
+        Height = 23
+        Top = 78
+        Width = 276
+        NumbersOnly = True
+        TabOrder = 1
+        Text = '4000'
+      end
+      object lblChunkOverlap: TLabel
+        Left = 12
+        Height = 15
+        Top = 110
+        Width = 135
+        Caption = 'Sobreposição (Overlap):'
+      end
+      object edtChunkOverlap: TEdit
+        Left = 12
+        Height = 23
+        Top = 128
+        Width = 276
+        NumbersOnly = True
+        TabOrder = 2
+        Text = '0'
+      end
+      object btnRunAll: TButton
+        Left = 12
+        Height = 32
+        Top = 168
+        Width = 276
+        Caption = '⚡ Executar Comparativo Completo'
+        Font.Style = [fsBold]
+        OnClick = btnRunAllClick
+        ParentFont = False
+        TabOrder = 3
+      end
+    end
+    object gbSummary: TGroupBox
+      Left = 8
+      Height = 295
+      Top = 256
+      Width = 304
+      Align = alClient
+      BorderSpacing.Around = 8
+      Caption = ' Resumo Comparativo '
+      ClientHeight = 275
+      ClientWidth = 300
+      TabOrder = 1
+      object btnRunWithoutBulk: TButton
+        Left = 12
+        Height = 26
+        Top = 8
+        Width = 276
+        Caption = 'Testar Apenas SEM BulkLoad'
+        OnClick = btnRunWithoutBulkClick
+        TabOrder = 0
+      end
+      object btnRunWithBulk: TButton
+        Left = 12
+        Height = 26
+        Top = 40
+        Width = 276
+        Caption = 'Testar Apenas COM BulkLoad'
+        OnClick = btnRunWithBulkClick
+        TabOrder = 1
+      end
+      object btnClearLog: TButton
+        Left = 12
+        Height = 26
+        Top = 72
+        Width = 276
+        Caption = 'Limpar Resultados'
+        OnClick = btnClearLogClick
+        TabOrder = 2
+      end
+      object pnlSummaryCards: TPanel
+        Left = 12
+        Height = 150
+        Top = 110
+        Width = 276
+        BevelOuter = bvLowered
+        ClientHeight = 150
+        ClientWidth = 276
+        TabOrder = 3
+        object lblWithoutBulk: TLabel
+          Left = 10
+          Height = 16
+          Top = 15
+          Width = 140
+          Caption = 'SEM BulkLoad: -'
+          Font.Height = -13
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
+        object lblWithBulk: TLabel
+          Left = 10
+          Height = 16
+          Top = 50
+          Width = 140
+          Caption = 'COM BulkLoad: -'
+          Font.Height = -13
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
+        object lblSpeedup: TLabel
+          Left = 10
+          Height = 16
+          Top = 95
+          Width = 60
+          Caption = 'Ganho: -'
+          Font.Height = -13
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
+      end
+    end
+  end
+  object pnlCenter: TPanel
+    Left = 320
+    Height = 575
+    Top = 60
+    Width = 600
+    Align = alClient
+    BevelOuter = bvNone
+    ClientHeight = 575
+    ClientWidth = 600
+    TabOrder = 2
+    object gbResults: TGroupBox
+      Left = 8
+      Height = 280
+      Top = 8
+      Width = 584
+      Align = alTop
+      BorderSpacing.Around = 8
+      Caption = ' Tabela de Resultados '
+      ClientHeight = 260
+      ClientWidth = 580
+      TabOrder = 0
+      object lvBenchmark: TListView
+        Left = 8
+        Height = 244
+        Top = 8
+        Width = 564
+        Align = alClient
+        BorderSpacing.Around = 8
+        Columns = <
+          item
+            Caption = 'Modo / Estratégia'
+            Width = 180
+          end
+          item
+            Caption = 'Registros'
+            Width = 90
+          end
+          item
+            Caption = 'Tempo (ms)'
+            Width = 100
+          end
+          item
+            Caption = 'Chunks'
+            Width = 80
+          end
+          item
+            Caption = 'Taxa (reg/s)'
+            Width = 100
+          end>
+        GridLines = True
+        ReadOnly = True
+        RowSelect = True
+        TabOrder = 0
+        ViewStyle = vsReport
+      end
+    end
+    object pnlBottom: TPanel
+      Left = 8
+      Height = 263
+      Top = 296
+      Width = 584
+      Align = alClient
+      BorderSpacing.Around = 8
+      BevelOuter = bvNone
+      ClientHeight = 263
+      ClientWidth = 584
+      TabOrder = 1
+      object lblLog: TLabel
+        Left = 0
+        Height = 15
+        Top = 0
+        Width = 100
+        Align = alTop
+        Caption = 'Log de Execução:'
+      end
+      object mmoLog: TMemo
+        Left = 0
+        Height = 248
+        Top = 15
+        Width = 584
+        Align = alClient
+        ReadOnly = True
+        ScrollBars = ssAutoBoth
+        TabOrder = 0
+      end
+    end
+  end
+  object pnlStatus: TPanel
+    Left = 0
+    Height = 25
+    Top = 635
+    Width = 920
+    Align = alBottom
+    Alignment = taLeftJustify
+    BevelOuter = bvLowered
+    ClientHeight = 25
+    ClientWidth = 920
+    TabOrder = 3
+    object lblStatus: TLabel
+      Left = 10
+      Height = 15
+      Top = 4
+      Width = 35
+      Caption = 'Pronto.'
+    end
+    object ProgressBar1: TProgressBar
+      Left = 580
+      Height = 17
+      Top = 4
+      Width = 330
+      Anchors = [akTop, akRight]
+      TabOrder = 0
+    end
+  end
+  object AIGraphMap1: TAIGraphMap
+    Left = 40
+    Top = 580
+  end
+  object AIRAG1: TAIRAG
+    GraphMap = AIGraphMap1
+    ChunkSize = 4000
+    ChunkOverlap = 0
+    Left = 140
+    Top = 580
+  end
+end
