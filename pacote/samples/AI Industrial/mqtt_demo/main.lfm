@@ -405,6 +405,7 @@ object frmMain: TfrmMain
     OnMessageReceived = OnMQTTMessageReceived
     OnConnected = OnMQTTConnected
     OnDisconnected = OnMQTTDisconnected
+    OnLog = AIMQTTClient1Log
     Left = 890
     Top = 30
   end

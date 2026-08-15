@@ -67,6 +67,7 @@ type
     procedure OnMQTTConnected(Sender: TObject);
     procedure OnMQTTDisconnected(Sender: TObject);
     procedure OnMQTTMessageReceived(Sender: TObject; const ATopic, APayload: string);
+    procedure AIMQTTClient1Log(Sender: TObject; Level: TAILogLevel; const Message: string);
   private
     procedure AddLog(const AMsg: string);
     procedure SetConnectedUI(AConnected: Boolean);
@@ -106,7 +107,20 @@ end;
 
 procedure TfrmMain.AddLog(const AMsg: string);
 begin
-  memoLog.Lines.Add(FormatDateTime('[hh:nn:ss] ', Now) + AMsg);
+  memoLog.Lines.Add(FormatDateTime('[hh:nn:ss.zzz] ', Now) + AMsg);
+end;
+
+procedure TfrmMain.AIMQTTClient1Log(Sender: TObject; Level: TAILogLevel; const Message: string);
+var
+  Prefix: string;
+begin
+  case Level of
+    llDebug:   Prefix := '[DEBUG] ';
+    llInfo:    Prefix := '[INFO] ';
+    llWarning: Prefix := '[AVISO] ';
+    llError:   Prefix := '[ERRO] ';
+  end;
+  AddLog(Prefix + Message);
 end;
 
 procedure TfrmMain.SetConnectedUI(AConnected: Boolean);
