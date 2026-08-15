@@ -28,9 +28,11 @@ Demo visual do pacote `AI Hardware`, com foco em um painel no estilo:
 
 ## Observacao
 
-Os componentes de GPU, CPU, memoria, disco e SO foram mantidos no padrao atual
-do pacote. Em especial, `TAIGPU` continua retornando dados basicos quando nao ha
-integração nativa de GPU disponivel na maquina.
+No Linux, CPU e memoria usam `/proc`, discos usam `statfs`, o sistema operacional
+combina `/etc/os-release` com `uname` e a GPU consulta DRM em `/sys/class/drm`.
+`TAIGPU.Available` informa se uma GPU foi encontrada e `TAIGPU.LastError`
+explicita métricas que o driver não oferece. Ausência de backend nunca é
+reportada como telemetria válida zerada.
 
 ## Screenshot
 

@@ -5,7 +5,14 @@ unit aimemory;
 interface
 
 uses
-  Classes, SysUtils, Windows, LResources;
+  Classes, SysUtils,
+  {$IFDEF WINDOWS}
+  Windows,
+  {$ENDIF}
+  {$IFDEF LINUX}
+  aihardwarelinux,
+  {$ENDIF}
+  LResources;
 
 type
   TAIMemoryInfo = record
@@ -40,6 +47,7 @@ procedure Register;
 
 implementation
 
+{$IFDEF WINDOWS}
 type
   TMemoryStatusEx = packed record
     dwLength: DWORD;
@@ -55,25 +63,113 @@ type
 
 function GlobalMemoryStatusEx(var lpBuffer: TMemoryStatusEx): BOOL; stdcall;
   external 'kernel32.dll' name 'GlobalMemoryStatusEx';
+{$ENDIF}
 
-function PhysicalMemoryMB(out TotalMB, AvailableMB: QWord): Boolean;
+{$IFDEF LINUX}
+function TryReadMemInfo(out ATotalMB, AAvailableMB: QWord): Boolean;
 var
-  MS: TMemoryStatusEx;
+  I, DelimiterPos, SpacePos: Integer;
+  Key, ValueText: string;
+  ValueKB, MemFreeKB, BuffersKB, CachedKB: QWord;
+  Lines: TStringList;
 begin
   Result := False;
+  ATotalMB := 0;
+  AAvailableMB := 0;
+  MemFreeKB := 0;
+  BuffersKB := 0;
+  CachedKB := 0;
+  Lines := TStringList.Create;
+  try
+    try
+      Lines.LoadFromFile(AIHardwareProcPath('meminfo'));
+    except
+      Exit;
+    end;
+    for I := 0 to Lines.Count - 1 do
+    begin
+      DelimiterPos := Pos(':', Lines[I]);
+      if DelimiterPos = 0 then
+        Continue;
+      Key := Trim(Copy(Lines[I], 1, DelimiterPos - 1));
+      ValueText := Trim(Copy(Lines[I], DelimiterPos + 1, MaxInt));
+      SpacePos := Pos(' ', ValueText);
+      if SpacePos > 0 then
+        ValueText := Copy(ValueText, 1, SpacePos - 1);
+      if not TryStrToQWord(ValueText, ValueKB) then
+        Continue;
+      if SameText(Key, 'MemTotal') then
+        ATotalMB := ValueKB div 1024
+      else if SameText(Key, 'MemAvailable') then
+        AAvailableMB := ValueKB div 1024
+      else if SameText(Key, 'MemFree') then
+        MemFreeKB := ValueKB
+      else if SameText(Key, 'Buffers') then
+        BuffersKB := ValueKB
+      else if SameText(Key, 'Cached') then
+        CachedKB := ValueKB;
+    end;
+    if (AAvailableMB = 0) and
+      ((MemFreeKB > 0) or (BuffersKB > 0) or (CachedKB > 0)) then
+      AAvailableMB := (MemFreeKB + BuffersKB + CachedKB) div 1024;
+    if AAvailableMB > ATotalMB then
+      AAvailableMB := ATotalMB;
+    Result := ATotalMB > 0;
+  finally
+    Lines.Free;
+  end;
+end;
+
+function LinuxMemorySlotCount: Integer;
+var
+  SearchRec: TSearchRec;
+begin
+  Result := 0;
+  if FindFirst(AIHardwareSysPath('firmware/dmi/entries/17-*'), faAnyFile,
+    SearchRec) <> 0 then
+    Exit;
+  try
+    repeat
+      if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
+        Inc(Result);
+    until FindNext(SearchRec) <> 0;
+  finally
+    FindClose(SearchRec);
+  end;
+end;
+{$ENDIF}
+
+function PhysicalMemoryMB(out TotalMB, AvailableMB: QWord): Boolean;
+{$IFDEF WINDOWS}
+var
+  MS: TMemoryStatusEx;
+{$ENDIF}
+begin
+  TotalMB := 0;
+  AvailableMB := 0;
+  {$IF DEFINED(WINDOWS)}
   FillChar(MS, SizeOf(MS), 0);
   MS.dwLength := SizeOf(MS);
-  if GlobalMemoryStatusEx(MS) then
+  Result := GlobalMemoryStatusEx(MS);
+  if Result then
   begin
     TotalMB := MS.ullTotalPhys div 1024 div 1024;
     AvailableMB := MS.ullAvailPhys div 1024 div 1024;
-    Result := True;
   end;
+  {$ELSEIF DEFINED(LINUX)}
+  Result := TryReadMemInfo(TotalMB, AvailableMB);
+  {$ELSE}
+  Result := False;
+  {$ENDIF}
 end;
 
 function TAIMemory.GetMemoryType: string;
 begin
+  {$IFDEF LINUX}
+  Result := 'Physical RAM (Linux)';
+  {$ELSE}
   Result := 'Physical RAM';
+  {$ENDIF}
 end;
 
 function TAIMemory.GetTotalMB: QWord;
@@ -112,13 +208,23 @@ var
   TotalMB, AvailMB: QWord;
 begin
   FLastInfo.MemoryType := GetMemoryType;
+  {$IFDEF LINUX}
+  FLastInfo.SlotCount := LinuxMemorySlotCount;
+  {$ELSE}
   FLastInfo.SlotCount := 0;
+  {$ENDIF}
+  FLastInfo.TotalMB := 0;
+  FLastInfo.AvailableMB := 0;
+  FLastInfo.UsedMB := 0;
+  FLastInfo.LoadPercent := 0;
+  FLastInfo.PhysicalTotalMB := 0;
+  FLastInfo.PhysicalAvailableMB := 0;
+  FLastInfo.PhysicalUsedMB := 0;
   if PhysicalMemoryMB(TotalMB, AvailMB) then
   begin
     FLastInfo.TotalMB := TotalMB;
     FLastInfo.AvailableMB := AvailMB;
     FLastInfo.UsedMB := TotalMB - AvailMB;
-    FLastInfo.LoadPercent := 0;
     if TotalMB > 0 then
       FLastInfo.LoadPercent := (FLastInfo.UsedMB * 100.0) / TotalMB;
     FLastInfo.PhysicalTotalMB := FLastInfo.TotalMB;

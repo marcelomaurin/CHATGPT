@@ -433,12 +433,16 @@ begin
   try
     FRawMemo.Clear;
     FRawMemo.Lines.Add('GPU');
+    FRawMemo.Lines.Add(Format('  Disponivel: %s',
+      [BoolToStr(GPUInfo.Available, True)]));
     FRawMemo.Lines.Add(Format('  Nome: %s', [GPUInfo.Name]));
     FRawMemo.Lines.Add(Format('  Memoria total: %d MB', [GPUInfo.MemoryTotalMB]));
     FRawMemo.Lines.Add(Format('  Memoria usada: %d MB', [GPUInfo.MemoryUsedMB]));
     FRawMemo.Lines.Add(Format('  Memoria livre: %d MB', [GPUInfo.MemoryFreeMB]));
     FRawMemo.Lines.Add(Format('  CUDA cores: %d', [GPUInfo.CUDACoreCount]));
     FRawMemo.Lines.Add(Format('  Uso: %.1f %%', [GPUInfo.UsagePercent]));
+    if GPUInfo.LastError <> '' then
+      FRawMemo.Lines.Add(Format('  Diagnostico: %s', [GPUInfo.LastError]));
 
     FRawMemo.Lines.Add('');
     FRawMemo.Lines.Add('Discos');

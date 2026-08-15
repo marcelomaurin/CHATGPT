@@ -272,21 +272,48 @@ function RunCmdEx(const Exe: string; const Args: array of string; out Output: st
 {$IFDEF UNIX}
 var
   P: TProcess;
-  I: Integer;
+  I, BytesRead: Integer;
+  Buffer: array[0..4095] of Byte;
+  Chunk: string;
 begin
   Output := '';
+  Result := False;
   P := TProcess.Create(nil);
   try
-    P.Executable := Exe;
-    for I := 0 to High(Args) do
-      P.Parameters.Add(Args[I]);
-    P.Options := [poUsePipes, poStderrToOutput];
-    Result := P.Execute = 0;
-    if Result then
-    begin
-      Output := P.Output.ReadAnsiString;
-      while P.Running do
-        Sleep(1);
+    try
+      P.Executable := Exe;
+      for I := 0 to High(Args) do
+        P.Parameters.Add(Args[I]);
+      P.Options := [poUsePipes, poStderrToOutput];
+      P.Execute;
+      repeat
+        while P.Output.NumBytesAvailable > 0 do
+        begin
+          BytesRead := P.Output.Read(Buffer, SizeOf(Buffer));
+          if BytesRead <= 0 then
+            Break;
+          SetString(Chunk, PChar(@Buffer[0]), BytesRead);
+          Output := Output + Chunk;
+        end;
+        if P.Running then
+          Sleep(1);
+      until not P.Running;
+      while P.Output.NumBytesAvailable > 0 do
+      begin
+        BytesRead := P.Output.Read(Buffer, SizeOf(Buffer));
+        if BytesRead <= 0 then
+          Break;
+        SetString(Chunk, PChar(@Buffer[0]), BytesRead);
+        Output := Output + Chunk;
+      end;
+      P.WaitOnExit;
+      Result := P.ExitStatus = 0;
+    except
+      on E: Exception do
+      begin
+        Output := E.Message;
+        Result := False;
+      end;
     end;
   finally
     P.Free;
@@ -669,7 +696,7 @@ begin
       T.CPUTimeMS := ((Utime + Stime) * 1000) div ClkTck;
       T.StartTicks := QWord(Starttime);
       if (BootTime > 0) and (Starttime > 0) then
-        T.StartTime := UnixToDateTime(BootTime + (Starttime / ClkTck));
+        T.StartTime := UnixToDateTime(BootTime + (Starttime div ClkTck));
       S := ReadProc('statm');
       if S <> '' then
       begin

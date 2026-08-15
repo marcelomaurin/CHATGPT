@@ -8,7 +8,8 @@ unit openai_hardware;
 interface
 
 uses
-  aicpu, aimemory, aigpu, aidisk, aiso, ai_tasks, ailistprinters, LazarusPackageIntf;
+  aihardwarelinux, aicpu, aimemory, aigpu, aidisk, aiso, ai_tasks,
+  ailistprinters, LazarusPackageIntf;
 
 implementation
 

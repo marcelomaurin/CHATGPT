@@ -17,6 +17,10 @@
     <License Value="OPEN SOURCE GPL3"/>
     <Files>
       <Item>
+        <Filename Value="..\AI Hardware\aihardwarelinux.pas"/>
+        <UnitName Value="aihardwarelinux"/>
+      </Item>
+      <Item>
         <Filename Value="..\AI Hardware\aicpu.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aicpu"/>
