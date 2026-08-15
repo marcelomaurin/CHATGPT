@@ -106,79 +106,122 @@ end;
 procedure TfrmMain.cmbBrokerChange(Sender: TObject);
 begin
   case cmbBroker.ItemIndex of
-    0: // test.mosquitto.org 1883 unauthenticated
+
+    0:
     begin
       edtHost.Text := 'test.mosquitto.org';
       edtPort.Text := '1883';
       edtUsername.Text := '';
       edtPassword.Text := '';
       edtSubTopic.Text := 'lazarus/ai/telemetria';
-      AddLog('Perfil selecionado: test.mosquitto.org (Porta 1883 - Sem Autenticação)');
+
+      AddLog(
+        'Perfil selecionado: test.mosquitto.org ' +
+        '(Porta 1883 - Sem Autenticação)'
+      );
     end;
-    1: // test.mosquitto.org 1884 authenticated (rw / readwrite)
+
+    1:
     begin
       edtHost.Text := 'test.mosquitto.org';
       edtPort.Text := '1884';
       edtUsername.Text := 'rw';
       edtPassword.Text := 'readwrite';
       edtSubTopic.Text := 'lazarus/ai/telemetria';
-      AddLog('Perfil selecionado: test.mosquitto.org (Porta 1884 - Autenticado rw/readwrite)');
+
+      AddLog(
+        'Perfil selecionado: test.mosquitto.org ' +
+        '(Porta 1884 - Autenticado rw/readwrite)'
+      );
     end;
-    2: // test.mosquitto.org 1884 authenticated (ro / readonly)
+
+    2:
     begin
       edtHost.Text := 'test.mosquitto.org';
       edtPort.Text := '1884';
       edtUsername.Text := 'ro';
       edtPassword.Text := 'readonly';
       edtSubTopic.Text := 'lazarus/ai/telemetria';
-      AddLog('Perfil selecionado: test.mosquitto.org (Porta 1884 - Autenticado ro/readonly)');
+
+      AddLog(
+        'Perfil selecionado: test.mosquitto.org ' +
+        '(Porta 1884 - Autenticado ro/readonly)'
+      );
     end;
-    3: // test.mosquitto.org 1884 authenticated (wo / writeonly)
+
+    3:
     begin
       edtHost.Text := 'test.mosquitto.org';
       edtPort.Text := '1884';
       edtUsername.Text := 'wo';
       edtPassword.Text := 'writeonly';
       edtSubTopic.Text := 'lazarus/ai/telemetria';
-      AddLog('Perfil selecionado: test.mosquitto.org (Porta 1884 - Autenticado wo/writeonly)');
+
+      AddLog(
+        'Perfil selecionado: test.mosquitto.org ' +
+        '(Porta 1884 - Autenticado wo/writeonly)'
+      );
     end;
-    4: // test.mosquitto.org 1883 wildcard discovery
+
+    4:
     begin
       edtHost.Text := 'test.mosquitto.org';
       edtPort.Text := '1883';
-      edtUsername.Text := 'wildcard';
+      edtUsername.Text := '';
       edtPassword.Text := '';
       edtSubTopic.Text := '#';
-      AddLog('Perfil selecionado: test.mosquitto.org (Descoberta - Usuário wildcard para assinatura de #)');
+
+      AddLog(
+        'Perfil selecionado: test.mosquitto.org ' +
+        '(Descoberta de tópicos)'
+      );
     end;
-    5: // HiveMQ
+
+    5:
     begin
       edtHost.Text := 'broker.hivemq.com';
       edtPort.Text := '1883';
       edtUsername.Text := '';
       edtPassword.Text := '';
       edtSubTopic.Text := 'lazarus/ai/telemetria';
-      AddLog('Perfil selecionado: broker.hivemq.com (Porta 1883)');
+
+      AddLog('Perfil selecionado: broker.hivemq.com:1883');
     end;
-    6: // EMQX
+
+    6:
     begin
       edtHost.Text := 'broker.emqx.io';
       edtPort.Text := '1883';
       edtUsername.Text := '';
       edtPassword.Text := '';
       edtSubTopic.Text := 'lazarus/ai/telemetria';
-      AddLog('Perfil selecionado: broker.emqx.io (Porta 1883)');
+
+      AddLog('Perfil selecionado: broker.emqx.io:1883');
     end;
-    7: // Localhost
+
+    7:
     begin
       edtHost.Text := 'localhost';
       edtPort.Text := '1883';
       edtUsername.Text := '';
       edtPassword.Text := '';
       edtSubTopic.Text := 'lazarus/ai/telemetria';
-      AddLog('Perfil selecionado: localhost (Broker Local Mosquitto na porta 1883)');
+
+      AddLog('Perfil selecionado: localhost:1883');
     end;
   end;
+
+  // Diagnóstico adicional
+  AddLog(
+    Format(
+      '[CONFIG] Host Real="%s" Porta=%s Usuário="%s"',
+      [
+        edtHost.Text,
+        edtPort.Text,
+        edtUsername.Text
+      ]
+    )
+  );
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);

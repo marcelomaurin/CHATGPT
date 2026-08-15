@@ -6,9 +6,9 @@ object frmMain: TfrmMain
   Caption = 'MQTT Client Demo (TAIMQTTClient)'
   ClientHeight = 680
   ClientWidth = 980
+  LCLVersion = '4.4.0.0'
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  LCLVersion = '3.0.0.3'
   object pnlTop: TPanel
     Left = 0
     Height = 145
@@ -26,18 +26,19 @@ object frmMain: TfrmMain
       Left = 14
       Height = 21
       Top = 8
-      Width = 590
+      Width = 599
       Caption = 'Cliente MQTT Industrial e IoT (TAIMQTTClient - Baseado em test.mosquitto.org)'
       Font.Height = -16
       Font.Name = 'Segoe UI'
       Font.Style = [fsBold]
       ParentColor = False
+      ParentFont = False
     end
     object lblHost: TLabel
       Left = 14
       Height = 15
       Top = 40
-      Width = 73
+      Width = 72
       Caption = 'Broker Preset:'
       ParentColor = False
     end
@@ -58,15 +59,16 @@ object frmMain: TfrmMain
         'broker.emqx.io (Porta 1883)'
         'localhost (Porta 1883 - Mosquitto Local)'
       )
-      OnChange = cmbBrokerChange
       Style = csDropDownList
       TabOrder = 0
+      Text = 'test.mosquitto.org (Porta 1883 - Sem Autenticação)'
+      OnChange = cmbBrokerChange
     end
     object lblCustomHost: TLabel
       Left = 430
       Height = 15
       Top = 40
-      Width = 56
+      Width = 53
       Caption = 'Host Real:'
       ParentColor = False
     end
@@ -116,8 +118,8 @@ object frmMain: TfrmMain
       Top = 70
       Width = 60
       Caption = 'Novo ID'
-      OnClick = btnGenIDClick
       TabOrder = 4
+      OnClick = btnGenIDClick
     end
     object lblUsername: TLabel
       Left = 332
@@ -173,8 +175,8 @@ object frmMain: TfrmMain
       Top = 104
       Width = 135
       Caption = 'Conectar Broker'
-      OnClick = btnConnectClick
       TabOrder = 8
+      OnClick = btnConnectClick
     end
     object btnDisconnect: TButton
       Left = 158
@@ -183,8 +185,8 @@ object frmMain: TfrmMain
       Width = 105
       Caption = 'Desconectar'
       Enabled = False
-      OnClick = btnDisconnectClick
       TabOrder = 9
+      OnClick = btnDisconnectClick
     end
     object btnPing: TButton
       Left = 272
@@ -193,19 +195,20 @@ object frmMain: TfrmMain
       Width = 95
       Caption = 'Enviar Ping'
       Enabled = False
-      OnClick = btnPingClick
       TabOrder = 10
+      OnClick = btnPingClick
     end
     object lblStatus: TLabel
       Left = 385
-      Height = 20
+      Height = 17
       Top = 108
-      Width = 580
+      Width = 132
       Caption = 'Status: Desconectado'
       Font.Height = -13
       Font.Name = 'Segoe UI'
       Font.Style = [fsBold]
       ParentColor = False
+      ParentFont = False
     end
   end
   object pnlMain: TPanel
@@ -215,17 +218,17 @@ object frmMain: TfrmMain
     Width = 980
     Align = alClient
     BevelOuter = bvNone
-    ClientHeight = 570
+    ClientHeight = 535
     ClientWidth = 980
     TabOrder = 1
     object pnlLeft: TPanel
       Left = 0
-      Height = 570
+      Height = 535
       Top = 0
       Width = 470
       Align = alLeft
       BevelOuter = bvNone
-      ClientHeight = 570
+      ClientHeight = 535
       ClientWidth = 470
       TabOrder = 0
       object grpSubscribe: TGroupBox
@@ -243,7 +246,7 @@ object frmMain: TfrmMain
           Left = 10
           Height = 15
           Top = 12
-          Width = 97
+          Width = 94
           Caption = 'Tópico p/ Assinar:'
           ParentColor = False
         end
@@ -262,14 +265,14 @@ object frmMain: TfrmMain
           Width = 96
           Caption = 'Assinar Tópico'
           Enabled = False
-          OnClick = btnSubscribeClick
           TabOrder = 1
+          OnClick = btnSubscribeClick
         end
         object lblSubList: TLabel
           Left = 10
           Height = 15
           Top = 40
-          Width = 112
+          Width = 99
           Caption = 'Tópicos Assinados:'
           ParentColor = False
         end
@@ -284,20 +287,20 @@ object frmMain: TfrmMain
       end
       object grpPublish: TGroupBox
         Left = 8
-        Height = 371
+        Height = 336
         Top = 191
         Width = 454
         Align = alClient
         BorderSpacing.Around = 8
         Caption = ' Publicação de Mensagens (Publish) '
-        ClientHeight = 351
+        ClientHeight = 316
         ClientWidth = 450
         TabOrder = 1
         object lblPubTopic: TLabel
           Left = 10
           Height = 15
           Top = 12
-          Width = 105
+          Width = 97
           Caption = 'Tópico de Destino:'
           ParentColor = False
         end
@@ -313,7 +316,7 @@ object frmMain: TfrmMain
           Left = 10
           Height = 15
           Top = 40
-          Width = 126
+          Width = 140
           Caption = 'Conteúdo (Payload JSON):'
           ParentColor = False
         end
@@ -339,8 +342,8 @@ object frmMain: TfrmMain
           Top = 230
           Width = 150
           Caption = 'Gerar Telemetria'
-          OnClick = btnPubTelemetryClick
           TabOrder = 2
+          OnClick = btnPubTelemetryClick
         end
         object btnPublish: TButton
           Left = 170
@@ -349,29 +352,30 @@ object frmMain: TfrmMain
           Width = 160
           Caption = 'Publicar Mensagem'
           Enabled = False
-          OnClick = btnPublishClick
           TabOrder = 3
+          OnClick = btnPublishClick
         end
         object lblPubHelp: TLabel
           Left = 10
-          Height = 60
+          Height = 13
           Top = 275
-          Width = 428
+          Width = 690
           Caption = 'Dica: Assine o tópico acima e publique uma mensagem nele para ver a recepção em tempo real no painel ao lado via broker MQTT real.'
           Font.Height = -11
           ParentColor = False
+          ParentFont = False
           WordWrap = True
         end
       end
     end
     object pnlRight: TPanel
       Left = 470
-      Height = 570
+      Height = 535
       Top = 0
       Width = 510
       Align = alClient
       BevelOuter = bvNone
-      ClientHeight = 570
+      ClientHeight = 535
       ClientWidth = 510
       TabOrder = 1
       object grpReceived: TGroupBox
@@ -386,10 +390,10 @@ object frmMain: TfrmMain
         ClientWidth = 490
         TabOrder = 0
         object memoReceived: TMemo
-          Left = 8
+          Left = 0
           Height = 210
-          Top = 8
-          Width = 474
+          Top = 0
+          Width = 490
           Align = alTop
           ReadOnly = True
           ScrollBars = ssAutoBoth
@@ -401,40 +405,40 @@ object frmMain: TfrmMain
           Top = 224
           Width = 130
           Caption = 'Limpar Mensagens'
-          OnClick = btnClearReceivedClick
           TabOrder = 1
+          OnClick = btnClearReceivedClick
         end
       end
       object grpLog: TGroupBox
         Left = 8
-        Height = 266
+        Height = 231
         Top = 296
         Width = 494
         Align = alClient
         BorderSpacing.Around = 8
         Caption = ' Registro de Eventos e Protocolo '
-        ClientHeight = 246
+        ClientHeight = 211
         ClientWidth = 490
         TabOrder = 1
         object memoLog: TMemo
-          Left = 8
-          Height = 196
-          Top = 8
-          Width = 474
+          Left = 0
+          Height = 177
+          Top = 0
+          Width = 490
           Align = alClient
           ReadOnly = True
           ScrollBars = ssAutoBoth
           TabOrder = 0
         end
         object pnlLogBottom: TPanel
-          Left = 8
+          Left = 0
           Height = 34
-          Top = 204
-          Width = 474
+          Top = 177
+          Width = 490
           Align = alBottom
           BevelOuter = bvNone
           ClientHeight = 34
-          ClientWidth = 474
+          ClientWidth = 490
           TabOrder = 1
           object btnClearLog: TButton
             Left = 0
@@ -442,23 +446,21 @@ object frmMain: TfrmMain
             Top = 4
             Width = 100
             Caption = 'Limpar Log'
-            OnClick = btnClearLogClick
             TabOrder = 0
+            OnClick = btnClearLogClick
           end
         end
       end
     end
   end
   object AIMQTTClient1: TAIMQTTClient
+    Prompt = 'Component TAIMQTTClient is an IoT MQTT client. Properties: Host: string (MQTT broker address), Port: Integer (default 1883), ClientID: string, KeepAlive: Integer, Active: Boolean (triggers background listener thread connection), OnMessageReceived: TMQTTMessageEvent, OnConnected/OnDisconnected: TNotifyEvent. Methods: ConnectBroker, DisconnectBroker, Subscribe(const ATopic: string): Boolean, Publish(const ATopic, APayload: string): Boolean. AI Agent: Use this to publish telemetry or receive commands via MQTT brokers in IoT setups.'
+    OnLog = AIMQTTClient1Log
     Host = 'broker.hivemq.com'
-    Port = 1883
     ClientID = 'LazarusAI_Client'
-    KeepAlive = 60
-    Active = False
     OnMessageReceived = OnMQTTMessageReceived
     OnConnected = OnMQTTConnected
     OnDisconnected = OnMQTTDisconnected
-    OnLog = AIMQTTClient1Log
     Left = 890
     Top = 30
   end
