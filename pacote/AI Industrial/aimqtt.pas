@@ -56,6 +56,7 @@ type
     
     procedure SetActive(AValue: Boolean);
     procedure TriggerMessage(const ATopic, APayload: string);
+    procedure TriggerConnected;
     procedure DoDisconnect;
     function ResolveHost(const AHost: string; var AAddr): Boolean;
   public
@@ -66,6 +67,7 @@ type
     procedure DisconnectBroker;
     function Subscribe(const ATopic: string): Boolean;
     function Publish(const ATopic, APayload: string): Boolean;
+    function Ping: Boolean;
     
     property LastTopic: string read FLastTopic;
     property LastPayload: string read FLastPayload;
@@ -107,54 +109,100 @@ end;
 
 procedure TAIMQTTReceiverThread.Execute;
 var
-  Buffer: array[0..2047] of Byte;
+  Buffer: array[0..8191] of Byte;
   BytesRead: Integer;
-  PacketType: Byte;
-  RemainingLen: Integer;
-  TopicLen: Integer;
-  Topic: string;
-  Payload: string;
-  Idx: Integer;
+  PacketType, Flags: Byte;
+  RemainingLen, Multiplier: Integer;
+  TopicLen, PosIdx, PacketStart, QoS: Integer;
+  Topic, Payload: string;
   I: Integer;
+  Digit: Byte;
 begin
   while not Terminated do
   begin
     BytesRead := fprecv(FSocket, @Buffer[0], SizeOf(Buffer), 0);
     if BytesRead <= 0 then
     begin
-      // Connection closed or error
       Synchronize(@FClient.DoDisconnect);
       Break;
     end;
-    
-    // Parse MQTT binary frames
-    PacketType := Buffer[0] shr 4;
-    
-    // Check if it is a PUBLISH packet (type 3)
-    if PacketType = 3 then
+
+    PosIdx := 0;
+    while PosIdx < BytesRead do
     begin
-      // Read remaining length
-      RemainingLen := Buffer[1];
-      
-      // Length of topic (2 bytes)
-      TopicLen := (Buffer[2] shl 8) + Buffer[3];
-      
-      SetLength(Topic, TopicLen);
-      for I := 0 to TopicLen - 1 do
-        Topic[I + 1] := Char(Buffer[4 + I]);
-        
-      Idx := 4 + TopicLen;
-      
-      // Payload content
-      SetLength(Payload, RemainingLen - TopicLen - 2);
-      for I := 0 to Length(Payload) - 1 do
-        Payload[I + 1] := Char(Buffer[Idx + I]);
-        
-      FCurrentTopic := Topic;
-      FCurrentPayload := Payload;
-      Synchronize(@SyncTrigger);
+      PacketStart := PosIdx;
+      PacketType := Buffer[PosIdx] shr 4;
+      Flags := Buffer[PosIdx] and $0F;
+      Inc(PosIdx);
+
+      // Decode Remaining Length (variable length integer)
+      RemainingLen := 0;
+      Multiplier := 1;
+      repeat
+        if PosIdx >= BytesRead then Break;
+        Digit := Buffer[PosIdx];
+        Inc(PosIdx);
+        RemainingLen := RemainingLen + (Digit and 127) * Multiplier;
+        Multiplier := Multiplier * 128;
+      until (Digit and 128) = 0;
+
+      if PosIdx + RemainingLen > BytesRead then
+        Break;
+
+      case PacketType of
+        2: // CONNACK ($20)
+        begin
+          if (RemainingLen >= 2) and (Buffer[PosIdx + 1] = 0) then
+            Synchronize(@FClient.TriggerConnected);
+        end;
+        3: // PUBLISH ($30..$3F)
+        begin
+          QoS := (Flags and $06) shr 1;
+          if RemainingLen >= 2 then
+          begin
+            TopicLen := (Buffer[PosIdx] shl 8) + Buffer[PosIdx + 1];
+            Inc(PosIdx, 2);
+            SetLength(Topic, TopicLen);
+            for I := 0 to TopicLen - 1 do
+              Topic[I + 1] := Char(Buffer[PosIdx + I]);
+            Inc(PosIdx, TopicLen);
+
+            if (QoS > 0) and (RemainingLen >= TopicLen + 4) then
+            begin
+              Inc(PosIdx, 2); // Skip Packet Identifier
+              SetLength(Payload, RemainingLen - TopicLen - 4);
+            end
+            else if RemainingLen >= TopicLen + 2 then
+              SetLength(Payload, RemainingLen - TopicLen - 2)
+            else
+              SetLength(Payload, 0);
+
+            if Length(Payload) > 0 then
+            begin
+              for I := 0 to Length(Payload) - 1 do
+                Payload[I + 1] := Char(Buffer[PosIdx + I]);
+              Inc(PosIdx, Length(Payload));
+            end;
+
+            FCurrentTopic := Topic;
+            FCurrentPayload := Payload;
+            Synchronize(@SyncTrigger);
+          end;
+        end;
+        9: // SUBACK ($90)
+        begin
+          // Subscription acknowledged by broker
+        end;
+        13: // PINGRESP ($D0)
+        begin
+          // Ping response from broker
+        end;
+      end;
+
+      if PosIdx < PacketStart + 1 + RemainingLen then
+        PosIdx := PacketStart + 1 + RemainingLen;
     end;
-    
+
     Sleep(10);
   end;
 end;
@@ -489,6 +537,25 @@ begin
   FLastPayload := APayload;
   if Assigned(FOnMessageReceived) then
     FOnMessageReceived(Self, ATopic, APayload);
+end;
+
+procedure TAIMQTTClient.TriggerConnected;
+begin
+  if Assigned(FOnConnected) then
+    FOnConnected(Self);
+end;
+
+function TAIMQTTClient.Ping: Boolean;
+var
+  PingPacket: array[0..1] of Byte;
+  Res: Integer;
+begin
+  Result := False;
+  if not FActive or (FSocket = TSocket(-1)) then Exit;
+  PingPacket[0] := $C0; // PINGREQ
+  PingPacket[1] := $00;
+  Res := fpsend(FSocket, @PingPacket[0], 2, 0);
+  Result := (Res = 2);
 end;
 
 procedure TAIMQTTClient.DoDisconnect;
