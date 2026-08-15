@@ -52,6 +52,7 @@ type
     memoLog: TMemo;
     pnlLogBottom: TPanel;
     btnClearLog: TButton;
+    AIMQTTClient1: TAIMQTTClient;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnGenIDClick(Sender: TObject);
@@ -63,13 +64,12 @@ type
     procedure btnPubTelemetryClick(Sender: TObject);
     procedure btnClearReceivedClick(Sender: TObject);
     procedure btnClearLogClick(Sender: TObject);
-  private
-    FAIMQTT: TAIMQTTClient;
-    procedure AddLog(const AMsg: string);
-    procedure SetConnectedUI(AConnected: Boolean);
     procedure OnMQTTConnected(Sender: TObject);
     procedure OnMQTTDisconnected(Sender: TObject);
     procedure OnMQTTMessageReceived(Sender: TObject; const ATopic, APayload: string);
+  private
+    procedure AddLog(const AMsg: string);
+    procedure SetConnectedUI(AConnected: Boolean);
   public
 
   end;
@@ -89,20 +89,14 @@ begin
   AddLog('Inicializando demonstração do componente TAIMQTTClient...');
   
   btnGenIDClick(nil);
-  
-  FAIMQTT := TAIMQTTClient.Create(Self);
-  FAIMQTT.OnConnected := @OnMQTTConnected;
-  FAIMQTT.OnDisconnected := @OnMQTTDisconnected;
-  FAIMQTT.OnMessageReceived := @OnMQTTMessageReceived;
-  
   SetConnectedUI(False);
   AddLog('Pronto. Selecione o broker e clique em "Conectar Broker".');
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
-  if (FAIMQTT <> nil) and FAIMQTT.Active then
-    FAIMQTT.DisconnectBroker;
+  if (AIMQTTClient1 <> nil) and AIMQTTClient1.Active then
+    AIMQTTClient1.DisconnectBroker;
 end;
 
 procedure TfrmMain.btnGenIDClick(Sender: TObject);
@@ -131,7 +125,7 @@ begin
   
   if AConnected then
   begin
-    lblStatus.Caption := 'Status: Conectado ao Broker (' + FAIMQTT.Host + ':' + IntToStr(FAIMQTT.Port) + ')';
+    lblStatus.Caption := 'Status: Conectado ao Broker (' + AIMQTTClient1.Host + ':' + IntToStr(AIMQTTClient1.Port) + ')';
     lblStatus.Font.Color := clGreen;
   end
   else
@@ -166,26 +160,26 @@ end;
 
 procedure TfrmMain.btnConnectClick(Sender: TObject);
 begin
-  FAIMQTT.Host := Trim(cmbBroker.Text);
-  FAIMQTT.Port := StrToIntDef(edtPort.Text, 1883);
-  FAIMQTT.ClientID := Trim(edtClientID.Text);
-  FAIMQTT.KeepAlive := StrToIntDef(edtKeepAlive.Text, 60);
+  AIMQTTClient1.Host := Trim(cmbBroker.Text);
+  AIMQTTClient1.Port := StrToIntDef(edtPort.Text, 1883);
+  AIMQTTClient1.ClientID := Trim(edtClientID.Text);
+  AIMQTTClient1.KeepAlive := StrToIntDef(edtKeepAlive.Text, 60);
 
   AddLog(Format('Conectando ao broker MQTT "%s:%d" com ClientID "%s"...',
-    [FAIMQTT.Host, FAIMQTT.Port, FAIMQTT.ClientID]));
+    [AIMQTTClient1.Host, AIMQTTClient1.Port, AIMQTTClient1.ClientID]));
   
   lblStatus.Caption := 'Status: Conectando...';
   lblStatus.Font.Color := clNavy;
   Application.ProcessMessages;
 
   try
-    if FAIMQTT.ConnectBroker then
+    if AIMQTTClient1.ConnectBroker then
     begin
       AddLog('Pacote CONNECT enviado com sucesso.');
     end
     else
     begin
-      AddLog('Falha na conexão: ' + FAIMQTT.LastError);
+      AddLog('Falha na conexão: ' + AIMQTTClient1.LastError);
       SetConnectedUI(False);
     end;
   except
@@ -201,7 +195,7 @@ procedure TfrmMain.btnDisconnectClick(Sender: TObject);
 begin
   AddLog('Desconectando do broker...');
   try
-    FAIMQTT.DisconnectBroker;
+    AIMQTTClient1.DisconnectBroker;
   finally
     SetConnectedUI(False);
   end;
@@ -209,7 +203,7 @@ end;
 
 procedure TfrmMain.btnPingClick(Sender: TObject);
 begin
-  if FAIMQTT.Ping then
+  if AIMQTTClient1.Ping then
     AddLog('>>> [PINGREQ] Pacote de KeepAlive enviado ao broker.')
   else
     AddLog('Falha ao enviar Ping ao broker.');
@@ -227,14 +221,14 @@ begin
   end;
 
   AddLog('Enviando SUBSCRIBE para o tópico: ' + Topic);
-  if FAIMQTT.Subscribe(Topic) then
+  if AIMQTTClient1.Subscribe(Topic) then
   begin
     if lstSubscriptions.Items.IndexOf(Topic) < 0 then
       lstSubscriptions.Items.Add(Topic);
     AddLog('Assinatura registrada no broker para: ' + Topic);
   end
   else
-    AddLog('Erro ao assinar tópico: ' + FAIMQTT.LastError);
+    AddLog('Erro ao assinar tópico: ' + AIMQTTClient1.LastError);
 end;
 
 procedure TfrmMain.btnPublishClick(Sender: TObject);
@@ -251,10 +245,10 @@ begin
   end;
 
   AddLog('Publicando no tópico "' + Topic + '" (' + IntToStr(Length(Payload)) + ' bytes)...');
-  if FAIMQTT.Publish(Topic, Payload) then
+  if AIMQTTClient1.Publish(Topic, Payload) then
     AddLog('Mensagem publicada com sucesso.')
   else
-    AddLog('Erro na publicação: ' + FAIMQTT.LastError);
+    AddLog('Erro na publicação: ' + AIMQTTClient1.LastError);
 end;
 
 procedure TfrmMain.btnPubTelemetryClick(Sender: TObject);

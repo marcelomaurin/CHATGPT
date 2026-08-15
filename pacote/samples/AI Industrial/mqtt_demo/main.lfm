@@ -396,4 +396,16 @@ object frmMain: TfrmMain
       end
     end
   end
+  object AIMQTTClient1: TAIMQTTClient
+    Host = 'broker.hivemq.com'
+    Port = 1883
+    ClientID = 'LazarusAI_Client'
+    KeepAlive = 60
+    Active = False
+    OnMessageReceived = OnMQTTMessageReceived
+    OnConnected = OnMQTTConnected
+    OnDisconnected = OnMQTTDisconnected
+    Left = 890
+    Top = 30
+  end
 end

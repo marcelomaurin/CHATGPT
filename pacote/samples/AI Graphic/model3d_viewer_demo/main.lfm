@@ -262,7 +262,22 @@ object frmMain: TfrmMain
       ParentBackground = False
       ParentColor = False
       TabOrder = 1
+      object AI3DModelViewer1: TAI3DModelViewer
+        Left = 0
+        Height = 570
+        Top = 0
+        Width = 670
+        Align = alClient
+        BackgroundColor = 2366488
+        Model = AIModel3D1
+        OnModelLoaded = OnModelLoadedHandler
+        OnModelError = OnModelErrorHandler
+      end
     end
+  end
+  object AIModel3D1: TAIModel3D
+    Left = 100
+    Top = 150
   end
   object OpenDialog1: TOpenDialog
     Title = 'Abrir Modelo 3D'

@@ -37,6 +37,8 @@ type
     lblDragHint: TLabel;
     grpLog: TGroupBox;
     memoLog: TMemo;
+    AIModel3D1: TAIModel3D;
+    AI3DModelViewer1: TAI3DModelViewer;
     OpenDialog1: TOpenDialog;
     SaveDialog1: TSaveDialog;
     procedure FormCreate(Sender: TObject);
@@ -53,16 +55,14 @@ type
     procedure btnRotXClick(Sender: TObject);
     procedure btnRotYClick(Sender: TObject);
     procedure btnRotZClick(Sender: TObject);
+    procedure OnModelLoadedHandler(Sender: TObject);
+    procedure OnModelErrorHandler(Sender: TObject);
   private
-    FAIModel3D: TAIModel3D;
-    FAI3DViewer: TAI3DModelViewer;
     procedure AddLog(const AMsg: string);
     procedure UpdateModelStats;
     procedure GenerateCubeMesh;
     procedure GeneratePyramidMesh;
     procedure GenerateCylinderMesh;
-    procedure OnModelLoadedHandler(Sender: TObject);
-    procedure OnModelErrorHandler(Sender: TObject);
   public
 
   end;
@@ -80,16 +80,6 @@ procedure TfrmMain.FormCreate(Sender: TObject);
 begin
   AddLog('Inicializando Model3D Viewer Demo (TAI3DModelViewer & TAIModel3D)...');
   
-  FAIModel3D := TAIModel3D.Create(Self);
-  
-  FAI3DViewer := TAI3DModelViewer.Create(Self);
-  FAI3DViewer.Parent := pnlViewerHost;
-  FAI3DViewer.Align := alClient;
-  FAI3DViewer.BackgroundColor := RGBToColor(24, 28, 36);
-  FAI3DViewer.OnModelLoaded := @OnModelLoadedHandler;
-  FAI3DViewer.OnModelError := @OnModelErrorHandler;
-  FAI3DViewer.Model := FAIModel3D;
-  
   // Gera cubo 3D inicial para visualização imediata
   GenerateCubeMesh;
 end;
@@ -106,7 +96,7 @@ end;
 
 procedure TfrmMain.UpdateModelStats;
 begin
-  if (FAIModel3D = nil) or (FAIModel3D.FacesCount = 0) then
+  if (AIModel3D1 = nil) or (AIModel3D1.FacesCount = 0) then
   begin
     lblStats.Caption := 'Nenhum modelo carregado.';
     Exit;
@@ -122,14 +112,14 @@ begin
     '  Z: [%.2f .. %.2f]' + LineEnding + LineEnding +
     'Centro (Mid): (%.2f, %.2f, %.2f)' + LineEnding +
     'Raio Esférico: %.2f',
-    [ExtractFileName(FAIModel3D.FilePath),
-     FAIModel3D.FacesCount,
-     FAIModel3D.VerticesCount,
-     FAIModel3D.MinX, FAIModel3D.MaxX,
-     FAIModel3D.MinY, FAIModel3D.MaxY,
-     FAIModel3D.MinZ, FAIModel3D.MaxZ,
-     FAIModel3D.MidX, FAIModel3D.MidY, FAIModel3D.MidZ,
-     FAIModel3D.ModelRadius]
+    [ExtractFileName(AIModel3D1.FilePath),
+     AIModel3D1.FacesCount,
+     AIModel3D1.VerticesCount,
+     AIModel3D1.MinX, AIModel3D1.MaxX,
+     AIModel3D1.MinY, AIModel3D1.MaxY,
+     AIModel3D1.MinZ, AIModel3D1.MaxZ,
+     AIModel3D1.MidX, AIModel3D1.MidY, AIModel3D1.MidZ,
+     AIModel3D1.ModelRadius]
   );
 end;
 
@@ -150,11 +140,11 @@ begin
   begin
     AddLog('Carregando arquivo 3D: ' + OpenDialog1.FileName);
     try
-      FAIModel3D.LoadFromFile(OpenDialog1.FileName);
-      FAI3DViewer.ResetCamera;
-      FAI3DViewer.Invalidate;
+      AIModel3D1.LoadFromFile(OpenDialog1.FileName);
+      AI3DModelViewer1.ResetCamera;
+      AI3DModelViewer1.Invalidate;
       UpdateModelStats;
-      AddLog(Format('Sucesso: %d triângulos carregados.', [FAIModel3D.FacesCount]));
+      AddLog(Format('Sucesso: %d triângulos carregados.', [AIModel3D1.FacesCount]));
     except
       on E: Exception do
         AddLog('Erro ao carregar arquivo: ' + E.Message);
@@ -203,10 +193,10 @@ begin
     SL.Free;
   end;
 
-  FAIModel3D.LoadFromFile(TempFile);
-  FAIModel3D.FilePath := 'Cubo_Procedural.obj';
-  FAI3DViewer.ResetCamera;
-  FAI3DViewer.Invalidate;
+  AIModel3D1.LoadFromFile(TempFile);
+  AIModel3D1.FilePath := 'Cubo_Procedural.obj';
+  AI3DModelViewer1.ResetCamera;
+  AI3DModelViewer1.Invalidate;
   UpdateModelStats;
   AddLog('Cubo 3D pronto para visualização e rotação interativa.');
 end;
@@ -242,10 +232,10 @@ begin
     SL.Free;
   end;
 
-  FAIModel3D.LoadFromFile(TempFile);
-  FAIModel3D.FilePath := 'Piramide_Procedural.obj';
-  FAI3DViewer.ResetCamera;
-  FAI3DViewer.Invalidate;
+  AIModel3D1.LoadFromFile(TempFile);
+  AIModel3D1.FilePath := 'Piramide_Procedural.obj';
+  AI3DModelViewer1.ResetCamera;
+  AI3DModelViewer1.Invalidate;
   UpdateModelStats;
   AddLog('Pirâmide 3D pronta para visualização.');
 end;
@@ -303,10 +293,10 @@ begin
     SL.Free;
   end;
 
-  FAIModel3D.LoadFromFile(TempFile);
-  FAIModel3D.FilePath := 'Cilindro_Procedural.obj';
-  FAI3DViewer.ResetCamera;
-  FAI3DViewer.Invalidate;
+  AIModel3D1.LoadFromFile(TempFile);
+  AIModel3D1.FilePath := 'Cilindro_Procedural.obj';
+  AI3DModelViewer1.ResetCamera;
+  AI3DModelViewer1.Invalidate;
   UpdateModelStats;
   AddLog('Cilindro 3D pronto para visualização.');
 end;
@@ -329,30 +319,30 @@ end;
 procedure TfrmMain.cmbRenderModeChange(Sender: TObject);
 begin
   case cmbRenderMode.ItemIndex of
-    0: FAI3DViewer.RenderMode := rmSolid;
-    1: FAI3DViewer.RenderMode := rmWireframe;
-    2: FAI3DViewer.RenderMode := rmPoints;
+    0: AI3DModelViewer1.RenderMode := rmSolid;
+    1: AI3DModelViewer1.RenderMode := rmWireframe;
+    2: AI3DModelViewer1.RenderMode := rmPoints;
   end;
-  FAI3DViewer.Invalidate;
+  AI3DModelViewer1.Invalidate;
   AddLog('Modo de renderização alterado para: ' + cmbRenderMode.Text);
 end;
 
 procedure TfrmMain.btnZoomInClick(Sender: TObject);
 begin
-  FAI3DViewer.ZoomIn;
+  AI3DModelViewer1.ZoomIn;
   AddLog('Zoom aumentado.');
 end;
 
 procedure TfrmMain.btnZoomOutClick(Sender: TObject);
 begin
-  FAI3DViewer.ZoomOut;
+  AI3DModelViewer1.ZoomOut;
   AddLog('Zoom reduzido.');
 end;
 
 procedure TfrmMain.btnResetCamClick(Sender: TObject);
 begin
-  FAI3DViewer.ResetCamera;
-  FAI3DViewer.Invalidate;
+  AI3DModelViewer1.ResetCamera;
+  AI3DModelViewer1.Invalidate;
   AddLog('Câmera resetada para posição padrão.');
 end;
 
@@ -361,7 +351,7 @@ begin
   if SaveDialog1.Execute then
   begin
     try
-      FAI3DViewer.ExportScreenshot(SaveDialog1.FileName);
+      AI3DModelViewer1.ExportScreenshot(SaveDialog1.FileName);
       AddLog('Captura 3D exportada com sucesso para: ' + SaveDialog1.FileName);
     except
       on E: Exception do
@@ -372,10 +362,10 @@ end;
 
 procedure TfrmMain.btnRotXClick(Sender: TObject);
 begin
-  if FAIModel3D <> nil then
+  if AIModel3D1 <> nil then
   begin
-    FAIModel3D.Rotate(15, 0, 0);
-    FAI3DViewer.Invalidate;
+    AIModel3D1.Rotate(15, 0, 0);
+    AI3DModelViewer1.Invalidate;
     UpdateModelStats;
     AddLog('Rotacionado X +15 graus na malha.');
   end;
@@ -383,10 +373,10 @@ end;
 
 procedure TfrmMain.btnRotYClick(Sender: TObject);
 begin
-  if FAIModel3D <> nil then
+  if AIModel3D1 <> nil then
   begin
-    FAIModel3D.Rotate(0, 15, 0);
-    FAI3DViewer.Invalidate;
+    AIModel3D1.Rotate(0, 15, 0);
+    AI3DModelViewer1.Invalidate;
     UpdateModelStats;
     AddLog('Rotacionado Y +15 graus na malha.');
   end;
@@ -394,10 +384,10 @@ end;
 
 procedure TfrmMain.btnRotZClick(Sender: TObject);
 begin
-  if FAIModel3D <> nil then
+  if AIModel3D1 <> nil then
   begin
-    FAIModel3D.Rotate(0, 0, 15);
-    FAI3DViewer.Invalidate;
+    AIModel3D1.Rotate(0, 0, 15);
+    AI3DModelViewer1.Invalidate;
     UpdateModelStats;
     AddLog('Rotacionado Z +15 graus na malha.');
   end;

@@ -16,6 +16,8 @@ INVENTORY_FILE = REPO_ROOT / "tests" / "samples_inventory.json"
 def scan_all_samples() -> dict[str, dict]:
     discovered = {}
     for lpi in sorted(SAMPLES_DIR.rglob("*.lpi")):
+        if "backup" in lpi.parts:
+            continue
         rel = lpi.relative_to(REPO_ROOT).as_posix()
         name = lpi.stem
         

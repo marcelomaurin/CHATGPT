@@ -26,6 +26,8 @@ function AIGetRuntimeIniName: string;
 function AIResolveWorkerPath(const ARuntimeRoot, AWorkerFile: string): string;
 function AIResolvePythonExecutable(const ARuntimeRoot: string): string;
 function AIResolvePythonLibrary(const ARuntimeRoot: string): string;
+function AIResolveOpenSSLDirectory(const ABaseDir: string = ''): string;
+function AIResolveOpenSSLLibraries(const ABaseDir: string; out ASSLLib, ACryptoLib: string): Boolean;
 function AILoadRuntimeInfo(const AIniFile: string; out AInfo: TAIRuntimeInfo; out AError: string): Boolean;
 procedure AIFillDefaultRuntimeInfo(out AInfo: TAIRuntimeInfo);
 
@@ -88,6 +90,83 @@ begin
   Result := AICombinePath(AICombinePath(AICombinePath(ARuntimeRoot, 'python'), 'lib'), 'libpython3.11.so');
   if not FileExists(Result) then
     Result := AICombinePath(AICombinePath(AICombinePath(ARuntimeRoot, 'python'), 'lib'), 'libpython3.8.so');
+  {$ENDIF}
+end;
+
+function AIResolveOpenSSLDirectory(const ABaseDir: string): string;
+var
+  SearchRoots: array[0..3] of string;
+  ArchFolder: string;
+  I: Integer;
+  Candidate: string;
+begin
+  Result := '';
+  {$IFDEF MSWINDOWS}
+    {$IFDEF WIN64}
+    ArchFolder := 'x64';
+    {$ELSE}
+    ArchFolder := 'X86';
+    {$ENDIF}
+  {$ELSE}
+  ArchFolder := '';
+  {$ENDIF}
+
+  SearchRoots[0] := ABaseDir;
+  SearchRoots[1] := ExtractFilePath(ParamStr(0));
+  SearchRoots[2] := ExpandFileName(ExtractFilePath(ParamStr(0)) + '..' + DirectorySeparator);
+  SearchRoots[3] := ExpandFileName(ExtractFilePath(ParamStr(0)) + '..' + DirectorySeparator + '..' + DirectorySeparator);
+
+  for I := 0 to High(SearchRoots) do
+  begin
+    if SearchRoots[I] = '' then Continue;
+    // Check runtime/OpenSSL/1.1.1.10/
+    Candidate := AICombinePath(SearchRoots[I], 'runtime' + DirectorySeparator + 'OpenSSL' + DirectorySeparator + '1.1.1.10' + DirectorySeparator + ArchFolder);
+    if DirectoryExists(Candidate) then
+      Exit(Candidate);
+    Candidate := AICombinePath(SearchRoots[I], 'OpenSSL' + DirectorySeparator + '1.1.1.10' + DirectorySeparator + ArchFolder);
+    if DirectoryExists(Candidate) then
+      Exit(Candidate);
+  end;
+end;
+
+function AIResolveOpenSSLLibraries(const ABaseDir: string; out ASSLLib, ACryptoLib: string): Boolean;
+var
+  SSLDir: string;
+begin
+  Result := False;
+  ASSLLib := '';
+  ACryptoLib := '';
+  SSLDir := AIResolveOpenSSLDirectory(ABaseDir);
+
+  {$IFDEF MSWINDOWS}
+    {$IFDEF WIN64}
+    if SSLDir <> '' then
+    begin
+      ASSLLib := AICombinePath(SSLDir, 'libssl-1_1-x64.dll');
+      ACryptoLib := AICombinePath(SSLDir, 'libcrypto-1_1-x64.dll');
+    end
+    else
+    begin
+      ASSLLib := 'libssl-1_1-x64.dll';
+      ACryptoLib := 'libcrypto-1_1-x64.dll';
+    end;
+    {$ELSE}
+    if SSLDir <> '' then
+    begin
+      ASSLLib := AICombinePath(SSLDir, 'libssl-1_1.dll');
+      ACryptoLib := AICombinePath(SSLDir, 'libcrypto-1_1.dll');
+    end
+    else
+    begin
+      ASSLLib := 'libssl-1_1.dll';
+      ACryptoLib := 'libcrypto-1_1.dll';
+    end;
+    {$ENDIF}
+    Result := FileExists(ASSLLib) and FileExists(ACryptoLib);
+  {$ELSE}
+  ASSLLib := 'libssl.so.1.1';
+  ACryptoLib := 'libcrypto.so.1.1';
+  Result := True;
   {$ENDIF}
 end;
 

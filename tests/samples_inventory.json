@@ -152,17 +152,6 @@
     "requires_gui": true,
     "status": "active"
   },
-  "pacote/samples/AI Agent/action_builder_recovery_test/backup/action_builder_recovery_test.lpi": {
-    "name": "action_builder_recovery_test",
-    "category": "action_builder_recovery_test",
-    "path": "pacote/samples/AI Agent/action_builder_recovery_test/backup/action_builder_recovery_test.lpi",
-    "platforms": [
-      "windows",
-      "linux"
-    ],
-    "requires_gui": true,
-    "status": "active"
-  },
   "pacote/samples/AI Agent/agent_demo/agent_demo.lpi": {
     "name": "agent_demo",
     "category": "AI Agent",
@@ -557,16 +546,6 @@
     "platforms": [
       "windows",
       "linux"
-    ],
-    "requires_gui": true,
-    "status": "active"
-  },
-  "pacote/samples/AI Hardware/hardware_system_manager_demo/backup/hardware_system_manager_demo.lpi": {
-    "name": "hardware_system_manager_demo",
-    "category": "hardware_system_manager_demo",
-    "path": "pacote/samples/AI Hardware/hardware_system_manager_demo/backup/hardware_system_manager_demo.lpi",
-    "platforms": [
-      "windows"
     ],
     "requires_gui": true,
     "status": "active"

@@ -81,6 +81,7 @@ type
     function CompileSamples(AList, AResult: TStrings): Boolean;
     function ValidateDocumentation(AResult: TStrings): Boolean;
     function CopyDocumentation(const ADestination: string; AResult: TStrings): Boolean;
+    function InstallOpenSSLRuntime(const ADestDir: string = ''): Boolean;
 
     property RepoRoot: string read FRepoRoot write FRepoRoot;
     property LazBuild: string read FLazBuild write FLazBuild;
@@ -1026,6 +1027,68 @@ begin
       IncludeTrailingPathDelimiter(Dst) + 'components');
   AResult.Add('[OK] Documentação copiada para ' + Dst);
   Result := True;
+end;
+
+function TInstallerEngine.InstallOpenSSLRuntime(const ADestDir: string): Boolean;
+var
+  SrcDir, DstDir, ArchFolder: string;
+  SR: TSearchRec;
+  SrcFile, DstFile: string;
+  CopiedCount: Integer;
+begin
+  Result := True;
+  CopiedCount := 0;
+
+  {$IFDEF MSWINDOWS}
+    if (FTargetBits = 64) or SameText(FTargetCPU, 'x86_64') or SameText(FTargetCPU, 'x64') then
+      ArchFolder := 'x64'
+    else
+      ArchFolder := 'X86';
+
+    SrcDir := IncludeTrailingPathDelimiter(FRepoRoot) + 'runtime' + DirectorySeparator +
+              'OpenSSL' + DirectorySeparator + '1.1.1.10' + DirectorySeparator + ArchFolder;
+
+    if not DirectoryExists(SrcDir) then
+    begin
+      Log('[AVISO] Pasta de runtime OpenSSL 1.1.1.10 não encontrada: ' + SrcDir);
+      Exit(False);
+    end;
+
+    if ADestDir <> '' then
+      DstDir := ADestDir
+    else if FLazBuild <> '' then
+      DstDir := ExtractFilePath(FLazBuild)
+    else
+      DstDir := ExtractFilePath(ParamStr(0));
+
+    ForceDirectories(DstDir);
+    Log(Format('[OPENSSL] Copiando bibliotecas OpenSSL 1.1.1.10 (%s) de "%s" para "%s"...',
+      [ArchFolder, SrcDir, DstDir]));
+
+    if FindFirst(IncludeTrailingPathDelimiter(SrcDir) + '*.dll', faAnyFile, SR) = 0 then
+    try
+      repeat
+        if (SR.Attr and faDirectory) = 0 then
+        begin
+          SrcFile := IncludeTrailingPathDelimiter(SrcDir) + SR.Name;
+          DstFile := IncludeTrailingPathDelimiter(DstDir) + SR.Name;
+          if CopyFile(SrcFile, DstFile, [cffOverwriteFile]) then
+          begin
+            Inc(CopiedCount);
+            Log('  [COPIADO] ' + SR.Name);
+          end
+          else
+            Log('  [ERRO] Falha ao copiar ' + SR.Name);
+        end;
+      until FindNext(SR) <> 0;
+    finally
+      FindClose(SR);
+    end;
+
+    Log(Format('[OK] %d bibliotecas OpenSSL 1.1.1.10 instaladas com sucesso.', [CopiedCount]));
+  {$ELSE}
+    Log('[OPENSSL] Em sistemas Linux/Unix o OpenSSL é fornecido pelo sistema operacional (libssl1.1 / libcrypto1.1).');
+  {$ENDIF}
 end;
 
 end.
