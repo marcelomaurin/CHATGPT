@@ -280,6 +280,7 @@ var
   WData: winsock2.TWSAData;
   HostEnt: winsock2.PHostEnt;
   AddrVal: Cardinal;
+  SockErr: Integer;
   {$ELSE}
   HostEnt: netdb.THostEntry;
   NetAddr: sockets.in_addr;
@@ -290,7 +291,6 @@ begin
   if CleanHost = '' then
   begin
     SetError('Host não informado.');
-    Log(llError, FLastError);
     Exit;
   end;
 
@@ -299,8 +299,8 @@ begin
   {$IFDEF MSWINDOWS}
   if winsock2.WSAStartup($0202, WData) <> 0 then
   begin
-    SetError('Falha ao inicializar biblioteca WinSock2.');
-    Log(llError, FLastError);
+    SockErr := winsock2.WSAGetLastError;
+    SetError(Format('Falha ao inicializar WinSock2 (erro: %d - %s)', [SockErr, SysErrorMessage(SockErr)]));
     Exit;
   end;
 
@@ -322,9 +322,9 @@ begin
   end
   else
   begin
-    SetError(Format('Falha na resolução DNS de "%s" (WinSock erro: %d)',
-      [CleanHost, winsock2.WSAGetLastError]));
-    Log(llError, FLastError);
+    SockErr := winsock2.WSAGetLastError;
+    SetError(Format('Falha na resolução DNS de "%s" (WinSock erro: %d - %s)',
+      [CleanHost, SockErr, SysErrorMessage(SockErr)]));
   end;
   {$ELSE}
   NetAddr := sockets.StrToNetAddr(CleanHost);
@@ -345,7 +345,6 @@ begin
   else
   begin
     SetError('Falha na resolução DNS de "' + CleanHost + '"');
-    Log(llError, FLastError);
   end;
   {$ENDIF}
 end;
@@ -367,6 +366,7 @@ var
   PayloadLen: Integer;
   Idx, I, Res: Integer;
   IPStr: string;
+  SockErr: Integer;
 begin
   Result := False;
   ClearError;
@@ -392,8 +392,12 @@ begin
     FSocket := fpSocket(AF_INET, SOCK_STREAM, 0);
     if FSocket = TSocket(-1) then
     begin
-      SetError('Não foi possível criar o socket TCP do cliente.');
-      Log(llError, FLastError);
+      {$IFDEF MSWINDOWS}
+      SockErr := winsock2.WSAGetLastError;
+      {$ELSE}
+      SockErr := sockets.SocketError;
+      {$ENDIF}
+      SetError(Format('Não foi possível criar o socket TCP (erro: %d - %s)', [SockErr, SysErrorMessage(SockErr)]));
       Exit(False);
     end;
 
@@ -401,16 +405,23 @@ begin
     Res := fpConnect(FSocket, @Addr, SizeOf(Addr));
     if Res < 0 then
     begin
+      // MUITO IMPORTANTE: capturar o código de erro antes de fechar o socket
+      {$IFDEF MSWINDOWS}
+      SockErr := winsock2.WSAGetLastError;
+      {$ELSE}
+      SockErr := sockets.SocketError;
+      {$ENDIF}
+
       sockets.CloseSocket(FSocket);
       FSocket := TSocket(-1);
+
       {$IFDEF MSWINDOWS}
-      SetError(Format('Falha na conexão TCP para %s:%d (WinSock erro: %d - verifique se a porta de saída %d não está bloqueada por firewall/rede)',
-        [IPStr, FPort, winsock2.WSAGetLastError, FPort]));
+      SetError(Format('Falha na conexão TCP para %s:%d (WinSock erro: %d - %s)',
+        [IPStr, FPort, SockErr, SysErrorMessage(SockErr)]));
       {$ELSE}
-      SetError(Format('Falha na conexão TCP para %s:%d (Socket erro: %d)',
-        [IPStr, FPort, sockets.SocketError]));
+      SetError(Format('Falha na conexão TCP para %s:%d (Socket erro: %d - %s)',
+        [IPStr, FPort, SockErr, SysErrorMessage(SockErr)]));
       {$ENDIF}
-      Log(llError, FLastError);
       Exit(False);
     end;
 
@@ -494,10 +505,14 @@ begin
     Res := fpsend(FSocket, @ConnectPacket[0], Idx, 0);
     if Res <= 0 then
     begin
+      {$IFDEF MSWINDOWS}
+      SockErr := winsock2.WSAGetLastError;
+      {$ELSE}
+      SockErr := sockets.SocketError;
+      {$ENDIF}
       sockets.CloseSocket(FSocket);
       FSocket := TSocket(-1);
-      SetError('Falha ao transmitir o pacote binário CONNECT.');
-      Log(llError, FLastError);
+      SetError(Format('Falha ao transmitir o pacote binário CONNECT (erro: %d - %s)', [SockErr, SysErrorMessage(SockErr)]));
       Exit(False);
     end;
 
@@ -515,7 +530,6 @@ begin
     on E: Exception do
     begin
       SetError('Exceção ao conectar no broker: ' + E.Message);
-      Log(llError, FLastError);
     end;
   end;
 end;
@@ -558,7 +572,6 @@ begin
     on E: Exception do
     begin
       SetError('Exceção ao desconectar do broker: ' + E.Message);
-      Log(llError, FLastError);
     end;
   end;
 end;
@@ -567,13 +580,13 @@ function TAIMQTTClient.Subscribe(const ATopic: string): Boolean;
 var
   SubPacket: array[0..511] of Byte;
   Idx, I, Res: Integer;
+  SockErr: Integer;
 begin
   Result := False;
   ClearError;
   if not FActive or (FSocket = TSocket(-1)) then
   begin
     SetError('Cliente MQTT não está conectado.');
-    Log(llError, FLastError);
     Exit;
   end;
 
@@ -607,14 +620,17 @@ begin
     end
     else
     begin
-      SetError('Falha ao enviar pacote SUBSCRIBE.');
-      Log(llError, FLastError);
+      {$IFDEF MSWINDOWS}
+      SockErr := winsock2.WSAGetLastError;
+      {$ELSE}
+      SockErr := sockets.SocketError;
+      {$ENDIF}
+      SetError(Format('Falha ao enviar pacote SUBSCRIBE (erro: %d - %s)', [SockErr, SysErrorMessage(SockErr)]));
     end;
   except
     on E: Exception do
     begin
       SetError('Exceção ao assinar tópico: ' + E.Message);
-      Log(llError, FLastError);
     end;
   end;
 end;
@@ -623,13 +639,13 @@ function TAIMQTTClient.Publish(const ATopic, APayload: string): Boolean;
 var
   PubPacket: array[0..4095] of Byte;
   Idx, I, Res: Integer;
+  SockErr: Integer;
 begin
   Result := False;
   ClearError;
   if not FActive or (FSocket = TSocket(-1)) then
   begin
     SetError('Cliente MQTT não está conectado.');
-    Log(llError, FLastError);
     Exit;
   end;
 
@@ -664,14 +680,17 @@ begin
     end
     else
     begin
-      SetError('Falha ao enviar pacote binário PUBLISH.');
-      Log(llError, FLastError);
+      {$IFDEF MSWINDOWS}
+      SockErr := winsock2.WSAGetLastError;
+      {$ELSE}
+      SockErr := sockets.SocketError;
+      {$ENDIF}
+      SetError(Format('Falha ao enviar pacote binário PUBLISH (erro: %d - %s)', [SockErr, SysErrorMessage(SockErr)]));
     end;
   except
     on E: Exception do
     begin
       SetError('Exceção ao publicar mensagem: ' + E.Message);
-      Log(llError, FLastError);
     end;
   end;
 end;
