@@ -11,12 +11,12 @@ object frmMain: TfrmMain
   LCLVersion = '3.0.0.3'
   object pnlTop: TPanel
     Left = 0
-    Height = 110
+    Height = 145
     Top = 0
     Width = 980
     Align = alTop
     BevelOuter = bvNone
-    ClientHeight = 110
+    ClientHeight = 145
     ClientWidth = 980
     Color = clMenuBar
     ParentBackground = False
@@ -25,9 +25,9 @@ object frmMain: TfrmMain
     object lblTitle: TLabel
       Left = 14
       Height = 21
-      Top = 10
-      Width = 470
-      Caption = 'Cliente MQTT Industrial e IoT (TAIMQTTClient - Protocolo Real)'
+      Top = 8
+      Width = 590
+      Caption = 'Cliente MQTT Industrial e IoT (TAIMQTTClient - Baseado em test.mosquitto.org)'
       Font.Height = -16
       Font.Name = 'Segoe UI'
       Font.Style = [fsBold]
@@ -36,118 +36,171 @@ object frmMain: TfrmMain
     object lblHost: TLabel
       Left = 14
       Height = 15
-      Top = 44
+      Top = 40
       Width = 73
-      Caption = 'Broker MQTT:'
+      Caption = 'Broker Preset:'
       ParentColor = False
     end
     object cmbBroker: TComboBox
       Left = 95
       Height = 23
-      Top = 40
-      Width = 180
+      Top = 36
+      Width = 325
       ItemHeight = 15
       ItemIndex = 0
       Items.Strings = (
-        'broker.hivemq.com'
-        'test.mosquitto.org'
-        'broker.emqx.io'
-        'localhost'
+        'test.mosquitto.org (Porta 1883 - Sem Autenticação)'
+        'test.mosquitto.org (Porta 1884 - Autenticado: rw / readwrite)'
+        'test.mosquitto.org (Porta 1884 - Autenticado: ro / readonly)'
+        'test.mosquitto.org (Porta 1884 - Autenticado: wo / writeonly)'
+        'test.mosquitto.org (Porta 1883 - Descoberta: wildcard)'
+        'broker.hivemq.com (Porta 1883)'
+        'broker.emqx.io (Porta 1883)'
+        'localhost (Porta 1883 - Mosquitto Local)'
       )
+      OnChange = cmbBrokerChange
+      Style = csDropDownList
       TabOrder = 0
-      Text = 'broker.hivemq.com'
+    end
+    object lblCustomHost: TLabel
+      Left = 430
+      Height = 15
+      Top = 40
+      Width = 56
+      Caption = 'Host Real:'
+      ParentColor = False
+    end
+    object edtHost: TEdit
+      Left = 492
+      Height = 23
+      Top = 36
+      Width = 140
+      TabOrder = 1
+      Text = 'test.mosquitto.org'
     end
     object lblPort: TLabel
-      Left = 286
+      Left = 640
       Height = 15
-      Top = 44
+      Top = 40
       Width = 31
       Caption = 'Porta:'
       ParentColor = False
     end
     object edtPort: TEdit
-      Left = 323
+      Left = 678
       Height = 23
-      Top = 40
-      Width = 55
-      TabOrder = 1
+      Top = 36
+      Width = 50
+      TabOrder = 2
       Text = '1883'
     end
     object lblClientID: TLabel
-      Left = 390
+      Left = 14
       Height = 15
-      Top = 44
+      Top = 74
       Width = 48
       Caption = 'Client ID:'
       ParentColor = False
     end
     object edtClientID: TEdit
-      Left = 445
+      Left = 95
       Height = 23
-      Top = 40
-      Width = 175
-      TabOrder = 2
+      Top = 70
+      Width = 160
+      TabOrder = 3
       Text = 'LazarusAI_Client'
     end
     object btnGenID: TButton
-      Left = 626
+      Left = 260
       Height = 23
-      Top = 40
-      Width = 65
+      Top = 70
+      Width = 60
       Caption = 'Novo ID'
       OnClick = btnGenIDClick
-      TabOrder = 3
+      TabOrder = 4
+    end
+    object lblUsername: TLabel
+      Left = 332
+      Height = 15
+      Top = 74
+      Width = 43
+      Caption = 'Usuário:'
+      ParentColor = False
+    end
+    object edtUsername: TEdit
+      Left = 380
+      Height = 23
+      Top = 70
+      Width = 90
+      TabOrder = 5
+    end
+    object lblPassword: TLabel
+      Left = 480
+      Height = 15
+      Top = 74
+      Width = 35
+      Caption = 'Senha:'
+      ParentColor = False
+    end
+    object edtPassword: TEdit
+      Left = 520
+      Height = 23
+      Top = 70
+      Width = 90
+      EchoMode = emPassword
+      PasswordChar = '*'
+      TabOrder = 6
     end
     object lblKeepAlive: TLabel
-      Left = 14
+      Left = 620
       Height = 15
-      Top = 76
-      Width = 78
-      Caption = 'KeepAlive (s):'
+      Top = 74
+      Width = 55
+      Caption = 'KeepAlive:'
       ParentColor = False
     end
     object edtKeepAlive: TEdit
-      Left = 95
+      Left = 680
       Height = 23
-      Top = 72
-      Width = 50
-      TabOrder = 4
+      Top = 70
+      Width = 48
+      TabOrder = 7
       Text = '60'
     end
     object btnConnect: TButton
-      Left = 160
-      Height = 28
-      Top = 70
-      Width = 115
+      Left = 14
+      Height = 30
+      Top = 104
+      Width = 135
       Caption = 'Conectar Broker'
       OnClick = btnConnectClick
-      TabOrder = 5
+      TabOrder = 8
     end
     object btnDisconnect: TButton
-      Left = 282
-      Height = 28
-      Top = 70
-      Width = 100
+      Left = 158
+      Height = 30
+      Top = 104
+      Width = 105
       Caption = 'Desconectar'
       Enabled = False
       OnClick = btnDisconnectClick
-      TabOrder = 6
+      TabOrder = 9
     end
     object btnPing: TButton
-      Left = 390
-      Height = 28
-      Top = 70
-      Width = 90
+      Left = 272
+      Height = 30
+      Top = 104
+      Width = 95
       Caption = 'Enviar Ping'
       Enabled = False
       OnClick = btnPingClick
-      TabOrder = 7
+      TabOrder = 10
     end
     object lblStatus: TLabel
-      Left = 500
+      Left = 385
       Height = 20
-      Top = 74
-      Width = 400
+      Top = 108
+      Width = 580
       Caption = 'Status: Desconectado'
       Font.Height = -13
       Font.Name = 'Segoe UI'
@@ -157,8 +210,8 @@ object frmMain: TfrmMain
   end
   object pnlMain: TPanel
     Left = 0
-    Height = 570
-    Top = 110
+    Height = 535
+    Top = 145
     Width = 980
     Align = alClient
     BevelOuter = bvNone

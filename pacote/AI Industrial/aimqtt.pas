@@ -43,6 +43,9 @@ type
     FHost: string;
     FPort: Integer;
     FClientID: string;
+    FUsername: string;
+    FPassword: string;
+    FCleanSession: Boolean;
     FKeepAlive: Integer;
     FActive: Boolean;
     FSocket: TSocket;
@@ -74,6 +77,9 @@ type
     property Host: string read FHost write FHost;
     property Port: Integer read FPort write FPort default 1883;
     property ClientID: string read FClientID write FClientID;
+    property Username: string read FUsername write FUsername;
+    property Password: string read FPassword write FPassword;
+    property CleanSession: Boolean read FCleanSession write FCleanSession default True;
     property KeepAlive: Integer read FKeepAlive write FKeepAlive default 60;
     property Active: Boolean read FActive write SetActive default False;
     
@@ -249,10 +255,13 @@ end;
 constructor TAIMQTTClient.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  FPrompt := 'Component TAIMQTTClient is an IoT MQTT client. Properties: Host: string (MQTT broker address), Port: Integer (default 1883), ClientID: string, KeepAlive: Integer, Active: Boolean (triggers background listener thread connection), OnMessageReceived: TMQTTMessageEvent, OnConnected/OnDisconnected: TNotifyEvent. Methods: ConnectBroker, DisconnectBroker, Subscribe(const ATopic: string): Boolean, Publish(const ATopic, APayload: string): Boolean. AI Agent: Use this to publish telemetry or receive commands via MQTT brokers in IoT setups.';
-  FHost := 'broker.hivemq.com';
+  FPrompt := 'Component TAIMQTTClient is an IoT MQTT client. Properties: Host: string (MQTT broker address, e.g. test.mosquitto.org), Port: Integer (default 1883, or 1884 for authenticated), ClientID: string, Username: string, Password: string, CleanSession: Boolean, KeepAlive: Integer, Active: Boolean, OnMessageReceived: TMQTTMessageEvent, OnConnected/OnDisconnected: TNotifyEvent. Methods: ConnectBroker, DisconnectBroker, Subscribe(const ATopic: string): Boolean, Publish(const ATopic, APayload: string): Boolean, Ping: Boolean. AI Agent: Use this to publish telemetry or receive commands via MQTT brokers in IoT setups.';
+  FHost := 'test.mosquitto.org';
   FPort := 1883;
-  FClientID := 'LAZ_AI_CLIENT_' + IntToStr(Random(10000));
+  FClientID := 'LAZ_AI_' + IntToHex(Random($FFFFFF), 6);
+  FUsername := '';
+  FPassword := '';
+  FCleanSession := True;
   FKeepAlive := 60;
   FActive := False;
   FSocket := TSocket(-1);
@@ -353,7 +362,9 @@ end;
 function TAIMQTTClient.ConnectBroker: Boolean;
 var
   Addr: TInetSockAddr;
-  ConnectPacket: array[0..511] of Byte;
+  ConnectPacket: array[0..2047] of Byte;
+  ConnectFlags: Byte;
+  PayloadLen: Integer;
   Idx, I, Res: Integer;
   IPStr: string;
 begin
@@ -393,8 +404,8 @@ begin
       sockets.CloseSocket(FSocket);
       FSocket := TSocket(-1);
       {$IFDEF MSWINDOWS}
-      SetError(Format('Falha na conexão TCP para %s:%d (WinSock erro: %d)',
-        [IPStr, FPort, winsock2.WSAGetLastError]));
+      SetError(Format('Falha na conexão TCP para %s:%d (WinSock erro: %d - verifique se a porta de saída %d não está bloqueada por firewall/rede)',
+        [IPStr, FPort, winsock2.WSAGetLastError, FPort]));
       {$ELSE}
       SetError(Format('Falha na conexão TCP para %s:%d (Socket erro: %d)',
         [IPStr, FPort, sockets.SocketError]));
@@ -405,10 +416,29 @@ begin
 
     Log(llInfo, '[4/4] Conexão TCP estabelecida! Montando pacote binário CONNECT (MQTT v3.1.1)...');
 
-    // Monta pacote binário MQTT CONNECT v3.1.1
+    // Calcula flags e tamanho do payload
+    ConnectFlags := 0;
+    if FCleanSession then
+      ConnectFlags := ConnectFlags or $02; // Clean Session
+
+    PayloadLen := 2 + Length(FClientID);
+
+    if FUsername <> '' then
+    begin
+      ConnectFlags := ConnectFlags or $80; // User Name Flag
+      PayloadLen := PayloadLen + 2 + Length(FUsername);
+    end;
+
+    if FPassword <> '' then
+    begin
+      ConnectFlags := ConnectFlags or $40; // Password Flag
+      PayloadLen := PayloadLen + 2 + Length(FPassword);
+    end;
+
+    // Monta cabeçalho fixo e variável MQTT CONNECT
     Idx := 0;
-    ConnectPacket[Idx] := $10; Inc(Idx); // CONNECT
-    ConnectPacket[Idx] := 12 + Length(FClientID); Inc(Idx); // Remaining Length
+    ConnectPacket[Idx] := $10; Inc(Idx); // CONNECT Packet Type
+    ConnectPacket[Idx] := 10 + PayloadLen; Inc(Idx); // Remaining Length (10 bytes var header + payload)
 
     // Protocol Name: 0x00 0x04 'M' 'Q' 'T' 'T'
     ConnectPacket[Idx] := 0; Inc(Idx);
@@ -419,13 +449,13 @@ begin
     ConnectPacket[Idx] := Ord('T'); Inc(Idx);
 
     ConnectPacket[Idx] := 4; Inc(Idx); // Protocol Level 4 (MQTT v3.1.1)
-    ConnectPacket[Idx] := $02; Inc(Idx); // Connect Flags: Clean Session
+    ConnectPacket[Idx] := ConnectFlags; Inc(Idx);
 
     // Keep Alive (2 bytes em big-endian)
     ConnectPacket[Idx] := FKeepAlive shr 8; Inc(Idx);
     ConnectPacket[Idx] := FKeepAlive and $FF; Inc(Idx);
 
-    // Client ID Length (2 bytes) + string
+    // Payload: Client ID
     ConnectPacket[Idx] := Length(FClientID) shr 8; Inc(Idx);
     ConnectPacket[Idx] := Length(FClientID) and $FF; Inc(Idx);
     for I := 1 to Length(FClientID) do
@@ -434,8 +464,32 @@ begin
       Inc(Idx);
     end;
 
-    Log(llInfo, Format('>>> [CONNECT] Transmitindo pacote CONNECT (ClientID: "%s", KeepAlive: %ds, %d bytes)...',
-      [FClientID, FKeepAlive, Idx]));
+    // Payload: Username (se presente)
+    if FUsername <> '' then
+    begin
+      ConnectPacket[Idx] := Length(FUsername) shr 8; Inc(Idx);
+      ConnectPacket[Idx] := Length(FUsername) and $FF; Inc(Idx);
+      for I := 1 to Length(FUsername) do
+      begin
+        ConnectPacket[Idx] := Ord(FUsername[I]);
+        Inc(Idx);
+      end;
+    end;
+
+    // Payload: Password (se presente)
+    if FPassword <> '' then
+    begin
+      ConnectPacket[Idx] := Length(FPassword) shr 8; Inc(Idx);
+      ConnectPacket[Idx] := Length(FPassword) and $FF; Inc(Idx);
+      for I := 1 to Length(FPassword) do
+      begin
+        ConnectPacket[Idx] := Ord(FPassword[I]);
+        Inc(Idx);
+      end;
+    end;
+
+    Log(llInfo, Format('>>> [CONNECT] Transmitindo pacote CONNECT (ClientID: "%s", Usuário: "%s", KeepAlive: %ds, %d bytes)...',
+      [FClientID, FUsername, FKeepAlive, Idx]));
 
     Res := fpsend(FSocket, @ConnectPacket[0], Idx, 0);
     if Res <= 0 then

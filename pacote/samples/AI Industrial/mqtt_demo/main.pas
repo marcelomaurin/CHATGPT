@@ -17,11 +17,17 @@ type
     lblTitle: TLabel;
     lblHost: TLabel;
     cmbBroker: TComboBox;
+    lblCustomHost: TLabel;
+    edtHost: TEdit;
     lblPort: TLabel;
     edtPort: TEdit;
     lblClientID: TLabel;
     edtClientID: TEdit;
     btnGenID: TButton;
+    lblUsername: TLabel;
+    edtUsername: TEdit;
+    lblPassword: TLabel;
+    edtPassword: TEdit;
     lblKeepAlive: TLabel;
     edtKeepAlive: TEdit;
     btnConnect: TButton;
@@ -55,6 +61,7 @@ type
     AIMQTTClient1: TAIMQTTClient;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure cmbBrokerChange(Sender: TObject);
     procedure btnGenIDClick(Sender: TObject);
     procedure btnConnectClick(Sender: TObject);
     procedure btnDisconnectClick(Sender: TObject);
@@ -87,11 +94,91 @@ implementation
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
   Randomize;
-  AddLog('Inicializando demonstração do componente TAIMQTTClient...');
+  AddLog('Inicializando demonstração do componente TAIMQTTClient (test.mosquitto.org)...');
   
   btnGenIDClick(nil);
+  cmbBroker.ItemIndex := 0;
+  cmbBrokerChange(nil);
   SetConnectedUI(False);
-  AddLog('Pronto. Selecione o broker e clique em "Conectar Broker".');
+  AddLog('Pronto. Selecione um perfil do test.mosquitto.org e clique em "Conectar Broker".');
+end;
+
+procedure TfrmMain.cmbBrokerChange(Sender: TObject);
+begin
+  case cmbBroker.ItemIndex of
+    0: // test.mosquitto.org 1883 unauthenticated
+    begin
+      edtHost.Text := 'test.mosquitto.org';
+      edtPort.Text := '1883';
+      edtUsername.Text := '';
+      edtPassword.Text := '';
+      edtSubTopic.Text := 'lazarus/ai/telemetria';
+      AddLog('Perfil selecionado: test.mosquitto.org (Porta 1883 - Sem Autenticação)');
+    end;
+    1: // test.mosquitto.org 1884 authenticated (rw / readwrite)
+    begin
+      edtHost.Text := 'test.mosquitto.org';
+      edtPort.Text := '1884';
+      edtUsername.Text := 'rw';
+      edtPassword.Text := 'readwrite';
+      edtSubTopic.Text := 'lazarus/ai/telemetria';
+      AddLog('Perfil selecionado: test.mosquitto.org (Porta 1884 - Autenticado rw/readwrite)');
+    end;
+    2: // test.mosquitto.org 1884 authenticated (ro / readonly)
+    begin
+      edtHost.Text := 'test.mosquitto.org';
+      edtPort.Text := '1884';
+      edtUsername.Text := 'ro';
+      edtPassword.Text := 'readonly';
+      edtSubTopic.Text := 'lazarus/ai/telemetria';
+      AddLog('Perfil selecionado: test.mosquitto.org (Porta 1884 - Autenticado ro/readonly)');
+    end;
+    3: // test.mosquitto.org 1884 authenticated (wo / writeonly)
+    begin
+      edtHost.Text := 'test.mosquitto.org';
+      edtPort.Text := '1884';
+      edtUsername.Text := 'wo';
+      edtPassword.Text := 'writeonly';
+      edtSubTopic.Text := 'lazarus/ai/telemetria';
+      AddLog('Perfil selecionado: test.mosquitto.org (Porta 1884 - Autenticado wo/writeonly)');
+    end;
+    4: // test.mosquitto.org 1883 wildcard discovery
+    begin
+      edtHost.Text := 'test.mosquitto.org';
+      edtPort.Text := '1883';
+      edtUsername.Text := 'wildcard';
+      edtPassword.Text := '';
+      edtSubTopic.Text := '#';
+      AddLog('Perfil selecionado: test.mosquitto.org (Descoberta - Usuário wildcard para assinatura de #)');
+    end;
+    5: // HiveMQ
+    begin
+      edtHost.Text := 'broker.hivemq.com';
+      edtPort.Text := '1883';
+      edtUsername.Text := '';
+      edtPassword.Text := '';
+      edtSubTopic.Text := 'lazarus/ai/telemetria';
+      AddLog('Perfil selecionado: broker.hivemq.com (Porta 1883)');
+    end;
+    6: // EMQX
+    begin
+      edtHost.Text := 'broker.emqx.io';
+      edtPort.Text := '1883';
+      edtUsername.Text := '';
+      edtPassword.Text := '';
+      edtSubTopic.Text := 'lazarus/ai/telemetria';
+      AddLog('Perfil selecionado: broker.emqx.io (Porta 1883)');
+    end;
+    7: // Localhost
+    begin
+      edtHost.Text := 'localhost';
+      edtPort.Text := '1883';
+      edtUsername.Text := '';
+      edtPassword.Text := '';
+      edtSubTopic.Text := 'lazarus/ai/telemetria';
+      AddLog('Perfil selecionado: localhost (Broker Local Mosquitto na porta 1883)');
+    end;
+  end;
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
@@ -127,9 +214,12 @@ procedure TfrmMain.SetConnectedUI(AConnected: Boolean);
 begin
   btnConnect.Enabled := not AConnected;
   cmbBroker.Enabled := not AConnected;
+  edtHost.Enabled := not AConnected;
   edtPort.Enabled := not AConnected;
   edtClientID.Enabled := not AConnected;
   btnGenID.Enabled := not AConnected;
+  edtUsername.Enabled := not AConnected;
+  edtPassword.Enabled := not AConnected;
   edtKeepAlive.Enabled := not AConnected;
   
   btnDisconnect.Enabled := AConnected;
@@ -174,13 +264,15 @@ end;
 
 procedure TfrmMain.btnConnectClick(Sender: TObject);
 begin
-  AIMQTTClient1.Host := Trim(cmbBroker.Text);
+  AIMQTTClient1.Host := Trim(edtHost.Text);
   AIMQTTClient1.Port := StrToIntDef(edtPort.Text, 1883);
   AIMQTTClient1.ClientID := Trim(edtClientID.Text);
+  AIMQTTClient1.Username := Trim(edtUsername.Text);
+  AIMQTTClient1.Password := edtPassword.Text;
   AIMQTTClient1.KeepAlive := StrToIntDef(edtKeepAlive.Text, 60);
 
-  AddLog(Format('Conectando ao broker MQTT "%s:%d" com ClientID "%s"...',
-    [AIMQTTClient1.Host, AIMQTTClient1.Port, AIMQTTClient1.ClientID]));
+  AddLog(Format('Conectando ao broker MQTT "%s:%d" com ClientID "%s" (Usuário: "%s")...',
+    [AIMQTTClient1.Host, AIMQTTClient1.Port, AIMQTTClient1.ClientID, AIMQTTClient1.Username]));
   
   lblStatus.Caption := 'Status: Conectando...';
   lblStatus.Font.Color := clNavy;
