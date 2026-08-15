@@ -2,6 +2,28 @@
 
 Todas as alterações relevantes para a suíte de componentes Lazarus AI Suite serão registradas neste arquivo.
 
+## [1.11.0] - 2026-08-15
+
+### Adicionado
+- **`TAIMQTTClient` e Protocolo MQTT v3.1.1 Real** (`aimqtt.pas`, pacote `openai_industrial`):
+  - Suporte a autenticação por usuário e senha (`Username` e `Password`), flags de conexão (`0x80` e `0x40`) e `CleanSession`.
+  - Perfis integrados e baseados na especificação oficial de [test.mosquitto.org](https://test.mosquitto.org/): porta 1883 (não autenticado), porta 1884 (autenticado `rw`/`readwrite`, `ro`/`readonly`, `wo`/`writeonly`), modo descoberta de tópicos com usuário `wildcard` e suporte a brokers locais (`localhost:1883`).
+  - Resolução de hostnames e DNS robusta via `WSAStartup` (WinSock2) e detecção automática de IP numérico vs Hostname (`gethostbyname` / `ResolveHostByName`).
+  - Rastreamento e log em milissegundos `[hh:nn:ss.zzz]` para DNS, sockets TCP, pacotes `CONNECT`, `CONNACK` (decodificando códigos 0 a 5), `SUBSCRIBE`, `SUBACK`, `PUBLISH`, `PINGREQ`/`PINGRESP` e `DISCONNECT`.
+- **Sample `mqtt_demo`** (`samples/AI Industrial/mqtt_demo/`):
+  - Removido modo de simulação sintética; opera 100% com o protocolo MQTT real.
+  - Componente `AIMQTTClient1` declarado nativamente no form `.lfm` e publicado na classe `TfrmMain`.
+  - Barra de conexão com presets do `test.mosquitto.org`, campos para Host Real, Porta, Usuário, Senha e envio de telemetria JSON industrial em tempo real.
+- **Sample `model3d_viewer_demo`** (`samples/AI Graphic/model3d_viewer_demo/`):
+  - Componentes `AIModel3D1: TAIModel3D` e `AI3DModelViewer1: TAI3DModelViewer` incorporados diretamente no form `.lfm` com renderização real.
+- **Runtimes OpenSSL 1.1.1.10**:
+  - Resolução de biblioteca OpenSSL parametrizada para `runtime/OpenSSL/1.1.1.10` nas plataformas Win32 e Win64 em `airuntimepaths.pas` e `installer/dependencies.json`.
+
+### Corrigido
+- **Preservação de Erro de Socket no `TAIMQTTClient`**: Captura imediata do código de erro (`WSAGetLastError` / `SocketError`) antes do fechamento do socket via `CloseSocket`, formatando mensagens descritivas com `SysErrorMessage`.
+- **Eliminação de Logs Duplicados**: Remoção de chamadas redundantes de `Log(llError, ...)` que já eram efetuadas pelo `TAIBaseComponent.SetError`.
+- **Compilação de Pacotes e Samples**: Ajuste no caminho de busca de `openai_input.lpk` para incluir `AI Vision` (`aicamera_backend.pas`) e limpeza dos search paths de `mqtt_demo.lpi`.
+
 ## [1.10.0] - 2026-06-10
 
 ### Adicionado

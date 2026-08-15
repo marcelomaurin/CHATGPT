@@ -1,5 +1,27 @@
 # CHANGELOG — Lazarus AI Suite
 
+## v1.11.0 (2026-08-15)
+
+### ✨ New
+- **`TAIMQTTClient` & Real MQTT v3.1.1 Protocol** (`aimqtt.pas`, package `openai_industrial`):
+  - User and password authentication (`Username` and `Password`), connect flags (`0x80`/`0x40`) and `CleanSession`.
+  - Full support for `test.mosquitto.org` profiles: port 1883 (unauthenticated), port 1884 (authenticated `rw`/`readwrite`, `ro`/`readonly`, `wo`/`writeonly`), `wildcard` topic discovery, and local brokers (`localhost:1883`).
+  - DNS resolution via WinSock2 (`WSAStartup`) and hostname detection (`gethostbyname` / `ResolveHostByName`).
+  - Millisecond protocol event logging `[hh:nn:ss.zzz]` for DNS, sockets, `CONNECT`, `CONNACK`, `SUBSCRIBE`, `SUBACK`, `PUBLISH`, `PINGREQ`/`PINGRESP`, and `DISCONNECT`.
+- **`mqtt_demo` Sample** (`samples/AI Industrial/mqtt_demo/`):
+  - Fully real MQTT communication (all simulations removed).
+  - Form integration with `AIMQTTClient1: TAIMQTTClient` in `.lfm` and published in `TfrmMain`.
+  - Profile selector for `test.mosquitto.org`, host/credentials inputs, and live JSON telemetry.
+- **`model3d_viewer_demo` Sample** (`samples/AI Graphic/model3d_viewer_demo/`):
+  - Components `AIModel3D1` and `AI3DModelViewer1` placed directly on the `.lfm` form with real rendering.
+- **OpenSSL 1.1.1.10 Runtime Resolution**:
+  - `airuntimepaths.pas` and installer configured for `runtime/OpenSSL/1.1.1.10` on Win32/Win64.
+
+### 🔧 Fixes
+- **Socket Error Code Preservation**: Immediate capture of `WSAGetLastError` / `SocketError` before `CloseSocket` with `SysErrorMessage` details.
+- **Duplicate Log Removal**: Cleaned redundant `Log(llError, ...)` invocations following `SetError`.
+- **Search Paths**: Added `AI Vision` search path to `openai_input.lpk` and cleaned `mqtt_demo.lpi` search paths.
+
 ## v1.9.0 (2026-06-07)
 
 ### ⚡ Breaking Changes
