@@ -178,6 +178,7 @@ type
 function CosineSimilarity(const A, B: TAIDoubleArray): Double;
 procedure FreeRetrievalResults(AResults: TStrings);
 procedure ApplyTokenBudget(AResults: TStrings; AMaxTokens: Integer);
+procedure Register;
 
 implementation
 
@@ -834,5 +835,29 @@ function TAILLMReranker.GetLastError: string;
 begin
   Result := FLastError;
 end;
+
+procedure Register;
+begin
+  RegisterComponents('AI RAG', [
+    TAILocalEmbeddingProvider,
+    TAIOpenAIEmbeddingProvider,
+    TAIVectorStore,
+    TAIVectorRetriever,
+    TAIGraphMapRetriever,
+    TAIBM25Retriever,
+    TAILLMReranker
+  ]);
+end;
+
+initialization
+  RegisterClasses([
+    TAILocalEmbeddingProvider,
+    TAIOpenAIEmbeddingProvider,
+    TAIVectorStore,
+    TAIVectorRetriever,
+    TAIGraphMapRetriever,
+    TAIBM25Retriever,
+    TAILLMReranker
+  ]);
 
 end.

@@ -1,0 +1,342 @@
+object frmHybridRetrievalDemo: TfrmHybridRetrievalDemo
+  Left = 320
+  Height = 650
+  Top = 180
+  Width = 920
+  Caption = 'Demonstração de Recuperação Híbrida (Hybrid Retrieval - RRF)'
+  ClientHeight = 650
+  ClientWidth = 920
+  Position = poScreenCenter
+  LCLVersion = '3.0.0.0'
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  object pnlTop: TPanel
+    Left = 0
+    Height = 60
+    Top = 0
+    Width = 920
+    Align = alTop
+    BevelOuter = bvNone
+    Color = clWhite
+    ParentBackground = False
+    ParentColor = False
+    ClientHeight = 60
+    ClientWidth = 920
+    TabOrder = 0
+    object lblTitle: TLabel
+      Left = 16
+      Height = 22
+      Top = 10
+      Width = 530
+      Caption = 'AI RAG - Hybrid Retrieval (Reciprocal Rank Fusion - RRF)'
+      Font.Height = -16
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object lblSubtitle: TLabel
+      Left = 16
+      Height = 15
+      Top = 35
+      Width = 580
+      Caption = 'Combina busca semântica vetorial (embeddings) com busca léxica BM25 para máxima precisão de recuperação.'
+      Font.Color = clGray
+      ParentFont = False
+    end
+  end
+  object pnlMain: TPanel
+    Left = 0
+    Height = 565
+    Top = 60
+    Width = 920
+    Align = alClient
+    BevelOuter = bvNone
+    ClientHeight = 565
+    ClientWidth = 920
+    TabOrder = 1
+    object splVertical: TSplitter
+      Left = 380
+      Height = 565
+      Top = 0
+      Width = 5
+    end
+    object gbDocuments: TGroupBox
+      Left = 0
+      Height = 565
+      Top = 0
+      Width = 380
+      Align = alLeft
+      Caption = ' 1. Base de Conhecimento (Documentos) '
+      ClientHeight = 545
+      ClientWidth = 376
+      TabOrder = 0
+      object lblDocName: TLabel
+        Left = 8
+        Height = 15
+        Top = 8
+        Width = 105
+        Caption = 'Nome do documento:'
+      end
+      object edtDocName: TEdit
+        Left = 8
+        Height = 23
+        Top = 26
+        Width = 360
+        TabOrder = 0
+        Text = 'lazarus.txt'
+      end
+      object lblDocContent: TLabel
+        Left = 8
+        Height = 15
+        Top = 56
+        Width = 105
+        Caption = 'Conteúdo do texto:'
+      end
+      object mmoDocContent: TMemo
+        Left = 8
+        Height = 100
+        Top = 74
+        Width = 360
+        Lines.Strings = (
+          'Lazarus cria aplicativos nativos usando o compilador Free Pascal.'
+        )
+        ScrollBars = ssAutoBoth
+        TabOrder = 1
+      end
+      object btnAddDoc: TButton
+        Left = 8
+        Height = 28
+        Top = 180
+        Width = 120
+        Caption = 'Adicionar Texto'
+        OnClick = btnAddDocClick
+        TabOrder = 2
+      end
+      object btnLoadDefaults: TButton
+        Left = 134
+        Height = 28
+        Top = 180
+        Width = 120
+        Caption = 'Carregar Exemplos'
+        OnClick = btnLoadDefaultsClick
+        TabOrder = 3
+      end
+      object btnClearDocs: TButton
+        Left = 260
+        Height = 28
+        Top = 180
+        Width = 108
+        Caption = 'Limpar Base'
+        OnClick = btnClearDocsClick
+        TabOrder = 4
+      end
+      object lblIndexedList: TLabel
+        Left = 8
+        Height = 15
+        Top = 216
+        Width = 125
+        Caption = 'Documentos na Base:'
+      end
+      object lbDocs: TListBox
+        Left = 8
+        Height = 270
+        Top = 234
+        Width = 360
+        ItemHeight = 0
+        ScrollWidth = 358
+        TabOrder = 5
+      end
+      object btnBuildIndex: TButton
+        Left = 8
+        Height = 32
+        Top = 508
+        Width = 360
+        Caption = '⚡ Construir / Atualizar Índice (BuildIndex)'
+        Font.Style = [fsBold]
+        OnClick = btnBuildIndexClick
+        ParentFont = False
+        TabOrder = 6
+      end
+    end
+    object gbQuery: TGroupBox
+      Left = 385
+      Height = 565
+      Top = 0
+      Width = 535
+      Align = alClient
+      Caption = ' 2. Busca e Recuperação (Retrieval) '
+      ClientHeight = 545
+      ClientWidth = 531
+      TabOrder = 2
+      object lblMode: TLabel
+        Left = 12
+        Height = 15
+        Top = 10
+        Width = 120
+        Caption = 'Modo de Recuperação:'
+      end
+      object cbRetrievalMode: TComboBox
+        Left = 12
+        Height = 23
+        Top = 28
+        Width = 260
+        ItemHeight = 15
+        ItemIndex = 2
+        Items.Strings = (
+          'Vetorial Denso (Vector Retriever)'
+          'Léxico BM25 (BM25 Retriever)'
+          'Híbrido RRF (Vector + BM25 Fusion)'
+        )
+        Style = csDropDownList
+        TabOrder = 0
+        Text = 'Híbrido RRF (Vector + BM25 Fusion)'
+      end
+      object lblTopK: TLabel
+        Left = 285
+        Height = 15
+        Top = 10
+        Width = 40
+        Caption = 'Top K:'
+      end
+      object edtTopK: TEdit
+        Left = 285
+        Height = 23
+        Top = 28
+        Width = 60
+        NumbersOnly = True
+        TabOrder = 1
+        Text = '3'
+      end
+      object lblQuery: TLabel
+        Left = 12
+        Height = 15
+        Top = 60
+        Width = 100
+        Caption = 'Pergunta / Query:'
+      end
+      object edtQuery: TEdit
+        Left = 12
+        Height = 26
+        Top = 78
+        Width = 390
+        Font.Height = -13
+        ParentFont = False
+        TabOrder = 2
+        Text = 'Qual compilador o Lazarus usa?'
+      end
+      object btnRetrieve: TButton
+        Left = 408
+        Height = 26
+        Top = 78
+        Width = 110
+        Caption = '🔍 Buscar'
+        Font.Style = [fsBold]
+        OnClick = btnRetrieveClick
+        ParentFont = False
+        TabOrder = 3
+      end
+      object lblResults: TLabel
+        Left = 12
+        Height = 15
+        Top = 115
+        Width = 160
+        Caption = 'Resultados Ranqueados (RRF):'
+      end
+      object lvResults: TListView
+        Left = 12
+        Height = 250
+        Top = 135
+        Width = 506
+        Columns = <
+          item
+            Caption = 'Pos'
+            Width = 45
+          end
+          item
+            Caption = 'Fonte / Documento'
+            Width = 130
+          end
+          item
+            Caption = 'Score'
+            Width = 80
+          end
+          item
+            Caption = 'Texto Recuperado'
+            Width = 240
+          end>
+        GridLines = True
+        ReadOnly = True
+        RowSelect = True
+        ScrollBars = ssAutoBoth
+        TabOrder = 4
+        ViewStyle = vsReport
+        OnSelectItem = lvResultsSelectItem
+      end
+      object lblDetail: TLabel
+        Left = 12
+        Height = 15
+        Top = 392
+        Width = 160
+        Caption = 'Detalhe do Chunk Selecionado:'
+      end
+      object mmoDetail: TMemo
+        Left = 12
+        Height = 140
+        Top = 408
+        Width = 506
+        ReadOnly = True
+        ScrollBars = ssAutoBoth
+        TabOrder = 5
+      end
+    end
+  end
+  object pnlStatus: TPanel
+    Left = 0
+    Height = 25
+    Top = 625
+    Width = 920
+    Align = alBottom
+    Alignment = taLeftJustify
+    BevelOuter = bvLowered
+    ClientHeight = 25
+    ClientWidth = 920
+    TabOrder = 2
+    object lblStatus: TLabel
+      Left = 10
+      Height = 15
+      Top = 4
+      Width = 35
+      Caption = 'Pronto.'
+    end
+  end
+  object AIGraphMap1: TAIGraphMap
+    Left = 40
+    Top = 570
+  end
+  object AILocalEmbeddingProvider1: TAILocalEmbeddingProvider
+    Left = 140
+    Top = 570
+  end
+  object AIVectorStore1: TAIVectorStore
+    Left = 240
+    Top = 570
+  end
+  object AIVectorRetriever1: TAIVectorRetriever
+    EmbeddingProvider = AILocalEmbeddingProvider1
+    VectorStore = AIVectorStore1
+    Left = 340
+    Top = 570
+  end
+  object AIBM25Retriever1: TAIBM25Retriever
+    Left = 440
+    Top = 570
+  end
+  object AIRAG1: TAIRAG
+    GraphMap = AIGraphMap1
+    VectorRetriever = AIVectorRetriever1
+    BM25Retriever = AIBM25Retriever1
+    RetrievalMode = rrmHybrid
+    TopK = 3
+    Left = 540
+    Top = 570
+  end
+end

@@ -61,5 +61,10 @@
       <OtherUnitFiles Value="..\..\..;..\..\..\AI;..\..\..\AI Graph;..\..\..\AI RAG"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
+    <Linking>
+      <Debugging>
+        <DebugInfoType Value="dsDwarf3"/>
+      </Debugging>
+    </Linking>
   </CompilerOptions>
 </CONFIG>
