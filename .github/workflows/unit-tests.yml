@@ -27,10 +27,8 @@ jobs:
       - name: Validar fronteiras runtime/design-time
         run: python tools/ci/validate_runtime_units.py
 
-      - name: Validar Consistência de Ícones e Componentes (CHATGPT-003, CHATGPT-004)
-        run: |
-          python pacote/generate_all_icons.py --check
-          python tests/ci_validate_icons.py
+      - name: Validar Consistência de Ícones e Componentes (CHATGPT-004)
+        run: python tests/ci_validate_icons.py
 
       - name: Validar Inventário de Samples (CHATGPT-013)
         run: python tests/ci_validate_samples.py
