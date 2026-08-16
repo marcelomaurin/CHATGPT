@@ -1,14 +1,9 @@
 #!/usr/bin/env python3
-"""Validate runtime/design-time boundaries for selected Lazarus AI units.
-
-This is intentionally conservative: units listed here are expected to be usable
-at runtime without design-time-only Lazarus resources.  The list grows as each
-package is migrated.
-"""
+"""Validate runtime/design-time boundaries for selected Lazarus AI units."""
 
 from pathlib import Path
 import re
-import sys
+from typing import List
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -34,9 +29,6 @@ DESIGN_MARKERS = (
 
 
 def strip_conditional_lcl_blocks(text: str) -> str:
-    # Pure-FPC units may keep backward-compatible registration guarded by LCL.
-    # Nested blocks are intentionally not accepted here: migrate those into a
-    # dedicated *_register unit instead of making the guard more permissive.
     return re.sub(
         r"\{\$IFDEF\s+LCL\}[\s\S]*?\{\$ENDIF\}",
         "",
@@ -45,8 +37,8 @@ def strip_conditional_lcl_blocks(text: str) -> str:
     )
 
 
-def uses_units(text: str) -> list[str]:
-    result: list[str] = []
+def uses_units(text: str) -> List[str]:
+    result = []  # type: List[str]
     for clause in re.findall(r"\buses\b\s+([^;]+);", text, re.IGNORECASE):
         clause = re.sub(r"\{.*?\}", "", clause, flags=re.DOTALL)
         clause = re.sub(r"\(\*.*?\*\)", "", clause, flags=re.DOTALL)
@@ -58,10 +50,10 @@ def uses_units(text: str) -> list[str]:
     return result
 
 
-def validate(path: Path) -> list[str]:
-    errors: list[str] = []
+def validate(path: Path) -> List[str]:
+    errors = []  # type: List[str]
     if not path.is_file():
-        return [f"missing runtime unit: {path}"]
+        return ["missing runtime unit: %s" % path]
 
     content = path.read_text(encoding="utf-8", errors="ignore")
     pure = strip_conditional_lcl_blocks(content)
@@ -69,14 +61,14 @@ def validate(path: Path) -> list[str]:
 
     for unit in uses_units(pure):
         if unit in FORBIDDEN:
-            errors.append(f"design-time unit '{unit}' imported by runtime")
+            errors.append("design-time unit '%s' imported by runtime" % unit)
 
     if re.search(r"\{\$I\s+[^}]+\.lrs\s*\}", pure, re.IGNORECASE):
         errors.append(".lrs resource included by runtime")
 
     for marker in DESIGN_MARKERS:
         if marker in lowered:
-            errors.append(f"design-time registration found in runtime: {marker}")
+            errors.append("design-time registration found in runtime: %s" % marker)
 
     return errors
 
@@ -89,16 +81,16 @@ def main() -> int:
         errors = validate(path)
         if errors:
             failures += len(errors)
-            print(f"[FAIL] {rel}")
+            print("[FAIL] %s" % rel)
             for error in errors:
-                print(f"       {error}")
+                print("       %s" % error)
         else:
-            print(f"[PASS] {rel}")
+            print("[PASS] %s" % rel)
 
     if failures:
-        print(f"\n{failures} boundary violation(s).")
+        print("\n%d boundary violation(s)." % failures)
         return 1
-    print(f"\n{len(RUNTIME_UNITS)} runtime units validated.")
+    print("\n%d runtime units validated." % len(RUNTIME_UNITS))
     return 0
 
 
