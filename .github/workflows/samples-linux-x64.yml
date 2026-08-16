@@ -8,6 +8,7 @@ on:
       - 'installer/**'
       - 'install_components.sh'
       - 'tools/ci/**'
+      - 'tests/**'
       - '.github/workflows/samples-linux-x64.yml'
   push:
     branches: [ main ]
@@ -16,6 +17,7 @@ on:
       - 'installer/**'
       - 'install_components.sh'
       - 'tools/ci/**'
+      - 'tests/**'
       - '.github/workflows/samples-linux-x64.yml'
   workflow_dispatch:
 
@@ -41,77 +43,39 @@ jobs:
           fpc -iTO
           python3 --version
 
-      - name: Validate installer manifest
-        run: |
-          set -euo pipefail
-          python3 -m json.tool installer/dependencies.json >/dev/null
-          python3 tools/ci/validate_runtime_units.py
-
       - name: Register Lazarus bundled dependencies
         run: |
           set -euo pipefail
           IPRO="$(find /usr/lib/lazarus -type f \( -iname 'turbopoweripro.lpk' -o -iname '*ipro*.lpk' \) | head -1 || true)"
-          if [[ -n "$IPRO" ]]; then
-            echo "TurboPowerIpro: $IPRO"
-            lazbuild --add-package "$IPRO"
-          else
+          if [[ -z "$IPRO" ]]; then
             echo "ERRO: TurboPowerIpro não encontrado na instalação Lazarus" >&2
             exit 1
           fi
+          echo "TurboPowerIpro: $IPRO"
+          lazbuild --add-package-link "$IPRO"
 
-      - name: Install ZeosLib
+      - name: Validate repository boundaries and manifest
         run: |
           set -euo pipefail
-          git clone --depth=1 https://github.com/frones/ZeosLib.git "$RUNNER_TEMP/ZeosLib"
-          Z="$RUNNER_TEMP/ZeosLib/packages/lazarus"
-          for P in zcore zparsesql zplain zdbc zcomponent; do
-            if [[ -f "$Z/$P.lpk" ]]; then
-              echo "Linking Zeos package: $P"
-              lazbuild --add-package-link "$Z/$P.lpk"
-            fi
-          done
-          # zcomponent can be runtime-only in current Zeos revisions; build it as a
-          # package instead of forcing --add-package/--build-all semantics.
-          lazbuild "$Z/zcomponent.lpk"
+          python3 -m json.tool installer/dependencies.json >/dev/null
+          python3 tests/ci_guard_fgx.py
+          python3 tools/ci/validate_runtime_units.py
 
-      - name: Install GLScene/LZScene
+      - name: Resolve dependencies and compile all CHATGPT packages
+        env:
+          CHATGPT_DEPS: ${{ runner.temp }}/chatgpt-dependencies
         run: |
           set -euo pipefail
-          git clone --depth=1 https://github.com/glscene/LZScene.git "$RUNNER_TEMP/LZScene"
-          lazbuild --add-package-link "$RUNNER_TEMP/LZScene/Packages/GLScene_RunTime.lpk"
-          lazbuild "$RUNNER_TEMP/LZScene/Packages/GLScene_RunTime.lpk"
-          lazbuild --add-package "$RUNNER_TEMP/LZScene/Packages/GLScene_DesignTime.lpk"
-
-      - name: Install DCPcrypt
-        run: |
-          set -euo pipefail
-          git clone --depth=1 https://github.com/graemeg/dcpcrypt.git "$RUNNER_TEMP/dcpcrypt"
-          DCP="$(find "$RUNNER_TEMP/dcpcrypt" -type f -iname 'dcpcrypt.lpk' | head -1 || true)"
-          if [[ -z "$DCP" ]]; then
-            echo "ERRO: dcpcrypt.lpk não encontrado" >&2
-            exit 1
-          fi
-          lazbuild --add-package-link "$DCP"
-          lazbuild "$DCP"
-
-      - name: Install CEF4Delphi Lazarus package
-        run: |
-          set -euo pipefail
-          git clone --depth=1 https://github.com/salvadordf/CEF4Delphi.git "$RUNNER_TEMP/CEF4Delphi"
-          CEF="$RUNNER_TEMP/CEF4Delphi/packages/cef4delphi_lazarus.lpk"
-          lazbuild --add-package-link "$CEF"
-          lazbuild "$CEF"
-
-      - name: Register CHATGPT packages
-        run: |
-          set -euo pipefail
-          chmod +x ./install_components.sh
-          ./install_components.sh recommended /usr/bin/lazbuild
+          python3 installer/common/install_suite.py ci \
+            --profile all \
+            --lazbuild /usr/bin/lazbuild \
+            --dependency-dir "$CHATGPT_DEPS"
 
       - name: Compile all samples for x86_64-linux
         id: compile
         continue-on-error: true
         run: |
+          set -euo pipefail
           chmod +x tools/ci/compile_samples_linux_x64.sh
           tools/ci/compile_samples_linux_x64.sh
 
