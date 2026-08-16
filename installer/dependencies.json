@@ -2,11 +2,52 @@
   "schema": 2,
   "dependencies": [
     {
-      "name": "ZeosLib",
+      "name": "ZeosLib Core",
+      "package": "zcore.lpk",
+      "environment": "ZEOS_ROOT",
+      "repository": "https://github.com/frones/ZeosLib.git",
+      "commit": "66c3ce219893fca03247d7653a0b140bd8011e27",
+      "checkout_dir": "zeoslib",
+      "relative_package": "packages/lazarus/zcore.lpk",
+      "required_by": ["openai_core", "openai_aidbase", "openai_dbase"]
+    },
+    {
+      "name": "ZeosLib ParseSQL",
+      "package": "zparsesql.lpk",
+      "environment": "ZEOS_ROOT",
+      "repository": "https://github.com/frones/ZeosLib.git",
+      "commit": "66c3ce219893fca03247d7653a0b140bd8011e27",
+      "checkout_dir": "zeoslib",
+      "relative_package": "packages/lazarus/zparsesql.lpk",
+      "required_by": ["openai_core", "openai_aidbase", "openai_dbase"]
+    },
+    {
+      "name": "ZeosLib Plain",
+      "package": "zplain.lpk",
+      "environment": "ZEOS_ROOT",
+      "repository": "https://github.com/frones/ZeosLib.git",
+      "commit": "66c3ce219893fca03247d7653a0b140bd8011e27",
+      "checkout_dir": "zeoslib",
+      "relative_package": "packages/lazarus/zplain.lpk",
+      "required_by": ["openai_core", "openai_aidbase", "openai_dbase"]
+    },
+    {
+      "name": "ZeosLib DBC",
+      "package": "zdbc.lpk",
+      "environment": "ZEOS_ROOT",
+      "repository": "https://github.com/frones/ZeosLib.git",
+      "commit": "66c3ce219893fca03247d7653a0b140bd8011e27",
+      "checkout_dir": "zeoslib",
+      "relative_package": "packages/lazarus/zdbc.lpk",
+      "required_by": ["openai_core", "openai_aidbase", "openai_dbase"]
+    },
+    {
+      "name": "ZeosLib Components",
       "package": "zcomponent.lpk",
       "environment": "ZEOS_ROOT",
       "repository": "https://github.com/frones/ZeosLib.git",
       "commit": "66c3ce219893fca03247d7653a0b140bd8011e27",
+      "checkout_dir": "zeoslib",
       "relative_package": "packages/lazarus/zcomponent.lpk",
       "required_by": ["openai_core", "openai_aidbase", "openai_dbase"]
     },
@@ -18,7 +59,7 @@
       "commit": "14586ed66d15fd91530ed5dfaab8a8e4bb8959ff",
       "relative_package": "dcpcrypt.lpk",
       "required_by": ["openai_input"],
-      "note": "Espelho Lazarus/FPC do DCPcrypt usado para satisfazer a dependência declarada pelo CEF4Delphi."
+      "note": "Espelho Lazarus/FPC contendo dcpcrypt.lpk, necessário ao CEF4Delphi."
     },
     {
       "name": "CEF4Delphi",
@@ -30,14 +71,25 @@
       "required_by": ["openai_input"]
     },
     {
-      "name": "GLScene for Lazarus",
+      "name": "LZScene Runtime",
+      "package": "GLScene_RunTime.lpk",
+      "environment": "GLSCENE_ROOT",
+      "repository": "https://github.com/glscene/LZScene.git",
+      "commit": "9d5d2f976897482a459eb8ef781988b9aee306d9",
+      "checkout_dir": "lzscene",
+      "relative_package": "Packages/GLScene_RunTime.lpk",
+      "required_by": ["openai_industrial"]
+    },
+    {
+      "name": "LZScene DesignTime",
       "package": "GLScene_DesignTime.lpk",
       "environment": "GLSCENE_ROOT",
       "repository": "https://github.com/glscene/LZScene.git",
       "commit": "9d5d2f976897482a459eb8ef781988b9aee306d9",
+      "checkout_dir": "lzscene",
       "relative_package": "Packages/GLScene_DesignTime.lpk",
       "required_by": ["openai_industrial"],
-      "note": "GLScene/LZScene fixado por commit para builds reproduzíveis. GLSCENE_ROOT ainda pode sobrescrever a instalação automática."
+      "note": "Runtime e design-time são registrados em ordem para satisfazer openai_industrial."
     }
   ],
   "profiles": {
