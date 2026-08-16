@@ -6,7 +6,7 @@ unit aiagent_sourceactions;
 interface
 
 uses
-  Classes, SysUtils, Process, aiagent_actions, LazFileUtils;
+  Classes, SysUtils, Process, StrUtils, aiagent_actions;
 
 type
   TAIDeveloperWorkspaceAction = class(TAICustomAgentAction)
@@ -77,14 +77,24 @@ type
     property TimeoutMs: Integer read FTimeoutMs write FTimeoutMs default 120000;
   end;
 
-procedure Register;
-
 implementation
 
 function ParamValue(AParams: TStrings; const AName: string): string;
 begin
   Result := '';
   if Assigned(AParams) then Result := AParams.Values[AName];
+end;
+
+function IsAbsoluteFileName(const APath: string): Boolean;
+begin
+  Result := False;
+  if APath = '' then Exit;
+  {$IFDEF Windows}
+  Result := ((Length(APath) >= 2) and (APath[2] = ':')) or
+            ((Length(APath) >= 2) and (APath[1] = '\') and (APath[2] = '\'));
+  {$ELSE}
+  Result := APath[1] = '/';
+  {$ENDIF}
 end;
 
 procedure SplitArguments(const AText: string; AArgs: TStrings);
@@ -117,7 +127,7 @@ end;
 function RedactSecrets(const AText: string): string;
 var
   Lines: TStringList;
-  I, P: Integer;
+  I, P, EqPos: Integer;
   S, L: string;
 begin
   Lines := TStringList.Create;
@@ -141,7 +151,11 @@ begin
           if P = 0 then P := Pos('apikey=', L);
           if P = 0 then P := Pos('token=', L);
           if P > 0 then
-            S := Copy(S, 1, P - 1) + Copy(S, P, Pos('=', Copy(S, P, MaxInt))) + '***REDACTED***';
+          begin
+            EqPos := Pos('=', Copy(S, P, MaxInt));
+            if EqPos > 0 then
+              S := Copy(S, 1, P + EqPos - 1) + '***REDACTED***';
+          end;
         end;
       end;
       Lines[I] := S;
@@ -278,14 +292,18 @@ end;
 
 function TAIDeveloperWorkspaceAction.NormalizeRoot: string;
 begin
-  if Trim(FWorkspaceRoot) = '' then Exit('');
+  if Trim(FWorkspaceRoot) = '' then
+  begin
+    Result := '';
+    Exit;
+  end;
   Result := IncludeTrailingPathDelimiter(ExpandFileName(Trim(FWorkspaceRoot)));
 end;
 
 function TAIDeveloperWorkspaceAction.PathInsideRoot(const ARoot,
   ACandidate: string): Boolean;
 var
-  RootNoSlash, CandidateExpanded: string;
+  RootNoSlash, CandidateExpanded, Prefix: string;
 begin
   RootNoSlash := ExcludeTrailingPathDelimiter(ExpandFileName(ARoot));
   CandidateExpanded := ExpandFileName(ACandidate);
@@ -293,9 +311,9 @@ begin
   RootNoSlash := LowerCase(RootNoSlash);
   CandidateExpanded := LowerCase(CandidateExpanded);
   {$ENDIF}
+  Prefix := IncludeTrailingPathDelimiter(RootNoSlash);
   Result := (CandidateExpanded = RootNoSlash) or
-    (Pos(IncludeTrailingPathDelimiter(RootNoSlash),
-      IncludeTrailingPathDelimiter(CandidateExpanded)) = 1);
+    (Pos(Prefix, CandidateExpanded + PathDelim) = 1);
 end;
 
 function TAIDeveloperWorkspaceAction.HasSymlinkSegment(const ARoot,
@@ -347,7 +365,7 @@ begin
     AError := 'Caminho não informado.';
     Exit;
   end;
-  if FilenameIsAbsolute(APath) then Candidate := ExpandFileName(APath)
+  if IsAbsoluteFileName(APath) then Candidate := ExpandFileName(APath)
   else Candidate := ExpandFileName(Root + APath);
 
   if not PathInsideRoot(Root, Candidate) then
@@ -646,12 +664,6 @@ begin
   finally
     Args.Free;
   end;
-end;
-
-procedure Register;
-begin
-  RegisterComponents('AI Agents', [TAISourceReadAction,
-    TAISourceReplaceAction, TAISourceRollbackAction, TAIProjectBuildAction]);
 end;
 
 end.
