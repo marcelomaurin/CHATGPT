@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Validate runtime/design-time boundaries for selected Lazarus AI units."""
+"""Validate runtime/design-time boundaries for migrated Lazarus AI units.
+
+Only units whose registration has already been split belong in RUNTIME_UNITS.
+Pure-FPC graph units are independently protected by tests/ci_guard_fgx.py while
+openai_graph completes its design-time migration package-by-package.
+"""
 
 from pathlib import Path
 import re
@@ -9,7 +14,6 @@ ROOT = Path(__file__).resolve().parents[2]
 
 RUNTIME_UNITS = [
     Path("pacote/AI/aibase.pas"),
-    Path("pacote/AI Graph/aidependencygraph.pas"),
     Path("pacote/AI Agent/aiagent_actions.pas"),
     Path("pacote/AI Agent/aiagent_sourceactions.pas"),
 ]
@@ -90,7 +94,7 @@ def main() -> int:
     if failures:
         print("\n%d boundary violation(s)." % failures)
         return 1
-    print("\n%d runtime units validated." % len(RUNTIME_UNITS))
+    print("\n%d migrated runtime units validated." % len(RUNTIME_UNITS))
     return 0
 
 
