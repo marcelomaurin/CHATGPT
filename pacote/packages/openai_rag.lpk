@@ -25,6 +25,10 @@
         <UnitName Value="airetrieval"/>
       </Item>
       <Item>
+        <Filename Value="..\AI RAG\airetrieval_icons.pas"/>
+        <UnitName Value="airetrieval_icons"/>
+      </Item>
+      <Item>
         <Filename Value="..\AI RAG\airag.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="airag"/>
