@@ -20,5 +20,6 @@ end;
 
 initialization
   {$I aiagent_sourceactions_icon.lrs}
+  {$I aiagent_sourceactions_rollback_icon.lrs}
 
 end.
