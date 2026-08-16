@@ -5,13 +5,17 @@ on:
     branches: [ main ]
     paths:
       - 'pacote/**'
-      - 'tools/ci/compile_samples_linux_x64.sh'
+      - 'installer/**'
+      - 'install_components.sh'
+      - 'tools/ci/**'
       - '.github/workflows/samples-linux-x64.yml'
   push:
     branches: [ main ]
     paths:
       - 'pacote/**'
-      - 'tools/ci/compile_samples_linux_x64.sh'
+      - 'installer/**'
+      - 'install_components.sh'
+      - 'tools/ci/**'
       - '.github/workflows/samples-linux-x64.yml'
   workflow_dispatch:
 
@@ -28,16 +32,24 @@ jobs:
 
       - name: Install Lazarus and build tools
         run: |
+          set -euo pipefail
           sudo apt-get update
           sudo apt-get install -y lazarus fpc fp-utils build-essential file xvfb zip unzip git libgl1-mesa-dev libglu1-mesa-dev libx11-dev
           lazbuild --version
           fpc -iV
           fpc -iTP
           fpc -iTO
+          python3 --version
+
+      - name: Validate installer manifest
+        run: |
+          set -euo pipefail
+          python3 -m json.tool installer/dependencies.json >/dev/null
+          python3 tools/ci/validate_runtime_units.py
 
       - name: Register Lazarus bundled dependencies
         run: |
-          set -e
+          set -euo pipefail
           IPRO="$(find /usr/lib/lazarus -type f \( -iname 'turbopoweripro.lpk' -o -iname '*ipro*.lpk' \) | head -1 || true)"
           if [[ -n "$IPRO" ]]; then
             echo "TurboPowerIpro: $IPRO"
@@ -49,35 +61,50 @@ jobs:
 
       - name: Install ZeosLib
         run: |
-          set -e
+          set -euo pipefail
           git clone --depth=1 https://github.com/frones/ZeosLib.git "$RUNNER_TEMP/ZeosLib"
           Z="$RUNNER_TEMP/ZeosLib/packages/lazarus"
-          for P in zcore zparsesql zplain zdbc; do
+          for P in zcore zparsesql zplain zdbc zcomponent; do
             if [[ -f "$Z/$P.lpk" ]]; then
-              echo "Linking Zeos runtime package: $P"
+              echo "Linking Zeos package: $P"
               lazbuild --add-package-link "$Z/$P.lpk"
             fi
           done
-          lazbuild --add-package "$Z/zcomponent.lpk"
-          lazbuild --build-all "$Z/zcomponent.lpk"
+          # zcomponent can be runtime-only in current Zeos revisions; build it as a
+          # package instead of forcing --add-package/--build-all semantics.
+          lazbuild "$Z/zcomponent.lpk"
 
       - name: Install GLScene/LZScene
         run: |
-          set -e
+          set -euo pipefail
           git clone --depth=1 https://github.com/glscene/LZScene.git "$RUNNER_TEMP/LZScene"
           lazbuild --add-package-link "$RUNNER_TEMP/LZScene/Packages/GLScene_RunTime.lpk"
-          lazbuild --build-all "$RUNNER_TEMP/LZScene/Packages/GLScene_RunTime.lpk"
+          lazbuild "$RUNNER_TEMP/LZScene/Packages/GLScene_RunTime.lpk"
           lazbuild --add-package "$RUNNER_TEMP/LZScene/Packages/GLScene_DesignTime.lpk"
+
+      - name: Install DCPcrypt
+        run: |
+          set -euo pipefail
+          git clone --depth=1 https://github.com/graemeg/dcpcrypt.git "$RUNNER_TEMP/dcpcrypt"
+          DCP="$(find "$RUNNER_TEMP/dcpcrypt" -type f -iname 'dcpcrypt.lpk' | head -1 || true)"
+          if [[ -z "$DCP" ]]; then
+            echo "ERRO: dcpcrypt.lpk não encontrado" >&2
+            exit 1
+          fi
+          lazbuild --add-package-link "$DCP"
+          lazbuild "$DCP"
 
       - name: Install CEF4Delphi Lazarus package
         run: |
-          set -e
+          set -euo pipefail
           git clone --depth=1 https://github.com/salvadordf/CEF4Delphi.git "$RUNNER_TEMP/CEF4Delphi"
-          lazbuild --add-package "$RUNNER_TEMP/CEF4Delphi/packages/cef4delphi_lazarus.lpk"
+          CEF="$RUNNER_TEMP/CEF4Delphi/packages/cef4delphi_lazarus.lpk"
+          lazbuild --add-package-link "$CEF"
+          lazbuild "$CEF"
 
       - name: Register CHATGPT packages
-        continue-on-error: true
         run: |
+          set -euo pipefail
           chmod +x ./install_components.sh
           ./install_components.sh recommended /usr/bin/lazbuild
 
