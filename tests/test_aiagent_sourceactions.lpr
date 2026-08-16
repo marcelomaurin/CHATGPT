@@ -12,29 +12,75 @@ begin
     raise Exception.Create(AMessage);
 end;
 
+procedure SaveRaw(const AFileName: string; const AData: RawByteString);
 var
-  Root, SourceFile, TestScript: string;
+  F: TFileStream;
+begin
+  F := TFileStream.Create(AFileName, fmCreate);
+  try
+    if Length(AData) > 0 then F.WriteBuffer(AData[1], Length(AData));
+  finally
+    F.Free;
+  end;
+end;
+
+function LoadRaw(const AFileName: string): RawByteString;
+var
+  F: TFileStream;
+begin
+  Result := '';
+  F := TFileStream.Create(AFileName, fmOpenRead or fmShareDenyNone);
+  try
+    SetLength(Result, F.Size);
+    if F.Size > 0 then F.ReadBuffer(Result[1], F.Size);
+  finally
+    F.Free;
+  end;
+end;
+
+function BackupFromOutput(const AText: string): string;
+var
+  Lines: TStringList;
+  I: Integer;
+begin
+  Result := '';
+  Lines := TStringList.Create;
+  try
+    Lines.Text := AText;
+    for I := 0 to Lines.Count - 1 do
+      if Pos('Backup: ', Lines[I]) = 1 then
+        Exit(Copy(Lines[I], Length('Backup: ') + 1, MaxInt));
+  finally
+    Lines.Free;
+  end;
+end;
+
+var
+  Root, SourceFile, TestScript, BackupFile: string;
   Params: TStringList;
   ReadAction: TAISourceReadAction;
   ReplaceAction: TAISourceReplaceAction;
+  RollbackAction: TAISourceRollbackAction;
   BuildAction: TAIProjectBuildAction;
   TestAction: TAITrustedProjectTestAction;
-  S: TStringList;
+  Data: RawByteString;
 begin
   Root := IncludeTrailingPathDelimiter(GetTempDir(False)) +
     'chatgpt_agent_sourceactions_test';
   ForceDirectories(Root);
   SourceFile := IncludeTrailingPathDelimiter(Root) + 'sample.pas';
-  S := TStringList.Create;
+
   Params := TStringList.Create;
   ReadAction := TAISourceReadAction.Create(nil);
   ReplaceAction := TAISourceReplaceAction.Create(nil);
+  RollbackAction := TAISourceRollbackAction.Create(nil);
   BuildAction := TAIProjectBuildAction.Create(nil);
   TestAction := TAITrustedProjectTestAction.Create(nil);
   try
-    S.Text := 'unit sample;' + LineEnding + 'const VALUE = 1;' +
-      LineEnding + 'end.' + LineEnding;
-    S.SaveToFile(SourceFile);
+    { UTF-8 BOM + CRLF: the replace operation must not normalize the file. }
+    Data := #$EF#$BB#$BF + 'unit sample;' + #13#10 +
+      'const VALUE = 1;' + #13#10 + 'end.' + #13#10;
+    SaveRaw(SourceFile, Data);
 
     ReadAction.WorkspaceRoot := Root;
     Params.Values['file'] := 'sample.pas';
@@ -44,16 +90,55 @@ begin
 
     Params.Clear;
     ReplaceAction.WorkspaceRoot := Root;
+    ReplaceAction.KeepBackup := True;
     Params.Values['file'] := 'sample.pas';
     Params.Values['old_text'] := 'VALUE = 1';
     Params.Values['new_text'] := 'VALUE = 2';
     Check(ReplaceAction.RunAction(Params, True), ReplaceAction.LastError);
-    S.LoadFromFile(SourceFile);
-    Check(Pos('VALUE = 1', S.Text) > 0, 'simulação alterou o arquivo.');
+    Data := LoadRaw(SourceFile);
+    Check(Pos('VALUE = 1', string(Data)) > 0, 'simulação alterou o arquivo.');
+
     Check(ReplaceAction.RunAction(Params, False), ReplaceAction.LastError);
-    S.LoadFromFile(SourceFile);
-    Check(Pos('VALUE = 2', S.Text) > 0,
+    Data := LoadRaw(SourceFile);
+    Check(Pos('VALUE = 2', string(Data)) > 0,
       'replace_source não alterou o arquivo.');
+    Check(Copy(Data, 1, 3) = #$EF#$BB#$BF,
+      'replace_source removeu o BOM UTF-8.');
+    Check(Pos(#13#10, string(Data)) > 0,
+      'replace_source normalizou CRLF indevidamente.');
+
+    BackupFile := BackupFromOutput(ReplaceAction.LastOutput);
+    Check((BackupFile <> '') and FileExists(BackupFile),
+      'backup durável não foi preservado.');
+
+    RollbackAction.WorkspaceRoot := Root;
+    Params.Clear;
+    Params.Values['file'] := 'sample.pas';
+    Params.Values['backup'] := BackupFile;
+    Check(RollbackAction.RunAction(Params, False), RollbackAction.LastError);
+    Data := LoadRaw(SourceFile);
+    Check(Pos('VALUE = 1', string(Data)) > 0,
+      'rollback_source não restaurou a versão anterior.');
+
+    { Verification failure must roll back automatically. }
+    ReplaceAction.VerifyAfterWrite := True;
+    {$IFDEF WINDOWS}
+    ReplaceAction.VerifierExecutable := 'cmd.exe';
+    ReplaceAction.VerifierArguments := '/C exit 7';
+    {$ELSE}
+    ReplaceAction.VerifierExecutable := '/bin/false';
+    ReplaceAction.VerifierArguments := '';
+    {$ENDIF}
+    Params.Clear;
+    Params.Values['file'] := 'sample.pas';
+    Params.Values['old_text'] := 'VALUE = 1';
+    Params.Values['new_text'] := 'VALUE = 99';
+    Check(not ReplaceAction.RunAction(Params, False),
+      'replace_source deveria falhar quando o verificador falha.');
+    Data := LoadRaw(SourceFile);
+    Check(Pos('VALUE = 1', string(Data)) > 0,
+      'falha de verificação não restaurou automaticamente o fonte.');
+    ReplaceAction.VerifyAfterWrite := False;
 
     Params.Clear;
     Params.Values['file'] := '../outside.pas';
@@ -88,13 +173,13 @@ begin
     Check(Pos('test-ok', LowerCase(TestAction.LastOutput)) > 0,
       'run_tests não capturou saída.');
 
-    WriteLn('OK: source actions');
+    WriteLn('OK: source actions safety + rollback');
   finally
     TestAction.Free;
     BuildAction.Free;
+    RollbackAction.Free;
     ReplaceAction.Free;
     ReadAction.Free;
     Params.Free;
-    S.Free;
   end;
 end.
