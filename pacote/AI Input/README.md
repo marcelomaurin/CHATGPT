@@ -1,24 +1,44 @@
-# 🔌 Lazarus AI Suite — Tab: `AI Input`
+# 🔌 Lazarus AI Suite — Aba `AI Input`
 
-> [!NOTE]
-> Sensors, cameras, Modbus, MQTT, CLP gateways, and OS-level inputs.
+A pasta **AI Input** concentra componentes de entrada, captura e comunicação usados pela suíte CHATGPT em Lazarus/Free Pascal.
 
-Please select your preferred language for the component reference manual:
+> Modbus, MQTT e bridges industriais pertencem ao pacote/área **AI Industrial**. Eles não devem ser documentados como componentes de AI Input.
 
----
+## Principais grupos
 
-## 🌐 Select Language / Selecione o Idioma
+- captura de dados e fontes de entrada;
+- serial e modem;
+- USB e descoberta de dispositivos;
+- sockets TCP/UDP;
+- servidor Web/API;
+- Chromium/browser capture;
+- e-mail como fonte de entrada;
+- Kinect e sensores compatíveis;
+- gerenciamento/inventário de hardware.
 
-| Language | Country Flag | Documentation Link |
-|---|---|---|
-| **Português (PT)** | 🇧🇷 / 🇵🇹 | 📄 [README.pt.md](README.pt.md) |
-| **English (EN)** | 🇺🇸 / 🇬🇧 | 📄 [README.en.md](README.en.md) |
-| **Español (ES)** | 🇪🇸 / 🇲🇽 | 📄 [README.es.md](README.es.md) |
-| **Français (FR)** | 🇫🇷 | 📄 [README.fr.md](README.fr.md) |
-| **Italiano (IT)** | 🇮🇹 | 📄 [README.it.md](README.it.md) |
-| **العربية (AR)** | 🇦🇪 / 🇸🇦 | 📄 [README.ar.md](README.ar.md) |
+## Componentes e samples de referência
 
----
+Entre os componentes demonstrados pelos samples da suíte estão `TAIUSB`, `TAICaptureSource`, `TAIChromiumBrowser`, `TAIEmailClient`, `TAIKinectSensor`, `TAIKinectColorStream`, `TAIKinectDepthStream`, `TAIKinectSkeleton`, `TAISerialModem`, `TAISocketTCP`, `TAISocketUDP` e `TAIWebAPIServer`.
 
-### ⚡ AI and Hardware Integration
-Each component in this folder features a published `Prompt` property that documents its API structure to automatically guide AI Agents (`TAIAgent`) in runtime.
+Consulte `pacote/COMPONENT_STATUS.md` para o estado atual de cada integração e `pacote/samples/AI Input/` para exemplos executáveis.
+
+## Hardware e runtime
+
+A compilação de um sample não comprova automaticamente que o dispositivo, driver, DLL, browser runtime ou serviço externo esteja disponível na máquina final. Sempre valide o backend real da plataforma.
+
+Para serial/USB/Kinect/câmera, trate ausência de dispositivo como condição normal de runtime e não como prova de erro de compilação do componente.
+
+## Dependências
+
+Evite dependências implícitas da configuração local do Lazarus. Quando um componente exigir biblioteca externa ou runtime nativo, a documentação e o instalador devem declarar essa dependência explicitamente.
+
+## Idiomas
+
+- [Português](README.pt.md)
+- [English](README.en.md)
+- [Español](README.es.md)
+- [Français](README.fr.md)
+- [Italiano](README.it.md)
+- [العربية](README.ar.md)
+
+As traduções devem preservar a mesma lista de componentes e as mesmas limitações técnicas desta página.
