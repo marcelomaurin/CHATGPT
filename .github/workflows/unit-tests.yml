@@ -24,6 +24,9 @@ jobs:
       - name: Validar Unidades FPC / FGX (CHATGPT-002)
         run: python tests/ci_guard_fgx.py
 
+      - name: Validar fronteiras runtime/design-time
+        run: python tools/ci/validate_runtime_units.py
+
       - name: Validar Consistência de Ícones e Componentes (CHATGPT-003, CHATGPT-004)
         run: |
           python pacote/generate_all_icons.py --check
@@ -34,5 +37,5 @@ jobs:
 
       - name: Validar Scripts Python e Manifesto de Dependências
         run: |
-          python -m py_compile installer/common/install_suite.py installer/common/check_runtime.py installer/common/create_runtime_ini.py
+          python -m py_compile installer/common/install_suite.py installer/common/check_runtime.py installer/common/create_runtime_ini.py tools/ci/validate_runtime_units.py
           python -c "import json, pathlib; json.loads(pathlib.Path('installer/dependencies.json').read_text(encoding='utf-8'))"
