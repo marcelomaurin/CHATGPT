@@ -1,71 +1,73 @@
 # 🤖 Documentação da Aba AI Agent
 
-> [!NOTE]
-> Esta pasta contém a suíte de componentes do Lazarus sob a aba **AI Agent**.
+Esta pasta contém os componentes de agentes da suíte CHATGPT para Lazarus/Free Pascal. Eles permitem classificar entradas, decidir ações, preparar chamadas estruturadas, executar tools sob política, manter memória e integrar agentes com RAG, projetos e recursos externos.
 
-## Agentes Inteligentes Autônomos e Tomada de Decisão.
-Estrutura de orquestração cognitiva que planeja ações e mapeia saídas físicas usando RTTI dinâmico.
+## Componentes principais
 
-### Referência Detalhada dos Componentes
+| Componente | Finalidade |
+|---|---|
+| `TAIAgent` | Orquestra LLM, tools, políticas, RAG e execução. |
+| `TAIClassifierAgent` | Classifica entradas em categorias estruturadas. |
+| `TAIDecisionAgent` | Transforma contexto em decisão. |
+| `TAIActionBuilderAgent` | Converte decisão em ações preparadas. |
+| `TAIActionExecutor` | Executa ações registradas sob controle da aplicação host. |
+| `TAIAgentMemoryMap` | Mantém memória estruturada do fluxo do agente. |
+| `TAIToolRegistry` | Registra tools, schemas e políticas de execução. |
+| `TAIAgentGraph` | Modela fluxos com nós, condições, checkpoints e aprovação humana. |
 
-| Componente | Descrição | Propriedades Importantes | Métodos Principais | Papel do Agente de IA |
-|---|---|---|---|---|
-| **TAIAgent** | Cérebro do Agente cognitivo. | `ChatGPT, Options, Action, ToolRegistry, Safety, SystemPrompt` | `Execute`, `ExecuteToolCall`, `ExecuteToolJSON` | Analisar telemetria, planejar ações e executar tools sob política. |
-| **TAIToolRegistry** | Catálogo e executor controlado de ferramentas. | `UpdatePolicy, DeletePolicy, ExecutePolicy, EmailPolicy, FilesystemPolicy` | `RegisterTool`, `FindTool`, `Execute`, `ToolsJSON` | Validar schemas, aplicar confirmação e produzir resultados estruturados. |
-| **TAIAgentResource** | Repositório de dispositivos e hardware vinculado. | `Resources (Collection)` | `FindResource(const AName: string): TAIAgentResourceItem` | Mapear canais físicos (e-mail, redes, sensores) para a IA. |
-| **TAIAgentOutput** | Disparador automático de canais de saída. | `Action, Resource, Mappings` | `ExecuteAction(const AActionName: string; AParams: TStrings): Boolean` | Conectar a decisão lógica da IA à execução em hardware. |
+## Integração Agent + RAG
 
-### 💻 Exemplo de Código Lazarus (TAIAgent)
+`TAIAgent.RAG` aceita qualquer componente que implemente `IAIRAGProvider`. `TAIRAG` implementa esse contrato sem transferir ownership. O Agent usa `FreeNotification` para limpar a referência quando o provider é destruído.
+
+O fluxo típico é:
 
 ```pascal
-var
-  MyComponent: TAIAgent;
-begin
-  MyComponent := TAIAgent.Create(Self);
-  try
-    // Configuration properties
-    // MyComponent.Property := Value;
-    
-    // Execute call
-    // MyComponent.ExecuteMethod;
-  finally
-    MyComponent.Free;
-  end;
-end;
+RAG.GraphMap := GraphMap;
+RAG.ChatGPT := ChatGPT;
+Agent.RAG := RAG;
+Agent.ChatGPT := ChatGPT;
 ```
 
+Consulte `pacote/AI RAG/README.md` e o sample `pacote/samples/AI Agent/agent_rag_demo/`.
 
-### ⚡ Ponte de IA e Hardware
-Cada um destes componentes possui uma propriedade published `Prompt` que documenta sua API interna de forma transparente para orientar Agentes de IA (`TAIAgent`) de forma automática!
+## Tool calls seguras
 
-### Integração Agent + RAG
+O contrato de tools é baseado em ações estruturadas e políticas definidas pela aplicação. O LLM pode propor uma ação, mas a aplicação host continua responsável por decidir o que pode ser executado automaticamente e o que exige aprovação humana.
 
-`TAIAgent.RAG` aceita qualquer `TComponent` que implemente
-`IAIRAGProvider`. `TAIRAG` implementa esse contrato e preserva ownership por
-componentes com `FreeNotification`. O Agent copia o contexto e as fontes antes
-de montar o prompt enviado ao LLM.
+Consulte `TOOLS.md` e o sample `pacote/samples/AI Agent/tool_call_demo/`.
 
-O sample [`agent_rag_demo`](../samples/AI%20Agent/agent_rag_demo/) demonstra o
-fluxo `TAIAgent -> TAIRAG -> TAIGraphMap -> TCHATGPT`, incluindo configuração
-de provider e mensagens visíveis de erro.
+## Alteração segura de fontes
 
-### Tool calls seguras
+A unit `aiagent_sourceactions.pas` fornece ações específicas para agentes de desenvolvimento:
 
-O contrato `TAIToolCall -> TAIToolResult`, registro, schemas e políticas de
-confirmação estão documentados em [`TOOLS.md`](TOOLS.md). O sample
-[`tool_call_demo`](../samples/AI%20Agent/tool_call_demo/) executa uma tool segura
-e uma tool sensível com rejeição/aprovação explícita.
+- leitura de arquivo;
+- substituição exata de trecho;
+- backup e rollback;
+- build com executável configurado pelo host;
+- verificação pós-escrita;
+- confinamento obrigatório a `WorkspaceRoot`;
+- bloqueio de traversal e symlink/reparse fora do workspace;
+- preservação de BOM, encoding e CRLF/LF;
+- redaction de padrões comuns de credenciais na saída de processos.
 
-### Grafos, checkpoints e aprovação humana
+Essas ações foram projetadas para reutilizar `TAIActionExecutor` em IDEs e agentes de correção de fontes, sem permitir execução arbitrária escolhida pelo LLM.
 
-`TAIAgentGraph` modela nós, arestas condicionais, prioridade, delegação,
-checkpoint/resume, aprovação humana e dry-run sem efeitos colaterais. Consulte
-[`AGENT_GRAPH.md`](AGENT_GRAPH.md) e o sample
-[`agent_graph_demo`](../samples/AI%20Agent/agent_graph_demo/).
+Referência: `DOC/components/TAISourceActions/README.md`.
 
-### Guardrails, avaliação e traces
+Sample: `pacote/samples/AI Agent/source_fix_agent_demo/`.
 
-Guardrails de entrada, saída e tools são aplicados pelo Agent sem alterar o
-comportamento quando nenhuma regra está configurada. Consulte
-[`GUARDRAILS.md`](GUARDRAILS.md), o pacote `openai_evaluation` para datasets e
-regressões e `openai_observability` para propagação de `TraceID` e spans.
+## Grafos, checkpoints e aprovação humana
+
+`TAIAgentGraph` permite nós, arestas condicionais, prioridade, delegação, checkpoint/resume, dry-run e etapas que exigem aprovação humana. Consulte `AGENT_GRAPH.md` e `pacote/samples/AI Agent/agent_graph_demo/`.
+
+## Guardrails, avaliação e observabilidade
+
+Guardrails de entrada, saída e tools podem ser aplicados sem alterar o comportamento quando nenhuma regra é configurada. Consulte `GUARDRAILS.md`.
+
+Para testes de qualidade, use o pacote `openai_evaluation`. Para traces, métricas e `TraceID`, use `openai_observability`.
+
+## Estado de maturidade
+
+A presença do componente na paleta ou a compilação de um sample não significa que integrações externas estejam automaticamente validadas em runtime. Hardware, APIs, DLLs, modelos locais e serviços externos precisam ser testados no ambiente final.
+
+Os componentes devem continuar separados entre runtime e design-time. Units com `Register` pertencem ao lado de design-time e não devem ser adicionadas como dependência de runtime sem necessidade.
