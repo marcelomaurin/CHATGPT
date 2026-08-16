@@ -6,7 +6,7 @@ unit airag_textutils;
 interface
 
 uses
-  Classes, SysUtils, LazUTF8;
+  Classes, SysUtils, Math, LazUTF8;
 
 type
   TAIRAGChunkMetadata = record
@@ -35,9 +35,9 @@ begin
     ((C >= 'A') and (C <= 'Z')) or
     ((C >= '0') and (C <= '9')) or
     (C = '_') or
-    ((V >= $00C0) and (V <= $02AF)) or   { Latin + IPA }
-    ((V >= $0370) and (V <= $052F)) or   { Greek + Cyrillic }
-    ((V >= $1E00) and (V <= $1EFF));      { Latin Extended Additional }
+    ((V >= $00C0) and (V <= $02AF)) or
+    ((V >= $0370) and (V <= $052F)) or
+    ((V >= $1E00) and (V <= $1EFF));
 end;
 
 function AIRAGTokenizeUnicode(const AText: string): TStringList;
@@ -78,8 +78,6 @@ var
 begin
   if Length(S) <= AMaximum then Exit(Length(S));
   Minimum := Max(1, AMaximum div 2);
-
-  { Prefer paragraph/sentence boundaries, then whitespace. }
   for I := AMaximum downto Minimum do
     if S[I] in [#10, '.', '!', '?', ';', ':'] then Exit(I);
   for I := AMaximum downto Minimum do
