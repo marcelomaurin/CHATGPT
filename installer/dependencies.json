@@ -1,11 +1,53 @@
 {
-  "schema": 1,
+  "schema": 2,
   "dependencies": [
     {
-      "name": "ZeosLib",
+      "name": "ZeosLib Core",
+      "package": "zcore.lpk",
+      "environment": "ZEOS_ROOT",
+      "repository": "https://github.com/frones/ZeosLib.git",
+      "commit": "66c3ce219893fca03247d7653a0b140bd8011e27",
+      "checkout_dir": "zeoslib",
+      "relative_package": "packages/lazarus/zcore.lpk",
+      "required_by": ["openai_core", "openai_aidbase", "openai_dbase"]
+    },
+    {
+      "name": "ZeosLib ParseSQL",
+      "package": "zparsesql.lpk",
+      "environment": "ZEOS_ROOT",
+      "repository": "https://github.com/frones/ZeosLib.git",
+      "commit": "66c3ce219893fca03247d7653a0b140bd8011e27",
+      "checkout_dir": "zeoslib",
+      "relative_package": "packages/lazarus/zparsesql.lpk",
+      "required_by": ["openai_core", "openai_aidbase", "openai_dbase"]
+    },
+    {
+      "name": "ZeosLib Plain",
+      "package": "zplain.lpk",
+      "environment": "ZEOS_ROOT",
+      "repository": "https://github.com/frones/ZeosLib.git",
+      "commit": "66c3ce219893fca03247d7653a0b140bd8011e27",
+      "checkout_dir": "zeoslib",
+      "relative_package": "packages/lazarus/zplain.lpk",
+      "required_by": ["openai_core", "openai_aidbase", "openai_dbase"]
+    },
+    {
+      "name": "ZeosLib DBC",
+      "package": "zdbc.lpk",
+      "environment": "ZEOS_ROOT",
+      "repository": "https://github.com/frones/ZeosLib.git",
+      "commit": "66c3ce219893fca03247d7653a0b140bd8011e27",
+      "checkout_dir": "zeoslib",
+      "relative_package": "packages/lazarus/zdbc.lpk",
+      "required_by": ["openai_core", "openai_aidbase", "openai_dbase"]
+    },
+    {
+      "name": "ZeosLib Components",
       "package": "zcomponent.lpk",
       "environment": "ZEOS_ROOT",
       "repository": "https://github.com/frones/ZeosLib.git",
+      "commit": "66c3ce219893fca03247d7653a0b140bd8011e27",
+      "checkout_dir": "zeoslib",
       "relative_package": "packages/lazarus/zcomponent.lpk",
       "required_by": ["openai_core", "openai_aidbase", "openai_dbase"]
     },
@@ -13,26 +55,41 @@
       "name": "DCPcrypt",
       "package": "dcpcrypt.lpk",
       "environment": "DCPCRYPT_ROOT",
-      "repository": "https://github.com/graemeg/dcpcrypt.git",
+      "repository": "https://github.com/ziceptor/DCPcrypt.git",
+      "commit": "14586ed66d15fd91530ed5dfaab8a8e4bb8959ff",
       "relative_package": "dcpcrypt.lpk",
-      "required_by": ["openai_input"]
+      "required_by": ["openai_input"],
+      "note": "Espelho Lazarus/FPC contendo dcpcrypt.lpk, necessário ao CEF4Delphi."
     },
     {
       "name": "CEF4Delphi",
       "package": "cef4delphi_lazarus.lpk",
       "environment": "CEF4DELPHI_ROOT",
       "repository": "https://github.com/salvadordf/CEF4Delphi.git",
+      "commit": "84d5f7670056aed6753bf4dc855a5cb3e468fd60",
       "relative_package": "packages/cef4delphi_lazarus.lpk",
       "required_by": ["openai_input"]
     },
     {
-      "name": "GLScene for Lazarus",
+      "name": "LZScene Runtime",
+      "package": "GLScene_RunTime.lpk",
+      "environment": "GLSCENE_ROOT",
+      "repository": "https://github.com/glscene/LZScene.git",
+      "commit": "9d5d2f976897482a459eb8ef781988b9aee306d9",
+      "checkout_dir": "lzscene",
+      "relative_package": "Packages/GLScene_RunTime.lpk",
+      "required_by": ["openai_industrial"]
+    },
+    {
+      "name": "LZScene DesignTime",
       "package": "GLScene_DesignTime.lpk",
       "environment": "GLSCENE_ROOT",
-      "repository": "https://github.com/Pascal-Scripts/GLScene.git",
-      "relative_package": "Lazarus/GLScene_DesignTime.lpk",
+      "repository": "https://github.com/glscene/LZScene.git",
+      "commit": "9d5d2f976897482a459eb8ef781988b9aee306d9",
+      "checkout_dir": "lzscene",
+      "relative_package": "Packages/GLScene_DesignTime.lpk",
       "required_by": ["openai_industrial"],
-      "note": "Informe GLSCENE_ROOT apontando para uma distribuição Lazarus que contenha GLScene_DesignTime.lpk."
+      "note": "Runtime e design-time são registrados em ordem para satisfazer openai_industrial."
     }
   ],
   "profiles": {
@@ -65,9 +122,9 @@
       "source": "runtime/OpenSSL/1.1.1.10/x64",
       "files": ["libssl-1_1-x64.dll", "libcrypto-1_1-x64.dll"]
     },
-    "linux-x86": {"system_libraries": ["ssl", "crypto"], "package": "libssl1.1"},
-    "linux-x86_64": {"system_libraries": ["ssl", "crypto"], "package": "libssl1.1"},
-    "linux-armhf": {"system_libraries": ["ssl", "crypto"], "package": "libssl1.1"},
-    "linux-aarch64": {"system_libraries": ["ssl", "crypto"], "package": "libssl1.1"}
+    "linux-x86": {"system_libraries": ["ssl", "crypto"], "package": "libssl"},
+    "linux-x86_64": {"system_libraries": ["ssl", "crypto"], "package": "libssl"},
+    "linux-armhf": {"system_libraries": ["ssl", "crypto"], "package": "libssl"},
+    "linux-aarch64": {"system_libraries": ["ssl", "crypto"], "package": "libssl"}
   }
 }

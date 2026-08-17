@@ -27,15 +27,31 @@ jobs:
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y fpc
 
-      - name: Instalar Lazarus e Free Pascal completos (Windows)
+      - name: Instalar Lazarus e Free Pascal (Windows)
         if: runner.os == 'Windows'
-        uses: gcarreno/setup-lazarus@v3.4.1
-        with:
-          lazarus-version: "4.4"
-          with-cache: false
+        shell: pwsh
+        run: |
+          choco install lazarus -y --no-progress
+          $lazarusBin = 'C:\lazarus'
+          if (Test-Path $lazarusBin) {
+            $lazarusBin | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          }
+          $fpc = Get-ChildItem 'C:\lazarus\fpc' -Filter fpc.exe -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $fpc) { throw 'fpc.exe não encontrado após instalar Lazarus' }
+          $fpc.DirectoryName | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Validar toolchain
+        shell: bash
+        run: |
+          fpc -iV
+          fpc -iTP
+          fpc -iTO
 
       - name: Validar unidades puras FPC / FGX (CHATGPT-002)
         run: python tests/ci_guard_fgx.py
+
+      - name: Validar fronteiras runtime/design-time
+        run: python tools/ci/validate_runtime_units.py
 
       # -Sew: warning vira erro. Nada de "compila com avisos".
       - name: Compilar o nucleo

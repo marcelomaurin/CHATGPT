@@ -1,119 +1,108 @@
 # Documentação Técnica — Lazarus AI Suite
 
-Esta pasta contém documentação técnica orientada ao programador para os componentes da **Lazarus AI Suite / TCHATGPT**.
+Esta pasta contém a documentação técnica da suíte CHATGPT para Lazarus/Free Pascal. Ela complementa o `README.md`, o `INSTALL.md`, os READMEs de cada pasta em `pacote/` e os samples.
 
-A documentação aqui complementa os READMEs principais do projeto e deve ser usada por quem vai instalar, testar, manter ou evoluir os componentes.
+## Onde procurar cada informação
 
----
-
-## Índice geral
-
-| Área | Caminho | Descrição |
+| Área | Caminho | Conteúdo |
 |---|---|---|
-| Componentes | [`components/`](components/) | READMEs individuais por componente |
-| Status oficial | [`../pacote/COMPONENT_STATUS.md`](../pacote/COMPONENT_STATUS.md) | Matriz de maturidade dos componentes |
-| Pacotes Lazarus | [`../pacote/packages/`](../pacote/packages/) | Pacotes modulares `.lpk` |
-| Samples | [`../pacote/samples/`](../pacote/samples/) | Projetos de demonstração |
-| Workers Python | [`../pacote/python/`](../pacote/python/) | Scripts usados por componentes externos |
+| Visão geral | [`../README.md`](../README.md) | Objetivo da suíte, pacotes e estado geral |
+| Instalação | [`../INSTALL.md`](../INSTALL.md) | Instalação e dependências |
+| Componentes | [`components/`](components/) | Referência individual por componente |
+| Pacotes Lazarus | [`../pacote/packages/README.md`](../pacote/packages/README.md) | Organização dos `.lpk`, dependências e runtime/design-time |
+| Status | [`../pacote/COMPONENT_STATUS.md`](../pacote/COMPONENT_STATUS.md) | Maturidade e evidências por sample |
+| Samples | [`../pacote/samples/`](../pacote/samples/) | Projetos executáveis de demonstração |
+| RAG | [`../pacote/AI RAG/README.md`](../pacote/AI%20RAG/README.md) | Indexação, retrieval, BM25, vetores e Agent + RAG |
+| Agent | [`../pacote/AI Agent/README.pt.md`](../pacote/AI%20Agent/README.pt.md) | Agentes, tools, graph, guardrails e source actions |
+| Source actions | [`components/TAISourceActions/README.md`](components/TAISourceActions/README.md) | Alteração segura de fontes, build, verificação e rollback |
+| Runtime | [`RUNTIME_ARCHITECTURE.md`](RUNTIME_ARCHITECTURE.md) | Organização de runtimes nativos |
+| Runtime Linux ARM | [`RUNTIME_LINUX_ARM.md`](RUNTIME_LINUX_ARM.md) | Particularidades ARM |
+| Runtime Ubuntu x64 | [`RUNTIME_UBUNTU_X64.md`](RUNTIME_UBUNTU_X64.md) | Particularidades Linux x64 |
+| OpenCV | [`OPENCV_RUNTIME_SPEC.md`](OPENCV_RUNTIME_SPEC.md) | Contrato de runtime OpenCV |
+| Compatibilidade | [`COMPATIBILIDADE.md`](COMPATIBILIDADE.md) | Plataformas e restrições |
 
----
+## Referência por componente
 
-## Componentes documentados
-
-### Core
-
-* [TAIBaseComponent](components/TAIBaseComponent/README.md)
-* [TCHATGPT](components/TCHATGPT/README.md)
-* [TTokenList](components/TTokenList/README.md)
-* [TAICodeAssistant](components/TAICodeAssistant/README.md)
-* [TAIPromptBuilder](components/TAIPromptBuilder/README.md)
-* [TAIModelRegistry](components/TAIModelRegistry/README.md)
-* [TAIWizardConfig](components/TAIWizardConfig/README.md)
-* [TAIProject](components/TAIProject/README.md)
-* [TAIPipeline](components/TAIPipeline/README.md)
-
-### Machine Learning / Math
-
-* [TNeuralNetwork](components/TNeuralNetwork/README.md)
-* [TPerceptron](components/TPerceptron/README.md)
-* [TSOMMap](components/TSOMMap/README.md)
-* [TAIDatasetGenerator](components/TAIDatasetGenerator/README.md)
-* [TAMatrizComponent](components/TAMatrizComponent/README.md)
-* [TNumPS](components/TNumPS/README.md)
-
-### Graph
-
-* [TAIGraphMap](components/TAIGraphMap/README.md)
-* [TAITrainingExporter](components/TAITrainingExporter/README.md)
-* [TAIDatasetAnalyzer](components/TAIDatasetAnalyzer/README.md)
-* [TAITrainingReport](components/TAITrainingReport/README.md)
-* [TAIGraphVisualizer](components/TAIGraphVisualizer/README.md)
-
-### Python
-
-* [TPythonConnector](components/TPythonConnector/README.md)
-* [TYoloDetect](components/TYoloDetect/README.md)
-* [TFaceDetection](components/TFaceDetection/README.md)
-* [TCNNClassifier](components/TCNNClassifier/README.md)
-* [TLSTMPredictor](components/TLSTMPredictor/README.md)
-
-### Vision
-
-* [TAIOpenCV](components/TAIOpenCV/README.md)
-* [TAIFrameProcessor](components/TAIFrameProcessor/README.md)
-* [TAIFaceTracker](components/TAIFaceTracker/README.md)
-* [TAIMotionTracker](components/TAIMotionTracker/README.md)
-* [TAIImageInfo](components/TAIImageInfo/README.md)
-* [TAIFrameBuffer](components/TAIFrameBuffer/README.md)
-* [TAINativeImageFilter](components/TAINativeImageFilter/README.md)
-* [TAIFrameDiff](components/TAIFrameDiff/README.md)
-
-### Output
-
-* [TAIOutputData](components/TAIOutputData/README.md)
-* [TAIOutputDocs](components/TAIOutputDocs/README.md)
-* [TAIPDFOutput](components/TAIPDFOutput/README.md)
-* [TAIWordOutput](components/TAIWordOutput/README.md)
-* [TAIExcelOutput](components/TAIExcelOutput/README.md)
-* [TAITXTOutput](components/TAITXTOutput/README.md)
-
-### Agent
-
-* [TAIAgent](components/TAIAgent/README.md)
-* [TAIAgentSafety](components/TAIAgentSafety/README.md)
-* [TAIAgentExecutor](components/TAIAgentExecutor/README.md)
-
-### Graphic / 3D
-
-* [TAI3DModelViewer](components/TAI3DModelViewer/README.md)
-* [TAIModel3D](components/TAIModel3D/README.md)
-* [TAITripo3DClient](components/TAITripo3DClient/README.md)
-* [TAIAvatar3D](components/TAIAvatar3D/README.md)
-* [TAIScene3D](components/TAIScene3D/README.md)
-
----
-
-## Regra desta documentação
-
-Cada componente deve ter seu próprio arquivo:
+Cada componente documentado deve possuir:
 
 ```text
 DOC/components/<NomeDoComponente>/README.md
 ```
 
-Cada README de componente deve conter:
+A referência deve informar, quando aplicável:
 
-* finalidade;
-* pacote Lazarus;
-* unit de origem;
-* status de maturidade;
-* propriedades principais;
-* métodos principais;
-* exemplo de uso;
-* observações e limitações.
+- finalidade;
+- package Lazarus;
+- unit de origem;
+- status de maturidade;
+- propriedades principais;
+- métodos principais;
+- dependências externas;
+- sample de referência;
+- limitações de plataforma/runtime;
+- exemplo mínimo de uso.
 
----
+O índice `DOC/components/README.md` deve ser usado como catálogo dos componentes já documentados.
 
-## Observação
+## Áreas principais
 
-Quando um componente estiver marcado como `Placeholder`, a documentação deve explicar claramente que a estrutura existe, mas a função real ainda não está completa.
+### Core e projeto
+
+Inclui `TCHATGPT`, base de componentes, prompts, registro de modelos, projeto, tasks, storage e pipeline.
+
+### Agent
+
+Inclui `TAIAgent`, classifier, decision, action builder, executor, memory map, tools, graph, safety/guardrails e ações de manutenção de fontes.
+
+As ações de fontes devem permanecer confinadas a `WorkspaceRoot`; executáveis de build/teste/verificação são escolhidos pela aplicação host, nunca pelo LLM.
+
+### RAG
+
+Inclui `TAIRAG`, `IAIRAGProvider`, recuperação por grafo, BM25, vetores, rank fusion e reranking. A documentação deve distinguir claramente índice em memória de persistência durável.
+
+### Input, Vision e Voice
+
+Componentes ligados a dispositivos, câmera, OpenCV, serial, USB, rede, áudio e voz dependem do runtime real da plataforma. Um sample compilando não comprova automaticamente a presença de DLLs, drivers, dispositivos ou serviços externos.
+
+### Output
+
+Inclui saída textual, JSON, PDF, Word/OpenXML, Excel e viewers.
+
+### Graph, ML e Simulation
+
+Inclui grafos, datasets, redes neurais, matemática e componentes de simulação.
+
+### Graphic / 3D
+
+Inclui visualização 3D, cenas, avatares, esqueleto, física e integrações externas de geração de modelo.
+
+## Regra para status
+
+A documentação não deve declarar um componente como totalmente funcional apenas porque ele está registrado na paleta ou porque um projeto compilou. Diferencie:
+
+- compilação do package;
+- compilação do sample;
+- execução em runtime;
+- validação com hardware/API/modelo externo.
+
+Use `pacote/COMPONENT_STATUS.md` como fonte central de status e atualize-o quando a evidência mudar.
+
+## Runtime x design-time
+
+Units que existem apenas para `Register`, ícones de paleta ou integração com o IDE devem ficar separadas do runtime sempre que possível. Essa regra evita que aplicações console, serviços e CI dependam desnecessariamente de `LazarusPackageIntf`, `LResources` ou outras units de design-time.
+
+## Segurança e credenciais
+
+Tokens, chaves e senhas não devem ser gravados em samples, `.lfm`, documentação ou arquivos versionados. Componentes com propriedades de credencial devem preferir configuração em runtime e `stored False` quando a propriedade não deve ser serializada.
+
+## Manutenção desta documentação
+
+Ao alterar uma unit pública, faça a revisão nesta ordem:
+
+1. README da pasta do componente em `pacote/`;
+2. `DOC/components/<Componente>/README.md`;
+3. sample relacionado;
+4. `pacote/COMPONENT_STATUS.md` se houver mudança de maturidade;
+5. `README.md`/`INSTALL.md` quando a alteração afetar instalação ou arquitetura geral.
+
+Documentos históricos e especificações antigas devem ser claramente marcados como históricos quando não representarem mais o comportamento atual.

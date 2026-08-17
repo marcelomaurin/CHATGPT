@@ -14,7 +14,6 @@ type
     FMemoryMap: TAIAgentMemoryMap;
     FActionName: string;
     FLastError: string;
-    // Events
     FOnBeforeRun: TAIFluxoEtapaControlEvent;
     FOnAfterRun: TAIFluxoEtapaEvent;
     FOnBeforeValidate: TAIFluxoEtapaControlEvent;
@@ -29,6 +28,7 @@ type
     FOnActionError: TAIFluxoEtapaEvent;
   protected
     procedure SetError(const AMsg: string);
+    procedure ClearError;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     procedure SetMemoryMap(AValue: TAIAgentMemoryMap);
   public
@@ -39,7 +39,6 @@ type
   published
     property ActionName: string read FActionName write FActionName;
     property MemoryMap: TAIAgentMemoryMap read FMemoryMap write SetMemoryMap;
-    // Events
     property OnBeforeRun: TAIFluxoEtapaControlEvent read FOnBeforeRun write FOnBeforeRun;
     property OnAfterRun: TAIFluxoEtapaEvent read FOnAfterRun write FOnAfterRun;
     property OnBeforeValidate: TAIFluxoEtapaControlEvent read FOnBeforeValidate write FOnBeforeValidate;
@@ -56,18 +55,13 @@ type
 
 implementation
 
-{ TAICustomAgentAction }
-
-
 procedure TAICustomAgentAction.SetMemoryMap(AValue: TAIAgentMemoryMap);
 begin
   if FMemoryMap <> AValue then
   begin
     if Assigned(FMemoryMap) then
       FMemoryMap.RemoveFreeNotification(Self);
-
     FMemoryMap := AValue;
-
     if Assigned(FMemoryMap) then
       FMemoryMap.FreeNotification(Self);
   end;
@@ -86,6 +80,11 @@ begin
   FLastError := AMsg;
 end;
 
+procedure TAICustomAgentAction.ClearError;
+begin
+  FLastError := '';
+end;
+
 procedure TAICustomAgentAction.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   inherited Notification(AComponent, Operation);
@@ -101,6 +100,7 @@ var
   CanContinue: Boolean;
 begin
   Result := False;
+  ClearError;
   Ctx := TAIFluxoEtapaContexto.Create;
   try
     Ctx.SessionId := '';
@@ -111,73 +111,67 @@ begin
     Ctx.Parametros := AParams;
     Ctx.ForcarSimulacao := ASimulate;
 
-    // Trigger BeforeRun
     CanContinue := True;
     if Assigned(FOnBeforeRun) then
       FOnBeforeRun(Self, Ctx, CanContinue);
-
     if not CanContinue then
     begin
-      if Assigned(FOnActionBlocked) then
-        FOnActionBlocked(Self, Ctx);
+      SetError('Ação bloqueada em OnBeforeRun.');
+      if Assigned(FOnActionBlocked) then FOnActionBlocked(Self, Ctx);
       Exit;
     end;
 
-    // Validate
     CanContinue := True;
     if Assigned(FOnBeforeValidate) then
       FOnBeforeValidate(Self, Ctx, CanContinue);
-
     if not CanContinue then
     begin
-      if Assigned(FOnActionBlocked) then
-        FOnActionBlocked(Self, Ctx);
+      SetError('Ação bloqueada em OnBeforeValidate.');
+      if Assigned(FOnActionBlocked) then FOnActionBlocked(Self, Ctx);
       Exit;
     end;
+    if Assigned(FOnAfterValidate) then FOnAfterValidate(Self, Ctx);
 
-    if Assigned(FOnAfterValidate) then
-      FOnAfterValidate(Self, Ctx);
-
-    // Prepare
     CanContinue := True;
     if Assigned(FOnBeforePrepare) then
       FOnBeforePrepare(Self, Ctx, CanContinue);
+    if not CanContinue then
+    begin
+      SetError('Ação bloqueada em OnBeforePrepare.');
+      if Assigned(FOnActionBlocked) then FOnActionBlocked(Self, Ctx);
+      Exit;
+    end;
+    if Assigned(FOnAfterPrepare) then FOnAfterPrepare(Self, Ctx);
 
-    if Assigned(FOnAfterPrepare) then
-      FOnAfterPrepare(Self, Ctx);
-
-    // Simulate or Execute
     if ASimulate or Ctx.ForcarSimulacao then
     begin
       CanContinue := True;
-      if Assigned(FOnBeforeSimulate) then
-        FOnBeforeSimulate(Self, Ctx, CanContinue);
-      
-      // Simulation logic
+      if Assigned(FOnBeforeSimulate) then FOnBeforeSimulate(Self, Ctx, CanContinue);
+      if not CanContinue then
+      begin
+        SetError('Simulação bloqueada.');
+        if Assigned(FOnActionBlocked) then FOnActionBlocked(Self, Ctx);
+        Exit;
+      end;
       Ctx.SaidaAtual := 'Simulated action execution successfully.';
-      
-      if Assigned(FOnAfterSimulate) then
-        FOnAfterSimulate(Self, Ctx);
-    end;
-
-    if not ASimulate and not Ctx.ForcarSimulacao then
+      if Assigned(FOnAfterSimulate) then FOnAfterSimulate(Self, Ctx);
+    end
+    else
     begin
       CanContinue := True;
-      if Assigned(FOnBeforeExecute) then
-        FOnBeforeExecute(Self, Ctx, CanContinue);
-      
-      // Real Execution logic
+      if Assigned(FOnBeforeExecute) then FOnBeforeExecute(Self, Ctx, CanContinue);
+      if not CanContinue then
+      begin
+        SetError('Execução bloqueada.');
+        if Assigned(FOnActionBlocked) then FOnActionBlocked(Self, Ctx);
+        Exit;
+      end;
       Ctx.SaidaAtual := 'Real action execution completed.';
-      
-      if Assigned(FOnAfterExecute) then
-        FOnAfterExecute(Self, Ctx);
+      if Assigned(FOnAfterExecute) then FOnAfterExecute(Self, Ctx);
     end;
 
     Result := True;
-
-    if Assigned(FOnAfterRun) then
-      FOnAfterRun(Self, Ctx);
-
+    if Assigned(FOnAfterRun) then FOnAfterRun(Self, Ctx);
   finally
     Ctx.Free;
   end;

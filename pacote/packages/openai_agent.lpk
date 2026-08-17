@@ -23,7 +23,8 @@
       <Item><Filename Value="..\AI Agent\aiagent_decision.pas"/><UnitName Value="aiagent_decision"/></Item>
       <Item><Filename Value="..\AI Agent\aiagent_actionbuilder.pas"/><UnitName Value="aiagent_actionbuilder"/></Item>
       <Item><Filename Value="..\AI Agent\aiagent_actions.pas"/><UnitName Value="aiagent_actions"/></Item>
-      <Item><Filename Value="..\AI Agent\aiagent_sourceactions.pas"/><HasRegisterProc Value="True"/><UnitName Value="aiagent_sourceactions"/></Item>
+      <Item><Filename Value="..\AI Agent\aiagent_sourceactions.pas"/><UnitName Value="aiagent_sourceactions"/></Item>
+      <Item><Filename Value="..\AI Agent\aiagent_sourceactions_register.pas"/><HasRegisterProc Value="True"/><UnitName Value="aiagent_sourceactions_register"/></Item>
       <Item><Filename Value="..\AI Agent\aiagent_testaction.pas"/><HasRegisterProc Value="True"/><UnitName Value="aiagent_testaction"/></Item>
       <Item><Filename Value="..\AI Agent\aitools.pas"/><HasRegisterProc Value="True"/><UnitName Value="aitools"/></Item>
       <Item><Filename Value="..\AI Agent\aiagentgraph.pas"/><HasRegisterProc Value="True"/><UnitName Value="aiagentgraph"/></Item>

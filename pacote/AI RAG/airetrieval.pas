@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Math, Contnrs, fpjson, jsonparser, fphttpclient,
-  opensslsockets, aibase, chatgpt, aigraphmap;
+  opensslsockets, aibase, chatgpt, aigraphmap, airag_textutils;
 
 type
   TAIDoubleArray = array of Double;
@@ -70,7 +70,7 @@ type
     constructor Create(AOwner: TComponent); override;
     function Embed(const AText: string; out AVector: TAIDoubleArray): Boolean; override;
   published
-    property Token: string read FToken write FToken;
+    property Token: string read FToken write FToken stored False;
     property Endpoint: string read FEndpoint write FEndpoint;
     property Model: string read FModel write FModel;
     property Timeout: Integer read FTimeout write FTimeout default 120000;
@@ -222,26 +222,8 @@ begin
 end;
 
 function Tokenize(const AText: string): TStringList;
-var
-  I: Integer;
-  Token: string;
-  C: Char;
 begin
-  Result := TStringList.Create;
-  Result.CaseSensitive := False;
-  Token := '';
-  for I := 1 to Length(AText) do
-  begin
-    C := AText[I];
-    if C in ['a'..'z', 'A'..'Z', '0'..'9', '_'] then
-      Token := Token + LowerCase(C)
-    else if Token <> '' then
-    begin
-      Result.Add(Token);
-      Token := '';
-    end;
-  end;
-  if Token <> '' then Result.Add(Token);
+  Result := AIRAGTokenizeUnicode(AText);
 end;
 
 function HashToken(const S: string): Cardinal;
@@ -291,7 +273,7 @@ begin
   I := 0;
   while I < AResults.Count do
   begin
-    Estimate := Max(1, Length(TAIRetrievalResult(AResults.Objects[I]).Text) div 4);
+    Estimate := AIRAGEstimateTokens(TAIRetrievalResult(AResults.Objects[I]).Text);
     if Used + Estimate > AMaxTokens then
     begin
       AResults.Objects[I].Free;
@@ -313,8 +295,6 @@ begin
   Result.Text := Text;
   Result.Score := Score;
 end;
-
-{ Embeddings }
 
 constructor TAIEmbeddingProvider.Create(AOwner: TComponent);
 begin
@@ -423,8 +403,6 @@ begin
   FLastSuccess := Result;
 end;
 
-{ Vector store }
-
 constructor TAIVectorStore.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -496,8 +474,6 @@ begin
   TrimResults(AResults, ATopK);
   Result := AResults.Count > 0;
 end;
-
-{ Graph adapter }
 
 constructor TAIGraphMapRetriever.Create(AOwner: TComponent);
 begin
@@ -578,8 +554,6 @@ begin
   Result := FLastError;
 end;
 
-{ Vector retriever }
-
 procedure TAIVectorRetriever.SetEmbeddingProvider(AValue: TAIEmbeddingProvider);
 begin
   if FEmbeddingProvider = AValue then Exit;
@@ -636,8 +610,6 @@ function TAIVectorRetriever.GetLastError: string;
 begin
   Result := FLastError;
 end;
-
-{ BM25 }
 
 constructor TBM25Document.Create;
 begin
@@ -749,8 +721,6 @@ begin
   Result := FLastError;
 end;
 
-{ Rank fusion }
-
 class procedure TAIRankFusion.FuseRRF(const ALists: array of TStrings;
   ARankConstant, ATopK: Integer; AResults: TStrings);
 var
@@ -786,8 +756,6 @@ begin
     Map.Free;
   end;
 end;
-
-{ LLM reranker }
 
 procedure TAILLMReranker.SetChatGPT(AValue: TCHATGPT);
 begin

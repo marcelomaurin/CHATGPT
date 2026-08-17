@@ -17,8 +17,16 @@
     <License Value="OPEN SOURCE GPL3"/>
     <Files>
       <Item>
+        <Filename Value="..\AI RAG\airag_textutils.pas"/>
+        <UnitName Value="airag_textutils"/>
+      </Item>
+      <Item>
         <Filename Value="..\AI RAG\airetrieval.pas"/>
         <UnitName Value="airetrieval"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI RAG\airetrieval_icons.pas"/>
+        <UnitName Value="airetrieval_icons"/>
       </Item>
       <Item>
         <Filename Value="..\AI RAG\airag.pas"/>
@@ -31,28 +39,13 @@
       </Item>
     </Files>
     <RequiredPkgs>
-      <Item>
-        <PackageName Value="LCL"/>
-      </Item>
-      <Item>
-        <PackageName Value="FCL"/>
-      </Item>
-      <Item>
-        <PackageName Value="openai_core"/>
-      </Item>
-      <Item>
-        <PackageName Value="openai_graph"/>
-      </Item>
-      <Item>
-        <PackageName Value="openai_input"/>
-      </Item>
+      <Item><PackageName Value="LCL"/></Item>
+      <Item><PackageName Value="FCL"/></Item>
+      <Item><PackageName Value="openai_core"/></Item>
+      <Item><PackageName Value="openai_graph"/></Item>
+      <Item><PackageName Value="openai_input"/></Item>
     </RequiredPkgs>
-    <UsageOptions>
-      <UnitPath Value="$(PkgOutDir)"/>
-    </UsageOptions>
-    <PublishOptions>
-      <Version Value="2"/>
-      <UseFileFilters Value="True"/>
-    </PublishOptions>
+    <UsageOptions><UnitPath Value="$(PkgOutDir)"/></UsageOptions>
+    <PublishOptions><Version Value="2"/><UseFileFilters Value="True"/></PublishOptions>
   </Package>
 </CONFIG>
