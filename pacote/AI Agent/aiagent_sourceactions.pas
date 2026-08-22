@@ -329,10 +329,10 @@ begin
   if not PathInsideRoot(RootNoSlash, CandidateExpanded) then Exit(True);
 
   RelPath := Copy(CandidateExpanded, Length(RootNoSlash) + 1, MaxInt);
-  while (RelPath <> '') and (RelPath[1] in [PathDelim, '/', '\']) do Delete(RelPath, 1, 1);
+  while (RelPath <> '') and (RelPath[1] in ['/', '\']) do Delete(RelPath, 1, 1);
   Parts := TStringList.Create;
   try
-    ExtractStrings([PathDelim, '/', '\'], [], PChar(RelPath), Parts);
+    ExtractStrings(['/', '\'], [], PChar(RelPath), Parts);
     Current := RootNoSlash;
     for I := 0 to Parts.Count - 1 do
     begin

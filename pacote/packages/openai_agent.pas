@@ -12,10 +12,10 @@ uses
   aiagent_flowevents, aiagent_memorymap, aiagent_deterministicmemory, 
   aiagent_capabilityrouter, aiagent_supervisor, aiagent_core, 
   aiagent_classifier, aiagent_decision, aiagent_actionbuilder, 
-  aiagent_actions, aiagent_sourceactions, aiagent_testaction, aitools, 
-  aiagentgraph, aiguardrails, aiagent_executor, aiagent_orchestrator, 
-  aiagentsafety, aidevagents, aiserviceagents, aicommonserviceagents, 
-  airosagent, LazarusPackageIntf;
+  aiagent_actions, aiagent_sourceactions, aiagent_sourceactions_register, 
+  aiagent_testaction, aitools, aiagentgraph, aiguardrails, aiagent_executor, 
+  aiagent_orchestrator, aiagentsafety, aidevagents, aiserviceagents, 
+  aicommonserviceagents, airosagent, LazarusPackageIntf;
 
 implementation
 
@@ -25,7 +25,8 @@ begin
   RegisterUnit('aiwizardconfig', @aiwizardconfig.Register);
   RegisterUnit('aiagentserial', @aiagentserial.Register);
   RegisterUnit('aiagent_memorymap', @aiagent_memorymap.Register);
-  RegisterUnit('aiagent_sourceactions', @aiagent_sourceactions.Register);
+  RegisterUnit('aiagent_sourceactions_register', 
+    @aiagent_sourceactions_register.Register);
   RegisterUnit('aiagent_testaction', @aiagent_testaction.Register);
   RegisterUnit('aitools', @aitools.Register);
   RegisterUnit('aiagentgraph', @aiagentgraph.Register);
