@@ -56,6 +56,11 @@
         <Type Value="LRS"/>
       </Item>
       <Item>
+        <Filename Value="..\AI Input\AIChromiumBrowser\aichromiumbrowser.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aichromiumbrowser"/>
+      </Item>
+      <Item>
         <Filename Value="..\AI Input\AIWebServer\aiwebserver.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiwebserver"/>
