@@ -244,6 +244,29 @@ A IA não decide se um componente existe ou compilou. Essas informações vêm d
 
 ## Provedores de LLM
 
+### RunPod
+
+O componente `TCHATGPT` suporta endpoints RunPod Serverless/vLLM compatíveis com a API da OpenAI.
+
+Configuração mínima:
+
+```pascal
+ChatGPT1.Provider := AIP_RUNPOD;
+ChatGPT1.TOKEN := 'RUNPOD_API_KEY';
+ChatGPT1.RunPodEndpointID := 'SEU_ENDPOINT_ID';
+ChatGPT1.CustomModel := 'nome-do-modelo';
+ChatGPT1.SendQuestion('Olá');
+```
+
+A URL é montada automaticamente como:
+
+```text
+https://api.runpod.ai/v2/SEU_ENDPOINT_ID/openai/v1/chat/completions
+```
+
+Também é possível informar diretamente `URL` com a base ou rota completa do endpoint RunPod.
+
+
 | Provedor | Enum | Tipo |
 |---|---|---|
 | OpenAI | `AIP_OPENAI` | API externa |
@@ -252,6 +275,7 @@ A IA não decide se um componente existe ou compilou. Essas informações vêm d
 | Google Gemini | `AIP_GEMINI` | API externa |
 | Anthropic Claude | `AIP_CLAUDE` | API externa |
 | Ollama/local/compatível | `AIP_LOCAL` | Servidor local |
+| RunPod | `AIP_RUNPOD` | Serverless/vLLM OpenAI-compatible |
 
 ## Screenshots
 

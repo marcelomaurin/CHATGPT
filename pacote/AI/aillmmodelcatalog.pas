@@ -49,7 +49,7 @@ end;
 
 function AILLMModelCount: Integer;
 begin
-  Result := 38;
+  Result := 39;
 end;
 
 function GetAILLMModelInfo(AIndex: Integer;
@@ -61,6 +61,7 @@ const
   DeepSeekEndpoint = 'https://api.deepseek.com/v1/chat/completions';
   CerebrasEndpoint = 'https://api.cerebras.ai/v1/chat/completions';
   OllamaEndpoint = 'http://localhost:11434/v1/chat/completions';
+  RunPodEndpoint = 'https://api.runpod.ai/v2/ENDPOINT_ID/openai/v1/chat/completions';
 begin
   Result := True;
   case AIndex of
@@ -102,6 +103,7 @@ begin
     35: SetInfo(AInfo, 'Local', 'deepseek_r1:1_5b', 'DeepSeek R1 1.5B (legacy id)', OllamaEndpoint, 4096, 0.6, False, False, False, True, False);
     36: SetInfo(AInfo, 'Local', 'deepseek_r1:7b', 'DeepSeek R1 7B (legacy id)', OllamaEndpoint, 4096, 0.6, False, False, False, True, False);
     37: SetInfo(AInfo, 'OpenRouter', 'meta-llama/llama-3.2-3b-instruct:free', 'Llama 3.2 3B Free (OpenRouter)', OpenRouterEndpoint, 4096, 0.7, True, False, False, True, False);
+    38: SetInfo(AInfo, 'RunPod', 'custom-model', 'RunPod Serverless / vLLM', RunPodEndpoint, 4096, 0.7, True, False, False, True, True);
   else
     Result := False;
   end;

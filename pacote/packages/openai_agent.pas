@@ -8,7 +8,7 @@ unit openai_agent;
 interface
 
 uses
-  aiagent, aiwizardconfig, frm_aiwizardconfig, aiagentserial, 
+  aiagent, aiagentserial, 
   aiagent_flowevents, aiagent_memorymap, aiagent_deterministicmemory, 
   aiagent_capabilityrouter, aiagent_supervisor, aiagent_core, 
   aiagent_classifier, aiagent_decision, aiagent_actionbuilder, 
@@ -22,7 +22,6 @@ implementation
 procedure Register;
 begin
   RegisterUnit('aiagent', @aiagent.Register);
-  RegisterUnit('aiwizardconfig', @aiwizardconfig.Register);
   RegisterUnit('aiagentserial', @aiagentserial.Register);
   RegisterUnit('aiagent_memorymap', @aiagent_memorymap.Register);
   RegisterUnit('aiagent_sourceactions_register', 
