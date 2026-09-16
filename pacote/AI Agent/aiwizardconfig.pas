@@ -303,6 +303,4 @@ end;
 initialization
   {$I aiwizardconfig_icon.lrs}
 
-  {$I aiwizardconfig_icon.lrs}
-
 end.
