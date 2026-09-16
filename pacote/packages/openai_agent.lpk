@@ -10,8 +10,6 @@
     <License Value="OPEN SOURCE GPL3"/>
     <Files>
       <Item><Filename Value="..\AI Agent\aiagent.pas"/><HasRegisterProc Value="True"/><UnitName Value="aiagent"/></Item>
-      <Item><Filename Value="..\AI Agent\aiwizardconfig.pas"/><HasRegisterProc Value="True"/><UnitName Value="aiwizardconfig"/></Item>
-      <Item><Filename Value="..\AI Agent\frm_aiwizardconfig.pas"/><UnitName Value="frm_aiwizardconfig"/></Item>
       <Item><Filename Value="..\AI Agent\aiagentserial.pas"/><HasRegisterProc Value="True"/><UnitName Value="aiagentserial"/></Item>
       <Item><Filename Value="..\AI Agent\aiagent_flowevents.pas"/><UnitName Value="aiagent_flowevents"/></Item>
       <Item><Filename Value="..\AI Agent\aiagent_memorymap.pas"/><HasRegisterProc Value="True"/><UnitName Value="aiagent_memorymap"/></Item>
