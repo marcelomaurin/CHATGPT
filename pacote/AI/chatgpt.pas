@@ -701,6 +701,21 @@ begin
   Result := S + '/v1/chat/completions';
 end;
 
+function TCHATGPT.MontaURLRunPod(const AEndpointID: WideString): WideString;
+var
+  S: WideString;
+begin
+  S := Trim(AEndpointID);
+  if S = '' then
+    Exit('https://api.runpod.ai/v2/ENDPOINT_ID/openai/v1/chat/completions');
+
+  if (Pos('http://', LowerCase(S)) = 1) or
+     (Pos('https://', LowerCase(S)) = 1) then
+    Exit(S);
+
+  Result := 'https://api.runpod.ai/v2/' + S + '/openai/v1/chat/completions';
+end;
+
 function TCHATGPT.PegaMensagem(const JSON: WideString): WideString;
 var
   CleanJSON: WideString;
