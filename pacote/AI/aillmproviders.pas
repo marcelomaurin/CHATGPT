@@ -18,7 +18,8 @@ type
     llmDeepSeek,
     llmOpenRouter,
     llmCerebras,
-    llmOllama
+    llmOllama,
+    llmRunPod
   );
 
   TAILLMProviderConfig = record
@@ -137,6 +138,12 @@ type
     constructor Create; override;
   end;
 
+  TAILLMRunPodProvider = class(TAILLMOpenAICompatibleProvider)
+  public
+    constructor Create; override;
+    function BuildEndpoint(const AConfig: TAILLMProviderConfig): string; override;
+  end;
+
   TAILLMGeminiProvider = class(TAILLMProviderBase)
   public
     constructor Create; override;
@@ -211,6 +218,7 @@ begin
     llmOpenRouter: Result := 'OpenRouter';
     llmCerebras: Result := 'Cerebras';
     llmOllama: Result := 'Ollama';
+    llmRunPod: Result := 'RunPod';
   end;
 end;
 
@@ -652,6 +660,38 @@ begin
     'http://localhost:11434/v1/chat/completions');
 end;
 
+constructor TAILLMRunPodProvider.Create;
+begin
+  inherited Create;
+  SetProviderIdentity('runpod', 'RunPod',
+    'https://api.runpod.ai/v2/ENDPOINT_ID/openai/v1/chat/completions');
+end;
+
+function TAILLMRunPodProvider.BuildEndpoint(
+  const AConfig: TAILLMProviderConfig): string;
+var
+  LEndpoint, LLower: string;
+begin
+  LEndpoint := Trim(AConfig.Endpoint);
+  if LEndpoint = '' then
+    LEndpoint := GetDefaultEndpoint;
+
+  while (Length(LEndpoint) > 0) and (LEndpoint[Length(LEndpoint)] = '/') do
+    Delete(LEndpoint, Length(LEndpoint), 1);
+
+  LLower := LowerCase(LEndpoint);
+  if Pos('/chat/completions', LLower) > 0 then
+    Exit(LEndpoint);
+
+  if Pos('/openai/v1', LLower) > 0 then
+    Exit(LEndpoint + '/chat/completions');
+
+  if Pos('/v1', LLower) = Length(LLower) - 2 then
+    Exit(LEndpoint + '/chat/completions');
+
+  Result := LEndpoint + '/openai/v1/chat/completions';
+end;
+
 { Gemini }
 
 constructor TAILLMGeminiProvider.Create;
@@ -816,6 +856,7 @@ begin
     llmOpenRouter: Result := TAILLMOpenRouterProvider.Create;
     llmCerebras: Result := TAILLMCerebrasProvider.Create;
     llmOllama: Result := TAILLMOllamaProvider.Create;
+    llmRunPod: Result := TAILLMRunPodProvider.Create;
   else
     Result := TAILLMOpenAIProvider.Create;
   end;
@@ -845,6 +886,8 @@ begin
     Result := llmCerebras
   else if LName = 'ollama' then
     Result := llmOllama
+  else if (LName = 'runpod') or (LName = 'runpod.io') then
+    Result := llmRunPod
   else
     Result := llmOpenAI;
 end;
