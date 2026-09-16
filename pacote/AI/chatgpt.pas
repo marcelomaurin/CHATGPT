@@ -74,7 +74,8 @@ type
     AIP_DEEPSEEK,    // 6 - DeepSeek Direct API
     AIP_OPENAI_COMPATIBLE, // 7 - API configuravel /v1/chat/completions
     AIP_LLAMA_CPP,   // 8 - servidor llama.cpp
-    AIP_NEURAL_API   // 9 - servidor neural-api
+    AIP_NEURAL_API,  // 9 - servidor neural-api
+    AIP_RUNPOD       // 10 - RunPod Serverless/vLLM OpenAI-compatible
   );
 
   TAILLMRequestState = (
@@ -113,6 +114,7 @@ type
     FLastJSON        : WideString;
     FMaxTokens       : Integer;
     FLocalIP         : WideString;
+    FRunPodEndpointID: WideString;
     FLastURL         : WideString;
     FURL             : WideString;
     FTemperature     : Double;
@@ -142,6 +144,7 @@ type
     function GetModelName: WideString;
     procedure AddProviderHeaders(AHTTP: TFPHttpClient);
     function MontaURLChatLocal(const AServidor: WideString): WideString;
+    function MontaURLRunPod(const AEndpointID: WideString): WideString;
     function GetDev: WideString;
     procedure SetDev(const AValue: WideString);
     procedure SetTemperature(const AValue: Double);
@@ -181,6 +184,7 @@ type
     property Provider: TAIProvider read FProvider write FProvider;
     property CustomModel: WideString read FCustomModel write FCustomModel;
     property LocalIP: WideString read FLocalIP write FLocalIP;
+    property RunPodEndpointID: WideString read FRunPodEndpointID write FRunPodEndpointID;
     property MaxTokens: Integer read FMaxTokens write FMaxTokens;
     property Temperature: Double read FTemperature write SetTemperature;
     property URL: WideString read FURL write FURL;
@@ -345,6 +349,7 @@ begin
     AIP_OPENAI_COMPATIBLE: Result := 'OpenAI-compatible';
     AIP_LLAMA_CPP:  Result := 'llama.cpp';
     AIP_NEURAL_API: Result := 'neural-api';
+    AIP_RUNPOD:     Result := 'RunPod';
   else
     Result := 'OpenAI';
   end;
@@ -363,6 +368,7 @@ begin
     AIP_OPENAI_COMPATIBLE: Result := 'http://localhost:8000/v1/chat/completions';
     AIP_LLAMA_CPP:  Result := 'http://localhost:8080/v1/chat/completions';
     AIP_NEURAL_API: Result := 'http://localhost:8000/v1/chat/completions';
+    AIP_RUNPOD:     Result := 'https://api.runpod.ai/v2/ENDPOINT_ID/openai/v1/chat/completions';
   else
     Result := 'https://api.openai.com/v1/chat/completions';
   end;
@@ -402,6 +408,7 @@ begin
     AIP_OPENAI_COMPATIBLE: LProvider := 'OpenAI-compatible';
     AIP_LLAMA_CPP: LProvider := 'llama.cpp';
     AIP_NEURAL_API: LProvider := 'neural-api';
+    AIP_RUNPOD: LProvider := 'RunPod';
   else
     LProvider := 'OpenAI';
   end;
@@ -439,6 +446,7 @@ begin
   FLastJSON := '';
   FMaxTokens := 1000;
   FLocalIP := 'http://localhost:11434';
+  FRunPodEndpointID := '';
   FLastURL := '';
   FURL := '';
   FTemperature := 0.7;
@@ -453,7 +461,7 @@ begin
   FLastTraceID := '';
 
   FParams := TStringList.Create;
-  FPrompt := 'TCHATGPT e o componente principal para comunicacao com OpenAI ChatGPT, OpenRouter, Cerebras, DeepSeek, Google Gemini, Claude e Ollama local.';
+  FPrompt := 'TCHATGPT e o componente principal para comunicacao com OpenAI ChatGPT, OpenRouter, Cerebras, DeepSeek, Google Gemini, Claude, RunPod e modelos locais.';
   ClearError;
 end;
 
@@ -570,6 +578,7 @@ begin
     AIP_OPENAI_COMPATIBLE: Result := llmOpenAICompatible;
     AIP_LLAMA_CPP: Result := llmLlamaCpp;
     AIP_NEURAL_API: Result := llmNeuralAPI;
+    AIP_RUNPOD: Result := llmRunPod;
   else
     Result := llmOpenAI;
   end;
@@ -581,7 +590,9 @@ begin
   InitAILLMProviderConfig(AConfig);
   AConfig.Endpoint := UTF8Encode(FURL);
   if (FProvider = AIP_LOCAL) and (Trim(FURL) = '') then
-    AConfig.Endpoint := UTF8Encode(MontaURLChatLocal(FLocalIP));
+    AConfig.Endpoint := UTF8Encode(MontaURLChatLocal(FLocalIP))
+  else if (FProvider = AIP_RUNPOD) and (Trim(FURL) = '') then
+    AConfig.Endpoint := UTF8Encode(MontaURLRunPod(FRunPodEndpointID));
   AConfig.Token := UTF8Encode(FToken);
   AConfig.Model := UTF8Encode(GetModelName);
   AConfig.SystemPrompt := UTF8Encode(FDev);
@@ -869,6 +880,9 @@ begin
 
     AIP_LOCAL:
       Result := MontaURLChatLocal(FLocalIP);
+
+    AIP_RUNPOD:
+      Result := MontaURLRunPod(FRunPodEndpointID);
   else
     Result := 'https://api.openai.com/v1/chat/completions';
   end;
@@ -1187,6 +1201,7 @@ begin
       FCustomModel := UTF8ToUTF16(LModelStr);
     FToken := UTF8ToUTF16(Ini.ReadString('LLM', 'Token', Ini.ReadString('LLM', 'APIKey', UTF16ToUTF8(FToken))));
     FURL := UTF8ToUTF16(Ini.ReadString('LLM', 'URL', Ini.ReadString('LLM', 'Endpoint', UTF16ToUTF8(FURL))));
+    FRunPodEndpointID := UTF8ToUTF16(Ini.ReadString('LLM', 'RunPodEndpointID', UTF16ToUTF8(FRunPodEndpointID)));
     FTemperature := Ini.ReadFloat('LLM', 'Temperature', FTemperature);
     FMaxTokens := Ini.ReadInteger('LLM', 'MaxTokens', FMaxTokens);
     FTimeout := Ini.ReadInteger('LLM', 'Timeout', FTimeout);
@@ -1215,6 +1230,7 @@ begin
       Ini.WriteString('LLM', 'Model', UTF16ToUTF8(GetModelName));
     Ini.WriteString('LLM', 'Token', UTF16ToUTF8(FToken));
     Ini.WriteString('LLM', 'URL', UTF16ToUTF8(FURL));
+    Ini.WriteString('LLM', 'RunPodEndpointID', UTF16ToUTF8(FRunPodEndpointID));
     Ini.WriteFloat('LLM', 'Temperature', FTemperature);
     Ini.WriteInteger('LLM', 'MaxTokens', FMaxTokens);
     Ini.WriteInteger('LLM', 'Timeout', FTimeout);
