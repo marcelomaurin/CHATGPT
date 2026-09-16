@@ -9,7 +9,11 @@
       "commit": "66c3ce219893fca03247d7653a0b140bd8011e27",
       "checkout_dir": "zeoslib",
       "relative_package": "packages/lazarus/zcore.lpk",
-      "required_by": ["openai_core", "openai_aidbase", "openai_dbase"]
+      "required_by": [
+        "openai_core",
+        "openai_aidbase",
+        "openai_dbase"
+      ]
     },
     {
       "name": "ZeosLib ParseSQL",
@@ -19,7 +23,11 @@
       "commit": "66c3ce219893fca03247d7653a0b140bd8011e27",
       "checkout_dir": "zeoslib",
       "relative_package": "packages/lazarus/zparsesql.lpk",
-      "required_by": ["openai_core", "openai_aidbase", "openai_dbase"]
+      "required_by": [
+        "openai_core",
+        "openai_aidbase",
+        "openai_dbase"
+      ]
     },
     {
       "name": "ZeosLib Plain",
@@ -29,7 +37,11 @@
       "commit": "66c3ce219893fca03247d7653a0b140bd8011e27",
       "checkout_dir": "zeoslib",
       "relative_package": "packages/lazarus/zplain.lpk",
-      "required_by": ["openai_core", "openai_aidbase", "openai_dbase"]
+      "required_by": [
+        "openai_core",
+        "openai_aidbase",
+        "openai_dbase"
+      ]
     },
     {
       "name": "ZeosLib DBC",
@@ -39,7 +51,11 @@
       "commit": "66c3ce219893fca03247d7653a0b140bd8011e27",
       "checkout_dir": "zeoslib",
       "relative_package": "packages/lazarus/zdbc.lpk",
-      "required_by": ["openai_core", "openai_aidbase", "openai_dbase"]
+      "required_by": [
+        "openai_core",
+        "openai_aidbase",
+        "openai_dbase"
+      ]
     },
     {
       "name": "ZeosLib Components",
@@ -49,7 +65,11 @@
       "commit": "66c3ce219893fca03247d7653a0b140bd8011e27",
       "checkout_dir": "zeoslib",
       "relative_package": "packages/lazarus/zcomponent.lpk",
-      "required_by": ["openai_core", "openai_aidbase", "openai_dbase"]
+      "required_by": [
+        "openai_core",
+        "openai_aidbase",
+        "openai_dbase"
+      ]
     },
     {
       "name": "DCPcrypt",
@@ -58,7 +78,9 @@
       "repository": "https://github.com/ziceptor/DCPcrypt.git",
       "commit": "14586ed66d15fd91530ed5dfaab8a8e4bb8959ff",
       "relative_package": "dcpcrypt.lpk",
-      "required_by": ["openai_input"],
+      "required_by": [
+        "openai_input"
+      ],
       "note": "Espelho Lazarus/FPC contendo dcpcrypt.lpk, necessário ao CEF4Delphi."
     },
     {
@@ -68,7 +90,9 @@
       "repository": "https://github.com/salvadordf/CEF4Delphi.git",
       "commit": "84d5f7670056aed6753bf4dc855a5cb3e468fd60",
       "relative_package": "packages/cef4delphi_lazarus.lpk",
-      "required_by": ["openai_input"]
+      "required_by": [
+        "openai_input"
+      ]
     },
     {
       "name": "LZScene Runtime",
@@ -78,7 +102,9 @@
       "commit": "9d5d2f976897482a459eb8ef781988b9aee306d9",
       "checkout_dir": "lzscene",
       "relative_package": "Packages/GLScene_RunTime.lpk",
-      "required_by": ["openai_industrial"]
+      "required_by": [
+        "openai_industrial"
+      ]
     },
     {
       "name": "LZScene DesignTime",
@@ -88,43 +114,117 @@
       "commit": "9d5d2f976897482a459eb8ef781988b9aee306d9",
       "checkout_dir": "lzscene",
       "relative_package": "Packages/GLScene_DesignTime.lpk",
-      "required_by": ["openai_industrial"],
+      "required_by": [
+        "openai_industrial"
+      ],
       "note": "Runtime e design-time são registrados em ordem para satisfazer openai_industrial."
     }
   ],
   "profiles": {
-    "core": ["openai_core"],
+    "core": [
+      "openai_core"
+    ],
     "recommended": [
-      "openai_project_core", "openai_hardware", "openai_core", "openai_ml",
-      "openai_files", "openai_output", "openai_python", "openai_image",
-      "openai_graphic", "openai_simulation", "openai_evaluation",
-      "openai_observability", "openai_input", "openai_vision", "openai_voice",
-      "openai_agent", "openai_project", "openai_graph", "openai_rag",
-      "openai_aidbase", "openai_dbase", "openai_mcp", "openai_a2a",
+      "openai_project_core",
+      "openai_hardware",
+      "openai_core",
+      "openai_ml",
+      "openai_files",
+      "openai_output",
+      "openai_python",
+      "openai_image",
+      "openai_graphic",
+      "openai_simulation",
+      "openai_evaluation",
+      "openai_observability",
+      "openai_input",
+      "openai_vision",
+      "openai_voice",
+      "openai_agent",
+      "openai_graph",
+      "openai_industrial",
+      "openai_integration",
+      "openai_project",
+      "openai_wizard",
+      "openai_rag",
+      "openai_aidbase",
+      "openai_dbase",
+      "openai_mcp",
+      "openai_a2a",
       "openai_llamacpp"
     ],
     "all": [
-      "openai_project_core", "openai_hardware", "openai_core", "openai_ml", "openai_files",
-      "openai_output", "openai_python", "openai_image", "openai_graphic",
-      "openai_simulation", "openai_evaluation", "openai_observability",
-      "openai_input", "openai_vision", "openai_voice", "openai_agent",
-      "openai_project", "openai_graph", "openai_rag", "openai_aidbase",
-      "openai_dbase", "openai_mcp", "openai_a2a", "openai_industrial",
-      "openai_integration", "openai_llamacpp"
+      "openai_project_core",
+      "openai_hardware",
+      "openai_core",
+      "openai_ml",
+      "openai_files",
+      "openai_output",
+      "openai_python",
+      "openai_image",
+      "openai_graphic",
+      "openai_simulation",
+      "openai_evaluation",
+      "openai_observability",
+      "openai_input",
+      "openai_vision",
+      "openai_voice",
+      "openai_agent",
+      "openai_graph",
+      "openai_industrial",
+      "openai_integration",
+      "openai_project",
+      "openai_wizard",
+      "openai_rag",
+      "openai_aidbase",
+      "openai_dbase",
+      "openai_mcp",
+      "openai_a2a",
+      "openai_llamacpp"
     ]
   },
   "openssl": {
     "windows-x86": {
       "source": "runtime/OpenSSL/1.1.1.10/X86",
-      "files": ["libssl-1_1.dll", "libcrypto-1_1.dll"]
+      "files": [
+        "libssl-1_1.dll",
+        "libcrypto-1_1.dll"
+      ]
     },
     "windows-x86_64": {
       "source": "runtime/OpenSSL/1.1.1.10/x64",
-      "files": ["libssl-1_1-x64.dll", "libcrypto-1_1-x64.dll"]
+      "files": [
+        "libssl-1_1-x64.dll",
+        "libcrypto-1_1-x64.dll"
+      ]
     },
-    "linux-x86": {"system_libraries": ["ssl", "crypto"], "package": "libssl"},
-    "linux-x86_64": {"system_libraries": ["ssl", "crypto"], "package": "libssl"},
-    "linux-armhf": {"system_libraries": ["ssl", "crypto"], "package": "libssl"},
-    "linux-aarch64": {"system_libraries": ["ssl", "crypto"], "package": "libssl"}
+    "linux-x86": {
+      "system_libraries": [
+        "ssl",
+        "crypto"
+      ],
+      "package": "libssl"
+    },
+    "linux-x86_64": {
+      "system_libraries": [
+        "ssl",
+        "crypto"
+      ],
+      "package": "libssl"
+    },
+    "linux-armhf": {
+      "system_libraries": [
+        "ssl",
+        "crypto"
+      ],
+      "package": "libssl"
+    },
+    "linux-aarch64": {
+      "system_libraries": [
+        "ssl",
+        "crypto"
+      ],
+      "package": "libssl"
+    }
   }
 }
