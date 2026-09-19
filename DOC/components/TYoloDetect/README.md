@@ -65,3 +65,20 @@ end;
 * Retorna classe, confiança e bounding box. Máscaras de segmentação ainda não são expostas pelo record `TYoloObject`.
 * Modelos de segmentação funcionam para contagem porque o Ultralytics também fornece `boxes`.
 * Ainda deve ser tratado como componente experimental até validação dos backends e modelos.
+
+
+## Máscaras de segmentação
+
+`TYoloObject` também possui:
+
+```pascal
+Polygon: string;
+```
+
+Para modelos YOLO Segmentation, o valor é uma sequência de coordenadas na resolução original:
+
+```text
+x:y|x:y|x:y|...
+```
+
+Para modelos sem máscara, `Polygon` permanece vazio e o consumidor pode usar `X1,Y1,X2,Y2` como fallback.
