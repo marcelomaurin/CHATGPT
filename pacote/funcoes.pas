@@ -198,7 +198,7 @@ end;
 
 procedure ConvertStringToTimer(const TimeStr: string; Timer: TTimer);
 var
-  TimeValue: TTime;
+  TimeValue: TDateTime;
   Hours, Minutes, Seconds, MilliSeconds: Word;
   IntervalValue: LongInt;
 begin
