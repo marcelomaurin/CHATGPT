@@ -12,6 +12,7 @@ type
     ClassName: string;
     Confidence: Double;
     X1, Y1, X2, Y2: Integer;
+    Polygon: string; // pares "x:y|x:y|..." na resolução original
   end;
   TYoloObjectArray = array of TYoloObject;
 
@@ -215,12 +216,16 @@ begin
     '    for r in results:' + sLineBreak +
     '        if r.boxes is None:' + sLineBreak +
     '            continue' + sLineBreak +
-    '        for box in r.boxes:' + sLineBreak +
+    '        mask_xy = r.masks.xy if r.masks is not None else []' + sLineBreak +
+    '        for idx, box in enumerate(r.boxes):' + sLineBreak +
     '            cls_id = int(box.cls[0])' + sLineBreak +
     '            cls_name = model.names[cls_id]' + sLineBreak +
     '            conf = float(box.conf[0])' + sLineBreak +
     '            xyxy = box.xyxy[0]' + sLineBreak +
-    '            obj_list.append(f"{cls_name},{conf:.4f},{int(xyxy[0])},{int(xyxy[1])},{int(xyxy[2])},{int(xyxy[3])}")' + sLineBreak +
+    '            polygon = ""' + sLineBreak +
+    '            if idx < len(mask_xy):' + sLineBreak +
+    '                polygon = "|".join(f"{int(p[0])}:{int(p[1])}" for p in mask_xy[idx])' + sLineBreak +
+    '            obj_list.append(f"{cls_name},{conf:.4f},{int(xyxy[0])},{int(xyxy[1])},{int(xyxy[2])},{int(xyxy[3])},{polygon}")' + sLineBreak +
     '    yolo_result = ";".join(obj_list)' + sLineBreak +
     '    yolo_success = True' + sLineBreak +
     'except Exception as e:' + sLineBreak +
@@ -263,6 +268,10 @@ begin
         AObjects[i].Y1 := StrToIntDef(Parts[3], 0);
         AObjects[i].X2 := StrToIntDef(Parts[4], 0);
         AObjects[i].Y2 := StrToIntDef(Parts[5], 0);
+        if Parts.Count >= 7 then
+          AObjects[i].Polygon := Parts[6]
+        else
+          AObjects[i].Polygon := '';
       end;
     end;
     Result := True;
