@@ -22,6 +22,10 @@ type
     FPythonConnector: TPythonConnector;
     FLastError: string;
     FPreferProcessMode: Boolean;
+    FModelPath: string;
+    FConfidenceThreshold: Double;
+    FDevice: string;
+    FImageSize: Integer;
     procedure SetPythonConnector(const AValue: TPythonConnector);
     procedure PrepareConnector;
   protected
@@ -34,6 +38,10 @@ type
     property PythonConnector: TPythonConnector read FPythonConnector write SetPythonConnector;
     property LastError: string read FLastError;
     property PreferProcessMode: Boolean read FPreferProcessMode write FPreferProcessMode default True;
+    property ModelPath: string read FModelPath write FModelPath;
+    property ConfidenceThreshold: Double read FConfidenceThreshold write FConfidenceThreshold;
+    property Device: string read FDevice write FDevice;
+    property ImageSize: Integer read FImageSize write FImageSize default 0;
   end;
 
 procedure Register;
@@ -53,6 +61,10 @@ begin
   FPythonConnector := nil;
   FLastError := '';
   FPreferProcessMode := True;
+  FModelPath := 'yolov8n.pt';
+  FConfidenceThreshold := 0.25;
+  FDevice := '';
+  FImageSize := 0;
 end;
 
 procedure TYOLO.PrepareConnector;
@@ -131,7 +143,9 @@ var
   ResultStr: string;
   Rows, Parts: TStringList;
   i: Integer;
-  EscapedPath: string;
+  EscapedPath, EscapedModel, EscapedDevice: string;
+  FS: TFormatSettings;
+  ConfidenceText: string;
 begin
   Result := False;
   SetLength(AObjects, 0);
@@ -157,17 +171,50 @@ begin
     Exit;
   end;
 
-  // Escapa barras invertidas no caminho do arquivo para o Python
-  EscapedPath := StringReplace(AImageFile, '\', '\\', [rfReplaceAll]);
+  if Trim(FModelPath) = '' then
+  begin
+    FLastError := 'ModelPath não foi informado.';
+    Exit;
+  end;
 
-  // Script para detecção de objetos via ultralytics YOLOv8
+  if (FConfidenceThreshold < 0.0) or (FConfidenceThreshold > 1.0) then
+  begin
+    FLastError := 'ConfidenceThreshold deve estar entre 0 e 1.';
+    Exit;
+  end;
+
+  EscapedPath := StringReplace(AImageFile, '\', '\\', [rfReplaceAll]);
+  EscapedPath := StringReplace(EscapedPath, '"', '\"', [rfReplaceAll]);
+  EscapedModel := StringReplace(FModelPath, '\', '\\', [rfReplaceAll]);
+  EscapedModel := StringReplace(EscapedModel, '"', '\"', [rfReplaceAll]);
+  EscapedDevice := StringReplace(FDevice, '\', '\\', [rfReplaceAll]);
+  EscapedDevice := StringReplace(EscapedDevice, '"', '\"', [rfReplaceAll]);
+
+  FS := DefaultFormatSettings;
+  FS.DecimalSeparator := '.';
+  ConfidenceText := FloatToStr(FConfidenceThreshold, FS);
+
   PyScript :=
     'from ultralytics import YOLO' + sLineBreak +
     'try:' + sLineBreak +
-    '    model = YOLO("yolov8n.pt")' + sLineBreak +
-    '    results = model(r"' + EscapedPath + '")' + sLineBreak +
+    '    model = YOLO(r"' + EscapedModel + '")' + sLineBreak +
+    '    predict_args = {"source": r"' + EscapedPath + '", "conf": ' +
+      ConfidenceText + ', "verbose": False}' + sLineBreak;
+
+  if Trim(FDevice) <> '' then
+    PyScript := PyScript +
+      '    predict_args["device"] = r"' + EscapedDevice + '"' + sLineBreak;
+
+  if FImageSize > 0 then
+    PyScript := PyScript +
+      '    predict_args["imgsz"] = ' + IntToStr(FImageSize) + sLineBreak;
+
+  PyScript := PyScript +
+    '    results = model.predict(**predict_args)' + sLineBreak +
     '    obj_list = []' + sLineBreak +
     '    for r in results:' + sLineBreak +
+    '        if r.boxes is None:' + sLineBreak +
+    '            continue' + sLineBreak +
     '        for box in r.boxes:' + sLineBreak +
     '            cls_id = int(box.cls[0])' + sLineBreak +
     '            cls_name = model.names[cls_id]' + sLineBreak +
@@ -195,7 +242,7 @@ begin
   ResultStr := FPythonConnector.GetVar('yolo_result');
   if ResultStr = '' then
   begin
-    Result := True; // Sucesso, mas 0 objetos encontrados
+    Result := True;
     Exit;
   end;
 
@@ -211,7 +258,7 @@ begin
       if Parts.Count >= 6 then
       begin
         AObjects[i].ClassName := Parts[0];
-        AObjects[i].Confidence := StrToFloatDef(Parts[1], 0.0);
+        AObjects[i].Confidence := StrToFloatDef(Parts[1], 0.0, FS);
         AObjects[i].X1 := StrToIntDef(Parts[2], 0);
         AObjects[i].Y1 := StrToIntDef(Parts[3], 0);
         AObjects[i].X2 := StrToIntDef(Parts[4], 0);
