@@ -28,11 +28,12 @@ Experimental
 
 | Propriedade | Descrição |
 |---|---|
-| `ModelPath` | Caminho do modelo YOLO, quando disponível |
-| `ImagePath` | Imagem de entrada |
-| `ConfidenceThreshold` | Confiança mínima |
+| `ModelPath` | Caminho/nome do modelo Ultralytics (`.pt`) |
+| `ConfidenceThreshold` | Confiança mínima entre 0 e 1 |
+| `Device` | Dispositivo Ultralytics, por exemplo `0` ou `cpu`; vazio = automático |
+| `ImageSize` | `imgsz` usado na inferência; 0 = padrão do backend |
+| `PreferProcessMode` | Prefere o TPythonConnector em modo processo |
 | `LastError` | Último erro |
-| `LastResult` | Resultado da detecção |
 
 ## Métodos principais
 
@@ -46,19 +47,21 @@ Experimental
 ```pascal
 procedure TForm1.Button1Click(Sender: TObject);
 begin
-  YoloDetect1.ModelPath := 'modelo.onnx';
-  YoloDetect1.ImagePath := 'imagem.jpg';
-  YoloDetect1.ConfidenceThreshold := 0.50;
+  Yolo1.ModelPath := 'models/blood-seg-v1.pt';
+  Yolo1.ConfidenceThreshold := 0.25;
+  Yolo1.ImageSize := 1024;
+  Yolo1.Device := '0';
 
-  if YoloDetect1.Detect then
-    Memo1.Lines.Text := YoloDetect1.LastResult
+  if Yolo1.DetectObjects('lamina.png', Objects) then
+    ShowMessage(IntToStr(Length(Objects)) + ' objetos detectados')
   else
-    ShowMessage(YoloDetect1.LastError);
+    ShowMessage(Yolo1.LastError);
 end;
 ```
 
 ## Limitações
 
-* Depende de backend e modelo externo.
-* Validar caminho do modelo, formato e dependências Python antes de uso.
-* Ainda não deve ser tratado como componente estável.
+* Depende de Python, Ultralytics e modelo externo.
+* Retorna classe, confiança e bounding box. Máscaras de segmentação ainda não são expostas pelo record `TYoloObject`.
+* Modelos de segmentação funcionam para contagem porque o Ultralytics também fornece `boxes`.
+* Ainda deve ser tratado como componente experimental até validação dos backends e modelos.
