@@ -116,15 +116,15 @@ function VerifyAdminLogin:boolean;
 
 implementation
 
-
-uses
 {$IFDEF WINDOWS}
-    ShlObj
+uses
+  ShlObj;
+{$ELSE}
+  {$IFDEF Darwin}
+uses
+  MacOSAll;
+  {$ENDIF}
 {$ENDIF}
-{$ifdef Darwin}
-,MacOSAll
-{$endif}
-;
 
 var LastTickCount     : cardinal = 0;
     LastProcessorTime : int64    = 0;
@@ -198,7 +198,7 @@ end;
 
 procedure ConvertStringToTimer(const TimeStr: string; Timer: TTimer);
 var
-  TimeValue: TTime;
+  TimeValue: TDateTime;
   Hours, Minutes, Seconds, MilliSeconds: Word;
   IntervalValue: LongInt;
 begin
