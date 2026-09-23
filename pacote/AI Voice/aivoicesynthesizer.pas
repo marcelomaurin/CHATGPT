@@ -91,6 +91,7 @@ type
     destructor Destroy; override;
 
     procedure Say(const AText: string = '');
+    procedure Stop;
     procedure GetAvailableVoices(AList: TStrings);
     function ValidateOpenAIConfig(const AText: string): Boolean;
     function JSONEscape(const S: string): string;
@@ -448,6 +449,20 @@ begin
     if Assigned(BodyStream) then BodyStream.Free;
     HTTP.Free;
   end;
+end;
+
+procedure TAIVoiceSynthesizer.Stop;
+begin
+  {$IFDEF MSWINDOWS}
+  try
+    if FSpVoiceCreated then
+      FSpVoice.Speak('', 2); // SVSFPurgeBeforeSpeak cancela a fala imediatamente (Barge-In)
+  except
+  end;
+  {$ENDIF}
+  FAudioLevel := 0.0;
+  if Assigned(FOnSpeechEnd) then
+    FOnSpeechEnd(Self);
 end;
 
 procedure TAIVoiceSynthesizer.Say(const AText: string);
