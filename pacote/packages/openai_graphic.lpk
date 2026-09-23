@@ -76,6 +76,10 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="aitripo3dclient"/>
       </Item>
+      <Item>
+        <Filename Value="..\AI Graphic\aiavatartypes.pas"/>
+        <UnitName Value="aiavatartypes"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>

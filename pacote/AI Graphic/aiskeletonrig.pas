@@ -5,7 +5,7 @@ unit aiskeletonrig;
 interface
 
 uses
-  Classes, SysUtils, Math, StrUtils, aibase, DOM, XMLRead, fpjson, jsonparser, Process, LResources;
+  Classes, SysUtils, Math, StrUtils, aibase, aiavatartypes, DOM, XMLRead, fpjson, jsonparser, Process, LResources;
 
 type
   TMatrix3x3 = array[0..2, 0..2] of Double;
@@ -26,6 +26,7 @@ type
   private
     FBonesList: TStrings;
     FJoints: array of TBoneJoint;
+    FBoneMapping: array[TAIHumanoidBone] of string;
     procedure SetBonesList(AValue: TStrings);
     procedure InitializeRig;
     
@@ -46,6 +47,14 @@ type
     
     function GetJointCount: Integer;
     function GetJoint(Index: Integer): TBoneJoint;
+
+    // Tarefas 8, 9 e 10: Humanoid Bone Mapping & Validation
+    procedure MapBone(AHumanoidBone: TAIHumanoidBone; const AModelBoneName: string);
+    function GetMappedBoneName(AHumanoidBone: TAIHumanoidBone): string;
+    procedure AutoMapHumanoidBones;
+    function FindHumanoidBone(AHumanoidBone: TAIHumanoidBone; out AJointIndex: Integer): Boolean;
+    function HasHumanoidBone(AHumanoidBone: TAIHumanoidBone): Boolean;
+    function ValidateHumanoidRig(out AMissingBones: TStrings): Boolean;
   published
     property BonesList: TStrings read FBonesList write SetBonesList;
   end;
@@ -1056,6 +1065,123 @@ begin
   else
     FillChar(Result, SizeOf(Result), 0);
 end;
+
+
+procedure TAISkeletonRig.MapBone(AHumanoidBone: TAIHumanoidBone; const AModelBoneName: string);
+begin
+  if AHumanoidBone <> hbNone then
+    FBoneMapping[AHumanoidBone] := Trim(AModelBoneName);
+end;
+
+function TAISkeletonRig.GetMappedBoneName(AHumanoidBone: TAIHumanoidBone): string;
+begin
+  if AHumanoidBone <> hbNone then
+    Result := FBoneMapping[AHumanoidBone]
+  else
+    Result := '';
+end;
+
+procedure TAISkeletonRig.AutoMapHumanoidBones;
+var
+  I: Integer;
+  BName, JName: string;
+  HB: TAIHumanoidBone;
+
+  function MatchAlias(const AJoint, AAlias: string): Boolean;
+  var
+    NormJ, NormA: string;
+  begin
+    NormJ := LowerCase(ReplaceStr(ReplaceStr(AJoint, '_', ''), ':', ''));
+    NormA := LowerCase(ReplaceStr(ReplaceStr(AAlias, '_', ''), ':', ''));
+    Result := (NormJ = NormA) or (Pos(NormA, NormJ) > 0);
+  end;
+
+begin
+  for HB := Low(TAIHumanoidBone) to High(TAIHumanoidBone) do
+  begin
+    if FBoneMapping[HB] <> '' then Continue; // Preserva mapeamento manual
+    BName := HumanoidBoneToString(HB);
+
+    for I := 0 to High(FJoints) do
+    begin
+      JName := FJoints[I].Name;
+      if SameText(JName, BName) or MatchAlias(JName, BName) then
+      begin
+        FBoneMapping[HB] := JName;
+        Break;
+      end;
+    end;
+  end;
+end;
+
+function TAISkeletonRig.FindHumanoidBone(AHumanoidBone: TAIHumanoidBone; out AJointIndex: Integer): Boolean;
+var
+  TargetName, JName: string;
+  I: Integer;
+begin
+  Result := False;
+  AJointIndex := -1;
+  if (AHumanoidBone = hbNone) or (Length(FJoints) = 0) then Exit;
+
+  TargetName := FBoneMapping[AHumanoidBone];
+  if TargetName = '' then
+  begin
+    AutoMapHumanoidBones;
+    TargetName := FBoneMapping[AHumanoidBone];
+  end;
+
+  if TargetName = '' then
+    TargetName := HumanoidBoneToString(AHumanoidBone);
+
+  for I := 0 to High(FJoints) do
+  begin
+    JName := FJoints[I].Name;
+    if SameText(JName, TargetName) or
+       (Pos(LowerCase(TargetName), LowerCase(JName)) > 0) then
+    begin
+      AJointIndex := I;
+      Result := True;
+      Exit;
+    end;
+  end;
+end;
+
+function TAISkeletonRig.HasHumanoidBone(AHumanoidBone: TAIHumanoidBone): Boolean;
+var
+  DummyIdx: Integer;
+begin
+  Result := FindHumanoidBone(AHumanoidBone, DummyIdx);
+end;
+
+function TAISkeletonRig.ValidateHumanoidRig(out AMissingBones: TStrings): Boolean;
+var
+  EssentialBones: array[0..5] of TAIHumanoidBone;
+  I: Integer;
+  HB: TAIHumanoidBone;
+begin
+  EssentialBones[0] := hbHead;
+  EssentialBones[1] := hbSpine;
+  EssentialBones[2] := hbLeftUpperArm;
+  EssentialBones[3] := hbRightUpperArm;
+  EssentialBones[4] := hbLeftUpperLeg;
+  EssentialBones[5] := hbRightUpperLeg;
+
+  Result := True;
+  if AMissingBones = nil then Exit;
+
+  AutoMapHumanoidBones;
+
+  for I := 0 to High(EssentialBones) do
+  begin
+    HB := EssentialBones[I];
+    if not HasHumanoidBone(HB) then
+    begin
+      AMissingBones.Add(HumanoidBoneToString(HB));
+      Result := False;
+    end;
+  end;
+end;
+
 
 initialization
   {$I aiskeletonrig_icon.lrs}
