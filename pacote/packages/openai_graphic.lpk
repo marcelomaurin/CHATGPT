@@ -80,6 +80,10 @@
         <Filename Value="..\AI Graphic\aiavatartypes.pas"/>
         <UnitName Value="aiavatartypes"/>
       </Item>
+      <Item>
+        <Filename Value="..\AI Graphic\aigltfloader.pas"/>
+        <UnitName Value="aigltfloader"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>

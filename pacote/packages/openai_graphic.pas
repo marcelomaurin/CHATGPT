@@ -11,7 +11,7 @@ uses
   aiscene2d3d, aitrainingenvironment, aiphysicssimulator, aisensorvirtual, 
   airewardfunction, aimodel3d, ai3dmodelviewer, aiskeletonrig, 
   aiavatarcontroller, aiposelibrary, aianimationsequence, aitripo3dclient, 
-  LazarusPackageIntf;
+  aiavatartypes, aigltfloader, LazarusPackageIntf;
 
 implementation
 
