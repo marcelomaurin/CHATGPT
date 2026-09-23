@@ -84,6 +84,11 @@
         <Filename Value="..\AI Graphic\aigltfloader.pas"/>
         <UnitName Value="aigltfloader"/>
       </Item>
+      <Item>
+        <Filename Value="..\AI Graphic\aiavatar3d.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiavatar3d"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>
