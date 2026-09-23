@@ -1,0 +1,74 @@
+object FormMain: TFormMain
+  Left = 280
+  Height = 560
+  Top = 150
+  Width = 800
+  Caption = 'Demo Completa: Chat, Voz, Avatar e Telemetria (Tarefas 89 e 90)'
+  ClientHeight = 560
+  ClientWidth = 800
+  OnCreate = FormCreate
+  Position = poScreenCenter
+  LCLVersion = '2.2.6.0'
+  object pnlBottom: TPanel
+    Left = 0
+    Height = 70
+    Top = 490
+    Width = 800
+    Align = alBottom
+    ClientHeight = 70
+    ClientWidth = 800
+    TabOrder = 0
+    object edtChat: TEdit
+      Left = 16
+      Height = 28
+      Top = 20
+      Width = 620
+      TabOrder = 0
+      Text = 'Explique a arquitetura do subsistema 3D.'
+    end
+    object btnSend: TButton
+      Left = 650
+      Height = 28
+      Top = 20
+      Width = 130
+      Caption = 'Enviar'
+      OnClick = btnSendClick
+      TabOrder = 1
+    end
+  end
+  object pnlTop: TPanel
+    Left = 0
+    Height = 40
+    Top = 0
+    Width = 800
+    Align = alTop
+    ClientHeight = 40
+    ClientWidth = 800
+    TabOrder = 1
+    object chkDebug: TCheckBox
+      Left = 16
+      Height = 24
+      Top = 8
+      Width = 180
+      Caption = 'Mostrar Painel de Debug'
+      OnChange = chkDebugChange
+      TabOrder = 0
+    end
+  end
+  object memoChat: TMemo
+    Left = 0
+    Height = 450
+    Top = 40
+    Width = 800
+    Align = alClient
+    Color = 1579032
+    Font.Color = clWhite
+    Font.Name = 'Segoe UI'
+    Font.Height = 14
+    ParentColor = False
+    ParentFont = False
+    ReadOnly = True
+    ScrollBars = ssVertical
+    TabOrder = 2
+  end
+end

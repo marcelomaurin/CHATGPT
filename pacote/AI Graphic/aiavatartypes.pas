@@ -63,6 +63,25 @@ type
     ltCustomPoint
   );
 
+
+  { Qualidade Grafica do Avatar 3D (Tarefas 92-94) }
+  TAIAvatarQuality = (
+    aqLow,
+    aqMedium,
+    aqHigh,
+    aqAuto
+  );
+
+  { Categorias de Logs Estruturados (Tarefa 99) }
+  TAILogCategory = (
+    lcAvatar,
+    lcModel3D,
+    lcSkeleton,
+    lcAnimation,
+    lcLipSync,
+    lcAgent
+  );
+
   { Ossos Humanoides Padronizados (Tarefa 7) }
   TAIHumanoidBone = (
     hbNone,
@@ -229,6 +248,12 @@ function StringToAvatarGesture(const S: string): TAIAvatarGesture;
 function LookTargetToString(ATarget: TAIAvatarLookTarget): string;
 function StringToLookTarget(const S: string): TAIAvatarLookTarget;
 
+
+function AvatarQualityToString(AQuality: TAIAvatarQuality): string;
+function StringToAvatarQuality(const S: string): TAIAvatarQuality;
+function LogCategoryToString(ACategory: TAILogCategory): string;
+function NormalizeAnimationName(const AName: string): string;
+
 function HumanoidBoneToString(ABone: TAIHumanoidBone): string;
 function StringToHumanoidBone(const S: string): TAIHumanoidBone;
 
@@ -252,6 +277,70 @@ function AvatarResponseToJSON(const AResp: TAIAvatarResponse): string;
 
 
 implementation
+
+function AvatarQualityToString(AQuality: TAIAvatarQuality): string;
+begin
+  case AQuality of
+    aqLow: Result := 'low';
+    aqMedium: Result := 'medium';
+    aqHigh: Result := 'high';
+    aqAuto: Result := 'auto';
+  else
+    Result := 'auto';
+  end;
+end;
+
+function StringToAvatarQuality(const S: string): TAIAvatarQuality;
+var
+  LowS: string;
+begin
+  LowS := LowerCase(Trim(S));
+  if LowS = 'low' then Result := aqLow
+  else if LowS = 'medium' then Result := aqMedium
+  else if LowS = 'high' then Result := aqHigh
+  else Result := aqAuto;
+end;
+
+function LogCategoryToString(ACategory: TAILogCategory): string;
+begin
+  case ACategory of
+    lcAvatar: Result := 'AVATAR';
+    lcModel3D: Result := 'MODEL3D';
+    lcSkeleton: Result := 'SKELETON';
+    lcAnimation: Result := 'ANIMATION';
+    lcLipSync: Result := 'LIPSYNC';
+    lcAgent: Result := 'AGENT';
+  else
+    Result := 'GENERAL';
+  end;
+end;
+
+function NormalizeAnimationName(const AName: string): string;
+var
+  S: string;
+begin
+  S := LowerCase(Trim(AName));
+  if (S = 'idle') or (Pos('idle', S) > 0) or (Pos('espera', S) > 0) then
+    Result := 'Idle'
+  else if (S = 'wave') or (Pos('wave', S) > 0) or (Pos('aceno', S) > 0) or (Pos('hello', S) > 0) then
+    Result := 'Wave'
+  else if (S = 'nod') or (Pos('nod', S) > 0) or (Pos('sim', S) > 0) or (Pos('concorda', S) > 0) then
+    Result := 'Nod'
+  else if (S = 'shakehead') or (Pos('shake', S) > 0) or (Pos('nao', S) > 0) then
+    Result := 'ShakeHead'
+  else if (S = 'explain') or (Pos('explain', S) > 0) or (Pos('explica', S) > 0) or (Pos('talk', S) > 0) then
+    Result := 'Explain'
+  else if (S = 'think') or (Pos('think', S) > 0) or (Pos('pensar', S) > 0) or (Pos('pensa', S) > 0) then
+    Result := 'Think'
+  else if (S = 'shrug') or (Pos('shrug', S) > 0) or (Pos('ombros', S) > 0) then
+    Result := 'Shrug'
+  else if (S = 'celebrate') or (Pos('cheer', S) > 0) or (Pos('comemora', S) > 0) then
+    Result := 'Celebrate'
+  else
+    Result := AName;
+end;
+
+
 
 { Conversoes Enum <-> String }
 

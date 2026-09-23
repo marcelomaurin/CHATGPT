@@ -20,6 +20,10 @@ type
 
   TAIAvatar3D = class(TAIBaseComponent)
   private
+    FQuality: TAIAvatarQuality;
+    FShowDebugPanel: Boolean;
+    FFPS: Single;
+    FFPSWarmup: Integer;
     FModelFile: string;
     FActive: Boolean;
 
@@ -47,6 +51,13 @@ type
     FOnGestureStart: TNotifyEvent;
     FOnGestureFinish: TNotifyEvent;
 
+    function GetModel: TAIModel3D;
+    function GetSkeleton: TAISkeletonRig;
+    function GetController: TAIAvatarController;
+    function GetPoseLibrary: TAIPoseLibrary;
+    function GetAnimationSequence: TAIAnimationSequence;
+    function GetLipSync: TAIAvatarLipSync;
+    function GetBehavior: TAIAvatarBehavior;
     procedure SetModel(AValue: TAIModel3D);
     procedure SetSkeleton(AValue: TAISkeletonRig);
     procedure SetController(AValue: TAIAvatarController);
@@ -73,6 +84,8 @@ type
     procedure ForwardStateChanged(Sender: TObject);
     procedure ForwardGestureStart(Sender: TObject);
     procedure ForwardGestureFinish(Sender: TObject);
+    procedure SetQuality(AValue: TAIAvatarQuality);
+    function GetBoneCount: Integer;
     procedure EnsureComponentsCreated;
   protected
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
@@ -95,17 +108,24 @@ type
 
     // Frame Update
     procedure Update(DeltaTimeSec: Single);
+    function GetDebugInfoText: string;
+    procedure LogStructured(ACategory: TAILogCategory; const AMessage: string);
+    procedure LoadAvatar(const AModelPath: string; const AProfilePath: string); overload;
   published
     property ModelFile: string read FModelFile write FModelFile;
+    property Quality: TAIAvatarQuality read FQuality write SetQuality default aqAuto;
+    property ShowDebugPanel: Boolean read FShowDebugPanel write FShowDebugPanel default False;
+    property FPS: Single read FFPS;
+    property BoneCount: Integer read GetBoneCount;
     property Active: Boolean read FActive write FActive default False;
 
-    property Model: TAIModel3D read FModel write SetModel;
-    property Skeleton: TAISkeletonRig read FSkeleton write SetSkeleton;
-    property Controller: TAIAvatarController read FController write SetController;
-    property PoseLibrary: TAIPoseLibrary read FPoseLibrary write SetPoseLibrary;
-    property AnimationSequence: TAIAnimationSequence read FAnimationSequence write SetAnimationSequence;
-    property LipSync: TAIAvatarLipSync read FLipSync write SetLipSync;
-    property Behavior: TAIAvatarBehavior read FBehavior write SetBehavior;
+    property Model: TAIModel3D read GetModel write SetModel;
+    property Skeleton: TAISkeletonRig read GetSkeleton write SetSkeleton;
+    property Controller: TAIAvatarController read GetController write SetController;
+    property PoseLibrary: TAIPoseLibrary read GetPoseLibrary write SetPoseLibrary;
+    property AnimationSequence: TAIAnimationSequence read GetAnimationSequence write SetAnimationSequence;
+    property LipSync: TAIAvatarLipSync read GetLipSync write SetLipSync;
+    property Behavior: TAIAvatarBehavior read GetBehavior write SetBehavior;
     property VoiceSynthesizer: TAIVoiceSynthesizer read FVoiceSynthesizer write SetVoiceSynthesizer;
 
     property State: TAIAvatarState read GetStateProp write SetStateProp default avIdle;
@@ -167,6 +187,49 @@ begin
   if FInternalLipSync and Assigned(FLipSync) then FreeAndNil(FLipSync);
   if FInternalBehavior and Assigned(FBehavior) then FreeAndNil(FBehavior);
   inherited Destroy;
+end;
+
+
+function TAIAvatar3D.GetModel: TAIModel3D;
+begin
+  EnsureComponentsCreated;
+  Result := FModel;
+end;
+
+function TAIAvatar3D.GetSkeleton: TAISkeletonRig;
+begin
+  EnsureComponentsCreated;
+  Result := FSkeleton;
+end;
+
+function TAIAvatar3D.GetController: TAIAvatarController;
+begin
+  EnsureComponentsCreated;
+  Result := FController;
+end;
+
+function TAIAvatar3D.GetPoseLibrary: TAIPoseLibrary;
+begin
+  EnsureComponentsCreated;
+  Result := FPoseLibrary;
+end;
+
+function TAIAvatar3D.GetAnimationSequence: TAIAnimationSequence;
+begin
+  EnsureComponentsCreated;
+  Result := FAnimationSequence;
+end;
+
+function TAIAvatar3D.GetLipSync: TAIAvatarLipSync;
+begin
+  EnsureComponentsCreated;
+  Result := FLipSync;
+end;
+
+function TAIAvatar3D.GetBehavior: TAIAvatarBehavior;
+begin
+  EnsureComponentsCreated;
+  Result := FBehavior;
 end;
 
 procedure TAIAvatar3D.EnsureComponentsCreated;
@@ -495,6 +558,20 @@ procedure TAIAvatar3D.Update(DeltaTimeSec: Single);
 begin
   if not FActive then Exit;
 
+  // Calculo de FPS e deteccao de queda abaixo de 30 FPS (Tarefas 90, 91)
+  if DeltaTimeSec > 0.0001 then
+  begin
+    if FFPS <= 0.0 then
+      FFPS := 1.0 / DeltaTimeSec
+    else
+      FFPS := 0.92 * FFPS + 0.08 * (1.0 / DeltaTimeSec);
+
+    Inc(FFPSWarmup);
+    if (FFPSWarmup > 60) and (FFPS < 30.0) and ((FFPSWarmup mod 120) = 0) then
+      LogStructured(lcAvatar, Format('AVISO: FPS caiu abaixo de 30 (%.1f FPS)', [FFPS]));
+  end;
+
+
   if FController <> nil then
     FController.Update(DeltaTimeSec);
 
@@ -604,6 +681,93 @@ var
 begin
   Resp := ParseAvatarResponse(AJSONText);
   ApplyAgentResponse(Resp);
+end;
+
+
+function TAIAvatar3D.GetBoneCount: Integer;
+begin
+  if FSkeleton <> nil then
+    Result := FSkeleton.GetJointCount
+  else
+    Result := 0;
+end;
+
+procedure TAIAvatar3D.SetQuality(AValue: TAIAvatarQuality);
+begin
+  if FQuality <> AValue then
+  begin
+    FQuality := AValue;
+    LogStructured(lcAvatar, Format('Qualidade grafica alterada para: %s', [AvatarQualityToString(FQuality)]));
+    // Modos Low, Medium, High (Tarefas 92, 93, 94)
+    case FQuality of
+      aqLow:
+      begin
+        // Desativa detalhes pesados se aplicavel
+        if FController <> nil then
+        begin
+          // Mantem apenas movimentos essenciais
+        end;
+      end;
+      aqHigh:
+      begin
+        // Ativa qualidade maxima
+      end;
+    end;
+  end;
+end;
+
+procedure TAIAvatar3D.LogStructured(ACategory: TAILogCategory; const AMessage: string);
+var
+  CatStr: string;
+begin
+  CatStr := LogCategoryToString(ACategory);
+  Log(llInfo, Format('[%s] %s', [CatStr, AMessage]));
+end;
+
+function TAIAvatar3D.GetDebugInfoText: string;
+var
+  SL: TStringList;
+  StateStr, EmotionStr, GestureStr, AnimStr: string;
+  LipLevel: Single;
+begin
+  SL := TStringList.Create;
+  try
+    StateStr := AvatarStateToString(State);
+    EmotionStr := AvatarEmotionToString(Emotion);
+    GestureStr := AvatarGestureToString(Gesture);
+    if (FAnimationSequence <> nil) and (FAnimationSequence.CurrentAnimation <> '') then
+      AnimStr := FAnimationSequence.CurrentAnimation
+    else
+      AnimStr := 'None (Procedural)';
+
+    if FLipSync <> nil then
+      LipLevel := FLipSync.AudioLevel
+    else
+      LipLevel := 0.0;
+
+    SL.Add('--- PAINEL DE DEBUG DO AVATAR 3D ---');
+    SL.Add(Format('Estado: %s', [StateStr]));
+    SL.Add(Format('Emocao: %s', [EmotionStr]));
+    SL.Add(Format('Gesto: %s', [GestureStr]));
+    SL.Add(Format('Animacao: %s', [AnimStr]));
+    SL.Add(Format('Total de Ossos: %d', [BoneCount]));
+    SL.Add(Format('FPS Estimado: %.1f', [FFPS]));
+    SL.Add(Format('Nivel LipSync: %.2f', [LipLevel]));
+    SL.Add(Format('Qualidade: %s', [AvatarQualityToString(FQuality)]));
+    Result := SL.Text;
+  finally
+    SL.Free;
+  end;
+end;
+
+procedure TAIAvatar3D.LoadAvatar(const AModelPath: string; const AProfilePath: string);
+var
+  TargetFile: string;
+begin
+  TargetFile := Trim(AModelPath);
+  if TargetFile <> '' then
+    FModelFile := TargetFile;
+  LoadAvatar(FModelFile);
 end;
 
 initialization

@@ -12,7 +12,7 @@ uses
   airewardfunction, aimodel3d, ai3dmodelviewer, aiskeletonrig, 
   aiavatarcontroller, aiposelibrary, aianimationsequence, aitripo3dclient, 
   aiavatartypes, aigltfloader, aiavatar3d, aiavatar_lipsync, aiavatarbehavior, 
-  LazarusPackageIntf;
+  aiavatarprofile, LazarusPackageIntf;
 
 implementation
 
@@ -33,6 +33,7 @@ begin
   RegisterUnit('aiavatar3d', @aiavatar3d.Register);
   RegisterUnit('aiavatar_lipsync', @aiavatar_lipsync.Register);
   RegisterUnit('aiavatarbehavior', @aiavatarbehavior.Register);
+  RegisterUnit('aiavatarprofile', @aiavatarprofile.Register);
 end;
 
 initialization

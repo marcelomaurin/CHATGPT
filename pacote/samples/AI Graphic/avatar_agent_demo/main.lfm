@@ -1,0 +1,54 @@
+object FormMain: TFormMain
+  Left = 320
+  Height = 500
+  Top = 180
+  Width = 700
+  Caption = 'Demo Avatar + IA Agente Estruturado (Tarefa 88)'
+  ClientHeight = 500
+  ClientWidth = 700
+  OnCreate = FormCreate
+  Position = poScreenCenter
+  LCLVersion = '2.2.6.0'
+  object pnlBottom: TPanel
+    Left = 0
+    Height = 80
+    Top = 420
+    Width = 700
+    Align = alBottom
+    ClientHeight = 80
+    ClientWidth = 700
+    TabOrder = 0
+    object edtPrompt: TEdit
+      Left = 16
+      Height = 28
+      Top = 24
+      Width = 530
+      TabOrder = 0
+      Text = 'Como voce esta hoje?'
+    end
+    object btnAsk: TButton
+      Left = 560
+      Height = 28
+      Top = 24
+      Width = 120
+      Caption = 'Perguntar'
+      OnClick = btnAskClick
+      TabOrder = 1
+    end
+  end
+  object memoLog: TMemo
+    Left = 0
+    Height = 420
+    Top = 0
+    Width = 700
+    Align = alClient
+    Color = clBlack
+    Font.Color = clLime
+    Font.Name = 'Consolas'
+    ParentColor = False
+    ParentFont = False
+    ReadOnly = True
+    ScrollBars = ssVertical
+    TabOrder = 1
+  end
+end

@@ -1,0 +1,53 @@
+object FormMain: TFormMain
+  Left = 320
+  Height = 480
+  Top = 180
+  Width = 640
+  Caption = 'Demo de Voz e Lip-Sync do Avatar (Tarefa 87)'
+  ClientHeight = 480
+  ClientWidth = 640
+  OnCreate = FormCreate
+  Position = poScreenCenter
+  LCLVersion = '2.2.6.0'
+  object pnlBottom: TPanel
+    Left = 0
+    Height = 70
+    Top = 410
+    Width = 640
+    Align = alBottom
+    ClientHeight = 70
+    ClientWidth = 640
+    TabOrder = 0
+    object edtText: TEdit
+      Left = 16
+      Height = 28
+      Top = 20
+      Width = 480
+      TabOrder = 0
+      Text = 'Ola! Eu sou o assistente virtual inteligente com sincronizacao labial.'
+    end
+    object btnSpeak: TButton
+      Left = 510
+      Height = 28
+      Top = 20
+      Width = 110
+      Caption = 'Falar'
+      OnClick = btnSpeakClick
+      TabOrder = 1
+    end
+  end
+  object pnlDisplay: TPanel
+    Left = 0
+    Height = 410
+    Top = 0
+    Width = 640
+    Align = alClient
+    Caption = 'Area do Avatar com Lip-Sync'
+    Color = clBlack
+    Font.Color = clWhite
+    Font.Height = 16
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 1
+  end
+end

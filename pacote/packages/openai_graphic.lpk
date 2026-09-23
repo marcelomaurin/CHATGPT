@@ -99,7 +99,12 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiavatarbehavior"/>
       </Item>
-    </Files>
+          <Item>
+        <Filename Value="..\AI Graphic\aiavatarprofile.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiavatarprofile"/>
+      </Item>
+</Files>
     <RequiredPkgs>
       <Item>
         <PackageName Value="openai_core"/>

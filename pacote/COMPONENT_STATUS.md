@@ -213,6 +213,20 @@ Use esta classificação para documentação, README de abas, samples e planejam
 
 | Componente | Unit | Pacote | Status | Observação |
 |---|---|---|---|---|
+| TAIAvatar3D | iavatar3d.pas | openai_graphic | Em Validação nos Samples | Orquestrador de alto nível para modelos 3D, esqueleto, poses, animações, lip-sync, voz e resposta de IA |
+| TAIModel3D | imodel3d.pas | openai_graphic | Em Validação nos Samples | Suporte completo a STL, glTF 2.0 e GLB com buffers binários, materiais PBR e skinning de vértices |
+| TAISkeletonRig | iskeletonrig.pas | openai_graphic | Em Validação nos Samples | Hierarquia de juntas, cinemática direta (FK), BVH/GLTF/GLB e mapeamento/validação humanoide padronizado |
+| TAIPoseLibrary | iposelibrary.pas | openai_graphic | Em Validação nos Samples | Biblioteca de poses corporais/faciais, presets padrão, blending com intensidade e persistência JSON |
+| TAIAnimationSequence | ianimationsequence.pas | openai_graphic | Em Validação nos Samples | Player e fila de animações glTF, blending temporal, loop, controle de velocidade e fallback procedural |
+| TAIAvatarController | iavatarcontroller.pas | openai_graphic | Em Validação nos Samples | Máquina de estados do avatar, emoções, gestos procedurais (aceno, concordar, pensar), auto-idle e LookAt |
+| TAIAvatarLipSync | iavatar_lipsync.pas | openai_graphic | Em Validação nos Samples | Sincronização labial por amplitude de áudio, rotação de mandíbula, filtro exponencial e detector de silêncio |
+| TAIAvatarBehavior | iavatarbehavior.pas | openai_graphic | Em Validação nos Samples | Regras de expressividade, cooldown contra repetição de gestos e arbitragem de prioridades comportamentais |
+| TAIAvatarProfileManager | iavatarprofile.pas | openai_graphic | Em Validação nos Samples | Carregador e gerenciador de perfis JSON por modelo (mapeamento desacoplado de ossos e nomes de animação) |
+| TAI3DModelViewer | i3dmodelviewer.pas | openai_graphic | Em Validação nos Samples | Viewer e canvas de renderização 3D com câmera orbital e projeção |
+| TAITripo3DClient | itripo3dclient.pas | openai_graphic | Experimental | Integração com serviço externo Tripo3D |
+| TAIScene3D | iscene3d.pas | openai_graphic | Experimental | Cena 3D e manipulação de entidades |
+
+---|---|---|---|---|
 | `TAI3DModelViewer` | `ai3dmodelviewer.pas` | `openai_graphic` | Beta/Experimental | Viewer 3D básico |
 | `TAIModel3D` | `aimodel3d.pas` | `openai_graphic` | Beta/Experimental | Estrutura de modelo 3D |
 | `TAITripo3DClient` | `aitripo3dclient.pas` | `openai_graphic` | Experimental | Depende de serviço externo/API |
