@@ -33,6 +33,7 @@ type
     FOnProjectChanged: TOnProjectChangedEvent;
     FOnInterruption: TOnInterruptionEvent;
     FOnDynamicRAG: TOnDynamicRAGEvent;
+    FOnActivePersonChanged: TOnActivePersonChangedEvent;
 
     procedure HandlePersonChanged(Sender: TObject; const AOldPersonID, ANewPersonID: string);
   public
@@ -64,6 +65,7 @@ type
     property OnProjectChanged: TOnProjectChangedEvent read FOnProjectChanged write FOnProjectChanged;
     property OnInterruption: TOnInterruptionEvent read FOnInterruption write FOnInterruption;
     property OnDynamicRAG: TOnDynamicRAGEvent read FOnDynamicRAG write FOnDynamicRAG;
+    property OnActivePersonChanged: TOnActivePersonChangedEvent read FOnActivePersonChanged write FOnActivePersonChanged;
   end;
 
 procedure Register;
@@ -115,6 +117,8 @@ begin
 
   if Assigned(FOnPersonDetected) then
     FOnPersonDetected(Self, FContext.CurrentPerson);
+  if Assigned(FOnActivePersonChanged) then
+    FOnActivePersonChanged(Self, AOldPersonID, ANewPersonID);
 end;
 
 procedure TAIConversationOrchestrator.NotifyPersonDetected(const APersonName: string);
