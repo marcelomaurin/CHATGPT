@@ -9,7 +9,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\AI Agent"/>
+        <OtherUnitFiles Value="..\AI Agent;..\AI Project"/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
@@ -25,6 +25,15 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="aipipeline"/>
       </Item>
+      <Item>
+        <Filename Value="..\AI Agent\aiwizardconfig.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiwizardconfig"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Agent\frm_aiwizardconfig.pas"/>
+        <UnitName Value="frm_aiwizardconfig"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>
@@ -32,6 +41,9 @@
       </Item>
       <Item>
         <PackageName Value="openai_agent"/>
+      </Item>
+      <Item>
+        <PackageName Value="openai_project"/>
       </Item>
       <Item>
         <PackageName Value="openai_graph"/>

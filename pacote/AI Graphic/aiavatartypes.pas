@@ -11,7 +11,7 @@ unit aiavatartypes;
 interface
 
 uses
-  Classes, SysUtils, Math;
+  Classes, SysUtils, Math, fpjson, jsonparser;
 
 type
   { Estados Cognitivos / Motores do Avatar (Tarefa 4) }
@@ -206,6 +206,16 @@ type
   end;
   TAIAvatarPoseArray = array of TAIAvatarPose;
 
+  { Resposta Estruturada da IA para o Avatar (Tarefas 78 a 80) }
+  TAIAvatarResponse = record
+    Text: string;
+    Emotion: TAIAvatarEmotion;
+    Gesture: TAIAvatarGesture;
+    State: TAIAvatarState;
+    Intensity: Single;
+    LookTarget: TAIAvatarLookTarget;
+  end;
+
 // Conversoes Enum <-> String
 function AvatarStateToString(AState: TAIAvatarState): string;
 function StringToAvatarState(const S: string): TAIAvatarState;
@@ -237,6 +247,9 @@ function QuaternionToMatrix(const Q: TQuaternion): TMatrix4x4;
 function MatrixFromTRS(const T: TVector3D; const R: TQuaternion; const S: TVector3D): TMatrix4x4;
 function QuaternionSlerp(const Q1, Q2: TQuaternion; T: Single): TQuaternion;
 function VectorLerp(const V1, V2: TVector3D; T: Single): TVector3D;
+function ParseAvatarResponse(const AJSONOrText: string): TAIAvatarResponse;
+function AvatarResponseToJSON(const AResp: TAIAvatarResponse): string;
+
 
 implementation
 
@@ -644,6 +657,76 @@ begin
   Result.X := V1.X + T * (V2.X - V1.X);
   Result.Y := V1.Y + T * (V2.Y - V1.Y);
   Result.Z := V1.Z + T * (V2.Z - V1.Z);
+end;
+
+
+function ParseAvatarResponse(const AJSONOrText: string): TAIAvatarResponse;
+var
+  Parser: TJSONParser;
+  Data: TJSONData;
+  Obj: TJSONObject;
+  Trimmed: string;
+begin
+  // Valores padrao seguros (Tarefas 79 e 80)
+  Result.Text := '';
+  Result.Emotion := aeNeutral;
+  Result.Gesture := agNone;
+  Result.State := avSpeaking;
+  Result.Intensity := 1.0;
+  Result.LookTarget := ltUser;
+
+  Trimmed := Trim(AJSONOrText);
+  if Trimmed = '' then Exit;
+
+  // Se nao comecar com '{', trata diretamente como texto puro de fala
+  if Trimmed[1] <> '{' then
+  begin
+    Result.Text := Trimmed;
+    Exit;
+  end;
+
+  try
+    Parser := TJSONParser.Create(Trimmed);
+    try
+      Data := Parser.Parse;
+      if (Data <> nil) and (Data is TJSONObject) then
+      begin
+        Obj := TJSONObject(Data);
+        Result.Text := Obj.Get('text', '');
+        Result.Emotion := StringToAvatarEmotion(Obj.Get('emotion', 'neutral'));
+        Result.Gesture := StringToAvatarGesture(Obj.Get('gesture', 'none'));
+        Result.State := StringToAvatarState(Obj.Get('state', 'speaking'));
+        Result.Intensity := Max(0.0, Min(1.0, Obj.Get('intensity', 1.0)));
+        Result.LookTarget := StringToLookTarget(Obj.Get('look_target', 'user'));
+      end
+      else
+        Result.Text := Trimmed;
+    finally
+      if Assigned(Data) then Data.Free;
+      Parser.Free;
+    end;
+  except
+    // Fallback gracioso para texto plano (Tarefa 80)
+    Result.Text := Trimmed;
+  end;
+end;
+
+function AvatarResponseToJSON(const AResp: TAIAvatarResponse): string;
+var
+  Obj: TJSONObject;
+begin
+  Obj := TJSONObject.Create;
+  try
+    Obj.Add('text', AResp.Text);
+    Obj.Add('emotion', AvatarEmotionToString(AResp.Emotion));
+    Obj.Add('gesture', AvatarGestureToString(AResp.Gesture));
+    Obj.Add('state', AvatarStateToString(AResp.State));
+    Obj.Add('intensity', AResp.Intensity);
+    Obj.Add('look_target', LookTargetToString(AResp.LookTarget));
+    Result := Obj.AsJSON;
+  finally
+    Obj.Free;
+  end;
 end;
 
 end.

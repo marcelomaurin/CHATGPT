@@ -59,6 +59,10 @@ type
     FLanguage          : string;
     FOpenAIEndpoint    : string;
     FSpeed             : Double;
+    FAudioLevel        : Single;
+    FOnSpeechStart     : TNotifyEvent;
+    FOnSpeechProgress  : TNotifyEvent;
+    FOnSpeechEnd       : TNotifyEvent;
 
     {$IFDEF MSWINDOWS}
     FSpVoice      : OleVariant;
@@ -109,6 +113,10 @@ type
     property Language: string read FLanguage write FLanguage;
     property OpenAIEndpoint: string read FOpenAIEndpoint write FOpenAIEndpoint;
     property Speed: Double read FSpeed write FSpeed;
+    property AudioLevel: Single read FAudioLevel write FAudioLevel;
+    property OnSpeechStart: TNotifyEvent read FOnSpeechStart write FOnSpeechStart;
+    property OnSpeechProgress: TNotifyEvent read FOnSpeechProgress write FOnSpeechProgress;
+    property OnSpeechEnd: TNotifyEvent read FOnSpeechEnd write FOnSpeechEnd;
   end;
 
 procedure Register;
@@ -141,6 +149,7 @@ begin
   FOpenAIInstructions := '';
   FLanguage := 'en-US';
   FSpeed := 1.0;
+  FAudioLevel := 0.0;
 
   {$IFDEF MSWINDOWS}
   FSpVoiceCreated := False;
@@ -455,6 +464,10 @@ begin
   SpeakText := FText;
   if SpeakText = '' then Exit;
 
+  FAudioLevel := 0.75;
+  if Assigned(FOnSpeechStart) then
+    FOnSpeechStart(Self);
+
   if FEngine = seOpenAI then
   begin
     SayOpenAI(SpeakText);
@@ -549,6 +562,10 @@ begin
       end;
     end;
   end;
+
+  FAudioLevel := 0.0;
+  if Assigned(FOnSpeechEnd) then
+    FOnSpeechEnd(Self);
 end;
 
 procedure TAIVoiceSynthesizer.GetAvailableVoices(AList: TStrings);

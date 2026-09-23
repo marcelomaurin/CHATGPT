@@ -11,7 +11,8 @@ uses
   aiscene2d3d, aitrainingenvironment, aiphysicssimulator, aisensorvirtual, 
   airewardfunction, aimodel3d, ai3dmodelviewer, aiskeletonrig, 
   aiavatarcontroller, aiposelibrary, aianimationsequence, aitripo3dclient, 
-  aiavatartypes, aigltfloader, aiavatar3d, LazarusPackageIntf;
+  aiavatartypes, aigltfloader, aiavatar3d, aiavatar_lipsync, aiavatarbehavior, 
+  LazarusPackageIntf;
 
 implementation
 
@@ -30,6 +31,8 @@ begin
   RegisterUnit('aianimationsequence', @aianimationsequence.Register);
   RegisterUnit('aitripo3dclient', @aitripo3dclient.Register);
   RegisterUnit('aiavatar3d', @aiavatar3d.Register);
+  RegisterUnit('aiavatar_lipsync', @aiavatar_lipsync.Register);
+  RegisterUnit('aiavatarbehavior', @aiavatarbehavior.Register);
 end;
 
 initialization

@@ -12,7 +12,8 @@ interface
 
 uses
   Classes, SysUtils, aibase, aiavatartypes, aimodel3d, aiskeletonrig, 
-  aiavatarcontroller, aiposelibrary, aianimationsequence, LResources;
+  aiavatarcontroller, aiposelibrary, aianimationsequence, aiavatar_lipsync, 
+  aiavatarbehavior, aivoicesynthesizer, LResources;
 
 type
   { TAIAvatar3D }
@@ -27,6 +28,12 @@ type
     FController: TAIAvatarController;
     FPoseLibrary: TAIPoseLibrary;
     FAnimationSequence: TAIAnimationSequence;
+    FLipSync: TAIAvatarLipSync;
+    FBehavior: TAIAvatarBehavior;
+    FVoiceSynthesizer: TAIVoiceSynthesizer;
+
+    FInternalLipSync: Boolean;
+    FInternalBehavior: Boolean;
 
     FInternalModel: Boolean;
     FInternalSkeleton: Boolean;
@@ -45,6 +52,11 @@ type
     procedure SetController(AValue: TAIAvatarController);
     procedure SetPoseLibrary(AValue: TAIPoseLibrary);
     procedure SetAnimationSequence(AValue: TAIAnimationSequence);
+    procedure SetLipSync(AValue: TAIAvatarLipSync);
+    procedure SetBehavior(AValue: TAIAvatarBehavior);
+    procedure SetVoiceSynthesizer(AValue: TAIVoiceSynthesizer);
+    procedure HandleSpeechStart(Sender: TObject);
+    procedure HandleSpeechEnd(Sender: TObject);
 
     procedure SetStateProp(AValue: TAIAvatarState);
     function GetStateProp: TAIAvatarState;
@@ -78,6 +90,8 @@ type
     procedure PlayGesture(AGesture: TAIAvatarGesture; ADuration: Single = 1.8);
     procedure CancelGesture;
     procedure LookAt(ATarget: TAIAvatarLookTarget);
+    procedure ApplyAgentResponse(const AResponse: TAIAvatarResponse); overload;
+    procedure ApplyAgentResponse(const AJSONText: string); overload;
 
     // Frame Update
     procedure Update(DeltaTimeSec: Single);
@@ -90,6 +104,9 @@ type
     property Controller: TAIAvatarController read FController write SetController;
     property PoseLibrary: TAIPoseLibrary read FPoseLibrary write SetPoseLibrary;
     property AnimationSequence: TAIAnimationSequence read FAnimationSequence write SetAnimationSequence;
+    property LipSync: TAIAvatarLipSync read FLipSync write SetLipSync;
+    property Behavior: TAIAvatarBehavior read FBehavior write SetBehavior;
+    property VoiceSynthesizer: TAIVoiceSynthesizer read FVoiceSynthesizer write SetVoiceSynthesizer;
 
     property State: TAIAvatarState read GetStateProp write SetStateProp default avIdle;
     property Emotion: TAIAvatarEmotion read GetEmotionProp write SetEmotionProp default aeNeutral;
@@ -147,6 +164,8 @@ begin
   if FInternalController and Assigned(FController) then FreeAndNil(FController);
   if FInternalPoseLibrary and Assigned(FPoseLibrary) then FreeAndNil(FPoseLibrary);
   if FInternalAnimationSequence and Assigned(FAnimationSequence) then FreeAndNil(FAnimationSequence);
+  if FInternalLipSync and Assigned(FLipSync) then FreeAndNil(FLipSync);
+  if FInternalBehavior and Assigned(FBehavior) then FreeAndNil(FBehavior);
   inherited Destroy;
 end;
 
@@ -187,6 +206,20 @@ begin
     FController.OnStateChanged := @ForwardStateChanged;
     FController.OnGestureStart := @ForwardGestureStart;
     FController.OnGestureFinish := @ForwardGestureFinish;
+  end;
+
+  if FLipSync = nil then
+  begin
+    FLipSync := TAIAvatarLipSync.Create(Self);
+    FInternalLipSync := True;
+    FLipSync.Skeleton := FSkeleton;
+  end;
+
+  if FBehavior = nil then
+  begin
+    FBehavior := TAIAvatarBehavior.Create(Self);
+    FInternalBehavior := True;
+    FBehavior.Controller := FController;
   end;
 end;
 
@@ -260,6 +293,8 @@ begin
   if FAnimationSequence <> AValue then
   begin
     if FInternalAnimationSequence and Assigned(FAnimationSequence) then FreeAndNil(FAnimationSequence);
+  if FInternalLipSync and Assigned(FLipSync) then FreeAndNil(FLipSync);
+  if FInternalBehavior and Assigned(FBehavior) then FreeAndNil(FBehavior);
     FInternalAnimationSequence := False;
     FAnimationSequence := AValue;
     if FAnimationSequence <> nil then
@@ -366,6 +401,9 @@ begin
     if AComponent = FController then FController := nil;
     if AComponent = FPoseLibrary then FPoseLibrary := nil;
     if AComponent = FAnimationSequence then FAnimationSequence := nil;
+    if AComponent = FLipSync then FLipSync := nil;
+    if AComponent = FBehavior then FBehavior := nil;
+    if AComponent = FVoiceSynthesizer then FVoiceSynthesizer := nil;
   end;
 end;
 
@@ -460,9 +498,112 @@ begin
   if FController <> nil then
     FController.Update(DeltaTimeSec);
 
+  if FBehavior <> nil then
+    FBehavior.Update(DeltaTimeSec);
+
+  // Sincroniza nivel de audio da voz no Lip-Sync (Tarefas 62 a 66)
+  if (FLipSync <> nil) then
+  begin
+    if (FVoiceSynthesizer <> nil) and (FVoiceSynthesizer.AudioLevel > 0.0) then
+      FLipSync.ProcessAudioLevel(FVoiceSynthesizer.AudioLevel);
+    FLipSync.Update(DeltaTimeSec);
+  end;
+
   // Aplica deformacao de skinning se o modelo for baseado em ossos
   if (FModel <> nil) and FModel.HasSkinning and (FSkeleton <> nil) then
     FModel.ApplySkinning(FSkeleton);
+end;
+
+
+procedure TAIAvatar3D.SetLipSync(AValue: TAIAvatarLipSync);
+begin
+  if FLipSync <> AValue then
+  begin
+    if FInternalLipSync and Assigned(FLipSync) then FreeAndNil(FLipSync);
+    FInternalLipSync := False;
+    FLipSync := AValue;
+    if FLipSync <> nil then
+    begin
+      FLipSync.FreeNotification(Self);
+      if FSkeleton <> nil then
+        FLipSync.Skeleton := FSkeleton;
+    end;
+  end;
+end;
+
+procedure TAIAvatar3D.SetBehavior(AValue: TAIAvatarBehavior);
+begin
+  if FBehavior <> AValue then
+  begin
+    if FInternalBehavior and Assigned(FBehavior) then FreeAndNil(FBehavior);
+    FInternalBehavior := False;
+    FBehavior := AValue;
+    if FBehavior <> nil then
+    begin
+      FBehavior.FreeNotification(Self);
+      if FController <> nil then
+        FBehavior.Controller := FController;
+    end;
+  end;
+end;
+
+procedure TAIAvatar3D.SetVoiceSynthesizer(AValue: TAIVoiceSynthesizer);
+begin
+  if FVoiceSynthesizer <> AValue then
+  begin
+    FVoiceSynthesizer := AValue;
+    if FVoiceSynthesizer <> nil then
+    begin
+      FVoiceSynthesizer.FreeNotification(Self);
+      FVoiceSynthesizer.OnSpeechStart := @HandleSpeechStart;
+      FVoiceSynthesizer.OnSpeechEnd := @HandleSpeechEnd;
+    end;
+  end;
+end;
+
+procedure TAIAvatar3D.HandleSpeechStart(Sender: TObject);
+begin
+  SetState(avSpeaking);
+  if FLipSync <> nil then
+    FLipSync.Active := True;
+end;
+
+procedure TAIAvatar3D.HandleSpeechEnd(Sender: TObject);
+begin
+  if FLipSync <> nil then
+    FLipSync.ResetJaw;
+  SetState(avIdle);
+end;
+
+procedure TAIAvatar3D.ApplyAgentResponse(const AResponse: TAIAvatarResponse);
+begin
+  EnsureComponentsCreated;
+
+  // Processa intencao atraves das regras de comportamento (Tarefas 71 a 77)
+  if FBehavior <> nil then
+    FBehavior.ApplyIntent(AResponse)
+  else
+  begin
+    SetEmotion(AResponse.Emotion, AResponse.Intensity);
+    if AResponse.Gesture <> agNone then
+      PlayGesture(AResponse.Gesture);
+    LookAt(AResponse.LookTarget);
+    SetState(AResponse.State);
+  end;
+
+  // Se houver sintetizador de voz conectado e texto na resposta, inicia a fala (Tarefas 83 e 85)
+  if (FVoiceSynthesizer <> nil) and (Trim(AResponse.Text) <> '') then
+  begin
+    FVoiceSynthesizer.Say(AResponse.Text);
+  end;
+end;
+
+procedure TAIAvatar3D.ApplyAgentResponse(const AJSONText: string);
+var
+  Resp: TAIAvatarResponse;
+begin
+  Resp := ParseAvatarResponse(AJSONText);
+  ApplyAgentResponse(Resp);
 end;
 
 initialization

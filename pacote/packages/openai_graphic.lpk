@@ -89,6 +89,16 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiavatar3d"/>
       </Item>
+      <Item>
+        <Filename Value="..\AI Graphic\aiavatar_lipsync.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiavatar_lipsync"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Graphic\aiavatarbehavior.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiavatarbehavior"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>

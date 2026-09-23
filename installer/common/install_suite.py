@@ -111,6 +111,15 @@ def find_fpc(lazbuild: Path) -> Optional[Path]:
             Path("/usr/local/bin/fpc"),
         ]
     )
+    fpc_dir = lazbuild.parent / "fpc"
+    if fpc_dir.is_dir():
+        for ver_dir in fpc_dir.iterdir():
+            if ver_dir.is_dir():
+                candidates.extend([
+                    ver_dir / "bin" / "i386-win32" / "fpc.exe",
+                    ver_dir / "bin" / "x86_64-win64" / "fpc.exe",
+                    ver_dir / "bin" / "fpc.exe",
+                ])
     for item in candidates:
         try:
             if item.is_file():

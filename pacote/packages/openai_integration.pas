@@ -8,13 +8,14 @@ unit openai_integration;
 interface
 
 uses
-  aiagent_executors, aipipeline, LazarusPackageIntf;
+  aiagent_executors, aipipeline, aiwizardconfig, frm_aiwizardconfig, LazarusPackageIntf;
 
 implementation
 
 procedure Register;
 begin
   RegisterUnit('aipipeline', @aipipeline.Register);
+  RegisterUnit('aiwizardconfig', @aiwizardconfig.Register);
 end;
 
 initialization
