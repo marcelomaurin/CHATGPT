@@ -15,7 +15,7 @@ uses
   aiagent_actions, aiagent_sourceactions, aiagent_sourceactions_register, 
   aiagent_testaction, aitools, aiagentgraph, aiguardrails, aiagent_executor, 
   aiagent_orchestrator, aiagentsafety, aidevagents, aiserviceagents, 
-  aicommonserviceagents, airosagent, aiinteractioncontext, aiconversationorchestrator, LazarusPackageIntf;
+  aicommonserviceagents, airosagent, aiinteractioncontext, aiconversationorchestrator, aipersonsession, LazarusPackageIntf;
 
 implementation
 
@@ -37,6 +37,7 @@ begin
   RegisterUnit('aicommonserviceagents', @aicommonserviceagents.Register);
   RegisterUnit('airosagent', @airosagent.Register);
   RegisterUnit('aiconversationorchestrator', @aiconversationorchestrator.Register);
+  RegisterUnit('aipersonsession', @aipersonsession.Register);
 end;
 
 initialization

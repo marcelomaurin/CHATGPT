@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils,
-  aiinteractioncontext, aiagent;
+  aiinteractioncontext, aipersonsession, aiagent;
 
 type
   TOnPersonDetectedEvent = procedure(Sender: TObject; const APersonName: string) of object;
@@ -16,10 +16,14 @@ type
   TOnInterruptionEvent = procedure(Sender: TObject) of object;
   TOnDynamicRAGEvent = procedure(Sender: TObject; const AProjects: string; const AQuery: string; out RAGResult: string) of object;
 
-  { Orquestrador de Conversacao Multi-Modal Continua (Contexto + RAG Dinamico + Visao + Barge-in) }
+  { Orquestrador de Conversacao Multi-Modal Continua (Contexto + RAG Dinamico + Visao + Sessoes por Pessoa + Barge-in) }
   TAIConversationOrchestrator = class(TComponent)
   private
     FContext: TAIInteractionContext;
+    FSessionManager: TAIPersonSessionManager;
+    FSpeakerManager: TAIActiveSpeakerManager;
+    FInternalSessionManager: Boolean;
+    FInternalSpeakerManager: Boolean;
     FAgent: TAIAgent;
     FIsSpeaking: Boolean;
     FAutoRAG: Boolean;
@@ -29,12 +33,15 @@ type
     FOnProjectChanged: TOnProjectChangedEvent;
     FOnInterruption: TOnInterruptionEvent;
     FOnDynamicRAG: TOnDynamicRAGEvent;
+
+    procedure HandlePersonChanged(Sender: TObject; const AOldPersonID, ANewPersonID: string);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
-    // Percepcao Continua
+    // Percepcao Continua e Identificacao por Pessoa
     procedure NotifyPersonDetected(const APersonName: string);
+    procedure NotifyVisualRecognition(const APersonID, AName: string; AConfidence: Single);
     procedure NotifyGestureDetected(const AGestureName, ATargetObject: string);
     procedure NotifySpeechStart; // Dispara interrupcao (Barge-In) imediata se estiver falando
     procedure ProcessSpeechUtterance(const AText: string; out AResponse: string);
@@ -45,6 +52,8 @@ type
     procedure RequestInterruption;
 
     property Context: TAIInteractionContext read FContext;
+    property SessionManager: TAIPersonSessionManager read FSessionManager write FSessionManager;
+    property SpeakerManager: TAIActiveSpeakerManager read FSpeakerManager write FSpeakerManager;
     property Agent: TAIAgent read FAgent write FAgent;
     property IsSpeaking: Boolean read FIsSpeaking write FIsSpeaking;
     property AutoRAG: Boolean read FAutoRAG write FAutoRAG default True;
@@ -72,6 +81,14 @@ constructor TAIConversationOrchestrator.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FContext := TAIInteractionContext.Create;
+  FSessionManager := TAIPersonSessionManager.Create(Self);
+  FInternalSessionManager := True;
+  FSessionManager.OnActivePersonChanged := @HandlePersonChanged;
+
+  FSpeakerManager := TAIActiveSpeakerManager.Create(Self);
+  FInternalSpeakerManager := True;
+  FSpeakerManager.SessionManager := FSessionManager;
+
   FIsSpeaking := False;
   FAutoRAG := True;
 end;
@@ -82,24 +99,58 @@ begin
   inherited Destroy;
 end;
 
-procedure TAIConversationOrchestrator.NotifyPersonDetected(const APersonName: string);
+procedure TAIConversationOrchestrator.HandlePersonChanged(Sender: TObject; const AOldPersonID, ANewPersonID: string);
+var
+  S: TAIPersonSession;
 begin
-  FContext.CurrentPerson := Trim(APersonName);
+  S := FSessionManager.ActiveSession;
+  if S <> nil then
+  begin
+    FContext.CurrentPerson := S.Name;
+    if S.CurrentProject <> '' then
+      FContext.CurrentProject := S.CurrentProject;
+  end
+  else
+    FContext.CurrentPerson := '';
+
   if Assigned(FOnPersonDetected) then
     FOnPersonDetected(Self, FContext.CurrentPerson);
+end;
+
+procedure TAIConversationOrchestrator.NotifyPersonDetected(const APersonName: string);
+begin
+  NotifyVisualRecognition(APersonName, APersonName, 1.0);
+end;
+
+procedure TAIConversationOrchestrator.NotifyVisualRecognition(const APersonID, AName: string; AConfidence: Single);
+begin
+  if FSessionManager <> nil then
+  begin
+    FSessionManager.FeedVisualRecognition(APersonID, AName, AConfidence);
+    if FSpeakerManager <> nil then
+      FSpeakerManager.AddPersonPresent(APersonID, AName);
+  end;
 end;
 
 procedure TAIConversationOrchestrator.NotifyGestureDetected(const AGestureName, ATargetObject: string);
 var
   OldProject: string;
+  S: TAIPersonSession;
 begin
   OldProject := FContext.CurrentProject;
 
   if Trim(ATargetObject) <> '' then
   begin
     FContext.ObjectPointed := Trim(ATargetObject);
-    // Se apontou para um objeto/projeto conhecido, atualiza foco
     FContext.CurrentProject := Trim(ATargetObject);
+
+    // Salva projeto na sessao da pessoa atual
+    if FSessionManager <> nil then
+    begin
+      S := FSessionManager.ActiveSession;
+      if S <> nil then
+        S.CurrentProject := FContext.CurrentProject;
+    end;
 
     if (OldProject <> FContext.CurrentProject) and Assigned(FOnProjectChanged) then
       FOnProjectChanged(Self, OldProject, FContext.CurrentProject);
@@ -140,12 +191,18 @@ var
   CleanText: string;
   Clarification: string;
   EnrichedPrompt: string;
+  PersonContextPrompt: string;
   RAGInfo: string;
   TargetProjects: string;
+  S: TAIPersonSession;
 begin
   CleanText := Trim(AText);
   AResponse := '';
   if CleanText = '' then Exit;
+
+  // Se nao houver pessoa ativa definida, cria sessao de convidado
+  if (FSessionManager <> nil) and (FSessionManager.ActiveSession = nil) then
+    FSessionManager.CreateGuestSession;
 
   // Notifica deteccao de fala
   if Assigned(FOnSpeechDetected) then
@@ -156,11 +213,18 @@ begin
   begin
     AResponse := Clarification;
     FContext.RecordInteraction(CleanText, AResponse);
+    if (FSessionManager <> nil) and (FSessionManager.ActiveSession <> nil) then
+    begin
+      FSessionManager.ActiveSession.AddMessage('user', CleanText);
+      FSessionManager.ActiveSession.AddMessage('assistant', AResponse);
+    end;
     Exit;
   end;
 
   // 2. Resolve projeto em foco
   TargetProjects := FContext.ResolveReference(CleanText);
+  if (FSessionManager <> nil) and (FSessionManager.ActiveSession <> nil) and (TargetProjects <> '') then
+    FSessionManager.ActiveSession.CurrentProject := TargetProjects;
 
   // 3. Consulta RAG Dinamico se solicitado
   RAGInfo := '';
@@ -169,8 +233,15 @@ begin
     FOnDynamicRAG(Self, TargetProjects, CleanText, RAGInfo);
   end;
 
-  // 4. Monta prompt enriquecido continuo
+  // 4. Monta prompt enriquecido continuo com contexto da pessoa
   EnrichedPrompt := FContext.BuildEnrichedPrompt(CleanText);
+
+  if FSessionManager <> nil then
+  begin
+    PersonContextPrompt := FSessionManager.BuildEnrichedPersonPrompt(CleanText);
+    EnrichedPrompt := PersonContextPrompt + LineEnding + EnrichedPrompt;
+  end;
+
   if Trim(RAGInfo) <> '' then
   begin
     EnrichedPrompt := EnrichedPrompt + LineEnding +
@@ -197,8 +268,15 @@ begin
       AResponse := 'Entendido. Como posso ajudar com os nossos projetos ou soluções?';
   end;
 
-  // 6. Grava no historico recente da interacao
+  // 6. Grava no historico global e na sessao individual da pessoa
   FContext.RecordInteraction(CleanText, AResponse);
+  if (FSessionManager <> nil) and (FSessionManager.ActiveSession <> nil) then
+  begin
+    S := FSessionManager.ActiveSession;
+    S.AddMessage('user', CleanText);
+    S.AddMessage('assistant', AResponse);
+    S.LastTopic := TargetProjects;
+  end;
 end;
 
 end.
