@@ -47,6 +47,7 @@ type
     FTextures: TAIAvatarTextureArray;
     FSkins: TAIAvatarSkinArray;
     FNodes: TGLTFNodeArray;
+    FAnimations: TAIAvatarAnimationArray;
     FHasSkinning: Boolean;
 
     procedure CalcBoundingBox;
@@ -71,7 +72,10 @@ type
     property Textures: TAIAvatarTextureArray read FTextures;
     property Skins: TAIAvatarSkinArray read FSkins;
     property Nodes: TGLTFNodeArray read FNodes;
+    property Animations: TAIAvatarAnimationArray read FAnimations;
     property HasSkinning: Boolean read FHasSkinning;
+    function GetAnimationCount: Integer;
+    function FindAnimation(const AName: string; out AAnim: TAIAvatarAnimation): Boolean;
 
     property MinX: Single read FMinX;
     property MaxX: Single read FMaxX;
@@ -124,6 +128,7 @@ begin
   SetLength(FTextures, 0);
   SetLength(FSkins, 0);
   SetLength(FNodes, 0);
+  SetLength(FAnimations, 0);
   FHasSkinning := False;
   FMinX := 0; FMaxX := 0; FMinY := 0; FMaxY := 0; FMinZ := 0; FMaxZ := 0;
   FMidX := 0; FMidY := 0; FMidZ := 0;
@@ -182,7 +187,7 @@ begin
   Result := False;
   Loader := TGLTFLoader.Create;
   try
-    if Loader.LoadFromFile(AFileName, FBaseVertices, FGLTFFaces, FMaterials, FTextures, FSkins, FNodes) then
+    if Loader.LoadFromFile(AFileName, FBaseVertices, FGLTFFaces, FMaterials, FTextures, FSkins, FNodes, FAnimations) then
     begin
       FSkinnedVertices := Copy(FBaseVertices);
       FHasSkinning := (Length(FSkins) > 0) and (Length(FSkins[0].Joints) > 0);
@@ -380,6 +385,7 @@ begin
   SetLength(FTextures, 0);
   SetLength(FSkins, 0);
   SetLength(FNodes, 0);
+  SetLength(FAnimations, 0);
   FHasSkinning := False;
   FMinX := 0; FMaxX := 0; FMinY := 0; FMaxY := 0; FMinZ := 0; FMaxZ := 0;
   FMidX := 0; FMidY := 0; FMidZ := 0;
@@ -525,6 +531,28 @@ begin
       FFaces[FIdx].V3.Z := FGLTFFaces[FIdx].V3.Z;
     end;
     CalcBoundingBox;
+  end;
+end;
+
+
+function TAIModel3D.GetAnimationCount: Integer;
+begin
+  Result := Length(FAnimations);
+end;
+
+function TAIModel3D.FindAnimation(const AName: string; out AAnim: TAIAvatarAnimation): Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  for I := 0 to High(FAnimations) do
+  begin
+    if SameText(FAnimations[I].Name, AName) then
+    begin
+      AAnim := FAnimations[I];
+      Result := True;
+      Exit;
+    end;
   end;
 end;
 

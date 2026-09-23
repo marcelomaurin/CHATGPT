@@ -2,7 +2,8 @@ unit aiavatartypes;
 
 { ============================================================================
   Maurinsoft CHATGPT - AI Graphic / 3D Avatar Subsystem
-  Tipos comuns, enums e funcoes de conversao para o Avatar 3D
+  Tipos comuns, enums, estruturas 3D e conversores para o Avatar 3D
+  (Tarefas 3 a 7, 14 a 27, 28 a 40, 78 a 80)
   ============================================================================ }
 
 {$mode objfpc}{$H+}
@@ -51,7 +52,7 @@ type
     agListen
   );
 
-  { Alvo de Olhar / Atenção Visual (Tarefas 3 e 54) }
+  { Alvo de Olhar / Atencao Visual (Tarefas 3 e 54) }
   TAIAvatarLookTarget = (
     ltUser,
     ltCenter,
@@ -168,8 +169,44 @@ type
   end;
   TAIAvatarSkinArray = array of TAIAvatarSkin;
 
+  { Alvo de Animacao glTF (Tarefa 28) }
+  TAIAvatarAnimTarget = (atTranslation, atRotation, atScale);
 
-// Conversões Enum <-> String
+  { Canal de Animacao (Tarefa 28) }
+  TAIAvatarAnimChannel = record
+    NodeIndex: Integer;
+    TargetProperty: TAIAvatarAnimTarget;
+    Timestamps: array of Single;
+    Vec3Values: array of TVector3D;
+    QuatValues: array of TQuaternion;
+  end;
+  TAIAvatarAnimChannelArray = array of TAIAvatarAnimChannel;
+
+  { Sequencia de Animacao (Tarefas 28 a 34) }
+  TAIAvatarAnimation = record
+    Name: string;
+    Duration: Single;
+    Channels: TAIAvatarAnimChannelArray;
+  end;
+  TAIAvatarAnimationArray = array of TAIAvatarAnimation;
+
+  { Pose de Osso Individual (Tarefa 38) }
+  TAIAvatarBonePose = record
+    BoneName: string;
+    HumanoidBone: TAIHumanoidBone;
+    RotX, RotY, RotZ: Double;
+    PosX, PosY, PosZ: Double;
+  end;
+  TAIAvatarBonePoseArray = array of TAIAvatarBonePose;
+
+  { Pose Completa de Avatar (Tarefas 38 a 40) }
+  TAIAvatarPose = record
+    Name: string;
+    Bones: TAIAvatarBonePoseArray;
+  end;
+  TAIAvatarPoseArray = array of TAIAvatarPose;
+
+// Conversoes Enum <-> String
 function AvatarStateToString(AState: TAIAvatarState): string;
 function StringToAvatarState(const S: string): TAIAvatarState;
 
@@ -185,8 +222,7 @@ function StringToLookTarget(const S: string): TAIAvatarLookTarget;
 function HumanoidBoneToString(ABone: TAIHumanoidBone): string;
 function StringToHumanoidBone(const S: string): TAIHumanoidBone;
 
-
-{ Funcoes Construtoras e Matematicas 3D }
+// Funcoes Matematicas 3D
 function Vector2D(AX, AY: Single): TVector2D;
 function Vector3D(AX, AY, AZ: Single): TVector3D;
 function Vector4D(AX, AY, AZ, AW: Single): TVector4D;
@@ -200,11 +236,11 @@ function QuaternionNormalize(const Q: TQuaternion): TQuaternion;
 function QuaternionToMatrix(const Q: TQuaternion): TMatrix4x4;
 function MatrixFromTRS(const T: TVector3D; const R: TQuaternion; const S: TVector3D): TMatrix4x4;
 function QuaternionSlerp(const Q1, Q2: TQuaternion; T: Single): TQuaternion;
-
+function VectorLerp(const V1, V2: TVector3D; T: Single): TVector3D;
 
 implementation
 
-{ TAIAvatarState }
+{ Conversoes Enum <-> String }
 
 function AvatarStateToString(AState: TAIAvatarState): string;
 begin
@@ -234,8 +270,6 @@ begin
   else if LowS = 'error' then Result := avError
   else Result := avIdle;
 end;
-
-{ TAIAvatarEmotion }
 
 function AvatarEmotionToString(AEmotion: TAIAvatarEmotion): string;
 begin
@@ -270,8 +304,6 @@ begin
   else Result := aeNeutral;
 end;
 
-{ TAIAvatarGesture }
-
 function AvatarGestureToString(AGesture: TAIAvatarGesture): string;
 begin
   case AGesture of
@@ -297,7 +329,7 @@ begin
   LowS := LowerCase(Trim(S));
   if LowS = 'wave' then Result := agWave
   else if LowS = 'nod' then Result := agNod
-  else if (LowS = 'shake_head') or (LowS = 'shakehead') then Result := agShakeHead
+  else if (LowS = 'shakehead') or (LowS = 'shake_head') then Result := agShakeHead
   else if LowS = 'explain' then Result := agExplain
   else if LowS = 'point' then Result := agPoint
   else if LowS = 'think' then Result := agThink
@@ -306,8 +338,6 @@ begin
   else if LowS = 'listen' then Result := agListen
   else Result := agNone;
 end;
-
-{ TAIAvatarLookTarget }
 
 function LookTargetToString(ATarget: TAIAvatarLookTarget): string;
 begin
@@ -320,7 +350,7 @@ begin
     ltDown: Result := 'down';
     ltCustomPoint: Result := 'custom_point';
   else
-    Result := 'user';
+    Result := 'center';
   end;
 end;
 
@@ -329,16 +359,14 @@ var
   LowS: string;
 begin
   LowS := LowerCase(Trim(S));
-  if LowS = 'center' then Result := ltCenter
+  if LowS = 'user' then Result := ltUser
   else if LowS = 'left' then Result := ltLeft
   else if LowS = 'right' then Result := ltRight
   else if LowS = 'up' then Result := ltUp
   else if LowS = 'down' then Result := ltDown
-  else if (LowS = 'custom') or (LowS = 'custom_point') then Result := ltCustomPoint
-  else Result := ltUser;
+  else if (LowS = 'custompoint') or (LowS = 'custom_point') then Result := ltCustomPoint
+  else Result := ltCenter;
 end;
-
-{ TAIHumanoidBone }
 
 function HumanoidBoneToString(ABone: TAIHumanoidBone): string;
 begin
@@ -408,8 +436,7 @@ begin
   else Result := hbNone;
 end;
 
-
-{ Funcoes Construtoras e Matematicas 3D }
+{ Funcoes Matematicas 3D }
 
 function Vector2D(AX, AY: Single): TVector2D;
 begin
@@ -592,7 +619,6 @@ begin
 
   if Dot > 0.9995 then
   begin
-    // Linear interpolation if very close
     Result.X := Q1.X + T * (TargetQ.X - Q1.X);
     Result.Y := Q1.Y + T * (TargetQ.Y - Q1.Y);
     Result.Z := Q1.Z + T * (TargetQ.Z - Q1.Z);
@@ -611,6 +637,13 @@ begin
   Result.Z := Single(Scale1 * Q1.Z + Scale2 * TargetQ.Z);
   Result.W := Single(Scale1 * Q1.W + Scale2 * TargetQ.W);
   Result := QuaternionNormalize(Result);
+end;
+
+function VectorLerp(const V1, V2: TVector3D; T: Single): TVector3D;
+begin
+  Result.X := V1.X + T * (V2.X - V1.X);
+  Result.Y := V1.Y + T * (V2.Y - V1.Y);
+  Result.Z := V1.Z + T * (V2.Z - V1.Z);
 end;
 
 end.

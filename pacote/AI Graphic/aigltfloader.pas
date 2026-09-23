@@ -70,6 +70,7 @@ type
     procedure ParseTextures(const ABasePath: string; out ATextures: TAIAvatarTextureArray);
     procedure ParseSkins(out ASkins: TAIAvatarSkinArray);
     procedure ParseMeshes(out AVertices: TAIAvatarVertexArray; out AFaces: TGLTFFaceArray);
+    procedure ParseAnimations(out AAnimations: TAIAvatarAnimationArray);
   public
     constructor Create;
     destructor Destroy; override;
@@ -80,7 +81,16 @@ type
       out AMaterials: TAIAvatarMaterialArray;
       out ATextures: TAIAvatarTextureArray;
       out ASkins: TAIAvatarSkinArray;
-      out ANodes: TGLTFNodeArray): Boolean;
+      out ANodes: TGLTFNodeArray;
+      out AAnimations: TAIAvatarAnimationArray): Boolean; overload;
+
+    function LoadFromFile(const AFileName: string;
+      out AVertices: TAIAvatarVertexArray;
+      out AFaces: TGLTFFaceArray;
+      out AMaterials: TAIAvatarMaterialArray;
+      out ATextures: TAIAvatarTextureArray;
+      out ASkins: TAIAvatarSkinArray;
+      out ANodes: TGLTFNodeArray): Boolean; overload;
       
     function LoadFromStream(AStream: TStream; const ABasePath: string;
       out AVertices: TAIAvatarVertexArray;
@@ -88,7 +98,16 @@ type
       out AMaterials: TAIAvatarMaterialArray;
       out ATextures: TAIAvatarTextureArray;
       out ASkins: TAIAvatarSkinArray;
-      out ANodes: TGLTFNodeArray): Boolean;
+      out ANodes: TGLTFNodeArray;
+      out AAnimations: TAIAvatarAnimationArray): Boolean; overload;
+
+    function LoadFromStream(AStream: TStream; const ABasePath: string;
+      out AVertices: TAIAvatarVertexArray;
+      out AFaces: TGLTFFaceArray;
+      out AMaterials: TAIAvatarMaterialArray;
+      out ATextures: TAIAvatarTextureArray;
+      out ASkins: TAIAvatarSkinArray;
+      out ANodes: TGLTFNodeArray): Boolean; overload;
 
     property LastError: string read FLastError;
     property Nodes: TGLTFNodeArray read FNodes;
@@ -788,13 +807,104 @@ begin
   end;
 end;
 
+
+procedure TGLTFLoader.ParseAnimations(out AAnimations: TAIAvatarAnimationArray);
+var
+  AnimArr, SamplerArr, ChannelArr: TJSONArray;
+  AnimIdx, SmpIdx, ChnIdx, K: Integer;
+  AnimObj, SmpObj, ChnObj, TargetObj: TJSONObject;
+  InputAccIdx, OutputAccIdx, SmpRefIdx: Integer;
+  TargetNodeIdx, KeyCount: Integer;
+  TargetPath: string;
+  MaxTime, TimeVal: Single;
+  AccArr: TJSONArray;
+begin
+  SetLength(AAnimations, 0);
+  if FJSONDoc = nil then Exit;
+  AnimArr := FJSONDoc.Get('animations', TJSONArray(nil));
+  AccArr := FJSONDoc.Get('accessors', TJSONArray(nil));
+  if (AnimArr = nil) or (AccArr = nil) then Exit;
+
+  SetLength(AAnimations, AnimArr.Count);
+  for AnimIdx := 0 to AnimArr.Count - 1 do
+  begin
+    AnimObj := AnimArr.Objects[AnimIdx];
+    AAnimations[AnimIdx].Name := AnimObj.Get('name', 'Animation_' + IntToStr(AnimIdx));
+    AAnimations[AnimIdx].Duration := 0.0;
+    MaxTime := 0.0;
+
+    SamplerArr := AnimObj.Get('samplers', TJSONArray(nil));
+    ChannelArr := AnimObj.Get('channels', TJSONArray(nil));
+    if (SamplerArr = nil) or (ChannelArr = nil) then Continue;
+
+    SetLength(AAnimations[AnimIdx].Channels, ChannelArr.Count);
+    for ChnIdx := 0 to ChannelArr.Count - 1 do
+    begin
+      ChnObj := ChannelArr.Objects[ChnIdx];
+      SmpRefIdx := ChnObj.Get('sampler', -1);
+      TargetObj := ChnObj.Get('target', TJSONObject(nil));
+
+      if (SmpRefIdx < 0) or (SmpRefIdx >= SamplerArr.Count) or (TargetObj = nil) then Continue;
+
+      SmpObj := SamplerArr.Objects[SmpRefIdx];
+      InputAccIdx := SmpObj.Get('input', -1);
+      OutputAccIdx := SmpObj.Get('output', -1);
+
+      TargetNodeIdx := TargetObj.Get('node', -1);
+      TargetPath := LowerCase(TargetObj.Get('path', 'translation'));
+
+      AAnimations[AnimIdx].Channels[ChnIdx].NodeIndex := TargetNodeIdx;
+
+      if TargetPath = 'rotation' then
+        AAnimations[AnimIdx].Channels[ChnIdx].TargetProperty := atRotation
+      else if TargetPath = 'scale' then
+        AAnimations[AnimIdx].Channels[ChnIdx].TargetProperty := atScale
+      else
+        AAnimations[AnimIdx].Channels[ChnIdx].TargetProperty := atTranslation;
+
+      if (InputAccIdx >= 0) and (InputAccIdx < AccArr.Count) and
+         (OutputAccIdx >= 0) and (OutputAccIdx < AccArr.Count) then
+      begin
+        KeyCount := AccArr.Objects[InputAccIdx].Get('count', 0);
+        SetLength(AAnimations[AnimIdx].Channels[ChnIdx].Timestamps, KeyCount);
+
+        if AAnimations[AnimIdx].Channels[ChnIdx].TargetProperty = atRotation then
+          SetLength(AAnimations[AnimIdx].Channels[ChnIdx].QuatValues, KeyCount)
+        else
+          SetLength(AAnimations[AnimIdx].Channels[ChnIdx].Vec3Values, KeyCount);
+
+        for K := 0 to KeyCount - 1 do
+        begin
+          TimeVal := ReadAccessorFloat(InputAccIdx, K, 0);
+          AAnimations[AnimIdx].Channels[ChnIdx].Timestamps[K] := TimeVal;
+          if TimeVal > MaxTime then MaxTime := TimeVal;
+
+          if AAnimations[AnimIdx].Channels[ChnIdx].TargetProperty = atRotation then
+          begin
+            AAnimations[AnimIdx].Channels[ChnIdx].QuatValues[K].X := ReadAccessorFloat(OutputAccIdx, K, 0);
+            AAnimations[AnimIdx].Channels[ChnIdx].QuatValues[K].Y := ReadAccessorFloat(OutputAccIdx, K, 1);
+            AAnimations[AnimIdx].Channels[ChnIdx].QuatValues[K].Z := ReadAccessorFloat(OutputAccIdx, K, 2);
+            AAnimations[AnimIdx].Channels[ChnIdx].QuatValues[K].W := ReadAccessorFloat(OutputAccIdx, K, 3);
+          end
+          else
+          begin
+            AAnimations[AnimIdx].Channels[ChnIdx].Vec3Values[K] := GetAccessorVec3(OutputAccIdx, K);
+          end;
+        end;
+      end;
+    end;
+    AAnimations[AnimIdx].Duration := MaxTime;
+  end;
+end;
+
 function TGLTFLoader.LoadFromFile(const AFileName: string;
   out AVertices: TAIAvatarVertexArray;
   out AFaces: TGLTFFaceArray;
   out AMaterials: TAIAvatarMaterialArray;
   out ATextures: TAIAvatarTextureArray;
   out ASkins: TAIAvatarSkinArray;
-  out ANodes: TGLTFNodeArray): Boolean;
+  out ANodes: TGLTFNodeArray;
+  out AAnimations: TAIAvatarAnimationArray): Boolean;
 var
   FS: TFileStream;
 begin
@@ -807,10 +917,23 @@ begin
 
   FS := TFileStream.Create(AFileName, fmOpenRead or fmShareDenyWrite);
   try
-    Result := LoadFromStream(FS, ExtractFilePath(AFileName), AVertices, AFaces, AMaterials, ATextures, ASkins, ANodes);
+    Result := LoadFromStream(FS, ExtractFilePath(AFileName), AVertices, AFaces, AMaterials, ATextures, ASkins, ANodes, AAnimations);
   finally
     FS.Free;
   end;
+end;
+
+function TGLTFLoader.LoadFromFile(const AFileName: string;
+  out AVertices: TAIAvatarVertexArray;
+  out AFaces: TGLTFFaceArray;
+  out AMaterials: TAIAvatarMaterialArray;
+  out ATextures: TAIAvatarTextureArray;
+  out ASkins: TAIAvatarSkinArray;
+  out ANodes: TGLTFNodeArray): Boolean;
+var
+  DummyAnims: TAIAvatarAnimationArray;
+begin
+  Result := LoadFromFile(AFileName, AVertices, AFaces, AMaterials, ATextures, ASkins, ANodes, DummyAnims);
 end;
 
 function TGLTFLoader.LoadFromStream(AStream: TStream; const ABasePath: string;
@@ -819,7 +942,8 @@ function TGLTFLoader.LoadFromStream(AStream: TStream; const ABasePath: string;
   out AMaterials: TAIAvatarMaterialArray;
   out ATextures: TAIAvatarTextureArray;
   out ASkins: TAIAvatarSkinArray;
-  out ANodes: TGLTFNodeArray): Boolean;
+  out ANodes: TGLTFNodeArray;
+  out AAnimations: TAIAvatarAnimationArray): Boolean;
 var
   Magic: array[0..3] of AnsiChar;
   Version, FileLength: UInt32;
@@ -899,9 +1023,23 @@ begin
   ParseTextures(ABasePath, ATextures);
   ParseSkins(ASkins);
   ParseMeshes(AVertices, AFaces);
+  ParseAnimations(AAnimations);
 
   ANodes := FNodes;
   Result := True;
+end;
+
+function TGLTFLoader.LoadFromStream(AStream: TStream; const ABasePath: string;
+  out AVertices: TAIAvatarVertexArray;
+  out AFaces: TGLTFFaceArray;
+  out AMaterials: TAIAvatarMaterialArray;
+  out ATextures: TAIAvatarTextureArray;
+  out ASkins: TAIAvatarSkinArray;
+  out ANodes: TGLTFNodeArray): Boolean;
+var
+  DummyAnims: TAIAvatarAnimationArray;
+begin
+  Result := LoadFromStream(AStream, ABasePath, AVertices, AFaces, AMaterials, ATextures, ASkins, ANodes, DummyAnims);
 end;
 
 end.
