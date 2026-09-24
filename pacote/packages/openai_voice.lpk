@@ -93,6 +93,11 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="soundfilters"/>
       </Item>
+      <Item>
+        <Filename Value="..\AI Voice\aicontinuouslistener.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aicontinuouslistener"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>

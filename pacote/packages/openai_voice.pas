@@ -13,7 +13,7 @@ uses
   aivoiceprovider_types, aivoiceprovider_backend, aivoiceprovider_openai, 
   aivoiceprovider_openaicompatible, aivoiceprovider_customhttp, 
   aivoicecredentialstore, aivoicesynthesizer, aivoicerecognizer, soundfilters, 
-  LazarusPackageIntf;
+  aicontinuouslistener, LazarusPackageIntf;
 
 implementation
 
@@ -28,6 +28,7 @@ begin
   RegisterUnit('aivoicesynthesizer', @aivoicesynthesizer.Register);
   RegisterUnit('aivoicerecognizer', @aivoicerecognizer.Register);
   RegisterUnit('soundfilters', @soundfilters.Register);
+  RegisterUnit('aicontinuouslistener', @aicontinuouslistener.Register);
 end;
 
 initialization

@@ -10,6 +10,18 @@ uses
   LResources;
 
 type
+  TAIPlaybackBufferEvent = procedure(
+    Sender: TObject;
+    const AData: TBytes;
+    ASampleRate: Integer;
+    AChannels: Integer
+  ) of object;
+
+  TAIPlaybackFileEvent = procedure(
+    Sender: TObject;
+    const AFileName: string
+  ) of object;
+
   { TAIAudioPlayer: Audio playback component supporting WAV and MP3 }
   TAIAudioPlayer = class(TComponent)
   private
@@ -17,6 +29,11 @@ type
     FLastError: string;
     FPlaying: Boolean;
     FUsingMCI: Boolean;
+    FOnPlaybackBuffer: TAIPlaybackBufferEvent;
+    FOnPlaybackStart: TAIPlaybackFileEvent;
+    FOnPlaybackStop: TNotifyEvent;
+
+    procedure DispatchWavBuffer(const AFileName: string);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -25,6 +42,9 @@ type
   published
     property LastError: string read FLastError;
     property Playing: Boolean read FPlaying;
+    property OnPlaybackBuffer: TAIPlaybackBufferEvent read FOnPlaybackBuffer write FOnPlaybackBuffer;
+    property OnPlaybackStart: TAIPlaybackFileEvent read FOnPlaybackStart write FOnPlaybackStart;
+    property OnPlaybackStop: TNotifyEvent read FOnPlaybackStop write FOnPlaybackStop;
   end;
 
 procedure Register;
@@ -51,6 +71,30 @@ begin
   if Assigned(FProcess) then
     FreeAndNil(FProcess);
   inherited Destroy;
+end;
+
+procedure TAIAudioPlayer.DispatchWavBuffer(const AFileName: string);
+var
+  FS: TFileStream;
+  Buffer: TBytes;
+begin
+  if not Assigned(FOnPlaybackBuffer) then Exit;
+  if not FileExists(AFileName) then Exit;
+  try
+    FS := TFileStream.Create(AFileName, fmOpenRead or fmShareDenyNone);
+    try
+      if FS.Size > 44 then
+      begin
+        SetLength(Buffer, FS.Size - 44);
+        FS.Position := 44;
+        FS.ReadBuffer(Buffer[0], Length(Buffer));
+        FOnPlaybackBuffer(Self, Buffer, 16000, 1);
+      end;
+    finally
+      FS.Free;
+    end;
+  except
+  end;
 end;
 
 function TAIAudioPlayer.Play(const AFileName: string): Boolean;
@@ -122,10 +166,19 @@ begin
   {$ENDIF}
 
   FPlaying := Result;
+  if Result then
+  begin
+    DispatchWavBuffer(AFileName);
+    if Assigned(FOnPlaybackStart) then
+      FOnPlaybackStart(Self, AFileName);
+  end;
 end;
 
 procedure TAIAudioPlayer.Stop;
 begin
+  if FPlaying and Assigned(FOnPlaybackStop) then
+    FOnPlaybackStop(Self);
+
   {$IFDEF MSWINDOWS}
   if FUsingMCI then
   begin
