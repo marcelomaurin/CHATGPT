@@ -125,6 +125,7 @@ end;
 function TAICameraVFWBackend.OpenCamera(const ADevice: string; AIndex, AWidth, AHeight, AFPS: Integer; APreviewHandle: THandle; APreviewEnabled: Boolean): Boolean;
 var
   LCaptureInterval: Integer;
+  LStyle: DWORD;
 begin
   Result := False;
   LastError := '';
@@ -135,19 +136,18 @@ begin
     Exit;
   end;
 
-  if APreviewEnabled and (APreviewHandle = 0) then
-  begin
-    LastError := 'PreviewHandle is required when PreviewEnabled is True.';
-    Exit;
-  end;
-
   FParentWnd := APreviewHandle;
   FWidth := AWidth;
   FHeight := AHeight;
 
+  if FParentWnd <> 0 then
+    LStyle := WS_CHILD or WS_VISIBLE
+  else
+    LStyle := WS_POPUP;
+
   FCaptureWnd := capCreateCaptureWindowW(
     'TAICameraVFWCaptureWnd',
-    WS_CHILD or WS_VISIBLE,
+    LStyle,
     0, 0, FWidth, FHeight,
     FParentWnd,
     0
@@ -172,7 +172,7 @@ begin
   else
     LCaptureInterval := 100;
 
-  if APreviewEnabled then
+  if APreviewEnabled and (FParentWnd <> 0) then
   begin
     SendMessage(FCaptureWnd, WM_CAP_SET_PREVIEWRATE, LCaptureInterval, 0);
     SendMessage(FCaptureWnd, WM_CAP_SET_SCALE, 1, 0);
