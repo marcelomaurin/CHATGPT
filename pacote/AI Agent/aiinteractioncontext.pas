@@ -22,6 +22,15 @@ type
     FContextConfidence: Single;
     FRecentHistory: TStringList;
     FMaxHistoryEntries: Integer;
+
+    { Percepção Física (Kinect / Visão) }
+    FPersonPresent: Boolean;
+    FBodyTrackingID: Integer;
+    FPersonDistance: Single;
+    FPersonPosition: string;
+    FLastGesture: string;
+    FLastGestureConfidence: Single;
+    FLastPerceptionJSON: string;
     procedure SetCurrentProject(const AValue: string);
   public
     constructor Create;
@@ -44,6 +53,15 @@ type
     property ContextConfidence: Single read FContextConfidence write FContextConfidence;
     property RecentHistory: TStringList read FRecentHistory;
     property MaxHistoryEntries: Integer read FMaxHistoryEntries write FMaxHistoryEntries default 10;
+
+    { Percepção Física }
+    property PersonPresent: Boolean read FPersonPresent write FPersonPresent;
+    property BodyTrackingID: Integer read FBodyTrackingID write FBodyTrackingID;
+    property PersonDistance: Single read FPersonDistance write FPersonDistance;
+    property PersonPosition: string read FPersonPosition write FPersonPosition;
+    property LastGesture: string read FLastGesture write FLastGesture;
+    property LastGestureConfidence: Single read FLastGestureConfidence write FLastGestureConfidence;
+    property LastPerceptionJSON: string read FLastPerceptionJSON write FLastPerceptionJSON;
   end;
 
 implementation
@@ -77,6 +95,15 @@ begin
   FProbableIntent := '';
   FContextConfidence := 1.0;
   FRecentHistory.Clear;
+
+  { Percepção Física }
+  FPersonPresent := False;
+  FBodyTrackingID := 0;
+  FPersonDistance := 0.0;
+  FPersonPosition := '';
+  FLastGesture := '';
+  FLastGestureConfidence := 0.0;
+  FLastPerceptionJSON := '';
 end;
 
 procedure TAIInteractionContext.SetCurrentProject(const AValue: string);
@@ -196,6 +223,13 @@ begin
 
     if Trim(FObjectPointed) <> '' then
       SB.Add('- Objeto ou painel apontado fisicamente: ' + FObjectPointed);
+
+    if FPersonPresent then
+    begin
+      SB.Add(Format('- Percepção Física: Interlocutor a %.2fm (posição lateral: %s)', [FPersonDistance, FPersonPosition]));
+      if Trim(FLastGesture) <> '' then
+        SB.Add(Format('- Gesto físico detectado: %s (confiança: %.0f%%)', [FLastGesture, FLastGestureConfidence * 100]));
+    end;
 
     if Trim(FLastProjectCited) <> '' then
       SB.Add('- Último projeto citado anteriormente: ' + FLastProjectCited);

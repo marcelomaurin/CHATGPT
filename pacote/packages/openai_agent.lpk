@@ -38,7 +38,8 @@
       <Item><Filename Value="..\AI Agent\aiconversationorchestrator.pas"/><HasRegisterProc Value="True"/><UnitName Value="aiconversationorchestrator"/></Item>
       <Item><Filename Value="..\AI Agent\aipersonsession.pas"/><HasRegisterProc Value="True"/><UnitName Value="aipersonsession"/></Item>
       <Item><Filename Value="..\AI Agent\aipresentation.pas"/><HasRegisterProc Value="True"/><UnitName Value="aipresentation"/></Item>
-</Files>
+      <Item><Filename Value="..\AI Agent\aikinectadapter.pas"/><HasRegisterProc Value="True"/><UnitName Value="aikinectadapter"/></Item>
+    </Files>
     <RequiredPkgs><Item><PackageName Value="openai_core"/></Item><Item><PackageName Value="openai_ml"/></Item><Item><PackageName Value="openai_input"/></Item><Item><PackageName Value="openai_output"/></Item><Item><PackageName Value="LCL"/></Item><Item><PackageName Value="FCL"/></Item></RequiredPkgs>
     <UsageOptions><UnitPath Value="$(PkgOutDir)"/></UsageOptions><PublishOptions><Version Value="2"/><UseFileFilters Value="True"/></PublishOptions>
   </Package>

@@ -13,7 +13,7 @@ uses
   aiserialfingerprint, aiemail, aimessenger, aiusb, aiusb_register, 
   aikinect_types, aikinect_backend, aikinect_freenect, aikinect_sdk10, 
   aikinectsensor, aikinectcolor, aikinectdepth, aikinectskeleton, 
-  aikinectaudio, LazarusPackageIntf;
+  aikinectaudio, aikinectperception, LazarusPackageIntf;
 
 implementation
 
@@ -38,6 +38,7 @@ begin
   RegisterUnit('aikinectdepth', @aikinectdepth.Register);
   RegisterUnit('aikinectskeleton', @aikinectskeleton.Register);
   RegisterUnit('aikinectaudio', @aikinectaudio.Register);
+  RegisterUnit('aikinectperception', @aikinectperception.Register);
 end;
 
 initialization

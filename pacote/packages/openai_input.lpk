@@ -139,6 +139,11 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="aikinectaudio"/>
       </Item>
+      <Item>
+        <Filename Value="..\AI Input\AIKinect\aikinectperception.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aikinectperception"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>

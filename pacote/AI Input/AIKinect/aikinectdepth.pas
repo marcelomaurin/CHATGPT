@@ -18,15 +18,18 @@ type
     FMirror       : Boolean;
     FLastFrameFile: string;
     FOnDepthFrame : TAIKinectDepthEvent;
-    
+    FOnDepthFrameWithInfo : TAIKinectDepthWithInfoEvent;
+    FLastFrameInfo: TAIKinectFrameInfo;
+
     procedure SetActive(AValue: Boolean);
     procedure DoOnDepthFrame(Sender: TObject; const AFrameFile: string; AMin, AMax: Word);
+    procedure DoOnDepthFrameWithInfo(Sender: TObject; const AFrameFile: string; AMin, AMax: Word; const AInfo: TAIKinectFrameInfo);
   protected
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    
+
     function  StartStream: Boolean;
     procedure StopStream;
     function  CaptureDepthFrame(ABitmap: Graphics.TBitmap): Boolean;
@@ -34,6 +37,7 @@ type
     function  GetDepthMap(out AMap: array of Word): Boolean;
     function  GetPointCloud(AColored: Boolean): TAIKinectPointCloud;
     function  ExportPointCloudPLY(const AFileName: string; AColored: Boolean): Boolean;
+    function  GetLastFrameInfo(out AInfo: TAIKinectFrameInfo): Boolean;
   published
     property Sensor       : TAIKinectSensor       read FSensor write FSensor;
     property Active       : Boolean               read FActive write SetActive default False;
@@ -42,6 +46,7 @@ type
     property MaxDepthMM   : Word                  read FMaxDepthMM write FMaxDepthMM default 4000;
     property Mirror       : Boolean               read FMirror write FMirror default True;
     property OnDepthFrame : TAIKinectDepthEvent   read FOnDepthFrame write FOnDepthFrame;
+    property OnDepthFrameWithInfo : TAIKinectDepthWithInfoEvent read FOnDepthFrameWithInfo write FOnDepthFrameWithInfo;
   end;
 
 procedure Register;
@@ -96,6 +101,7 @@ begin
   end;
   
   FSensor.BackendObject.OnDepthFrame := @DoOnDepthFrame;
+  FSensor.BackendObject.OnDepthFrameWithInfo := @DoOnDepthFrameWithInfo;
   if FSensor.BackendObject.StartDepthStream then
   begin
     FActive := True;
@@ -111,6 +117,7 @@ begin
   begin
     FSensor.BackendObject.StopDepthStream;
     FSensor.BackendObject.OnDepthFrame := nil;
+    FSensor.BackendObject.OnDepthFrameWithInfo := nil;
   end;
 end;
 
@@ -131,6 +138,14 @@ begin
     FOnDepthFrame(Self, FLastFrameFile, AMin, AMax);
 end;
 
+procedure TAIKinectDepthStream.DoOnDepthFrameWithInfo(Sender: TObject; const AFrameFile: string; AMin, AMax: Word; const AInfo: TAIKinectFrameInfo);
+begin
+  if not FActive then Exit;
+  FLastFrameInfo := AInfo;
+  if Assigned(FOnDepthFrameWithInfo) then
+    FOnDepthFrameWithInfo(Self, AFrameFile, AMin, AMax, AInfo);
+end;
+
 function TAIKinectDepthStream.CaptureDepthFrame(ABitmap: Graphics.TBitmap): Boolean;
 begin
   Result := False;
@@ -147,36 +162,36 @@ end;
 
 function TAIKinectDepthStream.GetDepthAt(AX, AY: Integer): Word;
 begin
-  // simulated range: returns calculated distance based on center distance
-  Result := 1500;
+  Result := 0;
+  if Assigned(FSensor) and FSensor.IsConnected and Assigned(FSensor.BackendObject) then
+    Result := FSensor.BackendObject.GetDepthAt(AX, AY);
 end;
 
 function TAIKinectDepthStream.GetDepthMap(out AMap: array of Word): Boolean;
-var
-  I: Integer;
 begin
-  if Length(AMap) < 640 * 480 then Exit(False);
-  for I := 0 to (640 * 480) - 1 do
-    AMap[I] := 1500; // Simulated depth
-  Result := True;
+  Result := False;
+  if Assigned(FSensor) and FSensor.IsConnected and Assigned(FSensor.BackendObject) then
+    Result := FSensor.BackendObject.CopyDepthMap(AMap);
 end;
 
 function TAIKinectDepthStream.GetPointCloud(AColored: Boolean): TAIKinectPointCloud;
-var
-  X, Y: Integer;
-  Idx: Integer;
 begin
-  SetLength(Result, 100); // return 100 sample points
-  for Idx := 0 to 99 do
+  if Assigned(FSensor) and FSensor.IsConnected and Assigned(FSensor.BackendObject) then
   begin
-    X := Idx mod 10;
-    Y := Idx div 10;
-    Result[Idx].X := (X - 5) * 0.1;
-    Result[Idx].Y := (Y - 5) * 0.1;
-    Result[Idx].Z := 2.0;
-    Result[Idx].R := 100;
-    Result[Idx].G := 200;
-    Result[Idx].B := 100;
+    if FSensor.BackendObject.GetDepthPointCloud(Result, AColored, 4) then
+      Exit;
+  end;
+  SetLength(Result, 0);
+end;
+
+function TAIKinectDepthStream.GetLastFrameInfo(out AInfo: TAIKinectFrameInfo): Boolean;
+begin
+  if Assigned(FSensor) and FSensor.IsConnected and Assigned(FSensor.BackendObject) then
+    Result := FSensor.BackendObject.GetLastDepthFrameInfo(AInfo)
+  else
+  begin
+    AInfo := FLastFrameInfo;
+    Result := FLastFrameInfo.FrameNumber > 0;
   end;
 end;
 
@@ -219,8 +234,6 @@ begin
 end;
 
 initialization
-  {$I aikinectdepth_icon.lrs}
-
   {$I aikinectdepth_icon.lrs}
 
 end.

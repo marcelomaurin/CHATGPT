@@ -132,6 +132,4 @@ end;
 initialization
   {$I aikinectaudio_icon.lrs}
 
-  {$I aikinectaudio_icon.lrs}
-
 end.

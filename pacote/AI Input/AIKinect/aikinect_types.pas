@@ -55,16 +55,48 @@ type
   end;
   TAIKinectPointCloud = array of TAIKinectPoint3D;
 
+  { Metadados de correlação temporal e frame }
+  TAIKinectFrameSource = (kfsColor, kfsDepth, kfsSkeleton);
+
+  TAIKinectFrameInfo = record
+    FrameNumber         : DWord;
+    TimestampMS         : Int64;
+    TrackingTimestampMS : Int64;
+    Width               : Integer;
+    Height              : Integer;
+    Source              : TAIKinectFrameSource;
+  end;
+
   { Eventos }
   TAIKinectFrameEvent    = procedure(Sender: TObject; const AFrameFile: string) of object;
+  TAIKinectFrameWithInfoEvent = procedure(Sender: TObject; const AFrameFile: string;
+                             const AInfo: TAIKinectFrameInfo) of object;
   TAIKinectDepthEvent    = procedure(Sender: TObject; const AFrameFile: string;
                              AMinMM, AMaxMM: Word) of object;
+  TAIKinectDepthWithInfoEvent = procedure(Sender: TObject; const AFrameFile: string;
+                             AMinMM, AMaxMM: Word; const AInfo: TAIKinectFrameInfo) of object;
   TAIKinectSkeletonEvent = procedure(Sender: TObject; const ABodies: TAIKinectBodies) of object;
+  TAIKinectSkeletonWithInfoEvent = procedure(Sender: TObject; const ABodies: TAIKinectBodies;
+                             const AInfo: TAIKinectFrameInfo) of object;
   TAIKinectBeamEvent     = procedure(Sender: TObject; ABeamAngleDeg: Double;
                              AConfidence: Double) of object;
   TAIKinectErrorEvent    = procedure(Sender: TObject; const AError: string) of object;
   TAIKinectStateEvent    = procedure(Sender: TObject; AActive: Boolean) of object;
 
+function AINewKinectFrameInfo(ASource: TAIKinectFrameSource; AFrameNum: DWord;
+  ATimestampMS: Int64; AWidth: Integer = 640; AHeight: Integer = 480): TAIKinectFrameInfo;
+
 implementation
+
+function AINewKinectFrameInfo(ASource: TAIKinectFrameSource; AFrameNum: DWord;
+  ATimestampMS: Int64; AWidth: Integer = 640; AHeight: Integer = 480): TAIKinectFrameInfo;
+begin
+  Result.Source := ASource;
+  Result.FrameNumber := AFrameNum;
+  Result.TimestampMS := ATimestampMS;
+  Result.TrackingTimestampMS := ATimestampMS;
+  Result.Width := AWidth;
+  Result.Height := AHeight;
+end;
 
 end.

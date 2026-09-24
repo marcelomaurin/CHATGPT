@@ -93,6 +93,13 @@ type
     constructor Create(ADeviceIndex: Integer; AModel: TAIKinectModel); override;
     destructor Destroy; override;
 
+    function SupportsColor: Boolean; override;
+    function SupportsDepth: Boolean; override;
+    function SupportsSkeleton: Boolean; override;
+    function SupportsAudio: Boolean; override;
+    function SupportsTilt: Boolean; override;
+    function BackendName: string; override;
+
     function Open: Boolean; override;
     procedure Close; override;
 
@@ -199,6 +206,36 @@ begin
   if ActiveFreenectBackend = Self then
     ActiveFreenectBackend := nil;
   inherited Destroy;
+end;
+
+function TAIKinectFreenectBackend.SupportsColor: Boolean;
+begin
+  Result := True;
+end;
+
+function TAIKinectFreenectBackend.SupportsDepth: Boolean;
+begin
+  Result := True;
+end;
+
+function TAIKinectFreenectBackend.SupportsSkeleton: Boolean;
+begin
+  Result := False;
+end;
+
+function TAIKinectFreenectBackend.SupportsAudio: Boolean;
+begin
+  Result := False;
+end;
+
+function TAIKinectFreenectBackend.SupportsTilt: Boolean;
+begin
+  Result := True;
+end;
+
+function TAIKinectFreenectBackend.BackendName: string;
+begin
+  Result := 'libfreenect';
 end;
 
 function TAIKinectFreenectBackend.LoadFunctions: Boolean;

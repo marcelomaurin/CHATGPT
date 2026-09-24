@@ -69,6 +69,7 @@ type
     ViewArea: NUI_IMAGE_VIEW_AREA;
   end;
 
+  TNuiGetSensorCount = function(out pCount: Integer): HRESULT; stdcall;
   TNuiInitialize = function(dwFlags: DWord): HRESULT; stdcall;
   TNuiShutdown = procedure; stdcall;
   TNuiImageStreamOpen = function(eImageType: Integer; eResolution: Integer;
@@ -136,7 +137,16 @@ type
     FColorStreamHandle: THandle;
     FDepthStreamHandle: THandle;
     FTimer: TThread;
-    
+
+    FLockColor: TRTLCriticalSection;
+    FLockDepth: TRTLCriticalSection;
+    FLastColorBits: PByte;
+    FLastColorInfo: TAIKinectFrameInfo;
+    FLastDepthMM: array of Word;
+    FLastDepthInfo: TAIKinectFrameInfo;
+    FLastSkeletonInfo: TAIKinectFrameInfo;
+
+    NuiGetSensorCount: TNuiGetSensorCount;
     NuiInitialize: TNuiInitialize;
     NuiShutdown: TNuiShutdown;
     NuiImageStreamOpen: TNuiImageStreamOpen;
@@ -151,12 +161,21 @@ type
     FSkeletonSeated: Boolean;
     FSkeletonSmooth: Single;
     FSkeletonUnavailable: Boolean;
-    
+
     function LoadFunctions: Boolean;
     procedure LogSDK(const AMsg: string);
   public
     constructor Create(ADeviceIndex: Integer; AModel: TAIKinectModel); override;
     destructor Destroy; override;
+
+    class function DetectDeviceCount: Integer;
+
+    function SupportsColor: Boolean; override;
+    function SupportsDepth: Boolean; override;
+    function SupportsSkeleton: Boolean; override;
+    function SupportsAudio: Boolean; override;
+    function SupportsTilt: Boolean; override;
+    function BackendName: string; override;
 
     function Open: Boolean; override;
     procedure Close; override;
@@ -167,20 +186,27 @@ type
 
     function StartColorStream: Boolean; override;
     procedure StopColorStream; override;
+    function CopyLastColorFrame(ABitmap: Graphics.TBitmap): Boolean; override;
+    function GetLastColorFrameInfo(out AInfo: TAIKinectFrameInfo): Boolean; override;
 
     function StartDepthStream: Boolean; override;
     procedure StopDepthStream; override;
+    function GetDepthAt(AX, AY: Integer): Word; override;
+    function CopyDepthMap(out AMap: array of Word): Boolean; override;
+    function GetDepthPointCloud(out ACloud: TAIKinectPointCloud; AColored: Boolean = False; AStep: Integer = 4): Boolean; override;
+    function GetLastDepthFrameInfo(out AInfo: TAIKinectFrameInfo): Boolean; override;
 
     procedure ConfigureSkeleton(ASeated: Boolean; ASmooth: Double); override;
     function StartSkeletonStream: Boolean; override;
     procedure StopSkeletonStream; override;
+    function GetLastSkeletonFrameInfo(out AInfo: TAIKinectFrameInfo): Boolean; override;
 
     function StartAudioStream: Boolean; override;
     procedure StopAudioStream; override;
-    
+
     procedure SaveRawBGRA32ToBMP(Buffer: Pointer; const AFileName: string);
     procedure SaveRawDepth16ToBMP(Buffer: Pointer; const AFileName: string);
-    
+
     property ColorStreamHandle: THandle read FColorStreamHandle;
     property DepthStreamHandle: THandle read FDepthStreamHandle;
   end;
@@ -231,18 +257,24 @@ procedure TSDK10FrameThread.FireColorEvent;
 begin
   if Assigned(FBackend.OnColorFrame) then
     FBackend.OnColorFrame(FBackend, FPendingColorFile);
+  if Assigned(FBackend.OnColorFrameWithInfo) then
+    FBackend.OnColorFrameWithInfo(FBackend, FPendingColorFile, FBackend.FLastColorInfo);
 end;
 
 procedure TSDK10FrameThread.FireDepthEvent;
 begin
   if Assigned(FBackend.OnDepthFrame) then
     FBackend.OnDepthFrame(FBackend, FPendingDepthFile, 400, 4000);
+  if Assigned(FBackend.OnDepthFrameWithInfo) then
+    FBackend.OnDepthFrameWithInfo(FBackend, FPendingDepthFile, 400, 4000, FBackend.FLastDepthInfo);
 end;
 
 procedure TSDK10FrameThread.FireSkeletonEvent;
 begin
   if Assigned(FBackend.OnSkeletonFrame) then
     FBackend.OnSkeletonFrame(FBackend, FPendingBodies);
+  if Assigned(FBackend.OnSkeletonFrameWithInfo) then
+    FBackend.OnSkeletonFrameWithInfo(FBackend, FPendingBodies, FBackend.FLastSkeletonInfo);
 end;
 
 procedure TSDK10FrameThread.ProcessColor;
@@ -289,7 +321,17 @@ begin
       begin
         Locked := True;
         FBackend.LogSDK(Format('LockRect(color) OK, Pitch=%d, Size=%d, Bits=0x%x', [Rect.Pitch, Rect.size, PtrUInt(Rect.pBits)]));
-        if Assigned(FBackend.OnColorFrame) and (Rect.pBits <> nil) then
+
+        EnterCriticalSection(FBackend.FLockColor);
+        try
+          if (FBackend.FLastColorBits <> nil) and (Rect.pBits <> nil) then
+            Move(Rect.pBits^, FBackend.FLastColorBits^, 640 * 480 * 4);
+          FBackend.FLastColorInfo := AINewKinectFrameInfo(kfsColor, FramePtr^.dwFrameNumber, FramePtr^.liTimeStamp, 640, 480);
+        finally
+          LeaveCriticalSection(FBackend.FLockColor);
+        end;
+
+        if (Assigned(FBackend.OnColorFrame) or Assigned(FBackend.OnColorFrameWithInfo)) and (Rect.pBits <> nil) then
         begin
           TempFile := IncludeTrailingPathDelimiter(GetTempDir) + 'kinect_sdk_rgb.bmp';
           FBackend.SaveRawBGRA32ToBMP(Rect.pBits, TempFile);
@@ -311,6 +353,7 @@ begin
     end;
   end;
 end;
+
 procedure TSDK10FrameThread.ProcessDepth;
 var
   FramePtr: PNUI_IMAGE_FRAME;
@@ -320,6 +363,8 @@ var
   StreamHandle: THandle;
   HR: HRESULT;
   Locked: Boolean;
+  PBuf: PWord;
+  I: Integer;
 begin
   if FBackend = nil then Exit;
   StreamHandle := FBackend.DepthStreamHandle;
@@ -355,7 +400,21 @@ begin
       begin
         Locked := True;
         FBackend.LogSDK(Format('LockRect(depth) OK, Pitch=%d, Size=%d, Bits=0x%x', [Rect.Pitch, Rect.size, PtrUInt(Rect.pBits)]));
-        if Assigned(FBackend.OnDepthFrame) and (Rect.pBits <> nil) then
+
+        EnterCriticalSection(FBackend.FLockDepth);
+        try
+          if (Rect.pBits <> nil) and (Length(FBackend.FLastDepthMM) = 640 * 480) then
+          begin
+            PBuf := PWord(Rect.pBits);
+            for I := 0 to (640 * 480) - 1 do
+              FBackend.FLastDepthMM[I] := PBuf[I] shr 3;
+          end;
+          FBackend.FLastDepthInfo := AINewKinectFrameInfo(kfsDepth, FramePtr^.dwFrameNumber, FramePtr^.liTimeStamp, 640, 480);
+        finally
+          LeaveCriticalSection(FBackend.FLockDepth);
+        end;
+
+        if (Assigned(FBackend.OnDepthFrame) or Assigned(FBackend.OnDepthFrameWithInfo)) and (Rect.pBits <> nil) then
         begin
           TempFile := IncludeTrailingPathDelimiter(GetTempDir) + 'kinect_sdk_depth.bmp';
           FBackend.SaveRawDepth16ToBMP(Rect.pBits, TempFile);
@@ -497,6 +556,7 @@ begin
       [Frame.dwFrameNumber, StateList, TrackedCount, PositionOnlyCount, Length(Bodies),
        Frame.dwFlags, BoolToStr(FBackend.FSkeletonSeated, True), FBackend.FSkeletonSmooth]));
 
+  FBackend.FLastSkeletonInfo := AINewKinectFrameInfo(kfsSkeleton, Frame.dwFrameNumber, Frame.liTimeStamp, 640, 480);
   FPendingBodies := Bodies;
   Synchronize(@FireSkeletonEvent);
 end;
@@ -545,6 +605,58 @@ begin
   except
   end;
 end;
+class function TAIKinectSDK10Backend.DetectDeviceCount: Integer;
+var
+  Lib: TLibHandle;
+  GetCountFunc: TNuiGetSensorCount;
+  Count: Integer;
+begin
+  Result := 0;
+  Lib := SafeLoadLibrary('Kinect10.dll');
+  if Lib = NilHandle then Exit(0);
+  try
+    GetCountFunc := TNuiGetSensorCount(GetProcAddress(Lib, 'NuiGetSensorCount'));
+    if Assigned(GetCountFunc) then
+    begin
+      Count := 0;
+      if GetCountFunc(Count) = 0 then
+        Result := Count;
+    end;
+  finally
+    FreeLibrary(Lib);
+  end;
+end;
+
+function TAIKinectSDK10Backend.SupportsColor: Boolean;
+begin
+  Result := True;
+end;
+
+function TAIKinectSDK10Backend.SupportsDepth: Boolean;
+begin
+  Result := True;
+end;
+
+function TAIKinectSDK10Backend.SupportsSkeleton: Boolean;
+begin
+  Result := True;
+end;
+
+function TAIKinectSDK10Backend.SupportsAudio: Boolean;
+begin
+  Result := False; // SDK audio stream requires separate DMO beamforming implementation
+end;
+
+function TAIKinectSDK10Backend.SupportsTilt: Boolean;
+begin
+  Result := True;
+end;
+
+function TAIKinectSDK10Backend.BackendName: string;
+begin
+  Result := 'Microsoft Kinect SDK 1.8 (Kinect10.dll)';
+end;
+
 constructor TAIKinectSDK10Backend.Create(ADeviceIndex: Integer; AModel: TAIKinectModel);
 begin
   inherited Create(ADeviceIndex, AModel);
@@ -554,16 +666,220 @@ begin
   FSkeletonSeated := True;
   FSkeletonSmooth := 0.5;
   FSkeletonUnavailable := False;
+
+  InitCriticalSection(FLockColor);
+  InitCriticalSection(FLockDepth);
+  GetMem(FLastColorBits, 640 * 480 * 4);
+  FillChar(FLastColorBits^, 640 * 480 * 4, 0);
+  SetLength(FLastDepthMM, 640 * 480);
+  FillChar(FLastDepthMM[0], 640 * 480 * SizeOf(Word), 0);
+  FillChar(FLastColorInfo, SizeOf(FLastColorInfo), 0);
+  FillChar(FLastDepthInfo, SizeOf(FLastDepthInfo), 0);
+  FillChar(FLastSkeletonInfo, SizeOf(FLastSkeletonInfo), 0);
 end;
 
 destructor TAIKinectSDK10Backend.Destroy;
 begin
   Close;
+  DoneCriticalSection(FLockColor);
+  DoneCriticalSection(FLockDepth);
+  if FLastColorBits <> nil then
+  begin
+    FreeMem(FLastColorBits);
+    FLastColorBits := nil;
+  end;
+  SetLength(FLastDepthMM, 0);
   inherited Destroy;
+end;
+
+function TAIKinectSDK10Backend.CopyLastColorFrame(ABitmap: Graphics.TBitmap): Boolean;
+var
+  MS: TMemoryStream;
+  DataSize: DWord;
+  BmpHeader: array[0..53] of Byte;
+
+  procedure WriteWordAt(Offset: Integer; V: Word);
+  begin
+    Move(V, BmpHeader[Offset], 2);
+  end;
+
+  procedure WriteDWordAt(Offset: Integer; V: DWord);
+  begin
+    Move(V, BmpHeader[Offset], 4);
+  end;
+
+  procedure WriteLongIntAt(Offset: Integer; V: LongInt);
+  begin
+    Move(V, BmpHeader[Offset], 4);
+  end;
+
+begin
+  Result := False;
+  if ABitmap = nil then Exit;
+  DataSize := 640 * 480 * 4;
+
+  FillChar(BmpHeader[0], 54, 0);
+  WriteWordAt(0, $4D42);                      // 'BM'
+  WriteDWordAt(2, 54 + DataSize);             // Total size
+  WriteDWordAt(10, 54);                       // Offset to bits
+  WriteDWordAt(14, 40);                       // BITMAPINFOHEADER size
+  WriteLongIntAt(18, 640);                    // Width
+  WriteLongIntAt(22, -480);                   // Height top-down
+  WriteWordAt(26, 1);                         // Planes
+  WriteWordAt(28, 32);                        // 32-bit BGRA
+  WriteDWordAt(30, 0);                        // BI_RGB
+  WriteDWordAt(34, DataSize);                 // Image size
+  WriteLongIntAt(38, 2835);
+  WriteLongIntAt(42, 2835);
+
+  MS := TMemoryStream.Create;
+  try
+    MS.WriteBuffer(BmpHeader[0], 54);
+    EnterCriticalSection(FLockColor);
+    try
+      if FLastColorBits <> nil then
+        MS.WriteBuffer(FLastColorBits^, DataSize)
+      else
+        Exit(False);
+    finally
+      LeaveCriticalSection(FLockColor);
+    end;
+    MS.Position := 0;
+    ABitmap.LoadFromStream(MS);
+    Result := True;
+  finally
+    MS.Free;
+  end;
+end;
+
+function TAIKinectSDK10Backend.GetLastColorFrameInfo(out AInfo: TAIKinectFrameInfo): Boolean;
+begin
+  EnterCriticalSection(FLockColor);
+  try
+    AInfo := FLastColorInfo;
+    Result := FLastColorInfo.FrameNumber > 0;
+  finally
+    LeaveCriticalSection(FLockColor);
+  end;
+end;
+
+function TAIKinectSDK10Backend.GetDepthAt(AX, AY: Integer): Word;
+begin
+  Result := 0;
+  if (AX < 0) or (AX >= 640) or (AY < 0) or (AY >= 480) then Exit;
+  EnterCriticalSection(FLockDepth);
+  try
+    if Length(FLastDepthMM) = 640 * 480 then
+      Result := FLastDepthMM[AY * 640 + AX];
+  finally
+    LeaveCriticalSection(FLockDepth);
+  end;
+end;
+
+function TAIKinectSDK10Backend.CopyDepthMap(out AMap: array of Word): Boolean;
+var
+  Len: Integer;
+begin
+  Result := False;
+  Len := Length(AMap);
+  if Len < 640 * 480 then Exit;
+  EnterCriticalSection(FLockDepth);
+  try
+    if Length(FLastDepthMM) = 640 * 480 then
+    begin
+      Move(FLastDepthMM[0], AMap[0], 640 * 480 * SizeOf(Word));
+      Result := True;
+    end;
+  finally
+    LeaveCriticalSection(FLockDepth);
+  end;
+end;
+
+function TAIKinectSDK10Backend.GetDepthPointCloud(out ACloud: TAIKinectPointCloud; AColored: Boolean; AStep: Integer): Boolean;
+const
+  FOCAL_640 = 571.26;
+var
+  X, Y, Count, Capacity: Integer;
+  DepthVal: Word;
+  ZMeters, XMeters, YMeters: Single;
+  ColorIdx: Integer;
+begin
+  Result := False;
+  if AStep < 1 then AStep := 4;
+  Capacity := ((640 div AStep) + 1) * ((480 div AStep) + 1);
+  SetLength(ACloud, Capacity);
+  Count := 0;
+
+  EnterCriticalSection(FLockDepth);
+  try
+    if Length(FLastDepthMM) < 640 * 480 then Exit;
+    if AColored then EnterCriticalSection(FLockColor);
+    try
+      Y := 0;
+      while Y < 480 do
+      begin
+        X := 0;
+        while X < 640 do
+        begin
+          DepthVal := FLastDepthMM[Y * 640 + X];
+          if (DepthVal >= 400) and (DepthVal <= 4000) then
+          begin
+            ZMeters := DepthVal / 1000.0;
+            XMeters := (X - 320) * ZMeters * (1.0 / FOCAL_640);
+            YMeters := (240 - Y) * ZMeters * (1.0 / FOCAL_640);
+
+            ACloud[Count].X := XMeters;
+            ACloud[Count].Y := YMeters;
+            ACloud[Count].Z := ZMeters;
+            if AColored and (FLastColorBits <> nil) then
+            begin
+              ColorIdx := (Y * 640 + X) * 4;
+              ACloud[Count].B := FLastColorBits[ColorIdx];
+              ACloud[Count].G := FLastColorBits[ColorIdx + 1];
+              ACloud[Count].R := FLastColorBits[ColorIdx + 2];
+            end
+            else
+            begin
+              ACloud[Count].R := 200;
+              ACloud[Count].G := 200;
+              ACloud[Count].B := 200;
+            end;
+            Inc(Count);
+          end;
+          Inc(X, AStep);
+        end;
+        Inc(Y, AStep);
+      end;
+      SetLength(ACloud, Count);
+      Result := Count > 0;
+    finally
+      if AColored then LeaveCriticalSection(FLockColor);
+    end;
+  finally
+    LeaveCriticalSection(FLockDepth);
+  end;
+end;
+
+function TAIKinectSDK10Backend.GetLastDepthFrameInfo(out AInfo: TAIKinectFrameInfo): Boolean;
+begin
+  EnterCriticalSection(FLockDepth);
+  try
+    AInfo := FLastDepthInfo;
+    Result := FLastDepthInfo.FrameNumber > 0;
+  finally
+    LeaveCriticalSection(FLockDepth);
+  end;
+end;
+
+function TAIKinectSDK10Backend.GetLastSkeletonFrameInfo(out AInfo: TAIKinectFrameInfo): Boolean;
+begin
+  AInfo := FLastSkeletonInfo;
+  Result := FLastSkeletonInfo.FrameNumber > 0;
 end;
 
 function TAIKinectSDK10Backend.LoadFunctions: Boolean;
 begin
+  NuiGetSensorCount := TNuiGetSensorCount(GetProcAddress(FLibHandle, 'NuiGetSensorCount'));
   NuiInitialize := TNuiInitialize(GetProcAddress(FLibHandle, 'NuiInitialize'));
   NuiShutdown := TNuiShutdown(GetProcAddress(FLibHandle, 'NuiShutdown'));
   NuiImageStreamOpen := TNuiImageStreamOpen(GetProcAddress(FLibHandle, 'NuiImageStreamOpen'));

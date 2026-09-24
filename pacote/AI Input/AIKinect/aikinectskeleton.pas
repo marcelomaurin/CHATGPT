@@ -16,26 +16,31 @@ type
     FSmoothFactor : Double;
     FBodies       : TAIKinectBodies;
     FOnSkeleton   : TAIKinectSkeletonEvent;
-    
+    FOnSkeletonWithInfo: TAIKinectSkeletonWithInfoEvent;
+    FLastFrameInfo: TAIKinectFrameInfo;
+
     procedure SetActive(AValue: Boolean);
     procedure DoOnSkeleton(Sender: TObject; const ABodies: TAIKinectBodies);
+    procedure DoOnSkeletonWithInfo(Sender: TObject; const ABodies: TAIKinectBodies; const AInfo: TAIKinectFrameInfo);
   protected
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    
+
     function  StartTracking: Boolean;
     procedure StopTracking;
     function  TrackedBodyCount: Integer;
     function  GetBodies: TAIKinectBodies;
     function  ToPoseLandmarks(ABodyIndex: Integer): string;
+    function  GetLastFrameInfo(out AInfo: TAIKinectFrameInfo): Boolean;
   published
     property Sensor       : TAIKinectSensor         read FSensor write FSensor;
     property Active       : Boolean                 read FActive write SetActive default False;
     property SeatedMode   : Boolean                 read FSeatedMode write FSeatedMode default True;
     property SmoothFactor : Double                  read FSmoothFactor write FSmoothFactor;
     property OnSkeletonFrame: TAIKinectSkeletonEvent read FOnSkeleton write FOnSkeleton;
+    property OnSkeletonFrameWithInfo: TAIKinectSkeletonWithInfoEvent read FOnSkeletonWithInfo write FOnSkeletonWithInfo;
   end;
 
 procedure Register;
@@ -90,6 +95,7 @@ begin
 
   FSensor.BackendObject.ConfigureSkeleton(FSeatedMode, FSmoothFactor);
   FSensor.BackendObject.OnSkeletonFrame := @DoOnSkeleton;
+  FSensor.BackendObject.OnSkeletonFrameWithInfo := @DoOnSkeletonWithInfo;
   if FSensor.BackendObject.StartSkeletonStream then
   begin
     FActive := True;
@@ -99,6 +105,7 @@ begin
   begin
     SetError(FSensor.BackendObject.LastError);
     FSensor.BackendObject.OnSkeletonFrame := nil;
+    FSensor.BackendObject.OnSkeletonFrameWithInfo := nil;
   end;
 end;
 
@@ -110,6 +117,7 @@ begin
   begin
     FSensor.BackendObject.StopSkeletonStream;
     FSensor.BackendObject.OnSkeletonFrame := nil;
+    FSensor.BackendObject.OnSkeletonFrameWithInfo := nil;
   end;
 end;
 
@@ -133,6 +141,26 @@ begin
     
   if Assigned(FOnSkeleton) then
     FOnSkeleton(Self, FBodies);
+end;
+
+procedure TAIKinectSkeleton.DoOnSkeletonWithInfo(Sender: TObject; const ABodies: TAIKinectBodies; const AInfo: TAIKinectFrameInfo);
+begin
+  if not FActive then Exit;
+  FLastFrameInfo := AInfo;
+  DoOnSkeleton(Sender, ABodies);
+  if Assigned(FOnSkeletonWithInfo) then
+    FOnSkeletonWithInfo(Self, FBodies, AInfo);
+end;
+
+function TAIKinectSkeleton.GetLastFrameInfo(out AInfo: TAIKinectFrameInfo): Boolean;
+begin
+  if Assigned(FSensor) and FSensor.IsConnected and Assigned(FSensor.BackendObject) then
+    Result := FSensor.BackendObject.GetLastSkeletonFrameInfo(AInfo)
+  else
+  begin
+    AInfo := FLastFrameInfo;
+    Result := FLastFrameInfo.FrameNumber > 0;
+  end;
 end;
 
 function TAIKinectSkeleton.TrackedBodyCount: Integer;
@@ -173,8 +201,6 @@ begin
 end;
 
 initialization
-  {$I aikinectskeleton_icon.lrs}
-
   {$I aikinectskeleton_icon.lrs}
 
 end.

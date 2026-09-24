@@ -18,20 +18,25 @@ type
     FAutoDeleteTemp  : Boolean;
     FLastFrameFile   : string;
     FOnFrame         : TAIKinectFrameEvent;
+    FOnFrameWithInfo : TAIKinectFrameWithInfoEvent;
     FOnStateChange   : TAIKinectStateEvent;
-    
+    FLastFrameInfo   : TAIKinectFrameInfo;
+
     procedure SetActive(AValue: Boolean);
     procedure DoOnColorFrame(Sender: TObject; const AFrameFile: string);
+    procedure DoOnColorFrameWithInfo(Sender: TObject; const AFrameFile: string; const AInfo: TAIKinectFrameInfo);
   protected
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    
+
     function  StartStream: Boolean;
     procedure StopStream;
     function  CaptureFrame(ABitmap: Graphics.TBitmap): Boolean;
+    function  CopyLastFrame(ABitmap: Graphics.TBitmap): Boolean;
     function  CaptureToFile(const AFileName: string): Boolean;
+    function  GetLastFrameInfo(out AInfo: TAIKinectFrameInfo): Boolean;
   published
     property Sensor          : TAIKinectSensor      read FSensor write FSensor;
     property Active          : Boolean              read FActive write SetActive default False;
@@ -41,6 +46,7 @@ type
     property AutoDeleteTempFiles: Boolean           read FAutoDeleteTemp write FAutoDeleteTemp default True;
     property LastFrameFile   : string               read FLastFrameFile;
     property OnFrame         : TAIKinectFrameEvent  read FOnFrame write FOnFrame;
+    property OnFrameWithInfo : TAIKinectFrameWithInfoEvent read FOnFrameWithInfo write FOnFrameWithInfo;
     property OnStateChange   : TAIKinectStateEvent  read FOnStateChange write FOnStateChange;
   end;
 
@@ -98,6 +104,7 @@ begin
   
   try
     FSensor.BackendObject.OnColorFrame := @DoOnColorFrame;
+    FSensor.BackendObject.OnColorFrameWithInfo := @DoOnColorFrameWithInfo;
     if FSensor.BackendObject.StartColorStream then
     begin
       FActive := True;
@@ -125,6 +132,7 @@ begin
   begin
     FSensor.BackendObject.StopColorStream;
     FSensor.BackendObject.OnColorFrame := nil;
+    FSensor.BackendObject.OnColorFrameWithInfo := nil;
   end;
   if Assigned(FOnStateChange) then
     FOnStateChange(Self, False);
@@ -166,6 +174,35 @@ begin
     FOnFrame(Self, FLastFrameFile);
 end;
 
+procedure TAIKinectColorStream.DoOnColorFrameWithInfo(Sender: TObject; const AFrameFile: string; const AInfo: TAIKinectFrameInfo);
+begin
+  if not FActive then Exit;
+  FLastFrameInfo := AInfo;
+  if Assigned(FOnFrameWithInfo) then
+    FOnFrameWithInfo(Self, AFrameFile, AInfo);
+end;
+
+function TAIKinectColorStream.CopyLastFrame(ABitmap: Graphics.TBitmap): Boolean;
+begin
+  Result := False;
+  if not FActive or (ABitmap = nil) then Exit;
+  if Assigned(FSensor) and FSensor.IsConnected and Assigned(FSensor.BackendObject) then
+    Result := FSensor.BackendObject.CopyLastColorFrame(ABitmap);
+  if not Result then
+    Result := CaptureFrame(ABitmap);
+end;
+
+function TAIKinectColorStream.GetLastFrameInfo(out AInfo: TAIKinectFrameInfo): Boolean;
+begin
+  if Assigned(FSensor) and FSensor.IsConnected and Assigned(FSensor.BackendObject) then
+    Result := FSensor.BackendObject.GetLastColorFrameInfo(AInfo)
+  else
+  begin
+    AInfo := FLastFrameInfo;
+    Result := FLastFrameInfo.FrameNumber > 0;
+  end;
+end;
+
 function TAIKinectColorStream.CaptureFrame(ABitmap: Graphics.TBitmap): Boolean;
 begin
   Result := False;
@@ -195,8 +232,6 @@ begin
 end;
 
 initialization
-  {$I aikinectcolor_icon.lrs}
-
   {$I aikinectcolor_icon.lrs}
 
 end.

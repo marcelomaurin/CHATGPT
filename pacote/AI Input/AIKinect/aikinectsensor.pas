@@ -25,6 +25,12 @@ type
     procedure SetActive(AValue: Boolean);
     procedure SetTiltAngle(AValue: Integer);
     procedure SetLedColor(AValue: TAIKinectLed);
+    function  GetSupportsColor: Boolean;
+    function  GetSupportsDepth: Boolean;
+    function  GetSupportsSkeleton: Boolean;
+    function  GetSupportsAudio: Boolean;
+    function  GetSupportsTilt: Boolean;
+    function  GetBackendName: string;
   public
     constructor Create(AOwner: TComponent); override;
     destructor  Destroy; override;
@@ -37,6 +43,12 @@ type
     function  IsConnected: Boolean;
 
     property BackendObject: TAIKinectNativeBackend read FBackendObj;
+    property SupportsColor: Boolean read GetSupportsColor;
+    property SupportsDepth: Boolean read GetSupportsDepth;
+    property SupportsSkeleton: Boolean read GetSupportsSkeleton;
+    property SupportsAudio: Boolean read GetSupportsAudio;
+    property SupportsTilt: Boolean read GetSupportsTilt;
+    property BackendName: string read GetBackendName;
   published
     property DeviceIndex : Integer              read FDeviceIndex write FDeviceIndex default 0;
     property KinectModel : TAIKinectModel       read FKinectModel write FKinectModel default kmAuto;
@@ -170,15 +182,88 @@ begin
     FBackendObj.SetLedColor(FLedColor);
 end;
 
+function TAIKinectSensor.GetSupportsColor: Boolean;
+begin
+  if Assigned(FBackendObj) then
+    Result := FBackendObj.SupportsColor
+  else
+    Result := True;
+end;
+
+function TAIKinectSensor.GetSupportsDepth: Boolean;
+begin
+  if Assigned(FBackendObj) then
+    Result := FBackendObj.SupportsDepth
+  else
+    Result := True;
+end;
+
+function TAIKinectSensor.GetSupportsSkeleton: Boolean;
+begin
+  if Assigned(FBackendObj) then
+    Result := FBackendObj.SupportsSkeleton
+  else
+  begin
+    {$IFDEF MSWINDOWS}
+    Result := (FBackend = kbAuto) or (FBackend = kbKinectSDK10);
+    {$ELSE}
+    Result := False;
+    {$ENDIF}
+  end;
+end;
+
+function TAIKinectSensor.GetSupportsAudio: Boolean;
+begin
+  if Assigned(FBackendObj) then
+    Result := FBackendObj.SupportsAudio
+  else
+    Result := False;
+end;
+
+function TAIKinectSensor.GetSupportsTilt: Boolean;
+begin
+  if Assigned(FBackendObj) then
+    Result := FBackendObj.SupportsTilt
+  else
+    Result := True;
+end;
+
+function TAIKinectSensor.GetBackendName: string;
+begin
+  if Assigned(FBackendObj) then
+    Result := FBackendObj.BackendName
+  else
+  begin
+    {$IFDEF MSWINDOWS}
+    if (FBackend = kbAuto) or (FBackend = kbKinectSDK10) then
+      Result := 'Microsoft Kinect SDK 1.8 (Kinect10.dll)'
+    else
+      Result := 'libfreenect';
+    {$ELSE}
+    Result := 'libfreenect';
+    {$ENDIF}
+  end;
+end;
+
 function TAIKinectSensor.ListDevices: TStringList;
+var
+  Cnt, I: Integer;
 begin
   Result := TStringList.Create;
-  Result.Add('0: Microsoft Kinect (Xbox 360)');
+  Cnt := DeviceCount;
+  for I := 0 to Cnt - 1 do
+    Result.Add(Format('%d: Microsoft Kinect (Xbox 360)', [I]));
 end;
 
 function TAIKinectSensor.DeviceCount: Integer;
 begin
-  Result := 1;
+  if FActive and Assigned(FBackendObj) and FBackendObj.Connected then
+    Exit(1);
+  {$IFDEF MSWINDOWS}
+  Result := TAIKinectSDK10Backend.DetectDeviceCount;
+  {$ELSE}
+  Result := 0;
+  {$ENDIF}
 end;
 
 function TAIKinectSensor.ReadAccelerometer(out AX, AY, AZ: Double): Boolean;
@@ -196,8 +281,6 @@ begin
 end;
 
 initialization
-  {$I aikinectsensor_icon.lrs}
-
   {$I aikinectsensor_icon.lrs}
 
 end.
