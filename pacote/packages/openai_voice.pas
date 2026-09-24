@@ -8,9 +8,12 @@ unit openai_voice;
 interface
 
 uses
-  aispeechtypes, aiwhisperengine, aispeechrecognizer, aivoiceclonetypes,
-  aif5ttsengine, aivoiceclone, aivoiceassistant, aiaudioplayback,
-  aivoicesynthesizer, aivoicerecognizer, soundfilters, LazarusPackageIntf;
+  aispeechtypes, aiwhisperengine, aispeechrecognizer, aivoiceclonetypes, 
+  aif5ttsengine, aivoiceclone, aivoiceassistant, aiaudioplayback, 
+  aivoiceprovider_types, aivoiceprovider_backend, aivoiceprovider_openai, 
+  aivoiceprovider_openaicompatible, aivoiceprovider_customhttp, 
+  aivoicecredentialstore, aivoicesynthesizer, aivoicerecognizer, soundfilters, 
+  LazarusPackageIntf;
 
 implementation
 

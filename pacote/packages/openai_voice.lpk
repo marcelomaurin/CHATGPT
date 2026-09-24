@@ -55,6 +55,30 @@
         <UnitName Value="aiaudioplayback"/>
       </Item>
       <Item>
+        <Filename Value="..\AI Voice\aivoiceprovider_types.pas"/>
+        <UnitName Value="aivoiceprovider_types"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Voice\aivoiceprovider_backend.pas"/>
+        <UnitName Value="aivoiceprovider_backend"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Voice\aivoiceprovider_openai.pas"/>
+        <UnitName Value="aivoiceprovider_openai"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Voice\aivoiceprovider_openaicompatible.pas"/>
+        <UnitName Value="aivoiceprovider_openaicompatible"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Voice\aivoiceprovider_customhttp.pas"/>
+        <UnitName Value="aivoiceprovider_customhttp"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Voice\aivoicecredentialstore.pas"/>
+        <UnitName Value="aivoicecredentialstore"/>
+      </Item>
+      <Item>
         <Filename Value="..\AI Voice\aivoicesynthesizer.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aivoicesynthesizer"/>

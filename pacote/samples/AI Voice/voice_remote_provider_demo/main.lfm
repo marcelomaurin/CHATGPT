@@ -1,0 +1,266 @@
+object frmVoiceRemoteDemo: TfrmVoiceRemoteDemo
+  Left = 320
+  Height = 600
+  Top = 150
+  Width = 800
+  Caption = 'AI Remote Voice Provider Demo'
+  ClientHeight = 600
+  ClientWidth = 800
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  Position = poScreenCenter
+  LCLVersion = '2.2.6.0'
+  object pnlTop: TPanel
+    Left = 0
+    Height = 60
+    Top = 0
+    Width = 800
+    Align = alTop
+    BevelOuter = bvNone
+    Color = 15921906
+    ParentColor = False
+    TabOrder = 0
+    object lblTitle: TLabel
+      Left = 16
+      Height = 25
+      Top = 8
+      Width = 320
+      Caption = 'AI Remote Voice Provider Demo'
+      Font.Height = -19
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object lblSubtitle: TLabel
+      Left = 16
+      Height = 15
+      Top = 36
+      Width = 460
+      Caption = 'Demonstrador de Provedores de Voz Remota (OpenAI, OpenAI-Compatible, Custom HTTP)'
+      ParentFont = False
+    end
+  end
+  object pnlConfig: TPanel
+    Left = 0
+    Height = 280
+    Top = 60
+    Width = 800
+    Align = alTop
+    BevelOuter = bvNone
+    ClientHeight = 280
+    ClientWidth = 800
+    TabOrder = 1
+    object lblProvider: TLabel
+      Left = 16
+      Height = 15
+      Top = 12
+      Width = 88
+      Caption = 'Provedor de Voz:'
+    end
+    object cbProvider: TComboBox
+      Left = 112
+      Height = 23
+      Top = 8
+      Width = 220
+      ItemHeight = 15
+      OnChange = cbProviderChange
+      Style = csDropDownList
+      TabOrder = 0
+    end
+    object lblEndpoint: TLabel
+      Left = 16
+      Height = 15
+      Top = 44
+      Width = 50
+      Caption = 'Endpoint:'
+    end
+    object edtEndpoint: TEdit
+      Left = 112
+      Height = 23
+      Top = 40
+      Width = 660
+      TabOrder = 1
+    end
+    object lblToken: TLabel
+      Left = 16
+      Height = 15
+      Top = 76
+      Width = 34
+      Caption = 'Token:'
+    end
+    object edtToken: TEdit
+      Left = 112
+      Height = 23
+      Top = 72
+      Width = 560
+      EchoMode = emPassword
+      PasswordChar = '*'
+      TabOrder = 2
+    end
+    object btnToggleToken: TButton
+      Left = 680
+      Height = 23
+      Top = 72
+      Width = 92
+      Caption = 'Mostrar'
+      OnClick = btnToggleTokenClick
+      TabOrder = 3
+    end
+    object lblModel: TLabel
+      Left = 16
+      Height = 15
+      Top = 108
+      Width = 44
+      Caption = 'Modelo:'
+    end
+    object edtModel: TEdit
+      Left = 112
+      Height = 23
+      Top = 104
+      Width = 220
+      TabOrder = 4
+    end
+    object lblVoice: TLabel
+      Left = 360
+      Height = 15
+      Top = 108
+      Width = 21
+      Caption = 'Voz:'
+    end
+    object edtVoice: TEdit
+      Left = 400
+      Height = 23
+      Top = 104
+      Width = 160
+      TabOrder = 5
+    end
+    object lblLanguage: TLabel
+      Left = 16
+      Height = 15
+      Top = 140
+      Width = 40
+      Caption = 'Idioma:'
+    end
+    object cbLanguage: TComboBox
+      Left = 112
+      Height = 23
+      Top = 136
+      Width = 220
+      ItemHeight = 15
+      Style = csDropDownList
+      TabOrder = 6
+    end
+    object lblFormat: TLabel
+      Left = 360
+      Height = 15
+      Top = 140
+      Width = 48
+      Caption = 'Formato:'
+    end
+    object cbFormat: TComboBox
+      Left = 420
+      Height = 23
+      Top = 136
+      Width = 140
+      ItemHeight = 15
+      Style = csDropDownList
+      TabOrder = 7
+    end
+    object lblSpeed: TLabel
+      Left = 580
+      Height = 15
+      Top = 140
+      Width = 60
+      Caption = 'Velocidade:'
+    end
+    object edtSpeed: TEdit
+      Left = 650
+      Height = 23
+      Top = 136
+      Width = 122
+      TabOrder = 8
+      Text = '1.0'
+    end
+    object btnTestConfig: TButton
+      Left = 112
+      Height = 32
+      Top = 180
+      Width = 160
+      Caption = 'Testar Conexão'
+      OnClick = btnTestConfigClick
+      TabOrder = 9
+    end
+    object btnSpeak: TButton
+      Left = 288
+      Height = 32
+      Top = 180
+      Width = 160
+      Caption = 'Falar Texto'
+      Font.Style = [fsBold]
+      OnClick = btnSpeakClick
+      ParentFont = False
+      TabOrder = 10
+    end
+    object btnStop: TButton
+      Left = 464
+      Height = 32
+      Top = 180
+      Width = 100
+      Caption = 'Parar'
+      OnClick = btnStopClick
+      TabOrder = 11
+    end
+    object lblTextPrompt: TLabel
+      Left = 16
+      Height = 15
+      Top = 224
+      Width = 79
+      Caption = 'Texto para Falar:'
+    end
+    object edtText: TEdit
+      Left = 112
+      Height = 23
+      Top = 220
+      Width = 660
+      TabOrder = 12
+      Text = 'Teste de voz do Professor Virtual da FATEC com provedor externo.'
+    end
+  end
+  object pnlLogs: TPanel
+    Left = 0
+    Height = 260
+    Top = 340
+    Width = 800
+    Align = alClient
+    BevelOuter = bvNone
+    ClientHeight = 260
+    ClientWidth = 800
+    TabOrder = 2
+    object lblLogs: TLabel
+      Left = 16
+      Height = 15
+      Top = 8
+      Width = 28
+      Caption = 'Logs:'
+    end
+    object memoLog: TMemo
+      Left = 16
+      Height = 200
+      Top = 28
+      Width = 756
+      Anchors = [akTop, akLeft, akRight, akBottom]
+      ReadOnly = True
+      ScrollBars = ssVertical
+      TabOrder = 0
+    end
+    object btnClearLog: TButton
+      Left = 16
+      Height = 25
+      Top = 232
+      Width = 90
+      Anchors = [akLeft, akBottom]
+      Caption = 'Limpar Log'
+      OnClick = btnClearLogClick
+      TabOrder = 1
+    end
+  end
+end

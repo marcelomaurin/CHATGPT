@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  ComCtrls, aivoicesynthesizer;
+  ComCtrls, aivoiceprovider_types, aivoicesynthesizer;
 
 type
 
@@ -78,6 +78,9 @@ begin
   {$ELSE}
   lbSynthesizers.Items.Add('eSpeak');
   {$ENDIF}
+  lbSynthesizers.Items.Add('OpenAI TTS');
+  lbSynthesizers.Items.Add('OpenAI-Compatible TTS');
+  lbSynthesizers.Items.Add('Custom HTTP TTS');
 
   // Select the first synthesizer by default
   if lbSynthesizers.Items.Count > 0 then
@@ -100,12 +103,43 @@ begin
   LogMsg('Sintetizador selecionado: ' + SelectedEngine);
 
   if SelectedEngine = 'SAPI (Windows)' then
-    FAIVoice.Engine := seSAPI
-  else
+  begin
+    FAIVoice.Engine := seSAPI;
+    FAIVoice.Provider := vpNone;
+  end
+  else if SelectedEngine = 'eSpeak' then
+  begin
     FAIVoice.Engine := seEspeak;
+    FAIVoice.Provider := vpNone;
+  end
+  else if SelectedEngine = 'OpenAI TTS' then
+  begin
+    FAIVoice.Provider := vpOpenAI;
+  end
+  else if SelectedEngine = 'OpenAI-Compatible TTS' then
+  begin
+    FAIVoice.Provider := vpOpenAICompatible;
+  end
+  else if SelectedEngine = 'Custom HTTP TTS' then
+  begin
+    FAIVoice.Provider := vpCustomHTTP;
+  end;
 
-  LogMsg('Carregando vozes correspondentes...');
-  FAIVoice.GetAvailableVoices(lbVoices.Items);
+  if (FAIVoice.Provider = vpNone) then
+  begin
+    LogMsg('Carregando vozes locais...');
+    FAIVoice.GetAvailableVoices(lbVoices.Items);
+  end
+  else
+  begin
+    lbVoices.Items.Clear;
+    lbVoices.Items.Add('alloy');
+    lbVoices.Items.Add('echo');
+    lbVoices.Items.Add('fable');
+    lbVoices.Items.Add('onyx');
+    lbVoices.Items.Add('nova');
+    lbVoices.Items.Add('shimmer');
+  end;
 
   if lbVoices.Items.Count > 0 then
   begin
