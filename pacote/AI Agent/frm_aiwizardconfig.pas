@@ -265,9 +265,9 @@ begin
   // Pre-load from Project if assigned
   if Assigned(FProject) then
   begin
-    if Assigned(FProject.Pipeline) then
+    if Assigned(FProject.Pipeline) and (FProject.Pipeline is TAIPipeline) then
     begin
-      case FProject.Pipeline.Mode of
+      case TAIPipeline(FProject.Pipeline).Mode of
         pmTextLLM: cbProjectType.ItemIndex := 2;
         pmNumericML: cbProjectType.ItemIndex := 2;
         pmAgentAction: cbProjectType.ItemIndex := 4;

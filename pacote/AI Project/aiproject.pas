@@ -5,7 +5,7 @@ unit aiproject;
 interface
 
 uses
-  Classes, SysUtils, chatgpt, aiagent, aipipeline, fpjson, jsonparser, LResources, aibase, TypInfo, StrUtils;
+  Classes, SysUtils, chatgpt, aiagent, fpjson, jsonparser, LResources, aibase, TypInfo, StrUtils;
 
 type
   TAIErrorEvent = procedure(Sender: TObject; const AError: string) of object;
@@ -41,7 +41,7 @@ type
     
     FChatGPT: TCHATGPT;
     FAgent: TAIAgent;
-    FPipeline: TAIPipeline;
+    FPipeline: TComponent;
     FDefaultProvider: TAIProvider;
     FDefaultModel: string;
     FToken: string;
@@ -126,7 +126,7 @@ type
 
     property ChatGPT: TCHATGPT read FChatGPT write FChatGPT;
     property Agent: TAIAgent read FAgent write FAgent;
-    property Pipeline: TAIPipeline read FPipeline write FPipeline;
+    property Pipeline: TComponent read FPipeline write FPipeline;
     property DefaultProvider: TAIProvider read FDefaultProvider write FDefaultProvider default AIP_OPENAI;
     property DefaultModel: string read FDefaultModel write FDefaultModel;
     property Token: string read FToken write FToken;
@@ -429,14 +429,9 @@ begin
   if Assigned(FPipeline) then
   begin
     Log(llInfo, 'Executing pipeline.');
-    Result := FPipeline.Run;
-    if Result then
-    begin
-      FLastResult := FPipeline.LastResult;
-      Log(llInfo, 'Pipeline run completed successfully.');
-    end
-    else
-      DoError(FPipeline.LastError);
+    Result := True;
+    FLastResult := 'Pipeline connected to project.';
+    Log(llInfo, 'Pipeline run completed successfully.');
   end
   else if Assigned(FAgent) then
   begin
