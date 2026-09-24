@@ -88,6 +88,7 @@ const
   WM_CAP_FILE_SAVEDIBW          = WM_CAP_START + 125;
   WM_CAP_SET_PREVIEW            = WM_CAP_START + 50;
   WM_CAP_SET_PREVIEWRATE        = WM_CAP_START + 52;
+  WM_CAP_SET_SCALE              = WM_CAP_START + 53;
   WM_CAP_GRAB_FRAME             = WM_CAP_START + 60;
 
 function capCreateCaptureWindowW(
@@ -174,6 +175,7 @@ begin
   if APreviewEnabled then
   begin
     SendMessage(FCaptureWnd, WM_CAP_SET_PREVIEWRATE, LCaptureInterval, 0);
+    SendMessage(FCaptureWnd, WM_CAP_SET_SCALE, 1, 0);
     SendMessage(FCaptureWnd, WM_CAP_SET_PREVIEW, 1, 0);
   end;
 
