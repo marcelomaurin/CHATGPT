@@ -5,7 +5,7 @@ unit aifacerecognition;
 interface
 
 uses
-  Classes, SysUtils, Graphics, Math,
+  Classes, SysUtils, Graphics, Math, aibase,
   yolodetect, facedetection, aifacetracker,
   aifaceprofile, aifacedescriptor, aifacematcher, aifaceregistry;
 
@@ -83,6 +83,16 @@ type
     FCurrentCandidateID: string;
     FLastConfirmedProfileID: string;
     FLastConfirmedScore: Double;
+    FProfileCooldowns: TStringList;
+
+    // Diagnosticos de runtime
+    FLastInferenceMs: Integer;
+    FLastMatchMs: Integer;
+    FLastFaceCount: Integer;
+    FLastRecognitionStatus: string;
+    FTrackingMaxScore: Double;
+    FCancelRequested: Boolean;
+    FOnLog: TAILogEvent;
 
     // Contadores de diagnóstico para comprovar tracking (Tarefa 66)
     FYoloInferenceCount: Integer;
@@ -114,6 +124,10 @@ type
     function ProcessFrame(ABitmap: TBitmap; out AResults: TFaceMatchResultArray): Boolean;
     function EnrollSample(const AProfileID, AImageFile: string; out AError: string): Boolean;
     function ValidateRecognitionModel(out AMessage: string): Boolean;
+    function SelfTestRecognitionModel(const ATestImage: string; out AMessage: string): Boolean;
+    procedure StopProcessing;
+    function CanRecognizeProfile(const AProfileID: string; ANowTick: QWord): Boolean;
+    procedure RecordRecognizedProfile(const AProfileID: string; ANowTick: QWord);
 
     property DescriptorBuilder: TAIFaceDescriptorBuilder read FDescriptorBuilder;
     property Matcher: TAIFaceMatcher read FMatcher;
@@ -127,7 +141,13 @@ type
     property TemporaryFaceID: string read FTemporaryFaceID;
     property YoloInferenceCount: Integer read FYoloInferenceCount;
     property TrackedFrameCount: Integer read FTrackedFrameCount;
+    property LastInferenceMs: Integer read FLastInferenceMs;
+    property LastMatchMs: Integer read FLastMatchMs;
+    property LastFaceCount: Integer read FLastFaceCount;
+    property LastRecognitionStatus: string read FLastRecognitionStatus;
   published
+    property TrackingMaxScore: Double read FTrackingMaxScore write FTrackingMaxScore;
+    property OnLog: TAILogEvent read FOnLog write FOnLog;
     property Yolo: TYOLO read FYolo write SetYolo;
     property FaceDetection: TFaceDetection read FFaceDetection write SetFaceDetection;
     property FaceTracker: TAIFaceTracker read FFaceTracker write SetFaceTracker;
@@ -193,6 +213,15 @@ begin
   FFaceClasses.Add('face');
   FFaceClasses.Add('human_face');
 
+  FProfileCooldowns := TStringList.Create;
+  FProfileCooldowns.Duplicates := dupIgnore;
+  FTrackingMaxScore := 0.85;
+  FCancelRequested := False;
+  FLastInferenceMs := 0;
+  FLastMatchMs := 0;
+  FLastFaceCount := 0;
+  FLastRecognitionStatus := 'Idle';
+
   FYoloRefreshIntervalMs := 1500;
   FRecognitionIntervalMs := 300;
   FRequiredConfirmations := 3;
@@ -231,13 +260,61 @@ begin
     FreeAndNil(FMatcher);
 
   FreeAndNil(FFaceClasses);
+  FreeAndNil(FProfileCooldowns);
   inherited Destroy;
 end;
 
 procedure TAIFaceRecognition.LogDebug(const AMsg: string);
 begin
-  if FDebugLogging then
+  if Assigned(FOnLog) then
+    FOnLog(Self, llDebug, AMsg)
+  else if FDebugLogging and IsConsole then
     Writeln('[TAIFaceRecognition Debug] ', FormatDateTime('hh:nn:ss.zzz', Now), ' - ', AMsg);
+end;
+
+procedure TAIFaceRecognition.StopProcessing;
+begin
+  FCancelRequested := True;
+end;
+
+function TAIFaceRecognition.CanRecognizeProfile(const AProfileID: string; ANowTick: QWord): Boolean;
+var
+  Idx: Integer;
+  LastTick: QWord;
+begin
+  if (AProfileID = '') or (AProfileID = 'unknown') then
+  begin
+    if (FLastUnknownTick > 0) and (ANowTick - FLastUnknownTick < QWord(FUnknownCooldownMs)) then
+      Exit(False);
+    Exit(True);
+  end;
+
+  Idx := FProfileCooldowns.IndexOf(AProfileID);
+  if Idx >= 0 then
+  begin
+    LastTick := QWord(PtrUInt(FProfileCooldowns.Objects[Idx]));
+    if (LastTick > 0) and (ANowTick - LastTick < QWord(FRecognitionCooldownMs)) then
+      Exit(False);
+  end;
+
+  Result := True;
+end;
+
+procedure TAIFaceRecognition.RecordRecognizedProfile(const AProfileID: string; ANowTick: QWord);
+var
+  Idx: Integer;
+begin
+  if (AProfileID = '') or (AProfileID = 'unknown') then
+  begin
+    FLastUnknownTick := ANowTick;
+    Exit;
+  end;
+
+  Idx := FProfileCooldowns.IndexOf(AProfileID);
+  if Idx >= 0 then
+    FProfileCooldowns.Objects[Idx] := TObject(PtrUInt(ANowTick))
+  else
+    FProfileCooldowns.AddObject(AProfileID, TObject(PtrUInt(ANowTick)));
 end;
 
 procedure TAIFaceRecognition.SetFaceClasses(const AValue: TStringList);
@@ -327,24 +404,105 @@ begin
 
   if FYolo = nil then
   begin
-    AMessage := 'Componente TYOLO não associado ao TAIFaceRecognition.';
+    AMessage := 'Componente TYOLO nao associado ao TAIFaceRecognition.';
     Exit;
   end;
 
   if Trim(FYolo.ModelPath) = '' then
   begin
-    AMessage := 'ModelPath não foi informado no componente TYOLO.';
+    AMessage := 'ModelPath nao foi informado no componente TYOLO.';
     Exit;
+  end;
+
+  if (Pos('/', FYolo.ModelPath) > 0) or (Pos('\', FYolo.ModelPath) > 0) or (ExtractFileExt(FYolo.ModelPath) <> '') then
+  begin
+    if not FileExists(FYolo.ModelPath) then
+    begin
+      AMessage := 'Arquivo de modelo nao encontrado no caminho especificado: ' + FYolo.ModelPath;
+      Exit;
+    end;
   end;
 
   if (FYolo.KeyPointMapping = nil) or (FYolo.KeyPointMapping.LeftEyeIndex < 0) or
      (FYolo.KeyPointMapping.RightEyeIndex < 0) or (FYolo.KeyPointMapping.NoseIndex < 0) then
   begin
-    AMessage := 'Mapeamento de keypoints faciais incompleto no TYOLO.';
+    AMessage := 'Mapeamento de keypoints faciais incompleto no TYOLO. O modelo precisa fornecer keypoints/landmarks.';
     Exit;
   end;
 
   AMessage := 'Modelo e mapeamento configurados corretamente.';
+  Result := True;
+end;
+
+function TAIFaceRecognition.SelfTestRecognitionModel(const ATestImage: string; out AMessage: string): Boolean;
+var
+  Objects: TYoloObjectArray;
+  DescData: TAIFaceDescriptorData;
+  Score, Dist: Double;
+  FaceIdx, i: Integer;
+begin
+  Result := False;
+  AMessage := '';
+
+  // 1. Valida configuracao basica de modelo e mapeamento
+  if not ValidateRecognitionModel(AMessage) then
+    Exit;
+
+  // 2. Valida presenca da imagem de teste
+  if not FileExists(ATestImage) then
+  begin
+    AMessage := 'Imagem de teste para auto-diagnostico nao encontrada: ' + ATestImage;
+    Exit;
+  end;
+
+  // 3. Executa inferencia real com o TYOLO
+  if not FYolo.DetectObjects(ATestImage, Objects) then
+  begin
+    AMessage := 'Falha na execucao do TYOLO: ' + FYolo.LastError;
+    Exit;
+  end;
+
+  // 4. Procura por face valida
+  FaceIdx := -1;
+  for i := 0 to High(Objects) do
+  begin
+    if IsFaceObject(Objects[i]) then
+    begin
+      FaceIdx := i;
+      Break;
+    end;
+  end;
+
+  if FaceIdx < 0 then
+  begin
+    AMessage := Format('Inferencia executada com sucesso, mas nenhuma face foi detectada (objetos retornados: %d).', [Length(Objects)]);
+    Exit;
+  end;
+
+  // 5. Verifica quantidade de keypoints retornados pelo modelo
+  if Length(Objects[FaceIdx].KeyPoints) < 5 then
+  begin
+    AMessage := Format('Modelo detecta face, mas retornou apenas %d keypoints. Nao serve para identificacao por descritor geometrico (necessario >= 5).',
+      [Length(Objects[FaceIdx].KeyPoints)]);
+    Exit;
+  end;
+
+  // 6. Constroi descritor geometrico
+  if not FDescriptorBuilder.BuildDescriptor(Objects[FaceIdx], FYolo.KeyPointMapping, DescData) then
+  begin
+    AMessage := 'Falha ao construir descritor facial: ' + DescData.ErrorMessage;
+    Exit;
+  end;
+
+  // 7. Auto-teste de matching (consigo mesmo)
+  if not FMatcher.CompareVectors(DescData.Values, DescData.Values, Score, Dist) or (Score < 0.95) then
+  begin
+    AMessage := 'Falha no teste de autoconsistencia do matcher.';
+    Exit;
+  end;
+
+  AMessage := Format('Auto-teste bem-sucedido: Modelo "%s" funcional. Face detectada com %d landmarks, confianca %.2f%%, descritor valido (score auto-match=%.4f).',
+    [ExtractFileName(FYolo.ModelPath), Length(Objects[FaceIdx].KeyPoints), Objects[FaceIdx].Confidence * 100.0, Score]);
   Result := True;
 end;
 
@@ -365,6 +523,7 @@ begin
   SetLength(AResults, 0);
   FLastError := '';
   StartTime := GetTickCount64;
+  FCancelRequested := False;
 
   if not FileExists(AImageFile) then
   begin
@@ -397,6 +556,8 @@ begin
     end;
 
     InfTime := GetTickCount64 - StartTime;
+    FLastInferenceMs := InfTime;
+    FLastFaceCount := Length(Objects);
     LogDebug(Format('Inferência YOLO concluída em %d ms. Objetos detectados: %d', [InfTime, Length(Objects)]));
 
     ResCount := 0;
@@ -422,8 +583,9 @@ begin
       if FDescriptorBuilder.BuildDescriptor(Objects[i], FYolo.KeyPointMapping, DescData) then
       begin
         StartTime := GetTickCount64;
-        FMatcher.MatchProfiles(DescData.Values, GetProfilesArray, MatchRes);
+        FMatcher.MatchProfiles(DescData, GetProfilesArray, MatchRes);
         MatchTime := GetTickCount64 - StartTime;
+        FLastMatchMs := MatchTime;
 
         LogDebug(Format('Matching face %d: Score=%.3f, Dist=%.3f, Status=%d, Perfil=%s (Tempo=%d ms)',
           [i, MatchRes.Score, MatchRes.Distance, Ord(MatchRes.Status), MatchRes.ProfileName, MatchTime]));
@@ -452,10 +614,10 @@ begin
               FLastConfirmedProfileID := MatchRes.ProfileID;
               FLastConfirmedScore := MatchRes.Score;
 
-              // Cooldown do evento OnFaceRecognized (Tarefa 24)
-              if (NowTick - FLastRecognizedTick >= FRecognitionCooldownMs) or (FLastRecognizedTick = 0) then
+              // Cooldown por ProfileID (permite reconhecimento imediato de outra pessoa)
+              if CanRecognizeProfile(MatchRes.ProfileID, NowTick) then
               begin
-                FLastRecognizedTick := NowTick;
+                RecordRecognizedProfile(MatchRes.ProfileID, NowTick);
                 if Assigned(FOnFaceRecognized) then
                   FOnFaceRecognized(Self, MatchRes);
               end;
@@ -516,7 +678,10 @@ begin
     begin
       FLastState := frsIdle;
       FTemporaryFaceID := '';
-    end;
+      FLastRecognitionStatus := 'Nenhuma face encontrada';
+    end
+    else
+      FLastRecognitionStatus := Format('OK: %d face(s) identificada(s)', [ResCount]);
 
     Result := True;
   end
@@ -701,6 +866,8 @@ begin
       FCurrentCandidateID := '';
       FLastConfirmedProfileID := '';
       FTemporaryFaceID := '';
+      if FProfileCooldowns <> nil then
+        FProfileCooldowns.Clear; // Permite novo reconhecimento quando a pessoa retornar
       ResetTrackingState;
 
       if Assigned(FOnFaceLost) then

@@ -12,6 +12,7 @@ type
   TAIFaceDescriptorData = record
     Version: Integer;
     Algorithm: string;
+    ModelID: string;
     Values: TDoubleDynArray;
     FaceConfidence: Double;
     LandmarkConfidence: Double;
@@ -41,6 +42,7 @@ type
     FEnrollmentQualityThreshold: Double;
     FRecognitionQualityThreshold: Double;
     FEnableRotationNormalization: Boolean;
+    FModelID: string;
   public
     constructor Create;
     function GetAlgorithmName: string;
@@ -65,13 +67,36 @@ type
     property EnrollmentQualityThreshold: Double read FEnrollmentQualityThreshold write FEnrollmentQualityThreshold;
     property RecognitionQualityThreshold: Double read FRecognitionQualityThreshold write FRecognitionQualityThreshold;
     property EnableRotationNormalization: Boolean read FEnableRotationNormalization write FEnableRotationNormalization default True;
+    property ModelID: string read FModelID write FModelID;
   end;
+
+function IsDescriptorCompatible(const AAlgorithmA, AAlgorithmB: string;
+  AVersionA, AVersionB: Integer;
+  const AModelIDA, AModelIDB: string;
+  AAllowCrossModel: Boolean = False): Boolean;
 
 implementation
 
 const
   DESCRIPTOR_VERSION = 1;
   DESCRIPTOR_ALGORITHM = 'yolo_landmarks_geometry';
+
+function IsDescriptorCompatible(const AAlgorithmA, AAlgorithmB: string;
+  AVersionA, AVersionB: Integer;
+  const AModelIDA, AModelIDB: string;
+  AAllowCrossModel: Boolean): Boolean;
+begin
+  if not SameText(AAlgorithmA, AAlgorithmB) then
+    Exit(False);
+  if AVersionA <> AVersionB then
+    Exit(False);
+  if not AAllowCrossModel then
+  begin
+    if (AModelIDA <> '') and (AModelIDB <> '') and not SameText(AModelIDA, AModelIDB) then
+      Exit(False);
+  end;
+  Result := True;
+end;
 
 { TAIFaceDescriptorBuilder }
 
@@ -86,6 +111,7 @@ begin
   FEnrollmentQualityThreshold := 0.70;
   FRecognitionQualityThreshold := 0.50;
   FEnableRotationNormalization := True;
+  FModelID := 'yolov8n-face';
 end;
 
 function TAIFaceDescriptorBuilder.GetAlgorithmName: string;
@@ -199,6 +225,7 @@ begin
   Result := False;
   AData.Version := DESCRIPTOR_VERSION;
   AData.Algorithm := DESCRIPTOR_ALGORITHM;
+  AData.ModelID := FModelID;
   SetLength(AData.Values, 0);
   AData.FaceConfidence := AObject.Confidence;
   AData.LandmarkConfidence := 0.0;
@@ -343,6 +370,7 @@ begin
   ASample.ImageFile := AImageFile;
   ASample.DescriptorVersion := Data.Version;
   ASample.Algorithm := Data.Algorithm;
+  ASample.ModelID := Data.ModelID;
   ASample.Vector := Data.Values;
   ASample.CreatedAt := Now;
   ASample.DetectionConfidence := Data.FaceConfidence;

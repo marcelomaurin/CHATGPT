@@ -8,6 +8,8 @@ uses
   Classes, SysUtils, yolodetect, aifaceprofile, aifacedescriptor, aifacejson;
 
 type
+  TOnRegistryWarningEvent = procedure(Sender: TObject; const AProfileID, AWarning: string) of object;
+
   { TAIFaceRegistry }
   TAIFaceRegistry = class
   private
@@ -15,6 +17,7 @@ type
     FLastError: string;
     FWarnings: TStringList;
     FFaceClasses: TStringList;
+    FOnRegistryWarning: TOnRegistryWarningEvent;
     function GetProfile(Index: Integer): TAIFaceProfile;
     procedure SetFaceClasses(const AValue: TStringList);
   public
@@ -30,6 +33,7 @@ type
     procedure Clear;
 
     function LoadFromFolder(const AFolderPath: string; ACreateIfMissing: Boolean = True): Integer;
+    function ReloadFromFolder(const AFolderPath: string): Integer;
     function SaveProfile(const AProfileID: string; const AFolderPath: string): Boolean;
     function SaveAll(const AFolderPath: string): Boolean;
 
@@ -55,6 +59,7 @@ type
     property LastError: string read FLastError;
     property Warnings: TStringList read FWarnings;
     property FaceClasses: TStringList read FFaceClasses write SetFaceClasses;
+    property OnRegistryWarning: TOnRegistryWarningEvent read FOnRegistryWarning write FOnRegistryWarning;
   end;
 
 implementation
@@ -205,6 +210,12 @@ begin
   end;
 end;
 
+function TAIFaceRegistry.ReloadFromFolder(const AFolderPath: string): Integer;
+begin
+  Clear;
+  Result := LoadFromFolder(AFolderPath, True);
+end;
+
 function TAIFaceRegistry.LoadFromFolder(const AFolderPath: string; ACreateIfMissing: Boolean): Integer;
 var
   SR: TSearchRec;
@@ -241,10 +252,17 @@ begin
               P.ID := ChangeFileExt(SR.Name, '');
 
             if WarningMsg <> '' then
+            begin
               FWarnings.Add(Format('[Aviso %s]: %s', [SR.Name, WarningMsg]));
+              if Assigned(FOnRegistryWarning) then
+                FOnRegistryWarning(Self, P.ID, WarningMsg);
+            end;
 
             if FindByID(P.ID) <> nil then
-              UpdateProfile(P)
+            begin
+              UpdateProfile(P);
+              P.Free; // Evita memory leak liberando objeto temporario apos Assign
+            end
             else
               FProfiles.Add(P);
 
@@ -254,6 +272,8 @@ begin
           begin
             // JSON corrompido ou inválido não impede o carregamento dos outros perfis (Task 56)
             FWarnings.Add(Format('[Erro %s]: %s', [SR.Name, WarningMsg]));
+            if Assigned(FOnRegistryWarning) then
+              FOnRegistryWarning(Self, SR.Name, WarningMsg);
             P.Free;
           end;
         end;
@@ -404,26 +424,63 @@ function TAIFaceRegistry.RebuildProfileDescriptors(AProfile: TAIFaceProfile;
   ABuilder: TAIFaceDescriptorBuilder): Integer;
 var
   i: Integer;
-  ImgPath, ErrMsg: string;
+  ImgPath, ErrMsg, WarnStr: string;
   Sample: TAIFaceSample;
   RebuiltCount: Integer;
+  NewSamples: TFPList;
 begin
   RebuiltCount := 0;
   if (AProfile = nil) or (AYolo = nil) or (ABuilder = nil) then Exit(0);
 
-  AProfile.ClearSamples;
-  for i := 0 to AProfile.Images.Count - 1 do
-  begin
-    ImgPath := AProfile.Images[i];
-    if FileExists(ImgPath) then
+  NewSamples := TFPList.Create;
+  try
+    for i := 0 to AProfile.Images.Count - 1 do
     begin
+      ImgPath := AProfile.Images[i];
+      if not FileExists(ImgPath) then
+      begin
+        WarnStr := Format('Imagem nao encontrada durante reconstrucao: %s', [ImgPath]);
+        FWarnings.Add(WarnStr);
+        if Assigned(FOnRegistryWarning) then
+          FOnRegistryWarning(Self, AProfile.ID, WarnStr);
+        Continue;
+      end;
+
       if BuildDescriptorFromFile(ImgPath, AYolo, ABuilder, Sample, ErrMsg) then
       begin
-        Sample.SampleID := Format('%s_s%d', [AProfile.ID, RebuiltCount + 1]);
-        AProfile.AddSample(Sample);
+        Sample.SampleID := Format('%s_s%d', [AProfile.ID, NewSamples.Count + 1]);
+        NewSamples.Add(Sample);
         Inc(RebuiltCount);
+      end
+      else
+      begin
+        WarnStr := Format('Falha ao gerar descritor para imagem %s: %s', [ImgPath, ErrMsg]);
+        FWarnings.Add(WarnStr);
+        if Assigned(FOnRegistryWarning) then
+          FOnRegistryWarning(Self, AProfile.ID, WarnStr);
       end;
     end;
+
+    // Reconstrucao transacional: se pelo menos uma amostra foi reconstruida (ou se nao ha imagens),
+    // substitui com seguranca. Caso contrario, preserva as amostras existentes!
+    if (NewSamples.Count > 0) or (AProfile.Images.Count = 0) then
+    begin
+      AProfile.ClearSamples;
+      for i := 0 to NewSamples.Count - 1 do
+        AProfile.AddSample(TAIFaceSample(NewSamples[i]));
+      NewSamples.Clear;
+    end
+    else
+    begin
+      WarnStr := Format('Reconstrucao falhou para todas as imagens de %s. Amostras anteriores preservadas.', [AProfile.ID]);
+      FWarnings.Add(WarnStr);
+      if Assigned(FOnRegistryWarning) then
+        FOnRegistryWarning(Self, AProfile.ID, WarnStr);
+    end;
+  finally
+    for i := 0 to NewSamples.Count - 1 do
+      TAIFaceSample(NewSamples[i]).Free;
+    NewSamples.Free;
   end;
 
   Result := RebuiltCount;

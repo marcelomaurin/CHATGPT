@@ -10,9 +10,11 @@ uses
 { Centralização de serialização e desserialização JSON de perfis faciais }
 function ProfileToJSON(AProfile: TAIFaceProfile; const ABaseDir: string = ''): string;
 function JSONToProfile(const AJSON: string; AProfile: TAIFaceProfile; out AWarning: string; const ABaseDir: string = ''): Boolean;
-function SaveProfileToFile(AProfile: TAIFaceProfile; const AFileName: string): Boolean;
+function SaveProfileToFile(AProfile: TAIFaceProfile; const AFileName: string; ABackup: Boolean = True): Boolean;
 function LoadProfileFromFile(const AFileName: string; AProfile: TAIFaceProfile; out AWarning: string): Boolean;
 function SanitizeProfileID(const AName: string): string;
+function MakeRelativeImagePath(const ABasePath, AImagePath: string): string;
+function ResolveImagePath(const ABasePath, ARelativeOrAbsolutePath: string): string;
 
 implementation
 
@@ -79,28 +81,38 @@ begin
     ((Length(APath) >= 3) and (APath[2] = ':') and ((APath[3] = '\') or (APath[3] = '/')));
 end;
 
-function NormalizeToRelative(const AFilePath, ABaseDir: string): string;
+function MakeRelativeImagePath(const ABasePath, AImagePath: string): string;
 var
   BaseNorm, FileNorm: string;
 begin
-  if (Trim(ABaseDir) = '') or (Trim(AFilePath) = '') then
-    Exit(AFilePath);
-  BaseNorm := IncludeTrailingPathDelimiter(ExpandFileName(ABaseDir));
-  FileNorm := ExpandFileName(AFilePath);
+  if (Trim(ABasePath) = '') or (Trim(AImagePath) = '') then
+    Exit(AImagePath);
+  BaseNorm := IncludeTrailingPathDelimiter(ExpandFileName(ABasePath));
+  FileNorm := ExpandFileName(AImagePath);
   if Pos(LowerCase(BaseNorm), LowerCase(FileNorm)) = 1 then
     Result := Copy(FileNorm, Length(BaseNorm) + 1, MaxInt)
   else
-    Result := AFilePath;
+    Result := AImagePath;
+end;
+
+function ResolveImagePath(const ABasePath, ARelativeOrAbsolutePath: string): string;
+begin
+  if (Trim(ARelativeOrAbsolutePath) = '') or (Trim(ABasePath) = '') then
+    Exit(ARelativeOrAbsolutePath);
+  if not IsPathAbsolute(ARelativeOrAbsolutePath) then
+    Result := ExpandFileName(IncludeTrailingPathDelimiter(ABasePath) + ARelativeOrAbsolutePath)
+  else
+    Result := ARelativeOrAbsolutePath;
+end;
+
+function NormalizeToRelative(const AFilePath, ABaseDir: string): string;
+begin
+  Result := MakeRelativeImagePath(ABaseDir, AFilePath);
 end;
 
 function ResolveRelativePath(const AFilePath, ABaseDir: string): string;
 begin
-  if (Trim(AFilePath) = '') or (Trim(ABaseDir) = '') then
-    Exit(AFilePath);
-  if not IsPathAbsolute(AFilePath) then
-    Result := ExpandFileName(IncludeTrailingPathDelimiter(ABaseDir) + AFilePath)
-  else
-    Result := AFilePath;
+  Result := ResolveImagePath(ABaseDir, AFilePath);
 end;
 
 function ProfileToJSON(AProfile: TAIFaceProfile; const ABaseDir: string = ''): string;
@@ -148,6 +160,7 @@ begin
       SampleObj.Add('image_file', NormalizeToRelative(Sample.ImageFile, ABaseDir));
       SampleObj.Add('descriptor_version', Sample.DescriptorVersion);
       SampleObj.Add('algorithm', Sample.Algorithm);
+      SampleObj.Add('model_id', Sample.ModelID);
       SampleObj.Add('created_at', FormatDateTime('yyyy-mm-dd"T"hh:nn:ss', Sample.CreatedAt));
       SampleObj.Add('detection_confidence', Sample.DetectionConfidence);
       SampleObj.Add('quality_score', Sample.QualityScore);
@@ -236,6 +249,7 @@ begin
             Sample.ImageFile := ResolveRelativePath(SampleObj.Get('image_file', ''), ABaseDir);
             Sample.DescriptorVersion := DescrVer;
             Sample.Algorithm := SampleObj.Get('algorithm', 'yolo_landmarks_geometry');
+            Sample.ModelID := SampleObj.Get('model_id', '');
             Sample.DetectionConfidence := SampleObj.Get('detection_confidence', 0.0);
             Sample.QualityScore := SampleObj.Get('quality_score', 0.0);
 
@@ -278,26 +292,44 @@ begin
   end;
 end;
 
-function SaveProfileToFile(AProfile: TAIFaceProfile; const AFileName: string): Boolean;
+function SaveProfileToFile(AProfile: TAIFaceProfile; const AFileName: string; ABackup: Boolean): Boolean;
 var
-  JsonStr, BaseDir: string;
+  JsonStr, BaseDir, TmpFile, BakFile: string;
   FS: TFileStream;
 begin
   Result := False;
   if AProfile = nil then Exit;
   BaseDir := ExtractFileDir(AFileName);
-  JsonStr := ProfileToJSON(AProfile, BaseDir);
-  try
+  if BaseDir <> '' then
     ForceDirectories(BaseDir);
-    FS := TFileStream.Create(AFileName, fmCreate);
+  JsonStr := ProfileToJSON(AProfile, BaseDir);
+
+  TmpFile := AFileName + '.tmp';
+  BakFile := AFileName + '.bak';
+
+  try
+    FS := TFileStream.Create(TmpFile, fmCreate);
     try
       if Length(JsonStr) > 0 then
         FS.WriteBuffer(JsonStr[1], Length(JsonStr));
-      Result := True;
     finally
       FS.Free;
     end;
+
+    // Se arquivo ja existe e backup foi requisitado
+    if ABackup and FileExists(AFileName) then
+    begin
+      if FileExists(BakFile) then
+        DeleteFile(BakFile);
+      RenameFile(AFileName, BakFile);
+    end
+    else if FileExists(AFileName) then
+      DeleteFile(AFileName);
+
+    Result := RenameFile(TmpFile, AFileName);
   except
+    if FileExists(TmpFile) then
+      DeleteFile(TmpFile);
     Result := False;
   end;
 end;

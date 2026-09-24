@@ -17,6 +17,7 @@ type
     FImageFile: string;
     FDescriptorVersion: Integer;
     FAlgorithm: string;
+    FModelID: string;
     FVector: TDoubleDynArray;
     FCreatedAt: TDateTime;
     FDetectionConfidence: Double;
@@ -29,6 +30,7 @@ type
     property ImageFile: string read FImageFile write FImageFile;
     property DescriptorVersion: Integer read FDescriptorVersion write FDescriptorVersion;
     property Algorithm: string read FAlgorithm write FAlgorithm;
+    property ModelID: string read FModelID write FModelID;
     property Vector: TDoubleDynArray read FVector write FVector;
     property CreatedAt: TDateTime read FCreatedAt write FCreatedAt;
     property DetectionConfidence: Double read FDetectionConfidence write FDetectionConfidence;
@@ -91,6 +93,7 @@ begin
   FImageFile := '';
   FDescriptorVersion := 1;
   FAlgorithm := 'yolo_landmarks_geometry';
+  FModelID := '';
   SetLength(FVector, 0);
   FCreatedAt := Now;
   FDetectionConfidence := 0.0;
@@ -106,6 +109,7 @@ begin
   Result.FImageFile := FImageFile;
   Result.FDescriptorVersion := FDescriptorVersion;
   Result.FAlgorithm := FAlgorithm;
+  Result.FModelID := FModelID;
   Result.FCreatedAt := FCreatedAt;
   Result.FDetectionConfidence := FDetectionConfidence;
   Result.FQualityScore := FQualityScore;

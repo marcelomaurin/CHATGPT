@@ -666,6 +666,19 @@ begin
   end;
 end;
 
+function AddSampleHelper(AProfile: TAIFaceProfile; const AVals: TDoubleDynArray; const AImg: string; AQuality, AConf: Double; AVer: Integer; const AAlg: string; const AModel: string = ''): TAIFaceSample;
+begin
+  Result := TAIFaceSample.Create;
+  Result.Vector := AVals;
+  Result.ImageFile := AImg;
+  Result.QualityScore := AQuality;
+  Result.DetectionConfidence := AConf;
+  Result.DescriptorVersion := AVer;
+  Result.Algorithm := AAlg;
+  Result.ModelID := AModel;
+  AProfile.AddSample(Result);
+end;
+
 // Teste 60: Versão de descritor desconhecida
 procedure Test60_UnknownDescriptorVersion;
 var
@@ -682,6 +695,461 @@ begin
     AssertTrue('Amostra desconhecida ignorada', Prof.SampleCount = 0);
   finally
     Prof.Free;
+  end;
+end;
+
+// Teste 61: Compatibilidade de descritores (algoritmo, versão e model_id)
+procedure Test61_IsDescriptorCompatible;
+begin
+  WriteLn('--- Teste 61: Compatibilidade de descritores ---');
+  AssertTrue('Mesmo algoritmo, versão e modelo são compatíveis',
+    IsDescriptorCompatible('yolo_landmarks_geometry', 'yolo_landmarks_geometry', 1, 1, 'yolov8n-face', 'yolov8n-face', False));
+
+  AssertTrue('Algoritmos diferentes são incompatíveis',
+    not IsDescriptorCompatible('arcface', 'yolo_landmarks_geometry', 1, 1, 'model1', 'model1', False));
+
+  AssertTrue('Versões diferentes são incompatíveis',
+    not IsDescriptorCompatible('yolo_landmarks_geometry', 'yolo_landmarks_geometry', 1, 2, 'model1', 'model1', False));
+
+  AssertTrue('Modelos diferentes são incompatíveis por padrão',
+    not IsDescriptorCompatible('yolo_landmarks_geometry', 'yolo_landmarks_geometry', 1, 1, 'yolov8n-face', 'yolov11-face', False));
+
+  AssertTrue('Modelos diferentes são aceitos quando AllowCrossModel=True',
+    IsDescriptorCompatible('yolo_landmarks_geometry', 'yolo_landmarks_geometry', 1, 1, 'yolov8n-face', 'yolov11-face', True));
+
+  AssertTrue('Modelos vazios não bloqueiam compatibilidade',
+    IsDescriptorCompatible('yolo_landmarks_geometry', 'yolo_landmarks_geometry', 1, 1, '', '', False));
+end;
+
+// Teste 62: Critério duplo de distância (Cosseno + Distância Euclidiana Máxima)
+procedure Test62_DualDistanceCriterion;
+var
+  FaceObj1, FaceObj2: TYoloObject;
+  Mapping: TYoloKeyPointMapping;
+  Builder: TAIFaceDescriptorBuilder;
+  Data1, Data2: TAIFaceDescriptorData;
+  Matcher: TAIFaceMatcher;
+  Prof: TAIFaceProfile;
+  MatchRes: TFaceMatchResult;
+  Profiles: TAIFaceProfileArray;
+begin
+  WriteLn('--- Teste 62: Critério duplo de distância (Cosseno + Euclidiana) ---');
+  FaceObj1 := CreateSyntheticFace(100, 100, 200, 200, 0.0, 0.95);
+  FaceObj2 := CreateSyntheticFace(100, 100, 200, 200, 0.08, 0.95); // Leve variação
+
+  Mapping := TYoloKeyPointMapping.Create;
+  Builder := TAIFaceDescriptorBuilder.Create;
+  Matcher := TAIFaceMatcher.Create;
+  Prof := TAIFaceProfile.Create;
+  try
+    Prof.ID := 'teste_dual';
+    Prof.Name := 'Teste Dual';
+    Builder.BuildDescriptor(FaceObj1, Mapping, Data1);
+    Builder.BuildDescriptor(FaceObj2, Mapping, Data2);
+
+    AddSampleHelper(Prof, Data1.Values, 'img1.jpg', Data1.Quality, 0.95, 1, 'yolo_landmarks_geometry', Data1.ModelID);
+
+    SetLength(Profiles, 1);
+    Profiles[0] := Prof;
+
+    // Cenário 1: MaxEuclideanDistance desabilitada (0.0) -> Deve dar Match por Cosseno
+    Matcher.MaxEuclideanDistance := 0.0;
+    Matcher.MatchThreshold := 0.80;
+    Matcher.MatchProfiles(Data2, Profiles, MatchRes);
+    AssertTrue('Match por cosseno com MaxEuclideanDistance desabilitada', MatchRes.Status = fmsMatched);
+
+    // Cenário 2: MaxEuclideanDistance muito restrita (ex: 0.0001) -> Deve rejeitar mesmo com cosseno alto
+    Matcher.MaxEuclideanDistance := 0.0001;
+    Matcher.MatchProfiles(Data2, Profiles, MatchRes);
+    AssertTrue('Rejeição quando distância euclidiana excede MaxEuclideanDistance', MatchRes.Status = fmsUnknown);
+  finally
+    Prof.Free;
+    Matcher.Free;
+    Builder.Free;
+    Mapping.Free;
+  end;
+end;
+
+// Teste 63: Apenas um perfil no registry não gera ambiguidade artificial
+procedure Test63_SingleProfileAndNoArtificialAmbiguity;
+var
+  FaceObj: TYoloObject;
+  Mapping: TYoloKeyPointMapping;
+  Builder: TAIFaceDescriptorBuilder;
+  Data: TAIFaceDescriptorData;
+  Matcher: TAIFaceMatcher;
+  Prof: TAIFaceProfile;
+  Profiles: TAIFaceProfileArray;
+  MatchRes: TFaceMatchResult;
+begin
+  WriteLn('--- Teste 63: Perfil único no registry e margem de ambiguidade ---');
+  FaceObj := CreateSyntheticFace(100, 100, 200, 200, 0.0, 0.95);
+  Mapping := TYoloKeyPointMapping.Create;
+  Builder := TAIFaceDescriptorBuilder.Create;
+  Matcher := TAIFaceMatcher.Create;
+  Matcher.AmbiguityMargin := 0.15; // Margem alta proposital
+  Prof := TAIFaceProfile.Create;
+  try
+    Prof.ID := 'unico';
+    Prof.Name := 'Unico Perfil';
+    Builder.BuildDescriptor(FaceObj, Mapping, Data);
+    AddSampleHelper(Prof, Data.Values, 'img.jpg', Data.Quality, 0.95, 1, 'yolo_landmarks_geometry');
+
+    SetLength(Profiles, 1);
+    Profiles[0] := Prof;
+
+    Matcher.MatchProfiles(Data, Profiles, MatchRes);
+    AssertTrue('Perfil único com score alto deve dar fmsMatched sem ambiguidade artificial', MatchRes.Status = fmsMatched);
+    AssertTrue('ID reconhecido correto', MatchRes.ProfileID = 'unico');
+    AssertTrue('Segundo perfil permanece vazio quando não há segundo candidato', MatchRes.SecondProfileID = '');
+  finally
+    Prof.Free;
+    Matcher.Free;
+    Builder.Free;
+    Mapping.Free;
+  end;
+end;
+
+// Teste 64: Registry vazio, perfil desabilitado e perfil sem samples
+procedure Test64_EmptyRegistryAndDisabledAndNoSamples;
+var
+  FaceObj: TYoloObject;
+  Mapping: TYoloKeyPointMapping;
+  Builder: TAIFaceDescriptorBuilder;
+  Data: TAIFaceDescriptorData;
+  Matcher: TAIFaceMatcher;
+  Prof1, Prof2: TAIFaceProfile;
+  Profiles: TAIFaceProfileArray;
+  MatchRes: TFaceMatchResult;
+begin
+  WriteLn('--- Teste 64: Registry vazio, perfis desabilitados ou sem samples ---');
+  FaceObj := CreateSyntheticFace(100, 100, 200, 200, 0.0, 0.95);
+  Mapping := TYoloKeyPointMapping.Create;
+  Builder := TAIFaceDescriptorBuilder.Create;
+  Matcher := TAIFaceMatcher.Create;
+  try
+    Builder.BuildDescriptor(FaceObj, Mapping, Data);
+
+    // 1. Registry vazio: deve retornar fmsUnknown, nunca exception
+    SetLength(Profiles, 0);
+    Matcher.MatchProfiles(Data, Profiles, MatchRes);
+    AssertTrue('Registry vazio retorna fmsUnknown', MatchRes.Status = fmsUnknown);
+
+    // 2. Perfil desabilitado (Enabled = False): não deve ser reconhecido
+    Prof1 := TAIFaceProfile.Create;
+    try
+      Prof1.ID := 'desabilitado';
+      Prof1.Name := 'Desabilitado';
+      Prof1.Enabled := False;
+      AddSampleHelper(Prof1, Data.Values, 'img.jpg', Data.Quality, 0.95, 1, 'yolo_landmarks_geometry');
+
+      SetLength(Profiles, 1);
+      Profiles[0] := Prof1;
+      Matcher.MatchProfiles(Data, Profiles, MatchRes);
+      AssertTrue('Perfil desabilitado não dá match (retorna fmsUnknown)', MatchRes.Status = fmsUnknown);
+    finally
+      Prof1.Free;
+    end;
+
+    // 3. Perfil sem samples: deve ser ignorado silenciosamente
+    Prof2 := TAIFaceProfile.Create;
+    try
+      Prof2.ID := 'sem_samples';
+      Prof2.Name := 'Sem Amostras';
+      SetLength(Profiles, 1);
+      Profiles[0] := Prof2;
+      Matcher.MatchProfiles(Data, Profiles, MatchRes);
+      AssertTrue('Perfil sem samples retorna fmsUnknown sem erro', MatchRes.Status = fmsUnknown);
+    finally
+      Prof2.Free;
+    end;
+  finally
+    Matcher.Free;
+    Builder.Free;
+    Mapping.Free;
+  end;
+end;
+
+// Teste 65: Salvamento atômico (.tmp, .bak) e caminhos relativos
+procedure Test65_AtomicSaveBackupAndRelativePaths;
+var
+  Prof: TAIFaceProfile;
+  TempDir, JsonFile, BakFile, RelPath, AbsPath: string;
+begin
+  WriteLn('--- Teste 65: Salvamento atômico, backup e caminhos relativos ---');
+  TempDir := IncludeTrailingPathDelimiter(GetTempDir) + 'aiface_test_save_' + IntToStr(GetTickCount64);
+  ForceDirectories(TempDir);
+  try
+    JsonFile := TempDir + PathDelim + 'perfil_teste.json';
+    BakFile := TempDir + PathDelim + 'perfil_teste.json.bak';
+
+    Prof := TAIFaceProfile.Create;
+    try
+      Prof.ID := 'teste_atomico';
+      Prof.Name := 'Teste Atômico';
+      Prof.Images.Add(TempDir + PathDelim + 'foto1.jpg');
+
+      // 1. Primeiro salvamento -> cria .json
+      AssertTrue('SaveProfileToFile primeiro salvamento', SaveProfileToFile(Prof, JsonFile, True));
+      AssertTrue('Arquivo JSON criado', FileExists(JsonFile));
+      AssertTrue('Não deve haver .bak ainda', not FileExists(BakFile));
+
+      // 2. Segundo salvamento com alteração -> gera .bak
+      Prof.Name := 'Teste Atômico Modificado';
+      AssertTrue('SaveProfileToFile segundo salvamento', SaveProfileToFile(Prof, JsonFile, True));
+      AssertTrue('Arquivo de backup .bak foi criado', FileExists(BakFile));
+
+      // 3. Teste de funções de caminho relativo
+      RelPath := MakeRelativeImagePath(TempDir, TempDir + PathDelim + 'imagens' + PathDelim + 'foto1.jpg');
+      AssertTrue('MakeRelativeImagePath gera caminho relativo correto',
+        (RelPath = 'imagens' + PathDelim + 'foto1.jpg') or (RelPath = 'imagens/foto1.jpg'));
+
+      AbsPath := ResolveImagePath(TempDir, RelPath);
+      AssertTrue('ResolveImagePath reconstrói caminho absoluto',
+        SameText(AbsPath, TempDir + PathDelim + 'imagens' + PathDelim + 'foto1.jpg'));
+    finally
+      Prof.Free;
+    end;
+  finally
+    if FileExists(JsonFile) then DeleteFile(JsonFile);
+    if FileExists(BakFile) then DeleteFile(BakFile);
+    RemoveDir(TempDir);
+  end;
+end;
+
+// Teste 66: ReloadFromFolder e validação de leak de memória
+procedure Test66_ReloadFromFolderAndStability;
+var
+  Registry: TAIFaceRegistry;
+  TempDir, Prof1File, Prof2File: string;
+  Prof1, Prof2: TAIFaceProfile;
+  i: Integer;
+begin
+  WriteLn('--- Teste 66: ReloadFromFolder e estabilidade repetida ---');
+  TempDir := IncludeTrailingPathDelimiter(GetTempDir) + 'aiface_reg_reload_' + IntToStr(GetTickCount64);
+  ForceDirectories(TempDir);
+  try
+    Prof1File := TempDir + PathDelim + 'p1.json';
+    Prof2File := TempDir + PathDelim + 'p2.json';
+
+    Prof1 := TAIFaceProfile.Create;
+    Prof2 := TAIFaceProfile.Create;
+    try
+      Prof1.ID := 'p1';
+      Prof1.Name := 'Perfil 1';
+      SaveProfileToFile(Prof1, Prof1File, False);
+
+      Prof2.ID := 'p2';
+      Prof2.Name := 'Perfil 2';
+      SaveProfileToFile(Prof2, Prof2File, False);
+    finally
+      Prof1.Free;
+      Prof2.Free;
+    end;
+
+    Registry := TAIFaceRegistry.Create;
+    try
+      // Carga inicial
+      Registry.LoadFromFolder(TempDir);
+      AssertTrue('2 perfis carregados inicialmente', Registry.ProfileCount = 2);
+
+      // Deleta perfil 2 do disco
+      DeleteFile(Prof2File);
+
+      // ReloadFromFolder deve limpar perfil 2 da memória
+      Registry.ReloadFromFolder(TempDir);
+      AssertTrue('ReloadFromFolder removeu perfil apagado do disco', Registry.ProfileCount = 1);
+      AssertTrue('Apenas perfil 1 remanescente', Registry.FindByID('p1') <> nil);
+      AssertTrue('Perfil 2 não está mais na memória', Registry.FindByID('p2') = nil);
+
+      // Teste de 100 recargas repetidas sem falha
+      for i := 1 to 100 do
+        Registry.ReloadFromFolder(TempDir);
+
+      AssertTrue('100 ciclos de recarga executados com sucesso', Registry.ProfileCount = 1);
+    finally
+      Registry.Free;
+    end;
+  finally
+    if FileExists(Prof1File) then DeleteFile(Prof1File);
+    if FileExists(Prof2File) then DeleteFile(Prof2File);
+    RemoveDir(TempDir);
+  end;
+end;
+
+// Teste 67: Reconstrução transacional de descritores
+procedure Test67_TransactionalRebuild;
+var
+  Prof: TAIFaceProfile;
+  Registry: TAIFaceRegistry;
+  MockYolo: TMockYOLO;
+  Builder: TAIFaceDescriptorBuilder;
+  SuccessCount: Integer;
+  DescData: TDoubleDynArray;
+begin
+  WriteLn('--- Teste 67: Reconstrução transacional de descritores ---');
+  Prof := TAIFaceProfile.Create;
+  Registry := TAIFaceRegistry.Create;
+  MockYolo := TMockYOLO.Create(nil);
+  Builder := TAIFaceDescriptorBuilder.Create;
+  try
+    Prof.ID := 'transacional';
+    Prof.Name := 'Perfil Transacional';
+    // Amostra válida inicial
+    SetLength(DescData, 10);
+    DescData[0] := 0.5;
+    AddSampleHelper(Prof, DescData, 'foto_antiga.jpg', 0.90, 0.95, 1, 'yolo_landmarks_geometry');
+    Prof.Images.Add('foto_antiga.jpg');
+    Registry.AddProfile(Prof);
+
+    // Simula falha do YOLO durante a reconstrução (imagem não existe ou erro técnico)
+    MockYolo.SimulateError := True;
+    MockYolo.SimulateErrorMsg := 'Simulação de erro na detecção';
+
+    SuccessCount := Registry.RebuildProfileDescriptors(Prof, MockYolo, Builder);
+    AssertTrue('Reconstrução falha reporta 0 novos sucessos', SuccessCount = 0);
+    AssertTrue('Amostra original foi preservada transacionalmente', Prof.SampleCount = 1);
+    AssertTrue('Warning foi registrado', Registry.Warnings.Count > 0);
+  finally
+    Builder.Free;
+    MockYolo.Free;
+    Registry.Free;
+  end;
+end;
+
+// Teste 68: Cooldown por ProfileID e independência de Unknown
+procedure Test68_PerProfileCooldownAndIndependentUnknown;
+var
+  Rec: TAIFaceRecognition;
+begin
+  WriteLn('--- Teste 68: Cooldown por ProfileID e Unknown independente ---');
+  Rec := TAIFaceRecognition.Create(nil);
+  try
+    Rec.RecognitionCooldownMs := 10000; // 10 segundos
+    Rec.UnknownCooldownMs := 5000;
+
+    // Marcelo reconhecido em T=1000
+    AssertTrue('Marcelo pode ser reconhecido em T=1000', Rec.CanRecognizeProfile('marcelo', 1000));
+    Rec.RecordRecognizedProfile('marcelo', 1000);
+
+    // Marcelo em T=2000 (dentro do cooldown) deve ser bloqueado
+    AssertTrue('Marcelo bloqueado por cooldown em T=2000', not Rec.CanRecognizeProfile('marcelo', 2000));
+
+    // Maria entra em T=2500 -> Maria deve poder ser reconhecida imediatamente!
+    AssertTrue('Maria pode ser reconhecida imediatamente mesmo com Marcelo em cooldown',
+      Rec.CanRecognizeProfile('maria', 2500));
+    Rec.RecordRecognizedProfile('maria', 2500);
+
+    // Unknown em T=3000 não deve ser bloqueado pelo cooldown de Marcelo nem Maria
+    AssertTrue('Unknown permitido em T=3000', Rec.CanRecognizeProfile('unknown', 3000));
+    Rec.RecordRecognizedProfile('unknown', 3000);
+
+    // Novo Unknown em T=4000 (dentro de 5s) deve ser bloqueado por seu próprio cooldown
+    AssertTrue('Segundo Unknown dentro do cooldown bloqueado', not Rec.CanRecognizeProfile('unknown', 4000));
+
+    // Mas Marcelo após 12 segundos pode ser reconhecido novamente
+    AssertTrue('Marcelo reconhecido novamente após expiração do cooldown',
+      Rec.CanRecognizeProfile('marcelo', 12000));
+  finally
+    Rec.Free;
+  end;
+end;
+
+// Teste 69: Ciclos de criação/destruição e robustez a referências nil
+procedure Test69_LifecycleAndRobustness;
+var
+  i: Integer;
+  Rec: TAIFaceRecognition;
+  CustomReg: TAIFaceRegistry;
+  CustomYolo: TYOLO;
+  Results: TFaceMatchResultArray;
+begin
+  WriteLn('--- Teste 69: Ciclos de ciclo de vida e robustez a referências nil ---');
+
+  // 1. 100 ciclos repetidos de Create / Destroy sem exception
+  for i := 1 to 100 do
+  begin
+    Rec := TAIFaceRecognition.Create(nil);
+    Rec.Free;
+  end;
+  AssertTrue('100 ciclos de Create/Destroy de TAIFaceRecognition sem exceção', True);
+
+  // 2. Troca de Registry externo e troca de TYOLO
+  Rec := TAIFaceRecognition.Create(nil);
+  try
+    CustomReg := TAIFaceRegistry.Create;
+    CustomYolo := TYOLO.Create(nil);
+    try
+      Rec.Registry := CustomReg;
+      AssertTrue('Registry externo associado', Rec.Registry = CustomReg);
+
+      Rec.Yolo := CustomYolo;
+      AssertTrue('TYOLO externo associado', Rec.Yolo = CustomYolo);
+
+      // Remove componentes
+      Rec.Registry := nil;
+      Rec.Yolo := nil;
+      AssertTrue('Remoção limpa de referências externas', (Rec.Registry = nil) and (Rec.Yolo = nil));
+
+      // 3. EnableTracking com FaceTracker=nil deve degradar para YOLO sem crash
+      Rec.EnableTracking := True;
+      Rec.FaceTracker := nil;
+      AssertTrue('EnableTracking com FaceTracker=nil não lança erro', True);
+
+      // 4. Parada de processamento (StopProcessing)
+      Rec.StopProcessing;
+      AssertTrue('StopProcessing opera sem erro', True);
+    finally
+      CustomReg.Free;
+      CustomYolo.Free;
+    end;
+  finally
+    Rec.Free;
+  end;
+end;
+
+// Teste 70: Validação estática de modelo vs Self-Test em runtime
+procedure Test70_ModelValidationAndSelfTest;
+var
+  Rec: TAIFaceRecognition;
+  MockYolo: TMockYOLO;
+  Msg: string;
+begin
+  WriteLn('--- Teste 70: ValidateRecognitionModel vs SelfTestRecognitionModel ---');
+  Rec := TAIFaceRecognition.Create(nil);
+  MockYolo := TMockYOLO.Create(nil);
+  try
+    Rec.Yolo := MockYolo;
+
+    // 1. ModelPath vazio
+    MockYolo.ModelPath := '';
+    AssertTrue('ModelPath vazio falha na validação', not Rec.ValidateRecognitionModel(Msg));
+    AssertTrue('Mensagem explicativa sobre ModelPath', Pos('ModelPath', Msg) > 0);
+
+    // 2. Arquivo inexistente
+    MockYolo.ModelPath := 'C:\caminho_inexistente\modelo_fake.pt';
+    AssertTrue('Arquivo inexistente falha na validação', not Rec.ValidateRecognitionModel(Msg));
+    AssertTrue('Mensagem explicativa sobre arquivo não encontrado', (Pos('não encontrado', Msg) > 0) or (Pos('nao encontrado', Msg) > 0));
+
+    // 3. KeyPointMapping incompleto
+    MockYolo.ModelPath := 'yolov8n_face'; // nome simbólico sem extensão de arquivo
+    MockYolo.KeyPointMapping.LeftEyeIndex := -1;
+    AssertTrue('Mapeamento sem olho esquerdo falha na validação', not Rec.ValidateRecognitionModel(Msg));
+    AssertTrue('Mensagem sobre keypoints/landmarks incompletos', Pos('incompleto', Msg) > 0);
+
+    // 4. Mapeamento válido
+    MockYolo.KeyPointMapping.LeftEyeIndex := 0;
+    MockYolo.KeyPointMapping.RightEyeIndex := 1;
+    MockYolo.KeyPointMapping.NoseIndex := 2;
+    AssertTrue('Mapeamento e modelo válidos passam na validação estática', Rec.ValidateRecognitionModel(Msg));
+
+    // 5. SelfTestRecognitionModel com imagem inexistente
+    AssertTrue('SelfTestRecognitionModel rejeita imagem de teste inexistente',
+      not Rec.SelfTestRecognitionModel('C:\nao_existe.jpg', Msg));
+    AssertTrue('Mensagem de imagem não encontrada', (Pos('não encontrada', Msg) > 0) or (Pos('nao encontrada', Msg) > 0));
+  finally
+    MockYolo.Free;
+    Rec.Free;
   end;
 end;
 
@@ -704,9 +1172,19 @@ begin
     Test58_JSONSerializationRoundtrip;
     Test59_CorruptedJSONTolerance;
     Test60_UnknownDescriptorVersion;
+    Test61_IsDescriptorCompatible;
+    Test62_DualDistanceCriterion;
+    Test63_SingleProfileAndNoArtificialAmbiguity;
+    Test64_EmptyRegistryAndDisabledAndNoSamples;
+    Test65_AtomicSaveBackupAndRelativePaths;
+    Test66_ReloadFromFolderAndStability;
+    Test67_TransactionalRebuild;
+    Test68_PerProfileCooldownAndIndependentUnknown;
+    Test69_LifecycleAndRobustness;
+    Test70_ModelValidationAndSelfTest;
 
     WriteLn('===========================================================');
-    WriteLn('  TODOS OS TESTES UNITÁRIOS E TEMPORAIS PASSARAM (100%)!');
+    WriteLn('  TODOS OS TESTES UNITARIOS E TEMPORAIS PASSARAM (100%)!');
     WriteLn('===========================================================');
   except
     on E: Exception do

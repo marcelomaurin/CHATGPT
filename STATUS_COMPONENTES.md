@@ -42,6 +42,16 @@ Este documento descreve o estado atual de maturidade, a categoria operacional e 
 | **TErosionDilationFilter**| `ccImage` | Estável | Filtros morfológicos nativos de erosão e dilatação. |
 | **TAIPostgreSQLDictionary** | `ccDBase` | Beta | Gerador de dicionário de metadados de bancos PostgreSQL para prompts de IA. |
 | **TAISQLiteDictionary** | `ccDBase` | Beta | Gerador de dicionário de metadados de bancos SQLite para prompts de IA. |
+| **TAIFaceRecognition** | `ccVision` | Beta | Reconhecimento e identificação facial contínua. Suporta YOLO Face com landmarks/keypoints e fallback Haar Cascade. Implementa descritores geométricos invariantes a escala/rotação, confirmação temporal de múltiplos frames, cooldown configurável por ProfileID e persistência atômica. Interface `IAIFaceDescriptorProvider` desacoplada para suportar embeddings neurais (ArcFace/FaceNet) no futuro. |
+| **TAIFaceTracker** | `ccVision` | Beta | Rastreador nativo de templates faciais de alta velocidade, reduzindo a carga de inferência neural contínua entre ciclos do YOLO. |
+| **TAIFaceRegistry** | `ccVision` | Beta | Gerenciador de perfis e amostras faciais com suporte a salvamento atômico em JSON, backups (.bak), caminhos relativos e reconstrução transacional de descritores. |
+
+## Limitações Técnicas do Reconhecimento Geométrico
+
+> [!NOTE]
+> O descritor padrão do **TAIFaceRecognition** (`yolo_landmarks_geometry`) baseia-se em distâncias e proporções geométricas normalizadas entre keypoints faciais (olhos, nariz e cantos da boca).
+> Por utilizar poucos landmarks em relação a um embedding facial neural profundo, a precisão depende de uma calibração adequada do `MatchThreshold` (default 0.82) e opcionalmente de `MaxEuclideanDistance`.
+> A arquitetura foi concebida de forma totalmente desacoplada através da interface `IAIFaceDescriptorProvider`, viabilizando a integração direta com providers neurais como ArcFace ou FaceNet futuramente sem alterações na API de perfis ou no registry.
 
 ## Compatibilidade de Formatos Documentais
 
