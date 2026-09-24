@@ -125,6 +125,9 @@
         <PackageName Value="openai_agent"/>
       </Item>
       <Item>
+        <PackageName Value="openai_integration"/>
+      </Item>
+      <Item>
         <PackageName Value="openai_core"/>
       </Item>
       <Item>

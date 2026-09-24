@@ -9,7 +9,7 @@ interface
 
 uses
   aiinput, aidocumentreader, aipdfinput, aidocxinput, aiexcelinput, aiaudio, 
-  aicapturesource, aiwebserver, aisockets, aiserial, ailistserialdevices, 
+  aicapturesource, aichromiumbrowser, aiwebserver, aisockets, aiserial, ailistserialdevices, 
   aiserialfingerprint, aiemail, aimessenger, aiusb, aiusb_register, 
   aikinect_types, aikinect_backend, aikinect_freenect, aikinect_sdk10, 
   aikinectsensor, aikinectcolor, aikinectdepth, aikinectskeleton, 
@@ -26,6 +26,7 @@ begin
   RegisterUnit('aiexcelinput', @aiexcelinput.Register);
   RegisterUnit('aiaudio', @aiaudio.Register);
   RegisterUnit('aicapturesource', @aicapturesource.Register);
+  RegisterUnit('aichromiumbrowser', @aichromiumbrowser.Register);
   RegisterUnit('aiwebserver', @aiwebserver.Register);
   RegisterUnit('aisockets', @aisockets.Register);
   RegisterUnit('aiserial', @aiserial.Register);
