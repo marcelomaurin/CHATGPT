@@ -2,6 +2,25 @@
 
 Todas as alterações relevantes para a suíte de componentes Lazarus AI Suite serão registradas neste arquivo.
 
+## [1.12.0] - 2026-09-24
+
+### Adicionado
+- **Arquitetura Modular de Provedores de Voz no `TAIVoiceSynthesizer`** (`pacote/AI Voice/`):
+  - Suporte a provedores de síntese em nuvem e servidores externos: `vpOpenAI`, `vpOpenAICompatible`, `vpCustomHTTP`, com stubs preparados para `vpGoogle`, `vpAzure`, `vpElevenLabs`.
+  - Novas propriedades genéricas de TTS: `Provider`, `APIToken`, `Model`, `Endpoint`, `RemoteVoice`, `OutputFormat`, `Speed`, `RemoteTimeoutMS`, `MaxRetries`, `AutoPlay`.
+  - Preservação de 100% de compatibilidade retroativa para projetos legados (`OpenAIToken`, `OpenAIModel`, `OpenAIEndpoint`, `OpenAIVoice`, etc.).
+  - Integração nativa com `TAIAudioPlayer`: reprodução direta e audível de áudios MP3 (via MCI no Windows) e WAV.
+  - Ciclo de vida estrito com novos eventos: `OnSynthesisStart`, `OnSynthesisEnd`, `OnSpeechStart`, `OnSpeechEnd`, `OnSpeechProgress`.
+  - Máquina de estados: `vsIdle`, `vsSynthesizing`, `vsPlaying`, `vsStopping`, `vsError`.
+  - Cache local inteligente de síntese em disco indexado por hash MD5 de parâmetros (`EnableCache`, `CacheDir`).
+  - Fallback automático para motores locais SAPI/eSpeak em caso de indisponibilidade remota (`EnableFallback`, `FallbackEngine`).
+  - Camada de segurança de credenciais `TVoiceCredentialStore` com criptografia DPAPI no Windows para proteção contra armazenamento de tokens em texto puro.
+  - Telemetria de uso estruturada via `TAIVoiceUsage` e método `TestConfiguration`.
+- **Sample `voice_remote_provider_demo`** (`pacote/samples/AI Voice/voice_remote_provider_demo/`):
+  - Interface dedicada para testes de provedores remotos (OpenAI, OpenAI-Compatible, Custom HTTP), teste de conexão, mascaramento de token e reprodução de voz.
+- **Sample `voicesynthesizer_demo`** atualizado para permitir alternar entre SAPI, eSpeak e provedores remotos.
+- **Suite de Testes Automatizada `test_voice_providers`** (`tests/test_voice_providers.lpr`): 44 testes unitários cobrindo enums, credenciais, validação, lifecycle e backends.
+
 ## [1.11.0] - 2026-08-15
 
 ### Adicionado
