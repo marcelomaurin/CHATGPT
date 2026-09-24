@@ -86,7 +86,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    function DetectObjects(const AImageFile: string; out AObjects: TYoloObjectArray): Boolean;
+    function DetectObjects(const AImageFile: string; out AObjects: TYoloObjectArray): Boolean; virtual;
     function InstallDependencies: Boolean;
     function HasKeyPoints(const AObject: TYoloObject): Boolean;
     function KeyPointCount(const AObject: TYoloObject): Integer;
@@ -94,7 +94,7 @@ type
     function FindLandmark(const AObject: TYoloObject; const ASemantic: TYoloLandmarkSemantic; out APoint: TYoloKeyPoint): Boolean;
   published
     property PythonConnector: TPythonConnector read FPythonConnector write SetPythonConnector;
-    property LastError: string read FLastError;
+    property LastError: string read FLastError write FLastError;
     property PreferProcessMode: Boolean read FPreferProcessMode write FPreferProcessMode default True;
     property ModelPath: string read FModelPath write FModelPath;
     property ConfidenceThreshold: Double read FConfidenceThreshold write FConfidenceThreshold;
@@ -103,12 +103,14 @@ type
     property KeyPointMapping: TYoloKeyPointMapping read FKeyPointMapping write SetKeyPointMapping;
   end;
 
-{ Funções auxiliares globais para consulta de keypoints }
+{ Funções auxiliares globais para consulta de keypoints e classes faciais }
 function YoloHasKeyPoints(const AObject: TYoloObject): Boolean;
 function YoloKeyPointCount(const AObject: TYoloObject): Integer;
 function YoloGetKeyPoint(const AObject: TYoloObject; const AIndex: Integer; out APoint: TYoloKeyPoint): Boolean;
 function YoloFindLandmark(const AObject: TYoloObject; const AMapping: TYoloKeyPointMapping;
   const ASemantic: TYoloLandmarkSemantic; out APoint: TYoloKeyPoint): Boolean;
+function IsYoloFaceObject(const AObject: TYoloObject; const AFaceClasses: TStrings): Boolean; overload;
+function IsYoloFaceObject(const AObject: TYoloObject; const AFaceClassName: string = 'face'): Boolean; overload;
 
 procedure Register;
 
@@ -237,6 +239,28 @@ begin
   Idx := AMapping.GetIndex(ASemantic);
   if Idx < 0 then Exit;
   Result := YoloGetKeyPoint(AObject, Idx, APoint);
+end;
+
+function IsYoloFaceObject(const AObject: TYoloObject; const AFaceClasses: TStrings): Boolean;
+var
+  i: Integer;
+begin
+  Result := False;
+  if AFaceClasses = nil then
+    Exit(SameText(AObject.ClassName, 'face'));
+  for i := 0 to AFaceClasses.Count - 1 do
+  begin
+    if SameText(AObject.ClassName, Trim(AFaceClasses[i])) then
+      Exit(True);
+  end;
+end;
+
+function IsYoloFaceObject(const AObject: TYoloObject; const AFaceClassName: string): Boolean;
+begin
+  if Trim(AFaceClassName) = '' then
+    Result := SameText(AObject.ClassName, 'face')
+  else
+    Result := SameText(AObject.ClassName, Trim(AFaceClassName));
 end;
 
 { TYOLO }

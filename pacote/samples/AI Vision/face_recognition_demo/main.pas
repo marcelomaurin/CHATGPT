@@ -16,7 +16,9 @@ type
     btnRegister: TButton;
     btnSelectQuery: TButton;
     btnRecognize: TButton;
+    btnSimulateTracking: TButton;
     chkDebug: TCheckBox;
+    chkEnableTracking: TCheckBox;
     edtName: TEdit;
     edtRole: TEdit;
     edtModel: TEdit;
@@ -25,7 +27,10 @@ type
     grpEnrollment: TGroupBox;
     grpRecognition: TGroupBox;
     grpConfig: TGroupBox;
+    grpTracking: TGroupBox;
+    grpPreview: TGroupBox;
     grpOutput: TGroupBox;
+    imgPreview: TImage;
     lblName: TLabel;
     lblRole: TLabel;
     lblRefFile: TLabel;
@@ -34,6 +39,7 @@ type
     lblThreshold: TLabel;
     lblMargin: TLabel;
     lblTotalProfiles: TLabel;
+    lblTrackingStats: TLabel;
     memLog: TMemo;
     OpenPictureDialog1: TOpenDialog;
     pnlLeft: TPanel;
@@ -44,12 +50,14 @@ type
     procedure btnRegisterClick(Sender: TObject);
     procedure btnSelectQueryClick(Sender: TObject);
     procedure btnRecognizeClick(Sender: TObject);
+    procedure btnSimulateTrackingClick(Sender: TObject);
   private
     FPyConnector: TPythonConnector;
     FYolo: TYOLO;
     FFaceRec: TAIFaceRecognition;
     procedure Log(const AMsg: string);
     procedure UpdateProfileCounter;
+    procedure ShowImageWithOverlay(const AFileName: string; const AObjects: TYoloObjectArray);
   public
   end;
 
@@ -74,17 +82,18 @@ begin
   FFaceRec := TAIFaceRecognition.Create(Self);
   FFaceRec.Yolo := FYolo;
   FFaceRec.DetectorMode := frmYOLO;
+  FFaceRec.EnableTracking := True;
 
   Log('================================================================');
-  Log('  SISTEMA DE RECONHECIMENTO FACIAL INICIALIZADO');
-  Log('  Reutilizando: TYOLO, TAIFaceRecognition, TAIFaceRegistry');
+  Log('  SISTEMA DE RECONHECIMENTO FACIAL E IDENTIDADE (V2)');
+  Log('  Componentes: TYOLO, TAIFaceRecognition, TAIFaceRegistry, TAIFaceTracker');
   Log('================================================================');
-  Log('Pronto para cadastro e reconhecimento de identidades.');
+  Log('Pronto para cadastro, calibração e reconhecimento de identidades.');
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
-  // Componentes filhos liberados pelo Owner
+  // Componentes liberados pelo Owner
 end;
 
 procedure TfrmMain.Log(const AMsg: string);
@@ -97,12 +106,53 @@ begin
   lblTotalProfiles.Caption := Format('Perfis Cadastrados no Registry: %d', [FFaceRec.Registry.ProfileCount]);
 end;
 
+procedure TfrmMain.ShowImageWithOverlay(const AFileName: string; const AObjects: TYoloObjectArray);
+var
+  Pic: TPicture;
+  Bmp: TBitmap;
+  i, j: Integer;
+begin
+  if not FileExists(AFileName) then Exit;
+  Pic := TPicture.Create;
+  Bmp := TBitmap.Create;
+  try
+    Pic.LoadFromFile(AFileName);
+    Bmp.SetSize(Pic.Width, Pic.Height);
+    Bmp.Canvas.Draw(0, 0, Pic.Graphic);
+
+    for i := 0 to High(AObjects) do
+    begin
+      Bmp.Canvas.Brush.Style := bsClear;
+      Bmp.Canvas.Pen.Color := clLime;
+      Bmp.Canvas.Pen.Width := 3;
+      Bmp.Canvas.Rectangle(AObjects[i].X1, AObjects[i].Y1, AObjects[i].X2, AObjects[i].Y2);
+
+      Bmp.Canvas.Brush.Style := bsSolid;
+      for j := 0 to High(AObjects[i].KeyPoints) do
+      begin
+        Bmp.Canvas.Pen.Color := clRed;
+        Bmp.Canvas.Brush.Color := clYellow;
+        Bmp.Canvas.Ellipse(Round(AObjects[i].KeyPoints[j].X) - 4,
+                           Round(AObjects[i].KeyPoints[j].Y) - 4,
+                           Round(AObjects[i].KeyPoints[j].X) + 4,
+                           Round(AObjects[i].KeyPoints[j].Y) + 4);
+      end;
+    end;
+
+    imgPreview.Picture.Assign(Bmp);
+  finally
+    Bmp.Free;
+    Pic.Free;
+  end;
+end;
+
 procedure TfrmMain.btnSelectRefClick(Sender: TObject);
 begin
   if OpenPictureDialog1.Execute then
   begin
     lblRefFile.Caption := OpenPictureDialog1.FileName;
     Log('Arquivo de referência selecionado: ' + OpenPictureDialog1.FileName);
+    imgPreview.Picture.LoadFromFile(OpenPictureDialog1.FileName);
   end;
 end;
 
@@ -112,16 +162,18 @@ begin
   begin
     lblQueryFile.Caption := OpenPictureDialog1.FileName;
     Log('Arquivo de consulta selecionado: ' + OpenPictureDialog1.FileName);
+    imgPreview.Picture.LoadFromFile(OpenPictureDialog1.FileName);
   end;
 end;
 
 procedure TfrmMain.btnRegisterClick(Sender: TObject);
 var
-  RefFile, ProfName, ProfRole, ProfID, ErrorMsg: string;
+  RefFile, ProfName, ProfRole, ProfID: string;
   Prof: TAIFaceProfile;
   Sample: TAIFaceSample;
-  Objects: TYoloObjectArray;
+  Objects, FaceObjects: TYoloObjectArray;
   DescData: TAIFaceDescriptorData;
+  i: Integer;
 begin
   RefFile := lblRefFile.Caption;
   if not FileExists(RefFile) then
@@ -146,7 +198,6 @@ begin
   Log(Format('Nome: %s | Cargo: %s | ID Seguro: %s', [ProfName, ProfRole, ProfID]));
   Log('Arquivo: ' + RefFile);
 
-  // Executa detecção no arquivo de referência para exibir etapas (Task 49)
   if not FYolo.DetectObjects(RefFile, Objects) then
   begin
     Log('[ERRO] Falha no detector YOLO: ' + FYolo.LastError);
@@ -154,35 +205,58 @@ begin
     Exit;
   end;
 
-  if Length(Objects) = 0 then
+  // Filtra apenas classes faciais usando a regra centralizada IsYoloFaceObject
+  SetLength(FaceObjects, 0);
+  for i := 0 to High(Objects) do
   begin
-    Log('[ERRO] Nenhuma face encontrada na imagem.');
+    if IsYoloFaceObject(Objects[i], FFaceRec.FaceClasses) then
+    begin
+      SetLength(FaceObjects, Length(FaceObjects) + 1);
+      FaceObjects[High(FaceObjects)] := Objects[i];
+    end;
+  end;
+
+  if Length(FaceObjects) = 0 then
+  begin
+    Log('[ERRO] Nenhuma face encontrada na imagem (objetos não faciais descartados).');
     ShowMessage('Nenhuma face encontrada na imagem.');
     Exit;
   end;
 
-  if Length(Objects) > 1 then
+  if Length(FaceObjects) > 1 then
   begin
-    Log('[ERRO] Imagem contém múltiplas pessoas (' + IntToStr(Length(Objects)) + '). Regra 31: deve conter apenas uma.');
+    Log(Format('[ERRO] Imagem contém múltiplas faces (%d). Exigido apenas uma para cadastro.', [Length(FaceObjects)]));
     ShowMessage('A imagem de cadastro deve conter somente uma pessoa.');
     Exit;
   end;
 
-  Log(Format('-> [Etapa 1] Face detectada: BBox [%d, %d, %d, %d]',
-    [Objects[0].X1, Objects[0].Y1, Objects[0].X2, Objects[0].Y2]));
-  Log(Format('-> [Etapa 2] Confiança YOLO: %.4f', [Objects[0].Confidence]));
-  Log(Format('-> [Etapa 3] Quantidade de Keypoints/Landmarks: %d', [Length(Objects[0].KeyPoints)]));
+  // Atualiza preview com bounding box e landmarks da face encontrada
+  ShowImageWithOverlay(RefFile, FaceObjects);
 
-  if not FFaceRec.DescriptorBuilder.BuildDescriptor(Objects[0], FYolo.KeyPointMapping, DescData) then
+  Log(Format('-> [Detecção] BBox [%d, %d, %d, %d] | Confiança: %.4f',
+    [FaceObjects[0].X1, FaceObjects[0].Y1, FaceObjects[0].X2, FaceObjects[0].Y2, FaceObjects[0].Confidence]));
+  Log(Format('-> [Landmarks] %d keypoints disponíveis', [Length(FaceObjects[0].KeyPoints)]));
+
+  if not FFaceRec.DescriptorBuilder.BuildDescriptor(FaceObjects[0], FYolo.KeyPointMapping, DescData) then
   begin
-    Log('[ERRO] Geração do descritor falhou: ' + DescData.ErrorMessage);
+    Log('[ERRO] Validação de qualidade/landmarks falhou: ' + DescData.ErrorMessage);
     ShowMessage('Falha na validação de qualidade: ' + DescData.ErrorMessage);
     Exit;
   end;
 
-  Log(Format('-> [Etapa 4] Tamanho do Descritor Geométrico: %d valores gerados', [Length(DescData.Values)]));
+  // Validação de qualidade de cadastro (Task 12)
+  if DescData.Quality < FFaceRec.DescriptorBuilder.EnrollmentQualityThreshold then
+  begin
+    Log(Format('[ERRO] Qualidade insuficiente para cadastro: %.2f < %.2f',
+      [DescData.Quality, FFaceRec.DescriptorBuilder.EnrollmentQualityThreshold]));
+    ShowMessage('A face foi detectada, mas a qualidade é insuficiente para cadastro.');
+    Exit;
+  end;
 
-  // Cadastra no Registry
+  Log(Format('-> [Qualidade] Face: %.2f | Landmarks: %.2f | Geral: %.2f',
+    [DescData.FaceConfidence, DescData.LandmarkConfidence, DescData.Quality]));
+
+  // Adiciona ao Registry
   Prof := FFaceRec.Registry.FindByID(ProfID);
   if Prof = nil then
   begin
@@ -200,11 +274,11 @@ begin
   Sample.DescriptorVersion := DescData.Version;
   Sample.Algorithm := DescData.Algorithm;
   Sample.Vector := DescData.Values;
-  Sample.DetectionConfidence := Objects[0].Confidence;
+  Sample.DetectionConfidence := FaceObjects[0].Confidence;
   Sample.QualityScore := DescData.Quality;
   Prof.AddSample(Sample);
 
-  Log(Format('[SUCESSO] Perfil "%s" cadastrado com amostra %s.', [Prof.Name, Sample.SampleID]));
+  Log(Format('[SUCESSO] Perfil "%s" cadastrado com sucesso!', [Prof.Name]));
   UpdateProfileCounter;
   ShowMessage('Perfil cadastrado com sucesso!');
 end;
@@ -215,8 +289,10 @@ var
   FS: TFormatSettings;
   Thresh, Marg: Double;
   Results: TFaceMatchResultArray;
+  Objects, FaceObjects: TYoloObjectArray;
   i: Integer;
-  StatusStr: string;
+  ResStr: string;
+  Diff: Double;
 begin
   QueryFile := lblQueryFile.Caption;
   if not FileExists(QueryFile) then
@@ -243,9 +319,9 @@ begin
 
   Log('');
   Log('================================================================');
-  Log('INICIANDO RECONHECIMENTO FACIAL (PIPELINE)');
+  Log('INICIANDO RECONHECIMENTO FACIAL (CALIBRAÇÃO E DIAGNÓSTICO)');
   Log('Arquivo de consulta: ' + QueryFile);
-  Log(Format('Parâmetros: MatchThreshold=%.2f | AmbiguityMargin=%.2f', [Thresh, Marg]));
+  Log(Format('Threshold configurado: %.2f | Margem de ambiguidade: %.2f', [Thresh, Marg]));
 
   if not FFaceRec.RecognizeFile(QueryFile, Results) then
   begin
@@ -254,26 +330,90 @@ begin
     Exit;
   end;
 
-  Log(Format('Total de faces analisadas na imagem: %d', [Length(Results)]));
+  // Obtém detecções para overlay
+  if FYolo.DetectObjects(QueryFile, Objects) then
+  begin
+    SetLength(FaceObjects, 0);
+    for i := 0 to High(Objects) do
+    begin
+      if IsYoloFaceObject(Objects[i], FFaceRec.FaceClasses) then
+      begin
+        SetLength(FaceObjects, Length(FaceObjects) + 1);
+        FaceObjects[High(FaceObjects)] := Objects[i];
+      end;
+    end;
+    ShowImageWithOverlay(QueryFile, FaceObjects);
+  end;
+
+  if Length(Results) = 0 then
+  begin
+    Log('Nenhuma face detectada na imagem.');
+    Exit;
+  end;
 
   for i := 0 to High(Results) do
   begin
-    Log(Format('--- FACE %d ---', [i + 1]));
-    Log(Format('  Score de Similaridade: %.4f', [Results[i].Score]));
-    Log(Format('  Distância Euclidiana : %.4f', [Results[i].Distance]));
-    Log(Format('  Melhor Perfil        : %s (ID: %s)', [Results[i].ProfileName, Results[i].ProfileID]));
+    Log(Format('--- CANDIDATO PARA FACE %d ---', [i + 1]));
 
     case Results[i].Status of
-      fmsMatched: StatusStr := 'MATCH (Reconhecido com Sucesso)';
-      fmsUnknown: StatusStr := 'UNKNOWN (Não reconhecido / Abaixo do Threshold)';
-      fmsAmbiguous: StatusStr := 'AMBIGUOUS (Ambiguidade entre perfis)';
-      fmsError: StatusStr := 'ERROR: ' + Results[i].ErrorMessage;
-      else StatusStr := 'DESCONHECIDO';
+      fmsMatched: ResStr := 'MATCHED';
+      fmsUnknown: ResStr := 'UNKNOWN';
+      fmsAmbiguous: ResStr := 'AMBIGUOUS';
+      fmsError: ResStr := 'ERROR';
+      else ResStr := 'NONE';
     end;
 
-    Log('  >>> RESULTADO FINAL  : ' + StatusStr);
+    // Formatação conforme requisitos de calibração (Tarefas 44 e 45)
+    Log(Format('Melhor: %s %.2f', [Results[i].ProfileName, Results[i].Score]));
+    if Results[i].SecondProfileName <> '' then
+    begin
+      Diff := Results[i].Score - Results[i].SecondScore;
+      Log(Format('Segundo: %s %.2f', [Results[i].SecondProfileName, Results[i].SecondScore]));
+      Log(Format('diferença: %.2f', [Diff]));
+    end
+    else
+    begin
+      Log('Segundo: (nenhum outro perfil avaliado)');
+    end;
+
+    Log(Format('threshold: %.2f', [Thresh]));
+    Log(Format('resultado: %s', [ResStr]));
   end;
   Log('================================================================');
+end;
+
+procedure TfrmMain.btnSimulateTrackingClick(Sender: TObject);
+var
+  Bmp: TBitmap;
+  Results: TFaceMatchResultArray;
+  FrameIdx: Integer;
+begin
+  Log('');
+  Log('--- SIMULAÇÃO DE VÍDEO CONTÍNUO COM TRACKING TEMPORAL ---');
+  FFaceRec.EnableTracking := chkEnableTracking.Checked;
+  FFaceRec.YoloRefreshIntervalMs := 1000;
+
+  Bmp := TBitmap.Create;
+  try
+    Bmp.SetSize(320, 240);
+    Bmp.Canvas.Brush.Color := clBlack;
+    Bmp.Canvas.FillRect(0, 0, 320, 240);
+
+    // Simula 10 frames contínuos
+    for FrameIdx := 1 to 10 do
+    begin
+      FFaceRec.ProcessFrame(Bmp, Results);
+      Sleep(50);
+    end;
+
+    Log(Format('inferências YOLO: %d', [FFaceRec.YoloInferenceCount]));
+    Log(Format('frames rastreados: %d', [FFaceRec.TrackedFrameCount]));
+    lblTrackingStats.Caption := Format('YOLO: %d | Rastreamento: %d',
+      [FFaceRec.YoloInferenceCount, FFaceRec.TrackedFrameCount]);
+    Log('Simulação concluída com sucesso.');
+  finally
+    Bmp.Free;
+  end;
 end;
 
 end.

@@ -13,6 +13,8 @@ type
     Version: Integer;
     Algorithm: string;
     Values: TDoubleDynArray;
+    FaceConfidence: Double;
+    LandmarkConfidence: Double;
     Quality: Double;
     IsValid: Boolean;
     ErrorMessage: string;
@@ -35,12 +37,17 @@ type
     FMinFaceWidth: Integer;
     FMinFaceHeight: Integer;
     FMinKeyPoints: Integer;
+    FMinKeyPointConfidence: Double;
+    FEnrollmentQualityThreshold: Double;
+    FRecognitionQualityThreshold: Double;
     FEnableRotationNormalization: Boolean;
   public
     constructor Create;
     function GetAlgorithmName: string;
     function GetVersion: Integer;
-    function ValidateFaceQuality(const AObject: TYoloObject; out AError: string): Boolean;
+    function ValidateFaceQuality(const AObject: TYoloObject;
+      const AMapping: TYoloKeyPointMapping;
+      out AError: string): Boolean;
     function BuildDescriptor(const AObject: TYoloObject;
       const AMapping: TYoloKeyPointMapping;
       out AData: TAIFaceDescriptorData): Boolean;
@@ -54,6 +61,9 @@ type
     property MinFaceWidth: Integer read FMinFaceWidth write FMinFaceWidth default 30;
     property MinFaceHeight: Integer read FMinFaceHeight write FMinFaceHeight default 30;
     property MinKeyPoints: Integer read FMinKeyPoints write FMinKeyPoints default 5;
+    property MinKeyPointConfidence: Double read FMinKeyPointConfidence write FMinKeyPointConfidence;
+    property EnrollmentQualityThreshold: Double read FEnrollmentQualityThreshold write FEnrollmentQualityThreshold;
+    property RecognitionQualityThreshold: Double read FRecognitionQualityThreshold write FRecognitionQualityThreshold;
     property EnableRotationNormalization: Boolean read FEnableRotationNormalization write FEnableRotationNormalization default True;
   end;
 
@@ -72,6 +82,9 @@ begin
   FMinFaceWidth := 30;
   FMinFaceHeight := 30;
   FMinKeyPoints := 5;
+  FMinKeyPointConfidence := 0.35;
+  FEnrollmentQualityThreshold := 0.70;
+  FRecognitionQualityThreshold := 0.50;
   FEnableRotationNormalization := True;
 end;
 
@@ -85,9 +98,33 @@ begin
   Result := DESCRIPTOR_VERSION;
 end;
 
-function TAIFaceDescriptorBuilder.ValidateFaceQuality(const AObject: TYoloObject; out AError: string): Boolean;
+function TAIFaceDescriptorBuilder.ValidateFaceQuality(const AObject: TYoloObject;
+  const AMapping: TYoloKeyPointMapping;
+  out AError: string): Boolean;
 var
   FaceW, FaceH: Integer;
+  KpLen: Integer;
+  Idx: Integer;
+  procedure CheckLandmark(const ASemantic: TYoloLandmarkSemantic; const AName: string);
+  begin
+    if AError <> '' then Exit;
+    if AMapping <> nil then
+    begin
+      Idx := AMapping.GetIndex(ASemantic);
+      if (Idx < 0) or (Idx >= KpLen) then
+      begin
+        AError := Format('Landmark facial obrigatório ausente: %s', [AName]);
+        Exit;
+      end;
+      if AObject.KeyPoints[Idx].Confidence < FMinKeyPointConfidence then
+      begin
+        AError := Format('Landmark %s com confiança abaixo do mínimo (%.2f < %.2f)',
+          [AName, AObject.KeyPoints[Idx].Confidence, FMinKeyPointConfidence]);
+        Exit;
+      end;
+    end;
+  end;
+
 begin
   Result := False;
   AError := '';
@@ -113,12 +150,21 @@ begin
     Exit;
   end;
 
-  if Length(AObject.KeyPoints) < FMinKeyPoints then
+  KpLen := Length(AObject.KeyPoints);
+  if KpLen < FMinKeyPoints then
   begin
-    AError := Format('Landmarks insuficientes para geração de descriptor (%d < %d)',
-      [Length(AObject.KeyPoints), FMinKeyPoints]);
+    AError := Format('Landmarks insuficientes para geração de descriptor (%d < %d)', [KpLen, FMinKeyPoints]);
     Exit;
   end;
+
+  // Validação semântica e de confiança individual dos 5 pontos
+  CheckLandmark(ylsLeftEye, 'olho esquerdo');
+  CheckLandmark(ylsRightEye, 'olho direito');
+  CheckLandmark(ylsNose, 'nariz');
+  CheckLandmark(ylsMouthLeft, 'canto esquerdo da boca');
+  CheckLandmark(ylsMouthRight, 'canto direito da boca');
+
+  if AError <> '' then Exit;
 
   Result := True;
 end;
@@ -140,7 +186,7 @@ var
   CurX, CurY, RotX, RotY: Double;
   ValuesList: array of Double;
   ValCount: Integer;
-  SumConf: Double;
+  SumConf, LmConf, OverallQuality: Double;
 
   procedure AddVal(const V: Double);
   begin
@@ -154,11 +200,13 @@ begin
   AData.Version := DESCRIPTOR_VERSION;
   AData.Algorithm := DESCRIPTOR_ALGORITHM;
   SetLength(AData.Values, 0);
+  AData.FaceConfidence := AObject.Confidence;
+  AData.LandmarkConfidence := 0.0;
   AData.Quality := 0.0;
   AData.IsValid := False;
   AData.ErrorMessage := '';
 
-  if not ValidateFaceQuality(AObject, ValidationErr) then
+  if not ValidateFaceQuality(AObject, AMapping, ValidationErr) then
   begin
     AData.ErrorMessage := ValidationErr;
     Exit;
@@ -173,22 +221,19 @@ begin
   HasMouth := YoloFindLandmark(AObject, AMapping, ylsMouthLeft, MouthLeft) and
               YoloFindLandmark(AObject, AMapping, ylsMouthRight, MouthRight);
 
-  // Calcula inclinação dos olhos para compensação de rotação
-  EyeAngle := 0.0;
-  EyeCenterX := (AObject.X1 + AObject.X2) / 2.0;
-  EyeCenterY := (AObject.Y1 + AObject.Y2) / 2.0;
-
-  if HasEyes then
+  // Para reconhecimento de identidade, não estimar se landmarks essenciais faltarem
+  if not (HasEyes and HasNose and HasMouth) then
   begin
-    EyeAngle := ArcTan2(RightEye.Y - LeftEye.Y, RightEye.X - LeftEye.X);
-    EyeCenterX := (LeftEye.X + RightEye.X) / 2.0;
-    EyeCenterY := (LeftEye.Y + RightEye.Y) / 2.0;
-    EyeDist := Max(1.0, Hypot(RightEye.X - LeftEye.X, RightEye.Y - LeftEye.Y));
-  end
-  else
-    EyeDist := FaceW * 0.35; // estimativa padrão caso não haja olhos mapeados
+    AData.ErrorMessage := 'Landmarks faciais obrigatórios incompletos para reconhecimento de identidade.';
+    Exit;
+  end;
 
-  if FEnableRotationNormalization and HasEyes then
+  EyeAngle := ArcTan2(RightEye.Y - LeftEye.Y, RightEye.X - LeftEye.X);
+  EyeCenterX := (LeftEye.X + RightEye.X) / 2.0;
+  EyeCenterY := (LeftEye.Y + RightEye.Y) / 2.0;
+  EyeDist := Max(1.0, Hypot(RightEye.X - LeftEye.X, RightEye.Y - LeftEye.Y));
+
+  if FEnableRotationNormalization then
   begin
     CosA := Cos(-EyeAngle);
     SinA := Sin(-EyeAngle);
@@ -199,7 +244,6 @@ begin
     SinA := 0.0;
   end;
 
-  // Rotaciona keypoints em torno do centro dos olhos
   KpCount := Length(AObject.KeyPoints);
   SetLength(RotPts, KpCount);
   SumConf := 0.0;
@@ -214,10 +258,23 @@ begin
     SumConf := SumConf + AObject.KeyPoints[i].Confidence;
   end;
 
+  LmConf := SumConf / KpCount;
+  OverallQuality := (AObject.Confidence * 0.5) + (LmConf * 0.5);
+
+  AData.LandmarkConfidence := LmConf;
+  AData.Quality := OverallQuality;
+
+  if OverallQuality < FRecognitionQualityThreshold then
+  begin
+    AData.ErrorMessage := Format('Qualidade facial insuficiente para reconhecimento (%.2f < %.2f)',
+      [OverallQuality, FRecognitionQualityThreshold]);
+    Exit;
+  end;
+
   ValCount := 0;
   SetLength(ValuesList, 0);
 
-  // 1. Proporção do Bounding Box
+  // 1. Razão do Bounding Box
   AddVal(FaceW / FaceH);
 
   // 2. Distância entre olhos normalizada pela largura da face
@@ -226,58 +283,23 @@ begin
   // 3. Ângulo dos olhos normalizado em [-1..1]
   AddVal(EyeAngle / Pi);
 
-  // 4. Medidas relativas do nariz (se disponível)
-  if HasNose and HasEyes then
-  begin
-    AddVal(Hypot(Nose.X - LeftEye.X, Nose.Y - LeftEye.Y) / EyeDist);
-    AddVal(Hypot(Nose.X - RightEye.X, Nose.Y - RightEye.Y) / EyeDist);
-    AddVal((Nose.X - AObject.X1) / FaceW);
-    AddVal((Nose.Y - AObject.Y1) / FaceH);
-  end
-  else
-  begin
-    AddVal(0.0);
-    AddVal(0.0);
-    AddVal(0.5);
-    AddVal(0.5);
-  end;
+  // 4. Medidas relativas do nariz
+  AddVal(Hypot(Nose.X - LeftEye.X, Nose.Y - LeftEye.Y) / EyeDist);
+  AddVal(Hypot(Nose.X - RightEye.X, Nose.Y - RightEye.Y) / EyeDist);
+  AddVal((Nose.X - AObject.X1) / FaceW);
+  AddVal((Nose.Y - AObject.Y1) / FaceH);
 
-  // 5. Medidas relativas da boca (se disponível)
-  if HasMouth then
-  begin
-    MouthWidth := Max(0.0, Hypot(MouthRight.X - MouthLeft.X, MouthRight.Y - MouthLeft.Y));
-    MouthCenterX := (MouthLeft.X + MouthRight.X) / 2.0;
-    MouthCenterY := (MouthLeft.Y + MouthRight.Y) / 2.0;
+  // 5. Medidas relativas da boca
+  MouthWidth := Max(0.0, Hypot(MouthRight.X - MouthLeft.X, MouthRight.Y - MouthLeft.Y));
+  MouthCenterX := (MouthLeft.X + MouthRight.X) / 2.0;
+  MouthCenterY := (MouthLeft.Y + MouthRight.Y) / 2.0;
 
-    AddVal(MouthWidth / EyeDist);
-    AddVal((MouthCenterX - AObject.X1) / FaceW);
-    AddVal((MouthCenterY - AObject.Y1) / FaceH);
-
-    if HasNose then
-      AddVal(Hypot(MouthCenterX - Nose.X, MouthCenterY - Nose.Y) / EyeDist)
-    else
-      AddVal(0.0);
-
-    if HasEyes then
-    begin
-      AddVal(Hypot(MouthLeft.X - LeftEye.X, MouthLeft.Y - LeftEye.Y) / EyeDist);
-      AddVal(Hypot(MouthRight.X - RightEye.X, MouthRight.Y - RightEye.Y) / EyeDist);
-    end
-    else
-    begin
-      AddVal(0.0);
-      AddVal(0.0);
-    end;
-  end
-  else
-  begin
-    AddVal(0.0);
-    AddVal(0.5);
-    AddVal(0.75);
-    AddVal(0.0);
-    AddVal(0.0);
-    AddVal(0.0);
-  end;
+  AddVal(MouthWidth / EyeDist);
+  AddVal((MouthCenterX - AObject.X1) / FaceW);
+  AddVal((MouthCenterY - AObject.Y1) / FaceH);
+  AddVal(Hypot(MouthCenterX - Nose.X, MouthCenterY - Nose.Y) / EyeDist);
+  AddVal(Hypot(MouthLeft.X - LeftEye.X, MouthLeft.Y - LeftEye.Y) / EyeDist);
+  AddVal(Hypot(MouthRight.X - RightEye.X, MouthRight.Y - RightEye.Y) / EyeDist);
 
   // 6. Coordenadas rotacionadas e normalizadas ao bbox da face para cada landmark
   for i := 0 to KpCount - 1 do
@@ -287,11 +309,6 @@ begin
   end;
 
   AData.Values := ValuesList;
-  if KpCount > 0 then
-    AData.Quality := (AObject.Confidence * 0.5) + ((SumConf / KpCount) * 0.5)
-  else
-    AData.Quality := AObject.Confidence;
-
   AData.IsValid := True;
   Result := True;
 end;
@@ -314,13 +331,21 @@ begin
     Exit;
   end;
 
+  // Limiar mais rigoroso para cadastro (Task 12)
+  if Data.Quality < FEnrollmentQualityThreshold then
+  begin
+    AError := Format('A face foi detectada, mas a qualidade é insuficiente para cadastro (%.2f < %.2f).',
+      [Data.Quality, FEnrollmentQualityThreshold]);
+    Exit;
+  end;
+
   ASample := TAIFaceSample.Create;
   ASample.ImageFile := AImageFile;
   ASample.DescriptorVersion := Data.Version;
   ASample.Algorithm := Data.Algorithm;
   ASample.Vector := Data.Values;
   ASample.CreatedAt := Now;
-  ASample.DetectionConfidence := AObject.Confidence;
+  ASample.DetectionConfidence := Data.FaceConfidence;
   ASample.QualityScore := Data.Quality;
   Result := True;
 end;

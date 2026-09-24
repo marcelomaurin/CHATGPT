@@ -2,65 +2,77 @@
 
 ## Visão Geral
 
-`TAIFaceRecognition` é o componente de alto nível da suíte **Lazarus AI Suite** responsável por transformar a detecção de rostos em **reconhecimento e verificação de identidade**.
+`TAIFaceRecognition` é o componente de alto nível da suíte **Lazarus AI Suite** responsável por transformar a detecção de rostos em **reconhecimento e verificação de identidade** robustos.
 
-Ele atua como uma fachada integrada que orquestra componentes existentes sem duplicá-los:
-- **`TYOLO`**: Detecta a face e extrai os keypoints/landmarks geométricos.
-- **`TFaceDetection`**: Fallback para localização rápida de face via Haar Cascade (OpenCV).
-- **`TAIFaceTracker`**: Acompanha a região da face em quadros subsequentes por template matching nativo, reduzindo inferências pesadas de IA.
-- **`TAIFaceRegistry`**: Gerencia a base de identidades registradas (`TAIFaceProfile`).
-- **`TAIFaceDescriptorBuilder`**: Normaliza escala e rotação e constrói o vetor descritor geométrico.
-- **`TAIFaceMatcher`**: Executa a comparação de similaridade de cosseno, validação de threshold e detecção de ambiguidade.
+Ele atua como uma fachada integrada que orquestra componentes especializados sem duplicar responsabilidades:
 
----
+```text
+YOLO detecta
+FaceTracker acompanha
+Descriptor representa
+Matcher compara
+Registry armazena
+TAIFaceRecognition coordena
+```
 
-## Papel dos Componentes de Visão
-
-É fundamental compreender as responsabilidades de cada componente na biblioteca:
+### Papel dos Componentes de Visão
 
 | Componente | Papel | O que faz |
 |---|---|---|
-| `TFaceDetection` | **Detector** | *Encontra* a presença e bounding box de faces (OpenCV Haar Cascade). Não identifica a pessoa. |
-| `TAIFaceTracker` | **Tracker** | *Acompanha* a região da face de frame em frame por correlação nativa (SAD). Não identifica a pessoa. |
-| `TYOLO` | **Extrator** | Localiza a face e extrai pontos de referência (olhos, nariz, boca). |
-| `TAIFaceRecognition` | **Identificador** | *Identifica* quem é a pessoa através da comparação do descritor com a base de perfis cadastrados. |
+| `TYOLO` | **Detector / Extrator** | Detecta a presença da face e extrai os keypoints/landmarks geométricos (olhos, nariz, boca). |
+| `TAIFaceTracker` | **Tracker** | Acompanha a região visual da face em quadros subsequentes por correlação visual nativa (SAD), reduzindo inferências YOLO. **Não gera identidade.** |
+| `TAIFaceDescriptorBuilder` | **Descriptor** | Valida a qualidade dos landmarks, normaliza escala e rotação e constrói o vetor geométrico invariante. |
+| `TAIFaceMatcher` | **Matcher** | Compara vetores por similaridade de cosseno, avalia thresholds e detecta ambiguidade entre múltiplos candidatos. |
+| `TAIFaceRegistry` | **Registry** | Armazena e serializa a base de identidades conhecidas (`TAIFaceProfile`) em arquivos JSON (`format_version: 1`). |
+| `TAIFaceRecognition` | **Coordenador** | Orquestra a captura, validação de classe facial, tracking temporal, múltiplas confirmações e cooldown de eventos. |
 
 ---
 
-## Limitações da Primeira Versão (Importante)
+## Regra Fundamental de Classes Faciais: `person != face`
 
-> [!WARNING]
-> O reconhecimento nesta primeira versão baseia-se na **geometria de landmarks faciais normalizados** (distâncias interoculares, proporção nariz-boca, inclinação e coordenadas relativas ao bounding box), extraídos por modelos YOLO faciais com keypoints.
-> **Esta abordagem não equivale a modelos de embeddings profundos (ArcFace / FaceNet)** e destina-se a ambientes controlados e bases com poucos perfis cadastrados.
-> A arquitetura inclui a interface `IAIFaceDescriptorProvider`, permitindo plugar ArcFace/FaceNet no futuro sem quebrar o Registry ou o Matcher.
-
----
-
-## Configuração de Calibração e Threshold
-
-O threshold de matching **não é fixo em 0.80**:
-
-- **`MatchThreshold: Double`** (Padrão: `0.82`): Define o valor mínimo de similaridade de cosseno para classificar uma detecção como `fmsMatched`. Valores inferiores a esse limiar retornam `fmsUnknown`. Recomenda-se calibrar entre `0.78` e `0.88` de acordo com a iluminação e resolução da câmera.
-- **`AmbiguityMargin: Double`** (Padrão: `0.05`): Se os dois melhores perfis tiverem similaridades superiores ao threshold e a diferença entre eles for menor que a margem, o sistema retorna `fmsAmbiguous`, prevenindo falsos reconhecimentos entre indivíduos parecidos.
+> [!IMPORTANT]
+> Em modelos YOLO gerais (como COCO), a classe `person` representa o **corpo inteiro** de um indivíduo e não possui keypoints faciais adequados para reconhecimento.
+> Portanto:
+> - `person` **NÃO** é aceito como face.
+> - O cadastro e o reconhecimento filtram estritamente classes faciais (`FaceClassName = 'face'`, aliases em `FaceClasses: TStrings`).
+> - Objetos não faciais (como cadeiras, animais ou corpos inteiros) são descartados sem gerar erro técnico.
+> - Se uma cena contiver apenas um cachorro ou objeto, o retorno é `Result = True`, `Length(AResults) = 0` e mensagem informativa `"Nenhuma face encontrada"`.
 
 ---
 
-## Estados e Eventos
+## Validação Semântica de Landmarks e Qualidade
 
-O componente gerencia estados distintos:
-- `detected`: Há uma face presente no frame.
-- `tracked`: A região está sendo acompanhada pelo tracker.
-- `recognized`: Houve correspondência confiável com um perfil cadastrado.
-
-### Eventos:
-- `OnFaceDetected(Sender: TObject; const AFaceRect: TRect; Confidence: Double)`
-- `OnFaceRecognized(Sender: TObject; const AResult: TFaceMatchResult)`
-- `OnFaceUnknown(Sender: TObject; const AResult: TFaceMatchResult)`
-- `OnFaceAmbiguous(Sender: TObject; const AResult: TFaceMatchResult)`
-- `OnFaceLost(Sender: TObject)`
+O descritor facial exige landmarks válidos com confiança mínima:
+- **`MinKeyPointConfidence`** (Padrão: `0.35`): Landmarks de olhos, nariz ou boca com confiança individual abaixo deste limite causam rejeição da amostra.
+- **Validação Semântica**: Verifica se os índices configurados em `TYoloKeyPointMapping` (olho esquerdo/direito, nariz, boca esquerda/direita) existem no modelo. Landmarks ausentes **não são substituídos por geometria estimada** no pipeline de identidade.
+- **Limiares de Qualidade Separados**:
+  - `EnrollmentQualityThreshold` (Padrão: `0.70`): Cadastro mais rigoroso para assegurar que fotos de baixa qualidade não entrem na base.
+  - `RecognitionQualityThreshold` (Padrão: `0.50`): Limiar de operação em runtime para acomodar variações de iluminação e movimento da câmera.
 
 ---
 
-## Diretrizes de Segurança da Biblioteca
+## Estabilidade Temporal, Rastreamento e Cooldown
+
+Para evitar falsos disparos causados por um único frame ruidoso, o componente adota confirmação temporal:
+
+- **`RequiredConfirmations`** (Padrão: `3`): O evento `OnFaceRecognized` é disparado somente após a mesma identidade ser detectada consecutivamente na janela de confirmação (`ConfirmationWindowMs`, padrão `2000 ms`).
+- **Reset por Mudança de Identidade**: Se a identidade oscilar entre frames (ex: Marcelo -> Maria -> Marcelo), a contagem de confirmação é reiniciada.
+- **`RecognitionCooldownMs`** (Padrão: `30000 ms`): Uma vez reconhecida uma pessoa, o evento não é redisparado a cada frame enquanto o mesmo rosto continuar em cena.
+- **`FaceLostTimeoutMs`** (Padrão: `2000 ms`): Se o rosto sumir momentaneamente por falha de iluminação ou oclusão rápida, o estado só passa para `frsLost` (disparando `OnFaceLost`) após o timeout.
+- **`ProcessFrame(ABitmap, out AResults)`**: Método otimizado para vídeo contínuo. Alterna automaticamente entre `TAIFaceTracker` e reinferência periódica via `TYOLO` (`YoloRefreshIntervalMs = 1500 ms`).
+
+---
+
+## Ambiguidade e Diagnóstico de Candidatos
+
+O registro de resultado `TFaceMatchResult` preserva o melhor e o segundo melhor candidato:
+- `ProfileID`, `ProfileName`, `Score` (Melhor correspondência)
+- `SecondProfileID`, `SecondProfileName`, `SecondScore` (Segundo melhor candidato)
+- Se ambos superarem o threshold e a diferença for menor que `AmbiguityMargin`, o status retornado é `fmsAmbiguous`, permitindo calibração visual em ferramentas de demonstração.
+
+---
+
+## Diretrizes de Arquitetura e Segurança
 1. **Não registra imagens desconhecidas automaticamente**: rostos desconhecidos (`fmsUnknown`) nunca são persistidos sozinhos.
 2. **Não executa regras de negócio nem gatilhos**: o campo `Triggers` no `TAIFaceProfile` armazena apenas dados; a aplicação consumidora (como o `Assistente`) é quem decide como acioná-los.
+3. **Limites de Perfis**: O limite de perfis (ex: 10 pessoas) pertence à camada de aplicação (`Assistente`), mantendo a biblioteca flexível.

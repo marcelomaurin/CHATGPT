@@ -13,7 +13,10 @@ type
   private
     FProfiles: TFPList;
     FLastError: string;
+    FWarnings: TStringList;
+    FFaceClasses: TStringList;
     function GetProfile(Index: Integer): TAIFaceProfile;
+    procedure SetFaceClasses(const AValue: TStringList);
   public
     constructor Create;
     destructor Destroy; override;
@@ -26,7 +29,7 @@ type
     function ProfileCount: Integer;
     procedure Clear;
 
-    function LoadFromFolder(const AFolderPath: string): Integer;
+    function LoadFromFolder(const AFolderPath: string; ACreateIfMissing: Boolean = True): Integer;
     function SaveProfile(const AProfileID: string; const AFolderPath: string): Boolean;
     function SaveAll(const AFolderPath: string): Boolean;
 
@@ -34,13 +37,15 @@ type
       AYolo: TYOLO;
       ABuilder: TAIFaceDescriptorBuilder;
       out ASample: TAIFaceSample;
-      out AError: string): Boolean;
+      out AError: string;
+      const AFaceClassesOverride: TStrings = nil): Boolean;
 
     function AddSampleFromFile(const AProfileID: string;
       const AImageFile: string;
       AYolo: TYOLO;
       ABuilder: TAIFaceDescriptorBuilder;
-      out AError: string): Boolean;
+      out AError: string;
+      const AFaceClassesOverride: TStrings = nil): Boolean;
 
     function RebuildProfileDescriptors(AProfile: TAIFaceProfile;
       AYolo: TYOLO;
@@ -48,6 +53,8 @@ type
 
     property Profiles[Index: Integer]: TAIFaceProfile read GetProfile; default;
     property LastError: string read FLastError;
+    property Warnings: TStringList read FWarnings;
+    property FaceClasses: TStringList read FFaceClasses write SetFaceClasses;
   end;
 
 implementation
@@ -59,13 +66,26 @@ begin
   inherited Create;
   FProfiles := TFPList.Create;
   FLastError := '';
+  FWarnings := TStringList.Create;
+  FFaceClasses := TStringList.Create;
+  FFaceClasses.Duplicates := dupIgnore;
+  FFaceClasses.Add('face');
+  FFaceClasses.Add('human_face');
 end;
 
 destructor TAIFaceRegistry.Destroy;
 begin
   Clear;
   FreeAndNil(FProfiles);
+  FreeAndNil(FWarnings);
+  FreeAndNil(FFaceClasses);
   inherited Destroy;
+end;
+
+procedure TAIFaceRegistry.SetFaceClasses(const AValue: TStringList);
+begin
+  if AValue <> nil then
+    FFaceClasses.Assign(AValue);
 end;
 
 procedure TAIFaceRegistry.Clear;
@@ -75,6 +95,7 @@ begin
   for i := 0 to FProfiles.Count - 1 do
     TAIFaceProfile(FProfiles[i]).Free;
   FProfiles.Clear;
+  FWarnings.Clear;
 end;
 
 function TAIFaceRegistry.ProfileCount: Integer;
@@ -184,7 +205,7 @@ begin
   end;
 end;
 
-function TAIFaceRegistry.LoadFromFolder(const AFolderPath: string): Integer;
+function TAIFaceRegistry.LoadFromFolder(const AFolderPath: string; ACreateIfMissing: Boolean): Integer;
 var
   SR: TSearchRec;
   FilePath, WarningMsg: string;
@@ -193,11 +214,17 @@ var
 begin
   SuccessCount := 0;
   FLastError := '';
+  FWarnings.Clear;
 
   if not DirectoryExists(AFolderPath) then
   begin
-    FLastError := 'Diretório não encontrado: ' + AFolderPath;
-    Exit(0);
+    if ACreateIfMissing then
+      ForceDirectories(AFolderPath)
+    else
+    begin
+      FLastError := 'Diretório não encontrado: ' + AFolderPath;
+      Exit(0);
+    end;
   end;
 
   if FindFirst(IncludeTrailingPathDelimiter(AFolderPath) + '*.json', faAnyFile, SR) = 0 then
@@ -213,7 +240,9 @@ begin
             if Trim(P.ID) = '' then
               P.ID := ChangeFileExt(SR.Name, '');
 
-            // Se já existe substitui, senão adiciona
+            if WarningMsg <> '' then
+              FWarnings.Add(Format('[Aviso %s]: %s', [SR.Name, WarningMsg]));
+
             if FindByID(P.ID) <> nil then
               UpdateProfile(P)
             else
@@ -223,7 +252,8 @@ begin
           end
           else
           begin
-            // JSON corrompido ou inválido não impede o carregamento dos outros perfis
+            // JSON corrompido ou inválido não impede o carregamento dos outros perfis (Task 56)
+            FWarnings.Add(Format('[Erro %s]: %s', [SR.Name, WarningMsg]));
             P.Free;
           end;
         end;
@@ -274,10 +304,12 @@ function TAIFaceRegistry.BuildDescriptorFromFile(const AImageFile: string;
   AYolo: TYOLO;
   ABuilder: TAIFaceDescriptorBuilder;
   out ASample: TAIFaceSample;
-  out AError: string): Boolean;
+  out AError: string;
+  const AFaceClassesOverride: TStrings): Boolean;
 var
   Objects: TYoloObjectArray;
   FaceCount, FaceIdx, i: Integer;
+  FilterClasses: TStrings;
 begin
   Result := False;
   ASample := nil;
@@ -307,22 +339,23 @@ begin
     Exit;
   end;
 
-  // Conta faces
+  FilterClasses := AFaceClassesOverride;
+  if FilterClasses = nil then
+    FilterClasses := FFaceClasses;
+
+  // Conta estritamente faces com IsYoloFaceObject (Tarefas 3, 4 e 5)
+  // Remove Length(Objects) = 1 e 'person' como face padrão
   FaceCount := 0;
   FaceIdx := -1;
   for i := 0 to High(Objects) do
   begin
-    // Se o modelo rotular como 'face' ou 'person' ou classe única de face
-    if (LowerCase(Objects[i].ClassName) = 'face') or
-       (LowerCase(Objects[i].ClassName) = 'person') or
-       (Length(Objects) = 1) then
+    if IsYoloFaceObject(Objects[i], FilterClasses) then
     begin
       Inc(FaceCount);
       FaceIdx := i;
     end;
   end;
 
-  // Regra 31: Na criação de amostra para cadastro, exigir exatamente uma face
   if FaceCount = 0 then
   begin
     AError := 'Nenhuma face encontrada';
@@ -342,7 +375,8 @@ function TAIFaceRegistry.AddSampleFromFile(const AProfileID: string;
   const AImageFile: string;
   AYolo: TYOLO;
   ABuilder: TAIFaceDescriptorBuilder;
-  out AError: string): Boolean;
+  out AError: string;
+  const AFaceClassesOverride: TStrings): Boolean;
 var
   P: TAIFaceProfile;
   Sample: TAIFaceSample;
@@ -356,7 +390,7 @@ begin
     Exit;
   end;
 
-  if not BuildDescriptorFromFile(AImageFile, AYolo, ABuilder, Sample, AError) then
+  if not BuildDescriptorFromFile(AImageFile, AYolo, ABuilder, Sample, AError, AFaceClassesOverride) then
     Exit;
 
   Sample.SampleID := Format('%s_s%d', [P.ID, P.SampleCount + 1]);

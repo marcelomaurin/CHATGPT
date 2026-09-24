@@ -8,8 +8,8 @@ uses
   Classes, SysUtils, DateUtils, fpjson, jsonparser, aifaceprofile;
 
 { Centralização de serialização e desserialização JSON de perfis faciais }
-function ProfileToJSON(AProfile: TAIFaceProfile): string;
-function JSONToProfile(const AJSON: string; AProfile: TAIFaceProfile; out AWarning: string): Boolean;
+function ProfileToJSON(AProfile: TAIFaceProfile; const ABaseDir: string = ''): string;
+function JSONToProfile(const AJSON: string; AProfile: TAIFaceProfile; out AWarning: string; const ABaseDir: string = ''): Boolean;
 function SaveProfileToFile(AProfile: TAIFaceProfile; const AFileName: string): Boolean;
 function LoadProfileFromFile(const AFileName: string; AProfile: TAIFaceProfile; out AWarning: string): Boolean;
 function SanitizeProfileID(const AName: string): string;
@@ -59,7 +59,6 @@ begin
         if (Length(Result) = 0) or (Result[Length(Result)] <> '_') then
           Result := Result + '_';
       else
-        // ignora outros caracteres desconhecidos
         ;
     end;
   end;
@@ -73,28 +72,64 @@ begin
     Result := 'profile_' + FormatDateTime('yyyymmdd_hhnnss', Now);
 end;
 
-function ProfileToJSON(AProfile: TAIFaceProfile): string;
+function IsPathAbsolute(const APath: string): Boolean;
+begin
+  if Length(APath) = 0 then Exit(False);
+  Result := (APath[1] = '/') or (APath[1] = '\') or
+    ((Length(APath) >= 3) and (APath[2] = ':') and ((APath[3] = '\') or (APath[3] = '/')));
+end;
+
+function NormalizeToRelative(const AFilePath, ABaseDir: string): string;
+var
+  BaseNorm, FileNorm: string;
+begin
+  if (Trim(ABaseDir) = '') or (Trim(AFilePath) = '') then
+    Exit(AFilePath);
+  BaseNorm := IncludeTrailingPathDelimiter(ExpandFileName(ABaseDir));
+  FileNorm := ExpandFileName(AFilePath);
+  if Pos(LowerCase(BaseNorm), LowerCase(FileNorm)) = 1 then
+    Result := Copy(FileNorm, Length(BaseNorm) + 1, MaxInt)
+  else
+    Result := AFilePath;
+end;
+
+function ResolveRelativePath(const AFilePath, ABaseDir: string): string;
+begin
+  if (Trim(AFilePath) = '') or (Trim(ABaseDir) = '') then
+    Exit(AFilePath);
+  if not IsPathAbsolute(AFilePath) then
+    Result := ExpandFileName(IncludeTrailingPathDelimiter(ABaseDir) + AFilePath)
+  else
+    Result := AFilePath;
+end;
+
+function ProfileToJSON(AProfile: TAIFaceProfile; const ABaseDir: string = ''): string;
 var
   RootObj, SampleObj: TJSONObject;
   ImgArr, TrigArr, SampArr, VecArr: TJSONArray;
   i, j: Integer;
   Sample: TAIFaceSample;
+  ImgPath: string;
 begin
   Result := '{}';
   if AProfile = nil then Exit;
 
   RootObj := TJSONObject.Create;
   try
+    RootObj.Add('format_version', 1); // Versão de formato do perfil (Task 61)
     RootObj.Add('id', AProfile.ID);
     RootObj.Add('name', AProfile.Name);
     RootObj.Add('role', AProfile.Role);
     RootObj.Add('profile_text', AProfile.ProfileText);
     RootObj.Add('enabled', AProfile.Enabled);
 
-    // Lista de Imagens
+    // Lista de Imagens (relativa quando sob ABaseDir - Task 59)
     ImgArr := TJSONArray.Create;
     for i := 0 to AProfile.Images.Count - 1 do
-      ImgArr.Add(AProfile.Images[i]);
+    begin
+      ImgPath := NormalizeToRelative(AProfile.Images[i], ABaseDir);
+      ImgArr.Add(ImgPath);
+    end;
     RootObj.Add('images', ImgArr);
 
     // Lista de Gatilhos (Triggers)
@@ -110,7 +145,7 @@ begin
       Sample := AProfile.Samples[i];
       SampleObj := TJSONObject.Create;
       SampleObj.Add('sample_id', Sample.SampleID);
-      SampleObj.Add('image_file', Sample.ImageFile);
+      SampleObj.Add('image_file', NormalizeToRelative(Sample.ImageFile, ABaseDir));
       SampleObj.Add('descriptor_version', Sample.DescriptorVersion);
       SampleObj.Add('algorithm', Sample.Algorithm);
       SampleObj.Add('created_at', FormatDateTime('yyyy-mm-dd"T"hh:nn:ss', Sample.CreatedAt));
@@ -132,7 +167,7 @@ begin
   end;
 end;
 
-function JSONToProfile(const AJSON: string; AProfile: TAIFaceProfile; out AWarning: string): Boolean;
+function JSONToProfile(const AJSON: string; AProfile: TAIFaceProfile; out AWarning: string; const ABaseDir: string = ''): Boolean;
 var
   Data: TJSONData;
   RootObj, SampleObj: TJSONObject;
@@ -140,7 +175,7 @@ var
   i, j, DescrVer: Integer;
   Sample: TAIFaceSample;
   Vec: TDoubleDynArray;
-  DateStr: string;
+  DateStr, ImgPath: string;
 begin
   Result := False;
   AWarning := '';
@@ -164,7 +199,10 @@ begin
       begin
         ImgArr := RootObj.Arrays['images'];
         for i := 0 to ImgArr.Count - 1 do
-          AProfile.Images.Add(ImgArr.Strings[i]);
+        begin
+          ImgPath := ResolveRelativePath(ImgArr.Strings[i], ABaseDir);
+          AProfile.Images.Add(ImgPath);
+        end;
       end;
 
       AProfile.Triggers.Clear;
@@ -186,7 +224,6 @@ begin
             SampleObj := TJSONObject(SampArr.Items[i]);
             DescrVer := SampleObj.Get('descriptor_version', 1);
 
-            // Tolerância a versões desconhecidas do descriptor (Regra 25 e 60)
             if DescrVer > 1 then
             begin
               AWarning := AWarning + Format('Amostra %d ignorada: versão de descritor %d não suportada. Reconstrução necessária. ',
@@ -196,7 +233,7 @@ begin
 
             Sample := TAIFaceSample.Create;
             Sample.SampleID := SampleObj.Get('sample_id', '');
-            Sample.ImageFile := SampleObj.Get('image_file', '');
+            Sample.ImageFile := ResolveRelativePath(SampleObj.Get('image_file', ''), ABaseDir);
             Sample.DescriptorVersion := DescrVer;
             Sample.Algorithm := SampleObj.Get('algorithm', 'yolo_landmarks_geometry');
             Sample.DetectionConfidence := SampleObj.Get('detection_confidence', 0.0);
@@ -243,14 +280,15 @@ end;
 
 function SaveProfileToFile(AProfile: TAIFaceProfile; const AFileName: string): Boolean;
 var
-  JsonStr: string;
+  JsonStr, BaseDir: string;
   FS: TFileStream;
 begin
   Result := False;
   if AProfile = nil then Exit;
-  JsonStr := ProfileToJSON(AProfile);
+  BaseDir := ExtractFileDir(AFileName);
+  JsonStr := ProfileToJSON(AProfile, BaseDir);
   try
-    ForceDirectories(ExtractFileDir(AFileName));
+    ForceDirectories(BaseDir);
     FS := TFileStream.Create(AFileName, fmCreate);
     try
       if Length(JsonStr) > 0 then
@@ -267,6 +305,7 @@ end;
 function LoadProfileFromFile(const AFileName: string; AProfile: TAIFaceProfile; out AWarning: string): Boolean;
 var
   SL: TStringList;
+  BaseDir: string;
 begin
   Result := False;
   AWarning := '';
@@ -276,11 +315,12 @@ begin
     Exit;
   end;
 
+  BaseDir := ExtractFileDir(AFileName);
   SL := TStringList.Create;
   try
     try
       SL.LoadFromFile(AFileName);
-      Result := JSONToProfile(SL.Text, AProfile, AWarning);
+      Result := JSONToProfile(SL.Text, AProfile, AWarning, BaseDir);
     except
       on E: Exception do
       begin

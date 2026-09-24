@@ -24,6 +24,10 @@ type
     Score: Double;
     Distance: Double;
     SampleIndex: Integer;
+    // Segundo colocado preservado para diagnóstico de ambiguidade (Task 26)
+    SecondProfileID: string;
+    SecondProfileName: string;
+    SecondScore: Double;
     ErrorMessage: string;
   end;
   TFaceMatchResultArray = array of TFaceMatchResult;
@@ -185,7 +189,7 @@ var
   Prof: TAIFaceProfile;
   BestScore, SecondScore: Double;
   BestDist: Double;
-  BestIdx, BestSampleIdx: Integer;
+  BestIdx, SecondIdx, BestSampleIdx: Integer;
   CurScore, CurDist: Double;
   CurSampleIdx: Integer;
 begin
@@ -195,6 +199,9 @@ begin
   AResult.Score := 0.0;
   AResult.Distance := 0.0;
   AResult.SampleIndex := -1;
+  AResult.SecondProfileID := '';
+  AResult.SecondProfileName := '';
+  AResult.SecondScore := 0.0;
   AResult.ErrorMessage := '';
 
   if Length(ATargetVector) = 0 then
@@ -208,6 +215,7 @@ begin
   SecondScore := -1.0;
   BestDist := 999999.0;
   BestIdx := -1;
+  SecondIdx := -1;
   BestSampleIdx := -1;
 
   for i := 0 to High(AProfiles) do
@@ -220,6 +228,7 @@ begin
         if CurScore > BestScore then
         begin
           SecondScore := BestScore;
+          SecondIdx := BestIdx;
           BestScore := CurScore;
           BestDist := CurDist;
           BestIdx := i;
@@ -228,6 +237,7 @@ begin
         else if CurScore > SecondScore then
         begin
           SecondScore := CurScore;
+          SecondIdx := i;
         end;
       end;
     end;
@@ -244,6 +254,13 @@ begin
   AResult.ProfileID := AProfiles[BestIdx].ID;
   AResult.ProfileName := AProfiles[BestIdx].Name;
   AResult.SampleIndex := BestSampleIdx;
+
+  if SecondIdx >= 0 then
+  begin
+    AResult.SecondProfileID := AProfiles[SecondIdx].ID;
+    AResult.SecondProfileName := AProfiles[SecondIdx].Name;
+    AResult.SecondScore := SecondScore;
+  end;
 
   if BestScore < FMatchThreshold then
   begin
