@@ -82,3 +82,34 @@ x:y|x:y|x:y|...
 ```
 
 Para modelos sem máscara, `Polygon` permanece vazio e o consumidor pode usar `X1,Y1,X2,Y2` como fallback.
+
+
+## Suporte Opcional a Keypoints / Landmarks
+
+`TYoloObject` foi estendido com o campo:
+
+```pascal
+KeyPoints: TYoloKeyPointArray;
+```
+
+Onde cada elemento do array é um `TYoloKeyPoint`:
+
+```pascal
+type
+  TYoloKeyPoint = record
+    X: Double;
+    Y: Double;
+    Confidence: Double;
+  end;
+```
+
+### Compatibilidade e Funcionamento
+
+* Modelos tradicionais de detecção de objetos (ex: `yolov8n.pt`, `yolov8s-seg.pt`) continuam funcionando normalmente; quando o modelo não possui keypoints, o array `KeyPoints` é retornado vazio (`Length = 0`), sem lançar erro.
+* Em modelos com pose ou landmarks faciais (ex: `yolov8n-face.pt` ou pose models), o script Python do componente serializa automaticamente os pontos em JSON de alta performance com fallback para formato delimitado.
+* **Mapeamento de Landmarks**: A propriedade `KeyPointMapping: TYoloKeyPointMapping` permite configurar índices semânticos (ex.: `LeftEyeIndex=0`, `RightEyeIndex=1`, `NoseIndex=2`, `MouthLeftIndex=3`, `MouthRightIndex=4`), suportando modelos de 5 pontos ou customizados.
+* **Funções auxiliares seguras**:
+  * `HasKeyPoints(const AObject: TYoloObject): Boolean`
+  * `KeyPointCount(const AObject: TYoloObject): Integer`
+  * `GetKeyPoint(const AObject: TYoloObject; const AIndex: Integer; out APoint: TYoloKeyPoint): Boolean`
+  * `FindLandmark(const AObject: TYoloObject; const ASemantic: TYoloLandmarkSemantic; out APoint: TYoloKeyPoint): Boolean`

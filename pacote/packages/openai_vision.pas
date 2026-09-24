@@ -11,7 +11,7 @@ uses
   aiopencvruntime, aiopencv, aicamera_backend, aicamera_vfw, aicamera_v4l2, 
   aiframeprocessor, aifacetracker, aimotiontracker, aiimageinfo, 
   aiframebuffer, ainativeimagefilter, aiframediff, aihumanpose_types, 
-  mp_pose_bridge, aihumanposedetector, LazarusPackageIntf;
+  mp_pose_bridge, aihumanposedetector, aifaceprofile, aifacedescriptor, aifacematcher, aifacejson, aifaceregistry, aifacerecognition, LazarusPackageIntf;
 
 implementation
 
@@ -26,6 +26,7 @@ begin
   RegisterUnit('ainativeimagefilter', @ainativeimagefilter.Register);
   RegisterUnit('aiframediff', @aiframediff.Register);
   RegisterUnit('aihumanposedetector', @aihumanposedetector.Register);
+  RegisterUnit('aifacerecognition', @aifacerecognition.Register);
 end;
 
 initialization

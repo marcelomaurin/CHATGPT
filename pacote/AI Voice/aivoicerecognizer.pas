@@ -163,6 +163,8 @@ begin
       RequestStream.WriteBuffer(BodyFooter[1], Length(BodyFooter));
       RequestStream.Position := 0;
 
+      Client.ConnectTimeout := 10000;
+      Client.IOTimeout := 20000;
       Client.AddHeader('Authorization', 'Bearer ' + Token);
       Client.AddHeader('Content-Type', 'multipart/form-data; boundary=' + Boundary);
       Client.RequestBody := RequestStream;

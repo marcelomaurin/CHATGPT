@@ -105,6 +105,31 @@
         <Filename Value="..\AI Vision\aiframediff_icon.lrs"/>
         <Type Value="LRS"/>
       </Item>
+      <Item>
+        <Filename Value="..\AI Vision\aifaceprofile.pas"/>
+        <UnitName Value="aifaceprofile"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Vision\aifacedescriptor.pas"/>
+        <UnitName Value="aifacedescriptor"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Vision\aifacematcher.pas"/>
+        <UnitName Value="aifacematcher"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Vision\aifacejson.pas"/>
+        <UnitName Value="aifacejson"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Vision\aifaceregistry.pas"/>
+        <UnitName Value="aifaceregistry"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Vision\aifacerecognition.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aifacerecognition"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>

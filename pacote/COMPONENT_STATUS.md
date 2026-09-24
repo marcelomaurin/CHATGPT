@@ -75,6 +75,7 @@ Use esta classificação para documentação, README de abas, samples e planejam
 |---|---|---|---|---|
 | `TPythonConnector` | `pythonconnector.pas` | `openai_python` | Experimental/Beta | Preferir modo processo; DLL Python é sensível |
 | `TYoloDetect` | `yolodetect.pas` | `openai_python` | Experimental | Depende de Python/modelos externos |
+| `TYOLO` | `yolodetect.pas` | `openai_python` | Beta | Detector YOLO com bounding boxes, polígonos e keypoints/landmarks faciais em JSON |
 | `TFaceDetection` | `facedetection.pas` | `openai_python` | Experimental | Depende de backend externo |
 | `TCNNClassifier` | `cnnclassifier.pas` | `openai_python` | Experimental | Depende de Python/modelo externo |
 | `TLSTMPredictor` | `lstmpredictor.pas` | `openai_python` | Experimental | Depende de Python/modelo externo |
@@ -99,6 +100,12 @@ Use esta classificação para documentação, README de abas, samples e planejam
 | `TAINativeImageFilter` | `ainativeimagefilter.pas` | `openai_vision` | Experimental | Filtros rápidos de pixel (Cinza, Limiar, Inverter, Resize, Blur) 100% nativos |
 | `TAIFrameDiff` | `aiframediff.pas` | `openai_vision` | Experimental | Geração nativa de diferença absoluta de pixels entre frames |
 | `TAIHumanPoseDetector` | `aihumanposedetector.pas` | `openai_vision` | Stable | Detector de pose real integrado (MediaPipe 0.10.35). Pipeline (Lazarus → DLL → Python Worker) completo e validado, com 33 landmarks reais, simulação e livre de vazamento de memória. Exclusivo 64-bit (indisponível em 32-bit). |
+| `TAIFaceRecognition` | `aifacerecognition.pas` | `openai_vision` | Beta | Fachada de alto nível para reconhecimento facial e identidade. Reutiliza TYOLO, TFaceDetection, TAIFaceTracker e TAIFaceRegistry. |
+| `TAIFaceRegistry` | `aifaceregistry.pas` | `openai_vision` | Beta | Gerenciamento de perfis de identidade (TAIFaceProfile) e amostras com tolerância a versões em JSON. |
+| `TAIFaceDescriptorBuilder` | `aifacedescriptor.pas` | `openai_vision` | Beta | Construtor de descritor geométrico facial normalizado (escala e rotação) baseado em landmarks YOLO. |
+| `TAIFaceMatcher` | `aifacematcher.pas` | `openai_vision` | Beta | Comparador com Similaridade de Cosseno, Distância Euclidiana e controle de margem de ambiguidade. |
+| `aifacejson` | `aifacejson.pas` | `openai_vision` | Stable | Leitura/escrita JSON tolerante e segura para perfis e amostras faciais. |
+| `aifaceprofile` | `aifaceprofile.pas` | `openai_vision` | Stable | Entidades de dados de identidade: TAIFaceProfile, TAIFaceSample e listas especializadas. |
 
 ---
 
