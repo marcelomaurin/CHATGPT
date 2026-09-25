@@ -1,14 +1,14 @@
-# Camera Capture Windows Demo (aicameracapture)
+# Windows Camera Preview
 
-This sample project demonstrates the usage of component `aicameracapture` from the `openai_vision` package.
+This sample uses `TAICaptureSource` with the Windows VFW camera backend.
 
-## Features Illustrated
-- Exercises at least 3 component properties.
-- Calls at least 2 methods.
-- Supports **Simulation Mode** (enabled by default) to allow immediate verification of components without hardware, brokers, API credentials, or local Python installations.
+## Build and run
 
-## How to Build & Run
-1. Open this project folder in Lazarus.
-2. Verify package `openai_vision` is available or referenced.
-3. Build the project (`Ctrl+F9` or run `lazbuild.exe`).
-4. Execute and click "Execute Test".
+1. Open `camera_capture_windows_demo.lpi` in Lazarus with the `openai_input`, `openai_vision`, and LCL packages available.
+2. Build and run the project.
+3. Leave **Simulation Mode** unchecked, enter the VFW driver index (normally `0`), and click **Start Camera**.
+4. The camera stays active and displays a live preview in the black panel. Click **Stop Camera** to release it. Closing the window also stops capture.
+
+The status and log show connection and capture errors. Simulation Mode only checks the interface flow; it does not open a camera or generate frames.
+
+The index is a VFW driver index (0-9), not a DirectShow device-list position. This example does not require Python or OpenCV.

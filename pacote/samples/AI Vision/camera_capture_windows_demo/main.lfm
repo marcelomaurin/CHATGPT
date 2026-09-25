@@ -1,10 +1,12 @@
 object frmMain: TfrmMain
   Left = 300
-  Height = 600
+  Height = 800
   Top = 150
   Width = 800
-  Caption = 'Camera Capture Windows Demo (aicameracapture)'
-  ClientHeight = 600
+  Caption = 'Windows Camera Preview'
+  BorderStyle = bsSingle
+  BorderIcons = [biSystemMenu, biMinimize]
+  ClientHeight = 800
   ClientWidth = 800
   OnCreate = FormCreate
   OnDestroy = FormDestroy
@@ -24,7 +26,7 @@ object frmMain: TfrmMain
       Height = 25
       Top = 15
       Width = 500
-      Caption = 'Camera Capture Windows Demo (aicameracapture)'
+      Caption = 'Windows Camera Preview'
       Font.Height = -18
       Font.Name = 'Segoe UI'
       Font.Style = [fsBold]
@@ -44,8 +46,8 @@ object frmMain: TfrmMain
       Top = 80
       Width = 150
       Caption = 'Simulation Mode'
-      Checked = True
-      State = cbChecked
+      Checked = False
+      State = cbUnchecked
       TabOrder = 0
     end
     object btnRun: TButton
@@ -53,7 +55,7 @@ object frmMain: TfrmMain
       Height = 30
       Top = 75
       Width = 150
-      Caption = 'Execute Test'
+      Caption = 'Start Camera'
       OnClick = btnRunClick
       TabOrder = 1
     end
@@ -67,12 +69,23 @@ object frmMain: TfrmMain
       TabOrder = 2
     end
   end
+  object pnlPreview: TPanel
+    Left = 10
+    Height = 480
+    Top = 170
+    Width = 640
+    BevelOuter = bvNone
+    Caption = ''
+    Color = clBlack
+    ParentColor = False
+    TabOrder = 2
+  end
   object memoLog: TMemo
     Left = 10
-    Height = 410
-    Top = 180
+    Height = 120
+    Top = 670
     Width = 780
-    Align = alClient
+    Align = alBottom
     BorderSpacing.Around = 10
     ScrollBars = ssAutoBoth
     TabOrder = 1

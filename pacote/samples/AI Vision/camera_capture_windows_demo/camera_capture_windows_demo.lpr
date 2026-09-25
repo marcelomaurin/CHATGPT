@@ -15,6 +15,7 @@ begin
   RequireDerivedFormResource:=True;
   Application.Scaled:=True;
   Application.Initialize;
+  Application.MainFormOnTaskBar := True;
   Application.CreateForm(TfrmMain, frmMain);
   Application.Run;
 end.

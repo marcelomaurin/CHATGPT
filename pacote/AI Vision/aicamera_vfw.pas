@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, aicamera_backend, Graphics
   {$IFDEF MSWINDOWS}
-  , Windows, Messages, ActiveX, ComObj, Variants
+  , Windows, Messages
   {$ENDIF}
   ;
 
@@ -88,7 +88,6 @@ const
   WM_CAP_FILE_SAVEDIBW          = WM_CAP_START + 125;
   WM_CAP_SET_PREVIEW            = WM_CAP_START + 50;
   WM_CAP_SET_PREVIEWRATE        = WM_CAP_START + 52;
-  WM_CAP_SET_SCALE              = WM_CAP_START + 53;
   WM_CAP_GRAB_FRAME             = WM_CAP_START + 60;
 
 function capCreateCaptureWindowW(
@@ -125,7 +124,6 @@ end;
 function TAICameraVFWBackend.OpenCamera(const ADevice: string; AIndex, AWidth, AHeight, AFPS: Integer; APreviewHandle: THandle; APreviewEnabled: Boolean): Boolean;
 var
   LCaptureInterval: Integer;
-  LStyle: DWORD;
 begin
   Result := False;
   LastError := '';
@@ -136,18 +134,19 @@ begin
     Exit;
   end;
 
+  if APreviewEnabled and (APreviewHandle = 0) then
+  begin
+    LastError := 'PreviewHandle is required when PreviewEnabled is True.';
+    Exit;
+  end;
+
   FParentWnd := APreviewHandle;
   FWidth := AWidth;
   FHeight := AHeight;
 
-  if FParentWnd <> 0 then
-    LStyle := WS_CHILD or WS_VISIBLE
-  else
-    LStyle := WS_POPUP;
-
   FCaptureWnd := capCreateCaptureWindowW(
     'TAICameraVFWCaptureWnd',
-    LStyle,
+    WS_CHILD or WS_VISIBLE,
     0, 0, FWidth, FHeight,
     FParentWnd,
     0
@@ -172,10 +171,9 @@ begin
   else
     LCaptureInterval := 100;
 
-  if APreviewEnabled and (FParentWnd <> 0) then
+  if APreviewEnabled then
   begin
     SendMessage(FCaptureWnd, WM_CAP_SET_PREVIEWRATE, LCaptureInterval, 0);
-    SendMessage(FCaptureWnd, WM_CAP_SET_SCALE, 1, 0);
     SendMessage(FCaptureWnd, WM_CAP_SET_PREVIEW, 1, 0);
   end;
 
@@ -269,92 +267,13 @@ begin
     LastError := 'Failed to grab frame via VFW.';
 end;
 
-const
-  CLSID_SystemDeviceEnum: TGUID = '{62BE5D10-60EB-11d0-BD3B-00A0C911CE86}';
-  CLSID_VideoInputDeviceCategory: TGUID = '{860BB310-5D01-11d0-BD3B-00A0C911CE86}';
-  IID_ICreateDevEnum: TGUID = '{29840822-5B84-11D0-BD3B-00A0C911CE86}';
-
-type
-  ICreateDevEnum = interface(IUnknown)
-    ['{29840822-5B84-11D0-BD3B-00A0C911CE86}']
-    function CreateClassEnumerator(const clsidDeviceClass: TGUID;
-      out ppEnumMoniker: IEnumMoniker; dwFlags: DWORD): HResult; stdcall;
-  end;
-
-  IPropertyBag = interface(IUnknown)
-    ['{55272A00-42CB-11CE-8135-00AA004BB851}']
-    function Read(pszPropName: POleStr; var pVar: OleVariant; pErrorLog: Pointer): HResult; stdcall;
-    function Write(pszPropName: POleStr; var pVar: OleVariant): HResult; stdcall;
-  end;
-
 function TAICameraVFWBackend.ListCameras(AMaxScan: Integer): TStringList;
 var
-  I, Count: Integer;
+  I: Integer;
   LName: array[0..255] of WideChar;
   LVer: array[0..255] of WideChar;
-  HR: HResult;
-  NeedUninit: Boolean;
-  DevEnum: ICreateDevEnum;
-  EnumMoniker: IEnumMoniker;
-  Moniker: IMoniker;
-  Fetched: ULONG;
-  PropBagObj: IUnknown;
-  PropBag: IPropertyBag;
-  VarName: OleVariant;
-  CamName: string;
 begin
   Result := TStringList.Create;
-
-  // 1. Tenta enumeração nativa via DirectShow (Windows 7 e superior, 32 e 64 bits)
-  NeedUninit := False;
-  try
-    HR := CoInitialize(nil);
-    NeedUninit := Succeeded(HR);
-
-    HR := CoCreateInstance(CLSID_SystemDeviceEnum, nil, CLSCTX_INPROC_SERVER,
-      IID_ICreateDevEnum, DevEnum);
-    if Succeeded(HR) and (DevEnum <> nil) then
-    begin
-      HR := DevEnum.CreateClassEnumerator(CLSID_VideoInputDeviceCategory, EnumMoniker, 0);
-      if Succeeded(HR) and (EnumMoniker <> nil) then
-      begin
-        Count := 0;
-        while (EnumMoniker.Next(1, Moniker, Fetched) = S_OK) and (Count < AMaxScan) do
-        begin
-          try
-            HR := Moniker.BindToStorage(nil, nil, IPropertyBag, PropBagObj);
-            if Succeeded(HR) and Supports(PropBagObj, IPropertyBag, PropBag) then
-            begin
-              VarClear(VarName);
-              if Succeeded(PropBag.Read('FriendlyName', VarName, nil)) then
-              begin
-                CamName := Trim(String(VarName));
-                if CamName <> '' then
-                begin
-                  Result.Add(IntToStr(Count) + ' - ' + CamName);
-                  Inc(Count);
-                end;
-              end;
-            end;
-          finally
-            Moniker := nil;
-            PropBagObj := nil;
-            PropBag := nil;
-          end;
-        end;
-      end;
-    end;
-  except
-    // Se falhar DirectShow, continua para fallback VFW
-  end;
-
-  if NeedUninit then
-    try CoUninitialize; except end;
-
-  // 2. Se DirectShow encontrou câmeras, retorna diretamente
-  if Result.Count > 0 then Exit;
-
-  // 3. Fallback legado VFW para Windows 95/98/XP/WDM mapper
   for I := 0 to AMaxScan - 1 do
   begin
     FillChar(LName, SizeOf(LName), 0);
