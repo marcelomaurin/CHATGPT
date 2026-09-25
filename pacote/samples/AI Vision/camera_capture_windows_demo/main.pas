@@ -1,38 +1,38 @@
 unit main;
 
-{$mode objfpc}{$H+}
+{$mode objfpc}{$H+}{$codepage utf8}
 
 interface
 
-uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  aibase, aicapturesource, aicamera_backend;
+uses Classes, SysUtils, Forms, Controls, Graphics, ExtCtrls, StdCtrls,
+  aiwindowsvideopreview;
 
 type
   TfrmMain = class(TForm)
     pnlTop: TPanel;
     pnlPreview: TPanel;
     lblTitle: TLabel;
+    lblCamera: TLabel;
     lblStatus: TLabel;
-    chkSimulation: TCheckBox;
+    lblResolution: TLabel;
+    cmbCamera: TComboBox;
+    btnRefresh: TButton;
     btnRun: TButton;
-    btnClearLog: TButton;
     memoLog: TMemo;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnRunClick(Sender: TObject);
-    procedure btnClearLogClick(Sender: TObject);
+    procedure btnRefreshClick(Sender: TObject);
+    procedure cmbCameraChange(Sender: TObject);
+    procedure pnlPreviewResize(Sender: TObject);
   private
-    FAICamera: TAICaptureSource;
-    FEditDevice: TEdit;
-    FLastCaptureError: string;
-    procedure AddLog(const AMsg: string);
-    procedure CameraError(Sender: TObject; const AError: string);
+    FVideo: TAIWindowsVideoPreview;
+    FDevices: TAIVideoDevices;
     procedure UpdateControls;
+    procedure ShowError(const AMessage: string);
   end;
 
-var
-  frmMain: TfrmMain;
+var frmMain: TfrmMain;
 
 implementation
 
@@ -40,109 +40,96 @@ implementation
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
-  FAICamera := TAICaptureSource.Create(Self);
-  FAICamera.OnError := @CameraError;
-  FEditDevice := TEdit.Create(Self);
-  FEditDevice.Parent := pnlTop;
-  FEditDevice.SetBounds(15, 115, 100, 25);
-  FEditDevice.Text := '0';
-  FEditDevice.Hint := 'VFW camera driver index (0-9)';
-  FEditDevice.ShowHint := True;
-  AddLog('Camera preview ready. Enter a camera index and click Start Camera.');
-  UpdateControls;
+  FVideo := TAIWindowsVideoPreview.Create;
+  btnRefreshClick(nil);
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
-  // Release the native capture window before its parent panel is destroyed.
-  if Assigned(FAICamera) then
-    FAICamera.StopCapture;
+  FreeAndNil(FVideo);
 end;
 
 procedure TfrmMain.UpdateControls;
 begin
-  FEditDevice.Enabled := not FAICamera.Active;
-  chkSimulation.Enabled := not FAICamera.Active;
-  if FAICamera.Active then
-    btnRun.Caption := 'Stop Camera'
-  else
-    btnRun.Caption := 'Start Camera';
+  cmbCamera.Enabled := not FVideo.Active;
+  btnRefresh.Enabled := not FVideo.Active;
+  btnRun.Enabled := FVideo.Active or (cmbCamera.ItemIndex >= 0);
+  if FVideo.Active then btnRun.Caption := 'Parar vídeo'
+  else btnRun.Caption := 'Iniciar vídeo';
 end;
 
-procedure TfrmMain.CameraError(Sender: TObject; const AError: string);
+procedure TfrmMain.ShowError(const AMessage: string);
 begin
-  lblStatus.Caption := 'Status: Capture Error (see log)';
-  if FLastCaptureError <> AError then
-    AddLog('Camera error: ' + AError);
-  FLastCaptureError := AError;
+  lblStatus.Caption := 'Não foi possível iniciar o vídeo. Veja o detalhe abaixo.';
+  memoLog.Lines.Add(AMessage);
+end;
+
+procedure TfrmMain.btnRefreshClick(Sender: TObject);
+var I, Selected: Integer; PreviousID: string;
+begin
+  if FVideo.Active then Exit;
+  PreviousID := '';
+  if (cmbCamera.ItemIndex >= 0) and (cmbCamera.ItemIndex < Length(FDevices)) then
+    PreviousID := FDevices[cmbCamera.ItemIndex].ID;
+  FDevices := FVideo.ListDevices;
+  cmbCamera.Items.Clear;
+  Selected := -1;
+  for I := 0 to High(FDevices) do
+  begin
+    cmbCamera.Items.Add(FDevices[I].Name);
+    if FDevices[I].ID = PreviousID then Selected := I;
+  end;
+  if (Selected < 0) and (Length(FDevices) > 0) then Selected := 0;
+  cmbCamera.ItemIndex := Selected;
+  cmbCameraChange(nil);
+  if FVideo.LastError <> '' then ShowError(FVideo.LastError)
+  else if Length(FDevices) = 0 then
+    lblStatus.Caption := 'Nenhuma câmera encontrada. Conecte uma câmera e clique em Atualizar.';
+  memoLog.Lines.Add(Format('%d câmera(s) encontrada(s).', [Length(FDevices)]));
+  UpdateControls;
+end;
+
+procedure TfrmMain.cmbCameraChange(Sender: TObject);
+begin
+  if not Assigned(FVideo) or FVideo.Active then Exit;
+  lblResolution.Caption := 'Resolução: será informada ao iniciar o vídeo';
+  if cmbCamera.ItemIndex >= 0 then
+    lblStatus.Caption := 'Pronto para transmitir: ' + cmbCamera.Text;
+  UpdateControls;
 end;
 
 procedure TfrmMain.btnRunClick(Sender: TObject);
-var
-  DeviceIndex: Integer;
 begin
-  if FAICamera.Active then
+  if FVideo.Active then
   begin
-    FAICamera.StopCapture;
-    lblStatus.Caption := 'Status: Stopped';
-    AddLog('Camera stopped.');
+    FVideo.Stop;
+    lblStatus.Caption := 'Vídeo parado. A câmera foi liberada.';
+    lblResolution.Caption := 'Resolução: será informada ao iniciar o vídeo';
     pnlPreview.Invalidate;
-    UpdateControls;
-    Exit;
-  end;
-
-  FLastCaptureError := '';
-  if chkSimulation.Checked then
+    memoLog.Lines.Add('Transmissão encerrada.');
+  end
+  else if (cmbCamera.ItemIndex >= 0) and (cmbCamera.ItemIndex < Length(FDevices)) then
   begin
-    AddLog('Simulation: no camera is opened. Disable Simulation Mode for live preview.');
-    lblStatus.Caption := 'Status: Simulation Completed';
-    Exit;
-  end;
-
-  if not TryStrToInt(FEditDevice.Text, DeviceIndex) or
-     (DeviceIndex < 0) or (DeviceIndex > 9) then
-  begin
-    CameraError(Self, 'Enter a VFW camera driver index from 0 to 9.');
-    Exit;
-  end;
-
-  lblStatus.Caption := 'Status: Connecting...';
-  try
-    FAICamera.SourceKind := cskCameraLocal;
-    FAICamera.CameraIndex := DeviceIndex;
-    FAICamera.FPS := 30;
-    FAICamera.Backend := cbWindowsVFW;
-    FAICamera.Width := pnlPreview.ClientWidth;
-    FAICamera.Height := pnlPreview.ClientHeight;
-    FAICamera.PreviewEnabled := True;
-    FAICamera.PreviewHandle := pnlPreview.Handle;
-    AddLog('Connecting to camera driver ' + IntToStr(DeviceIndex) + '...');
-    if FAICamera.StartCapture then
+    lblStatus.Caption := 'Abrindo ' + cmbCamera.Text + '...';
+    if FVideo.Start(FDevices[cmbCamera.ItemIndex].ID, pnlPreview.Handle,
+      pnlPreview.ClientWidth, pnlPreview.ClientHeight) then
     begin
-      lblStatus.Caption := 'Status: Camera Active';
-      AddLog('Live preview active. Click Stop Camera to release the device.');
+      lblStatus.Caption := 'Vídeo ao vivo: ' + FVideo.DeviceName;
+      if (FVideo.VideoWidth > 0) and (FVideo.VideoHeight > 0) then
+        lblResolution.Caption := Format('Resolução do vídeo: %d × %d pixels',
+          [FVideo.VideoWidth, FVideo.VideoHeight])
+      else lblResolution.Caption := 'Resolução não informada pela câmera';
+      memoLog.Lines.Add(lblStatus.Caption + ' — ' + lblResolution.Caption);
     end
-    else
-      CameraError(Self, FAICamera.LastError);
-  except
-    on E: Exception do
-    begin
-      FAICamera.StopCapture;
-      CameraError(Self, E.Message);
-    end;
+    else ShowError(FVideo.LastError);
   end;
   UpdateControls;
 end;
 
-procedure TfrmMain.btnClearLogClick(Sender: TObject);
+procedure TfrmMain.pnlPreviewResize(Sender: TObject);
 begin
-  memoLog.Clear;
-  FLastCaptureError := '';
-end;
-
-procedure TfrmMain.AddLog(const AMsg: string);
-begin
-  memoLog.Lines.Add(AMsg);
+  if Assigned(FVideo) then
+    FVideo.Resize(pnlPreview.ClientWidth, pnlPreview.ClientHeight);
 end;
 
 end.

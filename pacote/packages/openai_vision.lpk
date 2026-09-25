@@ -17,6 +17,10 @@
     <License Value="OPEN SOURCE GPL3"/>
     <Files>
       <Item>
+        <Filename Value="..\AI Vision\aiwindowsvideopreview.pas"/>
+        <UnitName Value="aiwindowsvideopreview"/>
+      </Item>
+      <Item>
         <Filename Value="..\AI Vision\aiopencvruntime.pas"/>
         <UnitName Value="aiopencvruntime"/>
       </Item>

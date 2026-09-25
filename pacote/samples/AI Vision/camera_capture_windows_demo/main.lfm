@@ -1,93 +1,108 @@
 object frmMain: TfrmMain
-  Left = 300
-  Height = 800
-  Top = 150
-  Width = 800
-  Caption = 'Windows Camera Preview'
-  BorderStyle = bsSingle
-  BorderIcons = [biSystemMenu, biMinimize]
-  ClientHeight = 800
-  ClientWidth = 800
+  Left = 200
+  Height = 720
+  Top = 80
+  Width = 900
+  Caption = 'Câmera — Vídeo ao vivo'
+  ClientHeight = 720
+  ClientWidth = 900
+  Constraints.MinHeight = 560
+  Constraints.MinWidth = 780
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  LCLVersion = '3.0.0.3'
+  Position = poScreenCenter
   object pnlTop: TPanel
-    Left = 10
-    Height = 150
-    Top = 10
-    Width = 780
+    Left = 0
+    Height = 176
+    Top = 0
+    Width = 900
     Align = alTop
-    BorderSpacing.Around = 10
-    ClientHeight = 150
-    ClientWidth = 780
+    BevelOuter = bvNone
     TabOrder = 0
     object lblTitle: TLabel
-      Left = 15
-      Height = 25
-      Top = 15
-      Width = 500
-      Caption = 'Windows Camera Preview'
-      Font.Height = -18
-      Font.Name = 'Segoe UI'
+      Left = 16
+      Top = 12
+      Caption = 'Vídeo ao vivo'
+      Font.Height = -22
       Font.Style = [fsBold]
-      ParentColor = False
+      ParentFont = False
     end
-    object lblStatus: TLabel
-      Left = 15
-      Height = 15
-      Top = 50
-      Width = 400
-      Caption = 'Status: Ready'
-      ParentColor = False
+    object lblCamera: TLabel
+      Left = 16
+      Top = 51
+      Caption = 'Câmera'
     end
-    object chkSimulation: TCheckBox
-      Left = 15
-      Height = 19
-      Top = 80
-      Width = 150
-      Caption = 'Simulation Mode'
-      Checked = False
-      State = cbUnchecked
+    object cmbCamera: TComboBox
+      Left = 16
+      Top = 72
+      Width = 460
+      Height = 28
+      Style = csDropDownList
+      OnChange = cmbCameraChange
       TabOrder = 0
     end
-    object btnRun: TButton
-      Left = 200
-      Height = 30
-      Top = 75
-      Width = 150
-      Caption = 'Start Camera'
-      OnClick = btnRunClick
+    object btnRefresh: TButton
+      Left = 488
+      Top = 70
+      Width = 112
+      Height = 32
+      Caption = 'Atualizar'
+      OnClick = btnRefreshClick
       TabOrder = 1
     end
-    object btnClearLog: TButton
-      Left = 360
-      Height = 30
-      Top = 75
-      Width = 120
-      Caption = 'Clear Log'
-      OnClick = btnClearLogClick
+    object btnRun: TButton
+      Left = 612
+      Top = 70
+      Width = 140
+      Height = 32
+      Caption = 'Iniciar vídeo'
+      OnClick = btnRunClick
       TabOrder = 2
+    end
+    object lblStatus: TLabel
+      Left = 16
+      Top = 116
+      Width = 860
+      Height = 20
+      AutoSize = False
+      Caption = 'Procurando câmeras...'
+    end
+    object lblResolution: TLabel
+      Left = 16
+      Top = 144
+      Width = 860
+      Height = 20
+      AutoSize = False
+      Caption = 'Resolução: será informada ao iniciar o vídeo'
     end
   end
   object pnlPreview: TPanel
-    Left = 10
-    Height = 480
-    Top = 170
-    Width = 640
+    Left = 16
+    Top = 176
+    Width = 868
+    Height = 420
+    Align = alClient
+    BorderSpacing.Left = 16
+    BorderSpacing.Right = 16
+    BorderSpacing.Bottom = 12
     BevelOuter = bvNone
     Caption = ''
     Color = clBlack
     ParentColor = False
-    TabOrder = 2
+    OnResize = pnlPreviewResize
+    TabOrder = 1
   end
   object memoLog: TMemo
-    Left = 10
-    Height = 120
-    Top = 670
-    Width = 780
+    Left = 16
+    Height = 96
+    Top = 608
+    Width = 868
     Align = alBottom
-    BorderSpacing.Around = 10
-    ScrollBars = ssAutoBoth
-    TabOrder = 1
+    BorderSpacing.Left = 16
+    BorderSpacing.Right = 16
+    BorderSpacing.Bottom = 16
+    ReadOnly = True
+    ScrollBars = ssAutoVertical
+    TabOrder = 2
   end
 end
