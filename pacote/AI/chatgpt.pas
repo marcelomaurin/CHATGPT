@@ -43,10 +43,12 @@ type
     VCT_GEMINI_15_FLASH,
     VCT_GEMINI_15_PRO,
     VCT_GEMINI_20_FLASH,
+    VCT_GEMINI_20_FLASH_LITE,
     VCT_GEMINI_25_FLASH,
     VCT_GEMINI_25_PRO,
 
     // Anthropic Claude
+    VCT_CLAUDE_37_SONNET,
     VCT_CLAUDE_35_SONNET,
     VCT_CLAUDE_35_HAIKU,
     VCT_CLAUDE_3_OPUS,
@@ -875,9 +877,19 @@ begin
 end;
 
 function TCHATGPT.GetModelName: WideString;
+var
+  M: WideString;
 begin
-  if Trim(FCustomModel) <> '' then
-    Exit(Trim(FCustomModel));
+  M := Trim(FCustomModel);
+  if M <> '' then
+  begin
+    // Normaliza variacoes ou modelos inexistentes para evitar erro 404 da OpenAI
+    if (FProvider in [AIP_OPENAI, AIP_OPENAI_COMPATIBLE]) and
+       (SameText(M, 'openai-4.1-mini') or SameText(M, 'gpt-4.1-mini') or
+        SameText(M, 'gpt-4.1') or SameText(M, 'gpt-5')) then
+      Exit('gpt-4o-mini');
+    Exit(M);
+  end;
 
   if FProvider = AIP_LOCAL then
   begin
@@ -897,7 +909,7 @@ begin
   end;
 
   if FProvider = AIP_CEREBRAS then
-    Exit('qwen-3-235b-a22b-instruct-2507');
+    Exit('llama3.1-8b');
 
   if FProvider = AIP_DEEPSEEK then
   begin
@@ -926,11 +938,12 @@ begin
   if FProvider = AIP_GEMINI then
   begin
     case FTipoChat of
-      VCT_GEMINI_15_FLASH: Result := 'gemini-2.0-flash';
-      VCT_GEMINI_15_PRO:   Result := 'gemini-1.5-pro';
-      VCT_GEMINI_20_FLASH: Result := 'gemini-2.0-flash';
-      VCT_GEMINI_25_FLASH: Result := 'gemini-2.0-flash';
-      VCT_GEMINI_25_PRO:   Result := 'gemini-1.5-pro';
+      VCT_GEMINI_20_FLASH:      Result := 'gemini-2.0-flash';
+      VCT_GEMINI_20_FLASH_LITE: Result := 'gemini-2.0-flash-lite';
+      VCT_GEMINI_15_FLASH:      Result := 'gemini-1.5-flash';
+      VCT_GEMINI_15_PRO:        Result := 'gemini-1.5-pro';
+      VCT_GEMINI_25_FLASH:      Result := 'gemini-2.5-flash';
+      VCT_GEMINI_25_PRO:        Result := 'gemini-2.5-pro';
     else
       Result := 'gemini-2.0-flash';
     end;
@@ -940,28 +953,27 @@ begin
   if FProvider = AIP_CLAUDE then
   begin
     case FTipoChat of
+      VCT_CLAUDE_37_SONNET: Result := 'claude-3-7-sonnet-20250219';
       VCT_CLAUDE_35_SONNET: Result := 'claude-3-5-sonnet-20241022';
       VCT_CLAUDE_35_HAIKU:  Result := 'claude-3-5-haiku-20241022';
       VCT_CLAUDE_3_OPUS:    Result := 'claude-3-opus-20240229';
     else
-      Result := 'claude-3-5-sonnet-20241022';
+      Result := 'claude-3-7-sonnet-20250219';
     end;
     Exit;
   end;
 
   case FTipoChat of
-    VCT_GPT35TURBO:    Result := 'gpt-3.5-turbo';
-    VCT_GPT40:         Result := 'gpt-4';
-    VCT_GPT40_TURBO:   Result := 'gpt-4-turbo';
-    VCT_GPT4o:         Result := 'gpt-4o';
     VCT_GPT4O_MINI:    Result := 'gpt-4o-mini';
+    VCT_GPT4o:         Result := 'gpt-4o';
     VCT_GPTo3_mini:    Result := 'o3-mini';
     VCT_GPTo1:         Result := 'o1';
     VCT_GPTo1_mini:    Result := 'o1-mini';
     VCT_GPTo1_preview: Result := 'o1-preview';
-    VCT_GPT41:         Result := 'gpt-4.1';
-    VCT_GPT41_MINI:    Result := 'gpt-4.1-mini';
-    VCT_GPT5:          Result := 'gpt-5';
+    VCT_GPT40_TURBO:   Result := 'gpt-4-turbo';
+    VCT_GPT40:         Result := 'gpt-4';
+    VCT_GPT35TURBO:    Result := 'gpt-3.5-turbo';
+    VCT_GPT41, VCT_GPT41_MINI, VCT_GPT5: Result := 'gpt-4o-mini';
     VCT_CUSTOM:        Result := Trim(FCustomModel);
   else
     Result := 'gpt-4o-mini';

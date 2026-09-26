@@ -527,8 +527,21 @@ begin
       SetActiveHTTP(LHTTP);
       if AConfig.Timeout > 0 then
       begin
-        LHTTP.ConnectTimeout := AConfig.Timeout;
-        LHTTP.IOTimeout := AConfig.Timeout;
+        if AConfig.Timeout < 1000 then
+        begin
+          LHTTP.ConnectTimeout := AConfig.Timeout * 1000;
+          LHTTP.IOTimeout := AConfig.Timeout * 1000;
+        end
+        else
+        begin
+          LHTTP.ConnectTimeout := AConfig.Timeout;
+          LHTTP.IOTimeout := AConfig.Timeout;
+        end;
+      end
+      else
+      begin
+        LHTTP.ConnectTimeout := 15000;
+        LHTTP.IOTimeout := 30000;
       end;
       BuildHeaders(AConfig, LHeaders);
       for I := 0 to LHeaders.Count - 1 do
