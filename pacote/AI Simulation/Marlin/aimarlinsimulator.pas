@@ -28,10 +28,15 @@ type
     FRemaining, FBusyTime, FUnits, FSpeedFactor, FFlowFactor: Double;
     FMinExtrudeTemperature, FVolumeX, FVolumeY, FVolumeZ: Double;
     FAllowZ: Boolean;
+    { Laser/spindle no estilo GRBL: M3/M4 liga, M5 desliga, S define a
+      potencia (tambem quando vem na linha do G0/G1). }
+    FLaserOn, FRapidMove: Boolean;
+    FLaserS: Double;
     FLastLine: Integer;
     FOnResponse: TAIMarlinResponseEvent;
     FOnMotion: TAIMarlinMotionEvent;
     FOnStateChanged: TNotifyEvent;
+    procedure UpdateLaserPower;
     procedure Emit(const Text: string);
     procedure Reject(const Text: string; Resend: Boolean);
     function NormalizeGrblJog(const Line: string; out Normalized, ErrorText: string): Boolean;
@@ -58,6 +63,9 @@ type
     property State: TAIMarlinState read FState;
     property LastLineNumber: Integer read FLastLine;
     property Pending: TAIMarlinPending read FPending;
+    { True enquanto executa um G0. No GRBL em modo laser ($32=1) o laser nao
+      queima em movimentos rapidos. }
+    property RapidMove: Boolean read FRapidMove;
   published
     property OnResponse: TAIMarlinResponseEvent read FOnResponse write FOnResponse;
     property OnMotion: TAIMarlinMotionEvent read FOnMotion write FOnMotion;
@@ -92,7 +100,12 @@ begin
   FUnits := 1; FSpeedFactor := 1; FFlowFactor := 1;
   FMinExtrudeTemperature := 170; FLastLine := 0;
   FPending := mpNone; FRemaining := 0; FBusyTime := 0;
+  FLaserOn := False; FLaserS := 0; FRapidMove := False;
   ClearError; Emit('start');
+end;
+procedure TAIMarlinSimulator.UpdateLaserPower;
+begin
+  if FLaserOn then FState.LaserPower := FLaserS else FState.LaserPower := 0;
 end;
 procedure TAIMarlinSimulator.SetBuildVolume(X, Y, Z: Double);
 begin
@@ -114,6 +127,7 @@ begin
   FQueue.Clear; FPending := mpNone; FBuffer := '';
   FState.Killed := True; FState.HotendTarget := 0; FState.BedTarget := 0;
   FState.MotorsEnabled := False; FState.Fan := 0; FState.LaserPower := 0;
+  FLaserOn := False; FRapidMove := False;
   Reject('Printer halted. Reset required', False);
   if Assigned(FOnStateChanged) then FOnStateChanged(Self);
 end;
@@ -242,6 +256,8 @@ var P: TAIMarlinPosition; Feed, Distance: Double;
 begin
   Result := False;
   if HasUnsupportedParameters(C, 'XYZEFS') then Exit;
+  if C.Present['S'] and ((C.Values['S'] < 0) or (C.Values['S'] > 1000)) then
+    begin Reject('Invalid laser power', False); Exit; end;
   Feed := FState.Feed;
   if C.Present['F'] then Feed := C.Values['F'] * FUnits;
   if (Feed <= 0) or (Feed > 100000) then begin Reject('Invalid feed', False); Exit; end;
@@ -258,6 +274,9 @@ begin
   Distance := Sqrt(Sqr(P.X - FState.Position.X) + Sqr(P.Y - FState.Position.Y) +
     Sqr(P.Z - FState.Position.Z));
   if Distance < 1e-9 then Distance := Abs(P.E - FState.Position.E);
+  { So altera a potencia depois de validar o movimento inteiro. }
+  if C.Present['S'] then begin FLaserS := C.Values['S']; UpdateLaserPower; end;
+  FRapidMove := C.Code = 0;
   FDestination := P; FState.Feed := Feed; FState.MotorsEnabled := True;
   FRemaining := Distance / (Feed * FSpeedFactor / 60);
   FPending := mpMove; Result := True;
@@ -343,11 +362,11 @@ begin
         end;
       end;
       3,4: begin
-        V := 0; if C.Present['S'] then V := C.Values['S'];
+        V := FLaserS; if C.Present['S'] then V := C.Values['S'];
         if (V < 0) or (V > 1000) then Reject('Invalid laser power', False)
-        else FState.LaserPower := V;
+        else begin FLaserS := V; FLaserOn := True; UpdateLaserPower; end;
       end;
-      5: FState.LaserPower := 0;
+      5: begin FLaserOn := False; UpdateLaserPower; end;
       105: begin Emit('ok ' + TemperatureReport); Exit; end;
       106: begin
         V := 255; if C.Present['S'] then V := C.Values['S'];
@@ -392,7 +411,7 @@ begin
   Done;
 end;
 procedure TAIMarlinSimulator.Finish;
-begin FPending := mpNone; FRemaining := 0; FBusyTime := 0; Emit('ok'); end;
+begin FPending := mpNone; FRemaining := 0; FBusyTime := 0; FRapidMove := False; Emit('ok'); end;
 procedure TAIMarlinSimulator.TemperatureStep(Dt: Double);
   procedure Adjust(var Temp: Double; Target, Heating, Cooling: Double);
   begin
