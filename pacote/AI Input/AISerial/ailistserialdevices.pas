@@ -310,7 +310,7 @@ var
   Len: Integer;
 begin
   Result := '';
-  Len := fpReadlink(APath, @Buffer[0], SizeOf(Buffer) - 1);
+  Len := fpReadlink(PChar(APath), @Buffer[0], SizeOf(Buffer) - 1);
   if Len > 0 then
   begin
     Buffer[Len] := #0;
@@ -1068,93 +1068,6 @@ var
       SysUtils.FindClose(SR);
     end;
   end;
-
-{$IFDEF UNIX}
-  procedure EnrichLinuxMetadata;
-  var
-    LinkSR: TSearchRec;
-    LinkPath, ResolvedTarget, DevName: string;
-    I: Integer;
-    SysPath, VID, PID: string;
-    
-    function ReadSysfsValue(const APath: string): string;
-    var
-      F: TextFile;
-    begin
-      Result := '';
-      if FileExists(APath) then
-      begin
-        try
-          AssignFile(F, APath);
-          Reset(F);
-          if not Eof(F) then
-            Readln(F, Result);
-          CloseFile(F);
-          Result := Trim(Result);
-        except
-          // ignore read errors
-        end;
-      end;
-    end;
-  begin
-    if FindFirst('/dev/serial/by-id/*', faAnyFile, LinkSR) = 0 then
-    begin
-      repeat
-        if (LinkSR.Attr and faDirectory) = 0 then
-        begin
-          LinkPath := '/dev/serial/by-id/' + LinkSR.Name;
-          ResolvedTarget := ResolveSymlink(LinkPath);
-          if ResolvedTarget <> '' then
-          begin
-            ResolvedTarget := ExpandFileName('/dev/serial/by-id/' + ResolvedTarget);
-            DevName := ExtractFileName(ResolvedTarget);
-            
-            for I := 0 to Length(ADetected) - 1 do
-            begin
-              if SameText(ExtractFileName(ADetected[I].DeviceName), DevName) then
-              begin
-                ADetected[I].Description := LinkSR.Name;
-                
-                SysPath := '/sys/class/tty/' + DevName + '/device/';
-                VID := ReadSysfsValue(SysPath + 'idVendor');
-                if VID = '' then
-                  VID := ReadSysfsValue(SysPath + '../idVendor');
-                if VID = '' then
-                  VID := ReadSysfsValue(SysPath + '../../idVendor');
-                  
-                PID := ReadSysfsValue(SysPath + 'idProduct');
-                if PID = '' then
-                  PID := ReadSysfsValue(SysPath + '../idProduct');
-                if PID = '' then
-                  PID := ReadSysfsValue(SysPath + '../../idProduct');
-                  
-                if (VID <> '') or (PID <> '') then
-                begin
-                  VID := LowerCase(VID);
-                  PID := LowerCase(PID);
-                  ADetected[I].VID := VID;
-                  ADetected[I].PID := PID;
-                  if (VID = '2341') or (VID = '2a03') then
-                  begin
-                    ADetected[I].PortKind := spkArduinoCompatible;
-                    ADetected[I].DisplayName := 'Arduino Compatible (' + ExtractFileName(ADetected[I].DeviceName) + ')';
-                  end
-                  else if (VID = '1a86') or (VID = '10c4') or (VID = '0403') then
-                  begin
-                    ADetected[I].PortKind := spkUSBSerial;
-                    ADetected[I].DisplayName := 'USB Serial Device (' + ExtractFileName(ADetected[I].DeviceName) + ')';
-                  end;
-                end;
-                Break;
-              end;
-            end;
-          end;
-        end;
-      until FindNext(LinkSR) <> 0;
-      SysUtils.FindClose(LinkSR);
-    end;
-  end;
-{$ENDIF}
 
 begin
   {$IFDEF DARWIN}
