@@ -26,6 +26,7 @@ function AIGetRuntimeIniName: string;
 function AIResolveWorkerPath(const ARuntimeRoot, AWorkerFile: string): string;
 function AIResolvePythonExecutable(const ARuntimeRoot: string): string;
 function AIResolvePythonLibrary(const ARuntimeRoot: string): string;
+function AIResolveLibDataChannel(const ABaseDir: string = ''): string;
 function AIResolveOpenSSLDirectory(const ABaseDir: string = ''): string;
 function AIResolveOpenSSLLibraries(const ABaseDir: string; out ASSLLib, ACryptoLib: string): Boolean;
 function AILoadRuntimeInfo(const AIniFile: string; out AInfo: TAIRuntimeInfo; out AError: string): Boolean;
@@ -91,6 +92,34 @@ begin
   if not FileExists(Result) then
     Result := AICombinePath(AICombinePath(AICombinePath(ARuntimeRoot, 'python'), 'lib'), 'libpython3.8.so');
   {$ENDIF}
+end;
+
+function AIResolveLibDataChannel(const ABaseDir: string): string;
+var
+  Roots: array[0..4] of string;
+  I: Integer;
+  Candidate, PlatformFolder, LibName: string;
+begin
+  Result := '';
+  {$IFDEF MSWINDOWS}
+  PlatformFolder := 'windows-x86_64'; LibName := 'datachannel.dll';
+  {$ELSEIF Defined(CPUAARCH64)}
+  PlatformFolder := 'linux-aarch64'; LibName := 'libdatachannel.so';
+  {$ELSE}
+  PlatformFolder := 'linux-x86_64'; LibName := 'libdatachannel.so';
+  {$ENDIF}
+  Roots[0] := ABaseDir;
+  Roots[1] := ExtractFilePath(ParamStr(0));
+  Roots[2] := ExpandFileName(ExtractFilePath(ParamStr(0)) + '..' + DirectorySeparator);
+  Roots[3] := ExpandFileName(ExtractFilePath(ParamStr(0)) + '..' + DirectorySeparator + '..' + DirectorySeparator);
+  Roots[4] := ExpandFileName(ExtractFilePath(ParamStr(0)) + '..' + DirectorySeparator + '..' + DirectorySeparator + '..' + DirectorySeparator);
+  for I := 0 to High(Roots) do begin
+    if Roots[I] = '' then Continue;
+    Candidate := AICombinePath(Roots[I], 'runtime' + DirectorySeparator + 'libdatachannel' + DirectorySeparator + PlatformFolder + DirectorySeparator + LibName);
+    if FileExists(Candidate) then Exit(Candidate);
+    Candidate := AICombinePath(Roots[I], 'libdatachannel' + DirectorySeparator + PlatformFolder + DirectorySeparator + LibName);
+    if FileExists(Candidate) then Exit(Candidate);
+  end;
 end;
 
 function AIResolveOpenSSLDirectory(const ABaseDir: string): string;
