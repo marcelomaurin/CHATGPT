@@ -102,7 +102,7 @@ var
 
 function DefaultLibDataChannelName: string;
 begin
-  {$IFDEF MSWINDOWS}
+  {$IF Defined(MSWINDOWS)}
   Result := 'datachannel.dll';
   {$ELSEIF Defined(DARWIN)}
   Result := 'libdatachannel.dylib';

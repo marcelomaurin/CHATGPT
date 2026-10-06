@@ -101,7 +101,7 @@ var
   Candidate, PlatformFolder, LibName: string;
 begin
   Result := '';
-  {$IFDEF MSWINDOWS}
+  {$IF Defined(MSWINDOWS)}
   PlatformFolder := 'windows-x86_64'; LibName := 'datachannel.dll';
   {$ELSEIF Defined(CPUAARCH64)}
   PlatformFolder := 'linux-aarch64'; LibName := 'libdatachannel.so';

@@ -23,7 +23,8 @@ type
     FBuffer: string;
     FDiscardLine, FHeatCooling, FInAdvance: Boolean;
     FState: TAIMarlinState;
-    FOffset, FDestination: TAIMarlinPosition;
+    FOffset, FDestination, FG28Home: TAIMarlinPosition;
+    FG28HomeSet: Boolean;
     FPending: TAIMarlinPending;
     FRemaining, FBusyTime, FUnits, FSpeedFactor, FFlowFactor: Double;
     FMinExtrudeTemperature, FVolumeX, FVolumeY, FVolumeZ: Double;
@@ -36,6 +37,8 @@ type
     FOnResponse: TAIMarlinResponseEvent;
     FOnMotion: TAIMarlinMotionEvent;
     FOnStateChanged: TNotifyEvent;
+    function GetWorkPosition: TAIMarlinPosition;
+    function GetG92Active: Boolean;
     procedure UpdateLaserPower;
     procedure Emit(const Text: string);
     procedure Reject(const Text: string; Resend: Boolean);
@@ -58,9 +61,17 @@ type
     procedure Resume;
     procedure EmergencyStop;
     procedure SetBuildVolume(X, Y, Z: Double);
+    procedure SetHotendTarget(ATemp: Double);
+    procedure SetBedTarget(ATemp: Double);
+    procedure SetHotendActual(ATemp: Double);
+    procedure SetBedActual(ATemp: Double);
     property AllowZ: Boolean read FAllowZ write FAllowZ;
     function IsIdle: Boolean;
     property State: TAIMarlinState read FState;
+    property WorkPosition: TAIMarlinPosition read GetWorkPosition;
+    property G28Home: TAIMarlinPosition read FG28Home;
+    property G28HomeSet: Boolean read FG28HomeSet;
+    property G92Active: Boolean read GetG92Active;
     property LastLineNumber: Integer read FLastLine;
     property Pending: TAIMarlinPending read FPending;
     { True enquanto executa um G0. No GRBL em modo laser ($32=1) o laser nao
@@ -96,6 +107,7 @@ procedure TAIMarlinSimulator.Reset;
 begin
   FQueue.Clear; FBuffer := ''; FDiscardLine := False;
   FillChar(FState, SizeOf(FState), 0); FillChar(FOffset, SizeOf(FOffset), 0);
+  FillChar(FG28Home, SizeOf(FG28Home), 0); FG28HomeSet := False;
   FState.Hotend := 25; FState.Bed := 25; FState.Feed := 1500; FState.LaserPower := 0;
   FUnits := 1; FSpeedFactor := 1; FFlowFactor := 1;
   FMinExtrudeTemperature := 170; FLastLine := 0;
@@ -103,6 +115,20 @@ begin
   FLaserOn := False; FLaserS := 0; FRapidMove := False;
   ClearError; Emit('start');
 end;
+function TAIMarlinSimulator.GetWorkPosition: TAIMarlinPosition;
+begin
+  Result.X := FState.Position.X + FOffset.X;
+  Result.Y := FState.Position.Y + FOffset.Y;
+  Result.Z := FState.Position.Z + FOffset.Z;
+  Result.E := FState.Position.E + FOffset.E;
+end;
+
+function TAIMarlinSimulator.GetG92Active: Boolean;
+begin
+  Result := (Abs(FOffset.X) > 1e-6) or (Abs(FOffset.Y) > 1e-6) or
+            (Abs(FOffset.Z) > 1e-6) or (Abs(FOffset.E) > 1e-6);
+end;
+
 procedure TAIMarlinSimulator.UpdateLaserPower;
 begin
   if FLaserOn then FState.LaserPower := FLaserS else FState.LaserPower := 0;
@@ -115,6 +141,30 @@ begin
     (X > 10000) or (Y > 10000) or (Z > 10000) then
     raise EArgumentException.Create('Invalid build volume');
   FVolumeX := X; FVolumeY := Y; FVolumeZ := Z;
+end;
+
+procedure TAIMarlinSimulator.SetHotendTarget(ATemp: Double);
+begin
+  FState.HotendTarget := MaxD(0, ATemp);
+  if Assigned(FOnStateChanged) then FOnStateChanged(Self);
+end;
+
+procedure TAIMarlinSimulator.SetBedTarget(ATemp: Double);
+begin
+  FState.BedTarget := MaxD(0, ATemp);
+  if Assigned(FOnStateChanged) then FOnStateChanged(Self);
+end;
+
+procedure TAIMarlinSimulator.SetHotendActual(ATemp: Double);
+begin
+  FState.Hotend := MaxD(0, ATemp);
+  if Assigned(FOnStateChanged) then FOnStateChanged(Self);
+end;
+
+procedure TAIMarlinSimulator.SetBedActual(ATemp: Double);
+begin
+  FState.Bed := MaxD(0, ATemp);
+  if Assigned(FOnStateChanged) then FOnStateChanged(Self);
 end;
 function TAIMarlinSimulator.IsIdle: Boolean;
 begin Result := (FPending = mpNone) and (FQueue.Count = 0); end;
@@ -316,12 +366,31 @@ begin
       20: FUnits := 25.4;
       21: FUnits := 1;
       28: begin
+        if C.HasSubCode and (C.SubCode = 1) then
+        begin
+          FG28Home := FState.Position;
+          FG28HomeSet := True;
+          Done;
+          Exit;
+        end;
         if HasUnsupportedParameters(C, 'XYZ') then begin Done; Exit; end;
         // Deterministic ideal homing; no physical endstop seeking.
         AllAxes := not (C.Present['X'] or C.Present['Y'] or C.Present['Z']);
-        if AllAxes or C.Present['X'] then begin FState.Position.X := 0; FOffset.X := 0; end;
-        if AllAxes or C.Present['Y'] then begin FState.Position.Y := 0; FOffset.Y := 0; end;
-        if AllAxes or C.Present['Z'] then begin FState.Position.Z := 0; FOffset.Z := 0; end;
+        if AllAxes or C.Present['X'] then
+        begin
+          if FG28HomeSet then FState.Position.X := FG28Home.X else FState.Position.X := 0;
+          FOffset.X := 0;
+        end;
+        if AllAxes or C.Present['Y'] then
+        begin
+          if FG28HomeSet then FState.Position.Y := FG28Home.Y else FState.Position.Y := 0;
+          FOffset.Y := 0;
+        end;
+        if AllAxes or C.Present['Z'] then
+        begin
+          if FG28HomeSet then FState.Position.Z := FG28Home.Z else FState.Position.Z := 0;
+          FOffset.Z := 0;
+        end;
         FState.MotorsEnabled := True;
       end;
       90: begin FState.RelativeXYZ := False; FState.RelativeE := False; end;

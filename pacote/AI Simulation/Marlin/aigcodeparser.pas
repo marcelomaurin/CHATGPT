@@ -5,7 +5,8 @@ uses Classes, SysUtils, Math;
 type
   TAIGCodeCommand = record
     Letter: Char;
-    Code, LineNumber: Integer;
+    Code, SubCode, LineNumber: Integer;
+    HasSubCode: Boolean;
     HasLineNumber, HasChecksum, Empty: Boolean;
     Present: array['A'..'Z'] of Boolean;
     HasValue: array['A'..'Z'] of Boolean;
@@ -90,8 +91,14 @@ begin
     Exit(Fail('Expected G, M or T command'));
   Command.Letter := S[I]; Inc(I);
   if not Number(V) then Exit(Fail('Invalid command number'));
-  if (V < 0) or (Frac(V) <> 0) then Exit(Fail('Subcodes are not supported'));
-  Command.Code := Round(V); Command.Empty := False;
+  if V < 0 then Exit(Fail('Invalid command number'));
+  Command.Code := Trunc(V);
+  if Frac(V) <> 0 then
+  begin
+    Command.HasSubCode := True;
+    Command.SubCode := Round(Frac(V) * 10);
+  end;
+  Command.Empty := False;
   while I <= Length(S) do begin
     if S[I] in [' ', #9] then begin Inc(I); Continue; end;
     Key := S[I]; Inc(I);
