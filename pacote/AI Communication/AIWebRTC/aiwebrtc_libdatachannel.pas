@@ -25,7 +25,7 @@ type
   TrtcErrorCallback = procedure(id: Integer; error: PAnsiChar; userPtr: Pointer); cdecl;
   TrtcMessageCallback = procedure(id: Integer; message: PAnsiChar; size: Integer; userPtr: Pointer); cdecl;
 
-  TrtcConfiguration = packed record
+  TrtcConfiguration = record
     iceServers: PPAnsiChar;
     iceServersCount: Integer;
     proxyServer: PAnsiChar;
