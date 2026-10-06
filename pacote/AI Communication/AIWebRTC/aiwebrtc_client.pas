@@ -26,6 +26,16 @@ type
     FOnMessage: TAIWebRTCMessageEvent;
     FOnState: TAIWebRTCStateEvent;
     FOnDataChannelOpen: TAIWebRTCNotifyEvent;
+    FOnDataChannelClosed: TAIWebRTCNotifyEvent;
+    FOnError: TAIWebRTCMessageEvent;
+    FDestroying: Boolean;
+    procedure QueueDescription(const SDP, DescriptionType: string);
+    procedure QueueCandidate(const Candidate, Mid: string);
+    procedure QueueState(AState: TrtcState);
+    procedure QueueMessage(const S: RawByteString);
+    procedure QueueOpen;
+    procedure QueueClosed;
+    procedure QueueError(const S: RawByteString);
     procedure SetError(const S: string);
     procedure ConfigureDataChannel(AId: Integer);
   public
@@ -35,6 +45,8 @@ type
     function Connect: Boolean;
     procedure Disconnect;
     function CreateDataChannel(const ALabel: string = 'chatgpt'): Boolean;
+    function CreateOffer: Boolean;
+    function CreateAnswer: Boolean;
     function SetRemoteDescription(const SDP, DescriptionType: string): Boolean;
     function AddRemoteCandidate(const Candidate, Mid: string): Boolean;
     function SendText(const S: RawByteString): Boolean;
@@ -49,6 +61,8 @@ type
     property OnMessage: TAIWebRTCMessageEvent read FOnMessage write FOnMessage;
     property OnState: TAIWebRTCStateEvent read FOnState write FOnState;
     property OnDataChannelOpen: TAIWebRTCNotifyEvent read FOnDataChannelOpen write FOnDataChannelOpen;
+    property OnDataChannelClosed: TAIWebRTCNotifyEvent read FOnDataChannelClosed write FOnDataChannelClosed;
+    property OnError: TAIWebRTCMessageEvent read FOnError write FOnError;
   end;
 
 procedure Register;
@@ -59,37 +73,35 @@ procedure DescriptionCB(pc: Integer; sdp, descType: PAnsiChar; userPtr: Pointer)
 var O: TAIWebRTCClient;
 begin
   O := TAIWebRTCClient(userPtr);
-  if Assigned(O) and Assigned(O.FOnLocalDescription) then
-    O.FOnLocalDescription(O, string(sdp), string(descType));
+  if Assigned(O) then O.QueueDescription(string(sdp), string(descType));
 end;
 
 procedure CandidateCB(pc: Integer; candidate, mid: PAnsiChar; userPtr: Pointer); cdecl;
 var O: TAIWebRTCClient;
 begin
   O := TAIWebRTCClient(userPtr);
-  if Assigned(O) and Assigned(O.FOnLocalCandidate) then
-    O.FOnLocalCandidate(O, string(candidate), string(mid));
+  if Assigned(O) then O.QueueCandidate(string(candidate), string(mid));
 end;
 
 procedure StateCB(pc: Integer; state: TrtcState; userPtr: Pointer); cdecl;
 var O: TAIWebRTCClient;
 begin
   O := TAIWebRTCClient(userPtr);
-  if Assigned(O) and Assigned(O.FOnState) then O.FOnState(O, state);
+  if Assigned(O) then O.QueueState(state);
 end;
 
 procedure OpenCB(id: Integer; userPtr: Pointer); cdecl;
 var O: TAIWebRTCClient;
 begin
   O := TAIWebRTCClient(userPtr);
-  if Assigned(O) and Assigned(O.FOnDataChannelOpen) then O.FOnDataChannelOpen(O);
+  if Assigned(O) then O.QueueOpen;
 end;
 
 procedure MessageCB(id: Integer; message: PAnsiChar; size: Integer; userPtr: Pointer); cdecl;
 var O: TAIWebRTCClient; S: RawByteString;
 begin
   O := TAIWebRTCClient(userPtr);
-  if not Assigned(O) or not Assigned(O.FOnMessage) then Exit;
+  if not Assigned(O) then Exit;
   { libdatachannel: size >= 0 is binary payload; size < 0 is NUL-terminated text. }
   if size < 0 then
     S := RawByteString(StrPas(message))
@@ -97,8 +109,16 @@ begin
     SetLength(S, size);
     if size > 0 then Move(message^, S[1], size);
   end;
-  O.FOnMessage(O, S);
+  O.QueueMessage(S);
 end;
+
+procedure ClosedCB(id: Integer; userPtr: Pointer); cdecl;
+var O: TAIWebRTCClient;
+begin O := TAIWebRTCClient(userPtr); if Assigned(O) then O.QueueClosed; end;
+
+procedure ErrorCB(id: Integer; error: PAnsiChar; userPtr: Pointer); cdecl;
+var O: TAIWebRTCClient;
+begin O := TAIWebRTCClient(userPtr); if Assigned(O) then O.QueueError(RawByteString(StrPas(error))); end;
 
 procedure DataChannelCB(pc, dc: Integer; userPtr: Pointer); cdecl;
 var O: TAIWebRTCClient;
@@ -125,8 +145,40 @@ end;
 
 destructor TAIWebRTCClient.Destroy;
 begin
+  FDestroying := True;
   Disconnect;
+  TThread.RemoveQueuedEvents(Self);
   inherited Destroy;
+end;
+
+
+procedure TAIWebRTCClient.QueueDescription(const SDP, DescriptionType: string);
+begin
+  TThread.Queue(Self, procedure begin if (not FDestroying) and Assigned(FOnLocalDescription) then FOnLocalDescription(Self, SDP, DescriptionType); end);
+end;
+procedure TAIWebRTCClient.QueueCandidate(const Candidate, Mid: string);
+begin
+  TThread.Queue(Self, procedure begin if (not FDestroying) and Assigned(FOnLocalCandidate) then FOnLocalCandidate(Self, Candidate, Mid); end);
+end;
+procedure TAIWebRTCClient.QueueState(AState: TrtcState);
+begin
+  TThread.Queue(Self, procedure begin if (not FDestroying) and Assigned(FOnState) then FOnState(Self, AState); end);
+end;
+procedure TAIWebRTCClient.QueueMessage(const S: RawByteString);
+begin
+  TThread.Queue(Self, procedure begin if (not FDestroying) and Assigned(FOnMessage) then FOnMessage(Self, S); end);
+end;
+procedure TAIWebRTCClient.QueueOpen;
+begin
+  TThread.Queue(Self, procedure begin if (not FDestroying) and Assigned(FOnDataChannelOpen) then FOnDataChannelOpen(Self); end);
+end;
+procedure TAIWebRTCClient.QueueClosed;
+begin
+  TThread.Queue(Self, procedure begin if (not FDestroying) and Assigned(FOnDataChannelClosed) then FOnDataChannelClosed(Self); end);
+end;
+procedure TAIWebRTCClient.QueueError(const S: RawByteString);
+begin
+  TThread.Queue(Self, procedure begin if not FDestroying then begin SetError(string(S)); if Assigned(FOnError) then FOnError(Self, S); end; end);
 end;
 
 procedure TAIWebRTCClient.SetError(const S: string);
@@ -183,6 +235,8 @@ procedure TAIWebRTCClient.ConfigureDataChannel(AId: Integer);
 begin
   rtcSetUserPointer(AId, Self);
   rtcSetOpenCallback(AId, @OpenCB);
+  rtcSetClosedCallback(AId, @ClosedCB);
+  rtcSetErrorCallback(AId, @ErrorCB);
   rtcSetMessageCallback(AId, @MessageCB);
 end;
 
@@ -196,6 +250,22 @@ begin
   if FDataChannel < 0 then begin SetError('rtcCreateDataChannel failed: ' + IntToStr(FDataChannel)); Exit; end;
   ConfigureDataChannel(FDataChannel);
   Result := True;
+end;
+
+function TAIWebRTCClient.CreateOffer: Boolean;
+var T: AnsiString; R: Integer;
+begin
+  Result := False; if FPeer < 0 then begin SetError('PeerConnection is not connected.'); Exit; end;
+  T := 'offer'; R := rtcSetLocalDescription(FPeer, PAnsiChar(T)); Result := R = RTC_ERR_SUCCESS;
+  if not Result then SetError('rtcSetLocalDescription(offer) failed: ' + IntToStr(R));
+end;
+
+function TAIWebRTCClient.CreateAnswer: Boolean;
+var T: AnsiString; R: Integer;
+begin
+  Result := False; if FPeer < 0 then begin SetError('PeerConnection is not connected.'); Exit; end;
+  T := 'answer'; R := rtcSetLocalDescription(FPeer, PAnsiChar(T)); Result := R = RTC_ERR_SUCCESS;
+  if not Result then SetError('rtcSetLocalDescription(answer) failed: ' + IntToStr(R));
 end;
 
 function TAIWebRTCClient.SetRemoteDescription(const SDP, DescriptionType: string): Boolean;
