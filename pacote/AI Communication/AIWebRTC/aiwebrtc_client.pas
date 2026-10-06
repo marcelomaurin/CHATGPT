@@ -90,6 +90,7 @@ var O: TAIWebRTCClient; S: RawByteString;
 begin
   O := TAIWebRTCClient(userPtr);
   if not Assigned(O) or not Assigned(O.FOnMessage) then Exit;
+  { libdatachannel: size >= 0 is binary payload; size < 0 is NUL-terminated text. }
   if size < 0 then
     S := RawByteString(StrPas(message))
   else begin
@@ -152,6 +153,8 @@ begin
     C.iceServers := @Servers[0];
     C.iceServersCount := 1;
   end;
+  C.certificateType := RTC_CERTIFICATE_DEFAULT;
+  C.iceTransportPolicy := RTC_TRANSPORT_POLICY_ALL;
   FPeer := rtcCreatePeerConnection(@C);
   if FPeer < 0 then begin SetError('rtcCreatePeerConnection failed: ' + IntToStr(FPeer)); Exit; end;
   rtcSetUserPointer(FPeer, Self);
@@ -198,6 +201,8 @@ end;
 function TAIWebRTCClient.SetRemoteDescription(const SDP, DescriptionType: string): Boolean;
 var A, T: AnsiString; R: Integer;
 begin
+  Result := False;
+  if FPeer < 0 then begin SetError('PeerConnection is not connected.'); Exit; end;
   A := AnsiString(SDP); T := AnsiString(DescriptionType);
   R := rtcSetRemoteDescription(FPeer, PAnsiChar(A), PAnsiChar(T));
   Result := R = RTC_ERR_SUCCESS;
@@ -207,6 +212,8 @@ end;
 function TAIWebRTCClient.AddRemoteCandidate(const Candidate, Mid: string): Boolean;
 var C, M: AnsiString; R: Integer;
 begin
+  Result := False;
+  if FPeer < 0 then begin SetError('PeerConnection is not connected.'); Exit; end;
   C := AnsiString(Candidate); M := AnsiString(Mid);
   R := rtcAddRemoteCandidate(FPeer, PAnsiChar(C), PAnsiChar(M));
   Result := R = RTC_ERR_SUCCESS;
@@ -218,7 +225,8 @@ var R: Integer;
 begin
   Result := False;
   if FDataChannel < 0 then begin SetError('DataChannel is not available.'); Exit; end;
-  R := rtcSendMessage(FDataChannel, PAnsiChar(S), Length(S));
+  { Negative size tells libdatachannel this is a NUL-terminated text message. }
+  R := rtcSendMessage(FDataChannel, PAnsiChar(S), -1);
   Result := R = RTC_ERR_SUCCESS;
   if not Result then SetError('rtcSendMessage failed: ' + IntToStr(R));
 end;
