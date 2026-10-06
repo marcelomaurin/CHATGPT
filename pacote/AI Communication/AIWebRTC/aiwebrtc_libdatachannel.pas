@@ -1,11 +1,12 @@
 unit aiwebrtc_libdatachannel;
 
 {$mode objfpc}{$H+}
+{$PACKRECORDS C}
 
 interface
 
 uses
-  Classes, SysUtils, Dynlibs;
+  Classes, SysUtils, Dynlibs, ctypes;
 
 const
   RTC_ERR_SUCCESS   = 0;
@@ -15,57 +16,78 @@ const
   RTC_ERR_TOO_SMALL = -4;
 
 type
-  TrtcState = (RTC_NEW, RTC_CONNECTING, RTC_CONNECTED, RTC_DISCONNECTED, RTC_FAILED, RTC_CLOSED);
-  TrtcDescriptionCallback = procedure(pc: Integer; sdp, descType: PAnsiChar; userPtr: Pointer); cdecl;
-  TrtcCandidateCallback = procedure(pc: Integer; candidate, mid: PAnsiChar; userPtr: Pointer); cdecl;
-  TrtcStateChangeCallback = procedure(pc: Integer; state: TrtcState; userPtr: Pointer); cdecl;
-  TrtcDataChannelCallback = procedure(pc, dc: Integer; userPtr: Pointer); cdecl;
-  TrtcOpenCallback = procedure(id: Integer; userPtr: Pointer); cdecl;
-  TrtcClosedCallback = procedure(id: Integer; userPtr: Pointer); cdecl;
-  TrtcErrorCallback = procedure(id: Integer; error: PAnsiChar; userPtr: Pointer); cdecl;
-  TrtcMessageCallback = procedure(id: Integer; message: PAnsiChar; size: Integer; userPtr: Pointer); cdecl;
+  TrtcState = (
+    RTC_NEW = 0,
+    RTC_CONNECTING = 1,
+    RTC_CONNECTED = 2,
+    RTC_DISCONNECTED = 3,
+    RTC_FAILED = 4,
+    RTC_CLOSED = 5
+  );
 
+  TrtcCertificateType = (
+    RTC_CERTIFICATE_DEFAULT = 0,
+    RTC_CERTIFICATE_ECDSA = 1,
+    RTC_CERTIFICATE_RSA = 2
+  );
+
+  TrtcTransportPolicy = (
+    RTC_TRANSPORT_POLICY_ALL = 0,
+    RTC_TRANSPORT_POLICY_RELAY = 1
+  );
+
+  { C99 bool is one byte. Do not use Pascal Boolean in ABI records. }
+  TrtcCBool = cuint8;
+
+  TrtcDescriptionCallback = procedure(pc: cint; sdp, descType: PAnsiChar; userPtr: Pointer); cdecl;
+  TrtcCandidateCallback = procedure(pc: cint; candidate, mid: PAnsiChar; userPtr: Pointer); cdecl;
+  TrtcStateChangeCallback = procedure(pc: cint; state: TrtcState; userPtr: Pointer); cdecl;
+  TrtcDataChannelCallback = procedure(pc, dc: cint; userPtr: Pointer); cdecl;
+  TrtcOpenCallback = procedure(id: cint; userPtr: Pointer); cdecl;
+  TrtcClosedCallback = procedure(id: cint; userPtr: Pointer); cdecl;
+  TrtcErrorCallback = procedure(id: cint; error: PAnsiChar; userPtr: Pointer); cdecl;
+  TrtcMessageCallback = procedure(id: cint; message: PAnsiChar; size: cint; userPtr: Pointer); cdecl;
+
+  { Exact rtcConfiguration layout from libdatachannel v0.24.5 include/rtc/rtc.h. }
   TrtcConfiguration = record
     iceServers: PPAnsiChar;
-    iceServersCount: Integer;
+    iceServersCount: cint;
     proxyServer: PAnsiChar;
     bindAddress: PAnsiChar;
-    certificateType: Integer;
-    certificatePemFile: PAnsiChar;
-    keyPemFile: PAnsiChar;
-    keyPemPass: PAnsiChar;
-    iceTransportPolicy: Integer;
-    enableIceTcp: Boolean;
-    enableIceUdpMux: Boolean;
-    disableAutoNegotiation: Boolean;
-    forceMediaTransport: Boolean;
-    portRangeBegin: Word;
-    portRangeEnd: Word;
-    mtu: Integer;
-    maxMessageSize: Integer;
-    disableFingerprintVerification: Boolean;
+    certificateType: TrtcCertificateType;
+    iceTransportPolicy: TrtcTransportPolicy;
+    enableIceTcp: TrtcCBool;
+    enableIceUdpMux: TrtcCBool;
+    disableAutoNegotiation: TrtcCBool;
+    forceMediaTransport: TrtcCBool;
+    portRangeBegin: cuint16;
+    portRangeEnd: cuint16;
+    mtu: cint;
+    maxMessageSize: cint;
   end;
   PrtcConfiguration = ^TrtcConfiguration;
 
 var
-  rtcCreatePeerConnection: function(config: PrtcConfiguration): Integer; cdecl;
-  rtcClosePeerConnection: function(pc: Integer): Integer; cdecl;
-  rtcDeletePeerConnection: function(pc: Integer): Integer; cdecl;
-  rtcSetUserPointer: procedure(id: Integer; userPtr: Pointer); cdecl;
-  rtcSetLocalDescriptionCallback: function(pc: Integer; cb: TrtcDescriptionCallback): Integer; cdecl;
-  rtcSetLocalCandidateCallback: function(pc: Integer; cb: TrtcCandidateCallback): Integer; cdecl;
-  rtcSetStateChangeCallback: function(pc: Integer; cb: TrtcStateChangeCallback): Integer; cdecl;
-  rtcSetDataChannelCallback: function(pc: Integer; cb: TrtcDataChannelCallback): Integer; cdecl;
-  rtcSetRemoteDescription: function(pc: Integer; sdp, descType: PAnsiChar): Integer; cdecl;
-  rtcAddRemoteCandidate: function(pc: Integer; candidate, mid: PAnsiChar): Integer; cdecl;
-  rtcCreateDataChannel: function(pc: Integer; labelText: PAnsiChar): Integer; cdecl;
-  rtcSetOpenCallback: function(id: Integer; cb: TrtcOpenCallback): Integer; cdecl;
-  rtcSetClosedCallback: function(id: Integer; cb: TrtcClosedCallback): Integer; cdecl;
-  rtcSetErrorCallback: function(id: Integer; cb: TrtcErrorCallback): Integer; cdecl;
-  rtcSetMessageCallback: function(id: Integer; cb: TrtcMessageCallback): Integer; cdecl;
-  rtcSendMessage: function(id: Integer; data: PAnsiChar; size: Integer): Integer; cdecl;
-  rtcClose: function(id: Integer): Integer; cdecl;
-  rtcDelete: function(id: Integer): Integer; cdecl;
+  rtcCreatePeerConnection: function(config: PrtcConfiguration): cint; cdecl;
+  rtcClosePeerConnection: function(pc: cint): cint; cdecl;
+  rtcDeletePeerConnection: function(pc: cint): cint; cdecl;
+  rtcSetUserPointer: procedure(id: cint; userPtr: Pointer); cdecl;
+  rtcGetUserPointer: function(id: cint): Pointer; cdecl;
+  rtcSetLocalDescriptionCallback: function(pc: cint; cb: TrtcDescriptionCallback): cint; cdecl;
+  rtcSetLocalCandidateCallback: function(pc: cint; cb: TrtcCandidateCallback): cint; cdecl;
+  rtcSetStateChangeCallback: function(pc: cint; cb: TrtcStateChangeCallback): cint; cdecl;
+  rtcSetDataChannelCallback: function(pc: cint; cb: TrtcDataChannelCallback): cint; cdecl;
+  rtcSetLocalDescription: function(pc: cint; descType: PAnsiChar): cint; cdecl;
+  rtcSetRemoteDescription: function(pc: cint; sdp, descType: PAnsiChar): cint; cdecl;
+  rtcAddRemoteCandidate: function(pc: cint; candidate, mid: PAnsiChar): cint; cdecl;
+  rtcCreateDataChannel: function(pc: cint; labelText: PAnsiChar): cint; cdecl;
+  rtcSetOpenCallback: function(id: cint; cb: TrtcOpenCallback): cint; cdecl;
+  rtcSetClosedCallback: function(id: cint; cb: TrtcClosedCallback): cint; cdecl;
+  rtcSetErrorCallback: function(id: cint; cb: TrtcErrorCallback): cint; cdecl;
+  rtcSetMessageCallback: function(id: cint; cb: TrtcMessageCallback): cint; cdecl;
+  rtcSendMessage: function(id: cint; data: PAnsiChar; size: cint): cint; cdecl;
+  rtcClose: function(id: cint): cint; cdecl;
+  rtcDelete: function(id: cint): cint; cdecl;
   rtcCleanup: procedure; cdecl;
 
 function LoadLibDataChannel(const ALibraryFile: string): Boolean;
@@ -95,7 +117,8 @@ begin
 end;
 
 function LoadLibDataChannel(const ALibraryFile: string): Boolean;
-var F: string;
+var
+  F: string;
 begin
   if GLib <> dynlibs.NilHandle then Exit(True);
   F := ALibraryFile;
@@ -107,10 +130,12 @@ begin
   Pointer(rtcClosePeerConnection) := Sym('rtcClosePeerConnection');
   Pointer(rtcDeletePeerConnection) := Sym('rtcDeletePeerConnection');
   Pointer(rtcSetUserPointer) := Sym('rtcSetUserPointer');
+  Pointer(rtcGetUserPointer) := Sym('rtcGetUserPointer');
   Pointer(rtcSetLocalDescriptionCallback) := Sym('rtcSetLocalDescriptionCallback');
   Pointer(rtcSetLocalCandidateCallback) := Sym('rtcSetLocalCandidateCallback');
   Pointer(rtcSetStateChangeCallback) := Sym('rtcSetStateChangeCallback');
   Pointer(rtcSetDataChannelCallback) := Sym('rtcSetDataChannelCallback');
+  Pointer(rtcSetLocalDescription) := Sym('rtcSetLocalDescription');
   Pointer(rtcSetRemoteDescription) := Sym('rtcSetRemoteDescription');
   Pointer(rtcAddRemoteCandidate) := Sym('rtcAddRemoteCandidate');
   Pointer(rtcCreateDataChannel) := Sym('rtcCreateDataChannel');
@@ -123,9 +148,26 @@ begin
   Pointer(rtcDelete) := Sym('rtcDelete');
   Pointer(rtcCleanup) := Sym('rtcCleanup');
 
-  Result := Assigned(rtcCreatePeerConnection) and Assigned(rtcDeletePeerConnection) and
-            Assigned(rtcCreateDataChannel) and Assigned(rtcSendMessage) and
-            Assigned(rtcSetRemoteDescription);
+  Result := Assigned(rtcCreatePeerConnection) and
+            Assigned(rtcClosePeerConnection) and
+            Assigned(rtcDeletePeerConnection) and
+            Assigned(rtcSetUserPointer) and
+            Assigned(rtcSetLocalDescriptionCallback) and
+            Assigned(rtcSetLocalCandidateCallback) and
+            Assigned(rtcSetStateChangeCallback) and
+            Assigned(rtcSetDataChannelCallback) and
+            Assigned(rtcSetLocalDescription) and
+            Assigned(rtcSetRemoteDescription) and
+            Assigned(rtcAddRemoteCandidate) and
+            Assigned(rtcCreateDataChannel) and
+            Assigned(rtcSetOpenCallback) and
+            Assigned(rtcSetClosedCallback) and
+            Assigned(rtcSetErrorCallback) and
+            Assigned(rtcSetMessageCallback) and
+            Assigned(rtcSendMessage) and
+            Assigned(rtcClose) and
+            Assigned(rtcDelete) and
+            Assigned(rtcCleanup);
   if not Result then UnloadLibDataChannel;
 end;
 
