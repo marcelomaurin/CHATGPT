@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/libdatachannel-runtime.yml'
       - 'runtime/libdatachannel/**'
+      - 'pacote/AI Communication/AIWebRTC/**'
 
 env:
   LIBDATACHANNEL_VERSION: v0.24.5
