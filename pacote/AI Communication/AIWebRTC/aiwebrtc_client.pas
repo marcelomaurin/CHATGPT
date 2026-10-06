@@ -5,7 +5,7 @@ unit aiwebrtc_client;
 interface
 
 uses
-  Classes, SysUtils, aiwebrtc_libdatachannel;
+  Classes, SysUtils, aiwebrtc_libdatachannel, airuntimepaths;
 
 type
   TAIWebRTCDescriptionEvent = procedure(Sender: TObject; const SDP, DescriptionType: string) of object;
@@ -187,9 +187,13 @@ begin
 end;
 
 function TAIWebRTCClient.CheckDependencies: Boolean;
+var Resolved: string;
 begin
-  Result := LibDataChannelLoaded or LoadLibDataChannel(FRuntimeLibrary);
-  if not Result then SetError('libdatachannel runtime not found: ' + FRuntimeLibrary);
+  Resolved := FRuntimeLibrary;
+  if Resolved = '' then Resolved := AIResolveLibDataChannel;
+  if Resolved = '' then Resolved := DefaultLibDataChannelName;
+  Result := LibDataChannelLoaded or LoadLibDataChannel(Resolved);
+  if not Result then SetError('libdatachannel runtime not found: ' + Resolved);
 end;
 
 function TAIWebRTCClient.Connect: Boolean;
