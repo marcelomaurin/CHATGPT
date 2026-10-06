@@ -28,6 +28,15 @@ jobs:
       - name: Install Linux build dependencies
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y cmake ninja-build git pkg-config
+      - name: Install Windows OpenSSL
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          choco install openssl --no-progress -y
+          $opensslRoot = "C:\\Program Files\\OpenSSL-Win64"
+          if (-not (Test-Path $opensslRoot)) { throw "OpenSSL not found at $opensslRoot" }
+          "OPENSSL_ROOT_DIR=$opensslRoot" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "$opensslRoot\\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
       - name: Checkout libdatachannel
         shell: bash
         run: |
@@ -35,7 +44,11 @@ jobs:
       - name: Configure
         shell: bash
         run: |
-          cmake -S _build/libdatachannel -B _build/out -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DNO_EXAMPLES=ON -DNO_TESTS=ON
+          EXTRA_ARGS=()
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            EXTRA_ARGS+=("-DOPENSSL_ROOT_DIR=$OPENSSL_ROOT_DIR")
+          fi
+          cmake -S _build/libdatachannel -B _build/out -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DNO_EXAMPLES=ON -DNO_TESTS=ON "${EXTRA_ARGS[@]}"
       - name: Build
         shell: bash
         run: cmake --build _build/out --config Release
@@ -45,6 +58,9 @@ jobs:
           mkdir -p "runtime/libdatachannel/${{ matrix.platform }}"
           if [ "${{ runner.os }}" = "Windows" ]; then
             find _build/out -type f \( -name 'datachannel.dll' -o -name '*.dll' \) -exec cp {} "runtime/libdatachannel/${{ matrix.platform }}/" \;
+            if [ -d "$OPENSSL_ROOT_DIR/bin" ]; then
+              find "$OPENSSL_ROOT_DIR/bin" -maxdepth 1 -type f \( -name 'libcrypto-*.dll' -o -name 'libssl-*.dll' \) -exec cp {} "runtime/libdatachannel/${{ matrix.platform }}/" \;
+            fi
           else
             find _build/out -type f \( -name 'libdatachannel.so' -o -name 'libdatachannel.so.*' \) -exec cp -L {} "runtime/libdatachannel/${{ matrix.platform }}/" \;
           fi
