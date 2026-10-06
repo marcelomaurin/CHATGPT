@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="5">
+    <Name Value="openai_marlin"/>
+    <Type Value="RunAndDesignTime"/>
+    <Author Value="Maurinsoft"/>
+    <Description Value="Reusable deterministic Marlin emulator, G-code parser and virtual serial adapters."/>
+    <License Value="GPL3"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <SearchPaths>
+        <OtherUnitFiles Value="../AI Simulation/Marlin;../AI Input/AIVirtualSerial"/>
+        <UnitOutputDirectory Value="lib/openai_marlin/$(TargetCPU)-$(TargetOS)"/>
+      </SearchPaths>
+    </CompilerOptions>
+    <Files>
+      <Item><Filename Value="../AI Simulation/Marlin/aigcodeparser.pas"/><UnitName Value="aigcodeparser"/></Item>
+      <Item><Filename Value="../AI Simulation/Marlin/aimarlinsimulator.pas"/><UnitName Value="aimarlinsimulator"/></Item>
+      <Item><Filename Value="../AI Simulation/Marlin/aimarlinserialdevice.pas"/><UnitName Value="aimarlinserialdevice"/></Item>
+      <Item><Filename Value="../AI Input/AIVirtualSerial/aivirtualserialpair.pas"/><UnitName Value="aivirtualserialpair"/></Item>
+      <Item><Filename Value="aimarlin_register.pas"/><UnitName Value="aimarlin_register"/><HasRegisterProc Value="True"/></Item>
+    </Files>
+    <RequiredPkgs>
+      <Item><PackageName Value="openai_input"/></Item>
+      <Item><PackageName Value="openai_core"/></Item>
+      <Item><PackageName Value="LCL"/></Item>
+      <Item><PackageName Value="FCL"/></Item>
+    </RequiredPkgs>
+    <UsageOptions><UnitPath Value="$(PkgOutDir)"/></UsageOptions>
+  </Package>
+</CONFIG>

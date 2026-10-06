@@ -116,15 +116,14 @@ function VerifyAdminLogin:boolean;
 
 implementation
 
-
-uses
 {$IFDEF WINDOWS}
-    ShlObj
+uses
+  ShlObj;
 {$ENDIF}
-{$ifdef Darwin}
-,MacOSAll
-{$endif}
-;
+{$IFDEF DARWIN}
+uses
+  MacOSAll;
+{$ENDIF}
 
 var LastTickCount     : cardinal = 0;
     LastProcessorTime : int64    = 0;
