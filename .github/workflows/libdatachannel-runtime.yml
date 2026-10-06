@@ -33,8 +33,16 @@ jobs:
         shell: pwsh
         run: |
           choco install openssl --no-progress -y
-          $opensslRoot = "C:\\Program Files\\OpenSSL-Win64"
-          if (-not (Test-Path $opensslRoot)) { throw "OpenSSL not found at $opensslRoot" }
+          $candidates = @(
+            "C:\\Program Files\\OpenSSL",
+            "C:\\Program Files\\OpenSSL-Win64"
+          )
+          $opensslRoot = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $opensslRoot) {
+            $opensslRoot = (Get-ChildItem "C:\\Program Files" -Directory -Filter "OpenSSL*" -ErrorAction SilentlyContinue | Select-Object -First 1).FullName
+          }
+          if (-not $opensslRoot -or -not (Test-Path $opensslRoot)) { throw "OpenSSL installation directory not found" }
+          Write-Host "Using OpenSSL from $opensslRoot"
           "OPENSSL_ROOT_DIR=$opensslRoot" | Out-File -FilePath $env:GITHUB_ENV -Append
           "$opensslRoot\\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
       - name: Checkout libdatachannel
