@@ -1,5 +1,4 @@
 name: Build libdatachannel runtime
-
 on:
   workflow_dispatch:
   push:
@@ -7,56 +6,47 @@ on:
       - '.github/workflows/libdatachannel-runtime.yml'
       - 'runtime/libdatachannel/**'
       - 'pacote/AI Communication/AIWebRTC/**'
-
+      - 'pacote/samples/AI Communication/webrtc_datachannel_demo/**'
 env:
   LIBDATACHANNEL_VERSION: v0.24.5
-
 jobs:
   build:
     strategy:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-24.04
-            platform: linux-x86_64
-          - os: windows-2025
-            platform: windows-x86_64
-          - os: ubuntu-24.04-arm
-            platform: linux-aarch64
+          - { os: ubuntu-24.04, platform: linux-x86_64 }
+          - { os: windows-2025, platform: windows-x86_64 }
+          - { os: ubuntu-24.04-arm, platform: linux-aarch64 }
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - name: Install Linux build dependencies
+      - name: Install Linux dependencies
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y cmake ninja-build git pkg-config
-      - name: Install Windows OpenSSL
+      - name: Install and locate Windows OpenSSL
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
           choco install openssl --no-progress -y
-          $candidates = @(
-            "C:\\Program Files\\OpenSSL",
-            "C:\\Program Files\\OpenSSL-Win64"
-          )
-          $opensslRoot = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
-          if (-not $opensslRoot) {
-            $opensslRoot = (Get-ChildItem "C:\\Program Files" -Directory -Filter "OpenSSL*" -ErrorAction SilentlyContinue | Select-Object -First 1).FullName
-          }
-          if (-not $opensslRoot -or -not (Test-Path $opensslRoot)) { throw "OpenSSL installation directory not found" }
-          Write-Host "Using OpenSSL from $opensslRoot"
-          $cryptoLib = Get-ChildItem $opensslRoot -Recurse -File -ErrorAction SilentlyContinue | Where-Object { $_.Name -match '^(libcrypto|crypto).*\.(lib|a)
-          "$opensslRoot\\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+          $opensslRoot = @("C:\\Program Files\\OpenSSL","C:\\Program Files\\OpenSSL-Win64") | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $opensslRoot) { $opensslRoot=(Get-ChildItem "C:\\Program Files" -Directory -Filter "OpenSSL*" | Select-Object -First 1).FullName }
+          if (-not $opensslRoot) { throw "OpenSSL directory not found" }
+          $cryptoLib=Get-ChildItem $opensslRoot -Recurse -File | Where-Object { $_.Name -match '^(libcrypto|crypto).*\.(lib|a)$' } | Select-Object -First 1
+          $sslLib=Get-ChildItem $opensslRoot -Recurse -File | Where-Object { $_.Name -match '^(libssl|ssl).*\.(lib|a)$' } | Select-Object -First 1
+          if (-not $cryptoLib -or -not $sslLib) { throw "OpenSSL import libraries not found" }
+          "OPENSSL_ROOT_DIR=$opensslRoot" >> $env:GITHUB_ENV
+          "OPENSSL_CRYPTO_LIBRARY=$($cryptoLib.FullName)" >> $env:GITHUB_ENV
+          "OPENSSL_SSL_LIBRARY=$($sslLib.FullName)" >> $env:GITHUB_ENV
+          "$opensslRoot\\bin" >> $env:GITHUB_PATH
       - name: Checkout libdatachannel
         shell: bash
-        run: |
-          git clone --branch "$LIBDATACHANNEL_VERSION" --depth 1 --recursive https://github.com/paullouisageneau/libdatachannel.git _build/libdatachannel
+        run: git clone --branch "$LIBDATACHANNEL_VERSION" --depth 1 --recursive https://github.com/paullouisageneau/libdatachannel.git _build/libdatachannel
       - name: Configure
         shell: bash
         run: |
           EXTRA_ARGS=()
-          if [ "${{ runner.os }}" = "Windows" ]; then
-            EXTRA_ARGS+=("-DOPENSSL_ROOT_DIR=$OPENSSL_ROOT_DIR" "-DOPENSSL_CRYPTO_LIBRARY=$OPENSSL_CRYPTO_LIBRARY" "-DOPENSSL_SSL_LIBRARY=$OPENSSL_SSL_LIBRARY")
-          fi
+          if [ "${{ runner.os }}" = "Windows" ]; then EXTRA_ARGS+=("-DOPENSSL_ROOT_DIR=$OPENSSL_ROOT_DIR" "-DOPENSSL_CRYPTO_LIBRARY=$OPENSSL_CRYPTO_LIBRARY" "-DOPENSSL_SSL_LIBRARY=$OPENSSL_SSL_LIBRARY"); fi
           cmake -S _build/libdatachannel -B _build/out -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DNO_EXAMPLES=ON -DNO_TESTS=ON "${EXTRA_ARGS[@]}"
       - name: Build
         shell: bash
@@ -66,93 +56,13 @@ jobs:
         run: |
           mkdir -p "runtime/libdatachannel/${{ matrix.platform }}"
           if [ "${{ runner.os }}" = "Windows" ]; then
-            find _build/out -type f \( -name 'datachannel.dll' -o -name '*.dll' \) -exec cp {} "runtime/libdatachannel/${{ matrix.platform }}/" \;
-            if [ -d "$OPENSSL_ROOT_DIR/bin" ]; then
-              find "$OPENSSL_ROOT_DIR/bin" -maxdepth 1 -type f \( -name 'libcrypto-*.dll' -o -name 'libssl-*.dll' \) -exec cp {} "runtime/libdatachannel/${{ matrix.platform }}/" \;
-            fi
+            find _build/out -type f -name '*.dll' -exec cp {} "runtime/libdatachannel/${{ matrix.platform }}/" \;
+            find "$OPENSSL_ROOT_DIR/bin" -maxdepth 1 -type f \( -name 'libcrypto-*.dll' -o -name 'libssl-*.dll' \) -exec cp {} "runtime/libdatachannel/${{ matrix.platform }}/" \;
           else
             find _build/out -type f \( -name 'libdatachannel.so' -o -name 'libdatachannel.so.*' \) -exec cp -L {} "runtime/libdatachannel/${{ matrix.platform }}/" \;
           fi
           cd "runtime/libdatachannel/${{ matrix.platform }}"
-          if command -v sha256sum >/dev/null; then sha256sum * > SHA256SUMS; else certutil -hashfile datachannel.dll SHA256 > SHA256SUMS; fi
-      - uses: actions/upload-artifact@v4
-        with:
-          name: libdatachannel-${{ env.LIBDATACHANNEL_VERSION }}-${{ matrix.platform }}
-          path: runtime/libdatachannel/${{ matrix.platform }}/
- } | Select-Object -First 1
-          $sslLib = Get-ChildItem $opensslRoot -Recurse -File -ErrorAction SilentlyContinue | Where-Object { $_.Name -match '^(libssl|ssl).*\.(lib|a)
-          "$opensslRoot\\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
-      - name: Checkout libdatachannel
-        shell: bash
-        run: |
-          git clone --branch "$LIBDATACHANNEL_VERSION" --depth 1 --recursive https://github.com/paullouisageneau/libdatachannel.git _build/libdatachannel
-      - name: Configure
-        shell: bash
-        run: |
-          EXTRA_ARGS=()
-          if [ "${{ runner.os }}" = "Windows" ]; then
-            EXTRA_ARGS+=("-DOPENSSL_ROOT_DIR=$OPENSSL_ROOT_DIR")
-          fi
-          cmake -S _build/libdatachannel -B _build/out -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DNO_EXAMPLES=ON -DNO_TESTS=ON "${EXTRA_ARGS[@]}"
-      - name: Build
-        shell: bash
-        run: cmake --build _build/out --config Release
-      - name: Stage runtime
-        shell: bash
-        run: |
-          mkdir -p "runtime/libdatachannel/${{ matrix.platform }}"
-          if [ "${{ runner.os }}" = "Windows" ]; then
-            find _build/out -type f \( -name 'datachannel.dll' -o -name '*.dll' \) -exec cp {} "runtime/libdatachannel/${{ matrix.platform }}/" \;
-            if [ -d "$OPENSSL_ROOT_DIR/bin" ]; then
-              find "$OPENSSL_ROOT_DIR/bin" -maxdepth 1 -type f \( -name 'libcrypto-*.dll' -o -name 'libssl-*.dll' \) -exec cp {} "runtime/libdatachannel/${{ matrix.platform }}/" \;
-            fi
-          else
-            find _build/out -type f \( -name 'libdatachannel.so' -o -name 'libdatachannel.so.*' \) -exec cp -L {} "runtime/libdatachannel/${{ matrix.platform }}/" \;
-          fi
-          cd "runtime/libdatachannel/${{ matrix.platform }}"
-          if command -v sha256sum >/dev/null; then sha256sum * > SHA256SUMS; else certutil -hashfile datachannel.dll SHA256 > SHA256SUMS; fi
-      - uses: actions/upload-artifact@v4
-        with:
-          name: libdatachannel-${{ env.LIBDATACHANNEL_VERSION }}-${{ matrix.platform }}
-          path: runtime/libdatachannel/${{ matrix.platform }}/
- } | Select-Object -First 1
-          if (-not $cryptoLib) { throw "OpenSSL crypto import/static library not found under $opensslRoot" }
-          if (-not $sslLib) { throw "OpenSSL SSL import/static library not found under $opensslRoot" }
-          Write-Host "OPENSSL_CRYPTO_LIBRARY=$($cryptoLib.FullName)"
-          Write-Host "OPENSSL_SSL_LIBRARY=$($sslLib.FullName)"
-          "OPENSSL_ROOT_DIR=$opensslRoot" | Out-File -FilePath $env:GITHUB_ENV -Append
-          "OPENSSL_CRYPTO_LIBRARY=$($cryptoLib.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
-          "OPENSSL_SSL_LIBRARY=$($sslLib.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
-          "$opensslRoot\\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
-      - name: Checkout libdatachannel
-        shell: bash
-        run: |
-          git clone --branch "$LIBDATACHANNEL_VERSION" --depth 1 --recursive https://github.com/paullouisageneau/libdatachannel.git _build/libdatachannel
-      - name: Configure
-        shell: bash
-        run: |
-          EXTRA_ARGS=()
-          if [ "${{ runner.os }}" = "Windows" ]; then
-            EXTRA_ARGS+=("-DOPENSSL_ROOT_DIR=$OPENSSL_ROOT_DIR")
-          fi
-          cmake -S _build/libdatachannel -B _build/out -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DNO_EXAMPLES=ON -DNO_TESTS=ON "${EXTRA_ARGS[@]}"
-      - name: Build
-        shell: bash
-        run: cmake --build _build/out --config Release
-      - name: Stage runtime
-        shell: bash
-        run: |
-          mkdir -p "runtime/libdatachannel/${{ matrix.platform }}"
-          if [ "${{ runner.os }}" = "Windows" ]; then
-            find _build/out -type f \( -name 'datachannel.dll' -o -name '*.dll' \) -exec cp {} "runtime/libdatachannel/${{ matrix.platform }}/" \;
-            if [ -d "$OPENSSL_ROOT_DIR/bin" ]; then
-              find "$OPENSSL_ROOT_DIR/bin" -maxdepth 1 -type f \( -name 'libcrypto-*.dll' -o -name 'libssl-*.dll' \) -exec cp {} "runtime/libdatachannel/${{ matrix.platform }}/" \;
-            fi
-          else
-            find _build/out -type f \( -name 'libdatachannel.so' -o -name 'libdatachannel.so.*' \) -exec cp -L {} "runtime/libdatachannel/${{ matrix.platform }}/" \;
-          fi
-          cd "runtime/libdatachannel/${{ matrix.platform }}"
-          if command -v sha256sum >/dev/null; then sha256sum * > SHA256SUMS; else certutil -hashfile datachannel.dll SHA256 > SHA256SUMS; fi
+          sha256sum * > SHA256SUMS
       - uses: actions/upload-artifact@v4
         with:
           name: libdatachannel-${{ env.LIBDATACHANNEL_VERSION }}-${{ matrix.platform }}
