@@ -142,9 +142,9 @@ begin
   end;
   
   case FParity of
-    'E', 'e': Par := EvenParity;
-    'O', 'o': Par := OddParity;
-    else Par := NoneParity;
+    'E', 'e': Par := serial.EvenParity;
+    'O', 'o': Par := serial.OddParity;
+    else Par := serial.NoneParity;
   end;
   
   SerSetParams(FHandle, FBaudRate, FDataBits, Par, FStopBits, []);
