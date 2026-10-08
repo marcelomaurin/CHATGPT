@@ -25,6 +25,8 @@ type
     FActive: Boolean;
     FHandle: TSerialHandle;
     FLastError: string;
+    FLastErrorCode: Integer;
+    FOpenedName: string;
     FOnIdle: TAISerialIdleEvent;
     FOnConnect: TNotifyEvent;
     FOnDisconnect: TNotifyEvent;
@@ -35,6 +37,8 @@ type
   public
     { No Windows, COM10 em diante precisa do prefixo \\.\ para abrir. }
     class function NormalizeDeviceName(const AName: string): string;
+    { Dica legivel para o codigo de erro do sistema ao abrir a porta. }
+    class function DescribeOpenError(ACode: Integer): string;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     
@@ -54,6 +58,10 @@ type
     property Parity: Char read FParity write FParity default 'N';
     property Active: Boolean read FActive write SetActive default False;
     property LastError: string read FLastError;
+    { Codigo de erro do sistema (GetLastError/errno) da ultima falha; 0 = nenhum. }
+    property LastErrorCode: Integer read FLastErrorCode;
+    { Nome efetivamente aberto (ex.: \\.\COM20). }
+    property OpenedName: string read FOpenedName;
     property OnIdle: TAISerialIdleEvent read FOnIdle write FOnIdle;
     property OnConnect: TNotifyEvent read FOnConnect write FOnConnect;
     property OnDisconnect: TNotifyEvent read FOnDisconnect write FOnDisconnect;
@@ -102,6 +110,30 @@ begin
   {$ENDIF}
 end;
 
+class function TAISerialModem.DescribeOpenError(ACode: Integer): string;
+begin
+  {$IFDEF MSWINDOWS}
+  case ACode of
+    2, 3: Result := 'port does not exist: device unplugged, wrong COM number or driver missing';
+    5: Result := 'access denied: the port is in use by another program (Cura, Arduino IDE, Pronterface, OctoPrint, another MultiCNC)';
+    31: Result := 'device not working: unplug and reconnect the USB cable';
+    87: Result := 'invalid parameter: check port name and baud rate';
+    121, 1460: Result := 'timeout talking to the USB-serial driver';
+    1167: Result := 'device not connected';
+  else
+    Result := '';
+  end;
+  {$ELSE}
+  case ACode of
+    2: Result := 'device does not exist';
+    13: Result := 'permission denied: add the user to the dialout group';
+    16: Result := 'device busy: in use by another program';
+  else
+    Result := '';
+  end;
+  {$ENDIF}
+end;
+
 function TAISerialModem.HandleValid: Boolean;
 begin
   {$IFDEF MSWINDOWS}
@@ -124,20 +156,28 @@ end;
 function TAISerialModem.OpenPort: Boolean;
 var
   Par: TParityType;
+  Hint: string;
   {$IFDEF MSWINDOWS}
   Timeouts: TCommTimeouts;
+  DCB: TDCB;
   {$ENDIF}
 begin
   Result := False;
   FLastError := '';
+  FLastErrorCode := 0;
   
   if FActive then Exit(True);
   
-  FHandle := SerOpen(NormalizeDeviceName(FDeviceName));
+  FOpenedName := NormalizeDeviceName(FDeviceName);
+  FHandle := SerOpen(FOpenedName);
   if not HandleValid then
   begin
+    FLastErrorCode := GetLastOSError;
     FHandle := 0;
-    FLastError := 'Failed to open serial port: ' + FDeviceName;
+    Hint := DescribeOpenError(FLastErrorCode);
+    if Hint = '' then Hint := SysErrorMessage(FLastErrorCode);
+    FLastError := Format('Failed to open serial port %s (opened as %s): system error %d - %s',
+      [FDeviceName, FOpenedName, FLastErrorCode, Hint]);
     Exit;
   end;
   
@@ -150,6 +190,18 @@ begin
   SerSetParams(FHandle, FBaudRate, FDataBits, Par, FStopBits, []);
 
   {$IFDEF MSWINDOWS}
+  { SerSetParams ignora falhas do driver: confere o baud aplicado. }
+  FillChar(DCB, SizeOf(DCB), 0);
+  DCB.DCBlength := SizeOf(DCB);
+  if GetCommState(FHandle, DCB) and (Integer(DCB.BaudRate) <> FBaudRate) then
+  begin
+    FLastErrorCode := GetLastOSError;
+    SerClose(FHandle);
+    FHandle := 0;
+    FLastError := Format('Serial port %s opened, but the driver rejected %d baud (port reports %d)',
+      [FDeviceName, FBaudRate, Integer(DCB.BaudRate)]);
+    Exit;
+  end;
   { Leitura nao-bloqueante: Poll/ReadText retornam na hora o que houver
     no buffer, sem travar a interface esperando dados. }
   FillChar(Timeouts, SizeOf(Timeouts), 0);
