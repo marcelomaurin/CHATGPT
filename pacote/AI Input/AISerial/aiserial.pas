@@ -5,7 +5,8 @@ unit aiserial;
 interface
 
 uses
-  Classes, SysUtils, serial, LResources;
+  Classes, SysUtils, serial, LResources
+  {$IFDEF MSWINDOWS}, Windows{$ENDIF};
 
 type
   TAISerialIdleEvent = procedure(Sender: TObject; var AAbort: Boolean) of object;
@@ -30,7 +31,10 @@ type
     FOnRXReceive: TAISerialDataEvent;
     FOnTXSend: TAISerialDataEvent;
     procedure SetActive(AValue: Boolean);
+    function HandleValid: Boolean;
   public
+    { No Windows, COM10 em diante precisa do prefixo \\.\ para abrir. }
+    class function NormalizeDeviceName(const AName: string): string;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     
@@ -88,6 +92,26 @@ begin
   inherited Destroy;
 end;
 
+class function TAISerialModem.NormalizeDeviceName(const AName: string): string;
+begin
+  Result := Trim(AName);
+  {$IFDEF MSWINDOWS}
+  if SameText(Copy(Result, 1, 3), 'COM') and
+     (StrToIntDef(Copy(Result, 4, MaxInt), 0) >= 10) then
+    Result := '\\.\' + Result;
+  {$ENDIF}
+end;
+
+function TAISerialModem.HandleValid: Boolean;
+begin
+  {$IFDEF MSWINDOWS}
+  { TSerialHandle e THandle sem sinal: falha vem como INVALID_HANDLE_VALUE. }
+  Result := (FHandle <> 0) and (FHandle <> TSerialHandle(INVALID_HANDLE_VALUE));
+  {$ELSE}
+  Result := FHandle > 0;
+  {$ENDIF}
+end;
+
 procedure TAISerialModem.SetActive(AValue: Boolean);
 begin
   if FActive = AValue then Exit;
@@ -100,15 +124,19 @@ end;
 function TAISerialModem.OpenPort: Boolean;
 var
   Par: TParityType;
+  {$IFDEF MSWINDOWS}
+  Timeouts: TCommTimeouts;
+  {$ENDIF}
 begin
   Result := False;
   FLastError := '';
   
   if FActive then Exit(True);
   
-  FHandle := SerOpen(FDeviceName);
-  if FHandle <= 0 then
+  FHandle := SerOpen(NormalizeDeviceName(FDeviceName));
+  if not HandleValid then
   begin
+    FHandle := 0;
     FLastError := 'Failed to open serial port: ' + FDeviceName;
     Exit;
   end;
@@ -120,6 +148,16 @@ begin
   end;
   
   SerSetParams(FHandle, FBaudRate, FDataBits, Par, FStopBits, []);
+
+  {$IFDEF MSWINDOWS}
+  { Leitura nao-bloqueante: Poll/ReadText retornam na hora o que houver
+    no buffer, sem travar a interface esperando dados. }
+  FillChar(Timeouts, SizeOf(Timeouts), 0);
+  Timeouts.ReadIntervalTimeout := MAXDWORD;
+  Timeouts.WriteTotalTimeoutConstant := 1000;
+  SetCommTimeouts(FHandle, Timeouts);
+  PurgeComm(FHandle, PURGE_RXCLEAR or PURGE_TXCLEAR);
+  {$ENDIF}
   
   FActive := True;
   Result := True;
@@ -132,7 +170,7 @@ var
   WasActive: Boolean;
 begin
   WasActive := FActive;
-  if FHandle > 0 then
+  if HandleValid then
     SerClose(FHandle);
 
   FHandle := 0;
@@ -144,7 +182,7 @@ end;
 function TAISerialModem.WriteText(const AText: string): Boolean;
 begin
   Result := False;
-  if not FActive or (FHandle <= 0) then Exit;
+  if not FActive or not HandleValid then Exit;
   if AText = '' then Exit(True);
 
   if SerWrite(FHandle, Pointer(AText)^, Length(AText)) = Length(AText) then
@@ -164,7 +202,7 @@ var
 begin
   Result := False;
   AText := '';
-  if not FActive or (FHandle <= 0) then Exit;
+  if not FActive or not HandleValid then Exit;
   
   FillChar(Buffer, SizeOf(Buffer), 0);
   BytesRead := SerRead(FHandle, Buffer, SizeOf(Buffer) - 1);
@@ -184,7 +222,7 @@ var
   Data: string;
   I: Integer;
 begin
-  if not FActive or (FHandle <= 0) then Exit;
+  if not FActive or not HandleValid then Exit;
 
   for I := 1 to 32 do
   begin
