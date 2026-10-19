@@ -368,19 +368,19 @@ begin
         Proc.Parameters.Add('--baud');
         Proc.Parameters.Add(IntToStr(ActualSpeed));
         Proc.Parameters.Add('--before');
-        Proc.Parameters.Add('default_reset');
+        Proc.Parameters.Add('default-reset');
         Proc.Parameters.Add('--after');
-        Proc.Parameters.Add('hard_reset');
+        Proc.Parameters.Add('hard-reset');
         Proc.Parameters.Add('write_flash');
         Proc.Parameters.Add('-z');
-        Proc.Parameters.Add('--flash_mode');
+        Proc.Parameters.Add('--flash-mode');
         Proc.Parameters.Add('dio');
-        Proc.Parameters.Add('--flash_freq');
-        Proc.Parameters.Add('80m');
+        Proc.Parameters.Add('--flash-freq');
+        Proc.Parameters.Add('40m');
 
         if FBoardType = fbtESP32CAM then
         begin
-          Proc.Parameters.Add('--flash_size');
+          Proc.Parameters.Add('--flash-size');
           Proc.Parameters.Add('4MB');
         end;
 
@@ -526,8 +526,8 @@ var
   LPortName: string;
   HPort: TSerialHandle;
   BytesRead: LongInt;
-  StartTime: QWord;
-  Buffer: array[0..255] of Char;
+  StartTime, LastSendTime: QWord;
+  Buffer: array[0..511] of Char;
   LineBuf: string;
   FullOutput: string;
   Cmd: string;
@@ -543,7 +543,7 @@ begin
   if AForceNew then
     DoLog('Abrindo porta serial ' + FPort + ' para gerar e gravar NOVO TOKEN ALEATORIO...')
   else
-    DoLog('Abrindo porta serial ' + FPort + ' para solicitar token de seguranca...');
+    DoLog('Abrindo porta serial ' + FPort + ' para solicitar token de seguranca da ESP32-CAM...');
 
   LPortName := NormalizeDeviceName(FPort);
   HPort := SerOpen(LPortName);
@@ -562,38 +562,59 @@ begin
   try
     SerSetParams(HPort, FSerialBaudRate, 8, serial.NoneParity, 1, []);
 
-    Sleep(200);
+    // Garante que DTR fique inativo (IO0 solto do GND) e pulsa RTS para reiniciar a ESP32 em modo normal
+    SerSetDTR(HPort, False);
+    SerSetRTS(HPort, True);
+    Sleep(120);
+    SerSetRTS(HPort, False);
+    Sleep(350);
+
+    // Drena buffer inicial de inicializacao
     FillChar(Buffer, SizeOf(Buffer), 0);
     while SerRead(HPort, Buffer, SizeOf(Buffer)) > 0 do;
 
     if AForceNew then
     begin
-      // Gera token 128-bit verdadeiramente aleatorio e unico no host
       LGeneratedToken := GenerateUniqueToken;
       DoLog('Gerado token aleatorio criptografico: ' + LGeneratedToken);
-      Cmd := 'SET_TOKEN:' + LGeneratedToken + #10;
-      DoLog('Enviando SET_TOKEN pela serial para a camera persistir...');
+      Cmd := 'SET_TOKEN:' + LGeneratedToken + #13#10;
+      DoLog('Enviando SET_TOKEN pela serial para a camera...');
       SerWrite(HPort, Cmd[1], Length(Cmd));
       Sleep(100);
-
-      // Envia tambem NEW_TOKEN como fallback
-      Cmd := 'NEW_TOKEN' + #10;
+      Cmd := 'NEW_TOKEN' + #13#10;
       SerWrite(HPort, Cmd[1], Length(Cmd));
     end
     else
     begin
-      Cmd := 'GET_TOKEN' + #10;
+      Cmd := 'GET_TOKEN' + #13#10;
       DoLog('Enviando comando GET_TOKEN pela serial...');
       SerWrite(HPort, Cmd[1], Length(Cmd));
     end;
 
     StartTime := GetTickCount64;
+    LastSendTime := StartTime;
     LineBuf := '';
     FullOutput := '';
     FoundToken := False;
 
     while (GetTickCount64 - StartTime < QWord(ATimeoutMs)) and not FoundToken do
     begin
+      // Reenvia comando periodicamente a cada 750ms caso o microcontrolador estivesse ocupado no boot
+      if (GetTickCount64 - LastSendTime >= 750) then
+      begin
+        LastSendTime := GetTickCount64;
+        if AForceNew then
+        begin
+          Cmd := 'SET_TOKEN:' + LGeneratedToken + #13#10;
+          SerWrite(HPort, Cmd[1], Length(Cmd));
+        end
+        else
+        begin
+          Cmd := 'GET_TOKEN' + #13#10;
+          SerWrite(HPort, Cmd[1], Length(Cmd));
+        end;
+      end;
+
       BytesRead := SerRead(HPort, Buffer, SizeOf(Buffer) - 1);
       if BytesRead > 0 then
       begin
@@ -629,7 +650,7 @@ begin
                 else FCapturedMac := Trim(SubStr);
               end;
 
-              // Parse TOKEN=
+              // Parse TOKEN= ou TOKEN:
               P := Pos('TOKEN=', LineBuf);
               if P = 0 then P := Pos('TOKEN:', LineBuf);
               if P > 0 then
@@ -642,7 +663,8 @@ begin
                 if PEnd > 0 then FCapturedToken := Copy(SubStr, 1, PEnd - 1)
                 else FCapturedToken := Trim(SubStr);
 
-                if FCapturedToken <> '' then
+                FCapturedToken := Trim(FCapturedToken);
+                if Length(FCapturedToken) >= 16 then
                   FoundToken := True;
               end;
 
@@ -664,7 +686,7 @@ begin
         end;
       end
       else
-        Sleep(50);
+        Sleep(25);
     end;
 
     if FoundToken then
@@ -682,7 +704,7 @@ begin
     end
     else
     begin
-      FLastError := 'Timeout aguardando token pela serial. Verifique se o jumper IO0 foi desconectado e aperte o botao RST da camera.';
+      FLastError := 'Timeout aguardando token pela serial (' + FPort + '). Verifique se o jumper IO0->GND foi desconectado e aperte o botao RST da camera se necessario.';
       DoLog(FLastError);
     end;
   finally
