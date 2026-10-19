@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Process, serial, fphttpclient, fpjson, jsonparser,
-  LResources
+  opensslsockets, LResources
   {$IFDEF MSWINDOWS}
   , Windows, Registry
   {$ENDIF}
@@ -68,7 +68,7 @@ type
 
     { Flashing and Security token workflows }
     function FlashFirmware: Boolean;
-    function RequestSerialToken(ATimeoutMs: Integer = 5000): string;
+    function RequestSerialToken(ATimeoutMs: Integer = 6000): string;
     function SendTokenToDaemon(const ADaemonUrl: string = ''): Boolean;
     function SaveTokenLocally(const AFilePath: string = ''): Boolean;
     procedure ResetCapturedData;
@@ -116,7 +116,7 @@ begin
   FBaudRate := 921600;
   FSerialBaudRate := 115200;
   FFlashAddress := '0x0';
-  FDaemonUrl := 'http://127.0.0.1:8088/token';
+  FDaemonUrl := 'https://maurinsoft.com.br/casa/api/camera_discovery.php?acao=register_token';
   ResetCapturedData;
   AutoDetectTools;
 end;
@@ -276,7 +276,6 @@ var
   NumStr: string;
 begin
   Result := -1;
-  // Look for pattern like '(12 %)' or '(12%)'
   P1 := Pos('(', ALine);
   if P1 > 0 then
   begin
@@ -477,7 +476,6 @@ begin
         Sleep(30);
     end;
 
-    // Read trailing output
     while Proc.Output.NumBytesAvailable > 0 do
     begin
       BytesRead := Proc.Output.Read(Buffer, SizeOf(Buffer) - 1);
@@ -519,7 +517,6 @@ var
   Cmd: string;
   I: Integer;
   P, PEnd: Integer;
-  Key, Val: string;
   SubStr: string;
   FoundToken: Boolean;
 begin
@@ -542,15 +539,12 @@ begin
   end;
 
   try
-    // Set 115200 baud, 8N1
     SerSetParams(HPort, FSerialBaudRate, 8, serial.NoneParity, 1, []);
 
-    // Flush existing garbage
     Sleep(200);
     FillChar(Buffer, SizeOf(Buffer), 0);
     while SerRead(HPort, Buffer, SizeOf(Buffer)) > 0 do;
 
-    // Send GET_TOKEN command
     Cmd := 'GET_TOKEN' + #10;
     DoLog('Enviando comando GET_TOKEN pela serial...');
     SerWrite(HPort, Cmd[1], Length(Cmd));
@@ -575,55 +569,53 @@ begin
               DoLog('[SERIAL] ' + LineBuf);
               FullOutput := FullOutput + LineBuf + LineEnding;
 
-              // Check for CAM_SECRET:DEVICE_ID=...:MAC=...:TOKEN=...:IP=...
-              if Pos('CAM_SECRET:', LineBuf) > 0 then
+              // Parse DEVICE_ID=
+              P := Pos('DEVICE_ID=', LineBuf);
+              if P > 0 then
               begin
-                SubStr := Copy(LineBuf, Pos('CAM_SECRET:', LineBuf) + 11, Length(LineBuf));
-                // Parse key=value pairs separated by ':'
-                while SubStr <> '' do
-                begin
-                  P := Pos(':', SubStr);
-                  if P > 0 then
-                  begin
-                    Key := Copy(SubStr, 1, P - 1);
-                    SubStr := Copy(SubStr, P + 1, Length(SubStr));
-                  end
-                  else
-                  begin
-                    Key := SubStr;
-                    SubStr := '';
-                  end;
+                SubStr := Copy(LineBuf, P + 10, Length(LineBuf));
+                PEnd := Pos(':', SubStr);
+                if PEnd > 0 then FCapturedDeviceId := Copy(SubStr, 1, PEnd - 1)
+                else FCapturedDeviceId := Trim(SubStr);
+              end;
 
-                  PEnd := Pos('=', Key);
-                  if PEnd > 0 then
-                  begin
-                    Val := Copy(Key, PEnd + 1, Length(Key));
-                    Key := UpperCase(Copy(Key, 1, PEnd - 1));
+              // Parse MAC= (Preserva os dois-pontos do endereco MAC)
+              P := Pos('MAC=', LineBuf);
+              if P > 0 then
+              begin
+                SubStr := Copy(LineBuf, P + 4, Length(LineBuf));
+                PEnd := Pos(':TOKEN=', SubStr);
+                if PEnd = 0 then PEnd := Pos(':IP=', SubStr);
+                if PEnd > 0 then FCapturedMac := Copy(SubStr, 1, PEnd - 1)
+                else if Length(SubStr) >= 17 then FCapturedMac := Copy(SubStr, 1, 17)
+                else FCapturedMac := Trim(SubStr);
+              end;
 
-                    if Key = 'TOKEN' then FCapturedToken := Val
-                    else if Key = 'DEVICE_ID' then FCapturedDeviceId := Val
-                    else if Key = 'MAC' then FCapturedMac := Val
-                    else if Key = 'IP' then FCapturedIp := Val;
-                  end;
-                end;
+              // Parse TOKEN=
+              P := Pos('TOKEN=', LineBuf);
+              if P = 0 then P := Pos('TOKEN:', LineBuf);
+              if P > 0 then
+              begin
+                if Pos('TOKEN=', LineBuf) > 0 then
+                  SubStr := Copy(LineBuf, Pos('TOKEN=', LineBuf) + 6, Length(LineBuf))
+                else
+                  SubStr := Copy(LineBuf, Pos('TOKEN:', LineBuf) + 6, Length(LineBuf));
+                PEnd := Pos(':', SubStr);
+                if PEnd > 0 then FCapturedToken := Copy(SubStr, 1, PEnd - 1)
+                else FCapturedToken := Trim(SubStr);
 
                 if FCapturedToken <> '' then
-                begin
                   FoundToken := True;
-                  Break;
-                end;
-              end
-              else if (Pos('TOKEN=', LineBuf) > 0) or (Pos('TOKEN:', LineBuf) > 0) then
+              end;
+
+              // Parse IP=
+              P := Pos('IP=', LineBuf);
+              if P > 0 then
               begin
-                // Fallback direct TOKEN= pattern
-                P := Pos('TOKEN=', LineBuf);
-                if P = 0 then P := Pos('TOKEN:', LineBuf);
-                if P > 0 then
-                begin
-                  FCapturedToken := Trim(Copy(LineBuf, P + 6, Length(LineBuf)));
-                  FoundToken := True;
-                  Break;
-                end;
+                SubStr := Copy(LineBuf, P + 3, Length(LineBuf));
+                PEnd := Pos(':', SubStr);
+                if PEnd > 0 then FCapturedIp := Copy(SubStr, 1, PEnd - 1)
+                else FCapturedIp := Trim(SubStr);
               end;
 
               LineBuf := '';
@@ -648,7 +640,6 @@ begin
       if FCapturedIp <> '' then
         DoLog('IP: ' + FCapturedIp);
 
-      // Automatically store in local vault
       SaveTokenLocally('');
     end
     else
@@ -673,7 +664,7 @@ begin
   Result := False;
   if FCapturedToken = '' then
   begin
-    FLastError := 'Nenhum token capturado para enviar ao daemon.';
+    FLastError := 'Nenhum token capturado para enviar ao site/daemon.';
     DoLog(FLastError);
     Exit;
   end;
@@ -682,13 +673,13 @@ begin
   if Trim(LTargetUrl) = '' then
     LTargetUrl := FDaemonUrl;
   if Trim(LTargetUrl) = '' then
-    LTargetUrl := 'http://127.0.0.1:8088/token';
+    LTargetUrl := 'https://maurinsoft.com.br/casa/api/camera_discovery.php?acao=register_token';
 
-  // Always save locally first as fallback
   SaveTokenLocally('');
 
   LJson := TJSONObject.Create;
   try
+    LJson.Add('acao', 'register_token');
     LJson.Add('device_id', FCapturedDeviceId);
     LJson.Add('token', FCapturedToken);
     LJson.Add('mac', FCapturedMac);
@@ -701,13 +692,14 @@ begin
   LClient := TFPHTTPClient.Create(nil);
   try
     try
-      DoLog('Enviando token ao daemon responsavel: ' + LTargetUrl);
+      DoLog('Enviando token ao site/daemon: ' + LTargetUrl);
       LClient.AddHeader('Content-Type', 'application/json');
+      LClient.AllowRedirect := True;
       LStream := TStringStream.Create(LPayload);
       try
         LClient.RequestBody := LStream;
         LResponse := LClient.Post(LTargetUrl);
-        DoLog('Resposta do daemon: ' + LResponse);
+        DoLog('Resposta do site: ' + LResponse);
         Result := True;
       finally
         LStream.Free;
@@ -715,7 +707,7 @@ begin
     except
       on E: Exception do
       begin
-        FLastError := 'Aviso: Falha ao contatar daemon na porta 8088 (' + E.Message + '). Token foi salvo no cofre local ~/.casa/camera_tokens.json.';
+        FLastError := 'Aviso: Falha ao enviar para ' + LTargetUrl + ' (' + E.Message + '). Token salvo no cofre local.';
         DoLog(FLastError);
         Result := False;
       end;
