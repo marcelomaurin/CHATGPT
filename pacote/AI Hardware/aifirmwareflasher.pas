@@ -66,9 +66,13 @@ type
     procedure ListSerialPorts(APortList: TStrings);
     function AutoDetectTools: Boolean;
 
+    { Cryptographic random token generator }
+    class function GenerateUniqueToken: string;
+
     { Flashing and Security token workflows }
     function FlashFirmware: Boolean;
-    function RequestSerialToken(ATimeoutMs: Integer = 6000): string;
+    function RequestSerialToken(ATimeoutMs: Integer = 6000; AForceNew: Boolean = False): string;
+    function GenerateNewToken(ATimeoutMs: Integer = 6000): string;
     function SendTokenToDaemon(const ADaemonUrl: string = ''): Boolean;
     function SaveTokenLocally(const AFilePath: string = ''): Boolean;
     procedure ResetCapturedData;
@@ -154,6 +158,18 @@ begin
   FIsFlashing := False;
   if Assigned(FOnFinished) then
     FOnFinished(Self, ASuccess, AErrorMsg);
+end;
+
+class function TAIFirmwareFlasher.GenerateUniqueToken: string;
+var
+  Guid: TGUID;
+  I: Integer;
+begin
+  CreateGUID(Guid);
+  Result := LowerCase(Format('%08x%04x%04x%02x%02x%02x%02x%02x%02x%02x%02x',
+    [Guid.D1, Guid.D2, Guid.D3,
+     Guid.D4[0], Guid.D4[1], Guid.D4[2], Guid.D4[3],
+     Guid.D4[4], Guid.D4[5], Guid.D4[6], Guid.D4[7]]));
 end;
 
 class function TAIFirmwareFlasher.NormalizeDeviceName(const AName: string): string;
@@ -505,7 +521,7 @@ begin
   end;
 end;
 
-function TAIFirmwareFlasher.RequestSerialToken(ATimeoutMs: Integer): string;
+function TAIFirmwareFlasher.RequestSerialToken(ATimeoutMs: Integer; AForceNew: Boolean): string;
 var
   LPortName: string;
   HPort: TSerialHandle;
@@ -519,10 +535,15 @@ var
   P, PEnd: Integer;
   SubStr: string;
   FoundToken: Boolean;
+  LGeneratedToken: string;
 begin
   Result := '';
   ResetCapturedData;
-  DoLog('Abrindo porta serial ' + FPort + ' para solicitar token de seguranca...');
+
+  if AForceNew then
+    DoLog('Abrindo porta serial ' + FPort + ' para gerar e gravar NOVO TOKEN ALEATORIO...')
+  else
+    DoLog('Abrindo porta serial ' + FPort + ' para solicitar token de seguranca...');
 
   LPortName := NormalizeDeviceName(FPort);
   HPort := SerOpen(LPortName);
@@ -533,7 +554,7 @@ begin
   if HPort <= 0 then
   {$ENDIF}
   begin
-    FLastError := 'Nao foi possivel abrir a porta serial ' + FPort + ' para leitura do token.';
+    FLastError := 'Nao foi possivel abrir a porta serial ' + FPort + ' para comunicacao.';
     DoLog(FLastError);
     Exit;
   end;
@@ -545,9 +566,26 @@ begin
     FillChar(Buffer, SizeOf(Buffer), 0);
     while SerRead(HPort, Buffer, SizeOf(Buffer)) > 0 do;
 
-    Cmd := 'GET_TOKEN' + #10;
-    DoLog('Enviando comando GET_TOKEN pela serial...');
-    SerWrite(HPort, Cmd[1], Length(Cmd));
+    if AForceNew then
+    begin
+      // Gera token 128-bit verdadeiramente aleatorio e unico no host
+      LGeneratedToken := GenerateUniqueToken;
+      DoLog('Gerado token aleatorio criptografico: ' + LGeneratedToken);
+      Cmd := 'SET_TOKEN:' + LGeneratedToken + #10;
+      DoLog('Enviando SET_TOKEN pela serial para a camera persistir...');
+      SerWrite(HPort, Cmd[1], Length(Cmd));
+      Sleep(100);
+
+      // Envia tambem NEW_TOKEN como fallback
+      Cmd := 'NEW_TOKEN' + #10;
+      SerWrite(HPort, Cmd[1], Length(Cmd));
+    end
+    else
+    begin
+      Cmd := 'GET_TOKEN' + #10;
+      DoLog('Enviando comando GET_TOKEN pela serial...');
+      SerWrite(HPort, Cmd[1], Length(Cmd));
+    end;
 
     StartTime := GetTickCount64;
     LineBuf := '';
@@ -650,6 +688,11 @@ begin
   finally
     SerClose(HPort);
   end;
+end;
+
+function TAIFirmwareFlasher.GenerateNewToken(ATimeoutMs: Integer): string;
+begin
+  Result := RequestSerialToken(ATimeoutMs, True);
 end;
 
 function TAIFirmwareFlasher.SendTokenToDaemon(const ADaemonUrl: string): Boolean;
