@@ -6,7 +6,7 @@ unit aiagent_sourceactions;
 interface
 
 uses
-  Classes, SysUtils, Process, StrUtils, aiagent_actions;
+  Classes, SysUtils, Process, StrUtils, aiagent_actions, LResources;
 
 type
   TAIDeveloperWorkspaceAction = class(TAICustomAgentAction)
@@ -665,5 +665,8 @@ begin
     Args.Free;
   end;
 end;
+
+initialization
+  {$I aiagent_sourceactions_icon.lrs}
 
 end.

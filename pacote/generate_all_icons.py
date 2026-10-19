@@ -343,6 +343,9 @@ icons_config = {
     'AI Hardware/aiso_icon.lrs': [
         ('taios', C_HARDWARE, 'OS'),
     ],
+    'AI Hardware/aifirmwareflasher_icon.lrs': [
+        ('taifirmwareflasher', C_HARDWARE, 'FW'),
+    ],
     'AI Image/imagefilters_icon.lrs': [
         ('tgrayscalefilter', C_VISION, 'GF'),
         ('tnegativefilter', C_VISION, 'NF'),
@@ -763,6 +766,7 @@ patches = [
     ('AI Hardware/ailistprinters.pas', 'ailistprinters_icon.lrs'),
     ('AI Hardware/aimemory.pas', 'aimemory_icon.lrs'),
     ('AI Hardware/aiso.pas', 'aiso_icon.lrs'),
+    ('AI Hardware/aifirmwareflasher.pas', 'aifirmwareflasher_icon.lrs'),
     ('AI Image/imagefilters.pas', 'imagefilters_icon.lrs'),
     ('AI Industrial/aiarduinomodbuspinmap.pas', 'aiarduinomodbuspinmap_icon.lrs'),
     ('AI Industrial/aiarm_robot.pas', 'aiarm_robot_icon.lrs'),

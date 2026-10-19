@@ -9,7 +9,7 @@ interface
 
 uses
   aihardwarelinux, aicpu, aimemory, aigpu, aidisk, aiso, ai_tasks,
-  ailistprinters, LazarusPackageIntf;
+  ailistprinters, aifirmwareflasher, LazarusPackageIntf;
 
 implementation
 
@@ -22,6 +22,7 @@ begin
   RegisterUnit('aiso', @aiso.Register);
   RegisterUnit('ai_tasks', @ai_tasks.Register);
   RegisterUnit('ailistprinters', @ailistprinters.Register);
+  RegisterUnit('aifirmwareflasher', @aifirmwareflasher.Register);
 end;
 
 initialization
