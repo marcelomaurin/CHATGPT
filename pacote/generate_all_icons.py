@@ -509,6 +509,15 @@ icons_config = {
     'AI Project/aiproject_gantt_icon.lrs': [
         ('taiprojectgantt', C_PROJECT, 'PG'),
     ],
+    'AI Project/aiganttview_icon.lrs': [
+        ('taiganttview', C_PROJECT, 'GV'),
+    ],
+    'AI Project/ainetworkview_icon.lrs': [
+        ('tainetworkview', C_PROJECT, 'NV'),
+    ],
+    'AI Project/aiboardview_icon.lrs': [
+        ('taiboardview', C_PROJECT, 'KB'),
+    ],
     'AI Project/aiproject_icon.lrs': [
         ('taiproject', C_PROJECT, 'PR'),
     ],
@@ -711,6 +720,9 @@ icons_config = {
 }
 
 patches = [
+    ('AI Project/aiganttview.pas', 'aiganttview_icon.lrs'),
+    ('AI Project/ainetworkview.pas', 'ainetworkview_icon.lrs'),
+    ('AI Project/aiboardview.pas', 'aiboardview_icon.lrs'),
     ('AI A2A/aia2a.pas', 'aia2a_icon.lrs'),
     ('AI A2A/aia2aserver.pas', 'aia2aserver_icon.lrs'),
     ('AI Agent/aiagent.pas', 'aiagent_icon.lrs'),

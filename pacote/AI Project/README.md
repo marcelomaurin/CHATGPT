@@ -11,6 +11,29 @@ A pasta **AI Project** reúne componentes para representar projetos, tarefas, ar
 
 Os samples `Demo_AI_Project` e `project_tasklist_ai_demo` demonstram o uso básico desses componentes.
 
+## Vistas genéricas de cronograma
+
+Componentes LCL independentes do modelo de dados: o dono preenche linhas, nós ou cartões e
+recebe eventos. Cores e fontes são propriedades, para cada aplicação aplicar a sua paleta.
+
+- `TAIGanttView` — Gantt no estilo do Microsoft Project:
+  - tabela com colunas, árvore com recolher/expandir e edição na célula validada pelo dono
+    (`OnCellEdited`);
+  - escala de tempo em duas faixas e dias sem expediente (`OnIsWorkingDay`);
+  - barras de tarefa, resumo e marco, progresso, linha de base, crítica e sugerida;
+  - setas TI/II/TT/IT e linha da data de status;
+  - zoom com Ctrl+roda.
+- `TAINetworkView` — diagrama de rede:
+  - layout em camadas pelo maior caminho, com cadeias empilhadas;
+  - realce de predecessoras e sucessoras da seleção;
+  - criação de vínculo por arraste (`OnCreateLink`).
+- `TAIBoardView` — quadro Kanban:
+  - arrastar cartões entre colunas;
+  - o dono aceita ou recusa com motivo (`OnCardMove`).
+
+Teste: `tests/test_aiprojectviews.lpr` (com Xvfb no Linux). O cálculo do cronograma fica no
+pacote `openai_project_core` (`aicpmscheduler`, `aitaskgraph`, `aiworkcalendar`).
+
 ## Integração com Agent
 
 AI Project pode ser combinado com `TAIAgent` para transformar tarefas e especificações em ações planejadas. A execução deve continuar passando pelas políticas e pelo executor do Agent; o objeto de projeto não deve, por si só, executar comandos arbitrários.

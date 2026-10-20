@@ -116,6 +116,21 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiproject_reportviewer"/>
       </Item>
+      <Item>
+        <Filename Value="..\AI Project\aiganttview.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiganttview"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Project\ainetworkview.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="ainetworkview"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Project\aiboardview.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiboardview"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>
