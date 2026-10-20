@@ -106,6 +106,8 @@ type
     function VisibleRowCount: Integer;
     function ColumnLeft(ACol: Integer): Integer;
     function HasChildren(ARow: Integer): Boolean;
+    function HasDates(ARow: Integer): Boolean;
+    function ClampX(X: Int64): Integer;
     procedure SetPixelsPerDay(AValue: Double);
     procedure SetTableWidth(AValue: Integer);
     procedure SetSelected(AValue: Integer);
@@ -493,13 +495,25 @@ begin
   Result := -1;
 end;
 
+function TAIGanttView.HasDates(ARow: Integer): Boolean;
+begin
+  Result := (ARow >= 0) and (ARow <= High(FRows)) and (FRows[ARow].Start > 0);
+end;
+
+function TAIGanttView.ClampX(X: Int64): Integer;
+begin
+  { o X11/GDK nao aceita coordenadas muito grandes: limita a area desenhada
+    (a barra fora da tela continua fora da tela) }
+  Result := Integer(EnsureRange(X, Int64(-2000), Int64(AreaWidth + 2000)));
+end;
+
 function TAIGanttView.BarRect(ARow: Integer): TRect;
 var T, X1, X2: Integer;
 begin
   T := RowTop(ARow);
-  if T < 0 then Exit(Rect(0, 0, 0, 0));
-  X1 := DateToX(FRows[ARow].Start);
-  X2 := DateToX(FRows[ARow].Finish);
+  if (T < 0) or not HasDates(ARow) then Exit(Rect(0, 0, 0, 0));
+  X1 := ClampX(Int64(ChartLeft) + Round((FRows[ARow].Start - FOrigin) * FPixelsPerDay) - FScrollX);
+  X2 := ClampX(Int64(ChartLeft) + Round((FRows[ARow].Finish - FOrigin) * FPixelsPerDay) - FScrollX);
   if X2 < X1 + 2 then X2 := X1 + 2;
   case FRows[ARow].Kind of
     agbMilestone: Result := Rect(X1 - 6, T + FRowHeight div 2 - 6, X1 + 6, T + FRowHeight div 2 + 6);
@@ -673,7 +687,7 @@ begin
     end;
     if FStatusDate > 0 then
     begin
-      X := DateToX(FStatusDate);
+      X := ClampX(DateToX(FStatusDate));
       Canvas.Pen.Color := FColorStatusLine;
       Canvas.Pen.Style := psDash;
       Canvas.Line(X, FHeaderHeight, X, H);
@@ -783,7 +797,10 @@ begin
     begin
       R := FVisible[V];
       if FHeaderHeight + (V - FTopRow) * FRowHeight > AreaHeight then Break;
+      { linha sem datas (grupo, tarefa ainda nao calculada): sem barra }
+      if not HasDates(R) then Continue;
       B := BarRect(R);
+      if (B.Right < ChartLeft - 20) or (B.Left > AreaWidth + 20) then Continue;
       if FRows[R].Critical then Col := FColorCritical
       else if FRows[R].Kind = agbSummary then Col := FColorSummary
       else if FRows[R].Kind = agbMilestone then Col := FColorMilestone
@@ -791,8 +808,8 @@ begin
       { linha de base: faixa fina sob a barra }
       if FShowBaseline and (FRows[R].BaselineStart > 0) and (FRows[R].Kind <> agbMilestone) then
       begin
-        BX1 := DateToX(FRows[R].BaselineStart);
-        BX2 := Max(BX1 + 2, DateToX(FRows[R].BaselineFinish));
+        BX1 := ClampX(DateToX(FRows[R].BaselineStart));
+        BX2 := Max(BX1 + 2, ClampX(DateToX(FRows[R].BaselineFinish)));
         Y := RowTop(R) + FRowHeight - 6;
         Canvas.Brush.Color := FColorBaseline;
         Canvas.Pen.Color := FColorBaseline;
@@ -885,6 +902,7 @@ begin
       L := FLinks[I];
       if (L.FromRow < 0) or (L.ToRow < 0) or (L.FromRow > High(FRows)) or (L.ToRow > High(FRows)) then Continue;
       if (RowTop(L.FromRow) < 0) or (RowTop(L.ToRow) < 0) then Continue;
+      if not HasDates(L.FromRow) or not HasDates(L.ToRow) then Continue;
       A := BarRect(L.FromRow);
       B := BarRect(L.ToRow);
       if L.Critical then Canvas.Pen.Color := FColorCritical else Canvas.Pen.Color := FColorLink;

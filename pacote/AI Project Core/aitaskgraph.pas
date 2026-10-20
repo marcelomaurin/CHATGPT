@@ -593,6 +593,7 @@ end;
 function TAITaskGraph.SuccessorNodes(ANode: Integer): TAIIntArray;
 var I: Integer;
 begin
+  Result := nil;
   SetLength(Result, Length(FSucc[ANode]));
   for I := 0 to High(Result) do Result[I] := FLinks[FSucc[ANode][I]].ToNode;
 end;
@@ -600,6 +601,7 @@ end;
 function TAITaskGraph.PredecessorNodes(ANode: Integer): TAIIntArray;
 var I: Integer;
 begin
+  Result := nil;
   SetLength(Result, Length(FPred[ANode]));
   for I := 0 to High(Result) do Result[I] := FLinks[FPred[ANode][I]].FromNode;
 end;
@@ -641,6 +643,9 @@ var
 
 begin
   { Kahn com fila de prioridade: empate pela ordem de insercao (deterministico) }
+  Result := nil;
+  InDeg := nil;
+  Heap := nil;
   SetLength(InDeg, NodeCount);
   SetLength(Heap, NodeCount);
   SetLength(Result, 0);

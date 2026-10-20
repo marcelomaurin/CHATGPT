@@ -159,6 +159,22 @@ begin
   Check(Abs(G.DateToX(D(10, 27, 12)) - X0) <= 2, 'zoom mantem a data sob o mouse');
   G.FitToRows;
   Check(G.DateToX(D(10, 26, 8)) >= G.TableWidth, 'ajustar mostra o inicio');
+  { linha sem datas (grupo) e barra muito distante nao podem derrubar a pintura }
+  G.BeginUpdate;
+  R := AIGanttRow('', 1, 0, 0, agbSummary);
+  R.Cells := ['', 'Grupo sem datas', ''];
+  G.AddRow(R);
+  R := AIGanttRow('T-0099', 2, EncodeDate(2099, 1, 1), EncodeDate(2099, 6, 1));
+  R.Cells := ['', 'Muito distante', ''];
+  G.AddRow(R);
+  G.AddLink(4, 5, 0);
+  G.AddLink(3, 5, 0);
+  G.EndUpdate;
+  G.PixelsPerDay := 400;
+  G.Repaint;
+  Application.ProcessMessages;
+  Check((G.BarRect(4).Right = 0) and (G.BarRect(4).Left = 0), 'linha sem datas nao tem barra');
+  Check(G.BarRect(5).Left <= G.ClientWidth + 2000, 'barra distante limitada a area desenhavel');
   G.Repaint;
   Application.ProcessMessages;
 end;
