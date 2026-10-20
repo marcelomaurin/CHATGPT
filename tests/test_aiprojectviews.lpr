@@ -266,6 +266,11 @@ begin
     'mover recusado volta e explica: ' + Reason);
   Check(Pos('predecessora', B.Message) > 0, 'motivo mostrado no quadro');
   Check(B.IndexOfId('T-0003') = 2, 'busca por ID');
+  { muitas colunas numa vista estreita: rolagem horizontal }
+  B.Width := 300;
+  B.ScrollToColumn(2);
+  Check(B.ColumnRect(2).Right <= B.ClientWidth, 'rolar ate a ultima coluna');
+  Check(B.ColumnRect(0).Left < 0, 'primeira coluna saiu pela esquerda');
   B.Repaint;
   Application.ProcessMessages;
 end;

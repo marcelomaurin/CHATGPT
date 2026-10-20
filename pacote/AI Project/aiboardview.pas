@@ -15,7 +15,7 @@ unit aiboardview;
 interface
 
 uses
-  Classes, SysUtils, Math, Types, Controls, Graphics, Forms, LCLType, LResources;
+  Classes, SysUtils, Math, Types, Controls, Graphics, Forms, StdCtrls, LCLType, LResources;
 
 type
   TAIBoardColumn = record
@@ -44,6 +44,8 @@ type
     FUpdating: Integer;
     FSelected: Integer;
     FScrollY: Integer;
+    FScrollX: Integer;
+    FHBar: TScrollBar;
     FDragCard: Integer;
     FDragStart, FDragPos: TPoint;
     FDragging: Boolean;
@@ -55,8 +57,13 @@ type
     FOnCardDblClick: TAIBoardCardEvent;
     FOnCardMove: TAIBoardMoveEvent;
     procedure SetSelected(AValue: Integer);
+    procedure UpdateScrollBar;
+    procedure ScrollChanged(Sender: TObject);
+    function ColumnWidth: Integer;
+    function ContentWidth: Integer;
   protected
     procedure Paint; override;
+    procedure Resize; override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
@@ -70,6 +77,7 @@ type
     procedure ClearColumns;
     function AddColumn(const ACaption: string; AColor: TColor = clNone): Integer;
     function AddCard(const ACard: TAIBoardCard): Integer;
+    procedure ScrollToColumn(ACol: Integer);
     function CardCount: Integer;
     function Card(I: Integer): TAIBoardCard;
     function ColumnCount: Integer;
@@ -110,7 +118,7 @@ implementation
 
 const
   MARGIN = 10;
-  MIN_COL_W = 170;
+  MIN_COL_W = 176;
 
 procedure Register;
 begin
@@ -147,6 +155,62 @@ begin
   FColorMuted := RGBToColor(100, 116, 139);
   FColorSelection := RGBToColor(37, 99, 235);
   FColorDanger := RGBToColor(220, 38, 38);
+  FHBar := TScrollBar.Create(Self);
+  FHBar.Kind := sbHorizontal;
+  FHBar.Parent := Self;
+  FHBar.Align := alBottom;
+  FHBar.TabStop := False;
+  FHBar.Visible := False;
+  FHBar.OnChange := @ScrollChanged;
+end;
+
+function TAIBoardView.ColumnWidth: Integer;
+begin
+  if Length(FColumns) = 0 then Exit(MIN_COL_W);
+  Result := Max(MIN_COL_W, (ClientWidth - MARGIN) div Length(FColumns) - MARGIN);
+end;
+
+function TAIBoardView.ContentWidth: Integer;
+begin
+  Result := MARGIN + Length(FColumns) * (ColumnWidth + MARGIN);
+end;
+
+procedure TAIBoardView.UpdateScrollBar;
+begin
+  if FHBar = nil then Exit;
+  FHBar.Visible := ContentWidth > ClientWidth;
+  if FHBar.Visible then
+  begin
+    FHBar.Max := ContentWidth;
+    FHBar.PageSize := Max(1, ClientWidth);
+    FScrollX := EnsureRange(FScrollX, 0, Max(0, ContentWidth - ClientWidth));
+    FHBar.Position := FScrollX;
+  end
+  else
+    FScrollX := 0;
+end;
+
+procedure TAIBoardView.ScrollChanged(Sender: TObject);
+begin
+  FScrollX := FHBar.Position;
+  Invalidate;
+end;
+
+procedure TAIBoardView.Resize;
+begin
+  inherited Resize;
+  UpdateScrollBar;
+end;
+
+procedure TAIBoardView.ScrollToColumn(ACol: Integer);
+var R: TRect;
+begin
+  if (ACol < 0) or (ACol > High(FColumns)) then Exit;
+  R := ColumnRect(ACol);
+  if R.Right > ClientWidth then FScrollX := FScrollX + R.Right - ClientWidth + MARGIN
+  else if R.Left < 0 then FScrollX := FScrollX + R.Left - MARGIN;
+  UpdateScrollBar;
+  Invalidate;
 end;
 
 procedure TAIBoardView.BeginUpdate;
@@ -160,6 +224,7 @@ begin
   if FUpdating = 0 then
   begin
     if FSelected > High(FCards) then FSelected := -1;
+    UpdateScrollBar;
     Invalidate;
   end;
 end;
@@ -218,11 +283,12 @@ function TAIBoardView.ColumnRect(ACol: Integer): TRect;
 var W: Integer;
 begin
   if Length(FColumns) = 0 then Exit(Rect(0, 0, 0, 0));
-  W := Max(MIN_COL_W, (ClientWidth - MARGIN) div Length(FColumns) - MARGIN);
-  Result.Left := MARGIN + ACol * (W + MARGIN);
+  W := ColumnWidth;
+  Result.Left := MARGIN + ACol * (W + MARGIN) - FScrollX;
   Result.Right := Result.Left + W;
   Result.Top := MARGIN;
   Result.Bottom := ClientHeight - MARGIN;
+  if (FHBar <> nil) and FHBar.Visible then Dec(Result.Bottom, FHBar.Height);
 end;
 
 function TAIBoardView.ColumnAt(X: Integer): Integer;
@@ -301,7 +367,7 @@ end;
 
 procedure TAIBoardView.Paint;
 var
-  C, I, TY: Integer;
+  C, I, TY, BW: Integer;
   R, CR: TRect;
   S: string;
 begin
@@ -349,21 +415,28 @@ begin
     Canvas.Brush.Style := bsClear;
     Canvas.ClipRect := Rect(R.Left + 8, Max(R.Top, CR.Top + FHeaderHeight - 4), R.Right - 4, Min(R.Bottom, CR.Bottom));
     TY := R.Top + 5;
+    { etiqueta no canto de cima; o titulo para antes dela }
+    BW := 0;
+    if FCards[I].Badge <> '' then
+    begin
+      S := FCards[I].Badge;
+      Canvas.Font.Style := [];
+      BW := Canvas.TextWidth(S) + 10;
+      if FCards[I].BadgeColor <> clNone then Canvas.Font.Color := FCards[I].BadgeColor
+      else Canvas.Font.Color := FColorMuted;
+      Canvas.TextOut(R.Right - 8 - Canvas.TextWidth(S), TY, S);
+    end;
+    Canvas.ClipRect := Rect(R.Left + 8, Max(R.Top, CR.Top + FHeaderHeight - 4), R.Right - 4 - BW, Min(R.Bottom, CR.Bottom));
     Canvas.Font.Style := [fsBold];
     Canvas.Font.Color := FColorText;
     Canvas.TextOut(R.Left + 10, TY, FCards[I].Title);
+    Canvas.ClipRect := Rect(R.Left + 8, Max(R.Top, CR.Top + FHeaderHeight - 4), R.Right - 4, Min(R.Bottom, CR.Bottom));
     Canvas.Font.Style := [];
     Canvas.Font.Color := FColorMuted;
     Inc(TY, Canvas.TextHeight('Ag') + 1);
     Canvas.TextOut(R.Left + 10, TY, FCards[I].Subtitle);
     Inc(TY, Canvas.TextHeight('Ag') + 1);
     Canvas.TextOut(R.Left + 10, TY, FCards[I].Footer);
-    if FCards[I].Badge <> '' then
-    begin
-      S := FCards[I].Badge;
-      if FCards[I].BadgeColor <> clNone then Canvas.Font.Color := FCards[I].BadgeColor;
-      Canvas.TextOut(R.Right - 8 - Canvas.TextWidth(S), TY, S);
-    end;
     Canvas.Brush.Style := bsSolid;
     Canvas.Clipping := False;
   end;
@@ -427,6 +500,7 @@ begin
     C := ColumnAt(X);
     FDragging := False;
     if C >= 0 then TryMoveCard(FDragCard, C, Reason);
+    if C >= 0 then ScrollToColumn(C);
   end;
   FDragging := False;
   FDragCard := -1;
@@ -447,7 +521,13 @@ end;
 function TAIBoardView.DoMouseWheel(Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint): Boolean;
 begin
   Result := True;
-  FScrollY := Max(0, FScrollY - Sign(WheelDelta) * 40);
+  if ssShift in Shift then
+  begin
+    FScrollX := EnsureRange(FScrollX - Sign(WheelDelta) * 60, 0, Max(0, ContentWidth - ClientWidth));
+    UpdateScrollBar;
+  end
+  else
+    FScrollY := Max(0, FScrollY - Sign(WheelDelta) * 40);
   Invalidate;
 end;
 

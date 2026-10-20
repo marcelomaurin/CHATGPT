@@ -401,7 +401,8 @@ begin
     MaxX := Max(MaxX, FRects[I].Right + MARGIN);
     MaxY := Max(MaxY, FRects[I].Bottom + MARGIN);
   end;
-  FZoom := EnsureRange(Min(ClientWidth / MaxX, ClientHeight / MaxY), 0.3, 1.0);
+  { abaixo de 0,7 o texto das caixas fica ilegivel: o resto se ve rolando }
+  FZoom := EnsureRange(Min(ClientWidth / MaxX, ClientHeight / MaxY), 0.7, 1.0);
   FOffset := Point(0, 0);
   Invalidate;
 end;
