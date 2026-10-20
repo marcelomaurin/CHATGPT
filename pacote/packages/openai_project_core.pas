@@ -8,7 +8,7 @@ unit openai_project_core;
 interface
 
 uses
-  aiproject_core;
+  aiproject_core, aiprojectduration, aiundohistory, aijsonutils;
 
 implementation
 
