@@ -30,9 +30,15 @@ recebe eventos. Cores e fontes são propriedades, para cada aplicação aplicar 
 - `TAIBoardView` — quadro Kanban:
   - arrastar cartões entre colunas;
   - o dono aceita ou recusa com motivo (`OnCardMove`).
+- `TAIResourceView` — planejador de equipe (Team Planner):
+  - uma linha por recurso, com grupos (pessoas, máquinas) e marca de cor;
+  - barras das atribuições no tempo, sobrepostas em faixas empilhadas;
+  - superalocação hachurada (`AddOverload`) e nome do recurso em vermelho;
+  - arrastar a barra para outra linha reatribui, com aceite ou recusa do dono (`OnReassign`).
 
 Teste: `tests/test_aiprojectviews.lpr` (com Xvfb no Linux). O cálculo do cronograma fica no
-pacote `openai_project_core` (`aicpmscheduler`, `aitaskgraph`, `aiworkcalendar`).
+pacote `openai_project_core` (`aicpmscheduler`, `aitaskgraph`, `aiworkcalendar`,
+`airesourceload`).
 
 ## Integração com Agent
 

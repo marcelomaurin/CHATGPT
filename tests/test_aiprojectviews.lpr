@@ -1,7 +1,7 @@
 program test_aiprojectviews;
 
 { Teste das vistas genericas da aba AI Project (LCL): TAIGanttView,
-  TAINetworkView e TAIBoardView. Cria uma janela, preenche as vistas, pinta e
+  TAINetworkView, TAIBoardView e TAIResourceView. Cria uma janela, preenche as vistas, pinta e
   confere geometria, selecao, recolher, edicao na celula, layout em camadas,
   realce de predecessoras/sucessoras, criacao de vinculo por arraste e
   movimento de cartao com recusa.
@@ -12,7 +12,7 @@ program test_aiprojectviews;
 uses
   {$IFDEF UNIX}cthreads,{$ENDIF}
   Interfaces, Classes, SysUtils, Types, Forms, Controls, Graphics,
-  aiganttview, ainetworkview, aiboardview;
+  aiganttview, ainetworkview, aiboardview, airesourceview;
 
 type
   TNetAccess = class(TAINetworkView);
@@ -27,6 +27,7 @@ type
     procedure NetSelect(Sender: TObject; ANode: Integer);
     procedure NetLink(Sender: TObject; AFromNode, AToNode: Integer; AAlt: Boolean);
     procedure BoardMove(Sender: TObject; ACard, ANewColumn: Integer; var Accept: Boolean; var Reason: string);
+    procedure Reassign(Sender: TObject; ABar, ANewRow: Integer; var Accept: Boolean; var Reason: string);
   end;
 
 var
@@ -77,6 +78,16 @@ begin
   begin
     Accept := False;
     Reason := 'nao e possivel concluir: predecessora aberta';
+  end;
+end;
+
+procedure TProbe.Reassign(Sender: TObject; ABar, ANewRow: Integer; var Accept: Boolean; var Reason: string);
+begin
+  { a linha 2 e uma pessoa: nao imprime }
+  if ANewRow = 2 then
+  begin
+    Accept := False;
+    Reason := 'Ana nao e uma impressora 3D';
   end;
 end;
 
@@ -275,6 +286,84 @@ begin
   Application.ProcessMessages;
 end;
 
+procedure TestResource(F: TForm; P: TProbe);
+var
+  V: TAIResourceView;
+  Rw: TAIResourceRow;
+  Br: TAIResourceBar;
+  R0, R1, B1: TRect;
+  Reason: string;
+  A, B, C, X: Integer;
+begin
+  V := TAIResourceView.Create(F);
+  V.Parent := F;
+  V.SetBounds(0, 0, 900, 320);
+  V.OnReassign := @P.Reassign;
+  V.OnIsWorkingDay := @P.Working;
+  V.BeginUpdate;
+  Rw := AIResourceRow('R-001', 'Ender-3', 'Maquinas'); Rw.Subtitle := '100%  24h'; Rw.Color := clBlue;
+  V.AddRow(Rw);
+  V.AddRow(AIResourceRow('R-002', 'Laser', 'Maquinas'));
+  V.AddRow(AIResourceRow('R-003', 'Ana', 'Pessoas'));
+  A := V.AddBar(AIResourceBar('T-0010', 0, D(10, 26, 8), D(10, 26, 17), 'Carcaca'));
+  B := V.AddBar(AIResourceBar('T-0011', 0, D(10, 26, 13), D(10, 27, 12), 'Tampa'));
+  Br := AIResourceBar('T-0012', 1, D(10, 27, 8), D(10, 27, 17)); Br.Critical := True;
+  C := V.AddBar(Br);
+  V.AddBar(AIResourceBar('T-0013', 2, D(10, 26, 8), D(10, 28, 17)));
+  V.AddOverload(0, D(10, 26, 13), D(10, 26, 17));
+  V.EndUpdate;
+  V.Origin := EncodeDate(2026, 10, 25);
+  V.PixelsPerDay := 60;
+  Application.ProcessMessages;
+  V.Repaint;
+  Check(V.RowCount = 3, 'tres recursos');
+  Check(V.BarsInRow(0) = 2, 'duas barras na Ender-3');
+  Check((V.LanesOf(0) = 2) and (V.LaneOf(A) = 0) and (V.LaneOf(B) = 1), 'sobrepostas em faixas');
+  Check(V.LanesOf(1) = 1, 'uma faixa no laser');
+  R0 := V.RowRect(0); R1 := V.RowRect(1);
+  Check(R1.Top >= R0.Bottom, 'linha 1 abaixo da 0');
+  Check(R0.Bottom - R0.Top > V.RowRect(1).Bottom - V.RowRect(1).Top, 'linha com conflito mais alta');
+  Check(V.RowRect(2).Top > R1.Bottom, 'titulo do grupo Pessoas entre as linhas');
+  Check(V.Row(0).Overallocated and not V.Row(1).Overallocated, 'recurso superalocado marcado');
+  Check(V.OverloadBandCount = 1, 'faixa de superalocacao');
+  B1 := V.BarRect(B);
+  Check(B1.Top > V.BarRect(A).Top, 'barra da segunda faixa abaixo');
+  Check(Abs(V.DateToX(D(10, 26, 13)) - B1.Left) <= 1, 'inicio da barra na data');
+  Check(Abs(V.XToDate(V.DateToX(D(10, 27, 12))) - D(10, 27, 12)) < 1 / 48, 'XToDate(DateToX)');
+  Check(V.BarAt(B1.Left + 3, B1.Top + 3) = B, 'barra sob o mouse');
+  Check(V.BarAt(5, B1.Top + 3) = -1, 'coluna de nomes nao e barra');
+  Check(V.RowAtY(R1.Top + 2) = 1, 'linha sob o mouse');
+  Check(V.IndexOfBar('t-0012') = C, 'busca de barra por ID');
+  Check(V.IndexOfRow('R-003') = 2, 'busca de linha por ID');
+  V.SelectId('T-0012');
+  Check(V.Selected = C, 'selecionar por ID');
+  { reatribuir: aceito para outra maquina, recusado para a pessoa }
+  Check(V.TryReassign(B, 1, Reason) and (V.Bar(B).Row = 1), 'reatribuir aceito');
+  Check(V.LanesOf(0) = 1, 'conflito some da Ender-3');
+  Check(V.LanesOf(1) = 2, 'laser passa a ter duas faixas');
+  Check(not V.TryReassign(B, 2, Reason) and (V.Bar(B).Row = 1) and (Pos('Ana', Reason) > 0),
+    'reatribuir recusado volta e explica: ' + Reason);
+  Check(Pos('impressora', V.Message) > 0, 'motivo mostrado na vista');
+  { ajustar e ampliar }
+  V.FitToBars;
+  Check(V.DateToX(D(10, 28, 17)) <= V.ClientWidth, 'ajustar: a ultima barra cabe');
+  X := V.DateToX(D(10, 27, 0));
+  V.ZoomBy(2);
+  Check(V.PixelsPerDay > 10, 'ampliar');
+  V.Repaint;
+  Application.ProcessMessages;
+  { muitas linhas: rolagem vertical }
+  V.BeginUpdate;
+  V.Clear;
+  for A := 0 to 39 do V.AddRow(AIResourceRow('R' + IntToStr(A), 'Recurso ' + IntToStr(A)));
+  V.EndUpdate;
+  Check(V.RowRect(39).Top > V.ClientHeight, 'ultima linha fora da tela antes de rolar');
+  V.Repaint;
+  Application.ProcessMessages;
+  if X = 0 then ;
+  V.Free;
+end;
+
 var
   F: TForm;
   P: TProbe;
@@ -288,12 +377,13 @@ begin
     TestGantt(F, P);
     TestNetwork(F, P);
     TestBoard(F, P);
+    TestResource(F, P);
   finally
     F.Free;
     P.Free;
   end;
   if Failed = 0 then
-    Writeln(Format('PASS: %d checks (Gantt, diagrama de rede, quadro Kanban)', [Passed]))
+    Writeln(Format('PASS: %d checks (Gantt, diagrama de rede, quadro Kanban, planejador de equipe)', [Passed]))
   else
   begin
     Writeln(Format('FAIL: %d de %d checks', [Failed, Passed + Failed]));
