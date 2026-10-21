@@ -24,6 +24,8 @@ unit aicpmscheduler;
      limiar.
   5. ALAP: a tarefa vai para o fim da margem livre (nao atrasa sucessoras).
   6. Resumos consolidam as filhas (menor inicio, maior termino, menor margem).
+  7. LevelStart (nivelamento de recursos, ver airesourceload) e um "nao iniciar
+     antes de" extra, que so atrasa a tarefa.
 
   Latencia: em minutos uteis do calendario do projeto, decorrida (24 h) ou em
   % da duracao da predecessora. Cada aviso diz a tarefa e o problema. }
@@ -52,6 +54,7 @@ type
     ManualStart, ManualFinish: TDateTime;   // termino 0 = inicio + duracao
     Parent: Integer;            // -1 = sem resumo pai
     IsSummary: Boolean;
+    LevelStart: TDateTime;      // 0 = sem atraso de nivelamento (inicio nao antes de)
   end;
 
   TAICPMResult = record
@@ -100,6 +103,8 @@ type
     procedure Clear;
     function AddCalendar(C: TAIWorkCalendar): Integer;   // nao assume a posse
     function AddTask(const T: TAICPMTask): Integer;
+    procedure SetLevelStart(I: Integer; T: TDateTime);
+    procedure ClearLeveling;
     procedure Run;
     function TaskCount: Integer;
     function WarningCount: Integer;
@@ -151,6 +156,7 @@ begin
   Result.ManualFinish := 0;
   Result.Parent := -1;
   Result.IsSummary := False;
+  Result.LevelStart := 0;
 end;
 
 { ---------------- TAICPMScheduler ---------------- }
@@ -188,6 +194,17 @@ begin
   Result := Length(FTasks);
   SetLength(FTasks, Result + 1);
   FTasks[Result] := T;
+end;
+
+procedure TAICPMScheduler.SetLevelStart(I: Integer; T: TDateTime);
+begin
+  FTasks[I].LevelStart := T;
+end;
+
+procedure TAICPMScheduler.ClearLeveling;
+var I: Integer;
+begin
+  for I := 0 to High(FTasks) do FTasks[I].LevelStart := 0;
 end;
 
 function TAICPMScheduler.TaskCount: Integer;
@@ -318,6 +335,8 @@ begin
           ES := C;
         end;
     end;
+    { atraso de nivelamento: so empurra (MSO/MFO ficam onde estao) }
+    if (T.LevelStart > ES) and not (T.Constraint in [actMSO, actMFO]) then ES := T.LevelStart;
     { encaixa no expediente; marco e decorrida ficam no instante exato }
     if (T.Duration > 0) and not T.Elapsed then ES := Cal(I).SnapForward(ES);
     FResults[I].EarlyStart := ES;

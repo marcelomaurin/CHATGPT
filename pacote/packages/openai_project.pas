@@ -14,7 +14,7 @@ uses
   aiproject_reports, aiproject_revisions, aiproject_taskgrid, aiproject_gantt, 
   aiproject_timeline, aiproject_riskmatrix, aiproject_statuspanel, 
   aiproject_agentmanager, aiproject_taskactionpanel, aiproject_reportviewer, 
-  aiganttview, ainetworkview, aiboardview, LazarusPackageIntf;
+  aiganttview, ainetworkview, aiboardview, airesourceview, LazarusPackageIntf;
 
 implementation
 
@@ -44,6 +44,7 @@ begin
   RegisterUnit('aiganttview', @aiganttview.Register);
   RegisterUnit('ainetworkview', @ainetworkview.Register);
   RegisterUnit('aiboardview', @aiboardview.Register);
+  RegisterUnit('airesourceview', @airesourceview.Register);
 end;
 
 initialization

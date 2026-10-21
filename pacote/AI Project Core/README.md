@@ -13,6 +13,7 @@ aplicações externas (por exemplo, o MultiProject da MultiSuite).
 | `aitaskgraph` | `TAITaskGraph`: grafo de tarefas com vínculos FS/SS/FF/SF (TI/II/TT/IT) e latência em duração ou %, recusa de ciclo com o caminho, ordem topológica determinística, cadeias (componentes conexos), relação em cadeia × em paralelo e a sintaxe da coluna Predecessoras (`T-0003TI+2h;T-0004II-10%`) |
 | `aiworkcalendar` | `TAIWorkCalendar`: expediente por dia da semana, exceções (feriado, folga, meio expediente), feriados nacionais do Brasil fixos e móveis (Páscoa por Meeus), somar/subtrair minutos úteis, minutos entre datas, encaixe no expediente e JSON. Convenção do Project: termina às 17:00 e a sucessora começa às 08:00 do próximo dia útil |
 | `aicpmscheduler` | `TAICPMScheduler`: cronograma pelo caminho crítico (CPM) sobre `TAITaskGraph` e `TAIWorkCalendar`, com os quatro tipos de vínculo e latência (útil, decorrida ou %), restrições ASAP/ALAP/SNET/SNLT/FNET/FNLT/MSO/MFO, data limite, tarefa manual, duração decorrida, margens total e livre, crítico, consolidação de resumos e avisos com a tarefa e o problema |
+| `airesourceload` | `TAIResourceLoad`: recursos (trabalho, material, custo) com unidades máximas e calendário, atribuições com unidades, intervalos de superalocação no tempo útil do recurso (unidos quando o conjunto não muda), pico, trabalho e mensagem com o recurso, o período e as tarefas. `TAIResourceLeveler`: nivelamento serial sobre o `TAICPMScheduler` (`LevelStart`), por prioridade, margem, início e índice, respeitando tarefas manuais, MSO/MFO e "não nivelar", com opção de nivelar só dentro da margem e limpeza do nivelamento |
 | `aiundohistory` | `TAIUndoHistory`: desfazer/refazer por fotos do documento, com alterações aninhadas virando um único passo, limite de passos e suspensão durante a restauração |
 | `aijsonutils` | Leitura tipada de campos com erro claro (`EAIJSONFormat`), `AIJSONMergeKnown` (gravar preservando campos desconhecidos e a ordem das chaves), datas ISO 8601 e `AISaveTextFileAtomic` (grava `.tmp`, valida e substitui) |
 
@@ -28,6 +29,8 @@ fpc -Fu"../pacote/AI Project Core" test_aiworkcalendar.lpr
 ./test_aiworkcalendar
 fpc -Fu"../pacote/AI Project Core" test_aicpmscheduler.lpr
 ./test_aicpmscheduler
+fpc -Fu"../pacote/AI Project Core" test_airesourceload.lpr
+./test_airesourceload
 ```
 
 ## Boas práticas

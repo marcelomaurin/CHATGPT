@@ -518,6 +518,9 @@ icons_config = {
     'AI Project/aiboardview_icon.lrs': [
         ('taiboardview', C_PROJECT, 'KB'),
     ],
+    'AI Project/airesourceview_icon.lrs': [
+        ('tairesourceview', C_PROJECT, 'TP'),
+    ],
     'AI Project/aiproject_icon.lrs': [
         ('taiproject', C_PROJECT, 'PR'),
     ],
@@ -723,6 +726,7 @@ patches = [
     ('AI Project/aiganttview.pas', 'aiganttview_icon.lrs'),
     ('AI Project/ainetworkview.pas', 'ainetworkview_icon.lrs'),
     ('AI Project/aiboardview.pas', 'aiboardview_icon.lrs'),
+    ('AI Project/airesourceview.pas', 'airesourceview_icon.lrs'),
     ('AI A2A/aia2a.pas', 'aia2a_icon.lrs'),
     ('AI A2A/aia2aserver.pas', 'aia2aserver_icon.lrs'),
     ('AI Agent/aiagent.pas', 'aiagent_icon.lrs'),

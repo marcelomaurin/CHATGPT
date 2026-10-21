@@ -131,6 +131,11 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiboardview"/>
       </Item>
+      <Item>
+        <Filename Value="..\AI Project\airesourceview.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="airesourceview"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>
