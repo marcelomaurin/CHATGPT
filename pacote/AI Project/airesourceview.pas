@@ -97,7 +97,8 @@ type
     procedure PaintRows;
     procedure PaintBars;
     procedure PaintHeader;
-    procedure PaintBar(const R: TRect; const B: TAIResourceBar; ASelected: Boolean);
+    procedure PaintBar(const R: TRect; const B: TAIResourceBar; ASelected: Boolean; ATextLimit: Integer);
+    function NextBarLeft(ABar: Integer): Integer;
   protected
     procedure Paint; override;
     procedure Resize; override;
@@ -277,6 +278,7 @@ begin
   FBars := nil;
   FBands := nil;
   FSelected := -1;
+  FMessage := '';
   if FUpdating = 0 then
   begin
     Layout;
@@ -787,8 +789,24 @@ begin
   Canvas.Line(FLabelWidth - 1, FHeaderHeight, FLabelWidth - 1, H);
 end;
 
-procedure TAIResourceView.PaintBar(const R: TRect; const B: TAIResourceBar; ASelected: Boolean);
-var C: TColor; TW: Integer;
+{ inicio da proxima barra na mesma faixa: o texto de fora da barra para antes dela }
+function TAIResourceView.NextBarLeft(ABar: Integer): Integer;
+var J: Integer; Q: TRect;
+begin
+  { pelo tempo, e nao pelo desenho: barra curta tem largura minima e invade a vizinha }
+  Result := AreaWidth;
+  for J := 0 to High(FBars) do
+  begin
+    if (J = ABar) or (FBars[J].Row <> FBars[ABar].Row) or (LaneOf(J) <> LaneOf(ABar)) then Continue;
+    if FBars[J].Start < FBars[ABar].Finish - 0.5 / 1440 then Continue;
+    Q := BarRect(J);
+    if Q.Left < Result then Result := Q.Left;
+  end;
+end;
+
+procedure TAIResourceView.PaintBar(const R: TRect; const B: TAIResourceBar; ASelected: Boolean;
+  ATextLimit: Integer);
+var C: TColor; TW, TY: Integer; Clip: TRect;
 begin
   if B.Critical then C := FColorCritical
   else if B.Color <> clNone then C := B.Color
@@ -813,18 +831,23 @@ begin
   Canvas.RoundRect(R.Left, R.Top, R.Right, R.Bottom, 6, 6);
   Canvas.Pen.Style := psSolid;
   Canvas.Pen.Width := 1;
-  { texto dentro da barra se couber; senao, a direita }
+  { texto dentro da barra se couber; senao, a direita ate a proxima barra
+    da mesma faixa (cortado, ou omitido se nao houver espaco) }
   Canvas.Brush.Style := bsClear;
   TW := Canvas.TextWidth(B.Caption);
+  TY := R.Top + (R.Bottom - R.Top - Canvas.TextHeight('Ag')) div 2;
+  Clip := Canvas.ClipRect;
   if TW + 8 <= R.Right - R.Left then
   begin
     Canvas.Font.Color := clWhite;
-    Canvas.TextOut(R.Left + 4, R.Top + (R.Bottom - R.Top - Canvas.TextHeight('Ag')) div 2, B.Caption);
+    Canvas.TextOut(R.Left + 4, TY, B.Caption);
   end
-  else
+  else if ATextLimit - (R.Right + 4) >= 24 then
   begin
+    Canvas.ClipRect := Rect(Max(Clip.Left, R.Right + 2), Clip.Top, Min(Clip.Right, ATextLimit - 4), Clip.Bottom);
     Canvas.Font.Color := FColorText;
-    Canvas.TextOut(R.Right + 4, R.Top + (R.Bottom - R.Top - Canvas.TextHeight('Ag')) div 2, B.Caption);
+    Canvas.TextOut(R.Right + 4, TY, B.Caption);
+    Canvas.ClipRect := Clip;
   end;
   Canvas.Brush.Style := bsSolid;
 end;
@@ -842,14 +865,14 @@ begin
       R := BarRect(I);
       if (R.Bottom < FHeaderHeight) or (R.Top > H) or (R.Right < FLabelWidth) or (R.Left > AreaWidth) then
         Continue;
-      PaintBar(R, FBars[I], I = FSelected);
+      PaintBar(R, FBars[I], I = FSelected, NextBarLeft(I));
     end;
     if FDragging and (FDragBar >= 0) then
     begin
       R := BarRect(FDragBar);
       OffsetRect(R, 0, FDragPos.Y - FDragStart.Y);
       Canvas.Pen.Style := psDash;
-      PaintBar(R, FBars[FDragBar], True);
+      PaintBar(R, FBars[FDragBar], True, AreaWidth);
       Canvas.Pen.Style := psSolid;
     end;
   finally
