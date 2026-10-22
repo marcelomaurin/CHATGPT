@@ -1,92 +1,102 @@
-# Demo_AI_Project
+﻿# 📊 Demo_AI_Project — Manual do Usuário e Demonstração
 
-## ⚠️ Este é um DEMO de componentes, não uma aplicação final
-
-Este sample é um **demo visual de componentes AI Project** para Lazarus.  
-O objetivo é demonstrar componentes reutilizáveis, **não** criar uma aplicação de gestão de projetos pronta para produção.
+O projeto de exemplo **`Demo_AI_Project`** demonstra o uso integrado das visualizações de gerenciamento de projetos ([`TAIGanttView`](../../../AI%20Project/aiganttview.pas), [`TAINetworkView`](../../../AI%20Project/ainetworkview.pas), [`TAIBoardView`](../../../AI%20Project/aiboardview.pas) e [`TAIResourceView`](../../../AI%20Project/airesourceview.pas)) em conjunto com o motor de caminho crítico ([`TAICPMScheduler`](../../../AI%20Project%20Core/aicpmscheduler.pas)) do pacote [**`openai_project.lpk`**](../../../packages/openai_project.lpk).
 
 ---
 
-## Componentes demonstrados
+## 📋 O que faz o Sample
 
-### Não-visuais (AI Project palette)
-| Componente | Descrição |
-|------------|-----------|
-| `TAIProject` | Componente principal — gerencia dados, AI e persistência |
-| `TAIProjectLLMConfig` | Configuração de provedor LLM |
-| `TAIProjectStorage` | Persistência em `.aiproj.json` (SaveToken=False por padrão) |
-| `TAIAgileDocuments` | Visão de negócio, requisitos, épicos, histórias |
-| `TAIProjectTasks` | Gerenciamento de tarefas com AddTask/CancelTask |
-| `TAIProjectDependencies` | Dependências seriais e paralelas |
-| `TAIProjectAgents` | 9 perfis de agentes (UI, DBA, DEV, Infra, etc.) |
-| `TAITaskActions` | Ações de ciclo de vida de tarefas |
-| `TAIProjectReports` | Geração de relatórios em Markdown/JSON |
-| `TAIProjectRevisions` | Histórico de revisões e eventos de timeline |
-
-### Visuais (AI Project palette)
-| Componente | Descrição |
-|------------|-----------|
-| `TAIProjectGantt` | Gráfico de Gantt desenhado com Canvas |
-| `TAIProjectTimeline` | Timeline de eventos do projeto |
-| `TAIRiskMatrix` | Matriz de riscos 5×5 |
-| `TAIProjectTaskGrid` | Grade de tarefas com coloração por status |
-| `TAIProjectStatusPanel` | Painel de contagem de tasks por status |
-| `TAIAgentManagerFrame` | Frame de gestão de agentes (lista + edição) |
-| `TAITaskActionPanel` | Painel de ações em tasks |
-| `TAIProjectReportViewer` | Viewer de relatórios com exportação |
+1. **Carregamento de Projeto Completo:** Cria ou carrega da memória uma estrutura de tarefas com dependências, durações, datas e alocação de recursos.
+2. **Cálculo de Caminho Crítico:** Executa o algoritmo CPM em tempo real, calculando datas limites e destacando em vermelho as tarefas sem folga.
+3. **Múltiplas Vistas Sincronizadas:**
+   - **Gantt:** Mostra as barras no tempo com grade de calendário e setas de dependência.
+   - **Rede PERT/CPM:** Mostra o fluxo de caixas de atividades conectadas.
+   - **Quadro Kanban:** Agrupa as tarefas em colunas conforme o status atual.
+   - **Recursos:** Exibe a alocação de cada colaborador ao longo do cronograma.
 
 ---
 
-## Abas do demo
+## 🚀 Como Utilizar (Passo a Passo)
 
-```
-Configuration         — Provedor LLM, token, modelo, endpoint
-Project Description   — Nome, objetivo, contexto, datas
-Agile Documents       — Visão, requisitos, stakeholders, riscos, épicos, histórias
-Agents                — Lista e gestão dos 9 perfis de agentes
-Tasks                 — Grid de tarefas com status colorido
-Task Actions          — Aplicar ações (Confirm/Start/Finish/Block/etc.)
-Dependencies          — Dependências seriais e paralelas
-Execution Plan        — Plano de execução e marcos
-Gantt                 — Gráfico de Gantt visual
-Timeline              — Linha do tempo de eventos
-Revision              — Histórico de revisões e correções com IA
-Reports               — Relatórios geráveis e exportáveis
-JSON                  — Visualização do JSON completo do projeto
-Log                   — Log de eventos e erros
+### 1. Configurando os Componentes no Formulário
+
+```pascal
+uses
+  aiganttview, ainetworkview, aiboardview, airesourceview, aicpmscheduler, aitaskgraph;
+
+var
+  Gantt: TAIGanttView;
+  Network: TAINetworkView;
+  Board: TAIBoardView;
+  Resources: TAIResourceView;
+  Scheduler: TAICPMScheduler;
 ```
 
----
+### 2. Vinculando Dados às Vistas
 
-## Como usar
+```pascal
+procedure TFormProject.FormCreate(Sender: TObject);
+begin
+  // Instancia a vista de Gantt
+  Gantt := TAIGanttView.Create(Self);
+  Gantt.Parent := TabSheetGantt;
+  Gantt.Align := alClient;
+  Gantt.ShowCriticalPath := True; // Realça caminho crítico com cor destacada
+  Gantt.ZoomLevel := gzDays;      // Zoom diário
 
-1. **Aba Configuration** — configure o provedor LLM (Ollama local, OpenAI, etc.)
-2. **Aba Project Description** — descreva o projeto e clique **Generate Plan with AI**
-3. O demo preencherá todas as abas com os dados retornados pela IA
-4. Navegue pelas abas para ver os componentes em ação
-5. **Salvar:** Arquivo → Save Project → `.aiproj.json`
-6. **Carregar:** Load Project → `.aiproj.json`
+  // Instancia a vista Kanban
+  Board := TAIBoardView.Create(Self);
+  Board.Parent := TabSheetBoard;
+  Board.Align := alClient;
 
----
-
-## Segurança do token
-
-> O token de API **não é salvo por padrão**.  
-> Marque "Save API Token to file" apenas se tiver certeza do risco.
-
----
-
-## Dependências
-
-- Pacote `openai_project` (`pacote/packages/openai_project.lpk`)
-- Pacote `openai_agent` (`pacote/packages/openai_agent.lpk`)
-- Lazarus LCL
-
----
-
-## Build
-
-```bash
-lazbuild "pacote/packages/openai_project.lpk"
-lazbuild "pacote/samples/AI Project/Demo_AI_Project/Demo_AI_Project.lpi"
+  // Carrega e atualiza
+  CarregarDadosDoProjeto;
+  Gantt.Invalidate;
+  Board.Invalidate;
+end;
 ```
+
+---
+
+## 🔍 Referência dos Componentes em Foco
+
+### 1. `TAIGanttView` ([`aiganttview.pas`](../../../AI%20Project/aiganttview.pas))
+
+#### Propriedades Principais
+| Propriedade | Tipo | Descrição |
+|---|---|---|
+| `ShowCriticalPath` | `Boolean` | Quando `True`, pinta com borda/cor destacada as barras das tarefas críticas calculadas pelo CPM. |
+| `ZoomLevel` | `TAIGanttZoomLevel` | Nível de detalhe do cabeçalho temporal (`gzDays`, `gzWeeks`, `gzMonths`). |
+| `RowHeight` | `Integer` | Altura em pixels de cada linha de tarefa na grade. |
+| `SelectedTaskID` | `string` | Identificador da tarefa atualmente selecionada pelo clique do usuário. |
+
+#### Métodos Principais
+| Método | Assinatura | Descrição |
+|---|---|---|
+| `ScrollToDate` | `procedure ScrollToDate(ADate: TDateTime);` | Desloca a rolagem horizontal da visão para centralizar a data informada. |
+| `Invalidate` | `procedure Invalidate; override;` | Força a repintura imediata do Canvas com todas as tarefas e setas. |
+
+---
+
+### 2. `TAIBoardView` ([`aiboardview.pas`](../../../AI%20Project/aiboardview.pas))
+
+#### Propriedades Principais
+| Propriedade | Tipo | Descrição |
+|---|---|---|
+| `ColumnWidth` | `Integer` | Largura em pixels de cada coluna de status Kanban. |
+| `CardHeight` | `Integer` | Altura padrão dos cartões de tarefas dentro das colunas. |
+
+#### Eventos
+| Evento | Assinatura | Descrição |
+|---|---|---|
+| `OnCardClick` | `procedure(Sender: TObject; const TaskID: string) of object;` | Disparado quando o usuário clica em um cartão de tarefa no quadro. |
+
+---
+
+### 3. `TAICPMScheduler` ([`aicpmscheduler.pas`](../../../AI%20Project%20Core/aicpmscheduler.pas))
+
+#### Métodos Principais
+| Método | Assinatura | Descrição |
+|---|---|---|
+| `CalculateSchedule` | `function CalculateSchedule(Graph: TAITaskGraph): Boolean;` | Executa a varredura para frente (Forward Pass) e para trás (Backward Pass), determinando datas de início/fim mais cedo/tarde e folgas. |
+| `IsCritical` | `function IsCritical(const TaskID: string): Boolean;` | Retorna `True` se a tarefa não possui folga total (Total Float <= 0). |
