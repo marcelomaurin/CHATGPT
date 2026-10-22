@@ -1,0 +1,231 @@
+﻿object frmSpeakerDemo: TfrmSpeakerDemo
+  Left = 320
+  Height = 620
+  Top = 180
+  Width = 840
+  Caption = 'Lazarus AI Suite - Demonstrador de Identificacao Vocal (Speaker Signature)'
+  ClientHeight = 620
+  ClientWidth = 840
+  Position = poScreenCenter
+  LCLVersion = '4.6.0.0'
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  object grpCompare: TGroupBox
+    Left = 16
+    Height = 160
+    Top = 16
+    Width = 808
+    Anchors = [akTop, akLeft, akRight]
+    Caption = ' 1. Comparacao Direta Entre Duas Gravacoes WAV '
+    ClientHeight = 138
+    ClientWidth = 804
+    TabOrder = 0
+    object lblWav1: TLabel
+      Left = 16
+      Height = 15
+      Top = 16
+      Width = 100
+      Caption = 'Audio WAV 1 (Ref):'
+    end
+    object edtWav1: TEdit
+      Left = 124
+      Height = 23
+      Top = 12
+      Width = 572
+      Anchors = [akTop, akLeft, akRight]
+      TabOrder = 0
+    end
+    object btnBrowseWav1: TButton
+      Left = 704
+      Height = 25
+      Top = 11
+      Width = 88
+      Anchors = [akTop, akRight]
+      Caption = 'Procurar...'
+      TabOrder = 1
+      OnClick = btnBrowseWav1Click
+    end
+    object lblWav2: TLabel
+      Left = 16
+      Height = 15
+      Top = 52
+      Width = 102
+      Caption = 'Audio WAV 2 (Cmp):'
+    end
+    object edtWav2: TEdit
+      Left = 124
+      Height = 23
+      Top = 48
+      Width = 572
+      Anchors = [akTop, akLeft, akRight]
+      TabOrder = 2
+    end
+    object btnBrowseWav2: TButton
+      Left = 704
+      Height = 25
+      Top = 47
+      Width = 88
+      Anchors = [akTop, akRight]
+      Caption = 'Procurar...'
+      TabOrder = 3
+      OnClick = btnBrowseWav2Click
+    end
+    object btnCompare: TButton
+      Left = 124
+      Height = 32
+      Top = 88
+      Width = 180
+      Caption = 'Comparar Assinaturas'
+      TabOrder = 4
+      OnClick = btnCompareClick
+    end
+    object lblCompareResult: TLabel
+      Left = 320
+      Height = 18
+      Top = 95
+      Width = 350
+      Caption = 'Status: Aguardando selecao de arquivos WAV.'
+      Font.Height = -13
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+  end
+  object grpCatalog: TGroupBox
+    Left = 16
+    Height = 220
+    Top = 184
+    Width = 808
+    Anchors = [akTop, akLeft, akRight]
+    Caption = ' 2. Catalogo Persistente em Disco (speakers.json) '
+    ClientHeight = 198
+    ClientWidth = 804
+    TabOrder = 1
+    object lblSpeakerID: TLabel
+      Left = 16
+      Height = 15
+      Top = 16
+      Width = 72
+      Caption = 'ID do Locutor:'
+    end
+    object edtSpeakerID: TEdit
+      Left = 104
+      Height = 23
+      Top = 12
+      Width = 160
+      TabOrder = 0
+      Text = 'user_01'
+    end
+    object lblSpeakerName: TLabel
+      Left = 280
+      Height = 15
+      Top = 16
+      Width = 92
+      Caption = 'Nome do Locutor:'
+    end
+    object edtSpeakerName: TEdit
+      Left = 384
+      Height = 23
+      Top = 12
+      Width = 240
+      TabOrder = 1
+      Text = 'Marcelo Maurin'
+    end
+    object btnRegister: TButton
+      Left = 636
+      Height = 25
+      Top = 11
+      Width = 156
+      Anchors = [akTop, akRight]
+      Caption = 'Cadastrar com WAV 1'
+      TabOrder = 2
+      OnClick = btnRegisterClick
+    end
+    object lblCatalogList: TLabel
+      Left = 16
+      Height = 15
+      Top = 48
+      Width = 165
+      Caption = 'Locutores Cadastrados na Base:'
+    end
+    object lstCatalog: TListBox
+      Left = 16
+      Height = 116
+      Top = 68
+      Width = 776
+      Anchors = [akTop, akLeft, akRight, akBottom]
+      ItemHeight = 0
+      TabOrder = 3
+    end
+  end
+  object grpIdentify: TGroupBox
+    Left = 16
+    Height = 190
+    Top = 412
+    Width = 808
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    Caption = ' 3. Identificacao Biometrica Vocal '
+    ClientHeight = 168
+    ClientWidth = 804
+    TabOrder = 2
+    object lblWavUnknown: TLabel
+      Left = 16
+      Height = 15
+      Top = 16
+      Width = 108
+      Caption = 'Audio Desconhecido:'
+    end
+    object edtWavUnknown: TEdit
+      Left = 132
+      Height = 23
+      Top = 12
+      Width = 564
+      Anchors = [akTop, akLeft, akRight]
+      TabOrder = 0
+    end
+    object btnBrowseUnknown: TButton
+      Left = 704
+      Height = 25
+      Top = 11
+      Width = 88
+      Anchors = [akTop, akRight]
+      Caption = 'Procurar...'
+      TabOrder = 1
+      OnClick = btnBrowseUnknownClick
+    end
+    object btnIdentify: TButton
+      Left = 132
+      Height = 32
+      Top = 48
+      Width = 220
+      Caption = 'Identificar Quem Esta Falando'
+      TabOrder = 2
+      OnClick = btnIdentifyClick
+    end
+    object lblIdentifyResult: TLabel
+      Left = 368
+      Height = 18
+      Top = 55
+      Width = 350
+      Caption = 'Resultado: Nenhum audio processado.'
+      Font.Height = -13
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object memLog: TMemo
+      Left = 16
+      Height = 68
+      Top = 90
+      Width = 776
+      Anchors = [akTop, akLeft, akRight, akBottom]
+      ReadOnly = True
+      ScrollBars = ssAutoBoth
+      TabOrder = 3
+    end
+  end
+  object OpenDialog: TOpenDialog
+    DefaultExt = '.wav'
+    Filter = 'Arquivos de Audio WAV (*.wav)|*.wav|Todos os arquivos (*.*)|*.*'
+    Left = 752
+    Top = 16
+  end
+end
