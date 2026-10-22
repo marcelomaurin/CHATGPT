@@ -9,13 +9,18 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\AI Input;..\AI Input\AIAudio;..\AI Input\AICaptureSource;..\AI Input\AIChromiumBrowser;..\AI Input\AIEmail;..\AI Input\AIInput;..\AI Input\AIMessenger;..\AI Input\AISerial;..\AI Input\AISockets;..\AI Input\AIWebServer;..\AI Input\AIUSB;..\AI Input\AIKinect;..\AI Vision"/>
+        <OtherUnitFiles Value="..\AI Input;..\AI Input\AIAudio;..\AI Input\AICaptureSource;..\AI Input\AIChromiumBrowser;..\AI Input\AIEmail;..\AI Input\AIInput;..\AI Input\AIMessenger;..\AI Input\AIJoystick;..\AI Input\AISerial;..\AI Input\AISockets;..\AI Input\AIWebServer;..\AI Input\AIUSB;..\AI Input\AIKinect;..\AI Vision"/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
     <Description Value="Lazarus AI Suite: Generic inputs, cameras, web servers, serial ports and Kinect integrations."/>
     <License Value="OPEN SOURCE GPL3"/>
     <Files>
+      <Item>
+        <Filename Value="..\AI Input\AIJoystick\aijoystick.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aijoystick"/>
+      </Item>
       <Item>
         <Filename Value="..\AI Input\AIInput\aiinput.pas"/>
         <HasRegisterProc Value="True"/>

@@ -281,3 +281,9 @@ Use esta classificação para documentação, README de abas, samples e planejam
 ---
 
 ## Legacy
+
+## AIJoystick
+
+| Componente | Status | Validacao |
+|---|---|---|
+| TAIJoystick | Beta | Windows XInput (Xbox 360) e WinMM generico, hotplug e selecao automatica; testes sem hardware. Outros sistemas retornam desconectado. |

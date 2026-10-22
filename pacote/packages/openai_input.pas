@@ -8,7 +8,7 @@ unit openai_input;
 interface
 
 uses
-  aiinput, aidocumentreader, aipdfinput, aidocxinput, aiexcelinput, aiaudio, 
+  aijoystick, aiinput, aidocumentreader, aipdfinput, aidocxinput, aiexcelinput, aiaudio,
   aicapturesource, aiwebserver, aisockets, aiserial, ailistserialdevices, 
   aiserialfingerprint, aiemail, aimessenger, aiusb, aiusb_register, 
   aikinect_types, aikinect_backend, aikinect_freenect, aikinect_sdk10, 
@@ -19,6 +19,7 @@ implementation
 
 procedure Register;
 begin
+  RegisterUnit('aijoystick', @aijoystick.Register);
   RegisterUnit('aiinput', @aiinput.Register);
   RegisterUnit('aidocumentreader', @aidocumentreader.Register);
   RegisterUnit('aipdfinput', @aipdfinput.Register);
