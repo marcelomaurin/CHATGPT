@@ -24,7 +24,7 @@ type
     property ProviderKind: TAILLMProviderKind read FProviderKind write FProviderKind;
     property Model: string read FModel write FModel;
     property Endpoint: string read FEndpoint write FEndpoint;
-    property Token: string read FToken write FToken;
+    property Token: string read FToken write FToken stored False;
     property Enabled: Boolean read FEnabled write FEnabled default True;
     property Priority: Integer read FPriority write FPriority default 100;
     property Local: Boolean read FLocal write FLocal;

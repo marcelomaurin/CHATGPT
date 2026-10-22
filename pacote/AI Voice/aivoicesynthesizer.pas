@@ -105,7 +105,7 @@ type
     property Engine: TSpeechEngine read FEngine write FEngine default seSystemDefault;
 
     // OpenAI properties
-    property OpenAIToken: string read FOpenAIToken write FOpenAIToken;
+    property OpenAIToken: string read FOpenAIToken write FOpenAIToken stored False;
     property OpenAIModel: string read FOpenAIModel write FOpenAIModel;
     property OpenAIVoice: string read FOpenAIVoice write FOpenAIVoice;
     property OpenAIInstructions: string read FOpenAIInstructions write FOpenAIInstructions;

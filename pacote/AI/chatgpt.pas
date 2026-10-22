@@ -175,7 +175,7 @@ type
     function LoadConfigFromAppData(const AAppName: string = 'ChatGPT'): Boolean;
     function SaveConfigToAppData(const AAppName: string = 'ChatGPT'): Boolean;
   published
-    property TOKEN: WideString read FToken write FToken;
+    property TOKEN: WideString read FToken write SetToken stored False;
     property Question: WideString read FQuestion;
     property Response: WideString read FResponse write FResponse;
     property Dev: WideString read GetDev write SetDev;
@@ -183,7 +183,7 @@ type
     property Provider: TAIProvider read FProvider write FProvider;
     property CustomModel: WideString read FCustomModel write FCustomModel;
     property LocalIP: WideString read FLocalIP write FLocalIP;
-    property MaxTokens: Integer read FMaxTokens write FMaxTokens;
+    property MaxTokens: Integer read FMaxTokens write FMaxTokens default 1000;
     property Temperature: Double read FTemperature write SetTemperature;
     property URL: WideString read FURL write FURL;
     property Timeout: Integer read FTimeout write FTimeout;

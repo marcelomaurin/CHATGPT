@@ -43,7 +43,7 @@ type
     function CheckStatus(const ATaskId: string; var AProgress: Integer; var ADownloadURL: string): string;
     function DownloadModel(const AURL, AOutputFileName: string): Boolean;
   published
-    property APIKey: string read GetAPIKey write SetAPIKey;
+    property APIKey: string read GetAPIKey write SetAPIKey stored False;
     property BaseURL: string read FBaseURL write FBaseURL;
     property ModelVersion: string read FModelVersion write FModelVersion;
     property GenerationMode: TTripoMode read FGenerationMode write FGenerationMode default tmTextTo3D;

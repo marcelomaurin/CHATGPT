@@ -73,7 +73,7 @@ type
     procedure SaveToFile(const AFileName: string);
     procedure LoadFromFile(const AFileName: string);
   published
-    property Models: TAIModelCollection read FModels write FModels;
+    property Models: TAIModelCollection read FModels write FModels stored False;
     property Category default ccOther;
   end;
 

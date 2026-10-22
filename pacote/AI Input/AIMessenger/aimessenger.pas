@@ -25,9 +25,9 @@ type
   published
     property Prompt: string read FPrompt write FPrompt;
     property SMSApiURL: string read FSMSApiURL write FSMSApiURL;
-    property SMSApiKey: string read FSMSApiKey write FSMSApiKey;
+    property SMSApiKey: string read FSMSApiKey write FSMSApiKey stored False;
     property WhatsAppApiURL: string read FWhatsAppApiURL write FWhatsAppApiURL;
-    property WhatsAppToken: string read FWhatsAppToken write FWhatsAppToken;
+    property WhatsAppToken: string read FWhatsAppToken write FWhatsAppToken stored False;
   end;
 
 procedure Register;

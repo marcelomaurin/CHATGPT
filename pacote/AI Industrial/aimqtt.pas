@@ -78,7 +78,7 @@ type
     property Port: Integer read FPort write FPort default 1883;
     property ClientID: string read FClientID write FClientID;
     property Username: string read FUsername write FUsername;
-    property Password: string read FPassword write FPassword;
+    property Password: string read FPassword write FPassword stored False;
     property CleanSession: Boolean read FCleanSession write FCleanSession default True;
     property KeepAlive: Integer read FKeepAlive write FKeepAlive default 60;
     property Active: Boolean read FActive write SetActive default False;

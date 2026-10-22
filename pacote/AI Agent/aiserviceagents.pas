@@ -24,7 +24,7 @@ type
     constructor Create(AOwner: TComponent); override;
     property LastHTTPStatus: Integer read FLastHTTPStatus;
   published
-    property AccessToken: string read FAccessToken write FAccessToken;
+    property AccessToken: string read FAccessToken write FAccessToken stored False;
     property AllowWrite: Boolean read FAllowWrite write FAllowWrite default False;
     property TimeoutMs: Integer read FTimeoutMs write FTimeoutMs default 30000;
   end;
@@ -86,7 +86,7 @@ type
     function ListComments(const AVideoID: string; AMaxResults: Integer = 20): Boolean;
     function CreateComment(const AVideoID, AText: string): Boolean;
   published
-    property APIKey: string read FAPIKey write FAPIKey;
+    property APIKey: string read FAPIKey write FAPIKey stored False;
     property ChannelID: string read FChannelID write FChannelID;
     property BaseURL: string read FBaseURL write FBaseURL;
   end;

@@ -29,7 +29,7 @@ type
     constructor Create(AOwner: TComponent); override;
     property LastStatusCode: Integer read FLastStatusCode;
   published
-    property AccessToken: string read FAccessToken write FAccessToken;
+    property AccessToken: string read FAccessToken write FAccessToken stored False;
     property BaseURL: string read FBaseURL write FBaseURL;
     property AllowRead: Boolean read FAllowRead write FAllowRead default True;
     property AllowWrite: Boolean read FAllowWrite write FAllowWrite default False;
@@ -60,7 +60,7 @@ type
     function GetUpdates(AOffset: Int64 = 0): Boolean;
     function SendMessage(const AText: string): Boolean;
   published
-    property BotToken: string read FBotToken write FBotToken;
+    property BotToken: string read FBotToken write FBotToken stored False;
     property ChatID: string read FChatID write FChatID;
   end;
 
@@ -84,7 +84,7 @@ type
     property HostPOP3: string read FHostPOP3 write FHostPOP3;
     property PortPOP3: Integer read FPortPOP3 write FPortPOP3 default 110;
     property Username: string read FUsername write FUsername;
-    property Password: string read FPassword write FPassword;
+    property Password: string read FPassword write FPassword stored False;
   end;
 
   TAIRSSAgent = class(TAIServiceAgent)

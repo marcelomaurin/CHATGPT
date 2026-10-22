@@ -88,7 +88,7 @@ type
     property AvrdudePath: string read FAvrdudePath write FAvrdudePath;
     property AvrdudeConfPath: string read FAvrdudeConfPath write FAvrdudeConfPath;
     property DaemonUrl: string read FDaemonUrl write FDaemonUrl;
-    property CapturedToken: string read FCapturedToken write FCapturedToken;
+    property CapturedToken: string read FCapturedToken write FCapturedToken stored False;
     property CapturedDeviceId: string read FCapturedDeviceId write FCapturedDeviceId;
     property CapturedMac: string read FCapturedMac write FCapturedMac;
     property CapturedIp: string read FCapturedIp write FCapturedIp;

@@ -49,7 +49,7 @@ type
     property Language: string read FLanguage write FLanguage;
     property PromptText: string read FPromptText write FPromptText;
     property Engine: TAIVoiceRecognitionEngine read FEngine write FEngine default vreOpenAIWhisper;
-    property OpenAIToken: string read FOpenAIToken write FOpenAIToken;
+    property OpenAIToken: string read FOpenAIToken write FOpenAIToken stored False;
     property OpenAIModel: string read FOpenAIModel write FOpenAIModel;
     property OpenAIEndpoint: string read FOpenAIEndpoint write FOpenAIEndpoint;
     property RecognizedText: string read FRecognizedText;
@@ -79,7 +79,7 @@ begin
   FLanguage := 'pt';
   FPromptText := '';
   FEngine := vreOpenAIWhisper;
-  FOpenAIToken := GetEnvironmentVariable('OPENAI_API_KEY');
+  FOpenAIToken := '';
   FOpenAIModel := 'whisper-1';
   FOpenAIEndpoint := 'https://api.openai.com/v1/audio/transcriptions';
   FRecognizedText := '';
