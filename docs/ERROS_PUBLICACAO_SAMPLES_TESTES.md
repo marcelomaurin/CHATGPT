@@ -20,9 +20,10 @@ Os links de evidência apontam para o commit analisado, para preservar a reprodu
 | ERR-ENTREGA-005 | Média | Exemplo console Marlin ignorado pela descoberta e compilação automáticas de samples | Aberto; análise dos scanners e do projeto |
 | ERR-ENTREGA-006 | Alta | Unidade runtime de ações de código importa recursos de design-time | Aberto; verificador de fronteiras reprovado |
 | ERR-ENTREGA-007 | Alta | Falta execução geral dos testes Pascal existentes na CI | Aberto; análise dos workflows e executores |
-| ERR-ENTREGA-008 | Alta | Chamada JavaScript do Chromium incompatível com o CEF declarado | Aberto no Git; original falha em Linux/Windows; ajuste local compila nas duas plataformas |
+| ERR-ENTREGA-008 | Alta | Chamada JavaScript do Chromium incompatível com o CEF declarado | Correção integrada nesta rodada; compilação remota em validação; execução CEF pendente |
 | ERR-ENTREGA-009 | Alta | Registro variante V4L2 com sintaxe inválida | Aberto; bloqueia openai_input em Linux |
 | ERR-ENTREGA-010 | Alta | Tipo TTimeVal ausente na compilação Unix do Modbus | Corrigido na main; unidade compilada em Linux x64 e Windows x64; execução funcional pendente |
+| ERR-ENTREGA-011 | Média | Demonstrador interno Chromium usa método removido e não possui recurso .res | Fonte e recurso corrigidos nesta rodada; recompilação em validação |
 
 **Critério de prioridade:** alta para bloqueio da validação, distribuição incompleta ou ausência de execução geral dos testes; média para lacunas de descoberta/classificação de exemplos.
 
@@ -260,17 +261,17 @@ O [relatório da rodada de compilação](COMPILACAO_BRANCHES_2026-10-25.md) regi
 
 ### ERR-ENTREGA-008 — Chamada JavaScript incompatível com CEF4Delphi
 
-**Estado:** aberto no código versionado. **Prioridade:** alta.
+**Estado:** corrigido no fonte nesta rodada; compilação da unidade confirmada localmente em Linux x64; validação remota Windows/Linux em andamento. **Prioridade original:** alta. **Execução de JavaScript em CEF real:** pendente.
 
-- **Fonte:** [aichromiumbrowser.pas:1578](https://github.com/marcelomaurin/CHATGPT/blob/f8e335fba391c77556f7e1cbc6b1a8629d87b9a9/pacote/AI%20Input/AIChromiumBrowser/aichromiumbrowser.pas#L1578).
-- **Ambiente:** FPC 3.2.2, Linux x86_64; CEF4Delphi `84d5f7670056aed6753bf4dc855a5cb3e468fd60`, conforme manifesto.
-- **Erro:** `Incompatible type for arg no. 3: Got "ShortInt", expected "ICefFrame"`, na linha 1582.
-- **Causa observada:** a chamada `ExecuteJavaScript(AScript, DefaultUrl, 0)` não corresponde à API do CEF declarado.
-- **Impacto:** a unidade do navegador não compila nesse conjunto de fontes/dependências.
-- **Verificação adicional:** a unidade compilou na cópia local usando a sobrecarga de cinco argumentos `(AScript, DefaultUrl, '', '', 0)`, que seleciona o frame principal conforme implementação do CEF. Essa adaptação não foi aplicada às branches remotas nem à `main`.
-- **Critério de encerramento:** versionar a adaptação compatível, recompilar a unidade/pacote e validar execução de JavaScript no frame esperado.
+- **Erro original:** `Incompatible type for arg no. 3: Got "ShortInt", expected "ICefFrame"`, na linha 1582 de `aichromiumbrowser.pas`.
+- **Dependência:** CEF4Delphi `84d5f7670056aed6753bf4dc855a5cb3e468fd60`, conforme o manifesto.
+- **Causa:** o terceiro argumento numérico da chamada `ExecuteJavaScript(AScript, DefaultUrl, 0)` não corresponde às sobrecargas dessa dependência.
+- **Correção:** chamar a sobrecarga `ExecuteJavaScript(AScript, DefaultUrl, '', '', 0)`. Nomes/identificadores de frame vazios selecionam `Browser.MainFrame`, conforme a implementação do CEF fixado.
+- **Verificações anteriores:** o erro original havia sido reproduzido em Linux/Windows; a adaptação compilou em cópias descartáveis, mas ainda não estava integrada à main.
+- **Rodada atual:** adaptação integrada ao fonte; criada uma rota de compilação específica para a unidade e dois demonstradores atuais. Os três exemplos históricos são recompilados separadamente, com o Chromium e Modbus corrigidos sobre o snapshot antigo, preservando os próximos bloqueios.
+- **Critério de encerramento funcional:** além de compilar, executar JavaScript no frame esperado usando o runtime CEF real. Essa etapa não é afirmada como realizada nesta correção.
 
-**Atualização Windows em 25/10/2026:** o mesmo erro foi reproduzido na compilação direta da unidade e nos exemplos `wizard_config_demo`, `training_exporter_demo` e `training_report_demo`. Após aplicar o ajuste somente na cópia descartável da branch de pacotes, a unidade e `openai_input.lpk` compilaram em Windows x64. O fonte versionado continua pendente de integração e de validação funcional do navegador. Evidências: [relatório Windows](COMPILACAO_WINDOWS_2026-10-25.md) e [execução nativa](https://github.com/marcelomaurin/CHATGPT/actions/runs/40222836007).
+Evidências e resultados desta rodada: [CORRECAO_CHROMIUM_2026-10-25.md](CORRECAO_CHROMIUM_2026-10-25.md). As [compilações anteriores](COMPILACAO_WINDOWS_2026-10-25.md) permanecem como histórico.
 
 ### ERR-ENTREGA-009 — Registro variante V4L2 impede compilar openai_input
 
@@ -304,3 +305,15 @@ O [relatório da compilação](COMPILACAO_BRANCHES_2026-10-25.md#8-atualização
 O [relatório Windows](COMPILACAO_WINDOWS_2026-10-25.md) acrescenta a comprovação nativa, os 58 testes/verificações aprovados das branches de voz e impressão e os bloqueios restantes. Essa execução direcionada não encerra a ausência de uma rota geral de testes descrita em ERR-ENTREGA-007.
 
 **Atualização posterior do catálogo LLM:** foi acrescentada uma rota de CI para `llm_model_catalog_test`, com 631 verificações aprovadas em Linux x64 e outras 631 em Windows x64. O [relatório de provedores e modelos](PROVEDORES_MODELOS_CHATGPT_2026-10-25.md#verificação) registra os commits, toolchains, jobs e artefatos. Essa cobertura é específica do catálogo/componente e não encerra ERR-ENTREGA-007, que exige inventário e execução geral dos programas Pascal existentes.
+
+### ERR-ENTREGA-011 — Demonstrador interno Chromium desatualizado
+
+**Estado:** correções aplicadas nesta rodada; compilação remota em validação. **Prioridade:** média.
+
+- **Fonte:** `pacote/AI Input/AIChromiumBrowser/aichromiumbrowser_test_main.pas` chamava `GoogleSearch`, método que não existe na API genérica atual do componente.
+- **Reprodução:** após corrigir ERR-ENTREGA-008, a compilação mostrou `identifier idents no member "GoogleSearch"`.
+- **Recurso:** o programa declara `{$R *.res}`, mas `AIChromiumBrowser_Test.res` estava ausente do repositório; removido o primeiro bloqueio, a compilação revelou `Can't open resource file`.
+- **Correções:** a busca permanece no demonstrador, usando `Navigate` e `EncodeURLElement` para montar a URL; o componente permanece genérico. Acrescentado o recurso padrão já utilizado pelo exemplo `chromium_capture_demo`.
+- **Limites:** compilação não comprova a inicialização do navegador, associação visual ao `TChromiumWindow` nem os eventos de execução. A interface precisa de ensaio com runtime CEF.
+
+Resultados: [relatório da correção Chromium](CORRECAO_CHROMIUM_2026-10-25.md).

@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  ComCtrls, Buttons, aibase, aichromiumbrowser;
+  ComCtrls, Buttons, fphttpclient, aibase, aichromiumbrowser;
 
 type
   { TfrmMain }
@@ -301,13 +301,10 @@ begin
     AIChromiumBrowser1.InitializeBrowser;
   end;
 
-  if Trim(AIChromiumBrowser1.URL) = '' then
-  begin
-    AddLog('Abrindo Google antes da pesquisa...');
-    AIChromiumBrowser1.Navigate('https://www.google.com');
-  end;
-
-  if AIChromiumBrowser1.GoogleSearch(edPesquisa.Text) then
+  // Site-specific search stays in the demo; the component only navigates URLs.
+  AIChromiumBrowser1.Navigate('https://www.google.com/search?q=' +
+    EncodeURLElement(edPesquisa.Text));
+  if AIChromiumBrowser1.LastError = '' then
     AddLog('Pesquisa enviada para o Google.')
   else
     AddLog('Erro ao pesquisar: ' + AIChromiumBrowser1.LastError);
