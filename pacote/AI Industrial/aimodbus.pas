@@ -12,7 +12,7 @@ uses
     {$IFDEF WIN64}
     winsock2
     {$ELSE}
-    netdb
+    netdb, UnixType
     {$ENDIF}
   {$ENDIF}
   , LResources;
@@ -242,7 +242,7 @@ var
   {$IFDEF WINDOWS}
   TimeoutVal: DWORD;
   {$ELSE}
-  TimeoutVal: TTimeVal;
+  TimeoutVal: UnixType.TTimeVal;
   {$ENDIF}
 begin
   Result := False;
