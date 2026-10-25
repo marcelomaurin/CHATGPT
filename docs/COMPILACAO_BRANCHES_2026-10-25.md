@@ -2,6 +2,8 @@
 
 **Atualização:** o erro de compilação `TTimeVal` foi corrigido posteriormente na `main`; veja a seção 8. As seções 1 a 7 preservam a rodada original.
 
+**Atualização Windows:** a rodada nativa Windows x64 foi concluída e confirma a compilação do Modbus corrigido, 44 verificações de voz e 14 testes de impressão. Veja a seção 9 e o [relatório Windows completo](COMPILACAO_WINDOWS_2026-10-25.md).
+
 A rodada confirmou a compilação dos pacotes de voz e impressão, do demonstrador de provedores de voz e de dois exemplos históricos. Foram executadas e aprovadas **44 verificações de voz** e **14 casos FPCUnit de impressão**. A validação também encontrou três erros de compilação, registrados como **ERR-ENTREGA-008 a 010** em [ERROS_PUBLICACAO_SAMPLES_TESTES.md](ERROS_PUBLICACAO_SAMPLES_TESTES.md).
 
 ## 1. Ambiente e método
@@ -184,3 +186,15 @@ Em `pacote/AI Industrial/aimodbus.pas`:
 A recompilação dos exemplos utilizou o checkout histórico da seção 2 com apenas a correção de Modbus aplicada. Não foi incluído nesse checkout o ajuste local anterior do Chromium; assim, os novos resultados identificam o próximo bloqueio real da cadeia.
 
 **Plataformas:** a correção mantém os tipos nativos separados por compilação condicional para Windows e Linux. A validação efetivamente executada nesta rodada é Linux x86_64. Compilação e execução nativas no Windows permanecem pendentes; não há afirmação de aprovação no Windows.
+
+## 9. Atualização: compilação nativa Windows em 25/10/2026
+
+A [execução no runner Windows](https://github.com/marcelomaurin/CHATGPT/actions/runs/40222836007) utilizou FPC 3.2.2, Lazarus 3.0, target `x86_64-win64` e widgetset `win32`.
+
+- A unidade `aimodbus.pas` corrigida da `main` compilou com saída 0; a pendência de compilação Windows da seção 8 foi atendida.
+- Os pacotes `openai_input`, `openai_voice` e `openai_output` do snapshot `56034deb` da `main` compilaram.
+- Os pacotes e demos das branches de voz e impressão compilaram; foram executadas e aprovadas **44 verificações de voz e 14 testes de impressão**.
+- Dois exemplos históricos compilaram; três permanecem bloqueados pela chamada incompatível do Chromium, ERR-ENTREGA-008.
+- O Chromium original também falhou em Windows; a unidade e o pacote da branch de pacotes compilaram após o ajuste local de cinco argumentos. Essa adaptação não foi integrada à `main` nesta rodada.
+
+Foram 14 compilações aprovadas em 18 tentativas. O estado agregado `failure` registra os quatro bloqueios acima; não invalida as aprovações individuais. O [relatório Windows](COMPILACAO_WINDOWS_2026-10-25.md) contém commits, limites e links para os logs e seis executáveis PE64. Execução funcional de Modbus, Chromium, interfaces e hardware permanece pendente.

@@ -5,7 +5,7 @@
 - **Branch analisada:** `main`.
 - **Commit dos fontes analisados:** `1e19b9dec93386e822694893b6a3784b11398142`.
 - **Estado dos erros:** consultar a situação individual na tabela; ERR-ENTREGA-010 recebeu correção posterior na main.
-- **Escopo deste registro:** documentar os erros encontrados nos fontes, pacotes, registros de componentes, inventários e automação. As correções permanecem pendentes.
+- **Escopo deste registro:** documentar os erros encontrados nos fontes, pacotes, registros de componentes, inventários e automação. A situação de cada correção e seus limites estão registrados individualmente.
 
 Os links de evidência apontam para o commit analisado, para preservar a reprodução mesmo quando a branch avançar. A [baseline histórica de qualidade](quality/baseline.md) descreve outro snapshot; seus números não foram usados como números atuais.
 
@@ -20,9 +20,9 @@ Os links de evidência apontam para o commit analisado, para preservar a reprodu
 | ERR-ENTREGA-005 | Média | Exemplo console Marlin ignorado pela descoberta e compilação automáticas de samples | Aberto; análise dos scanners e do projeto |
 | ERR-ENTREGA-006 | Alta | Unidade runtime de ações de código importa recursos de design-time | Aberto; verificador de fronteiras reprovado |
 | ERR-ENTREGA-007 | Alta | Falta execução geral dos testes Pascal existentes na CI | Aberto; análise dos workflows e executores |
-| ERR-ENTREGA-008 | Alta | Chamada JavaScript do Chromium incompatível com o CEF declarado | Aberto no Git; ajuste compilado somente na cópia local |
+| ERR-ENTREGA-008 | Alta | Chamada JavaScript do Chromium incompatível com o CEF declarado | Aberto no Git; original falha em Linux/Windows; ajuste local compila nas duas plataformas |
 | ERR-ENTREGA-009 | Alta | Registro variante V4L2 com sintaxe inválida | Aberto; bloqueia openai_input em Linux |
-| ERR-ENTREGA-010 | Alta | Tipo TTimeVal ausente na compilação Unix do Modbus | Corrigido na main; unidade compilada em Linux x64; Windows pendente |
+| ERR-ENTREGA-010 | Alta | Tipo TTimeVal ausente na compilação Unix do Modbus | Corrigido na main; unidade compilada em Linux x64 e Windows x64; execução funcional pendente |
 
 **Critério de prioridade:** alta para bloqueio da validação, distribuição incompleta ou ausência de execução geral dos testes; média para lacunas de descoberta/classificação de exemplos.
 
@@ -270,6 +270,8 @@ O [relatório da rodada de compilação](COMPILACAO_BRANCHES_2026-10-25.md) regi
 - **Verificação adicional:** a unidade compilou na cópia local usando a sobrecarga de cinco argumentos `(AScript, DefaultUrl, '', '', 0)`, que seleciona o frame principal conforme implementação do CEF. Essa adaptação não foi aplicada às branches remotas nem à `main`.
 - **Critério de encerramento:** versionar a adaptação compatível, recompilar a unidade/pacote e validar execução de JavaScript no frame esperado.
 
+**Atualização Windows em 25/10/2026:** o mesmo erro foi reproduzido na compilação direta da unidade e nos exemplos `wizard_config_demo`, `training_exporter_demo` e `training_report_demo`. Após aplicar o ajuste somente na cópia descartável da branch de pacotes, a unidade e `openai_input.lpk` compilaram em Windows x64. O fonte versionado continua pendente de integração e de validação funcional do navegador. Evidências: [relatório Windows](COMPILACAO_WINDOWS_2026-10-25.md) e [execução nativa](https://github.com/marcelomaurin/CHATGPT/actions/runs/40222836007).
+
 ### ERR-ENTREGA-009 — Registro variante V4L2 impede compilar openai_input
 
 **Estado:** aberto. **Prioridade:** alta.
@@ -281,9 +283,11 @@ O [relatório da rodada de compilação](COMPILACAO_BRANCHES_2026-10-25.md) regi
 - **Impacto:** o pacote completo de entrada permanece sem compilar, inclusive após contornar localmente ERR-ENTREGA-008.
 - **Critério de encerramento:** corrigir a organização do registro/union, conferir seu tamanho e offsets contra a ABI V4L2 dos targets suportados, e recompilar o pacote. A validação de câmera real permanece necessária.
 
+**Atualização Windows:** o pacote de entrada da branch de pacotes compilou após o ajuste local do Chromium. Isso não encerra o erro V4L2: no target Windows é selecionado o ramo substituto para plataformas não Linux, sem validar o registro e a ABI do backend Linux.
+
 ### ERR-ENTREGA-010 — TTimeVal ausente na compilação Unix do Modbus
 
-**Estado:** corrigido no fonte da `main`; compilação da unidade confirmada em Linux x64. **Prioridade original:** alta. **Validação nativa Windows:** pendente.
+**Estado:** corrigido no fonte da `main`; compilação da unidade confirmada em Linux x64 e Windows x64. **Prioridade original:** alta. **Execução funcional Modbus/timeout:** pendente.
 
 - **Erro original:** `Identifier not found "TTimeVal"` e `Error in type definition` na linha 245; `Illegal qualifier` nas linhas 268 e 269 de `aimodbus.pas`.
 - **Correção aplicada em 25/10/2026:** importar `UnixType` somente no ramo que não é Win32/Win64 e declarar `TimeoutVal: UnixType.TTimeVal` no ramo Unix.
@@ -291,8 +295,10 @@ O [relatório da rodada de compilação](COMPILACAO_BRANCHES_2026-10-25.md) regi
 - **Linux:** usa a estrutura nativa da RTL Unix, com os campos `tv_sec` e `tv_usec`.
 - **Commit da correção:** [`7cb0cb9`](https://github.com/marcelomaurin/CHATGPT/commit/7cb0cb9b2c3c77971fec14e1f3e509360cd10be6).
 - **Fonte corrigido:** [aimodbus.pas](https://github.com/marcelomaurin/CHATGPT/blob/7cb0cb9b2c3c77971fec14e1f3e509360cd10be6/pacote/AI%20Industrial/aimodbus.pas).
-- **Verificação executada:** a unidade corrigida compilou com FPC 3.2.2 em Linux x86_64, saída 0.
+- **Verificação executada:** a unidade corrigida compilou com FPC 3.2.2 em Linux x86_64 e em runner nativo Windows (`x86_64-win64`, Lazarus 3.0), saída 0 nas duas plataformas. O snapshot Windows foi `56034debfc03a322d4d75ba471dc90e25adb3b4c`, que inclui a correção `7cb0cb9`. Log: `logs/main-modbus-timeval-build.log` no [artefato Windows](https://github.com/marcelomaurin/CHATGPT/actions/runs/40222836007/artifacts/12609618751).
 - **Recompilação dos exemplos:** `wizard_config_demo`, `training_exporter_demo` e `training_report_demo` ultrapassaram o erro de timeout e passaram a parar no erro já registrado de Chromium/CEF, **ERR-ENTREGA-008**. O erro `TTimeVal` não voltou a ocorrer.
-- **Limites:** a rodada não valida a execução real de Modbus/timeout nem a compilação nativa no Windows. A conclusão dos três executáveis depende também da correção dos demais bloqueios de sua cadeia de dependências.
+- **Limites:** a compilação nativa Windows x64 foi atendida; a execução real de Modbus/timeout, serial e Windows x86 continuam sem validação nesta rodada. A conclusão dos três executáveis depende também da correção dos demais bloqueios de sua cadeia de dependências.
 
 O [relatório da compilação](COMPILACAO_BRANCHES_2026-10-25.md#8-atualização-correção-de-ttimeval-em-25102026) preserva os resultados originais e registra a rodada posterior a essa correção.
+
+O [relatório Windows](COMPILACAO_WINDOWS_2026-10-25.md) acrescenta a comprovação nativa, os 58 testes/verificações aprovados das branches de voz e impressão e os bloqueios restantes. Essa execução direcionada não encerra a ausência de uma rota geral de testes descrita em ERR-ENTREGA-007.
