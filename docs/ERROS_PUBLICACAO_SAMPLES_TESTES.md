@@ -4,7 +4,7 @@
 - **Repositório:** `marcelomaurin/CHATGPT`.
 - **Branch analisada:** `main`.
 - **Commit dos fontes analisados:** `1e19b9dec93386e822694893b6a3784b11398142`.
-- **Estado dos erros abaixo:** **ABERTO**.
+- **Estado dos erros:** consultar a situação individual na tabela; ERR-ENTREGA-010 recebeu correção posterior na main.
 - **Escopo deste registro:** documentar os erros encontrados nos fontes, pacotes, registros de componentes, inventários e automação. As correções permanecem pendentes.
 
 Os links de evidência apontam para o commit analisado, para preservar a reprodução mesmo quando a branch avançar. A [baseline histórica de qualidade](quality/baseline.md) descreve outro snapshot; seus números não foram usados como números atuais.
@@ -22,7 +22,7 @@ Os links de evidência apontam para o commit analisado, para preservar a reprodu
 | ERR-ENTREGA-007 | Alta | Falta execução geral dos testes Pascal existentes na CI | Aberto; análise dos workflows e executores |
 | ERR-ENTREGA-008 | Alta | Chamada JavaScript do Chromium incompatível com o CEF declarado | Aberto no Git; ajuste compilado somente na cópia local |
 | ERR-ENTREGA-009 | Alta | Registro variante V4L2 com sintaxe inválida | Aberto; bloqueia openai_input em Linux |
-| ERR-ENTREGA-010 | Alta | Tipo TTimeVal ausente na compilação Unix do Modbus | Aberto; bloqueia três exemplos históricos |
+| ERR-ENTREGA-010 | Alta | Tipo TTimeVal ausente na compilação Unix do Modbus | Corrigido na main; unidade compilada em Linux x64; Windows pendente |
 
 **Critério de prioridade:** alta para bloqueio da validação, distribuição incompleta ou ausência de execução geral dos testes; média para lacunas de descoberta/classificação de exemplos.
 
@@ -283,12 +283,16 @@ O [relatório da rodada de compilação](COMPILACAO_BRANCHES_2026-10-25.md) regi
 
 ### ERR-ENTREGA-010 — TTimeVal ausente na compilação Unix do Modbus
 
-**Estado:** aberto. **Prioridade:** alta.
+**Estado:** corrigido no fonte da `main`; compilação da unidade confirmada em Linux x64. **Prioridade original:** alta. **Validação nativa Windows:** pendente.
 
-- **Fonte:** [aimodbus.pas:245](https://github.com/marcelomaurin/CHATGPT/blob/3affa4e6a01c2148e537aed4efdb6a2ee6d499b0/pacote/AI%20Industrial/aimodbus.pas#L245).
-- **Reprodução:** compilação de `wizard_config_demo`, `training_exporter_demo` e `training_report_demo` no commit `3affa4e6a01c2148e537aed4efdb6a2ee6d499b0`, FPC 3.2.2/Lazarus 3.0, Linux x86_64.
-- **Erros:** `Identifier not found "TTimeVal"` e `Error in type definition` na linha 245; `Illegal qualifier` nas linhas 268 e 269.
-- **Impacto:** os três exemplos históricos param na unidade Modbus de sua cadeia de dependências e não geram executáveis.
-- **Critério de encerramento:** disponibilizar o tipo Unix adequado para os timeouts de socket e suas referências, recompilar os três projetos e validar a configuração de timeout.
+- **Erro original:** `Identifier not found "TTimeVal"` e `Error in type definition` na linha 245; `Illegal qualifier` nas linhas 268 e 269 de `aimodbus.pas`.
+- **Correção aplicada em 25/10/2026:** importar `UnixType` somente no ramo que não é Win32/Win64 e declarar `TimeoutVal: UnixType.TTimeVal` no ramo Unix.
+- **Windows:** permanece com `TimeoutVal: DWORD` e timeout em milissegundos; a dependência de `UnixType` fica excluída pelo compilador nesse target.
+- **Linux:** usa a estrutura nativa da RTL Unix, com os campos `tv_sec` e `tv_usec`.
+- **Commit da correção:** [`7cb0cb9`](https://github.com/marcelomaurin/CHATGPT/commit/7cb0cb9b2c3c77971fec14e1f3e509360cd10be6).
+- **Fonte corrigido:** [aimodbus.pas](https://github.com/marcelomaurin/CHATGPT/blob/7cb0cb9b2c3c77971fec14e1f3e509360cd10be6/pacote/AI%20Industrial/aimodbus.pas).
+- **Verificação executada:** a unidade corrigida compilou com FPC 3.2.2 em Linux x86_64, saída 0.
+- **Recompilação dos exemplos:** `wizard_config_demo`, `training_exporter_demo` e `training_report_demo` ultrapassaram o erro de timeout e passaram a parar no erro já registrado de Chromium/CEF, **ERR-ENTREGA-008**. O erro `TTimeVal` não voltou a ocorrer.
+- **Limites:** a rodada não valida a execução real de Modbus/timeout nem a compilação nativa no Windows. A conclusão dos três executáveis depende também da correção dos demais bloqueios de sua cadeia de dependências.
 
-As unidades dos três erros possuem blobs idênticos às unidades da `main` auditada anteriormente. O relatório detalha essa conferência e distingue os builds das branches da integração completa na `main`.
+O [relatório da compilação](COMPILACAO_BRANCHES_2026-10-25.md#8-atualização-correção-de-ttimeval-em-25102026) preserva os resultados originais e registra a rodada posterior a essa correção.
