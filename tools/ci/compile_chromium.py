@@ -118,7 +118,7 @@ def prepare_profile(name, repo, fpc, lazbuild, lazarus):
     links += [ROOT / 'deps/dcpcrypt/dcpcrypt.lpk', ROOT / 'deps/cef4delphi/packages/cef4delphi_lazarus.lpk']
     for index, package in enumerate(links):
         if package.is_file():
-            command([*base, '--add-package-link=' + str(package)], name + f'-link-{index}', repo, True)
+            command([*base, '--add-package-link', str(package)], name + f'-link-{index}', repo, True)
     return base, directories
 
 
