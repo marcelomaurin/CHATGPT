@@ -302,3 +302,5 @@ O [relatório da rodada de compilação](COMPILACAO_BRANCHES_2026-10-25.md) regi
 O [relatório da compilação](COMPILACAO_BRANCHES_2026-10-25.md#8-atualização-correção-de-ttimeval-em-25102026) preserva os resultados originais e registra a rodada posterior a essa correção.
 
 O [relatório Windows](COMPILACAO_WINDOWS_2026-10-25.md) acrescenta a comprovação nativa, os 58 testes/verificações aprovados das branches de voz e impressão e os bloqueios restantes. Essa execução direcionada não encerra a ausência de uma rota geral de testes descrita em ERR-ENTREGA-007.
+
+**Atualização posterior do catálogo LLM:** foi acrescentada uma rota de CI para `llm_model_catalog_test`, com 631 verificações aprovadas em Linux x64 e outras 631 em Windows x64. O [relatório de provedores e modelos](PROVEDORES_MODELOS_CHATGPT_2026-10-25.md#verificação) registra os commits, toolchains, jobs e artefatos. Essa cobertura é específica do catálogo/componente e não encerra ERR-ENTREGA-007, que exige inventário e execução geral dos programas Pascal existentes.

@@ -81,7 +81,18 @@ python tools/ci/run_llm_catalog_tests.py
 
 Foram aprovadas localmente **631 verificações em Linux x64 com FPC 3.2.2**. Os testes verificam integridade do catálogo e seleção por provedor, aplicação no componente, preservação de IDs/ordinais, INI/JSON, compatibilidade dos corpos JSON, respostas com raciocínio e rejeição de placeholders sem acesso à rede.
 
-O workflow `.github/workflows/llm-model-catalog.yml` executa o mesmo teste em Linux x64 e Windows x64. O resultado nativo da versão atualizada será registrado após a execução remota. Esses contratos não utilizam chaves, créditos, hardware nem comprovam chamadas reais às APIs.
+O workflow `.github/workflows/llm-model-catalog.yml` executa o mesmo teste em Linux x64 e Windows x64. A compilação e a execução nativas foram confirmadas nas duas plataformas:
+
+| Plataforma | FPC / Lazarus | Compilação | Testes | Evidência |
+| --- | --- | ---: | --- | --- |
+| Linux x64, Ubuntu 24.04 | 3.2.2 / 3.0 | saída 0 | 631 verificações aprovadas; saída 0 | [Job Linux](https://github.com/marcelomaurin/CHATGPT/actions/runs/40225163142/job/121264865429) |
+| Windows x64, Windows 2025 | 3.2.2 / 4.0 | saída 0 | 631 verificações aprovadas; saída 0 | [Job Windows](https://github.com/marcelomaurin/CHATGPT/actions/runs/40225794759/job/121266756829) |
+
+Os fontes da atualização foram publicados em [`586d9fd`](https://github.com/marcelomaurin/CHATGPT/commit/586d9fdb4597da21441c6da8bba903a0fce079f2). O teste Linux usou esse commit; o teste Windows usou [`423bfb5`](https://github.com/marcelomaurin/CHATGPT/commit/423bfb5ab373dc70d553d9d4f10580f8e186b626), que altera somente a instalação da toolchain no workflow. Os fontes e o programa de teste são idênticos entre esses commits.
+
+O primeiro instalador Windows 3.0 demorou antes de alcançar a compilação. A rodada concluída utilizou Chocolatey com Lazarus `4.0.0` fixado e FPC `3.2.2`, sob limite de tempo explícito para instalação.
+
+Logs, metadados e executáveis: [artefato Linux](https://github.com/marcelomaurin/CHATGPT/actions/runs/40225163142/artifacts/12610971844) e [artefato Windows](https://github.com/marcelomaurin/CHATGPT/actions/runs/40225794759/artifacts/12611342222). Esses contratos não utilizam chaves, créditos, hardware nem comprovam chamadas reais às APIs. Eles também não representam a execução geral dos demais testes Pascal ou a homologação das interfaces gráficas.
 
 A [compilação Windows anterior](COMPILACAO_WINDOWS_2026-10-25.md) confirmou o Modbus corrigido, os pacotes selecionados e os testes das branches de voz/impressão. Os bloqueios do Chromium e os demais [erros de entrega](ERROS_PUBLICACAO_SAMPLES_TESTES.md) permanecem registrados separadamente.
 

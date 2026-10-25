@@ -129,3 +129,9 @@ A correção [`7cb0cb9`](https://github.com/marcelomaurin/CHATGPT/commit/7cb0cb9
 Continuam fora desta rodada: Windows x86, execução interativa das interfaces, JavaScript em navegador CEF real, teste efetivo dos timeouts Modbus, serial/RS485, câmera, impressora e chamadas remotas de voz. A rodada também não certifica instalador completo, integração das branches, registro de todos os componentes na paleta ou execução geral da suíte Pascal (ERR-ENTREGA-001 a 007).
 
 O [registro de erros](ERROS_PUBLICACAO_SAMPLES_TESTES.md) e o [relatório Linux/original](COMPILACAO_BRANCHES_2026-10-25.md) preservam a distinção entre correção no fonte, compilação e validação funcional.
+
+## 7. Rodada posterior: catálogo de provedores/modelos
+
+Após esta rodada, o componente TCHATGPT recebeu a atualização de provedores e modelos documentada em [PROVEDORES_MODELOS_CHATGPT_2026-10-25.md](PROVEDORES_MODELOS_CHATGPT_2026-10-25.md). Os fontes atualizados foram compilados e seu teste de contratos executado nativamente em Windows x64 e Linux x64: **631 verificações aprovadas em cada plataforma**, com saída 0 na compilação e nos testes.
+
+O [job Windows dessa atualização](https://github.com/marcelomaurin/CHATGPT/actions/runs/40225794759/job/121266756829) utilizou FPC 3.2.2 e Lazarus 4.0. Trata-se de uma execução distinta dos pacotes e snapshots das seções anteriores; ela não encerra os bloqueios Chromium/V4L2 nem substitui testes funcionais das APIs.
