@@ -198,3 +198,9 @@ A [execução no runner Windows](https://github.com/marcelomaurin/CHATGPT/action
 - O Chromium original também falhou em Windows; a unidade e o pacote da branch de pacotes compilaram após o ajuste local de cinco argumentos. Essa adaptação não foi integrada à `main` nesta rodada.
 
 Foram 14 compilações aprovadas em 18 tentativas. O estado agregado `failure` registra os quatro bloqueios acima; não invalida as aprovações individuais. O [relatório Windows](COMPILACAO_WINDOWS_2026-10-25.md) contém commits, limites e links para os logs e seis executáveis PE64. Execução funcional de Modbus, Chromium, interfaces e hardware permanece pendente.
+
+## 10. Atualização: correção Chromium integrada
+
+A correção de ERR-ENTREGA-008 foi publicada na main em [9e62673](https://github.com/marcelomaurin/CHATGPT/commit/9e626737094110eac5be825e91185537a6b76d9d). A unidade e os dois demonstradores atuais compilaram em Linux x64 e Windows x64. Os três exemplos históricos também compilaram em Windows; em Linux, avançaram para o erro V4L2 (ERR-ENTREGA-009).
+
+O [relatório da correção Chromium](CORRECAO_CHROMIUM_2026-10-25.md) contém resultados, logs e artefatos. As seções anteriores preservam as tentativas anteriores; a execução funcional de JavaScript em runtime CEF permanece pendente.

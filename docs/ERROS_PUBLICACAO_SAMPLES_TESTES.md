@@ -20,10 +20,10 @@ Os links de evidência apontam para o commit analisado, para preservar a reprodu
 | ERR-ENTREGA-005 | Média | Exemplo console Marlin ignorado pela descoberta e compilação automáticas de samples | Aberto; análise dos scanners e do projeto |
 | ERR-ENTREGA-006 | Alta | Unidade runtime de ações de código importa recursos de design-time | Aberto; verificador de fronteiras reprovado |
 | ERR-ENTREGA-007 | Alta | Falta execução geral dos testes Pascal existentes na CI | Aberto; análise dos workflows e executores |
-| ERR-ENTREGA-008 | Alta | Chamada JavaScript do Chromium incompatível com o CEF declarado | Correção integrada nesta rodada; compilação remota em validação; execução CEF pendente |
+| ERR-ENTREGA-008 | Alta | Chamada JavaScript do Chromium incompatível com o CEF declarado | Corrigido no fonte; unidade/demos compilados em Linux e Windows; execução CEF pendente |
 | ERR-ENTREGA-009 | Alta | Registro variante V4L2 com sintaxe inválida | Aberto; bloqueia openai_input em Linux |
 | ERR-ENTREGA-010 | Alta | Tipo TTimeVal ausente na compilação Unix do Modbus | Corrigido na main; unidade compilada em Linux x64 e Windows x64; execução funcional pendente |
-| ERR-ENTREGA-011 | Média | Demonstrador interno Chromium usa método removido e não possui recurso .res | Fonte e recurso corrigidos nesta rodada; recompilação em validação |
+| ERR-ENTREGA-011 | Média | Demonstrador interno Chromium usa método removido e não possui recurso .res | Fonte e recurso corrigidos; demonstrador compilado em Linux x64 e Windows x64 |
 
 **Critério de prioridade:** alta para bloqueio da validação, distribuição incompleta ou ausência de execução geral dos testes; média para lacunas de descoberta/classificação de exemplos.
 
@@ -261,7 +261,7 @@ O [relatório da rodada de compilação](COMPILACAO_BRANCHES_2026-10-25.md) regi
 
 ### ERR-ENTREGA-008 — Chamada JavaScript incompatível com CEF4Delphi
 
-**Estado:** corrigido no fonte nesta rodada; compilação da unidade confirmada localmente em Linux x64; validação remota Windows/Linux em andamento. **Prioridade original:** alta. **Execução de JavaScript em CEF real:** pendente.
+**Estado:** erro de compilação corrigido no fonte; unidade e dois demonstradores compilados em Linux x64 e Windows x64. **Prioridade original:** alta. **Execução de JavaScript em CEF real:** pendente.
 
 - **Erro original:** `Incompatible type for arg no. 3: Got "ShortInt", expected "ICefFrame"`, na linha 1582 de `aichromiumbrowser.pas`.
 - **Dependência:** CEF4Delphi `84d5f7670056aed6753bf4dc855a5cb3e468fd60`, conforme o manifesto.
@@ -286,6 +286,8 @@ Evidências e resultados desta rodada: [CORRECAO_CHROMIUM_2026-10-25.md](CORRECA
 
 **Atualização Windows:** o pacote de entrada da branch de pacotes compilou após o ajuste local do Chromium. Isso não encerra o erro V4L2: no target Windows é selecionado o ramo substituto para plataformas não Linux, sem validar o registro e a ABI do backend Linux.
 
+**Atualização após a correção Chromium:** os três exemplos históricos agora ultrapassam ERR-ENTREGA-008 em Linux e ficam bloqueados neste registro V4L2, na linha 175. Os mesmos exemplos compilaram em Windows x64, que seleciona o ramo não Linux. O [relatório da correção Chromium](CORRECAO_CHROMIUM_2026-10-25.md#resultados-remotos-confirmados) registra as plataformas, snapshots e tentativas individuais.
+
 ### ERR-ENTREGA-010 — TTimeVal ausente na compilação Unix do Modbus
 
 **Estado:** corrigido no fonte da `main`; compilação da unidade confirmada em Linux x64 e Windows x64. **Prioridade original:** alta. **Execução funcional Modbus/timeout:** pendente.
@@ -308,7 +310,7 @@ O [relatório Windows](COMPILACAO_WINDOWS_2026-10-25.md) acrescenta a comprovaç
 
 ### ERR-ENTREGA-011 — Demonstrador interno Chromium desatualizado
 
-**Estado:** correções aplicadas nesta rodada; compilação remota em validação. **Prioridade:** média.
+**Estado:** corrigido no fonte e recurso; demonstrador compilado em Linux x64 e Windows x64. **Prioridade:** média.
 
 - **Fonte:** `pacote/AI Input/AIChromiumBrowser/aichromiumbrowser_test_main.pas` chamava `GoogleSearch`, método que não existe na API genérica atual do componente.
 - **Reprodução:** após corrigir ERR-ENTREGA-008, a compilação mostrou `identifier idents no member "GoogleSearch"`.
