@@ -1,5 +1,7 @@
 # Resultado da compilação das branches — 25/10/2026
 
+**Atualização:** o erro de compilação `TTimeVal` foi corrigido posteriormente na `main`; veja a seção 8. As seções 1 a 7 preservam a rodada original.
+
 A rodada confirmou a compilação dos pacotes de voz e impressão, do demonstrador de provedores de voz e de dois exemplos históricos. Foram executadas e aprovadas **44 verificações de voz** e **14 casos FPCUnit de impressão**. A validação também encontrou três erros de compilação, registrados como **ERR-ENTREGA-008 a 010** em [ERROS_PUBLICACAO_SAMPLES_TESTES.md](ERROS_PUBLICACAO_SAMPLES_TESTES.md).
 
 ## 1. Ambiente e método
@@ -76,7 +78,7 @@ Number of failures:  0
 
 Cobertura dessa execução: bytes/comandos ESC/POS, TSPL, EPL e ZPL, code page e restrições de corte em etiquetas. Impressão em equipamento físico e comunicação real pelos transportes permanecem pendentes.
 
-## 4. Compilações bloqueadas
+## 4. Compilações bloqueadas na rodada original
 
 | Alvo | Erro observado | Saída |
 | --- | --- | ---: |
@@ -157,4 +159,28 @@ A igualdade localiza os fontes compartilhados que precisam de correção. Ela n�
 - Compilação em Windows/ARM, instalação da paleta em IDE limpa e compilação geral da suíte ficam pendentes.
 - Os resultados dos exemplos históricos pertencem ao commit antigo indicado na seção 2; a compatibilidade com a API atual precisa ser validada na integração.
 
-**Estado para continuidade:** preservar as versões de voz e impressão já verificadas; revisar os avisos; corrigir ERR-ENTREGA-008 a 010 e repetir os alvos bloqueados antes de declarar a integração concluída.
+**Estado após a rodada original:** preservar as versões de voz e impressão verificadas e revisar os avisos. Os resultados posteriores da correção de TTimeVal estão na seção 8; ERR-ENTREGA-008 e 009 permanecem pendentes.
+
+## 8. Atualização: correção de TTimeVal em 25/10/2026
+
+**Correção publicada na main:** [`7cb0cb9`](https://github.com/marcelomaurin/CHATGPT/commit/7cb0cb9b2c3c77971fec14e1f3e509360cd10be6).
+
+Em `pacote/AI Industrial/aimodbus.pas`:
+
+- A importação de `UnixType` foi acrescentada somente ao ramo não Windows da lista `uses`.
+- A declaração Unix passou a ser `TimeoutVal: UnixType.TTimeVal`.
+- A declaração Windows `TimeoutVal: DWORD` e sua atribuição em milissegundos foram preservadas.
+- No Unix, permanecem os campos `tv_sec` e `tv_usec`, agora com o tipo nativo explicitamente disponível.
+
+### Resultado da nova verificação
+
+| Alvo | Resultado após a correção de TTimeVal |
+| --- | --- |
+| Unidade `aimodbus.pas` | Compilou com FPC 3.2.2, Linux x86_64; saída 0 |
+| `wizard_config_demo` | Erro TTimeVal removido; compilação avança e para em Chromium/CEF — ERR-ENTREGA-008 |
+| `training_exporter_demo` | Erro TTimeVal removido; mesmo bloqueio posterior de Chromium/CEF |
+| `training_report_demo` | Erro TTimeVal removido; mesmo bloqueio posterior de Chromium/CEF |
+
+A recompilação dos exemplos utilizou o checkout histórico da seção 2 com apenas a correção de Modbus aplicada. Não foi incluído nesse checkout o ajuste local anterior do Chromium; assim, os novos resultados identificam o próximo bloqueio real da cadeia.
+
+**Plataformas:** a correção mantém os tipos nativos separados por compilação condicional para Windows e Linux. A validação efetivamente executada nesta rodada é Linux x86_64. Compilação e execução nativas no Windows permanecem pendentes; não há afirmação de aprovação no Windows.
