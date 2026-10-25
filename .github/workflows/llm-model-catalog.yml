@@ -1,0 +1,59 @@
+name: LLM model catalog contracts
+
+on:
+  push:
+    paths:
+      - 'pacote/AI/**'
+      - 'pacote/tests/llm_model_catalog_test/**'
+      - 'tools/ci/run_llm_catalog_tests.py'
+      - '.github/workflows/llm-model-catalog.yml'
+  pull_request:
+    paths:
+      - 'pacote/AI/**'
+      - 'pacote/tests/llm_model_catalog_test/**'
+      - 'tools/ci/run_llm_catalog_tests.py'
+      - '.github/workflows/llm-model-catalog.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  catalog:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            pacote/AI
+            pacote/tests/llm_model_catalog_test
+            tools/ci
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install FPC and Lazarus on Linux
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fpc lazarus
+      - name: Install FPC and Lazarus on Windows
+        if: runner.os == 'Windows'
+        uses: gcarreno/setup-lazarus@v3.4.1
+        with:
+          lazarus-version: '3.0'
+          with-cache: false
+      - name: Compile and run catalog contracts
+        run: python tools/ci/run_llm_catalog_tests.py
+      - name: Upload logs and executable
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: llm-model-catalog-${{ matrix.os }}
+          path: build/llm-model-catalog/
+          retention-days: 30

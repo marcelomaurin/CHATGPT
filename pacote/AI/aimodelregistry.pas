@@ -13,6 +13,7 @@ type
 
   TAIModelItem = class(TCollectionItem)
   private
+    FIsLegacy: Boolean;
     FInternalName: string;
     FFriendlyName: string;
     FProvider: string;
@@ -25,6 +26,7 @@ type
     FSupportsStreaming: Boolean;
     FSupportsFineTuning: Boolean;
   published
+    property IsLegacy: Boolean read FIsLegacy write FIsLegacy default False;
     property InternalName: string read FInternalName write FInternalName;
     property FriendlyName: string read FFriendlyName write FFriendlyName;
     property Provider: string read FProvider write FProvider;
@@ -63,7 +65,8 @@ type
     
     procedure RegisterModel(
       const AProvider, AInternalName, AFriendlyName, AEndpoint: string;
-      AMaxTokens: Integer; ATemp: Double; AReqKey, AVision, ATools, AStream, AFineTune: Boolean
+      AMaxTokens: Integer; ATemp: Double; AReqKey, AVision, ATools, AStream, AFineTune: Boolean;
+      AIsLegacy: Boolean = False
     );
     
     procedure GetProviders(AList: TStrings);
@@ -129,10 +132,12 @@ end;
 
 procedure TAIModelRegistry.RegisterModel(
   const AProvider, AInternalName, AFriendlyName, AEndpoint: string;
-  AMaxTokens: Integer; ATemp: Double; AReqKey, AVision, ATools, AStream, AFineTune: Boolean
+  AMaxTokens: Integer; ATemp: Double; AReqKey, AVision, ATools, AStream, AFineTune: Boolean;
+  AIsLegacy: Boolean
 );
 var
   LItem: TAIModelItem;
+  Info: TAILLMModelInfo;
   i: Integer;
 begin
   // Check if model already registered to avoid duplicates
@@ -154,6 +159,9 @@ begin
   LItem.SupportsTools := ATools;
   LItem.SupportsStreaming := AStream;
   LItem.SupportsFineTuning := AFineTune;
+  LItem.IsLegacy := AIsLegacy;
+  if FindAILLMModel(AProvider, AInternalName, Info) then
+    LItem.IsLegacy := LItem.IsLegacy or Info.IsLegacy;
 end;
 
 procedure TAIModelRegistry.LoadDefaultModels;
@@ -166,7 +174,7 @@ begin
       RegisterModel(Info.Provider, Info.InternalName, Info.FriendlyName,
         Info.DefaultEndpoint, Info.MaxTokens, Info.DefaultTemperature,
         Info.RequiresAPIKey, Info.SupportsVision, Info.SupportsTools,
-        Info.SupportsStreaming, Info.SupportsFineTuning);
+        Info.SupportsStreaming, Info.SupportsFineTuning, Info.IsLegacy);
 end;
 
 procedure TAIModelRegistry.GetProviders(AList: TStrings);
@@ -188,7 +196,7 @@ begin
   AList.Clear;
   for i := 0 to FModels.Count - 1 do
   begin
-    if SameText(FModels[i].Provider, AProvider) then
+    if SameText(FModels[i].Provider, AProvider) and not FModels[i].IsLegacy then
       AList.Add(FModels[i].FriendlyName);
   end;
 end;
@@ -197,7 +205,7 @@ procedure TAIModelRegistry.ApplyModel(const AModelName: string; AChatGPT: TCHATG
 var
   i: Integer;
   LModel: TAIModelItem;
-  LProvUpper: string;
+  LProvider: TAIProvider;
   LFound: Boolean;
 begin
   ClearError;
@@ -225,20 +233,12 @@ begin
     Exit;
   end;
   
-  LProvUpper := UpperCase(LModel.Provider);
-  
-  // Map Provider
-  if LProvUpper = 'OPENAI' then AChatGPT.Provider := AIP_OPENAI
-  else if LProvUpper = 'OPENROUTER' then AChatGPT.Provider := AIP_OPENROUTER
-  else if LProvUpper = 'CEREBRAS' then AChatGPT.Provider := AIP_CEREBRAS
-  else if LProvUpper = 'LOCAL' then AChatGPT.Provider := AIP_LOCAL
-  else if LProvUpper = 'GEMINI' then AChatGPT.Provider := AIP_GEMINI
-  else if LProvUpper = 'CLAUDE' then AChatGPT.Provider := AIP_CLAUDE
-  else if LProvUpper = 'DEEPSEEK' then AChatGPT.Provider := AIP_DEEPSEEK
-  else if LProvUpper = 'OPENAI-COMPATIBLE' then AChatGPT.Provider := AIP_OPENAI_COMPATIBLE
-  else if LProvUpper = 'LLAMA.CPP' then AChatGPT.Provider := AIP_LLAMA_CPP
-  else if LProvUpper = 'NEURAL-API' then AChatGPT.Provider := AIP_NEURAL_API
-  else AChatGPT.Provider := AIP_OPENAI;
+  if not TryGetAIProviderFromName(LModel.Provider, LProvider) then
+  begin
+    SetError('Provedor nao reconhecido no Registry: ' + LModel.Provider);
+    Exit;
+  end;
+  AChatGPT.Provider := LProvider;
   
   // Map Model enum and custom model
   AChatGPT.CustomModel := LModel.InternalName;
@@ -262,8 +262,8 @@ begin
   else if SameText(LModel.InternalName, 'deepseek-r1:8b') then AChatGPT.TipoChat := VCT_DEEPSEEK_R1_8B
   else AChatGPT.TipoChat := VCT_CUSTOM;
   
-  if LModel.DefaultEndpoint <> '' then
-    AChatGPT.URL := LModel.DefaultEndpoint;
+  // Clear a previous provider URL as well (Gemini uses its own model route).
+  AChatGPT.URL := LModel.DefaultEndpoint;
   
   FLastResult := 'Modelo aplicado: ' + LModel.FriendlyName;
   FLastSuccess := True;
@@ -300,6 +300,7 @@ begin
       LItemObj.Add('supportsTools', LModel.SupportsTools);
       LItemObj.Add('supportsStreaming', LModel.SupportsStreaming);
       LItemObj.Add('supportsFineTuning', LModel.SupportsFineTuning);
+      LItemObj.Add('isLegacy', LModel.IsLegacy);
       LArr.Add(LItemObj);
     end;
     
@@ -354,7 +355,8 @@ begin
             LItemObj.Booleans['supportsVision'],
             LItemObj.Booleans['supportsTools'],
             LItemObj.Booleans['supportsStreaming'],
-            LItemObj.Booleans['supportsFineTuning']
+            LItemObj.Booleans['supportsFineTuning'],
+            LItemObj.Get('isLegacy', False)
           );
         end;
         FLastResult := 'Registry carregado de: ' + AFileName;

@@ -10,7 +10,7 @@ uses
   aillmmodelcatalog, aitracebridge;
 
 const
-  CHATGPT_LIB_VERSION = '1.7';
+  CHATGPT_LIB_VERSION = '1.8';
 
 type
   TVersionChat = (
@@ -63,7 +63,22 @@ type
     VCT_DEEPSEEK_R1_1_5b,
     VCT_DEEPSEEK_R1_7b,
 
-    VCT_CUSTOM
+    VCT_CUSTOM,
+
+    // Append only: preserve ordinals used by existing applications/forms.
+    VCT_GPT61_SOL,
+    VCT_GPT6_ASTRA,
+    VCT_GPT6_LUNA,
+    VCT_GEMINI_38_FLASH,
+    VCT_GEMINI_4_ARGON,
+    VCT_GEMINI_35_FLASH_LITE,
+    VCT_GEMINI_31_PRO_PREVIEW,
+    VCT_CLAUDE_SONNET_55,
+    VCT_CLAUDE_OPUS_55,
+    VCT_CLAUDE_HAIKU_55,
+    VCT_CLAUDE_FABLE_51,
+    VCT_DEEPSEEK_FLASH,
+    VCT_DEEPSEEK_V4_PRO
   );
 
   TAIProvider = (
@@ -76,7 +91,12 @@ type
     AIP_DEEPSEEK,    // 6 - DeepSeek Direct API
     AIP_OPENAI_COMPATIBLE, // 7 - API configuravel /v1/chat/completions
     AIP_LLAMA_CPP,   // 8 - servidor llama.cpp
-    AIP_NEURAL_API   // 9 - servidor neural-api
+    AIP_NEURAL_API,  // 9 - servidor neural-api
+    AIP_RUNPOD,      // 10 - hosted OpenAI-compatible vLLM endpoint
+    AIP_GROQ,       // 11
+    AIP_MISTRAL,    // 12
+    AIP_XAI,        // 13
+    AIP_QWEN        // 14 - Alibaba Cloud Model Studio
   );
 
   TAILLMRequestState = (
@@ -208,6 +228,8 @@ type
   end;
 
 function GetAIProviderName(AProvider: TAIProvider): string;
+function GetAIProviderCatalogName(AProvider: TAIProvider): string;
+function TryGetAIProviderFromName(const AName: string; out AProvider: TAIProvider): Boolean;
 function GetAIProviderFromIndex(AIndex: Integer): TAIProvider;
 function GetDefaultEndpointForProvider(AProvider: TAIProvider): string;
 procedure GetAIProviderList(AOutList: TStrings);
@@ -347,9 +369,47 @@ begin
     AIP_OPENAI_COMPATIBLE: Result := 'OpenAI-compatible';
     AIP_LLAMA_CPP:  Result := 'llama.cpp';
     AIP_NEURAL_API: Result := 'neural-api';
+    AIP_RUNPOD:     Result := 'RunPod';
+    AIP_GROQ:       Result := 'Groq';
+    AIP_MISTRAL:    Result := 'Mistral';
+    AIP_XAI:        Result := 'xAI';
+    AIP_QWEN:       Result := 'Qwen';
   else
     Result := 'OpenAI';
   end;
+end;
+
+function GetAIProviderCatalogName(AProvider: TAIProvider): string;
+begin
+  case AProvider of
+    AIP_LOCAL: Result := 'Local';
+    AIP_GEMINI: Result := 'Gemini';
+    AIP_CLAUDE: Result := 'Claude';
+    AIP_DEEPSEEK: Result := 'DeepSeek';
+  else
+    Result := GetAIProviderName(AProvider);
+  end;
+end;
+
+function TryGetAIProviderFromName(const AName: string;
+  out AProvider: TAIProvider): Boolean;
+var
+  P: TAIProvider;
+  Name: string;
+begin
+  Name := Trim(AName);
+  if SameText(Name, 'Ollama') then Name := 'Local';
+  if SameText(Name, 'Anthropic') then Name := 'Claude';
+  if SameText(Name, 'Alibaba') or SameText(Name, 'DashScope') then Name := 'Qwen';
+  for P := Low(TAIProvider) to High(TAIProvider) do
+    if SameText(Name, GetAIProviderName(P)) or
+       SameText(Name, GetAIProviderCatalogName(P)) then
+    begin
+      AProvider := P;
+      Exit(True);
+    end;
+  AProvider := AIP_OPENAI;
+  Result := False;
 end;
 
 function GetDefaultEndpointForProvider(AProvider: TAIProvider): string;
@@ -365,6 +425,11 @@ begin
     AIP_OPENAI_COMPATIBLE: Result := 'http://localhost:8000/v1/chat/completions';
     AIP_LLAMA_CPP:  Result := 'http://localhost:8080/v1/chat/completions';
     AIP_NEURAL_API: Result := 'http://localhost:8000/v1/chat/completions';
+    AIP_RUNPOD: Result := 'https://api.runpod.ai/v2/ENDPOINT_ID/openai/v1/chat/completions';
+    AIP_GROQ: Result := 'https://api.groq.com/openai/v1/chat/completions';
+    AIP_MISTRAL: Result := 'https://api.mistral.ai/v1/chat/completions';
+    AIP_XAI: Result := 'https://api.x.ai/v1/chat/completions';
+    AIP_QWEN: Result := 'https://WORKSPACE_ID.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1/chat/completions';
   else
     Result := 'https://api.openai.com/v1/chat/completions';
   end;
@@ -389,25 +454,9 @@ begin
 end;
 
 procedure GetAIModelListForProvider(AProvider: TAIProvider; AOutList: TStrings);
-var
-  LProvider: string;
 begin
   if AOutList = nil then Exit;
-  case AProvider of
-    AIP_OPENAI: LProvider := 'OpenAI';
-    AIP_OPENROUTER: LProvider := 'OpenRouter';
-    AIP_CEREBRAS: LProvider := 'Cerebras';
-    AIP_LOCAL: LProvider := 'Local';
-    AIP_GEMINI: LProvider := 'Gemini';
-    AIP_CLAUDE: LProvider := 'Claude';
-    AIP_DEEPSEEK: LProvider := 'DeepSeek';
-    AIP_OPENAI_COMPATIBLE: LProvider := 'OpenAI-compatible';
-    AIP_LLAMA_CPP: LProvider := 'llama.cpp';
-    AIP_NEURAL_API: LProvider := 'neural-api';
-  else
-    LProvider := 'OpenAI';
-  end;
-  GetAILLMModelsForProvider(LProvider, AOutList);
+  GetAILLMModelsForProvider(GetAIProviderCatalogName(AProvider), AOutList);
 end;
 
 function JsonEscape(const S: WideString): WideString;
@@ -455,7 +504,7 @@ begin
   FLastTraceID := '';
 
   FParams := TStringList.Create;
-  FPrompt := 'TCHATGPT e o componente principal para comunicacao com OpenAI ChatGPT, OpenRouter, Cerebras, DeepSeek, Google Gemini, Claude e Ollama local.';
+  FPrompt := 'TCHATGPT comunica com OpenAI, Gemini, Claude, DeepSeek, Groq, Mistral, xAI, Qwen, OpenRouter, Cerebras, RunPod e servidores locais compativeis.';
   ClearError;
 end;
 
@@ -572,6 +621,11 @@ begin
     AIP_OPENAI_COMPATIBLE: Result := llmOpenAICompatible;
     AIP_LLAMA_CPP: Result := llmLlamaCpp;
     AIP_NEURAL_API: Result := llmNeuralAPI;
+    AIP_RUNPOD: Result := llmRunPod;
+    AIP_GROQ: Result := llmGroq;
+    AIP_MISTRAL: Result := llmMistral;
+    AIP_XAI: Result := llmXAI;
+    AIP_QWEN: Result := llmQwen;
   else
     Result := llmOpenAI;
   end;
@@ -825,55 +879,12 @@ end;
 
 function TCHATGPT.GetEndpoint: WideString;
 var
-  CleanURL: WideString;
+  Config: TAILLMProviderConfig;
+  Backend: IAILLMProvider;
 begin
-  CleanURL := Trim(FURL);
-  if CleanURL <> '' then
-  begin
-    Result := CleanURL;
-    // Se a URL fornecida não tiver a rota específica de completions/messages/generateContent, anexa automaticamente a rota do provedor
-    if (Pos('/v1/chat/completions', Result) = 0) and
-       (Pos('/messages', Result) = 0) and
-       (Pos('/generateContent', Result) = 0) and
-       (Pos('/v1/completions', Result) = 0) then
-    begin
-      if Copy(Result, Length(Result), 1) = '/' then
-        Delete(Result, Length(Result), 1);
-
-      if FProvider = AIP_CLAUDE then
-        Result := Result + '/v1/messages'
-      else if FProvider = AIP_GEMINI then
-        Result := Result + '/v1beta/models/' + GetModelName + ':generateContent?key=' + FToken
-      else
-        Result := Result + '/v1/chat/completions';
-    end;
-    Exit;
-  end;
-
-  case FProvider of
-    AIP_OPENAI:
-      Result := 'https://api.openai.com/v1/chat/completions';
-
-    AIP_OPENROUTER:
-      Result := 'https://openrouter.ai/api/v1/chat/completions';
-
-    AIP_CEREBRAS:
-      Result := 'https://api.cerebras.ai/v1/chat/completions';
-
-    AIP_DEEPSEEK:
-      Result := 'https://api.deepseek.com/v1/chat/completions';
-
-    AIP_GEMINI:
-      Result := 'https://generativelanguage.googleapis.com/v1beta/models/' + GetModelName + ':generateContent?key=' + FToken;
-
-    AIP_CLAUDE:
-      Result := 'https://api.anthropic.com/v1/messages';
-
-    AIP_LOCAL:
-      Result := MontaURLChatLocal(FLocalIP);
-  else
-    Result := 'https://api.openai.com/v1/chat/completions';
-  end;
+  BuildProviderConfig(Config, FQuestion);
+  Backend := TAILLMProviderFactory.CreateProvider(ProviderKind);
+  Result := UTF8ToUTF16(Backend.BuildEndpoint(Config));
 end;
 
 function TCHATGPT.GetModelName: WideString;
@@ -883,13 +894,32 @@ begin
   M := Trim(FCustomModel);
   if M <> '' then
   begin
-    // Normaliza variacoes ou modelos inexistentes para evitar erro 404 da OpenAI
+    // Correct the historical typo only; preserve every valid/custom model ID.
     if (FProvider in [AIP_OPENAI, AIP_OPENAI_COMPATIBLE]) and
-       (SameText(M, 'openai-4.1-mini') or SameText(M, 'gpt-4.1-mini') or
-        SameText(M, 'gpt-4.1') or SameText(M, 'gpt-5')) then
-      Exit('gpt-4o-mini');
+       SameText(M, 'openai-4.1-mini') then
+      Exit('gpt-4.1-mini');
     Exit(M);
   end;
+
+  case FTipoChat of
+    VCT_GPT61_SOL: Exit('gpt-6.1-sol');
+    VCT_GPT6_ASTRA: Exit('gpt-6-astra');
+    VCT_GPT6_LUNA: Exit('gpt-6-luna');
+    VCT_GEMINI_38_FLASH: Exit('gemini-3.8-flash');
+    VCT_GEMINI_4_ARGON: Exit('gemini-4-argon');
+    VCT_GEMINI_35_FLASH_LITE: Exit('gemini-3.5-flash-lite');
+    VCT_GEMINI_31_PRO_PREVIEW: Exit('gemini-3.1-pro-preview');
+    VCT_CLAUDE_SONNET_55: Exit('claude-sonnet-5-5');
+    VCT_CLAUDE_OPUS_55: Exit('claude-opus-5-5');
+    VCT_CLAUDE_HAIKU_55: Exit('claude-haiku-5-5');
+    VCT_CLAUDE_FABLE_51: Exit('claude-fable-5-1');
+    VCT_DEEPSEEK_FLASH: Exit('deepseek-flash');
+    VCT_DEEPSEEK_V4_PRO: Exit('deepseek-v4-pro');
+  end;
+
+  if FProvider in [AIP_CEREBRAS, AIP_RUNPOD, AIP_GROQ, AIP_MISTRAL,
+    AIP_XAI, AIP_QWEN, AIP_OPENAI_COMPATIBLE, AIP_LLAMA_CPP, AIP_NEURAL_API] then
+    Exit(GetAILLMDefaultModel(GetAIProviderCatalogName(FProvider)));
 
   if FProvider = AIP_LOCAL then
   begin
@@ -908,16 +938,13 @@ begin
     Exit;
   end;
 
-  if FProvider = AIP_CEREBRAS then
-    Exit('llama3.1-8b');
-
   if FProvider = AIP_DEEPSEEK then
   begin
     case FTipoChat of
       VCT_DEEPSEEK_CHAT:     Result := 'deepseek-chat';
       VCT_DEEPSEEK_REASONER: Result := 'deepseek-reasoner';
     else
-      Result := 'deepseek-chat';
+      Result := GetAILLMDefaultModel('DeepSeek');
     end;
     Exit;
   end;
@@ -930,7 +957,7 @@ begin
       VCT_OPENROUTER_DEEPSEEK_R1_FREE:  Result := 'deepseek/deepseek-r1:free';
       VCT_OPENROUTER_LLAMA32_3B_FREE:  Result := 'meta-llama/llama-3.2-3b-instruct:free';
     else
-      Result := 'google/gemma-2-9b-it:free';
+      Result := GetAILLMDefaultModel('OpenRouter');
     end;
     Exit;
   end;
@@ -945,7 +972,7 @@ begin
       VCT_GEMINI_25_FLASH:      Result := 'gemini-2.5-flash';
       VCT_GEMINI_25_PRO:        Result := 'gemini-2.5-pro';
     else
-      Result := 'gemini-2.0-flash';
+      Result := GetAILLMDefaultModel('Gemini');
     end;
     Exit;
   end;
@@ -958,7 +985,7 @@ begin
       VCT_CLAUDE_35_HAIKU:  Result := 'claude-3-5-haiku-20241022';
       VCT_CLAUDE_3_OPUS:    Result := 'claude-3-opus-20240229';
     else
-      Result := 'claude-3-7-sonnet-20250219';
+      Result := GetAILLMDefaultModel('Claude');
     end;
     Exit;
   end;
@@ -973,7 +1000,9 @@ begin
     VCT_GPT40_TURBO:   Result := 'gpt-4-turbo';
     VCT_GPT40:         Result := 'gpt-4';
     VCT_GPT35TURBO:    Result := 'gpt-3.5-turbo';
-    VCT_GPT41, VCT_GPT41_MINI, VCT_GPT5: Result := 'gpt-4o-mini';
+    VCT_GPT41:        Result := 'gpt-4.1';
+    VCT_GPT41_MINI:   Result := 'gpt-4.1-mini';
+    VCT_GPT5:         Result := 'gpt-5';
     VCT_CUSTOM:        Result := Trim(FCustomModel);
   else
     Result := 'gpt-4o-mini';
@@ -1174,7 +1203,7 @@ function TCHATGPT.LoadFromIni(const AFileName: string): Boolean;
 var
   Ini: TIniFile;
   LProvStr, LModelStr: string;
-  I: Integer;
+  ParsedProvider: TAIProvider;
 begin
   Result := False;
   if not FileExists(AFileName) then
@@ -1182,18 +1211,8 @@ begin
   Ini := TIniFile.Create(AFileName);
   try
     LProvStr := Ini.ReadString('LLM', 'Provider', '');
-    if LProvStr <> '' then
-    begin
-      for I := Ord(Low(TAIProvider)) to Ord(High(TAIProvider)) do
-      begin
-        if SameText(GetAIProviderName(TAIProvider(I)), LProvStr) or
-           SameText(AILLMProviderKindName(TAILLMProviderKind(I)), LProvStr) then
-        begin
-          FProvider := TAIProvider(I);
-          Break;
-        end;
-      end;
-    end;
+    if TryGetAIProviderFromName(LProvStr, ParsedProvider) then
+      FProvider := ParsedProvider;
     LModelStr := Ini.ReadString('LLM', 'Model', '');
     if LModelStr <> '' then
       FCustomModel := UTF8ToUTF16(LModelStr);
