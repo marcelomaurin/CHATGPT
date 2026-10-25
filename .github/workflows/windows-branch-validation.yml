@@ -1,0 +1,58 @@
+name: Native Windows branch validation
+
+on:
+  push:
+    branches:
+      - validation/windows-20261025
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-windows-branches-20261025
+  cancel-in-progress: true
+
+jobs:
+  native-windows:
+    runs-on: windows-2025
+    timeout-minutes: 45
+    steps:
+      - name: Checkout validation scripts
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            tools/ci
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install native Lazarus and Free Pascal
+        uses: gcarreno/setup-lazarus@v3.4.1
+        with:
+          lazarus-version: '3.0'
+          with-cache: false
+
+      - name: Compile snapshots and run native Windows tests
+        shell: pwsh
+        run: python tools/ci/validate_windows_branches.py
+
+      - name: Upload Windows results, logs and executables
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: CHATGPT-native-windows-20261025
+          path: windows-build-artifacts/
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Publish native Windows summary
+        if: always()
+        shell: pwsh
+        run: |
+          if (Test-Path windows-build-artifacts/REPORT.md) {
+            Get-Content windows-build-artifacts/REPORT.md >> $env:GITHUB_STEP_SUMMARY
+          }
