@@ -20,6 +20,9 @@ Os links de evidência apontam para o commit analisado, para preservar a reprodu
 | ERR-ENTREGA-005 | Média | Exemplo console Marlin ignorado pela descoberta e compilação automáticas de samples | Aberto; análise dos scanners e do projeto |
 | ERR-ENTREGA-006 | Alta | Unidade runtime de ações de código importa recursos de design-time | Aberto; verificador de fronteiras reprovado |
 | ERR-ENTREGA-007 | Alta | Falta execução geral dos testes Pascal existentes na CI | Aberto; análise dos workflows e executores |
+| ERR-ENTREGA-008 | Alta | Chamada JavaScript do Chromium incompatível com o CEF declarado | Aberto no Git; ajuste compilado somente na cópia local |
+| ERR-ENTREGA-009 | Alta | Registro variante V4L2 com sintaxe inválida | Aberto; bloqueia openai_input em Linux |
+| ERR-ENTREGA-010 | Alta | Tipo TTimeVal ausente na compilação Unix do Modbus | Aberto; bloqueia três exemplos históricos |
 
 **Critério de prioridade:** alta para bloqueio da validação, distribuição incompleta ou ausência de execução geral dos testes; média para lacunas de descoberta/classificação de exemplos.
 
@@ -250,3 +253,42 @@ Esses resultados demonstram bloqueio das etapas, não falha de compilação dos 
 Os três verificadores foram executados sobre os arquivos do snapshot obtidos do GitHub; não foi realizada uma compilação completa da biblioteca, uma instalação limpa do Lazarus nem a execução geral dos programas Pascal neste levantamento. Este registro não representa uma contagem exaustiva de componentes sem exemplo ou sem teste funcional.
 
 Para encerrar cada erro, registrar neste documento o commit da correção, os comandos executados, a plataforma e o resultado efetivamente obtido.
+
+## 7. Erros confirmados pela compilação das branches em 25/10/2026
+
+O [relatório da rodada de compilação](COMPILACAO_BRANCHES_2026-10-25.md) registra os commits, toolchain, alvos, comandos e resultados. Foram aprovadas 44 verificações de voz e 14 casos FPCUnit de impressão; os sete erros anteriores continuam sujeitos aos seus critérios de encerramento.
+
+### ERR-ENTREGA-008 — Chamada JavaScript incompatível com CEF4Delphi
+
+**Estado:** aberto no código versionado. **Prioridade:** alta.
+
+- **Fonte:** [aichromiumbrowser.pas:1578](https://github.com/marcelomaurin/CHATGPT/blob/f8e335fba391c77556f7e1cbc6b1a8629d87b9a9/pacote/AI%20Input/AIChromiumBrowser/aichromiumbrowser.pas#L1578).
+- **Ambiente:** FPC 3.2.2, Linux x86_64; CEF4Delphi `84d5f7670056aed6753bf4dc855a5cb3e468fd60`, conforme manifesto.
+- **Erro:** `Incompatible type for arg no. 3: Got "ShortInt", expected "ICefFrame"`, na linha 1582.
+- **Causa observada:** a chamada `ExecuteJavaScript(AScript, DefaultUrl, 0)` não corresponde à API do CEF declarado.
+- **Impacto:** a unidade do navegador não compila nesse conjunto de fontes/dependências.
+- **Verificação adicional:** a unidade compilou na cópia local usando a sobrecarga de cinco argumentos `(AScript, DefaultUrl, '', '', 0)`, que seleciona o frame principal conforme implementação do CEF. Essa adaptação não foi aplicada às branches remotas nem à `main`.
+- **Critério de encerramento:** versionar a adaptação compatível, recompilar a unidade/pacote e validar execução de JavaScript no frame esperado.
+
+### ERR-ENTREGA-009 — Registro variante V4L2 impede compilar openai_input
+
+**Estado:** aberto. **Prioridade:** alta.
+
+- **Fonte:** [aicamera_v4l2.pas:159](https://github.com/marcelomaurin/CHATGPT/blob/f8e335fba391c77556f7e1cbc6b1a8629d87b9a9/pacote/AI%20Vision/aicamera_v4l2.pas#L159).
+- **Reprodução:** compilação de `pacote/packages/openai_input.lpk` da branch `fix/lazarus-packages-20260916` com FPC 3.2.2/Lazarus 3.0, Linux x86_64.
+- **Erro:** `Syntax error, "(" expected but ":" found`, na linha 175.
+- **Causa observada:** campos comuns (`length`, `reserved2`, `request_fd`) aparecem após a parte variante `case Integer of` do registro `v4l2_buffer`.
+- **Impacto:** o pacote completo de entrada permanece sem compilar, inclusive após contornar localmente ERR-ENTREGA-008.
+- **Critério de encerramento:** corrigir a organização do registro/union, conferir seu tamanho e offsets contra a ABI V4L2 dos targets suportados, e recompilar o pacote. A validação de câmera real permanece necessária.
+
+### ERR-ENTREGA-010 — TTimeVal ausente na compilação Unix do Modbus
+
+**Estado:** aberto. **Prioridade:** alta.
+
+- **Fonte:** [aimodbus.pas:245](https://github.com/marcelomaurin/CHATGPT/blob/3affa4e6a01c2148e537aed4efdb6a2ee6d499b0/pacote/AI%20Industrial/aimodbus.pas#L245).
+- **Reprodução:** compilação de `wizard_config_demo`, `training_exporter_demo` e `training_report_demo` no commit `3affa4e6a01c2148e537aed4efdb6a2ee6d499b0`, FPC 3.2.2/Lazarus 3.0, Linux x86_64.
+- **Erros:** `Identifier not found "TTimeVal"` e `Error in type definition` na linha 245; `Illegal qualifier` nas linhas 268 e 269.
+- **Impacto:** os três exemplos históricos param na unidade Modbus de sua cadeia de dependências e não geram executáveis.
+- **Critério de encerramento:** disponibilizar o tipo Unix adequado para os timeouts de socket e suas referências, recompilar os três projetos e validar a configuração de timeout.
+
+As unidades dos três erros possuem blobs idênticos às unidades da `main` auditada anteriormente. O relatório detalha essa conferência e distingue os builds das branches da integração completa na `main`.
