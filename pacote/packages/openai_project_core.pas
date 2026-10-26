@@ -8,7 +8,8 @@ unit openai_project_core;
 interface
 
 uses
-  aiproject_core, aiprojectduration, aiundohistory, aijsonutils, aitaskgraph, aiworkcalendar, aicpmscheduler, airesourceload;
+  aiproject_core, aiprojectduration, aiundohistory, aijsonutils, aitaskgraph, aiworkcalendar, aicpmscheduler, airesourceload, 
+  aitasktype, aicostmodel;
 
 implementation
 

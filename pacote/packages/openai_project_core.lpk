@@ -13,9 +13,9 @@
         <UnitOutputDirectory Value="lib\openai_project_core\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Description Value="Lazarus AI Suite: lightweight serializable project, task, revision and action core; durations, task dependency graph, work calendar, CPM scheduler, undo history and JSON document utilities."/>
+    <Description Value="Lazarus AI Suite: lightweight serializable project, task, revision and action core; durations, task dependency graph, work calendar, CPM scheduler, resource load and leveling, task types (work = duration x units), costs with accrual, undo history and JSON document utilities."/>
     <License Value="OPEN SOURCE GPL3"/>
-    <Files Count="8">
+    <Files Count="10">
       <Item1>
         <Filename Value="..\AI Project Core\aiproject_core.pas"/>
         <UnitName Value="aiproject_core"/>
@@ -48,6 +48,14 @@
         <Filename Value="..\AI Project Core\airesourceload.pas"/>
         <UnitName Value="airesourceload"/>
       </Item8>
+      <Item9>
+        <Filename Value="..\AI Project Core\aitasktype.pas"/>
+        <UnitName Value="aitasktype"/>
+      </Item9>
+      <Item10>
+        <Filename Value="..\AI Project Core\aicostmodel.pas"/>
+        <UnitName Value="aicostmodel"/>
+      </Item10>
     </Files>
     <RequiredPkgs Count="1">
       <Item1>
