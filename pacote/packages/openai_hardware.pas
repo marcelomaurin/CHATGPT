@@ -8,8 +8,8 @@ unit openai_hardware;
 interface
 
 uses
-  aihardwarelinux, aicpu, aimemory, aigpu, aidisk, aiso, ai_tasks,
-  ailistprinters, aifirmwareflasher, LazarusPackageIntf;
+  aihardwarelinux, aicpu, aimemory, aigpu, aidisk, aiso, ai_tasks, 
+  ailistprinters, aiwifi, aifirmwareflasher, LazarusPackageIntf;
 
 implementation
 
@@ -22,6 +22,7 @@ begin
   RegisterUnit('aiso', @aiso.Register);
   RegisterUnit('ai_tasks', @ai_tasks.Register);
   RegisterUnit('ailistprinters', @ailistprinters.Register);
+  RegisterUnit('aiwifi', @aiwifi.Register);
   RegisterUnit('aifirmwareflasher', @aifirmwareflasher.Register);
 end;
 
