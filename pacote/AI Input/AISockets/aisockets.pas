@@ -12,7 +12,7 @@ uses
     {$IFDEF WIN64}
     winsock2
     {$ELSE}
-    netdb
+    netdb, BaseUnix
     {$ENDIF}
   {$ENDIF}
   , LResources;
@@ -34,8 +34,10 @@ type
     FSocket: TSocket;
     FServerThread: TThread;
     FLastError: string;
+    FConnectTimeoutMs: Integer;
     procedure SetActive(AValue: Boolean);
     function ResolveHost(const AHost: string; var AAddr): Boolean;
+    function ConnectWithTimeout(const AAddr: TInetSockAddr): Boolean;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -44,12 +46,21 @@ type
     procedure Disconnect;
     function SendText(const AText: string): Boolean;
     function ReceiveText(out AText: string): Boolean;
+    { Dados binários (modo cliente). SendBuffer envia tudo ou retorna False. }
+    function SendBuffer(const ABuffer; ACount: Integer): Boolean;
+    { Espera até ATimeoutMs por dados. Retorna >0 = bytes lidos, 0 = nada
+      chegou no prazo, -1 = conexão fechada ou erro (Active vira False). }
+    function ReceiveBuffer(var ABuffer; ACount, ATimeoutMs: Integer): Integer;
+    { True se houver dados (ou fechamento) para ler em até ATimeoutMs. }
+    function WaitForData(ATimeoutMs: Integer): Boolean;
   published
     property Prompt: string read FPrompt write FPrompt;
     property Host: string read FHost write FHost;
     property Port: Integer read FPort write FPort default 9000;
     property Active: Boolean read FActive write SetActive default False;
     property Mode: TSocketMode read FMode write FMode default smClient;
+    { Tempo máximo de Connect em modo cliente (0 = sem limite, padrão). }
+    property ConnectTimeoutMs: Integer read FConnectTimeoutMs write FConnectTimeoutMs default 0;
     property OnDataReceived: TSocketDataEvent read FOnDataReceived write FOnDataReceived;
     property LastError: string read FLastError;
   end;
@@ -65,6 +76,7 @@ type
     FOnDataReceived: TSocketDataEvent;
     FSocket: TSocket;
     FLastError: string;
+    FLocalPort: Integer;
     procedure SetActive(AValue: Boolean);
     function ResolveHost(const AHost: string; var AAddr): Boolean;
   public
@@ -74,11 +86,16 @@ type
     function OpenSocket: Boolean;
     procedure CloseSocket;
     function SendText(const AText: string): Boolean;
+    { Envia dados binários para Host:Port. }
+    function SendBuffer(const ABuffer; ACount: Integer): Boolean;
     function ReceiveText(out AText: string; out AFromIP: string): Boolean;
   published
     property Prompt: string read FPrompt write FPrompt;
     property Host: string read FHost write FHost;
     property Port: Integer read FPort write FPort default 9001;
+    { Porta local do OpenSocket: -1 (padrão) = a mesma de Port;
+      0 = qualquer porta livre (para quem só envia, como clientes de drone). }
+    property LocalPort: Integer read FLocalPort write FLocalPort default -1;
     property Active: Boolean read FActive write SetActive default False;
     property OnDataReceived: TSocketDataEvent read FOnDataReceived write FOnDataReceived;
     property LastError: string read FLastError;
@@ -87,6 +104,54 @@ type
 procedure Register;
 
 implementation
+
+{ ---------- auxiliares de socket (Windows e Unix) ---------- }
+
+function SocketWait(ASocket: TSocket; ATimeoutMs: Integer; AForWrite: Boolean): Boolean;
+var
+  FDS: TFDSet;
+  TV: TTimeVal;
+begin
+  if ATimeoutMs < 0 then
+    ATimeoutMs := 0;
+  TV.tv_sec := ATimeoutMs div 1000;
+  TV.tv_usec := (ATimeoutMs mod 1000) * 1000;
+  {$IF DEFINED(WIN32) OR DEFINED(WIN64)}
+  FD_ZERO(FDS);
+  FD_SET(ASocket, FDS);
+  if AForWrite then
+    Result := select(0, nil, @FDS, nil, @TV) > 0
+  else
+    Result := select(0, @FDS, nil, nil, @TV) > 0;
+  {$ELSE}
+  fpFD_ZERO(FDS);
+  fpFD_SET(ASocket, FDS);
+  if AForWrite then
+    Result := fpSelect(ASocket + 1, nil, @FDS, nil, @TV) > 0
+  else
+    Result := fpSelect(ASocket + 1, @FDS, nil, nil, @TV) > 0;
+  {$ENDIF}
+end;
+
+procedure SocketSetBlocking(ASocket: TSocket; ABlocking: Boolean);
+{$IF DEFINED(WIN32) OR DEFINED(WIN64)}
+var
+  Mode: u_long;
+begin
+  if ABlocking then Mode := 0 else Mode := 1;
+  ioctlsocket(ASocket, LongInt(FIONBIO), @Mode);
+end;
+{$ELSE}
+var
+  Flags: cint;
+begin
+  Flags := fpfcntl(ASocket, F_GETFL);
+  if ABlocking then
+    fpfcntl(ASocket, F_SETFL, Flags and not O_NONBLOCK)
+  else
+    fpfcntl(ASocket, F_SETFL, Flags or O_NONBLOCK);
+end;
+{$ENDIF}
 
 type
   { TTCPServerThread }
@@ -198,7 +263,7 @@ end;
 constructor TAISocketTCP.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  FPrompt := 'Component TAISocketTCP manages standard TCP connections. Properties: Host: string (target IP/domain), Port: Integer, Mode: TSocketMode (smClient, smServer), Active: Boolean (triggers connect/disconnect), OnDataReceived: TSocketDataEvent. Methods: Connect, Disconnect, SendText(const AText: string): Boolean, ReceiveText(out AText: string): Boolean. AI Agent: Use this for persistent bidirectional stream communication.';
+  FPrompt := 'Component TAISocketTCP manages standard TCP connections. Properties: Host: string (target IP/domain), Port: Integer, Mode: TSocketMode (smClient, smServer), Active: Boolean (triggers connect/disconnect), OnDataReceived: TSocketDataEvent. Methods: Connect, Disconnect, SendText(const AText: string): Boolean, ReceiveText(out AText: string): Boolean, SendBuffer(const ABuffer; ACount): Boolean, ReceiveBuffer(var ABuffer; ACount, ATimeoutMs): Integer (bytes, 0 = timeout, -1 = closed), WaitForData(ATimeoutMs): Boolean. ConnectTimeoutMs limits Connect. AI Agent: Use this for persistent bidirectional stream communication.';
   FHost := '127.0.0.1';
   FPort := 9000;
   FActive := False;
@@ -297,13 +362,27 @@ begin
       Exit;
     end;
     
-    Res := fpConnect(FSocket, @Addr, SizeOf(Addr));
-    if Res < 0 then
+    if FConnectTimeoutMs > 0 then
     begin
-      sockets.CloseSocket(FSocket);
-      FSocket := TSocket(-1);
-      FLastError := 'Connection to host failed.';
-      Exit;
+      if not ConnectWithTimeout(Addr) then
+      begin
+        sockets.CloseSocket(FSocket);
+        FSocket := TSocket(-1);
+        if FLastError = '' then
+          FLastError := 'Connection to host failed.';
+        Exit;
+      end;
+    end
+    else
+    begin
+      Res := fpConnect(FSocket, @Addr, SizeOf(Addr));
+      if Res < 0 then
+      begin
+        sockets.CloseSocket(FSocket);
+        FSocket := TSocket(-1);
+        FLastError := 'Connection to host failed.';
+        Exit;
+      end;
     end;
     
     FActive := True;
@@ -346,18 +425,79 @@ begin
   FActive := False;
 end;
 
-function TAISocketTCP.SendText(const AText: string): Boolean;
+function TAISocketTCP.ConnectWithTimeout(const AAddr: TInetSockAddr): Boolean;
 var
-  Res: Integer;
+  Err: LongInt;
+  ErrLen: TSockLen;
+begin
+  Result := False;
+  SocketSetBlocking(FSocket, False);
+  try
+    if fpConnect(FSocket, @AAddr, SizeOf(AAddr)) = 0 then
+      Exit(True);
+    if not SocketWait(FSocket, FConnectTimeoutMs, True) then
+    begin
+      FLastError := Format('Connection timeout (%d ms).', [FConnectTimeoutMs]);
+      Exit;
+    end;
+    Err := 0;
+    ErrLen := SizeOf(Err);
+    if (fpGetSockOpt(FSocket, SOL_SOCKET, SO_ERROR, @Err, @ErrLen) <> 0) or (Err <> 0) then
+    begin
+      FLastError := 'Connection to host failed.';
+      Exit;
+    end;
+    Result := True;
+  finally
+    SocketSetBlocking(FSocket, True);
+  end;
+end;
+
+function TAISocketTCP.SendBuffer(const ABuffer; ACount: Integer): Boolean;
+var
+  Sent, Res: Integer;
+  P: PByte;
 begin
   Result := False;
   if not FActive or (FSocket = TSocket(-1)) then Exit;
-  
-  Res := fpsend(FSocket, Pointer(AText), Length(AText), 0);
-  if Res > 0 then
-    Result := True
-  else
-    FLastError := 'TCP send failed.';
+  P := @ABuffer;
+  Sent := 0;
+  while Sent < ACount do
+  begin
+    Res := fpsend(FSocket, @P[Sent], ACount - Sent, 0);
+    if Res <= 0 then
+    begin
+      FLastError := 'TCP send failed.';
+      Exit;
+    end;
+    Inc(Sent, Res);
+  end;
+  Result := True;
+end;
+
+function TAISocketTCP.WaitForData(ATimeoutMs: Integer): Boolean;
+begin
+  Result := FActive and (FSocket <> TSocket(-1)) and SocketWait(FSocket, ATimeoutMs, False);
+end;
+
+function TAISocketTCP.ReceiveBuffer(var ABuffer; ACount, ATimeoutMs: Integer): Integer;
+begin
+  Result := -1;
+  if not FActive or (FSocket = TSocket(-1)) or (ACount <= 0) then Exit;
+  if not SocketWait(FSocket, ATimeoutMs, False) then
+    Exit(0);
+  Result := fprecv(FSocket, @ABuffer, ACount, 0);
+  if Result <= 0 then
+  begin
+    FLastError := 'TCP connection closed.';
+    Disconnect;
+    Result := -1;
+  end;
+end;
+
+function TAISocketTCP.SendText(const AText: string): Boolean;
+begin
+  Result := (AText <> '') and SendBuffer(AText[1], Length(AText));
 end;
 
 function TAISocketTCP.ReceiveText(out AText: string): Boolean;
@@ -385,9 +525,10 @@ end;
 constructor TAISocketUDP.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  FPrompt := 'Component TAISocketUDP handles lightweight connectionless UDP communication. Properties: Host: string (target IP/domain), Port: Integer, Active: Boolean, OnDataReceived: TSocketDataEvent. Methods: OpenSocket, CloseSocket, SendText(const AText: string): Boolean, ReceiveText(out AText: string; out AFromIP: string): Boolean. AI Agent: Use this for quick, non-guaranteed broadcast signals or real-time telemetry.';
+  FPrompt := 'Component TAISocketUDP handles lightweight connectionless UDP communication. Properties: Host: string (target IP/domain), Port: Integer, Active: Boolean, OnDataReceived: TSocketDataEvent. Methods: OpenSocket, CloseSocket, SendText(const AText: string): Boolean, SendBuffer(const ABuffer; ACount): Boolean, ReceiveText(out AText: string; out AFromIP: string): Boolean. LocalPort: -1 binds to Port, 0 binds to any free port. AI Agent: Use this for quick, non-guaranteed broadcast signals or real-time telemetry.';
   FHost := '127.0.0.1';
   FPort := 9001;
+  FLocalPort := -1;
   FActive := False;
   FSocket := TSocket(-1);
   FLastError := '';
@@ -470,12 +611,15 @@ begin
   end;
   
   Addr.sin_family := AF_INET;
-  Addr.sin_port := htons(FPort);
+  if FLocalPort >= 0 then
+    Addr.sin_port := htons(FLocalPort)
+  else
+    Addr.sin_port := htons(FPort);
   Addr.sin_addr.s_addr := htonl(INADDR_ANY);
   
   if fpBind(FSocket, @Addr, sizeof(Addr)) <> 0 then
   begin
-    FLastError := 'UDP Bind failed on port ' + IntToStr(FPort);
+    FLastError := 'UDP Bind failed on port ' + IntToStr(ntohs(Addr.sin_port));
     CloseSocket;
     Exit;
   end;
@@ -496,6 +640,11 @@ end;
 
 // Removed FHost check - lets connect directly
 function TAISocketUDP.SendText(const AText: string): Boolean;
+begin
+  Result := (AText <> '') and SendBuffer(AText[1], Length(AText));
+end;
+
+function TAISocketUDP.SendBuffer(const ABuffer; ACount: Integer): Boolean;
 var
   Addr: TInetSockAddr;
 begin
@@ -510,7 +659,7 @@ begin
     Exit;
   end;
   
-  if fpSendTo(FSocket, Pointer(AText), Length(AText), 0, @Addr, sizeof(Addr)) = Length(AText) then
+  if fpSendTo(FSocket, @ABuffer, ACount, 0, @Addr, sizeof(Addr)) = ACount then
     Result := True
   else
     FLastError := 'UDP Send failed.';
