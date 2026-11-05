@@ -45,7 +45,7 @@ type
     property Endpoint: string read FEndpoint write FEndpoint;
 
     { API token. Never persisted unless SaveToken=True. }
-    property Token: string read FToken write FToken;
+    property Token: string read FToken write FToken stored False;
 
     { If True the token is allowed to be written to disk. Default: False. }
     property SaveToken: Boolean read FSaveToken write FSaveToken default False;

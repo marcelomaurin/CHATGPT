@@ -47,7 +47,7 @@ begin
       Check(not Ini.ValueExists('LLM', 'Token'), 'Legacy Token was not removed.');
       Check(not Ini.ValueExists('LLM', 'APIKey'), 'Legacy APIKey was not removed.');
     finally Ini.Free; end;
-    WriteLn('PASS: all ten providers round-trip; credentials stay out of INI/forms.');
+    WriteLn('PASS: all providers round-trip; credentials stay out of INI/forms.');
   finally
     C.Free;
     Loaded.Free;

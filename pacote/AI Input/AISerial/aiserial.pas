@@ -5,7 +5,8 @@ unit aiserial;
 interface
 
 uses
-  Classes, SysUtils, serial, LResources;
+  Classes, SysUtils, serial, LResources
+  {$IFDEF MSWINDOWS}, Windows{$ENDIF};
 
 type
   TAISerialIdleEvent = procedure(Sender: TObject; var AAbort: Boolean) of object;
@@ -24,13 +25,20 @@ type
     FActive: Boolean;
     FHandle: TSerialHandle;
     FLastError: string;
+    FLastErrorCode: Integer;
+    FOpenedName: string;
     FOnIdle: TAISerialIdleEvent;
     FOnConnect: TNotifyEvent;
     FOnDisconnect: TNotifyEvent;
     FOnRXReceive: TAISerialDataEvent;
     FOnTXSend: TAISerialDataEvent;
     procedure SetActive(AValue: Boolean);
+    function HandleValid: Boolean;
   public
+    { No Windows, COM10 em diante precisa do prefixo \\.\ para abrir. }
+    class function NormalizeDeviceName(const AName: string): string;
+    { Dica legivel para o codigo de erro do sistema ao abrir a porta. }
+    class function DescribeOpenError(ACode: Integer): string;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     
@@ -50,6 +58,10 @@ type
     property Parity: Char read FParity write FParity default 'N';
     property Active: Boolean read FActive write SetActive default False;
     property LastError: string read FLastError;
+    { Codigo de erro do sistema (GetLastError/errno) da ultima falha; 0 = nenhum. }
+    property LastErrorCode: Integer read FLastErrorCode;
+    { Nome efetivamente aberto (ex.: \\.\COM20). }
+    property OpenedName: string read FOpenedName;
     property OnIdle: TAISerialIdleEvent read FOnIdle write FOnIdle;
     property OnConnect: TNotifyEvent read FOnConnect write FOnConnect;
     property OnDisconnect: TNotifyEvent read FOnDisconnect write FOnDisconnect;
@@ -88,6 +100,50 @@ begin
   inherited Destroy;
 end;
 
+class function TAISerialModem.NormalizeDeviceName(const AName: string): string;
+begin
+  Result := Trim(AName);
+  {$IFDEF MSWINDOWS}
+  if SameText(Copy(Result, 1, 3), 'COM') and
+     (StrToIntDef(Copy(Result, 4, MaxInt), 0) >= 10) then
+    Result := '\\.\' + Result;
+  {$ENDIF}
+end;
+
+class function TAISerialModem.DescribeOpenError(ACode: Integer): string;
+begin
+  {$IFDEF MSWINDOWS}
+  case ACode of
+    2, 3: Result := 'port does not exist: device unplugged, wrong COM number or driver missing';
+    5: Result := 'access denied: the port is in use by another program (Cura, Arduino IDE, Pronterface, OctoPrint, another MultiCNC)';
+    31: Result := 'device not working: unplug and reconnect the USB cable';
+    87: Result := 'invalid parameter: check port name and baud rate';
+    121, 1460: Result := 'timeout talking to the USB-serial driver';
+    1167: Result := 'device not connected';
+  else
+    Result := '';
+  end;
+  {$ELSE}
+  case ACode of
+    2: Result := 'device does not exist';
+    13: Result := 'permission denied: add the user to the dialout group';
+    16: Result := 'device busy: in use by another program';
+  else
+    Result := '';
+  end;
+  {$ENDIF}
+end;
+
+function TAISerialModem.HandleValid: Boolean;
+begin
+  {$IFDEF MSWINDOWS}
+  { TSerialHandle e THandle sem sinal: falha vem como INVALID_HANDLE_VALUE. }
+  Result := (FHandle <> 0) and (FHandle <> TSerialHandle(INVALID_HANDLE_VALUE));
+  {$ELSE}
+  Result := FHandle > 0;
+  {$ENDIF}
+end;
+
 procedure TAISerialModem.SetActive(AValue: Boolean);
 begin
   if FActive = AValue then Exit;
@@ -100,26 +156,60 @@ end;
 function TAISerialModem.OpenPort: Boolean;
 var
   Par: TParityType;
+  Hint: string;
+  {$IFDEF MSWINDOWS}
+  Timeouts: TCommTimeouts;
+  DCB: TDCB;
+  {$ENDIF}
 begin
   Result := False;
   FLastError := '';
+  FLastErrorCode := 0;
   
   if FActive then Exit(True);
   
-  FHandle := SerOpen(FDeviceName);
-  if FHandle <= 0 then
+  FOpenedName := NormalizeDeviceName(FDeviceName);
+  FHandle := SerOpen(FOpenedName);
+  if not HandleValid then
   begin
-    FLastError := 'Failed to open serial port: ' + FDeviceName;
+    FLastErrorCode := GetLastOSError;
+    FHandle := 0;
+    Hint := DescribeOpenError(FLastErrorCode);
+    if Hint = '' then Hint := SysErrorMessage(FLastErrorCode);
+    FLastError := Format('Failed to open serial port %s (opened as %s): system error %d - %s',
+      [FDeviceName, FOpenedName, FLastErrorCode, Hint]);
     Exit;
   end;
   
   case FParity of
-    'E', 'e': Par := EvenParity;
-    'O', 'o': Par := OddParity;
-    else Par := NoneParity;
+    'E', 'e': Par := serial.EvenParity;
+    'O', 'o': Par := serial.OddParity;
+    else Par := serial.NoneParity;
   end;
   
   SerSetParams(FHandle, FBaudRate, FDataBits, Par, FStopBits, []);
+
+  {$IFDEF MSWINDOWS}
+  { SerSetParams ignora falhas do driver: confere o baud aplicado. }
+  FillChar(DCB, SizeOf(DCB), 0);
+  DCB.DCBlength := SizeOf(DCB);
+  if GetCommState(FHandle, DCB) and (Integer(DCB.BaudRate) <> FBaudRate) then
+  begin
+    FLastErrorCode := GetLastOSError;
+    SerClose(FHandle);
+    FHandle := 0;
+    FLastError := Format('Serial port %s opened, but the driver rejected %d baud (port reports %d)',
+      [FDeviceName, FBaudRate, Integer(DCB.BaudRate)]);
+    Exit;
+  end;
+  { Leitura nao-bloqueante: Poll/ReadText retornam na hora o que houver
+    no buffer, sem travar a interface esperando dados. }
+  FillChar(Timeouts, SizeOf(Timeouts), 0);
+  Timeouts.ReadIntervalTimeout := MAXDWORD;
+  Timeouts.WriteTotalTimeoutConstant := 1000;
+  SetCommTimeouts(FHandle, Timeouts);
+  PurgeComm(FHandle, PURGE_RXCLEAR or PURGE_TXCLEAR);
+  {$ENDIF}
   
   FActive := True;
   Result := True;
@@ -132,7 +222,7 @@ var
   WasActive: Boolean;
 begin
   WasActive := FActive;
-  if FHandle > 0 then
+  if HandleValid then
     SerClose(FHandle);
 
   FHandle := 0;
@@ -144,7 +234,7 @@ end;
 function TAISerialModem.WriteText(const AText: string): Boolean;
 begin
   Result := False;
-  if not FActive or (FHandle <= 0) then Exit;
+  if not FActive or not HandleValid then Exit;
   if AText = '' then Exit(True);
 
   if SerWrite(FHandle, Pointer(AText)^, Length(AText)) = Length(AText) then
@@ -164,7 +254,7 @@ var
 begin
   Result := False;
   AText := '';
-  if not FActive or (FHandle <= 0) then Exit;
+  if not FActive or not HandleValid then Exit;
   
   FillChar(Buffer, SizeOf(Buffer), 0);
   BytesRead := SerRead(FHandle, Buffer, SizeOf(Buffer) - 1);
@@ -184,7 +274,7 @@ var
   Data: string;
   I: Integer;
 begin
-  if not FActive or (FHandle <= 0) then Exit;
+  if not FActive or not HandleValid then Exit;
 
   for I := 1 to 32 do
   begin

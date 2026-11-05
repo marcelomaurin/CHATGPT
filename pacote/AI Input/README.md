@@ -1,44 +1,57 @@
-# 🔌 Lazarus AI Suite — Aba `AI Input`
+﻿# 📥 AI Input — Componentes de Entrada e Captura
 
-A pasta **AI Input** concentra componentes de entrada, captura e comunicação usados pela suíte CHATGPT em Lazarus/Free Pascal.
+A pasta **`pacote/AI Input/`** concentra os componentes de captura de dados, sensores físicos, conexões de rede e periféricos da suíte **TCHATGPT**. Estes componentes pertencem ao pacote Lazarus [**`openai_input.lpk`**](../packages/openai_input.lpk).
 
-> Modbus, MQTT e bridges industriais pertencem ao pacote/área **AI Industrial**. Eles não devem ser documentados como componentes de AI Input.
+---
 
-## Principais grupos
+## 🎯 Propósito do Módulo
 
-- captura de dados e fontes de entrada;
-- serial e modem;
-- USB e descoberta de dispositivos;
-- sockets TCP/UDP;
-- servidor Web/API;
-- Chromium/browser capture;
-- e-mail como fonte de entrada;
-- Kinect e sensores compatíveis;
-- gerenciamento/inventário de hardware.
+O objetivo do módulo **AI Input** é fornecer uma interface uniforme para alimentar pipelines de IA com dados do mundo real e de fontes externas:
+- **Periféricos de controle e interação:** Joysticks, gamepads Xbox/WinMM e dispositivos USB.
+- **Áudio e Biometria Vocal:** Detecção de locutores e sessões de fala por similaridade de embeddings.
+- **Sensores de Profundidade e Câmeras:** Captura de esqueletos e mapas de profundidade com Microsoft Kinect v1.
+- **Comunicação e Redes:** Servidores web HTTP embutidos, WebSockets, Sockets TCP/UDP puros e portas seriais/modems.
+- **Documentos e Navegação:** Leitura e extração de texto de PDF, DOCX, XLSX e captura de páginas via Chromium.
 
-## Componentes e samples de referência
+---
 
-Entre os componentes demonstrados pelos samples da suíte estão `TAIUSB`, `TAICaptureSource`, `TAIChromiumBrowser`, `TAIEmailClient`, `TAIKinectSensor`, `TAIKinectColorStream`, `TAIKinectDepthStream`, `TAIKinectSkeleton`, `TAISerialModem`, `TAISocketTCP`, `TAISocketUDP` e `TAIWebAPIServer`.
+## 📂 Subpastas e Componentes Implementados
 
-Consulte `pacote/COMPONENT_STATUS.md` para o estado atual de cada integração e `pacote/samples/AI Input/` para exemplos executáveis.
+Abaixo está o detalhamento de cada subdiretório, seus arquivos fontes e componentes contidos:
 
-## Hardware e runtime
+| Diretório | Componentes / Unidades | Propósito e Funcionalidade |
+|---|---|---|
+| [**`AIJoystick/`**](AIJoystick/) | [`TAIJoystick`](AIJoystick/aijoystick.pas) ([README](AIJoystick/README.md)) | Suporte a controles XInput (Xbox 360/One) e joysticks genéricos WinMM com hotplug e normalização de eixos. |
+| [**`AIAudio/`**](AIAudio/) | [`TAISpeakerSession`](AIAudio/aispeakersignature.pas), [`TAIAudio`](AIAudio/aiaudio.pas) | Captura de áudio e gerenciamento de sessões de assinatura vocal por similaridade de cosseno de embeddings. |
+| [**`AIKinect/`**](AIKinect/) | [`TAIKinectSensor`](AIKinect/aikinect_sensor.pas), [`TAIKinectColorStream`](AIKinect/aikinect_streams.pas), [`TAIKinectDepthStream`](AIKinect/aikinect_streams.pas), [`TAIKinectSkeleton`](AIKinect/aikinect_skeleton.pas) | Integração completa com Kinect SDK 1.0 e libfreenect para rastreamento de esqueletos e profundidade. |
+| [**`AICaptureSource/`**](AICaptureSource/) | [`TAICaptureSource`](AICaptureSource/aicapturesource.pas) | Provedor abstrato e genérico de fluxos contínuos de captura. |
+| [**`AIUSB/`**](AIUSB/) | [`TAIUSB`](AIUSB/aiusb.pas), [`aiusb_register.pas`](AIUSB/aiusb_register.pas) | Descoberta e enumeração de dispositivos USB conectados ao sistema. |
+| [**`AISerial/`**](AISerial/) | [`TAISerial`](AISerial/aiserial.pas), [`TAISerialFingerprint`](AISerial/aiserialfingerprint.pas), [`ailistserialdevices.pas`](AISerial/ailistserialdevices.pas) | Comunicação serial assíncrona, identificação de modems e leitura de periféricos RS-232/USB-Serial. |
+| [**`AISockets/`**](AISockets/) | [`TAISocketTCP`](AISockets/aisockets.pas), [`TAISocketUDP`](AISockets/aisockets.pas) | Conexões de rede em baixo nível via sockets TCP e datagramas UDP para troca rápida de pacotes. |
+| [**`AIWebServer/`**](AIWebServer/) | [`TAIWebServer`](AIWebServer/aiwebserver.pas) | Servidor web HTTP/REST embutido na aplicação para receber webhooks e requisições remotas de IA. |
+| [**`AIChromiumBrowser/`**](AIChromiumBrowser/) | [`TAIChromiumBrowser`](AIChromiumBrowser/aichromiumbrowser.pas) | Navegação web programável e captura de telas e DOM para agentes e web scrapers. |
+| [**`AIEmail/`**](AIEmail/) | [`TAIEmail`](AIEmail/aiemail.pas) | Leitura e ingestão de e-mails via protocolos padrão para classificação e extração de entidades. |
+| [**`AIMessenger/`**](AIMessenger/) | [`TAIMessenger`](AIMessenger/aimessenger.pas) | Conectores para mensagens e chats bidirecionais. |
+| [**`AIInput/`**](AIInput/) | [`TAIInput`](AIInput/aiinput.pas), [`aidocumentreader.pas`](AIInput/aidocumentreader.pas), [`aipdfinput.pas`](AIInput/aipdfinput.pas), [`aidocxinput.pas`](AIInput/aidocxinput.pas), [`aiexcelinput.pas`](AIInput/aiexcelinput.pas) | Ingestão e parsing estruturado de documentos locais (PDF, DOCX, Planilhas Excel). |
 
-A compilação de um sample não comprova automaticamente que o dispositivo, driver, DLL, browser runtime ou serviço externo esteja disponível na máquina final. Sempre valide o backend real da plataforma.
+---
 
-Para serial/USB/Kinect/câmera, trate ausência de dispositivo como condição normal de runtime e não como prova de erro de compilação do componente.
+## 🎮 Exemplos e Demonstrações Práticas
 
-## Dependências
+Para ver estes componentes em funcionamento com interface visual e código-fonte completo:
+- [**`samples/AI Input/`**](../samples/AI%20Input/):
+  - [**`capture_source_demo`**](../samples/AI%20Input/capture_source_demo/): Demonstração de fontes de captura contínua.
+  - [**`aiusb_devices_demo`**](../samples/AI%20Input/aiusb_devices_demo/): Listagem e telemetria de portas USB.
+  - [**`document_input_demo`**](../samples/AI%20Input/document_input_demo/): Extração e parsing de PDF, Word e Excel.
+  - [**`kinect_skeleton_demo`**](../samples/AI%20Input/kinect_skeleton_demo/): Visualização 3D de esqueleto corporal do Kinect.
+  - [**`serial_demo`**](../samples/AI%20Input/serial_demo/): Monitor serial bidirecional.
+  - [**`socket_server_client_demo`**](../samples/AI%20Input/socket_server_client_demo/): Comunicação cliente-servidor TCP/UDP.
+  - [**`webserver_demo`**](../samples/AI%20Input/webserver_demo/): Servidor REST integrado.
+- [**`samples/AI Audio/speaker_signature_demo/`**](../samples/AI%20Audio/speaker_signature_demo/): Demonstração e manual de validação de biometria vocal ([Manual do Usuário](../samples/AI%20Audio/speaker_signature_demo/README.md)).
 
-Evite dependências implícitas da configuração local do Lazarus. Quando um componente exigir biblioteca externa ou runtime nativo, a documentação e o instalador devem declarar essa dependência explicitamente.
+---
 
-## Idiomas
+## 🧪 Testes Unitários
 
-- [Português](README.pt.md)
-- [English](README.en.md)
-- [Español](README.es.md)
-- [Français](README.fr.md)
-- [Italiano](README.it.md)
-- [العربية](README.ar.md)
-
-As traduções devem preservar a mesma lista de componentes e as mesmas limitações técnicas desta página.
+- [**`test_aijoystick.lpr`**](../../tests/test_aijoystick.lpr): Teste automatizado do componente `TAIJoystick` com mock de desconexão e eixos normalizados.
+- [**`test_speaker_signature.lpr`**](../../tests/test_speaker_signature.lpr): Teste automatizado da sessão de similaridade de locutor.

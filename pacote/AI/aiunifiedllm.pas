@@ -45,7 +45,7 @@ type
   published
     property ProviderKind: TAILLMProviderKind read FProviderKind write FProviderKind default llmOpenAICompatible;
     property Endpoint: string read FEndpoint write FEndpoint;
-    property Token: string read FToken write FToken;
+    property Token: string read FToken write FToken stored False;
     property Model: string read FModel write FModel;
     property SystemPrompt: string read FSystemPrompt write FSystemPrompt;
     property Timeout: Integer read FTimeout write FTimeout default 120000;

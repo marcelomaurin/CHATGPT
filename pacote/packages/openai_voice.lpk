@@ -23,6 +23,11 @@
         <UnitName Value="aichromespeech"/>
       </Item>
       <Item>
+        <Filename Value="..\AI Voice\aicontinuouslistener.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aicontinuouslistener"/>
+      </Item>
+      <Item>
         <Filename Value="..\AI Voice\aispeechtypes.pas"/>
         <UnitName Value="aispeechtypes"/>
       </Item>

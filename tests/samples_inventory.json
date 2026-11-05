@@ -1529,5 +1529,25 @@
     ],
     "requires_gui": false,
     "status": "active"
+  },
+  "pacote/samples/AI Communication/webrtc_datachannel_demo/webrtc_datachannel_demo.lpi": {
+    "name": "webrtc_datachannel_demo",
+    "category": "AI Communication",
+    "path": "pacote/samples/AI Communication/webrtc_datachannel_demo/webrtc_datachannel_demo.lpi",
+    "platforms": [
+      "windows"
+    ],
+    "requires_gui": true,
+    "status": "active"
+  },
+  "pacote/samples/AI Input/speaker_signature_demo/speaker_signature_demo.lpi": {
+    "name": "speaker_signature_demo",
+    "category": "AI Input",
+    "path": "pacote/samples/AI Input/speaker_signature_demo/speaker_signature_demo.lpi",
+    "platforms": [
+      "windows"
+    ],
+    "requires_gui": true,
+    "status": "active"
   }
 }

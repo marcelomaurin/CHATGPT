@@ -55,6 +55,16 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="ailistprinters"/>
       </Item>
+      <Item>
+        <Filename Value="..\AI Hardware\aiwifi.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiwifi"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Hardware\aifirmwareflasher.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aifirmwareflasher"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>

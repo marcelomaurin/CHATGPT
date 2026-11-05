@@ -244,7 +244,7 @@ type
     property SnapshotURL: string read FSnapshotURL write FSnapshotURL;
     property StreamURL: string read FStreamURL write FStreamURL;
     property Username: string read FUsername write FUsername;
-    property Password: string read FPassword write FPassword;
+    property Password: string read FPassword write FPassword stored False;
     property UseHTTPS: Boolean read FUseHTTPS write FUseHTTPS default False;
     property TimeoutMs: Integer read FTimeoutMs write FTimeoutMs default 5000;
 

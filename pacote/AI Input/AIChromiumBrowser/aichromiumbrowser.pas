@@ -1578,6 +1578,8 @@ begin
   FChromiumWindow.ChromiumBrowser.ExecuteJavaScript(
     AScript,
     FChromiumWindow.ChromiumBrowser.DefaultUrl,
+    '', // Empty frame name/identifier selects Browser.MainFrame in CEF4Delphi.
+    '',
     0
   );
 

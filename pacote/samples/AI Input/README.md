@@ -1,4 +1,4 @@
-# AI Input Samples
+﻿# AI Input Samples
 
 Esta pasta reúne exemplos de entrada de dados para os componentes do projeto **CHATGPT**, incluindo captura, automação, comunicação e integração com dispositivos.
 
@@ -52,3 +52,8 @@ Disponíveis em `pacote/samples/AI Input/`:
 - **`document_input_demo`**: Seleção e extração de texto/metadados de documentos.
 - **`document_roundtrip_demo`**: Teste de ciclo de vida (criação e leitura de DOCX, XLSX e PDF).
 - **`document_rag_demo`**: Ingestão automática de documentos em formato nativo no `TAIRAG`.
+
+## Demos de Entrada por Joystick e Biometria Vocal
+
+- **`joystick_demo`**: Demonstração de leitura analógica e digital de controles e joysticks USB via [`TAIJoystick`](../../AI%20Input/AIJoystick/aijoystick.pas). Consulte o manual em [`joystick_demo_README.md`](./joystick_demo_README.md).
+- **`speaker_signature_demo`**: Identificação biométrica vocal com persistência em disco, extração espectral direta de WAV PCM (VAD, FFT e 16 sub-bandas) e catálogo de locutores múltiplos via [`TAISpeakerIdentifier`](../../AI%20Input/AIAudio/aispeakersignature.pas). Consulte o manual em [`speaker_signature_demo/README.md`](./speaker_signature_demo/README.md).

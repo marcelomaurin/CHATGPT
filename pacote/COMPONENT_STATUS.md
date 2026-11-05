@@ -117,8 +117,11 @@ Use esta classificação para documentação, README de abas, samples e planejam
 | `TAICaptureSource` | `aicapturesource.pas` | `openai_input` | Beta | Fonte de captura unificada: câmera local, IP snapshot, tela, arquivo; substitui os 4 componentes legados |
 | `TAIInputData` | `aiinput.pas` | `openai_input` | Beta | Entrada e normalização de dados numéricos |
 | `TAIWebAPIServer` | `aiwebserver.pas` | `openai_input` | Beta | Servidor REST/HTTP embutido |
-| `TAISocketTCP` | `aisockets.pas` | `openai_input` | Beta | Cliente/servidor TCP |
-| `TAISocketUDP` | `aisockets.pas` | `openai_input` | Beta | Cliente/servidor UDP |
+| `TAISocketTCP` | `aisockets.pas` | `openai_input` | Beta | Cliente/servidor TCP; dados binários (`SendBuffer`/`ReceiveBuffer`) e `ConnectTimeoutMs` |
+| `TAISocketUDP` | `aisockets.pas` | `openai_input` | Beta | Cliente/servidor UDP; `SendBuffer` e `LocalPort` (0 = porta local livre) |
+| `TAIWifi` | `aiwifi.pas` | `openai_hardware` | Beta | Busca e conexão a redes Wi-Fi (netsh no Windows, nmcli no Linux) para aparelhos com ponto de acesso próprio |
+| `TAIH264Decoder` | `aih264decoder.pas` | `openai_video` | Beta | Decodifica fluxo H.264 bruto em `TBitmap` via ffmpeg, sem acúmulo de atraso; grava `.h264` opcional |
+| `TAIDroneFQ777` | `aidronefq777.pas` | `openai_drone` | Beta | Protocolo Wi-Fi exclusivo do quadricóptero FQ777-954: controle UDP e vídeo H.264 em linhas separadas |
 | `TAISerialModem` | `aiserial.pas` | `openai_input` | Beta | Comunicação serial / modem |
 | `TAIPOSPrinter` | `aiposprinter.pas` | `openai_industrial` | Beta | Impressora térmica EscPOS |
 | `TAIModbusClient` | `aimodbus.pas` | `openai_industrial` | Beta | Cliente Modbus TCP/RTU |
@@ -281,3 +284,9 @@ Use esta classificação para documentação, README de abas, samples e planejam
 ---
 
 ## Legacy
+
+## AIJoystick
+
+| Componente | Status | Validacao |
+|---|---|---|
+| TAIJoystick | Beta | Windows XInput (Xbox 360) e WinMM generico, hotplug e selecao automatica; testes sem hardware. Outros sistemas retornam desconectado. |

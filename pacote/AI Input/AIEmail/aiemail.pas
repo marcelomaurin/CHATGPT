@@ -45,7 +45,7 @@ type
     property HostPOP3: string read FHostPOP3 write FHostPOP3;
     property PortPOP3: Integer read FPortPOP3 write FPortPOP3 default 110;
     property Username: string read FUsername write FUsername;
-    property Password: string read FPassword write FPassword;
+    property Password: string read FPassword write FPassword stored False;
   end;
 
 procedure Register;

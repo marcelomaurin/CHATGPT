@@ -175,7 +175,7 @@ type
   published
     property FileNamePDF: string read FFileNamePDF write FFileNamePDF;
     // Legacy compatibility only. Not used for document generation.
-    property Token: string read FLegacyToken write FLegacyToken;
+    property Token: string read FLegacyToken write FLegacyToken stored False;
     property FileNameWord: string read FFileNameWord write FFileNameWord;
     property FileNameExcel: string read FFileNameExcel write FFileNameExcel;
     property FileNameTXT: string read FFileNameTXT write FFileNameTXT;

@@ -41,6 +41,8 @@ type
     FOnResponse: TAIMarlinResponseEvent;
     FOnMotion: TAIMarlinMotionEvent;
     FOnStateChanged: TNotifyEvent;
+    function GetWorkPosition: TAIMarlinPosition;
+    function GetG92Active: Boolean;
     procedure UpdateLaserPower;
     procedure Emit(const Text: string);
     procedure Reject(const Text: string; Resend: Boolean);
@@ -71,16 +73,16 @@ type
     property AllowZ: Boolean read FAllowZ write FAllowZ;
     function IsIdle: Boolean;
     property State: TAIMarlinState read FState;
+    property WorkPosition: TAIMarlinPosition read GetWorkPosition;
+    property G28Home: TAIMarlinPosition read FG28Home;
+    property G28HomeSet: Boolean read FG28HomeSet;
+    property G92Active: Boolean read GetG92Active;
     property LastLineNumber: Integer read FLastLine;
     property Pending: TAIMarlinPending read FPending;
     { True enquanto executa um G0. No GRBL em modo laser ($32=1) o laser nao
       queima em movimentos rapidos. }
     property RapidMove: Boolean read FRapidMove;
-    property G92Active: Boolean read FG92Active;
-    property G28Home: TAIMarlinPosition read FG28Home;
-    property G28HomeSet: Boolean read FG28HomeSet;
     property Offset: TAIMarlinPosition read FOffset;
-    function WorkPosition: TAIMarlinPosition;
   published
     property OnResponse: TAIMarlinResponseEvent read FOnResponse write FOnResponse;
     property OnMotion: TAIMarlinMotionEvent read FOnMotion write FOnMotion;
@@ -125,6 +127,12 @@ begin
   ClearError; Emit('start');
 end;
 
+
+function TAIMarlinSimulator.GetG92Active: Boolean;
+begin
+  Result := FG92Active or (Abs(FOffset.X) > 1e-6) or
+    (Abs(FOffset.Y) > 1e-6) or (Abs(FOffset.Z) > 1e-6) or (Abs(FOffset.E) > 1e-6);
+end;
 
 procedure TAIMarlinSimulator.UpdateLaserPower;
 begin
@@ -278,7 +286,7 @@ begin
   if not HasAxis then begin ErrorText := 'GRBL jog has no axis'; Exit; end;
   Result := True;
 end;
-function TAIMarlinSimulator.WorkPosition: TAIMarlinPosition;
+function TAIMarlinSimulator.GetWorkPosition: TAIMarlinPosition;
 begin
   Result.X := FState.Position.X + FOffset.X;
   Result.Y := FState.Position.Y + FOffset.Y;

@@ -7,8 +7,12 @@ interface
 uses
   Classes, SysUtils;
 
+const
+  AI_LLM_CATALOG_VERIFIED_DATE = '2026-10-25';
+
 type
   TAILLMModelInfo = record
+    IsLegacy: Boolean;
     Provider: string;
     InternalName: string;
     FriendlyName: string;
@@ -26,7 +30,10 @@ function AILLMModelCount: Integer;
 function GetAILLMModelInfo(AIndex: Integer; out AInfo: TAILLMModelInfo): Boolean;
 function FindAILLMModel(const AProvider, AModel: string;
   out AInfo: TAILLMModelInfo): Boolean;
-procedure GetAILLMModelsForProvider(const AProvider: string; AList: TStrings);
+procedure GetAILLMModelsForProvider(const AProvider: string; AList: TStrings;
+  AIncludeLegacy: Boolean = False);
+
+function GetAILLMDefaultModel(const AProvider: string): string;
 
 implementation
 
@@ -34,6 +41,7 @@ procedure SetInfo(out AInfo: TAILLMModelInfo; const AProvider, AInternal,
   AFriendly, AEndpoint: string; AMaxTokens: Integer; ATemperature: Double;
   ARequiresKey, AVision, ATools, AStreaming, AFineTuning: Boolean);
 begin
+  AInfo.IsLegacy := False;
   AInfo.Provider := AProvider;
   AInfo.InternalName := AInternal;
   AInfo.FriendlyName := AFriendly;
@@ -49,7 +57,7 @@ end;
 
 function AILLMModelCount: Integer;
 begin
-  Result := 58;
+  Result := 92;
 end;
 
 function GetAILLMModelInfo(AIndex: Integer;
@@ -60,14 +68,19 @@ const
   ClaudeEndpoint = 'https://api.anthropic.com/v1/messages';
   DeepSeekEndpoint = 'https://api.deepseek.com/v1/chat/completions';
   CerebrasEndpoint = 'https://api.cerebras.ai/v1/chat/completions';
+  GroqEndpoint = 'https://api.groq.com/openai/v1/chat/completions';
+  MistralEndpoint = 'https://api.mistral.ai/v1/chat/completions';
+  XAIEndpoint = 'https://api.x.ai/v1/chat/completions';
+  QwenEndpoint = 'https://WORKSPACE_ID.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1/chat/completions';
+  RunPodEndpoint = 'https://api.runpod.ai/v2/ENDPOINT_ID/openai/v1/chat/completions';
   OllamaEndpoint = 'http://localhost:11434/v1/chat/completions';
 begin
   Result := True;
   case AIndex of
     // OpenAI (Linha GPT-6, GPT-5.6, GPT-5.1 e GPT-4)
-    0: SetInfo(AInfo, 'OpenAI', 'gpt-6-luna', 'GPT-6 Luna (OpenAI Fast/Budget)', OpenAIEndpoint, 4096, 0.7, True, True, True, True, True);
-    1: SetInfo(AInfo, 'OpenAI', 'gpt-6-sol', 'GPT-6 Sol (OpenAI Advanced/Coding)', OpenAIEndpoint, 4096, 0.7, True, True, True, True, True);
-    2: SetInfo(AInfo, 'OpenAI', 'gpt-6-astra', 'GPT-6 Astra (OpenAI Flagship)', OpenAIEndpoint, 4096, 0.7, True, True, True, True, True);
+    0: SetInfo(AInfo, 'OpenAI', 'gpt-6-luna', 'GPT-6 Luna (OpenAI Fast/Budget)', OpenAIEndpoint, 8192, 1.0, True, True, True, True, False);
+    1: SetInfo(AInfo, 'OpenAI', 'gpt-6-sol', 'GPT-6 Sol (OpenAI Advanced/Coding)', OpenAIEndpoint, 8192, 1.0, True, True, True, True, False);
+    2: SetInfo(AInfo, 'OpenAI', 'gpt-6-astra', 'GPT-6 Astra (OpenAI Flagship)', OpenAIEndpoint, 8192, 1.0, True, True, True, True, False);
     3: SetInfo(AInfo, 'OpenAI', 'gpt-5.6-luna', 'GPT-5.6 Luna (OpenAI)', OpenAIEndpoint, 4096, 0.7, True, True, True, True, True);
     4: SetInfo(AInfo, 'OpenAI', 'gpt-5.6-sol', 'GPT-5.6 Sol (OpenAI)', OpenAIEndpoint, 4096, 0.7, True, True, True, True, True);
     5: SetInfo(AInfo, 'OpenAI', 'gpt-5.1', 'GPT-5.1 (OpenAI)', OpenAIEndpoint, 4096, 0.7, True, True, True, True, True);
@@ -141,9 +154,45 @@ begin
     // neural-api
     56: SetInfo(AInfo, 'neural-api', 'default', 'Default Model (neural-api)', 'http://localhost:8000/v1/chat/completions', 4096, 0.7, False, False, False, True, False);
     57: SetInfo(AInfo, 'neural-api', 'custom-model', 'Custom model (neural-api)', 'http://localhost:8000/v1/chat/completions', 4096, 0.7, False, False, False, True, False);
+    58: SetInfo(AInfo, 'OpenAI', 'gpt-6.1-sol', 'GPT-6.1 Sol', OpenAIEndpoint, 8192, 1.0, True, True, True, True, False);
+    59: SetInfo(AInfo, 'Gemini', 'gemini-3.8-flash', 'Gemini 3.8 Flash', '', 8192, 0.7, True, True, True, False, False);
+    60: SetInfo(AInfo, 'Gemini', 'gemini-4-argon', 'Gemini 4 Argon', '', 8192, 0.7, True, True, True, False, False);
+    61: SetInfo(AInfo, 'Gemini', 'gemini-3.5-flash-lite', 'Gemini 3.5 Flash-Lite', '', 8192, 0.7, True, True, True, False, False);
+    62: SetInfo(AInfo, 'Gemini', 'gemini-3.1-pro-preview', 'Gemini 3.1 Pro (Preview)', '', 8192, 0.7, True, True, True, False, False);
+    63: SetInfo(AInfo, 'Claude', 'claude-sonnet-5-5', 'Claude Sonnet 5.5', ClaudeEndpoint, 8192, 1.0, True, True, True, False, False);
+    64: SetInfo(AInfo, 'Claude', 'claude-opus-5-5', 'Claude Opus 5.5', ClaudeEndpoint, 8192, 1.0, True, True, True, False, False);
+    65: SetInfo(AInfo, 'Claude', 'claude-haiku-5-5', 'Claude Haiku 5.5', ClaudeEndpoint, 8192, 1.0, True, True, True, False, False);
+    66: SetInfo(AInfo, 'Claude', 'claude-fable-5-1', 'Claude Fable 5.1', ClaudeEndpoint, 8192, 1.0, True, True, True, False, False);
+    67: SetInfo(AInfo, 'DeepSeek', 'deepseek-flash', 'DeepSeek Flash (V4.1)', DeepSeekEndpoint, 8192, 1.0, True, True, True, True, False);
+    68: SetInfo(AInfo, 'DeepSeek', 'deepseek-v4-pro', 'DeepSeek V4 Pro', DeepSeekEndpoint, 8192, 1.0, True, False, True, True, False);
+    69: SetInfo(AInfo, 'Groq', 'openai/gpt-oss-120b', 'GPT-OSS 120B (Groq)', GroqEndpoint, 8192, 0.7, True, False, True, True, False);
+    70: SetInfo(AInfo, 'Groq', 'openai/gpt-oss-20b', 'GPT-OSS 20B (Groq)', GroqEndpoint, 8192, 0.7, True, False, True, True, False);
+    71: SetInfo(AInfo, 'Groq', 'llama-3.3-70b-versatile', 'Llama 3.3 70B (Groq)', GroqEndpoint, 8192, 0.7, True, False, True, True, False);
+    72: SetInfo(AInfo, 'Groq', 'llama-3.1-8b-instant', 'Llama 3.1 8B (Groq)', GroqEndpoint, 8192, 0.7, True, False, True, True, False);
+    73: SetInfo(AInfo, 'Mistral', 'mistral-small-2603', 'Mistral Small 4', MistralEndpoint, 8192, 0.7, True, True, True, True, False);
+    74: SetInfo(AInfo, 'Mistral', 'mistral-medium-3-5', 'Mistral Medium 3.5', MistralEndpoint, 8192, 0.7, True, True, True, True, False);
+    75: SetInfo(AInfo, 'Mistral', 'mistral-large-4', 'Mistral Large 4 (Public Preview)', MistralEndpoint, 8192, 0.7, True, True, True, True, False);
+    76: SetInfo(AInfo, 'xAI', 'grok-4.7', 'Grok 4.7 (xAI)', XAIEndpoint, 8192, 0.7, True, True, True, True, False);
+    77: SetInfo(AInfo, 'Qwen', 'qwen3.8-max', 'Qwen 3.8 Max', QwenEndpoint, 8192, 0.7, True, True, True, True, False);
+    78: SetInfo(AInfo, 'Qwen', 'qwen3.7-plus', 'Qwen 3.7 Plus', QwenEndpoint, 8192, 0.7, True, True, True, True, False);
+    79: SetInfo(AInfo, 'Qwen', 'qwen3.8-flash', 'Qwen 3.8 Flash', QwenEndpoint, 8192, 0.7, True, True, True, True, False);
+    80: SetInfo(AInfo, 'Cerebras', 'gpt-oss-120b', 'GPT-OSS 120B (Cerebras)', CerebrasEndpoint, 8192, 0.7, True, False, True, True, False);
+    81: SetInfo(AInfo, 'Cerebras', 'qwen-3.8-27b', 'Qwen 3.8 27B (Cerebras)', CerebrasEndpoint, 8192, 0.7, True, False, True, True, False);
+    82: SetInfo(AInfo, 'OpenRouter', 'openrouter/free', 'Free Models Router (OpenRouter)', OpenRouterEndpoint, 8192, 0.7, True, True, True, True, False);
+    83: SetInfo(AInfo, 'OpenRouter', 'openrouter/auto', 'Auto Router (OpenRouter)', OpenRouterEndpoint, 8192, 0.7, True, True, True, True, False);
+    84: SetInfo(AInfo, 'Local', 'qwen3:8b', 'Qwen 3 8B (Ollama)', OllamaEndpoint, 8192, 0.7, False, False, True, True, False);
+    85: SetInfo(AInfo, 'Local', 'qwen3:4b', 'Qwen 3 4B (Ollama)', OllamaEndpoint, 8192, 0.7, False, False, True, True, False);
+    86: SetInfo(AInfo, 'Local', 'gemma3:4b', 'Gemma 3 4B (Ollama)', OllamaEndpoint, 8192, 0.7, False, True, False, True, False);
+    87: SetInfo(AInfo, 'Local', 'gemma3:12b', 'Gemma 3 12B (Ollama)', OllamaEndpoint, 8192, 0.7, False, True, False, True, False);
+    88: SetInfo(AInfo, 'Local', 'gpt-oss:20b', 'GPT-OSS 20B (Ollama)', OllamaEndpoint, 8192, 0.7, False, False, True, True, False);
+    89: SetInfo(AInfo, 'RunPod', 'custom-model', 'RunPod Serverless / vLLM', RunPodEndpoint, 8192, 0.7, True, False, False, True, False);
+    90: SetInfo(AInfo, 'OpenAI', 'gpt-4.1', 'GPT-4.1 (compatibility)', OpenAIEndpoint, 4096, 0.7, True, True, True, True, True);
+    91: SetInfo(AInfo, 'OpenAI', 'gpt-4.1-mini', 'GPT-4.1 Mini (compatibility)', OpenAIEndpoint, 4096, 0.7, True, True, True, True, True);
   else
     Result := False;
   end;
+  // Historical entries remain addressable but are hidden from suggested lists.
+  AInfo.IsLegacy := AIndex in [3..25, 35..50];
 end;
 
 function FindAILLMModel(const AProvider, AModel: string;
@@ -160,7 +209,8 @@ begin
   Result := False;
 end;
 
-procedure GetAILLMModelsForProvider(const AProvider: string; AList: TStrings);
+procedure GetAILLMModelsForProvider(const AProvider: string; AList: TStrings;
+  AIncludeLegacy: Boolean);
 var
   I: Integer;
   Info: TAILLMModelInfo;
@@ -169,8 +219,21 @@ begin
     Exit;
   AList.Clear;
   for I := 0 to AILLMModelCount - 1 do
-    if GetAILLMModelInfo(I, Info) and SameText(Info.Provider, AProvider) then
+    if GetAILLMModelInfo(I, Info) and SameText(Info.Provider, AProvider) and
+       (AIncludeLegacy or not Info.IsLegacy) then
       AList.Add(Info.InternalName);
+end;
+
+function GetAILLMDefaultModel(const AProvider: string): string;
+var
+  I: Integer;
+  Info: TAILLMModelInfo;
+begin
+  Result := '';
+  for I := 0 to AILLMModelCount - 1 do
+    if GetAILLMModelInfo(I, Info) and SameText(Info.Provider, AProvider) and
+       not Info.IsLegacy then
+      Exit(Info.InternalName);
 end;
 
 end.

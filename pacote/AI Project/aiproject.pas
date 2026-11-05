@@ -129,7 +129,7 @@ type
     property Pipeline: TComponent read FPipeline write FPipeline;
     property DefaultProvider: TAIProvider read FDefaultProvider write FDefaultProvider default AIP_OPENAI;
     property DefaultModel: string read FDefaultModel write FDefaultModel;
-    property Token: string read FToken write FToken;
+    property Token: string read FToken write FToken stored False;
     property LocalURL: string read FLocalURL write FLocalURL;
     property SafeMode: Boolean read FSafeMode write FSafeMode default False;
     property SimulationMode: Boolean read FSimulationMode write FSimulationMode default False;

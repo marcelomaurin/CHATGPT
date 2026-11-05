@@ -8,7 +8,7 @@ unit openai_voice;
 interface
 
 uses
-  aispeechfilter, aichromespeech, aispeechtypes, aiwhisperengine, aispeechrecognizer, aivoiceclonetypes,
+  aicontinuouslistener, aispeechfilter, aichromespeech, aispeechtypes, aiwhisperengine, aispeechrecognizer, aivoiceclonetypes,
   aif5ttsengine, aivoiceclone, aivoiceassistant, aiaudioplayback,
   aivoicesynthesizer, aivoicerecognizer, soundfilters, LazarusPackageIntf;
 
@@ -16,6 +16,7 @@ implementation
 
 procedure Register;
 begin
+  RegisterUnit('aicontinuouslistener', @aicontinuouslistener.Register);
   RegisterUnit('aichromespeech', @aichromespeech.Register);
   RegisterUnit('aiwhisperengine', @aiwhisperengine.Register);
   RegisterUnit('aispeechrecognizer', @aispeechrecognizer.Register);

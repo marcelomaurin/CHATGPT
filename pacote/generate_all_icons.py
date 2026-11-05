@@ -343,6 +343,9 @@ icons_config = {
     'AI Hardware/aiso_icon.lrs': [
         ('taios', C_HARDWARE, 'OS'),
     ],
+    'AI Hardware/aifirmwareflasher_icon.lrs': [
+        ('taifirmwareflasher', C_HARDWARE, 'FW'),
+    ],
     'AI Image/imagefilters_icon.lrs': [
         ('tgrayscalefilter', C_VISION, 'GF'),
         ('tnegativefilter', C_VISION, 'NF'),
@@ -505,6 +508,18 @@ icons_config = {
     ],
     'AI Project/aiproject_gantt_icon.lrs': [
         ('taiprojectgantt', C_PROJECT, 'PG'),
+    ],
+    'AI Project/aiganttview_icon.lrs': [
+        ('taiganttview', C_PROJECT, 'GV'),
+    ],
+    'AI Project/ainetworkview_icon.lrs': [
+        ('tainetworkview', C_PROJECT, 'NV'),
+    ],
+    'AI Project/aiboardview_icon.lrs': [
+        ('taiboardview', C_PROJECT, 'KB'),
+    ],
+    'AI Project/airesourceview_icon.lrs': [
+        ('tairesourceview', C_PROJECT, 'TP'),
     ],
     'AI Project/aiproject_icon.lrs': [
         ('taiproject', C_PROJECT, 'PR'),
@@ -708,12 +723,16 @@ icons_config = {
 }
 
 patches = [
+    ('AI Project/aiganttview.pas', 'aiganttview_icon.lrs'),
+    ('AI Project/ainetworkview.pas', 'ainetworkview_icon.lrs'),
+    ('AI Project/aiboardview.pas', 'aiboardview_icon.lrs'),
+    ('AI Project/airesourceview.pas', 'airesourceview_icon.lrs'),
     ('AI A2A/aia2a.pas', 'aia2a_icon.lrs'),
     ('AI A2A/aia2aserver.pas', 'aia2aserver_icon.lrs'),
     ('AI Agent/aiagent.pas', 'aiagent_icon.lrs'),
     ('AI Agent/aiagent_memorymap.pas', 'aiagent_memorymap_icon.lrs'),
     ('AI Agent/aiagent_orchestrator.pas', 'aiagent_orchestrator_icon.lrs'),
-    ('AI Agent/aiagent_sourceactions.pas', 'aiagent_sourceactions_icon.lrs'),
+    ('AI Agent/aiagent_sourceactions_register.pas', 'aiagent_sourceactions_icon.lrs'),
     ('AI Agent/aiagent_testaction.pas', 'aiagent_testaction_icon.lrs'),
     ('AI Agent/aiagentgraph.pas', 'aiagentgraph_icon.lrs'),
     ('AI Agent/aiagentsafety.pas', 'aiagentsafety_icon.lrs'),
@@ -763,6 +782,7 @@ patches = [
     ('AI Hardware/ailistprinters.pas', 'ailistprinters_icon.lrs'),
     ('AI Hardware/aimemory.pas', 'aimemory_icon.lrs'),
     ('AI Hardware/aiso.pas', 'aiso_icon.lrs'),
+    ('AI Hardware/aifirmwareflasher.pas', 'aifirmwareflasher_icon.lrs'),
     ('AI Image/imagefilters.pas', 'imagefilters_icon.lrs'),
     ('AI Industrial/aiarduinomodbuspinmap.pas', 'aiarduinomodbuspinmap_icon.lrs'),
     ('AI Industrial/aiarm_robot.pas', 'aiarm_robot_icon.lrs'),

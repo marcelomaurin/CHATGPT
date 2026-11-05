@@ -13,13 +13,49 @@
         <UnitOutputDirectory Value="lib\openai_project_core\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Description Value="Lazarus AI Suite: lightweight serializable project, task, revision and action core."/>
+    <Description Value="Lazarus AI Suite: lightweight serializable project, task, revision and action core; durations, task dependency graph, work calendar, CPM scheduler, resource load and leveling, task types (work = duration x units), costs with accrual, undo history and JSON document utilities."/>
     <License Value="OPEN SOURCE GPL3"/>
-    <Files Count="1">
+    <Files Count="10">
       <Item1>
         <Filename Value="..\AI Project Core\aiproject_core.pas"/>
         <UnitName Value="aiproject_core"/>
       </Item1>
+      <Item2>
+        <Filename Value="..\AI Project Core\aiprojectduration.pas"/>
+        <UnitName Value="aiprojectduration"/>
+      </Item2>
+      <Item3>
+        <Filename Value="..\AI Project Core\aiundohistory.pas"/>
+        <UnitName Value="aiundohistory"/>
+      </Item3>
+      <Item4>
+        <Filename Value="..\AI Project Core\aijsonutils.pas"/>
+        <UnitName Value="aijsonutils"/>
+      </Item4>
+      <Item5>
+        <Filename Value="..\AI Project Core\aitaskgraph.pas"/>
+        <UnitName Value="aitaskgraph"/>
+      </Item5>
+      <Item6>
+        <Filename Value="..\AI Project Core\aiworkcalendar.pas"/>
+        <UnitName Value="aiworkcalendar"/>
+      </Item6>
+      <Item7>
+        <Filename Value="..\AI Project Core\aicpmscheduler.pas"/>
+        <UnitName Value="aicpmscheduler"/>
+      </Item7>
+      <Item8>
+        <Filename Value="..\AI Project Core\airesourceload.pas"/>
+        <UnitName Value="airesourceload"/>
+      </Item8>
+      <Item9>
+        <Filename Value="..\AI Project Core\aitasktype.pas"/>
+        <UnitName Value="aitasktype"/>
+      </Item9>
+      <Item10>
+        <Filename Value="..\AI Project Core\aicostmodel.pas"/>
+        <UnitName Value="aicostmodel"/>
+      </Item10>
     </Files>
     <RequiredPkgs Count="1">
       <Item1>

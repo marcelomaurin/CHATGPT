@@ -1,774 +1,119 @@
-# TCHATGPT — AI Component Suite for Lazarus / Free Pascal
+﻿# TCHATGPT — AI Component Suite para Lazarus / Free Pascal
 
-🌍 **Languages / Idiomas**
+🌐 **Idiomas / Languages**
 
-* [Português (PT-BR)](README.md)
-* [English (EN)](README_EN.md)
-* [Español (ES)](README_ES.md)
-* [Français (FR)](README_FR.md)
-* [Italiano (IT)](README_IT.md)
-* [العربية (AR)](README_AR.md)
+[Português](README.md) • [English](README_EN.md) • [Español](README_ES.md) • [Français](README_FR.md) • [Italiano](README_IT.md) • [العربية](README_AR.md) • [中文](README_CH.md) • [Русский](README_RU.md) • [日本語](README_JP.md)
 
----
-
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![Lazarus](https://img.shields.io/badge/Lazarus-3.x-orange.svg)](https://www.lazarus-ide.org/)
-[![Free Pascal](https://img.shields.io/badge/Free%20Pascal-FPC-blue.svg)](https://www.freepascal.org/)
-[![Status](https://img.shields.io/badge/status-in%20development-yellow.svg)]()
+[![Free Pascal](https://img.shields.io/badge/Free%20Pascal-3.2.2-blue.svg)](https://www.freepascal.org/)
 
 ---
 
-## Visión General
+## 🎯 1. Objetivo del Proyecto
 
-**TCHATGPT** es una suite open source de componentes visuales y no visuales para **Lazarus / Free Pascal**, creada para facilitar la integración de recursos de Inteligencia Artificial en aplicaciones de escritorio, industriales, educativas y corporativas.
+**TCHATGPT** (desarrollado por [Maurinsoft](https://maurinsoft.com.br)) es una suite modular de componentes visuales y no visuales en **Object Pascal (Free Pascal / Lazarus)** para la integración directa y nativa de Inteligencia Artificial moderna, Visión por Computadora, Procesamiento de Voz, Agentes Autónomos, Automatización Industrial, Hardware y Gestión de Proyectos.
 
-El proyecto ofrece componentes para conexión con proveedores de LLM, modelos locales, procesamiento de datos, aprendizaje automático, voz, imagen, agentes, grafos, entrada y salida de información, además de componentes experimentales para visión computacional y recursos gráficos 3D.
-
-> Este proyecto debe entenderse como una **suite de componentes para integración de IA en aplicaciones Lazarus**, y no como una plataforma completa de IA destinada a reemplazar frameworks especializados de entrenamiento, plataformas MLOps o infraestructura de despliegue de modelos a gran escala.
-
----
-
-## Objetivo del Proyecto
-
-El objetivo principal es permitir que desarrolladores Lazarus / Free Pascal puedan incorporar recursos de IA en sus sistemas de forma simple, reutilizable y basada en componentes.
-
-La suite busca atender escenarios como:
-
-* creación de asistentes con IA generativa;
-* integración con APIs de LLM;
-* uso de modelos locales mediante servidores compatibles;
-* generación y análisis de datasets;
-* clasificación simple de textos;
-* automatización con agentes;
-* síntesis de voz;
-* procesamiento básico de imágenes;
-* filtros digitales de sonido;
-* integración con dispositivos, sensores y canales externos;
-* prototipado de aplicaciones con IA en Lazarus.
+El objetivo central de la suite es permitir que los desarrolladores de escritorio y embebidos integren capacidades avanzadas de IA directamente en código nativo, con:
+1. **Control Total y Baja Latencia:** Sin depender de servidores web intermediarios ni frameworks pesados de frontend.
+2. **Conectividad Híbrida:** Soporte para LLMs en la nube (OpenAI, Claude, Gemini, Ollama) y para inferencia local 100% offline mediante [`llama.cpp`](pacote/AI%20LlamaCpp/).
+3. **Agentes Autónomos y Herramientas:** Arquitectura de agentes capaces de ejecutar código, consultar bases de datos, inspeccionar archivos, controlar robots y comunicarse mediante los protocolos [A2A](pacote/AI%20A2A/) y [MCP](pacote/AI%20MCP/).
+4. **Interacción con el Mundo Físico:** Dispositivos USB, puertos serie, sensores Kinect, joysticks, PLCs Modbus, brokers MQTT y emulación de firmware Marlin CNC/impresora 3D.
 
 ---
 
-## Estado Actual del Proyecto
+## 📦 2. Catálogo de Paquetes: Finalidad y Estado
 
-El proyecto está en desarrollo activo y posee componentes en diferentes niveles de madurez.
+A continuación se presenta la **finalidad conceptual** de cada paquete (lo que manipula, procesa o controla) y su estado actual de madurez:
 
-### Componentes más consolidados
-
-* `TCHATGPT`
-* `TAIBaseComponent`
-* `TNeuralNetwork`
-* `TTokenList`
-* `TAICodeAssistant`
-* `TAIDatasetGenerator`
-* `TAIVoiceSynthesizer`
-* filtros de imagen
-* filtros de sonido
-* componentes de grafo y dataset
-
-### Componentes experimentales o en evolución
-
-* integración con Python;
-* componentes CNN, YOLO, LSTM y SOM;
-* componentes de agentes autónomos;
-* componentes avanzados de entrada y salida;
-* componentes OpenCV;
-* visualización 3D;
-* integración con Tripo3D;
-* componentes industriales, cámara, audio, navegador, MQTT, Modbus y CCTV.
-
----
-
-## Pestañas de Componentes del Paquete
-
-El paquete instala componentes en la paleta de Lazarus, organizados por área funcional.
-
----
-
-## AI Core
-
-Componentes principales de IA generativa, machine learning y soporte al proyecto.
-
-### `TCHATGPT`
-
-Conector principal para proveedores de IA generativa.
-
-Permite enviar preguntas, configurar proveedores, seleccionar modelos y recibir respuestas estructuradas.
-
-Proveedores previstos o soportados:
-
-* OpenAI;
-* Google Gemini;
-* Anthropic Claude;
-* OpenRouter;
-* Cerebras;
-* servidor local compatible con `/v1/chat/completions`;
-* Ollama o servicios locales similares.
-
-### `TNeuralNetwork`
-
-Red neural multicapa simple implementada en Pascal.
-
-Permite:
-
-* crear redes locales;
-* configurar entradas, capas ocultas y salidas;
-* entrenar por épocas;
-* calcular pérdida;
-* guardar y cargar modelos.
-
-### `TTokenList`
-
-Componente utilitario para tokenización básica de texto.
-
-Puede ser usado para:
-
-* clasificación;
-* análisis textual;
-* preprocesamiento;
-* grafos de decisión;
-* preparación de datasets.
-
-### `TAICodeAssistant`
-
-Asistente de código basado en LLM.
-
-Puede ser usado para:
-
-* revisar código;
-* sugerir mejoras;
-* generar comentarios;
-* explicar bloques de código;
-* auxiliar en pruebas;
-* convertir o documentar rutinas.
-
-### `TAIDatasetGenerator`
-
-Generador de datasets para entrenamiento, fine-tuning o clasificación local.
-
-Soporta o está orientado a soportar estructuras como:
-
-* CSV;
-* JSON;
-* JSONL;
-* matrices de entrada y salida para entrenamiento local.
-
-### `TAIModelRegistry`
-
-Registro central de modelos, proveedores, endpoints y parámetros.
-
-Permite organizar:
-
-* nombre del modelo;
-* proveedor;
-* endpoint;
-* temperatura;
-* límite de tokens;
-* parámetros predeterminados.
-
-### `TAIWizardConfig`
-
-Asistente de configuración para nuevos proyectos de IA.
-
-Puede utilizarse para preparar proyectos como:
-
-* chatbot;
-* clasificador;
-* pipeline;
-* agente;
-* asistente técnico.
+| Paquete Lazarus | Carpeta Fuente | Finalidad (Qué manipula / hace) | Estado Actual |
+|---|---|---|---|
+| [**`openai_core.lpk`**](pacote/packages/openai_core.lpk) | [`pacote/AI/`](pacote/AI/) | Conecta con APIs de LLMs (OpenAI, Claude, Gemini, Ollama), gestiona tokens, prompts, modelos y provee las clases base. | **Stable / Beta** |
+| [**`openai_agent.lpk`**](pacote/packages/openai_agent.lpk) | [`pacote/AI Agent/`](pacote/AI%20Agent/) | Orquesta agentes autónomos, llamadas a herramientas (tool calling), memoria factual y guardrails de seguridad. | **Stable / Beta**; pipelines compuestos *Experimental* |
+| [**`openai_a2a.lpk`**](pacote/packages/openai_a2a.lpk) | [`pacote/AI A2A/`](pacote/AI%20A2A/) | Estandariza la comunicación e intercambio de mensajes estructurados directamente entre diferentes agentes inteligentes en red (Agent-to-Agent). | **Stable / Beta** |
+| [**`openai_mcp.lpk`**](pacote/packages/openai_mcp.lpk) | [`pacote/AI MCP/`](pacote/AI%20MCP/) | Implementa el estándar abierto Model Context Protocol (Anthropic/OpenAI) como cliente y servidor JSON-RPC para exponer herramientas. | **Stable / Beta** |
+| [**`openai_input.lpk`**](pacote/packages/openai_input.lpk) | [`pacote/AI Input/`](pacote/AI%20Input/) | Captura datos del mundo exterior: joysticks XInput/WinMM, firmas de voz, cámaras, sensores Kinect, puertos serie, sockets TCP/UDP, servidores web y documentos locales. | **Stable / Beta**; integración hardware_net_demo *Experimental* |
+| [**`openai_output.lpk`**](pacote/packages/openai_output.lpk) | [`pacote/AI Output/`](pacote/AI%20Output/) | Genera documentos formateados Word (DOCX/OpenXML), hojas Excel (XLSX), PDFs, texto plano, JSON estructurado e impresiones térmicas POS. | **Stable / Beta** |
+| [**`openai_vision.lpk`**](pacote/packages/openai_vision.lpk) | [`pacote/AI Vision/`](pacote/AI%20Vision/) | Procesa flujos de video e imágenes mediante OpenCV o métodos nativos: detecta rostros, rastrea movimiento e identifica posturas humanas. | **Stable / Beta** |
+| [**`openai_image.lpk`**](pacote/packages/openai_image.lpk) | [`pacote/AI Image/`](pacote/AI%20Image/) | Aplica filtros y manipulaciones gráficas en imágenes directamente en Pascal nativo, sin exigir DLLs ni librerías externas. | **Stable / Beta** |
+| [**`openai_voice.lpk`**](pacote/packages/openai_voice.lpk) | [`pacote/AI Voice/`](pacote/AI%20Voice/) | Procesa audio hablado: convierte texto a voz audible (TTS), transcribe voz a texto (STT) y aplica filtros acústicos. | **Stable / Beta** |
+| [**`openai_project.lpk`**](pacote/packages/openai_project.lpk) | [`pacote/AI Project/`](pacote/AI%20Project/) | Renderiza interfaces visuales de gestión: diagramas de Gantt interactivos, redes PERT/CPM, tableros Kanban e histogramas de equipo. | **Stable / Beta** |
+| [**`openai_project_core.lpk`**](pacote/packages/openai_project_core.lpk) | [`pacote/AI Project Core/`](pacote/AI%20Project%20Core/) | Ejecuta cálculos matemáticos de cronograma: calcula camino crítico (CPM), valida grafos acíclicos y gestiona calendarios laborales. | **Stable / Beta** |
+| [**`openai_industrial.lpk`**](pacote/packages/openai_industrial.lpk) | [`pacote/AI Industrial/`](pacote/AI%20Industrial/) | Comunica con equipamiento industrial de fábrica vía Modbus TCP/RTU, broker MQTT, pinmap Arduino y control de brazos robóticos. | **Stable / Beta** |
+| [**`openai_marlin.lpk`**](pacote/packages/openai_marlin.lpk) | [`pacote/AI Simulation/AIMarlin/`](pacote/AI%20Simulation/AIMarlin/) | Emula el firmware de impresoras 3D y máquinas CNC Marlin, interpretando comandos G-Code y proveyendo puertos serie virtuales. | **Stable / Beta** |
+| [**`openai_simulation.lpk`**](pacote/packages/openai_simulation.lpk) | [`pacote/AI Simulation/`](pacote/AI%20Simulation/) | Ejecuta simulaciones computacionales 2D basadas en reglas celulares, colas de atención y desplazamiento de robots móviles. | **Stable / Beta** |
+| [**`openai_graphic.lpk`**](pacote/packages/openai_graphic.lpk) | [`pacote/AI Graphic/`](pacote/AI%20Graphic/) | Manipula gráficos 3D OpenGL, avatares virtuales con animación labial, esqueletos y escenas físicas. | **Stable / Beta** |
+| [**`openai_hardware.lpk`**](pacote/packages/openai_hardware.lpk) | [`pacote/AI Hardware/`](pacote/AI%20Hardware/) | Recolecta telemetría y métricas del sistema operativo y hardware: consumo de CPU, memoria RAM, discos, GPUs y procesos activos. | **Stable / Beta** |
+| [**`openai_graph.lpk`**](pacote/packages/openai_graph.lpk) | [`pacote/AI Graph/`](pacote/AI%20Graph/) | Construye, analiza y visualiza grafos de dependencias lógicas, redes de conocimiento y rutas viales GeoJSON. | **Stable / Beta** |
+| [**`openai_llamacpp.lpk`**](pacote/packages/openai_llamacpp.lpk) | [`pacote/AI LlamaCpp/`](pacote/AI%20LlamaCpp/) | Ejecuta modelos de lenguaje (LLMs) localmente en la computadora mediante la biblioteca `llama.cpp` x64 en formato GGUF sin internet. | **Stable / Beta** |
+| [**`openai_ml.lpk`**](pacote/packages/openai_ml.lpk) | [`pacote/AI Math/`](pacote/AI%20Math/) | Ejecuta algoritmos clásicos de aprendizaje automático (redes neuronales, perceptrones, mapas SOM) y operaciones matriciales (NUMPS) en Pascal puro. | **Stable / Beta** |
+| [**`openai_python.lpk`**](pacote/packages/openai_python.lpk) | [`pacote/python/`](pacote/python/) | Integra runtimes externos de Python para ejecutar modelos de deep learning (YOLOv8, CNNs y LSTMs) acoplados a Lazarus. | **Stable / Beta** |
+| [**`openai_rag.lpk`**](pacote/packages/openai_rag.lpk) | [`pacote/AI RAG/`](pacote/AI%20RAG/) | Realiza búsqueda semántica y generación aumentada por recuperación (RAG), indexando documentos para alimentar el contexto de los LLMs. | **Stable / Beta** |
+| [**`openai_dbase.lpk`**](pacote/packages/openai_dbase.lpk) | [`pacote/AI DBase/`](pacote/AI%20DBase/) | Conecta con bases de datos relacionales para guardar historial de chat, logs de auditoría y memoria de largo plazo con ZeosLib. | **Stable / Beta** |
+| [**`openai_aidbase.lpk`**](pacote/packages/openai_aidbase.lpk) | [`pacote/AI DBase/`](pacote/AI%20DBase/) | Extrae diccionarios de datos y esquemas de tablas SQL para que los modelos formulen consultas precisas. | **Stable / Beta** |
+| [**`openai_files.lpk`**](pacote/packages/openai_files.lpk) | [`pacote/AI Files/`](pacote/AI%20Files/) | Escanea e indexa árboles de directorios en disco, generando datasets estructurados para entrenamiento y análisis. | **Stable / Beta** |
+| [**`openai_observability.lpk`**](pacote/packages/openai_observability.lpk) | [`pacote/AI Observability/`](pacote/AI%20Observability/) | Monitorea operaciones de IA: registra trazas/spans, mide latencia, audita consumo de tokens y detecta anomalías. | **Stable / Beta** |
+| [**`openai_evaluation.lpk`**](pacote/packages/openai_evaluation.lpk) | [`pacote/AI Evaluation/`](pacote/AI%20Evaluation/) | Evalúa la precisión de respuestas generadas utilizando jueces automatizados (LLM-as-a-judge) e informes de regresión. | **Stable / Beta** |
+| [**`openai_integration.lpk`**](pacote/packages/openai_integration.lpk) | [`pacote/AI/`](pacote/AI/) | Conecta múltiples componentes en tuberías de procesamiento unificadas y ejecutores encadenados. | **Stable / Beta** |
+| [**`openai_webrtc.lpk`**](pacote/packages/openai_webrtc.lpk) | [`pacote/AI Communication/`](pacote/AI%20Communication/) | Establece canales de datos punto a punto de baja latencia (WebRTC DataChannel) mediante libdatachannel. | **Stable / Beta** |
 
 ---
 
-## AI Sound Filters
+## 📂 3. Organización de las Carpetas del Repositorio
 
-Componentes para procesamiento digital de señales y filtros de sonido.
+A continuación se describe el propósito de cada carpeta del proyecto, su contenido y utilidad práctica:
 
-### `TLowPassFilter`
-
-Filtro pasa-baja IIR de primer orden.
-
-Usado para suavizar variaciones rápidas y reducir ruido de alta frecuencia.
-
-### `THighPassFilter`
-
-Filtro pasa-alta IIR de primer orden.
-
-Usado para remover componentes de baja frecuencia, offset o ruido DC.
-
-### `TAverageFilter`
-
-Filtro de media móvil.
-
-Usado para suavización simple de señales.
-
-### `TFDMMultiplexer`
-
-Multiplexador por división de frecuencia.
-
-Permite simular canales en diferentes bandas de frecuencia.
-
-### `TTDMMultiplexer`
-
-Multiplexador por división de tiempo.
-
-Permite intercalar canales por ranuras temporales.
-
-### `TCDMMultiplexer`
-
-Multiplexador CDM/CDMA.
-
-Utiliza códigos ortogonales para separar señales.
-
-### `TOFDMMultiplexer`
-
-Multiplexador OFDM con uso de FFT/IFFT.
-
-Indicado para estudios y simulaciones de telecomunicaciones.
+| Carpeta | Propósito del Directorio | Qué contiene | Para qué sirve (Utilidad Práctica) |
+|---|---|---|---|
+| [**`pacote/AI/`**](pacote/AI/) | Base e infraestructura central | Clases fundamentales ([`aibase.pas`](pacote/AI/aibase.pas), [`aiconfig.pas`](pacote/AI/aiconfig.pas)), clientes LLM ([`chatgpt.pas`](pacote/AI/chatgpt.pas), [`aiclaude.pas`](pacote/AI/aiclaude.pas), [`aigemini.pas`](pacote/AI/aigemini.pas), [`aiollama.pas`](pacote/AI/aiollama.pas)), tokenizers y enrutadores. | Centraliza la comunicación HTTP/REST con proveedores de IA y ofrece la arquitectura base compartida. |
+| [**`pacote/AI Agent/`**](pacote/AI%20Agent/) | Orquestación de Agentes Autónomos | Módulos de agentes ([`aiagent.pas`](pacote/AI%20Agent/aiagent.pas)), memoria determinista, mapas conceptuales, guardrails de seguridad y autocorrección de código. | Permite crear agentes que resuelven objetivos en múltiples pasos, decidiendo cuándo invocar código Pascal o consultar datos. |
+| [**`pacote/AI A2A/`**](pacote/AI%20A2A/) | Protocolo Agent-to-Agent | Protocolo de comunicación y mensajería entre agentes de IA ([`aia2a_client.pas`](pacote/AI%20A2A/aia2a_client.pas)). | Permite que múltiples agentes colaboren, deleguen subtareas y compartan contexto estructurado en red. |
+| [**`pacote/AI MCP/`**](pacote/AI%20MCP/) | Model Context Protocol | Implementación de cliente y servidor MCP sobre JSON-RPC ([`aimcp_client.pas`](pacote/AI%20MCP/aimcp_client.pas), [`aimcp_server.pas`](pacote/AI%20MCP/aimcp_server.pas)). | Permite que los LLMs interactúen directamente con las herramientas y datos del sistema mediante el estándar abierto MCP. |
+| [**`pacote/AI Input/`**](pacote/AI%20Input/) | Dispositivos y Fuentes de Entrada | Joysticks ([`aijoystick.pas`](pacote/AI%20Input/AIJoystick/aijoystick.pas)), audio ([`aispeakersignature.pas`](pacote/AI%20Input/AIAudio/aispeakersignature.pas)), Kinect ([`aikinectsensor.pas`](pacote/AI%20Input/AIKinect/aikinectsensor.pas)), USB, Serie, Sockets, Servidor Web y lectores de documentos (PDF, DOCX, XLSX). | Captura y normaliza datos del mundo exterior (sensores, red, mandos, archivos) para alimentar los flujos de IA. |
+| [**`pacote/AI Output/`**](pacote/AI%20Output/) | Generación de Salidas Estructuradas | Generadores de informes Word ([`aiworddocument.pas`](pacote/AI%20Output/aiworddocument.pas)), hojas Excel ([`aixlsxwriter.pas`](pacote/AI%20Output/aixlsxwriter.pas)), impresoras térmicas POS ([`aiposprinter.pas`](pacote/AI%20Output/aiposprinter.pas)) y formateadores JSON. | Produce salidas físicas (tickets) o archivos digitales con las respuestas generadas por la IA. |
+| [**`pacote/AI Vision/`**](pacote/AI%20Vision/) | Visión por Computadora | Conector OpenCV ([`aiopencv.pas`](pacote/AI%20Vision/aiopencv.pas)), rastreador facial ([`aifacetracker.pas`](pacote/AI%20Vision/aifacetracker.pas)), detector de movimiento ([`aimotiontracker.pas`](pacote/AI%20Vision/aimotiontracker.pas)), estimador de posturas ([`aihumanposedetector.pas`](pacote/AI%20Vision/aihumanposedetector.pas)) y procesadores de cuadros. | Analiza secuencias de video de cámaras web y archivos para reconocimiento visual y seguimiento de personas/objetos. |
+| [**`pacote/AI Voice/`**](pacote/AI%20Voice/) | Voz, Reconocimiento y Síntesis | Sintetizador de voz TTS ([`aivoicesynthesizer.pas`](pacote/AI%20Voice/aivoicesynthesizer.pas)), reconocedor STT ([`aispeechrecognizer.pas`](pacote/AI%20Voice/aispeechrecognizer.pas)), asistentes de voz y clones vocales. | Permite que la aplicación hable audiblemente con el usuario y reconozca comandos hablados desde el micrófono. |
+| [**`pacote/AI Project Core/`**](pacote/AI%20Project%20Core/) | Núcleo Matemático de Proyectos | Escalonador CPM ([`aicpmscheduler.pas`](pacote/AI%20Project%20Core/aicpmscheduler.pas)), grafo acíclico de tareas ([`aitaskgraph.pas`](pacote/AI%20Project%20Core/aitaskgraph.pas)), calendario laboral ([`aiworkcalendar.pas`](pacote/AI%20Project%20Core/aiworkcalendar.pas)) y nivelación de recursos. | Calcula cronogramas, holguras y camino crítico de manera desacoplada de la interfaz gráfica. |
+| [**`pacote/AI Project/`**](pacote/AI%20Project/) | Vistas Visuales de Proyectos (LCL) | Vistas interactivas: Diagrama de Gantt ([`aiganttview.pas`](pacote/AI%20Project/aiganttview.pas)), Red PERT ([`ainetworkview.pas`](pacote/AI%20Project/ainetworkview.pas)), Tablero Kanban ([`aiboardview.pas`](pacote/AI%20Project/aiboardview.pas)) e Histograma de Recursos ([`airesourceview.pas`](pacote/AI%20Project/airesourceview.pas)). | Renderiza controles gráficos de usuario para planificación interactiva de tareas y proyectos. |
+| [**`pacote/AI Industrial/`**](pacote/AI%20Industrial/) | Automatización y Redes Industriales | Cliente Modbus TCP/RTU ([`aimodbus.pas`](pacote/AI%20Industrial/aimodbus.pas)), cliente MQTT ([`aimqtt.pas`](pacote/AI%20Industrial/aimqtt.pas)), cinemática de brazo robótico ([`aiarm_robot.pas`](pacote/AI%20Industrial/aiarm_robot.pas)) y mapa de pines Arduino. | Integra aplicaciones Lazarus a la fábrica, leyendo registros de PLCs y controlando actuadores físicos. |
+| [**`pacote/AI Simulation/`**](pacote/AI%20Simulation/) | Simulación 2D y Emulación Marlin | Motor de simulación celular en cuadrícula ([`aisimulationengine.pas`](pacote/AI%20Simulation/aisimulationengine.pas)), colas de atención y emulador de firmware Marlin G-code ([`aimarlinsimulator.pas`](pacote/AI%20Simulation/AIMarlin/aimarlinsimulator.pas)). | Simula escenarios logísticos y valida trayectorias de máquinas CNC antes de ejecutarlas en maquinaria real. |
+| [**`pacote/AI Graphic/`**](pacote/AI%20Graphic/) | Gráficos 3D y Avatares | Visor 3D OpenGL ([`ai3dmodelviewer.pas`](pacote/AI%20Graphic/ai3dmodelviewer.pas)), avatares con sincronización labial ([`aiavatar_lipsync.pas`](pacote/AI%20Graphic/aiavatar_lipsync.pas)), esqueletos y cliente API Tripo3D. | Manipula y renderiza modelos 3D, personajes virtuales y animaciones en la interfaz. |
+| [**`pacote/AI Hardware/`**](pacote/AI%20Hardware/) | Telemetría de Hardware | Lectores de CPU ([`aicpu.pas`](pacote/AI%20Hardware/aicpu.pas)), RAM ([`aimemory.pas`](pacote/AI%20Hardware/aimemory.pas)), Disco ([`aidisk.pas`](pacote/AI%20Hardware/aidisk.pas)), GPU ([`aigpu.pas`](pacote/AI%20Hardware/aigpu.pas)) y SO ([`aiso.pas`](pacote/AI%20Hardware/aiso.pas)). | Provee métricas de consumo de hardware para diagnósticos y balanceo dinámico de cargas de IA. |
+| [**`pacote/AI Graph/`**](pacote/AI%20Graph/) | Grafos y Rutas Geográficas | Grafo de dependencias ([`aidependencygraph.pas`](pacote/AI%20Graph/aidependencygraph.pas)), visualizador de grafos ([`aigraphvisualizer.pas`](pacote/AI%20Graph/aigraphvisualizer.pas)), cálculo de rutas GeoJSON ([`airoutecalculator.pas`](pacote/AI%20Graph/airoutecalculator.pas)). | Construye y visualiza redes nodales, flujos de relaciones y perfiles de rutas sobre mapas. |
+| [**`pacote/AI LlamaCpp/`**](pacote/AI%20LlamaCpp/) | Inferencia LLM Local | Conector de API y runtime para `llama.cpp` x64 ([`aillamacppruntime.pas`](pacote/AI%20LlamaCpp/aillamacppruntime.pas)), cuantización y LoRA. | Permite ejecutar modelos de IA de forma totalmente privada y sin conexión en la máquina del usuario. |
+| [**`pacote/AI Math/`**](pacote/AI%20Math/) | Matemática y Machine Learning | Librería de álgebra lineal NUMPS ([`numps.pas`](pacote/AI%20Math/numps.pas)), redes perceptrón y mapas autoorganizados (SOM). | Realiza cálculos de matrices/vectores y entrenamiento de redes neuronales directamente en Pascal nativo. |
+| [**`pacote/AI RAG/`**](pacote/AI%20RAG/) | Búsqueda Semántica y RAG | Recuperación aumentada por generación ([`airag.pas`](pacote/AI%20RAG/airag.pas)), extractores de texto e indexación por lotes. | Encuentra fragmentos relevantes en grandes volúmenes de documentos para fundamentar las respuestas de los LLMs. |
+| [**`pacote/AI DBase/`**](pacote/AI%20DBase/) | Bases de Datos y Metadatos | Diccionarios de esquemas relacionales ([`aidbdictionary.pas`](pacote/AI%20DBase/aidbdictionary.pas)), persistencia de historial ZeosLib. | Mapea tablas de bases de datos para que los agentes de IA formulen consultas SQL con precisión. |
+| [**`pacote/AI Observability/`**](pacote/AI%20Observability/) | Observabilidad de IA | Colector de trazas y métricas ([`aitrace.pas`](pacote/AI%20Observability/aitrace.pas)). | Registra auditoría de llamadas, consumo de tokens y tiempos de respuesta de cada consulta. |
+| [**`pacote/AI Evaluation/`**](pacote/AI%20Evaluation/) | Evaluación y Benchmarking | Juez de evaluación con LLMs ([`aieval_judge.pas`](pacote/AI%20Evaluation/aieval_judge.pas)). | Evalúa y califica automáticamente la precisión de respuestas generadas contra rúbricas objetivas. |
+| [**`pacote/packages/`**](pacote/packages/) | Paquetes de Instalación Lazarus | 28 archivos `.lpk` configurados. | Permite instalar los componentes en la paleta de Lazarus según las necesidades del proyecto. |
+| [**`pacote/samples/`**](pacote/samples/) | Proyectos de Demostración | Más de 95 ejemplos ejecutables completos con código ([`pacote/samples/README.md`](pacote/samples/README.md)). | Sirve como guía práctica y manual de usuario para cada componente de la suite. |
+| [**`tests/`**](tests/) | Pruebas Automatizadas | Proyectos de consola `.lpr` ejecutables mediante Free Pascal. | Asegura la integridad y ausencia de regresiones en los algoritmos y componentes. |
 
 ---
 
-## AI Image
+## 🧭 4. Cómo Navegar la Documentación y Ejemplos
 
-Componentes para procesamiento básico de imágenes.
-
-### `TGrayscaleFilter`
-
-Convierte imágenes a escala de grises.
-
-### `TNegativeFilter`
-
-Aplica inversión de colores.
-
-### `TBrightnessContrastFilter`
-
-Ajusta brillo y contraste.
-
-### `TBinarizationFilter`
-
-Aplica umbralización para generar imágenes en blanco y negro.
-
-### `TBlurFilter`
-
-Aplica suavizado mediante convolución.
-
-### `TSharpenFilter`
-
-Realza nitidez utilizando un kernel de convolución.
-
-### `TSobelFilter`
-
-Detecta bordes mediante el operador Sobel.
-
-### `TErosionDilationFilter`
-
-Ejecuta operaciones morfológicas de erosión y dilatación.
+Para explorar cada subsistema:
+1. Revise la [**Guía General de Samples**](pacote/samples/README.md) para ver los 95+ ejemplos prácticos con explicaciones y capturas.
+2. Acceda a la carpeta del módulo deseado (ej.: [**`pacote/AI Input/`**](pacote/AI%20Input/)) para conocer las unidades y componentes.
+3. Para cada sample, consulte el manual con **Propiedades**, **Métodos** y **Eventos** en su `README.md` (por ejemplo: [Manual del Sample de Joystick](pacote/samples/AI%20Input/joystick_demo_README.md) y [Manual de Demostración de Proyectos](pacote/samples/AI%20Project/Demo_AI_Project/README.md)).
 
 ---
 
-## AI Schedule
+## 🛠️ 5. Requisitos e Instalación
 
-Componentes para organización, persistencia y gestión de dependencias de tareas.
-
-### `TJSONGroupStorage`
-
-Componente para almacenamiento de datos agrupados en JSON.
-
-Puede ser usado para:
-
-* guardar configuraciones;
-* persistir parámetros;
-* almacenar textos;
-* organizar datos por grupos.
-
-### `TIASchedule`
-
-Gestor de tareas con control de dependencias.
-
-Permite modelar:
-
-* tarea padre;
-* tarea hija;
-* dependencias;
-* estado de preparación;
-* control simple de ejecución.
+- **Compilador:** [Free Pascal (FPC)](https://www.freepascal.org/) versión 3.2.2 o superior.
+- **IDE:** [Lazarus](https://www.lazarus-ide.org/) versión 3.0 o superior (32-bit o 64-bit).
+- **Instalación de Paquetes:**
+  1. En Lazarus, vaya al menú `Package` -> `Open Package File (.lpk)...`.
+  2. Navegue hasta [`pacote/packages/`](pacote/packages/).
+  3. Abra y compile el paquete base [`openai_core.lpk`](pacote/packages/openai_core.lpk).
+  4. Haga clic en `Compile` y, si desea los componentes en la paleta, en `Use` -> `Install`.
+  5. Instale el resto de los paquetes según los requerimientos de su aplicación.
 
 ---
 
-## AI Voice
+## 📄 6. Licencia
 
-Componentes de síntesis de voz.
-
-### `TAIVoiceSynthesizer`
-
-Componente de Text-to-Speech.
-
-En Windows, puede usar SAPI.
-En Linux, puede usar eSpeak/eSpeak-NG.
-
-Principales recursos:
-
-* reproducir texto por voz;
-* ajustar volumen;
-* ajustar velocidad;
-* listar voces disponibles;
-* ejecución asíncrona;
-* integración con aplicaciones de escritorio.
-
----
-
-## AI Agent
-
-Componentes para agentes inteligentes y toma de decisiones estructurada.
-
-### `TAIAgent`
-
-Componente orquestador del agente.
-
-Permite enviar instrucciones a un LLM, interpretar respuestas estructuradas y coordinar acciones.
-
-### `TAIAgentOptions`
-
-Almacena contexto, preguntas, directrices y reglas de análisis.
-
-### `TAIAgentAction`
-
-Define acciones permitidas para el agente.
-
-Permite configurar:
-
-* acciones disponibles;
-* parámetros esperados;
-* callbacks de ejecución.
-
-### `TAIAgentResource`
-
-Representa recursos externos que pueden ser activados por el agente.
-
-Ejemplos:
-
-* archivos;
-* correo electrónico;
-* HTTP;
-* SMS;
-* WhatsApp;
-* TCP/UDP;
-* Web APIs.
-
-### `TAIAgentOutput`
-
-Capa de salida que conecta decisiones del agente con recursos reales del sistema.
-
----
-
-## AI Graph
-
-Componentes para estructuración de datos, grafos y datasets.
-
-### `TAIGraphMap`
-
-Grafo ponderado para clasificación y análisis basado en tokens.
-
-Puede ser usado en:
-
-* clasificación textual;
-* agrupación de conceptos;
-* relación entre términos;
-* análisis simple de temas.
-
-### `TAITrainingExporter`
-
-Exportador de datos para entrenamiento.
-
-Formatos previstos o soportados:
-
-* CSV;
-* JSON;
-* JSONL;
-* ARFF;
-* vectores numéricos.
-
-### `TAIDatasetAnalyzer`
-
-Analizador de calidad de dataset.
-
-Puede detectar:
-
-* categorías vacías;
-* duplicidad;
-* desequilibrio de clases;
-* textos muy cortos;
-* textos muy largos.
-
-### `TAITrainingReport`
-
-Generador de informes técnicos de entrenamiento.
-
-Puede registrar:
-
-* precisión;
-* error;
-* pérdida;
-* cantidad de tokens;
-* confianza media;
-* estadísticas del dataset.
-
-### `TAIGraphVisualizer`
-
-Exportador y visualizador de grafos.
-
-Formatos previstos o soportados:
-
-* DOT / GraphViz;
-* Mermaid;
-* JSON de visualización.
-
----
-
-## AI Input
-
-Componentes para entrada de datos e integración con fuentes externas.
-
-Esta pestaña concentra componentes orientados a captura de información, comunicación e integración con dispositivos o sistemas.
-
-Componentes previstos o en evolución:
-
-* cámara;
-* audio;
-* servidor web;
-* sockets;
-* comunicación serial;
-* impresora POS;
-* CCTV/IP;
-* Modbus;
-* MQTT;
-* correo electrónico;
-* mensajería;
-* captura del sistema operativo;
-* navegador embebido;
-* entradas industriales.
-
-> Algunos componentes de esta pestaña pueden requerir bibliotecas externas, drivers, permisos del sistema operativo o servicios adicionales.
-
----
-
-## AI Output
-
-Componentes para salida de datos, generación de documentos e integración con destinos externos.
-
-Recursos previstos o en evolución:
-
-* generación de documentos;
-* exportación de respuestas;
-* salida estructurada;
-* integración con canales externos;
-* automatización de respuestas.
-
----
-
-## AI Vision
-
-Componentes para visión computacional.
-
-Componentes previstos o en evolución:
-
-* OpenCV;
-* captura de cámara;
-* procesamiento de frames;
-* rastreo facial;
-* rastreo de movimiento;
-* clasificación de imágenes;
-* detección de objetos.
-
-> Esta área debe tratarse como experimental hasta que los componentes tengan demostraciones completas, dependencias documentadas y pruebas de integración.
-
----
-
-## AI Graphic
-
-Componentes gráficos y 3D relacionados con IA, simulación y visualización.
-
-Componentes previstos o en evolución:
-
-* escena 2D/3D;
-* ambiente de entrenamiento;
-* simulador físico;
-* sensores virtuales;
-* función de recompensa;
-* visualización de modelos 3D;
-* rig de esqueleto;
-* controlador de avatar;
-* biblioteca de poses;
-* secuencia de animación;
-* integración con generación de modelos 3D.
-
-### `TAI3DModelViewer`
-
-Visualizador de modelos 3D.
-
-Objetivo:
-
-* cargar modelos 3D;
-* visualizar mallas;
-* rotar;
-* acercar;
-* alejar;
-* alternar entre modo sólido, alámbrico y puntos.
-
-### `TAITripo3DClient`
-
-Cliente para integración con un servicio externo de generación de modelos 3D.
-
-Objetivo:
-
-* generar modelo a partir de texto;
-* generar modelo a partir de imagen;
-* generar modelo a partir de múltiples imágenes;
-* descargar el modelo 3D resultante.
-
-> La integración con servicios externos debe validarse conforme a la documentación oficial de la API del proveedor utilizado.
-
----
-
-## Instalación del Paquete en Lazarus
-
-1. Abra Lazarus.
-2. Acceda a **Package > Open Package File (.lpk)**.
-3. Seleccione el archivo `pacote/packages/openai_core.lpk`.
-4. Haga clic en **Compile**.
-5. Luego haga clic en **Use > Install**.
-6. Lazarus solicitará recompilar la IDE.
-7. Después de reiniciar, los componentes aparecerán en la paleta de componentes.
-
----
-
-## Proveedores de LLM
-
-| Proveedor                   | Enum             | Tipo                    |
-| --------------------------- | ---------------- | ----------------------- |
-| OpenAI                      | `AIP_OPENAI`     | API externa             |
-| OpenRouter                  | `AIP_OPENROUTER` | API externa / agregador |
-| Cerebras                    | `AIP_CEREBRAS`   | API externa             |
-| Google Gemini               | `AIP_GEMINI`     | API externa             |
-| Anthropic Claude            | `AIP_CLAUDE`     | API externa             |
-| Local / Ollama / compatible | `AIP_LOCAL`      | Servidor local          |
-
-> Los nombres de modelos, límites, costos y disponibilidad pueden cambiar según cada proveedor. Siempre consulte la documentación oficial del servicio utilizado.
-
----
-
-## Requisitos
-
-### Ambiente principal
-
-* Lazarus 3.x o superior;
-* versión compatible de Free Pascal;
-* Windows o Linux;
-* paquete `openai_core.lpk`;
-* conexión a internet para proveedores externos;
-* servidor local configurado cuando se utilicen modelos offline.
-
-### Windows
-
-Para comunicación HTTPS, pueden requerirse DLLs OpenSSL compatibles con la arquitectura de la aplicación.
-
-Verifique la carpeta `pacote/lib/`.
-
-Se recomienda copiar las DLLs necesarias a la misma carpeta del ejecutable final.
-
-### Linux
-
-Dependiendo de los componentes utilizados, pueden ser necesarios paquetes adicionales, como:
-
-* OpenSSL;
-* eSpeak/eSpeak-NG;
-* libpython;
-* bibliotecas de cámara o audio;
-* bibliotecas específicas para visión computacional.
-
-Los requisitos pueden variar según el componente utilizado.
-
----
-
-## Screenshots
-
-> Las imágenes siguientes demuestran recursos ya probados o actualmente en desarrollo.
-> Los componentes nuevos pueden no tener todavía demostraciones visuales completas.
-
-### CNN Demo
-
-![CNN Demo](screenshots/cnn_demo.jpg)
-
-Demostración de clasificación de imágenes.
-
-### Math Input / Output Demo
-
-![Math Input Output Demo](screenshots/math_input_output_demo.jpg)
-
-Demostración de componentes matemáticos.
-
-### Python Connector Demo
-
-![Python Demo](screenshots/python_demo.jpg)
-
-Demostración de integración con Python.
-
-### SOM Demo
-
-![SOM Demo](screenshots/som_demo.jpg)
-
-Demostración de mapa autoorganizado.
-
-### Sound Filters Demo
-
-![Sound Filters](screenshots/sound_filters.jpg)
-
-Demostración de filtros de sonido.
-
-### Voice Synthesizer Demo
-
-![Voice Synthesizer](screenshots/voicesynthesizer_demo.jpg)
-
-Demostración de síntesis de voz.
-
-### Disk Tree AI Dataset Demo
-
-![Disk Tree AI Dataset Demo](screenshots/disk_tree_ai_dataset_demo.jpg)
-
-Escaneo asíncrono del sistema de archivos y preparación del inventario del dataset de IA.
-
-### AI Test LLM Demo
-
-![AI Test LLM Demo](screenshots/AITestLLM.jpg)
-
-Evaluador de prompts y probador de conexiones LLM.
-
-
----
-
-## Limitaciones Conocidas
-
-El proyecto aún está en desarrollo y posee componentes en diferentes niveles de estabilidad.
-
-Limitaciones actuales esperadas:
-
-* algunos componentes pueden estar en fase experimental;
-* no todos los componentes tienen demostraciones completas;
-* las integraciones externas dependen de APIs de terceros;
-* los componentes de visión computacional pueden requerir bibliotecas externas;
-* los componentes Python dependen de versión y arquitectura compatibles;
-* cada componente debe validarse antes de su uso en producción;
-* las pruebas automatizadas y la integración continua aún deben ampliarse.
-
----
-
-## Roadmap
-
-### Corto plazo
-
-* revisar la documentación de los componentes;
-* estandarizar los nombres de las pestañas en inglés;
-* separar componentes estables y experimentales;
-* agregar demostraciones mínimas para cada componente;
-* validar la compilación del paquete en Windows y Linux;
-* corregir inconsistencias entre README y código fuente.
-
-### Mediano plazo
-
-* crear pruebas automatizadas;
-* crear pipeline con `lazbuild`;
-* crear releases versionadas;
-* documentar dependencias externas;
-* mejorar el tratamiento de errores;
-* crear demostraciones reales usando LLM, voz, imagen y agentes.
-
-### Largo plazo
-
-* crear plantillas de proyectos;
-* crear un asistente visual para configuración de IA;
-* consolidar componentes OpenCV;
-* consolidar componentes 3D;
-* mejorar la integración con modelos locales;
-* evolucionar agentes con control de seguridad;
-* crear documentación completa para uso en producción.
-
----
-
-## ¿Para quién es este proyecto?
-
-Este proyecto es indicado para:
-
-* desarrolladores Lazarus;
-* desarrolladores Free Pascal;
-* profesores y estudiantes;
-* proyectos desktop con IA;
-* automatización local;
-* sistemas corporativos heredados;
-* aplicaciones educativas;
-* prototipos de IA;
-* integración de IA con dispositivos;
-* sistemas que necesitan IA sin migrar toda la base a Python o JavaScript.
-
----
-
-## ¿Para quién todavía no es este proyecto?
-
-En este momento, el proyecto aún no reemplaza:
-
-* frameworks completos de machine learning;
-* plataformas MLOps;
-* pipelines corporativos de entrenamiento;
-* servicios profesionales de despliegue de modelos;
-* bibliotecas especializadas como PyTorch, TensorFlow, scikit-learn u OpenCV completo;
-* infraestructura de IA a escala empresarial.
-
----
-
-## Contribución
-
-Las contribuciones son bienvenidas.
-
-Áreas prioritarias para contribuir:
-
-* corrección de bugs;
-* demostraciones funcionales;
-* documentación;
-* pruebas automatizadas;
-* compatibilidad Windows/Linux;
-* íconos y screenshots;
-* validación de componentes;
-* mejoras en tratamiento de errores;
-* integración con proveedores de IA;
-* demos para cada pestaña de componentes de Lazarus.
-
----
-
-## Licencia
-
-Este proyecto está licenciado bajo la **GNU General Public License v3.0**.
-
-Consulte el archivo `LICENSE`.
-
----
-
-## Aviso
-
-Este proyecto utiliza o integra servicios externos de IA.
-El uso de estos servicios puede implicar costos, límites de API, políticas propias del proveedor y transmisión de datos a terceros.
-
-Antes de usarlo en producción:
-
-* revise los términos del proveedor;
-* proteja sus claves de API;
-* no envíe datos sensibles sin autorización;
-* valide seguridad, privacidad y conformidad;
-* pruebe el comportamiento del componente en el ambiente real.
-
----
-
-## Conclusión
-
-**TCHATGPT** es una suite prometedora para llevar recursos de IA al ecosistema Lazarus / Free Pascal.
-
-Su mayor valor está en ofrecer un puente práctico entre aplicaciones tradicionales y recursos modernos de IA, permitiendo que sistemas desktop, industriales, educativos y corporativos puedan incorporar LLMs, voz, imagen, grafos, automatización y modelos locales de forma componentizada.
-
-El proyecto aún está en evolución, pero ya posee una base importante para convertirse en una referencia open source de componentes de IA para Lazarus.
+Este proyecto se distribuye bajo los términos de la licencia **GPL v3**. Consulte el archivo [LICENSE](LICENSE) para más detalles.

@@ -18,7 +18,12 @@ type
     llmDeepSeek,
     llmOpenRouter,
     llmCerebras,
-    llmOllama
+    llmOllama,
+    llmRunPod,
+    llmGroq,
+    llmMistral,
+    llmXAI,
+    llmQwen
   );
 
   TAILLMProviderConfig = record
@@ -98,6 +103,11 @@ type
   TAILLMOpenAICompatibleProvider = class(TAILLMProviderBase)
   public
     constructor Create; override;
+  end;
+
+  TAILLMHostedCompatibleProvider = class(TAILLMOpenAICompatibleProvider)
+  public
+    constructor CreateHosted(const AID, AName, AEndpoint: string);
   end;
 
   TAILLMOpenAIProvider = class(TAILLMOpenAICompatibleProvider)
@@ -211,6 +221,11 @@ begin
     llmOpenRouter: Result := 'OpenRouter';
     llmCerebras: Result := 'Cerebras';
     llmOllama: Result := 'Ollama';
+    llmRunPod: Result := 'RunPod';
+    llmGroq: Result := 'Groq';
+    llmMistral: Result := 'Mistral';
+    llmXAI: Result := 'xAI';
+    llmQwen: Result := 'Qwen';
   end;
 end;
 
@@ -393,7 +408,11 @@ begin
     Exit;
   while (Result <> '') and (Result[Length(Result)] = '/') do
     Delete(Result, Length(Result), 1);
-  Result := Result + ARoute;
+  if (Copy(Result, Length(Result) - 2, 3) = '/v1') and
+     (Copy(ARoute, 1, 4) = '/v1/') then
+    Result := Result + Copy(ARoute, 4, MaxInt)
+  else
+    Result := Result + ARoute;
 end;
 
 function TAILLMProviderBase.BuildEndpoint(
@@ -407,13 +426,23 @@ function TAILLMProviderBase.BuildRequest(
 var
   LRoot, LMessage: TJSONObject;
   LMessages: TJSONArray;
+  LReasoningOpenAI: Boolean;
 begin
+  LReasoningOpenAI := (GetProviderID = 'openai') and
+    ((Pos('gpt-5', LowerCase(AConfig.Model)) = 1) or
+     (Pos('gpt-6', LowerCase(AConfig.Model)) = 1) or
+     (Pos('o1', LowerCase(AConfig.Model)) = 1) or
+     (Pos('o3', LowerCase(AConfig.Model)) = 1) or
+     (Pos('o4', LowerCase(AConfig.Model)) = 1));
   LRoot := TJSONObject.Create;
   try
     LRoot.Add('model', AConfig.Model);
     if AConfig.MaxTokens > 0 then
-      LRoot.Add('max_tokens', AConfig.MaxTokens);
-    if SupportsTemperature then
+      if LReasoningOpenAI then
+        LRoot.Add('max_completion_tokens', AConfig.MaxTokens)
+      else
+        LRoot.Add('max_tokens', AConfig.MaxTokens);
+    if SupportsTemperature and not LReasoningOpenAI then
       LRoot.Add('temperature', AConfig.Temperature);
     if AConfig.Stream and SupportsStreaming then
       LRoot.Add('stream', True);
@@ -510,6 +539,12 @@ begin
     LeaveCriticalSection(FLock);
   end;
   LEndpoint := BuildEndpoint(AConfig);
+  if (Pos('WORKSPACE_ID', UpperCase(LEndpoint)) > 0) or
+     (Pos('ENDPOINT_ID', UpperCase(LEndpoint)) > 0) then
+  begin
+    FLastError := 'Configure URL com o identificador real do workspace/endpoint de ' + GetProviderName + '.';
+    Exit;
+  end;
   LPayload := BuildRequest(AConfig);
   if AConfig.Stream and SupportsStreaming then
     LAttempts := 1
@@ -604,6 +639,13 @@ begin
   inherited Create;
   SetProviderIdentity('openai-compatible', 'OpenAI-compatible',
     'http://localhost:8000/v1/chat/completions');
+end;
+
+constructor TAILLMHostedCompatibleProvider.CreateHosted(
+  const AID, AName, AEndpoint: string);
+begin
+  inherited Create;
+  SetProviderIdentity(AID, AName, AEndpoint);
 end;
 
 constructor TAILLMOpenAIProvider.Create;
@@ -749,8 +791,26 @@ end;
 
 function TAILLMGeminiProvider.ParseResponse(
   const ARawResponse: string): string;
+var
+  Data, Parts, Part: TJSONData;
+  I: Integer;
 begin
-  Result := ParseJSONPath(ARawResponse, 'candidates[0].content.parts[0].text');
+  Result := '';
+  Data := nil;
+  try
+    Data := GetJSON(ARawResponse);
+    Parts := Data.FindPath('candidates[0].content.parts');
+    if (Parts <> nil) and (Parts.JSONType = jtArray) then
+      for I := 0 to Parts.Count - 1 do
+      begin
+        Part := Parts.Items[I];
+        if (Part.JSONType = jtObject) and not TJSONObject(Part).Get('thought', False) then
+          Result := Result + TJSONObject(Part).Get('text', '');
+      end;
+  except
+    Result := '';
+  end;
+  Data.Free;
 end;
 
 function TAILLMGeminiProvider.SupportsStreaming: Boolean;
@@ -777,7 +837,12 @@ begin
   try
     LRoot.Add('model', AConfig.Model);
     LRoot.Add('max_tokens', AConfig.MaxTokens);
-    LRoot.Add('temperature', AConfig.Temperature);
+    // New Claude models reject sampling parameters. Keep them for legacy IDs.
+    if (Pos('claude-3-', AConfig.Model) = 1) or
+       (Pos('claude-sonnet-4-5', AConfig.Model) = 1) or
+       (Pos('claude-haiku-4-5', AConfig.Model) = 1) or
+       (Pos('claude-opus-4-6', AConfig.Model) = 1) then
+      LRoot.Add('temperature', AConfig.Temperature);
     if Trim(AConfig.SystemPrompt) <> '' then
       LRoot.Add('system', AConfig.SystemPrompt);
     LMessages := TJSONArray.Create;
@@ -804,8 +869,27 @@ end;
 
 function TAILLMClaudeProvider.ParseResponse(
   const ARawResponse: string): string;
+var
+  Data, Content, Block: TJSONData;
+  I: Integer;
 begin
-  Result := ParseJSONPath(ARawResponse, 'content[0].text');
+  Result := '';
+  Data := nil;
+  try
+    Data := GetJSON(ARawResponse);
+    Content := Data.FindPath('content');
+    if (Content <> nil) and (Content.JSONType = jtArray) then
+      for I := 0 to Content.Count - 1 do
+      begin
+        Block := Content.Items[I];
+        if (Block.JSONType = jtObject) and
+           (TJSONObject(Block).Get('type', '') = 'text') then
+          Result := Result + TJSONObject(Block).Get('text', '');
+      end;
+  except
+    Result := '';
+  end;
+  Data.Free;
 end;
 
 function TAILLMClaudeProvider.SupportsStreaming: Boolean;
@@ -829,6 +913,16 @@ begin
     llmOpenRouter: Result := TAILLMOpenRouterProvider.Create;
     llmCerebras: Result := TAILLMCerebrasProvider.Create;
     llmOllama: Result := TAILLMOllamaProvider.Create;
+    llmRunPod: Result := TAILLMHostedCompatibleProvider.CreateHosted('runpod', 'RunPod',
+      'https://api.runpod.ai/v2/ENDPOINT_ID/openai/v1/chat/completions');
+    llmGroq: Result := TAILLMHostedCompatibleProvider.CreateHosted('groq', 'Groq',
+      'https://api.groq.com/openai/v1/chat/completions');
+    llmMistral: Result := TAILLMHostedCompatibleProvider.CreateHosted('mistral', 'Mistral',
+      'https://api.mistral.ai/v1/chat/completions');
+    llmXAI: Result := TAILLMHostedCompatibleProvider.CreateHosted('xai', 'xAI',
+      'https://api.x.ai/v1/chat/completions');
+    llmQwen: Result := TAILLMHostedCompatibleProvider.CreateHosted('qwen', 'Qwen',
+      'https://WORKSPACE_ID.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1/chat/completions');
   else
     Result := TAILLMOpenAIProvider.Create;
   end;
@@ -846,18 +940,23 @@ begin
     Result := llmLlamaCpp
   else if (LName = 'neural-api') or (LName = 'neuralapi') then
     Result := llmNeuralAPI
-  else if LName = 'gemini' then
+  else if (LName = 'gemini') or (LName = 'google gemini') then
     Result := llmGemini
-  else if (LName = 'claude') or (LName = 'anthropic') then
+  else if (LName = 'claude') or (LName = 'anthropic') or (LName = 'anthropic claude') then
     Result := llmClaude
-  else if LName = 'deepseek' then
+  else if (LName = 'deepseek') or (LName = 'deepseek direct') then
     Result := llmDeepSeek
   else if LName = 'openrouter' then
     Result := llmOpenRouter
   else if LName = 'cerebras' then
     Result := llmCerebras
-  else if LName = 'ollama' then
+  else if (LName = 'ollama') or (LName = 'local') or (LName = 'local (ollama / llama.cpp)') then
     Result := llmOllama
+  else if LName = 'runpod' then Result := llmRunPod
+  else if LName = 'groq' then Result := llmGroq
+  else if LName = 'mistral' then Result := llmMistral
+  else if (LName = 'xai') or (LName = 'grok') then Result := llmXAI
+  else if (LName = 'qwen') or (LName = 'alibaba') or (LName = 'dashscope') then Result := llmQwen
   else
     Result := llmOpenAI;
 end;

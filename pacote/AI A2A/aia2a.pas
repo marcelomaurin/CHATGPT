@@ -91,7 +91,7 @@ type
   published
     property BaseURL: string read FBaseURL write FBaseURL;
     property AgentCardURL: string read FAgentCardURL write FAgentCardURL;
-    property Token: string read FToken write FToken;
+    property Token: string read FToken write FToken stored False;
     property ProtocolVersion: string read FProtocolVersion write FProtocolVersion;
     property Binding: TAIA2ABinding read FBinding write FBinding default a2abHTTPJSON;
     property Timeout: Integer read FTimeout write FTimeout default 120000;
