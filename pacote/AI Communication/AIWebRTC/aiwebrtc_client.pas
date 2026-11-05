@@ -5,7 +5,7 @@
 interface
 
 uses
-  Classes, SysUtils, aiwebrtc_libdatachannel, airuntimepaths;
+  Classes, SysUtils, aiwebrtc_libdatachannel, airuntimepaths, LResources;
 
 type
   TAIWebRTCDescriptionEvent = procedure(Sender: TObject; const SDP, DescriptionType: string) of object;
@@ -368,5 +368,8 @@ begin
   Result := rtcSendMessage(FDataChannel, PAnsiChar(S), Length(S)) >= 0;
   if not Result then SetError('rtcSendMessage failed');
 end;
+
+initialization
+  {$I aiwebrtc_client_icon.lrs}
 
 end.

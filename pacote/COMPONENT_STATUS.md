@@ -122,6 +122,12 @@ Use esta classificação para documentação, README de abas, samples e planejam
 | `TAIWifi` | `aiwifi.pas` | `openai_hardware` | Beta | Busca e conexão a redes Wi-Fi (netsh no Windows, nmcli no Linux) para aparelhos com ponto de acesso próprio |
 | `TAIH264Decoder` | `aih264decoder.pas` | `openai_video` | Beta | Decodifica fluxo H.264 bruto em `TBitmap` via ffmpeg, sem acúmulo de atraso; grava `.h264` opcional |
 | `TAIDroneFQ777` | `aidronefq777.pas` | `openai_drone` | Beta | Protocolo Wi-Fi exclusivo do quadricóptero FQ777-954: controle UDP e vídeo H.264 em linhas separadas |
+| `TAIDroneCX10W` | `aidronecx10w.pas` | `openai_drone` | Beta | Cheerson CX-10W (mesmo protocolo do FQ777-954): controle UDP e vídeo H.264 |
+| `TAIDroneMavlink` | `aidronemavlink.pas` | `openai_drone` | Beta | ArduPilot/PX4 por MAVLink UDP: telemetria, controle manual e envio/execução de missões por GPS |
+| `TAIDroneTello` | `aidronetello.pas` | `openai_drone` | Beta | DJI/Ryze Tello pelo SDK em texto: comandos, telemetria e vídeo H.264 |
+| `TAIDroneESPDrone` | `aidroneespdrone.pas` | `openai_drone` | Beta | ESP-Drone (Espressif) / OpenDrone: comando CRTP em UDP com trava de aceleração |
+| `TAIDroneARDrone` | `aidroneardrone.pas` | `openai_drone` | Beta | Parrot AR.Drone 2.0: comandos AT, navdata e vídeo PaVE/H.264 |
+| `TAIDroneCDP` | `aidronecdp.pas` | `openai_drone` | Beta | Drone ESP32 com o firmware do Cockpit Drone (CDP v1): controle, armar/corte, calibração e telemetria |
 | `TAISerialModem` | `aiserial.pas` | `openai_input` | Beta | Comunicação serial / modem |
 | `TAIPOSPrinter` | `aiposprinter.pas` | `openai_industrial` | Beta | Impressora térmica EscPOS |
 | `TAIModbusClient` | `aimodbus.pas` | `openai_industrial` | Beta | Cliente Modbus TCP/RTU |

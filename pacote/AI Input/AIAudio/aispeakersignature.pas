@@ -5,7 +5,7 @@
 interface
 
 uses
-  Classes, SysUtils, Math, fpjson, jsonparser;
+  Classes, SysUtils, Math, fpjson, jsonparser, LResources;
 
 type
   TAISpeakerDecision = (sdSame, sdDifferent, sdInconclusive);
@@ -1099,5 +1099,8 @@ begin
   AConfidence := FSession.Similarity(Profile.Signature, Sig);
   Result := FSession.Evaluate(Sig, ADecision);
 end;
+
+initialization
+  {$I aispeakersignature_icon.lrs}
 
 end.

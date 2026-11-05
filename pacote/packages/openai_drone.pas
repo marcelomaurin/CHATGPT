@@ -8,13 +8,19 @@ unit openai_drone;
 interface
 
 uses
-  aidronefq777, LazarusPackageIntf;
+  aidronebase, aidronefq777, aidronecx10w, aidronemavlink, aidronetello, aidroneespdrone, aidroneardrone, aidronecdp, LazarusPackageIntf;
 
 implementation
 
 procedure Register;
 begin
   RegisterUnit('aidronefq777', @aidronefq777.Register);
+  RegisterUnit('aidronecx10w', @aidronecx10w.Register);
+  RegisterUnit('aidronemavlink', @aidronemavlink.Register);
+  RegisterUnit('aidronetello', @aidronetello.Register);
+  RegisterUnit('aidroneespdrone', @aidroneespdrone.Register);
+  RegisterUnit('aidroneardrone', @aidroneardrone.Register);
+  RegisterUnit('aidronecdp', @aidronecdp.Register);
 end;
 
 initialization

@@ -89,6 +89,14 @@ type
     { Envia dados binários para Host:Port. }
     function SendBuffer(const ABuffer; ACount: Integer): Boolean;
     function ReceiveText(out AText: string; out AFromIP: string): Boolean;
+    { Envia dados binários para AHost:APort (não altera Host/Port). }
+    function SendBufferTo(const ABuffer; ACount: Integer; const AHost: string;
+      APort: Integer): Boolean;
+    { Recebe um datagrama binário, esperando até ATimeoutMs (0 = não espera).
+      Retorna os bytes lidos, 0 se nada chegou no prazo e -1 em erro.
+      AFromIP/AFromPort informam o remetente (para responder a ele). }
+    function ReceiveBuffer(var ABuffer; ACount, ATimeoutMs: Integer;
+      out AFromIP: string; out AFromPort: Integer): Integer;
   published
     property Prompt: string read FPrompt write FPrompt;
     property Host: string read FHost write FHost;
@@ -525,7 +533,7 @@ end;
 constructor TAISocketUDP.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  FPrompt := 'Component TAISocketUDP handles lightweight connectionless UDP communication. Properties: Host: string (target IP/domain), Port: Integer, Active: Boolean, OnDataReceived: TSocketDataEvent. Methods: OpenSocket, CloseSocket, SendText(const AText: string): Boolean, SendBuffer(const ABuffer; ACount): Boolean, ReceiveText(out AText: string; out AFromIP: string): Boolean. LocalPort: -1 binds to Port, 0 binds to any free port. AI Agent: Use this for quick, non-guaranteed broadcast signals or real-time telemetry.';
+  FPrompt := 'Component TAISocketUDP handles lightweight connectionless UDP communication. Properties: Host: string (target IP/domain), Port: Integer, Active: Boolean, OnDataReceived: TSocketDataEvent. Methods: OpenSocket, CloseSocket, SendText(const AText: string): Boolean, SendBuffer(const ABuffer; ACount): Boolean, ReceiveText(out AText: string; out AFromIP: string): Boolean. LocalPort: -1 binds to Port, 0 binds to any free port. AI Agent: Use this for quick, non-guaranteed broadcast signals or real-time telemetry. SendBufferTo(const ABuffer; ACount; AHost; APort): Boolean sends binary data to a given address; ReceiveBuffer(var ABuffer; ACount, ATimeoutMs; out AFromIP; out AFromPort): Integer receives one binary datagram (bytes, 0 = timeout, -1 = error) and tells the sender, to reply to it.';
   FHost := '127.0.0.1';
   FPort := 9001;
   FLocalPort := -1;
@@ -663,6 +671,62 @@ begin
     Result := True
   else
     FLastError := 'UDP Send failed.';
+end;
+
+function TAISocketUDP.SendBufferTo(const ABuffer; ACount: Integer;
+  const AHost: string; APort: Integer): Boolean;
+var
+  Addr: TInetSockAddr;
+begin
+  Result := False;
+  if not FActive or (FSocket = TSocket(-1)) or (ACount <= 0) then Exit;
+
+  FillChar(Addr, SizeOf(Addr), 0);
+  Addr.sin_family := AF_INET;
+  Addr.sin_port := htons(APort);
+  if not ResolveHost(AHost, Addr.sin_addr) then
+  begin
+    FLastError := 'UDP Host resolution failed: ' + AHost;
+    Exit;
+  end;
+
+  if fpSendTo(FSocket, @ABuffer, ACount, 0, @Addr, sizeof(Addr)) = ACount then
+    Result := True
+  else
+    FLastError := 'UDP Send failed.';
+end;
+
+function TAISocketUDP.ReceiveBuffer(var ABuffer; ACount, ATimeoutMs: Integer;
+  out AFromIP: string; out AFromPort: Integer): Integer;
+var
+  Addr: TInetSockAddr;
+  AddrLen: TSockLen;
+begin
+  Result := -1;
+  AFromIP := '';
+  AFromPort := 0;
+  if not FActive or (FSocket = TSocket(-1)) or (ACount <= 0) then Exit;
+
+  if not SocketWait(FSocket, ATimeoutMs, False) then
+    Exit(0);
+
+  FillChar(Addr, SizeOf(Addr), 0);
+  AddrLen := sizeof(Addr);
+  Result := fpRecvFrom(FSocket, @ABuffer, ACount, 0, @Addr, @AddrLen);
+  if Result > 0 then
+  begin
+    AFromIP := NetAddrToStr(Addr.sin_addr);
+    AFromPort := ntohs(Addr.sin_port);
+  end
+  else if Result < 0 then
+  begin
+    {$IF DEFINED(WIN32) OR DEFINED(WIN64)}
+    // ICMP "porta inalcançável" de um envio anterior: não é erro de recepção.
+    if WSAGetLastError = WSAECONNRESET then
+      Exit(0);
+    {$ENDIF}
+    FLastError := 'UDP Receive failed.';
+  end;
 end;
 
 function TAISocketUDP.ReceiveText(out AText: string; out AFromIP: string): Boolean;

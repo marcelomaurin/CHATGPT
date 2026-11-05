@@ -4,7 +4,7 @@ unit aijoystick;
 
 interface
 
-uses Classes, SysUtils, aibase;
+uses Classes, SysUtils, aibase, LResources;
 
 const
   AIJoystickAxes = 6;
@@ -189,5 +189,8 @@ begin
       if ReadDevice(FDevices[I].ID,S) then begin FState:=S; Exit(True); end;
   Result:=False;
 end;
+
+initialization
+  {$I aijoystick_icon.lrs}
 
 end.

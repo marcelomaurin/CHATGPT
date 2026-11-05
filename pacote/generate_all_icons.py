@@ -938,6 +938,32 @@ patches.extend([('AI Agent/aiconversationorchestrator.pas', 'aiconversationorche
  ('AI Voice/aichromespeech.pas', 'aichromespeech_icon.lrs'),
  ('packages/aimarlin_register.pas', 'aimarlin_register_icon.lrs')])
 
+# Drone components (package openai_drone).
+_DRONE_ICONS = [
+    ('aidronefq777', 'TAIDroneFQ777', 'FQ'),
+    ('aidronecx10w', 'TAIDroneCX10W', 'CX'),
+    ('aidronemavlink', 'TAIDroneMavlink', 'MV'),
+    ('aidronetello', 'TAIDroneTello', 'TL'),
+    ('aidroneespdrone', 'TAIDroneESPDrone', 'ED'),
+    ('aidroneardrone', 'TAIDroneARDrone', 'AR'),
+    ('aidronecdp', 'TAIDroneCDP', 'CD'),
+]
+for _unit, _cls, _label in _DRONE_ICONS:
+    icons_config[f'AI Drone/{_unit}_icon.lrs'] = [(_cls, C_HARDWARE, _label)]
+    patches.append((f'AI Drone/{_unit}.pas', f'{_unit}_icon.lrs'))
+
+# Components that were still without an icon.
+for _path, _cls, _color, _label in [
+    ('AI Communication/AIWebRTC/aiwebrtc_client', 'TAIWebRTCClient', C_A2A, 'RT'),
+    ('AI Hardware/aiwifi', 'TAIWifi', C_HARDWARE, 'WF'),
+    ('AI Input/AIAudio/aispeakersignature', 'TAISpeakerIdentifier', C_INPUT, 'SI'),
+    ('AI Input/AIJoystick/aijoystick', 'TAIJoystick', C_INPUT, 'JS'),
+    ('AI Video/aih264decoder', 'TAIH264Decoder', C_VISION, 'HD'),
+]:
+    _name = _path.rsplit('/', 1)[1]
+    icons_config[f'{_path}_icon.lrs'] = [(_cls, _color, _label)]
+    patches.append((f'{_path}.pas', f'{_name}_icon.lrs'))
+
 def patch_pas_file(file_path, lrs_filename, check_only=False):
     if not os.path.exists(file_path):
         print(f"Pascal file not found: {file_path}")

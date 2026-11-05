@@ -37,7 +37,7 @@ unit aidronefq777;
 interface
 
 uses
-  Classes, SysUtils, SyncObjs, aibase;
+  Classes, SysUtils, SyncObjs, aibase, aidronebase, LResources;
 
 const
   FQ777_DEFAULT_HOST = '172.16.10.1';
@@ -51,13 +51,13 @@ const
 type
   TFQ777ControlPacket = array[0..FQ777_PACKET_SIZE - 1] of Byte;
 
-  TAIDroneVideoDataEvent = procedure(Sender: TObject; AData: PByte;
-    ACount: Integer) of object;
-  TAIDroneMessageEvent = procedure(Sender: TObject; const AMessage: string) of object;
+  { Declarados em aidronebase; mantidos aqui por compatibilidade. }
+  TAIDroneVideoDataEvent = aidronebase.TAIDroneVideoDataEvent;
+  TAIDroneMessageEvent = aidronebase.TAIDroneMessageEvent;
 
   { TAIDroneFQ777 }
 
-  TAIDroneFQ777 = class(TAIBaseComponent)
+  TAIDroneFQ777 = class(TAIDroneBase)
   private
     FHost: string;
     FTcpPort: Integer;
@@ -68,27 +68,20 @@ type
     FVideoEnabled: Boolean;
     FCutThrottleOnDisconnect: Boolean;
     FDeadZone: Double;
-    FOnVideoData: TAIDroneVideoDataEvent;
-    FOnStatus: TAIDroneMessageEvent;
-    FOnError: TAIDroneMessageEvent;
-    FOnStateChange: TNotifyEvent;
 
     FStickLock: TCriticalSection;
-    FEventLock: TCriticalSection;
     FRoll, FPitch, FThrottle, FYaw, FFlags: Byte;
     FLastStickUpdate: QWord;
     FControlThread: TThread;
     FVideoThread: TThread;
     FControlConnected: Boolean;
     FVideoConnected: Boolean;
-    FPendingStatus: TStringList;
-    FPendingErrors: TStringList;
-    FStateChanged: Boolean;
     FPacketsSent: Int64;
-    FVideoBytes: Int64;
     FVideoChunksIgnored: Int64;
-    FLastVideoTick: QWord;
     FLastPacket: TFQ777ControlPacket;
+    FThrottleArmLock: Boolean;
+    FThrottleArmed: Boolean;
+    FArmWarned: Boolean;
 
     function GetActive: Boolean;
     procedure SetActive(AValue: Boolean);
@@ -103,16 +96,14 @@ type
     function GetYaw: Byte;
     function GetLastPacket: TFQ777ControlPacket;
     procedure TouchSticks;
-    procedure DeliverEvents;
   protected
     { Usados pelas linhas internas. }
-    procedure PostStatus(const AMessage: string);
-    procedure PostError(const AMessage: string);
+    { Nome do modelo nas mensagens (TAIDroneCX10W troca). }
+    function ModelName: string; virtual;
     procedure SetControlConnected(AValue: Boolean);
     procedure SetVideoConnected(AValue: Boolean);
     function CurrentPacket(out ATimedOut: Boolean): TFQ777ControlPacket;
     procedure NotePacketSent(const APacket: TFQ777ControlPacket);
-    procedure DoVideoData(AData: PByte; ACount: Integer);
     procedure NoteVideoIgnored;
   public
     constructor Create(AOwner: TComponent); override;
@@ -137,13 +128,6 @@ type
     { Monta o pacote UDP de comando do FQ777-954. }
     class function BuildControlPacket(ARoll, APitch, AThrottle, AYaw,
       AFlags: Byte): TFQ777ControlPacket; static;
-    { Converte -1..1 em 0..255 (0 -> 127). }
-    class function AxisToByte(AValue: Double): Byte; static;
-    { Converte 0..1 em 0..255. }
-    class function ThrottleToByte(AValue: Double): Byte; static;
-    { Zona morta proporcional: |v| <= ADeadZone vira 0 e o restante é
-      reescalado para continuar chegando a 1. }
-    class function ApplyDeadZone(AValue, ADeadZone: Double): Double; static;
     { True se o bloco for uma resposta de 106 bytes 'ITd' do drone. }
     class function IsDroneReply(AData: PByte; ACount: Integer): Boolean; static;
     class function PacketToHex(const APacket: TFQ777ControlPacket): string; static;
@@ -151,10 +135,7 @@ type
     property Active: Boolean read GetActive write SetActive;
     property ControlConnected: Boolean read FControlConnected;
     property VideoConnected: Boolean read FVideoConnected;
-    { True se chegou vídeo no último segundo. }
-    function VideoStreaming: Boolean;
     property PacketsSent: Int64 read FPacketsSent;
-    property VideoBytes: Int64 read FVideoBytes;
     property VideoChunksIgnored: Int64 read FVideoChunksIgnored;
     property LastPacket: TFQ777ControlPacket read GetLastPacket;
 
@@ -177,14 +158,17 @@ type
     property VideoEnabled: Boolean read FVideoEnabled write FVideoEnabled default True;
     property CutThrottleOnDisconnect: Boolean read FCutThrottleOnDisconnect
       write FCutThrottleOnDisconnect default True;
+    { Segurança: depois de conectar, a aceleração só é enviada depois que a
+      aplicação comandar a aceleração no mínimo (<= 6%) uma vez. }
+    property ThrottleArmLock: Boolean read FThrottleArmLock write FThrottleArmLock default True;
     { Zona morta usada por SetSticks (0..0.9). }
     property DeadZone: Double read FDeadZone write FDeadZone;
     { Chamado na linha de vídeo com o H.264 bruto, já sem as respostas 'ITd'. }
-    property OnVideoData: TAIDroneVideoDataEvent read FOnVideoData write FOnVideoData;
-    property OnStatus: TAIDroneMessageEvent read FOnStatus write FOnStatus;
-    property OnError: TAIDroneMessageEvent read FOnError write FOnError;
+    property OnVideoData;
+    property OnStatus;
+    property OnError;
     { Mudança em ControlConnected ou VideoConnected (linha principal). }
-    property OnStateChange: TNotifyEvent read FOnStateChange write FOnStateChange;
+    property OnStateChange;
   end;
 
 const
@@ -373,7 +357,7 @@ begin
     begin
       if not Assigned(FCtrl) then
       begin
-        FOwner.PostStatus(Format('Conectando ao FQ777-954 em %s:%d...', [FHost, FTcpPort]));
+        FOwner.PostStatus(Format('Conectando ao %s em %s:%d...', [FOwner.ModelName, FHost, FTcpPort]));
         FCtrl := OpenTcp(FHost, FTcpPort, FConnectTimeoutMs, Err);
         if Assigned(FCtrl) and not FCtrl.SendBuffer(FQ777_MAGIC_CTRL, SizeOf(FQ777_MAGIC_CTRL)) then
         begin
@@ -584,20 +568,15 @@ begin
   FVideoEnabled := True;
   FCutThrottleOnDisconnect := True;
   FDeadZone := 0.08;
+  FThrottleArmLock := True;
   FStickLock := TCriticalSection.Create;
-  FEventLock := TCriticalSection.Create;
-  FPendingStatus := TStringList.Create;
-  FPendingErrors := TStringList.Create;
   Neutral;
 end;
 
 destructor TAIDroneFQ777.Destroy;
 begin
   Disconnect;
-  TThread.RemoveQueuedEvents(@DeliverEvents);
-  FPendingErrors.Free;
-  FPendingStatus.Free;
-  FEventLock.Free;
+  CancelPendingEvents;
   FStickLock.Free;
   inherited Destroy;
 end;
@@ -623,10 +602,11 @@ begin
     Exit;
   ClearError;
   Neutral;
+  FThrottleArmed := False;   // Neutral (interno) não vale como liberação
+  FArmWarned := False;
   FPacketsSent := 0;
-  FVideoBytes := 0;
+  ResetVideoCounters;
   FVideoChunksIgnored := 0;
-  FLastVideoTick := 0;
   FControlThread := TFQ777ControlThread.Create(Self);
   if FVideoEnabled then
     FVideoThread := TFQ777VideoThread.Create(Self);
@@ -647,10 +627,15 @@ begin
     FControlThread.WaitFor;
     TThread.RemoveQueuedEvents(FControlThread);
     FreeAndNil(FControlThread);
-    PostStatus('Desconectado do FQ777-954.');
+    PostStatus('Desconectado do ' + ModelName + '.');
   end;
   FControlConnected := False;
   FVideoConnected := False;
+end;
+
+function TAIDroneFQ777.ModelName: string;
+begin
+  Result := 'FQ777-954';
 end;
 
 procedure TAIDroneFQ777.TouchSticks;
@@ -673,6 +658,8 @@ end;
 procedure TAIDroneFQ777.SetThrottle(AValue: Byte);
 begin
   FThrottle := AValue;
+  if AValue <= 16 then
+    FThrottleArmed := True;
   TouchSticks;
 end;
 
@@ -718,6 +705,8 @@ begin
     FPitch := AxisToByte(ApplyDeadZone(APitch, DZ));
     FYaw := AxisToByte(ApplyDeadZone(AYaw, DZ));
     FThrottle := ThrottleToByte(AThrottle);
+    if FThrottle <= 16 then
+      FThrottleArmed := True;
     TouchSticks;
   finally
     FStickLock.Leave;
@@ -732,6 +721,7 @@ begin
     FPitch := FQ777_AXIS_CENTER;
     FYaw := FQ777_AXIS_CENTER;
     FThrottle := 0;
+    FThrottleArmed := True;
     TouchSticks;
   finally
     FStickLock.Leave;
@@ -755,6 +745,15 @@ begin
     R := FQ777_AXIS_CENTER;
     P := FQ777_AXIS_CENTER;
     Y := FQ777_AXIS_CENTER;
+  end;
+  if FThrottleArmLock and not FThrottleArmed and (T > 0) then
+  begin
+    T := 0;
+    if not FArmWarned then
+    begin
+      FArmWarned := True;
+      PostStatus('Aceleração travada: leve a aceleração ao mínimo para liberar.');
+    end;
   end;
   Result := BuildControlPacket(R, P, T, Y, F);
 end;
@@ -780,36 +779,19 @@ begin
   end;
 end;
 
-procedure TAIDroneFQ777.DoVideoData(AData: PByte; ACount: Integer);
-begin
-  Inc(FVideoBytes, ACount);
-  FLastVideoTick := GetTickCount64;
-  if Assigned(FOnVideoData) then
-    FOnVideoData(Self, AData, ACount);
-end;
 
 procedure TAIDroneFQ777.NoteVideoIgnored;
 begin
   Inc(FVideoChunksIgnored);
 end;
 
-function TAIDroneFQ777.VideoStreaming: Boolean;
-begin
-  Result := (FLastVideoTick > 0) and (GetTickCount64 - FLastVideoTick < 1000);
-end;
 
 procedure TAIDroneFQ777.SetControlConnected(AValue: Boolean);
 begin
   if FControlConnected = AValue then
     Exit;
   FControlConnected := AValue;
-  FEventLock.Enter;
-  try
-    FStateChanged := True;
-  finally
-    FEventLock.Leave;
-  end;
-  TThread.Queue(nil, @DeliverEvents);
+  PostStateChange;
 end;
 
 procedure TAIDroneFQ777.SetVideoConnected(AValue: Boolean);
@@ -817,78 +799,11 @@ begin
   if FVideoConnected = AValue then
     Exit;
   FVideoConnected := AValue;
-  FEventLock.Enter;
-  try
-    FStateChanged := True;
-  finally
-    FEventLock.Leave;
-  end;
-  TThread.Queue(nil, @DeliverEvents);
+  PostStateChange;
 end;
 
-procedure TAIDroneFQ777.PostStatus(const AMessage: string);
-begin
-  FEventLock.Enter;
-  try
-    FPendingStatus.Add(AMessage);
-  finally
-    FEventLock.Leave;
-  end;
-  TThread.Queue(nil, @DeliverEvents);
-end;
 
-procedure TAIDroneFQ777.PostError(const AMessage: string);
-begin
-  FEventLock.Enter;
-  try
-    FPendingErrors.Add(AMessage);
-  finally
-    FEventLock.Leave;
-  end;
-  TThread.Queue(nil, @DeliverEvents);
-end;
 
-procedure TAIDroneFQ777.DeliverEvents;
-var
-  Status, Errors: TStringList;
-  Changed: Boolean;
-  I: Integer;
-begin
-  Status := TStringList.Create;
-  Errors := TStringList.Create;
-  try
-    FEventLock.Enter;
-    try
-      Status.Assign(FPendingStatus);
-      Errors.Assign(FPendingErrors);
-      FPendingStatus.Clear;
-      FPendingErrors.Clear;
-      Changed := FStateChanged;
-      FStateChanged := False;
-    finally
-      FEventLock.Leave;
-    end;
-
-    for I := 0 to Errors.Count - 1 do
-    begin
-      SetError(Errors[I]);
-      Log(llError, Errors[I]);
-      if Assigned(FOnError) then
-        FOnError(Self, Errors[I]);
-    end;
-    for I := 0 to Status.Count - 1 do
-    begin
-      Log(llInfo, Status[I]);
-      if Assigned(FOnStatus) then
-        FOnStatus(Self, Status[I]);
-    end;
-    if Changed and Assigned(FOnStateChange) then
-      FOnStateChange(Self);
-  finally
-    Errors.Free;
-    Status.Free;
-  end;
-end;
 
 class function TAIDroneFQ777.BuildControlPacket(ARoll, APitch, AThrottle, AYaw,
   AFlags: Byte): TFQ777ControlPacket;
@@ -903,35 +818,8 @@ begin
   Result[7] := $33;
 end;
 
-class function TAIDroneFQ777.AxisToByte(AValue: Double): Byte;
-begin
-  if IsNan(AValue) then
-    Exit(FQ777_AXIS_CENTER);
-  AValue := EnsureRange(AValue, -1.0, 1.0);
-  Result := Byte(EnsureRange(Trunc((AValue + 1.0) * 127.5), 0, 255));
-end;
 
-class function TAIDroneFQ777.ThrottleToByte(AValue: Double): Byte;
-begin
-  if IsNan(AValue) then
-    Exit(0);
-  AValue := EnsureRange(AValue, 0.0, 1.0);
-  Result := Byte(EnsureRange(Round(AValue * 255.0), 0, 255));
-end;
 
-class function TAIDroneFQ777.ApplyDeadZone(AValue, ADeadZone: Double): Double;
-begin
-  if IsNan(AValue) then
-    Exit(0);
-  ADeadZone := EnsureRange(ADeadZone, 0.0, 0.9);
-  if Abs(AValue) <= ADeadZone then
-    Exit(0);
-  Result := (Abs(AValue) - ADeadZone) / (1.0 - ADeadZone);
-  if Result > 1 then
-    Result := 1;
-  if AValue < 0 then
-    Result := -Result;
-end;
 
 class function TAIDroneFQ777.IsDroneReply(AData: PByte; ACount: Integer): Boolean;
 begin
@@ -951,5 +839,8 @@ begin
     Result := Result + IntToHex(APacket[I], 2);
   end;
 end;
+
+initialization
+  {$I aidronefq777_icon.lrs}
 
 end.

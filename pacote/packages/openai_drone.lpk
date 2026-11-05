@@ -13,13 +13,47 @@
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Description Value="Lazarus AI Suite: Drone protocols (TAIDroneFQ777: FQ777-954 Wi-Fi quadcopter control and video)."/>
+    <Description Value="Lazarus AI Suite: Drone protocols: TAIDroneFQ777 (FQ777-954), TAIDroneCX10W (Cheerson CX-10W), TAIDroneMavlink (ArduPilot/PX4, missions), TAIDroneTello (DJI/Ryze Tello SDK), TAIDroneESPDrone (ESP-Drone CRTP), TAIDroneARDrone (Parrot AR.Drone 2.0) and TAIDroneCDP (ESP32 Cockpit Drone firmware)."/>
     <License Value="OPEN SOURCE GPL3"/>
     <Files>
+      <Item>
+        <Filename Value="..\AI Drone\aidronebase.pas"/>
+        <UnitName Value="aidronebase"/>
+      </Item>
       <Item>
         <Filename Value="..\AI Drone\aidronefq777.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aidronefq777"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Drone\aidronecx10w.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aidronecx10w"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Drone\aidronemavlink.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aidronemavlink"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Drone\aidronetello.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aidronetello"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Drone\aidroneespdrone.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aidroneespdrone"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Drone\aidroneardrone.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aidroneardrone"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Drone\aidronecdp.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aidronecdp"/>
       </Item>
     </Files>
     <RequiredPkgs>

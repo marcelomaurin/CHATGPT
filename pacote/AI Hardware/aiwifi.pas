@@ -25,7 +25,7 @@ interface
 
 uses
   Classes, SysUtils, Process
-  {$IFDEF WINDOWS}, Windows, DynLibs{$ENDIF};
+  {$IFDEF WINDOWS}, Windows, DynLibs{$ENDIF}, LResources;
 
 type
   TAIWifiNetwork = record
@@ -688,5 +688,8 @@ begin
     '  </MSM>' + LineEnding +
     '</WLANProfile>' + LineEnding;
 end;
+
+initialization
+  {$I aiwifi_icon.lrs}
 
 end.

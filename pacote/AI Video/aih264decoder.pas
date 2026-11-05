@@ -25,7 +25,7 @@ unit aih264decoder;
 interface
 
 uses
-  Classes, SysUtils, SyncObjs, Process, Graphics, GraphType, aibase;
+  Classes, SysUtils, SyncObjs, Process, Graphics, GraphType, aibase, LResources;
 
 type
   TAIH264FrameEvent = procedure(Sender: TObject; ABitmap: TBitmap) of object;
@@ -570,5 +570,8 @@ begin
     Msgs.Free;
   end;
 end;
+
+initialization
+  {$I aih264decoder_icon.lrs}
 
 end.
