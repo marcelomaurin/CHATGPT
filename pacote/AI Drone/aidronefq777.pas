@@ -366,8 +366,10 @@ begin
         end;
         if not Assigned(FCtrl) then
         begin
-          FOwner.PostStatus('Sem resposta do drone (' + Err +
-            '). Nova tentativa em 1 s.');
+          Err := Trim(Err);
+          if (Err <> '') and (Err[Length(Err)] = '.') then
+            Delete(Err, Length(Err), 1);
+          FOwner.PostStatus('Sem resposta do drone (' + Err + '). Nova tentativa em 1 s.');
           Pause(1000);
           Continue;
         end;
