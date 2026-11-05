@@ -179,6 +179,8 @@ type
 procedure Register;
 
 implementation
+uses LResources;
+
 
 procedure Register;
 begin
@@ -894,5 +896,8 @@ begin
 
   Result := FRegistry.AddSampleFromFile(AProfileID, AImageFile, FYolo, FDescriptorBuilder, AError, FFaceClasses);
 end;
+
+initialization
+  {$I aifacerecognition_icon.lrs}
 
 end.

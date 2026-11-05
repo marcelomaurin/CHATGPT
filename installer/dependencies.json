@@ -101,7 +101,7 @@
       "openai_observability", "openai_input", "openai_vision", "openai_voice",
       "openai_agent", "openai_project", "openai_graph", "openai_rag",
       "openai_aidbase", "openai_dbase", "openai_mcp", "openai_a2a",
-      "openai_llamacpp"
+      "openai_llamacpp", "openai_marlin"
     ],
     "all": [
       "openai_project_core", "openai_hardware", "openai_core", "openai_ml", "openai_files",
@@ -110,7 +110,7 @@
       "openai_input", "openai_vision", "openai_voice", "openai_agent",
       "openai_project", "openai_graph", "openai_rag", "openai_aidbase",
       "openai_dbase", "openai_mcp", "openai_a2a", "openai_industrial",
-      "openai_integration", "openai_llamacpp"
+      "openai_integration", "openai_llamacpp", "openai_marlin"
     ]
   },
   "openssl": {

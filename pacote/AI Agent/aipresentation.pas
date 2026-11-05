@@ -248,6 +248,8 @@ type
 procedure Register;
 
 implementation
+uses LResources;
+
 
 procedure Register;
 begin
@@ -1105,5 +1107,8 @@ begin
   if FCurrentResource <> nil then
     Result := Result + ' | Recurso: ' + FCurrentResource.Title;
 end;
+
+initialization
+  {$I aipresentation_icon.lrs}
 
 end.

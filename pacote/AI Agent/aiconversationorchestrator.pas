@@ -71,6 +71,8 @@ type
 procedure Register;
 
 implementation
+uses LResources;
+
 
 procedure Register;
 begin
@@ -282,5 +284,8 @@ begin
     S.LastTopic := TargetProjects;
   end;
 end;
+
+initialization
+  {$I aiconversationorchestrator_icon.lrs}
 
 end.

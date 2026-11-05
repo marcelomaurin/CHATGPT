@@ -38,6 +38,7 @@ begin
   Params := TStringList.Create;
   try
     Safety.Enabled := True;
+    Safety.RequireConfirmation := False;
     Safety.ReadOnlyMode := True;
     Safety.AllowFileWrite := False;
     Safety.AllowNetwork := False;
@@ -106,6 +107,7 @@ begin
   Params := TStringList.Create;
   try
     Safety.Enabled := True;
+    Safety.RequireConfirmation := False;
     Safety.ReadOnlyMode := False;
     Safety.AllowFileWrite := False;
     Safety.AllowNetwork := True;
@@ -137,9 +139,10 @@ begin
   Params := TStringList.Create;
   try
     Safety.Enabled := True;
+    Safety.RequireConfirmation := False;
     Safety.ReadOnlyMode := False;
     Safety.AllowFileWrite := True;
-    Safety.SafeBasePath := '/tmp/safe';
+    Safety.SafeBasePath := IncludeTrailingPathDelimiter(GetTempDir(False)) + 'chatgpt-safe';
 
     Params.Clear;
     Params.Values['arquivo'] := '../../etc/passwd';
@@ -173,6 +176,7 @@ begin
   Safety := TAIAgentSafety.Create(nil);
   try
     Safety.Enabled := True;
+    Safety.RequireConfirmation := False;
     Safety.AllowNetwork := True;
     Safety.AllowedDomains.Clear;
     Safety.AllowedDomains.Add('exemplo.com');
@@ -205,15 +209,16 @@ begin
   Safety := TAIAgentSafety.Create(nil);
   try
     Safety.Enabled := True;
+    Safety.RequireConfirmation := False;
     Safety.AllowFileWrite := True;
-    Safety.SafeBasePath := '/tmp/safe';
+    Safety.SafeBasePath := IncludeTrailingPathDelimiter(GetTempDir(False)) + 'chatgpt-safe';
 
     // Nome legitimo contendo '..' no meio da string
-    Allowed := Safety.ValidateFilePath('relatorio..v2.txt', Err);
+    Allowed := Safety.ValidateFilePath(IncludeTrailingPathDelimiter(Safety.SafeBasePath) + 'relatorio..v2.txt', Err);
     AssertResult('Path Legitimo "relatorio..v2.txt"', Allowed, 'PERMITIDA', 'BLOQUEADA', 'Pos(..) ingenuo nao pode bloquear nomes de arquivos validos');
 
     // Prefix match bypass (/tmp/safe_evil)
-    Allowed := Safety.ValidateFilePath('/tmp/safe_evil/x.txt', Err);
+    Allowed := Safety.ValidateFilePath(Safety.SafeBasePath + '_evil' + PathDelim + 'x.txt', Err);
     AssertResult('Boundary Bypass "/tmp/safe_evil/x.txt"', not Allowed, 'BLOQUEADA', 'PERMITIDA', 'Diretorio similar fora do boundary deve ser bloqueado');
   finally
     Safety.Free;
@@ -221,7 +226,7 @@ begin
 end;
 
 begin
-  WriteLn('Iniciando Execucao do Teste de Matriz do TAIAgentSafety (T-1.5)...');
+  WriteLn('Iniciando Execucao do Teste de Matriz do TAIAgentSafety...');
   WriteLn;
 
   TestRealActionNames;
@@ -237,7 +242,7 @@ begin
 
   if GFailCount > 0 then
   begin
-    WriteLn('ATENCAO: Teste finalizado com FALHAS (comportamento esperado no T-1.5 antes da reescrita T-1.6).');
+    WriteLn('ERRO: a matriz de seguranca apresentou regressoes.');
     Halt(1);
   end
   else

@@ -20,8 +20,11 @@ var
   R: TAISupervisorReview;
   D: TAIAgentRouteDecision;
   I: Integer;
+  M: TAIDeterministicAgentMemory;
+  ID: TGUID;
 begin
-  Root := IncludeTrailingPathDelimiter(GetTempDir) + 'aiagent-memory-test-' + IntToStr(Random(1000000));
+  CreateGUID(ID);
+  Root := IncludeTrailingPathDelimiter(GetTempDir) + 'aiagent-memory-test-' + GUIDToString(ID);
   ForceDirectories(Root);
   Reg := TAIAgentMemoryRegistry.Create(Root);
   Router := TAIAgentCapabilityRouter.Create(Reg);
@@ -37,6 +40,14 @@ begin
     Q.Framework := 'lazarus'; Q.Scope := 'multi_file'; Q.Complexity := 0.55;
     Q.Risk := 0.40; Q.RequiredCapabilities := 'source_edit,build';
 
+    M := Reg.AgentMemory('source-light');
+    try
+      AssertTrue(M.SimilarEvidenceCount(Q) = 0, 'New task must have no evidence.');
+      AssertTrue(M.ScoreForTask(Q) = 0, 'New task must have zero score.');
+    finally
+      M.Free;
+    end;
+
     FillChar(R, SizeOf(R), 0);
     R.Approved := True; R.ReviewerScore := 96;
     for I := 1 to 3 do
@@ -45,6 +56,19 @@ begin
 
     D := Supervisor.ChooseAgent(Q, 50);
     AssertTrue(D.AgentId = 'source-light', 'Histórico por tipo de questão não favoreceu o modelo leve competente.');
+
+    M := Reg.AgentMemory('source-light');
+    try
+      AssertTrue(M.SimilarEvidenceCount(Q) = 3, 'Evidence must survive reopening.');
+      AssertTrue(Abs(M.ScoreForTask(Q) - 100) < 0.001,
+        'Perfect evidence must score 100 regardless of evidence count.');
+      Q.SubDomain := 'previously-unseen';
+      AssertTrue(M.SimilarEvidenceCount(Q) = 0, 'Unseen task must have no evidence.');
+      AssertTrue(M.ScoreForTask(Q) = 0, 'Unseen task must have zero score.');
+      Q.SubDomain := '';
+    finally
+      M.Free;
+    end;
 
     Q.Complexity := 0.95; Q.Risk := 0.90;
     D := Supervisor.ChooseAgent(Q, 50);
@@ -59,5 +83,8 @@ begin
     Supervisor.Free;
     Router.Free;
     Reg.Free;
+    DeleteFile(IncludeTrailingPathDelimiter(Root) + 'source-light.json');
+    DeleteFile(IncludeTrailingPathDelimiter(Root) + 'global-supervisor.json');
+    RemoveDir(Root);
   end;
 end.

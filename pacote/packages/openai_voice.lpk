@@ -16,6 +16,12 @@
     <Description Value="Lazarus AI Suite: Audio input, speech synthesizers, speech recognizers and sound filter modules."/>
     <License Value="OPEN SOURCE GPL3"/>
     <Files>
+      <Item><Filename Value="..\AI Voice\aispeechfilter.pas"/><UnitName Value="aispeechfilter"/></Item>
+      <Item>
+        <Filename Value="..\AI Voice\aichromespeech.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aichromespeech"/>
+      </Item>
       <Item>
         <Filename Value="..\AI Voice\aispeechtypes.pas"/>
         <UnitName Value="aispeechtypes"/>

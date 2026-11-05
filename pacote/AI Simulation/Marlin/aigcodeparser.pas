@@ -5,8 +5,8 @@ uses Classes, SysUtils, Math;
 type
   TAIGCodeCommand = record
     Letter: Char;
-    Code, LineNumber: Integer;
-    HasLineNumber, HasChecksum, Empty: Boolean;
+    Code, SubCode, LineNumber: Integer;
+    HasSubCode, HasLineNumber, HasChecksum, Empty: Boolean;
     Present: array['A'..'Z'] of Boolean;
     HasValue: array['A'..'Z'] of Boolean;
     Values: array['A'..'Z'] of Double;
@@ -33,7 +33,7 @@ begin
 end;
 class function TAIGCodeParser.Parse(const Line: string;
   out Command: TAIGCodeCommand; out ErrorText: string): Boolean;
-var S, Clean, Token: string; I, Start, Star, Sum, Depth: Integer;
+var S, Clean, Token: string; I, Start, Star, Sum, Depth, DotPos: Integer;
     Key: Char; V: Double; F: TFormatSettings;
   function Fail(const Msg: string): Boolean;
   begin ErrorText := Msg; Result := False; end;
@@ -90,8 +90,18 @@ begin
     Exit(Fail('Expected G, M or T command'));
   Command.Letter := S[I]; Inc(I);
   if not Number(V) then Exit(Fail('Invalid command number'));
-  if (V < 0) or (Frac(V) <> 0) then Exit(Fail('Subcodes are not supported'));
-  Command.Code := Round(V); Command.Empty := False;
+  if V < 0 then Exit(Fail('Invalid command number'));
+  DotPos := Pos('.', Token);
+  if DotPos > 0 then begin
+    Command.Code := StrToIntDef(Copy(Token, 1, DotPos - 1), 0);
+    Command.SubCode := StrToIntDef(Copy(Token, DotPos + 1, Length(Token)), 0);
+    Command.HasSubCode := True;
+  end else begin
+    Command.Code := Round(V);
+    Command.SubCode := 0;
+    Command.HasSubCode := False;
+  end;
+  Command.Empty := False;
   while I <= Length(S) do begin
     if S[I] in [' ', #9] then begin Inc(I); Continue; end;
     Key := S[I]; Inc(I);

@@ -74,6 +74,26 @@ type
 
 implementation
 
+function FindObject(AParent: TJSONObject; const AName: string): TJSONObject;
+var D: TJSONData;
+begin
+  D := AParent.Find(AName);
+  if D = nil then Exit(nil);
+  if not (D is TJSONObject) then
+    raise EJSON.Create('Expected memory object: ' + AName);
+  Result := TJSONObject(D);
+end;
+
+function FindEvidence(ABucket: TJSONObject): TJSONArray;
+var D: TJSONData;
+begin
+  D := ABucket.Find('evidence');
+  if D = nil then Exit(nil);
+  if not (D is TJSONArray) then
+    raise EJSON.Create('Expected memory evidence array.');
+  Result := TJSONArray(D);
+end;
+
 function Clamp01(const V: Double): Double;
 begin
   if V < 0 then Exit(0);
@@ -181,14 +201,19 @@ begin
   try
     Key := E.Fingerprint;
     if Key = '' then raise Exception.Create('Fingerprint da tarefa não informado.');
-    Bucket := Root.Objects[Key];
+    Bucket := FindObject(Root, Key);
     if Bucket = nil then
     begin
       Bucket := TJSONObject.Create;
       Root.Add(Key, Bucket);
       Bucket.Add('evidence', TJSONArray.Create);
     end;
-    Arr := Bucket.Arrays['evidence'];
+    Arr := FindEvidence(Bucket);
+    if Arr = nil then
+    begin
+      Arr := TJSONArray.Create;
+      Bucket.Add('evidence', Arr);
+    end;
     EffectiveAgent := Trim(E.AgentId);
     if EffectiveAgent = '' then EffectiveAgent := FAgentId;
     Item := TJSONObject.Create;
@@ -220,9 +245,9 @@ begin
   Result := 0;
   Root := LoadRoot;
   try
-    Bucket := Root.Objects[TaskFingerprint(Q)];
+    Bucket := FindObject(Root, TaskFingerprint(Q));
     if Bucket = nil then Exit;
-    Arr := Bucket.Arrays['evidence'];
+    Arr := FindEvidence(Bucket);
     if Arr = nil then Exit;
     Filter := Trim(AAgentId);
     for I := 0 to Arr.Count - 1 do
@@ -238,21 +263,21 @@ function TAIDeterministicAgentMemory.ScoreForTask(
 var
   Root, Bucket: TJSONObject;
   Arr: TJSONArray;
-  I, N: Integer;
+  I: Integer;
   O: TJSONObject;
   Filter: string;
-  V, Sum, Weight: Double;
+  V, Sum, Weight, TotalWeight: Double;
 begin
   Result := 0;
   Root := LoadRoot;
   try
-    Bucket := Root.Objects[TaskFingerprint(Q)];
+    Bucket := FindObject(Root, TaskFingerprint(Q));
     if Bucket = nil then Exit;
-    Arr := Bucket.Arrays['evidence'];
+    Arr := FindEvidence(Bucket);
     if Arr = nil then Exit;
     Filter := Trim(AAgentId);
     Sum := 0;
-    N := 0;
+    TotalWeight := 0;
     for I := 0 to Arr.Count - 1 do
     begin
       O := Arr.Objects[I];
@@ -266,9 +291,9 @@ begin
       if O.Get('failure_kind', '') <> '' then V := V - 0.08;
       Weight := 1.0 + (I / (Arr.Count + 1)); { recent evidence weighs slightly more }
       Sum := Sum + Clamp01(V) * Weight;
-      Inc(N);
+      TotalWeight := TotalWeight + Weight;
     end;
-    if N > 0 then Result := 100.0 * Sum / N / 1.5;
+    if TotalWeight > 0 then Result := 100.0 * Sum / TotalWeight;
     if Result > 100 then Result := 100;
   finally
     Root.Free;

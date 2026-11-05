@@ -7,7 +7,7 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![Lazarus](https://img.shields.io/badge/Lazarus-3.x-orange.svg)](https://www.lazarus-ide.org/)
 [![Free Pascal](https://img.shields.io/badge/Free%20Pascal-FPC-blue.svg)](https://www.freepascal.org/)
-[![Samples](https://img.shields.io/badge/samples-91%20PASS%20%2F%204%20FAIL-yellow.svg)]()
+[![Samples](https://img.shields.io/badge/samples-relat%C3%B3rio%20hist%C3%B3rico-lightgrey.svg)](#situação-factual-da-compilação)
 
 ## Visão geral
 
@@ -18,9 +18,20 @@ A suíte é uma camada de integração para aplicações Pascal. Ela não substi
 > [!WARNING]
 > Um sample com `PASS` comprova compilação pelo `lazbuild`. Isso não comprova automaticamente execução de hardware, APIs, modelos externos, DLLs ou comportamento completo em runtime. O backend real de `TAIHumanPoseDetector` exige plataforma 64-bit.
 
+## Exemplos complementares
+
+Os nove exemplos adicionados para completar a documentação estão em
+[pacote/samples/NEW_SAMPLES.md](pacote/samples/NEW_SAMPLES.md). Incluem catálogo
+de modelos, prompts, exportação, relatório, wizard e demonstrações de voz,
+continuidade, sessões e apresentação.
+
 ## Situação factual da compilação
 
-Resultado produzido pelo **AI Framework Graph Explorer**:
+**Relatório histórico** produzido pelo **AI Framework Graph Explorer**. Os 95 exemplos abaixo pertencem à execução registrada, não ao inventário atual. Não foi realizada uma nova compilação completa de todos os exemplos nesta revisão.
+
+O inventário atual está em `tests/samples_inventory.json`; valide-o com `python tests/ci_validate_samples.py`. A evidência de compilação e a de execução são distintas; os rótulos Stable/Beta desta tabela não comprovam validação de hardware ou serviços reais.
+
+Resultados daquela execução:
 
 ```text
 Ambiente: Windows Win32 / i386

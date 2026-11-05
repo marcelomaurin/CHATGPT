@@ -1355,6 +1355,5 @@ end;
 initialization
   {$I ailistserialdevices_icon.lrs}
 
-  {$I aiserial_icon.lrs}
 
 end.

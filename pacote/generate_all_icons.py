@@ -880,6 +880,44 @@ patches = [
     ('python/aipythonruntime.pas', 'aipythonruntime_icon.lrs'),
 ]
 
+
+# Resources for conversation, perception, voice and simulation components.
+icons_config.update({'AI Agent/aiconversationorchestrator_icon.lrs': [('TAIConversationOrchestrator',
+                                                   (180, 100, 240),
+                                                   'CO')],
+ 'AI Agent/aikinectadapter_icon.lrs': [('TAIKinectInteractionAdapter', (180, 100, 240), 'KI')],
+ 'AI Agent/aipersonsession_icon.lrs': [('TAIPersonSessionManager', (180, 100, 240), 'PS'),
+                                       ('TAIActiveSpeakerManager', (180, 100, 240), 'AS')],
+ 'AI Agent/aipresentation_icon.lrs': [('TAIPresentationResourceManager', (180, 100, 240), 'PR'),
+                                      ('TAIPresentationAgent', (180, 100, 240), 'PA')],
+ 'AI Agent/aitopiccontinuity_icon.lrs': [('TAITopicContinuityClassifier', (180, 100, 240), 'TC')],
+ 'AI Graphic/aiavatar_lipsync_icon.lrs': [('TAIAvatarLipSync', (180, 100, 240), 'LS')],
+ 'AI Graphic/aiavatarbehavior_icon.lrs': [('TAIAvatarBehavior', (180, 100, 240), 'AB')],
+ 'AI Graphic/aiavatarprofile_icon.lrs': [('TAIAvatarProfileManager', (180, 100, 240), 'AP')],
+ 'AI Input/AIAudio/aicontinuouslistener_icon.lrs': [('TAIContinuousListener',
+                                                     (180, 100, 240),
+                                                     'CL')],
+ 'AI Input/AIKinect/aikinectperception_icon.lrs': [('TAIKinectPerception', (180, 100, 240), 'KP')],
+ 'AI Vision/aifacerecognition_icon.lrs': [('TAIFaceRecognition', (180, 100, 240), 'FR')],
+ 'AI Voice/aichromespeech_icon.lrs': [('TAIChromeSpeech', (180, 100, 240), 'CS')],
+ 'packages/aimarlin_register_icon.lrs': [('TAIGCodeParser', (180, 100, 240), 'GC'),
+                                         ('TAIMarlinSimulator', (180, 100, 240), 'MS'),
+                                         ('TAIVirtualSerialPair', (180, 100, 240), 'VS'),
+                                         ('TAIMarlinSerialDevice', (180, 100, 240), 'SD')]})
+patches.extend([('AI Agent/aiconversationorchestrator.pas', 'aiconversationorchestrator_icon.lrs'),
+ ('AI Agent/aikinectadapter.pas', 'aikinectadapter_icon.lrs'),
+ ('AI Agent/aipersonsession.pas', 'aipersonsession_icon.lrs'),
+ ('AI Agent/aipresentation.pas', 'aipresentation_icon.lrs'),
+ ('AI Agent/aitopiccontinuity.pas', 'aitopiccontinuity_icon.lrs'),
+ ('AI Graphic/aiavatar_lipsync.pas', 'aiavatar_lipsync_icon.lrs'),
+ ('AI Graphic/aiavatarbehavior.pas', 'aiavatarbehavior_icon.lrs'),
+ ('AI Graphic/aiavatarprofile.pas', 'aiavatarprofile_icon.lrs'),
+ ('AI Input/AIAudio/aicontinuouslistener.pas', 'aicontinuouslistener_icon.lrs'),
+ ('AI Input/AIKinect/aikinectperception.pas', 'aikinectperception_icon.lrs'),
+ ('AI Vision/aifacerecognition.pas', 'aifacerecognition_icon.lrs'),
+ ('AI Voice/aichromespeech.pas', 'aichromespeech_icon.lrs'),
+ ('packages/aimarlin_register.pas', 'aimarlin_register_icon.lrs')])
+
 def patch_pas_file(file_path, lrs_filename, check_only=False):
     if not os.path.exists(file_path):
         print(f"Pascal file not found: {file_path}")

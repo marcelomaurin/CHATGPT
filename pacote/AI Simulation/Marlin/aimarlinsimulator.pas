@@ -15,15 +15,20 @@ type
     const FromPosition, ToPosition: TAIMarlinPosition;
     DepositedFilament: Double) of object;
   TAIMarlinResponseEvent = procedure(Sender: TObject; const Text: string) of object;
-  TAIMarlinPending = (mpNone, mpMove, mpHotend, mpBed, mpDwell);
+  TAIMarlinPending = (mpNone, mpMove, mpHotend, mpBed, mpDwell, mpHome);
   TAIMarlinSimulator = class(TAIBaseComponent)
   private
     FParser: TAIGCodeParser;
     FQueue: TStringList;
     FBuffer: string;
-    FDiscardLine, FHeatCooling, FInAdvance: Boolean;
+    FDiscardLine, FHeatCooling, FInAdvance, FG92Active: Boolean;
     FState: TAIMarlinState;
     FOffset, FDestination: TAIMarlinPosition;
+    FG28Home, FHomeTarget: TAIMarlinPosition;
+    FG28HomeSet, FHomeResetOffset: Boolean;
+    FHomeStart: TAIMarlinPosition;
+    FHomeX, FHomeY, FHomeZ: Boolean;
+    FHomeTotalTime, FHomeTimeX, FHomeTimeY, FHomeTimeZ: Double;
     FPending: TAIMarlinPending;
     FRemaining, FBusyTime, FUnits, FSpeedFactor, FFlowFactor: Double;
     FMinExtrudeTemperature, FVolumeX, FVolumeY, FVolumeZ: Double;
@@ -41,6 +46,7 @@ type
     procedure Reject(const Text: string; Resend: Boolean);
     function NormalizeGrblJog(const Line: string; out Normalized, ErrorText: string): Boolean;
     procedure Execute(const C: TAIGCodeCommand);
+    procedure StartHoming(HomeX, HomeY, HomeZ: Boolean; ToStoredHome: Boolean = False);
     procedure Finish;
     procedure TemperatureStep(Dt: Double);
     function TemperatureReport: string;
@@ -58,6 +64,10 @@ type
     procedure Resume;
     procedure EmergencyStop;
     procedure SetBuildVolume(X, Y, Z: Double);
+    procedure SetHotendTarget(ATemp: Double);
+    procedure SetBedTarget(ATemp: Double);
+    procedure SetHotendActual(ATemp: Double);
+    procedure SetBedActual(ATemp: Double);
     property AllowZ: Boolean read FAllowZ write FAllowZ;
     function IsIdle: Boolean;
     property State: TAIMarlinState read FState;
@@ -66,6 +76,11 @@ type
     { True enquanto executa um G0. No GRBL em modo laser ($32=1) o laser nao
       queima em movimentos rapidos. }
     property RapidMove: Boolean read FRapidMove;
+    property G92Active: Boolean read FG92Active;
+    property G28Home: TAIMarlinPosition read FG28Home;
+    property G28HomeSet: Boolean read FG28HomeSet;
+    property Offset: TAIMarlinPosition read FOffset;
+    function WorkPosition: TAIMarlinPosition;
   published
     property OnResponse: TAIMarlinResponseEvent read FOnResponse write FOnResponse;
     property OnMotion: TAIMarlinMotionEvent read FOnMotion write FOnMotion;
@@ -96,13 +111,21 @@ procedure TAIMarlinSimulator.Reset;
 begin
   FQueue.Clear; FBuffer := ''; FDiscardLine := False;
   FillChar(FState, SizeOf(FState), 0); FillChar(FOffset, SizeOf(FOffset), 0);
+  FillChar(FHomeStart, SizeOf(FHomeStart), 0);
+  FillChar(FG28Home, SizeOf(FG28Home), 0);
+  FillChar(FHomeTarget, SizeOf(FHomeTarget), 0);
+  FG28HomeSet := False; FHomeResetOffset := False;
+  FHomeX := False; FHomeY := False; FHomeZ := False;
+  FHomeTotalTime := 0; FHomeTimeX := 0; FHomeTimeY := 0; FHomeTimeZ := 0;
   FState.Hotend := 25; FState.Bed := 25; FState.Feed := 1500; FState.LaserPower := 0;
   FUnits := 1; FSpeedFactor := 1; FFlowFactor := 1;
   FMinExtrudeTemperature := 170; FLastLine := 0;
   FPending := mpNone; FRemaining := 0; FBusyTime := 0;
-  FLaserOn := False; FLaserS := 0; FRapidMove := False;
+  FLaserOn := False; FLaserS := 0; FRapidMove := False; FG92Active := False;
   ClearError; Emit('start');
 end;
+
+
 procedure TAIMarlinSimulator.UpdateLaserPower;
 begin
   if FLaserOn then FState.LaserPower := FLaserS else FState.LaserPower := 0;
@@ -115,6 +138,30 @@ begin
     (X > 10000) or (Y > 10000) or (Z > 10000) then
     raise EArgumentException.Create('Invalid build volume');
   FVolumeX := X; FVolumeY := Y; FVolumeZ := Z;
+end;
+
+procedure TAIMarlinSimulator.SetHotendTarget(ATemp: Double);
+begin
+  FState.HotendTarget := MaxD(0, ATemp);
+  if Assigned(FOnStateChanged) then FOnStateChanged(Self);
+end;
+
+procedure TAIMarlinSimulator.SetBedTarget(ATemp: Double);
+begin
+  FState.BedTarget := MaxD(0, ATemp);
+  if Assigned(FOnStateChanged) then FOnStateChanged(Self);
+end;
+
+procedure TAIMarlinSimulator.SetHotendActual(ATemp: Double);
+begin
+  FState.Hotend := MaxD(0, ATemp);
+  if Assigned(FOnStateChanged) then FOnStateChanged(Self);
+end;
+
+procedure TAIMarlinSimulator.SetBedActual(ATemp: Double);
+begin
+  FState.Bed := MaxD(0, ATemp);
+  if Assigned(FOnStateChanged) then FOnStateChanged(Self);
 end;
 function TAIMarlinSimulator.IsIdle: Boolean;
 begin Result := (FPending = mpNone) and (FQueue.Count = 0); end;
@@ -153,16 +200,22 @@ begin
   Result := False;
   NormalizedLine := Trim(Line);
   if SameText(NormalizedLine, '$H') then begin
-    FState.Position.X:=0; FState.Position.Y:=0; FState.Position.Z:=0;
-    FOffset.X:=0; FOffset.Y:=0; FOffset.Z:=0; FState.MotorsEnabled:=True;
-    Emit('ok'); Exit(True);
+    if FPending <> mpNone then FQueue.Add('$H')
+    else StartHoming(True, True, True);
+    Exit(True);
   end;
   if SameText(NormalizedLine, '$X') or SameText(NormalizedLine, 'M30') then begin
     Emit('ok'); Exit(True);
   end;
   if NormalizedLine='?' then begin
-    Emit('<Idle|MPos:' + GCodeFloat(FState.Position.X) + ',' +
-      GCodeFloat(FState.Position.Y) + ',' + GCodeFloat(FState.Position.Z) + '>');
+    if FPending in [mpMove, mpHome] then
+      Emit('<Run|MPos:' + GCodeFloat(FState.Position.X) + ',' +
+        GCodeFloat(FState.Position.Y) + ',' + GCodeFloat(FState.Position.Z) +
+        '|WCO:' + GCodeFloat(-FOffset.X) + ',' + GCodeFloat(-FOffset.Y) + ',' + GCodeFloat(-FOffset.Z) + '>')
+    else
+      Emit('<Idle|MPos:' + GCodeFloat(FState.Position.X) + ',' +
+        GCodeFloat(FState.Position.Y) + ',' + GCodeFloat(FState.Position.Z) +
+        '|WCO:' + GCodeFloat(-FOffset.X) + ',' + GCodeFloat(-FOffset.Y) + ',' + GCodeFloat(-FOffset.Z) + '>');
     Exit(True);
   end;
   if UpperCase(Copy(NormalizedLine, 1, 3)) = '$J=' then begin
@@ -225,6 +278,14 @@ begin
   if not HasAxis then begin ErrorText := 'GRBL jog has no axis'; Exit; end;
   Result := True;
 end;
+function TAIMarlinSimulator.WorkPosition: TAIMarlinPosition;
+begin
+  Result.X := FState.Position.X + FOffset.X;
+  Result.Y := FState.Position.Y + FOffset.Y;
+  Result.Z := FState.Position.Z + FOffset.Z;
+  Result.E := FState.Position.E + FOffset.E;
+end;
+
 function TAIMarlinSimulator.TemperatureReport: string;
 begin
   Result := 'T:' + GCodeFloat(FState.Hotend) + ' /' + GCodeFloat(FState.HotendTarget) +
@@ -295,7 +356,7 @@ begin
   Allowed := '';
   if C.Letter = 'G' then case C.Code of
     0,1: Allowed := 'XYZEFS'; 4: Allowed := 'PS';
-    28: Allowed := 'XYZ'; 92: Allowed := 'XYZE';
+    28: Allowed := 'XYZF'; 92: Allowed := 'XYZE';
   end;
   if C.Letter = 'M' then case C.Code of
     3,4: Allowed := 'S'; 5: Allowed := '';
@@ -316,18 +377,31 @@ begin
       20: FUnits := 25.4;
       21: FUnits := 1;
       28: begin
-        if HasUnsupportedParameters(C, 'XYZ') then begin Done; Exit; end;
-        // Deterministic ideal homing; no physical endstop seeking.
+        if HasUnsupportedParameters(C, 'XYZF') then begin Done; Exit; end;
+        if C.HasSubCode and (C.SubCode = 1) then begin
+          FG28Home := FState.Position;
+          FG28HomeSet := True;
+          Done;
+          Exit;
+        end;
+        if C.HasSubCode and (C.SubCode <> 1) then begin
+          Reject('Unsupported G28.' + IntToStr(C.SubCode), False);
+          Done;
+          Exit;
+        end;
+        if C.Present['F'] and (C.Values['F'] > 0) then FState.Feed := C.Values['F'] * FUnits;
         AllAxes := not (C.Present['X'] or C.Present['Y'] or C.Present['Z']);
-        if AllAxes or C.Present['X'] then begin FState.Position.X := 0; FOffset.X := 0; end;
-        if AllAxes or C.Present['Y'] then begin FState.Position.Y := 0; FOffset.Y := 0; end;
-        if AllAxes or C.Present['Z'] then begin FState.Position.Z := 0; FOffset.Z := 0; end;
-        FState.MotorsEnabled := True;
+        StartHoming(AllAxes or C.Present['X'],
+                    AllAxes or C.Present['Y'],
+                    (AllAxes or C.Present['Z']) and FAllowZ,
+                    True);
+        Exit;
       end;
       90: begin FState.RelativeXYZ := False; FState.RelativeE := False; end;
       91: begin FState.RelativeXYZ := True; FState.RelativeE := True; end;
       92: begin
         if HasUnsupportedParameters(C, 'XYZE') then begin Done; Exit; end;
+        FG92Active := True;
         if C.Present['X'] then FOffset.X := C.Values['X'] * FUnits - FState.Position.X;
         if C.Present['Y'] then FOffset.Y := C.Values['Y'] * FUnits - FState.Position.Y;
         if C.Present['Z'] then FOffset.Z := C.Values['Z'] * FUnits - FState.Position.Z;
@@ -410,8 +484,62 @@ begin
     Reject('Only tool 0 is supported', False);
   Done;
 end;
+procedure TAIMarlinSimulator.StartHoming(HomeX, HomeY, HomeZ: Boolean; ToStoredHome: Boolean = False);
+var DistX, DistY, DistZ, FeedMMPerSec: Double;
+begin
+  if not FAllowZ then HomeZ := False;
+  FHomeX := HomeX; FHomeY := HomeY; FHomeZ := HomeZ;
+  FHomeStart := FState.Position;
+  if ToStoredHome and FG28HomeSet then FHomeTarget := FG28Home
+  else begin
+    FHomeTarget.X := 0; FHomeTarget.Y := 0; FHomeTarget.Z := 0; FHomeTarget.E := 0;
+  end;
+  FHomeResetOffset := not ToStoredHome;
+  DistX := 0; DistY := 0; DistZ := 0;
+  if FHomeX then DistX := Abs(FState.Position.X - FHomeTarget.X);
+  if FHomeY then DistY := Abs(FState.Position.Y - FHomeTarget.Y);
+  if FHomeZ then DistZ := Abs(FState.Position.Z - FHomeTarget.Z);
+  { Usa o avanco F (mm/min) para o recuo ao home: mm/s = F / 60 }
+  FeedMMPerSec := (FState.Feed * FSpeedFactor) / 60.0;
+  if FeedMMPerSec <= 0.05 then FeedMMPerSec := 5.0;
+  FHomeTimeX := DistX / FeedMMPerSec;
+  FHomeTimeY := DistY / FeedMMPerSec;
+  FHomeTimeZ := DistZ / FeedMMPerSec;
+  FHomeTotalTime := Max(FHomeTimeX, Max(FHomeTimeY, FHomeTimeZ));
+  FState.MotorsEnabled := True;
+  FRapidMove := True;
+  if FHomeTotalTime <= 1e-9 then begin
+    if FHomeX then FState.Position.X := FHomeTarget.X;
+    if FHomeY then FState.Position.Y := FHomeTarget.Y;
+    if FHomeZ then FState.Position.Z := FHomeTarget.Z;
+    if FHomeResetOffset then begin
+      if FHomeX then FOffset.X := 0;
+      if FHomeY then FOffset.Y := 0;
+      if FHomeZ then FOffset.Z := 0;
+      if (FOffset.X = 0) and (FOffset.Y = 0) and (FOffset.Z = 0) then FG92Active := False;
+    end;
+    Finish;
+    Exit;
+  end;
+  FRemaining := FHomeTotalTime;
+  FPending := mpHome;
+end;
 procedure TAIMarlinSimulator.Finish;
-begin FPending := mpNone; FRemaining := 0; FBusyTime := 0; FRapidMove := False; Emit('ok'); end;
+begin
+  if FPending = mpHome then begin
+    if FHomeX then FState.Position.X := FHomeTarget.X;
+    if FHomeY then FState.Position.Y := FHomeTarget.Y;
+    if FHomeZ then FState.Position.Z := FHomeTarget.Z;
+    if FHomeResetOffset then begin
+      if FHomeX then FOffset.X := 0;
+      if FHomeY then FOffset.Y := 0;
+      if FHomeZ then FOffset.Z := 0;
+      if (FOffset.X = 0) and (FOffset.Y = 0) and (FOffset.Z = 0) then FG92Active := False;
+    end;
+    FHomeX := False; FHomeY := False; FHomeZ := False;
+  end;
+  FPending := mpNone; FRemaining := 0; FBusyTime := 0; FRapidMove := False; Emit('ok');
+end;
 procedure TAIMarlinSimulator.TemperatureStep(Dt: Double);
   procedure Adjust(var Temp: Double; Target, Heating, Cooling: Double);
   begin
@@ -426,7 +554,7 @@ begin
 end;
 procedure TAIMarlinSimulator.Advance(Seconds: Double);
 var C: TAIGCodeCommand; Line, ErrorText: string; Dt, Ratio, DeltaE, Deposit,
-    Available, Target, Temp, Rate, WaitTime: Double; Old: TAIMarlinPosition; Iter: Integer;
+    Available, Target, Temp, Rate, WaitTime, Elapsed, NewElapsed: Double; Old: TAIMarlinPosition; Iter: Integer;
 begin
   if FInAdvance then raise EInvalidOperation.Create('Advance is not reentrant');
   if IsNan(Seconds) or IsInfinite(Seconds) or (Seconds < 0) or (Seconds > 3600) then
@@ -440,6 +568,10 @@ begin
       if FPending = mpNone then begin
         if FQueue.Count = 0 then begin TemperatureStep(Available); Break; end;
         Line := FQueue[0]; FQueue.Delete(0);
+        if SameText(Trim(Line), '$H') then begin
+          StartHoming(True, True, True, False);
+          Continue;
+        end;
         if FParser.Parse(Line, C, ErrorText) then Execute(C);
         Continue;
       end;
@@ -451,7 +583,7 @@ begin
         WaitTime := Abs(Temp-Target) / Rate;
         Dt := MinD(Available, WaitTime);
       end else Dt := MinD(Available, FRemaining);
-      if (FPending in [mpMove,mpDwell]) and (FRemaining <= 1e-9) then begin Finish; Continue; end;
+      if (FPending in [mpMove,mpDwell,mpHome]) and (FRemaining <= 1e-9) then begin Finish; Continue; end;
       if Dt <= 0 then Break;
       TemperatureStep(Dt); Available := MaxD(0, Available - Dt);
       if FPending = mpMove then begin
@@ -468,8 +600,28 @@ begin
           FState.DepositedFilament := FState.DepositedFilament + Deposit;
         end;
         if Assigned(FOnMotion) then FOnMotion(Self,Old,FState.Position,Deposit);
+      end else if FPending = mpHome then begin
+        Old := FState.Position;
+        Elapsed := FHomeTotalTime - FRemaining;
+        NewElapsed := MinD(FHomeTotalTime, Elapsed + Dt);
+        if FHomeX and (FHomeTimeX > 1e-9) then begin
+          if NewElapsed >= FHomeTimeX then FState.Position.X := FHomeTarget.X
+          else FState.Position.X := FHomeStart.X + (FHomeTarget.X - FHomeStart.X) * (NewElapsed / FHomeTimeX);
+        end else if FHomeX then FState.Position.X := FHomeTarget.X;
+
+        if FHomeY and (FHomeTimeY > 1e-9) then begin
+          if NewElapsed >= FHomeTimeY then FState.Position.Y := FHomeTarget.Y
+          else FState.Position.Y := FHomeStart.Y + (FHomeTarget.Y - FHomeStart.Y) * (NewElapsed / FHomeTimeY);
+        end else if FHomeY then FState.Position.Y := FHomeTarget.Y;
+
+        if FHomeZ and (FHomeTimeZ > 1e-9) then begin
+          if NewElapsed >= FHomeTimeZ then FState.Position.Z := FHomeTarget.Z
+          else FState.Position.Z := FHomeStart.Z + (FHomeTarget.Z - FHomeStart.Z) * (NewElapsed / FHomeTimeZ);
+        end else if FHomeZ then FState.Position.Z := FHomeTarget.Z;
+
+        if Assigned(FOnMotion) then FOnMotion(Self, Old, FState.Position, 0);
       end;
-      if FPending in [mpMove,mpDwell] then begin
+      if FPending in [mpMove,mpDwell,mpHome] then begin
         FRemaining := MaxD(0,FRemaining-Dt);
         if FRemaining <= 1e-9 then begin Finish; Continue; end;
       end;

@@ -37,3 +37,15 @@ jobs:
         run: |
           python -m py_compile installer/common/install_suite.py installer/common/check_runtime.py installer/common/create_runtime_ini.py tools/ci/validate_runtime_units.py
           python -c "import json, pathlib; json.loads(pathlib.Path('installer/dependencies.json').read_text(encoding='utf-8'))"
+
+      - name: Install Lazarus and Free Pascal (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y lazarus fpc
+
+      - name: Install Lazarus and Free Pascal (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: choco install lazarus -y --no-progress
+
+      - name: Compile and execute Pascal regression tests
+        run: python tests/run_pascal_regressions.py

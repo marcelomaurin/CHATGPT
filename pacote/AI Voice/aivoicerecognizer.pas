@@ -13,7 +13,7 @@ uses
   fphttpclient, opensslsockets, fpjson, jsonparser;
 
 type
-  TAIVoiceRecognitionEngine = (vreOpenAIWhisper, vreSAPI, vreSystemDefault);
+  TAIVoiceRecognitionEngine = (vreOpenAIWhisper, vreSAPI, vreSystemDefault, vreChromeWebSpeech);
 
   TAIVoiceRecognizedEvent = procedure(
     Sender: TObject;
@@ -28,6 +28,7 @@ type
     FLanguage      : string;
     FPromptText    : string;
     FEngine        : TAIVoiceRecognitionEngine;
+    FChatGPTToken  : string;
     FOpenAIToken   : string;
     FOpenAIModel   : string;
     FOpenAIEndpoint: string;
@@ -49,7 +50,8 @@ type
     property Language: string read FLanguage write FLanguage;
     property PromptText: string read FPromptText write FPromptText;
     property Engine: TAIVoiceRecognitionEngine read FEngine write FEngine default vreOpenAIWhisper;
-    property OpenAIToken: string read FOpenAIToken write FOpenAIToken;
+    property ChatGPTToken: string read FChatGPTToken write FChatGPTToken stored False;
+    property OpenAIToken: string read FOpenAIToken write FOpenAIToken stored False;
     property OpenAIModel: string read FOpenAIModel write FOpenAIModel;
     property OpenAIEndpoint: string read FOpenAIEndpoint write FOpenAIEndpoint;
     property RecognizedText: string read FRecognizedText;
@@ -79,7 +81,8 @@ begin
   FLanguage := 'pt';
   FPromptText := '';
   FEngine := vreOpenAIWhisper;
-  FOpenAIToken := GetEnvironmentVariable('OPENAI_API_KEY');
+  FOpenAIToken := '';
+  FChatGPTToken := '';
   FOpenAIModel := 'whisper-1';
   FOpenAIEndpoint := 'https://api.openai.com/v1/audio/transcriptions';
   FRecognizedText := '';
@@ -113,6 +116,7 @@ begin
   AText := '';
 
   Token := Trim(FOpenAIToken);
+  if Token = '' then Token := Trim(FChatGPTToken);
   if Token = '' then
     Token := GetEnvironmentVariable('OPENAI_API_KEY');
 
@@ -143,7 +147,7 @@ begin
       if Trim(FLanguage) <> '' then
         BodyHeader := BodyHeader + '--' + Boundary + sLineBreak +
           'Content-Disposition: form-data; name="language"' + sLineBreak + sLineBreak +
-          FLanguage + sLineBreak;
+          Copy(FLanguage,1,2) + sLineBreak;
 
       // Field: prompt (opcional)
       if Trim(FPromptText) <> '' then
@@ -170,6 +174,11 @@ begin
       Client.RequestBody := RequestStream;
 
       ResponseText := Client.Post(FOpenAIEndpoint);
+      if Client.ResponseStatusCode <> 200 then
+      begin
+        SetError('Falha na transcricao OpenAI: HTTP ' + IntToStr(Client.ResponseStatusCode));
+        Exit(False);
+      end;
 
       if ResponseText <> '' then
       begin
@@ -180,8 +189,9 @@ begin
             Obj := TJSONObject(JSONData);
             if Obj.IndexOfName('text') >= 0 then
             begin
-              AText := Obj.Get('text', '');
-              Result := True;
+              AText := Trim(Obj.Get('text', ''));
+              Result := AText <> '';
+              if not Result then SetError('Nenhuma fala reconhecida.');
             end;
             if Obj.IndexOfName('error') >= 0 then
             begin
@@ -193,6 +203,7 @@ begin
           JSONData.Free;
         end;
       end;
+      if not Result and (LastError='') then SetError('Resposta de transcricao invalida.');
     except
       on E: Exception do
       begin
@@ -237,6 +248,8 @@ begin
       Result := TranscribeOpenAIWhisper(AFileName, AText);
     vreSAPI:
       Result := TranscribeSAPI(AFileName, AText);
+    vreChromeWebSpeech:
+      SetError('Chrome captura o microfone no navegador. Use TAIChromeSpeech; TranscribeFile nao e suportado.');
   end;
 end;
 

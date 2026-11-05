@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<title>Microfone do Assistente</title>
+<style>
+body{font:18px system-ui;background:#17202c;color:#edf2f8;max-width:700px;margin:50px auto;padding:24px}
+button{font:inherit;padding:12px 20px;margin:8px 12px 8px 0;border:0;border-radius:6px;background:#42a5f5;color:#101820}
+button:disabled{opacity:.45}#text{white-space:pre-wrap;background:#222f40;padding:18px;min-height:80px}
+</style>
+<h1>Microfone do Assistente</h1>
+<p>O Chrome reconhece sua fala e envia o texto ao Assistente neste computador.
+O reconhecimento pode enviar seu áudio ao serviço do navegador e depender da internet.
+Não é necessária uma chave de API. Mantenha esta janela aberta. O filtro preserva a faixa de 100 a 7000 Hz, reduz ruído e detecta pausas de silêncio.</p>
+<button id="start">Iniciar escuta</button><button id="stop" disabled>Parar</button>
+<p id="status" role="status">Conectando ao Assistente…</p><div id="text"></div>
+<script>
+'use strict';
+const start=document.getElementById('start'), stop=document.getElementById('stop');
+const status=document.getElementById('status'), text=document.getElementById('text');
+const Recognition=window.SpeechRecognition || window.webkitSpeechRecognition;
+let state=null, wanted=false, rec=null, retryAt=0, lastEpoch=null, connected=false;
+const errors={
+ 'not-allowed':'Microfone negado. Autorize o microfone no Chrome e clique em Iniciar escuta.',
+ 'service-not-allowed':'Reconhecimento indisponível neste navegador. Use o Google Chrome.',
+ 'audio-capture':'Microfone indisponível. Verifique o dispositivo nas configurações do Chrome.',
+ 'network':'Falha de rede no reconhecimento. Verifique a internet e inicie novamente.',
+ 'no-speech':'Nenhuma fala detectada. Aguardando…',
+ 'language-not-supported':'Idioma não disponível no Chrome.'
+};
+async function send(kind,value,epoch){
+ const response=await fetch('event',{method:'POST',headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({kind,text:value,epoch}),cache:'no-store'});
+ if(!response.ok && response.status!==409) throw Error('Falha ao entregar a fala ao Assistente.');
+}
+// Microphone preprocessing is local; only its filtered track reaches recognition.
+let audio=null, stream=null, filteredTrack=null, analyser=null, gate=null;
+let meterTimer=null, voiceMs=0, quietMs=0, attackMs=0, noiseFloor=0, meterTime=0;
+let epochVoiceMs=0;
+function resetVAD(){voiceMs=0;quietMs=0;attackMs=0;epochVoiceMs=0;noiseFloor=0;}
+function releaseAudio(){
+ clearInterval(meterTimer);meterTimer=null;
+ if(gate)gate.gain.value=0;
+ stream?.getTracks().forEach(t=>t.stop());stream=null;
+ filteredTrack?.stop();filteredTrack=null;
+ if(audio)audio.close().catch(()=>{});audio=null;analyser=null;gate=null;resetVAD();
+}
+async function prepareAudio(){
+ const chrome=navigator.userAgent.match(/Chrome\/(\d+)/);
+ if(!chrome || Number(chrome[1])<135)throw Error('Use Google Chrome 135 ou superior para reconhecer áudio filtrado.');
+ releaseAudio();
+ stream=await navigator.mediaDevices.getUserMedia({audio:{channelCount:1,
+  echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:false});
+ audio=new AudioContext({sampleRate:16000});await audio.resume();
+ const source=audio.createMediaStreamSource(stream);
+ const high=audio.createBiquadFilter(), low=audio.createBiquadFilter();
+ high.type='highpass';high.frequency.value=100;high.Q.value=Math.SQRT1_2;
+ low.type='lowpass';low.frequency.value=Math.min(7000,audio.sampleRate*.45);low.Q.value=Math.SQRT1_2;
+ analyser=audio.createAnalyser();analyser.fftSize=512;gate=audio.createGain();gate.gain.value=0;
+ const destination=audio.createMediaStreamDestination();
+ source.connect(high).connect(low).connect(analyser).connect(gate).connect(destination);
+ filteredTrack=destination.stream.getAudioTracks()[0];
+ const samples=new Float32Array(analyser.fftSize);meterTime=performance.now();
+ meterTimer=setInterval(()=>{
+  const now=performance.now(),dt=Math.min(100,now-meterTime);meterTime=now;
+  if(!wanted || !connected || !state?.enabled){gate.gain.value=0;return;}
+  analyser.getFloatTimeDomainData(samples);
+  const rms=Math.sqrt(samples.reduce((sum,x)=>sum+x*x,0)/samples.length);
+  const manual=state.voiceThreshold || .015;
+  if(!voiceMs && rms<manual)noiseFloor=.95*noiseFloor+.05*rms;
+  const onset=Math.max(manual,noiseFloor*3),offset=Math.min(onset*.8,Math.max(manual*.53,noiseFloor*1.8));
+  if(rms>=onset){attackMs+=dt;quietMs=0;epochVoiceMs+=dt;voiceMs+=dt;}
+  else {quietMs+=dt;if(quietMs>150)attackMs=0;}
+  // Keep the end of speech while waiting for a configurable silence interval.
+  gate.gain.setTargetAtTime((rms>=offset || (voiceMs>0 && quietMs<(state.silenceMs || 900)))?1:0,audio.currentTime,.005);
+  if(voiceMs>0 && quietMs>=(state.silenceMs || 900)){
+   if(rec && voiceMs>=(state.minSpeechMs || 250))rec.stop();
+   voiceMs=0;attackMs=0;
+  }
+ },20);
+}
+
+function abort(){if(rec){const old=rec;rec=null;old.abort();}}
+function begin(){
+ if(!wanted || !connected || !state?.enabled || !filteredTrack || rec || Date.now()<retryAt) return;
+ const current=new Recognition(), epoch=state.epoch;epochVoiceMs=0;
+ rec=current; current.lang=state.language;current.continuous=true;current.interimResults=true;
+ current.onstart=()=>{if(rec!==current)return;status.textContent='Escutando…';send('state','Chrome escutando',epoch).catch(()=>{});};
+ current.onresult=e=>{
+  if(rec!==current || !wanted || !state?.enabled || epoch!==state.epoch)return;
+  let interim='';
+  for(let i=e.resultIndex;i<e.results.length;i++){
+   const value=e.results[i][0].transcript.trim();
+   if(e.results[i].isFinal && value && epochVoiceMs>=(state.minSpeechMs || 250)){
+    text.textContent=value;
+    // One utterance per assistant turn. Polling resumes after its pause epoch.
+    rec=null;current.abort();retryAt=Date.now()+750;
+    send('text',value,epoch).catch(err=>{wanted=false;status.textContent=err.message;start.disabled=false;stop.disabled=true;});
+    return;
+   }else interim+=value+' ';
+  }
+  text.textContent=interim;
+ };
+ current.onerror=e=>{
+  if(rec!==current)return;
+  const message=errors[e.error] || ('Erro de reconhecimento: '+e.error);
+  status.textContent=message;send('state',message,epoch).catch(()=>{});
+  if(!['no-speech','aborted'].includes(e.error)){
+   wanted=false;start.disabled=false;stop.disabled=true;abort();releaseAudio();
+  }
+  retryAt=Date.now()+1000;
+ };
+ current.onend=()=>{if(rec===current)rec=null;retryAt=Math.max(retryAt,Date.now()+300);};
+ try{current.start(filteredTrack);}catch(e){rec=null;wanted=false;releaseAudio();status.textContent=e.message;start.disabled=false;stop.disabled=true;}
+}
+start.onclick=async()=>{
+ if(!Recognition){status.textContent='Web Speech API indisponível. Abra esta página no Google Chrome.';return;}
+ start.disabled=true;
+ try{await prepareAudio();wanted=true;retryAt=0;stop.disabled=false;begin();}
+ catch(e){releaseAudio();wanted=false;start.disabled=false;status.textContent=errors[e.name==='NotAllowedError'?'not-allowed':''] || e.message;}
+};
+stop.onclick=()=>{
+ wanted=false;abort();releaseAudio();start.disabled=false;stop.disabled=true;status.textContent='Escuta parada.';
+ if(state?.enabled)send('state','Escuta parada no Chrome. Clique em Iniciar escuta para retomar.',state.epoch).catch(()=>{});
+};
+async function poll(){
+ try{
+  const response=await fetch('state',{cache:'no-store'});if(!response.ok)throw Error('Sessão encerrada');
+  const next=await response.json();connected=true;
+  if(lastEpoch!==null && next.epoch!==lastEpoch){abort();resetVAD();}
+  state=next;lastEpoch=next.epoch;
+  if(!state.enabled){abort();status.textContent='Escuta pausada pelo Assistente.';}
+  else if(!wanted)status.textContent=Recognition?'Clique em Iniciar escuta para autorizar o microfone.':'Abra esta página no Google Chrome: reconhecimento não disponível.';
+  begin();
+ }catch(e){connected=false;abort();if(gate)gate.gain.value=0;status.textContent='Assistente desconectado. Reabra a escuta pelo botão do microfone no aplicativo.';}
+ setTimeout(poll,200);
+}
+window.addEventListener('pagehide',()=>{wanted=false;abort();releaseAudio();});
+poll();
+</script></html>

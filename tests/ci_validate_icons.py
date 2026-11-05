@@ -118,8 +118,8 @@ def main() -> int:
 
     # 2. Check duplicate includes of same .lrs across different units (excluding root/wrapper if intentional)
     for lrs_name, pas_files in includes.items():
-        if len(pas_files) > 1:
-            locs = [str(p) for p in pas_files]
+        if len(set(pas_files)) > 1:
+            locs = sorted(str(p) for p in set(pas_files))
             warnings.append(f"Resource '{lrs_name}' included in multiple units: {locs}")
 
     # 3. Check registered components without corresponding icon resource

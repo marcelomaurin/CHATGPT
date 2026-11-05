@@ -1365,5 +1365,169 @@
     ],
     "requires_gui": true,
     "status": "active"
+  },
+  "pacote/samples/AI Graphic/avatar_agent_demo/avatar_agent_demo.lpi": {
+    "name": "avatar_agent_demo",
+    "category": "AI Graphic",
+    "path": "pacote/samples/AI Graphic/avatar_agent_demo/avatar_agent_demo.lpi",
+    "platforms": [
+      "windows",
+      "linux"
+    ],
+    "requires_gui": true,
+    "status": "active"
+  },
+  "pacote/samples/AI Graphic/avatar_basic_demo/avatar_basic_demo.lpi": {
+    "name": "avatar_basic_demo",
+    "category": "AI Graphic",
+    "path": "pacote/samples/AI Graphic/avatar_basic_demo/avatar_basic_demo.lpi",
+    "platforms": [
+      "windows",
+      "linux"
+    ],
+    "requires_gui": true,
+    "status": "active"
+  },
+  "pacote/samples/AI Graphic/avatar_full_demo/avatar_full_demo.lpi": {
+    "name": "avatar_full_demo",
+    "category": "AI Graphic",
+    "path": "pacote/samples/AI Graphic/avatar_full_demo/avatar_full_demo.lpi",
+    "platforms": [
+      "windows",
+      "linux"
+    ],
+    "requires_gui": true,
+    "status": "active"
+  },
+  "pacote/samples/AI Graphic/avatar_voice_demo/avatar_voice_demo.lpi": {
+    "name": "avatar_voice_demo",
+    "category": "AI Graphic",
+    "path": "pacote/samples/AI Graphic/avatar_voice_demo/avatar_voice_demo.lpi",
+    "platforms": [
+      "windows",
+      "linux"
+    ],
+    "requires_gui": true,
+    "status": "active"
+  },
+  "pacote/samples/AI Input/kinect_perception_demo/kinect_perception_demo.lpi": {
+    "name": "kinect_perception_demo",
+    "category": "AI Input",
+    "path": "pacote/samples/AI Input/kinect_perception_demo/kinect_perception_demo.lpi",
+    "platforms": [
+      "windows"
+    ],
+    "requires_gui": true,
+    "status": "active"
+  },
+  "pacote/samples/AI Vision/face_recognition_demo/face_recognition_demo.lpi": {
+    "name": "face_recognition_demo",
+    "category": "AI Vision",
+    "path": "pacote/samples/AI Vision/face_recognition_demo/face_recognition_demo.lpi",
+    "platforms": [
+      "windows",
+      "linux"
+    ],
+    "requires_gui": true,
+    "status": "active"
+  },
+  "pacote/samples/AI Core/modelregistry_demo/modelregistry_demo.lpi": {
+    "name": "modelregistry_demo",
+    "category": "AI Core",
+    "path": "pacote/samples/AI Core/modelregistry_demo/modelregistry_demo.lpi",
+    "platforms": [
+      "windows",
+      "linux"
+    ],
+    "requires_gui": false,
+    "status": "active"
+  },
+  "pacote/samples/AI Core/promptbuilder_demo/promptbuilder_demo.lpi": {
+    "name": "promptbuilder_demo",
+    "category": "AI Core",
+    "path": "pacote/samples/AI Core/promptbuilder_demo/promptbuilder_demo.lpi",
+    "platforms": [
+      "windows",
+      "linux"
+    ],
+    "requires_gui": false,
+    "status": "active"
+  },
+  "pacote/samples/AI Graph/training_exporter_demo/training_exporter_demo.lpi": {
+    "name": "training_exporter_demo",
+    "category": "AI Graph",
+    "path": "pacote/samples/AI Graph/training_exporter_demo/training_exporter_demo.lpi",
+    "platforms": [
+      "windows",
+      "linux"
+    ],
+    "requires_gui": false,
+    "status": "active"
+  },
+  "pacote/samples/AI Graph/training_report_demo/training_report_demo.lpi": {
+    "name": "training_report_demo",
+    "category": "AI Graph",
+    "path": "pacote/samples/AI Graph/training_report_demo/training_report_demo.lpi",
+    "platforms": [
+      "windows",
+      "linux"
+    ],
+    "requires_gui": false,
+    "status": "active"
+  },
+  "pacote/samples/AI Agent/wizard_config_demo/wizard_config_demo.lpi": {
+    "name": "wizard_config_demo",
+    "category": "AI Agent",
+    "path": "pacote/samples/AI Agent/wizard_config_demo/wizard_config_demo.lpi",
+    "platforms": [
+      "windows",
+      "linux"
+    ],
+    "requires_gui": true,
+    "status": "active"
+  },
+  "pacote/samples/AI Voice/chrome_speech_demo/chrome_speech_demo.lpi": {
+    "name": "chrome_speech_demo",
+    "category": "AI Voice",
+    "path": "pacote/samples/AI Voice/chrome_speech_demo/chrome_speech_demo.lpi",
+    "platforms": [
+      "windows",
+      "linux"
+    ],
+    "requires_gui": false,
+    "status": "active"
+  },
+  "pacote/samples/AI Agent/topic_continuity_demo/topic_continuity_demo.lpi": {
+    "name": "topic_continuity_demo",
+    "category": "AI Agent",
+    "path": "pacote/samples/AI Agent/topic_continuity_demo/topic_continuity_demo.lpi",
+    "platforms": [
+      "windows",
+      "linux"
+    ],
+    "requires_gui": false,
+    "status": "active"
+  },
+  "pacote/samples/AI Agent/person_session_demo/person_session_demo.lpi": {
+    "name": "person_session_demo",
+    "category": "AI Agent",
+    "path": "pacote/samples/AI Agent/person_session_demo/person_session_demo.lpi",
+    "platforms": [
+      "windows",
+      "linux"
+    ],
+    "requires_gui": false,
+    "status": "active"
+  },
+  "pacote/samples/AI Agent/presentation_agent_demo/presentation_agent_demo.lpi": {
+    "name": "presentation_agent_demo",
+    "category": "AI Agent",
+    "path": "pacote/samples/AI Agent/presentation_agent_demo/presentation_agent_demo.lpi",
+    "platforms": [
+      "windows",
+      "linux"
+    ],
+    "requires_gui": false,
+    "status": "active"
   }
 }

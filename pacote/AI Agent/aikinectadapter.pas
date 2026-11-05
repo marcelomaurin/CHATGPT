@@ -71,6 +71,8 @@ type
 procedure Register;
 
 implementation
+uses LResources;
+
 
 procedure Register;
 begin
@@ -245,5 +247,8 @@ begin
     end;
   end;
 end;
+
+initialization
+  {$I aikinectadapter_icon.lrs}
 
 end.

@@ -202,4 +202,7 @@ begin
   ApplyJawRotation(FCurrentJawAngle);
 end;
 
+initialization
+  {$I aiavatar_lipsync_icon.lrs}
+
 end.

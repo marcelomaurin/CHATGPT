@@ -274,3 +274,25 @@ Component maturity matrix:
 ```text
 pacote/COMPONENT_STATUS.md
 ```
+
+
+## Credentials and local database
+
+`TCHATGPT.TOKEN` is a runtime-only property and is not serialized into Lazarus
+forms. `SaveToIni` saves non-secret configuration only and removes legacy
+`Token` and `APIKey` entries from the selected INI. `LoadFromIni` does not load
+plaintext credentials: set `TOKEN` at runtime using your application's secret
+store, or supply `CHATGPT_API_KEY` in the process environment before loading
+configuration. Existing INIs need this migration; keep credentials outside Git.
+
+The Docker database requires `POSTGRES_PASSWORD` in the environment or a local
+`.env` file, and exposes PostgreSQL on `127.0.0.1:5432` only. For example:
+
+```powershell
+$env:POSTGRES_PASSWORD = '<your unique local password>'
+docker compose up -d postgres
+```
+
+Run the console Pascal regressions with `python tests/run_pascal_regressions.py`.
+Use `--fpc` and `--lazarus-root` when the toolchain is installed outside standard
+locations. Build outputs are kept in a temporary directory, outside the sources.

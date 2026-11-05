@@ -3,10 +3,13 @@ unit aimarlin_register;
 interface
 procedure Register;
 implementation
-uses Classes, aigcodeparser, aimarlinsimulator, aivirtualserialpair, aimarlinserialdevice;
+uses LResources, Classes, aigcodeparser, aimarlinsimulator, aivirtualserialpair, aimarlinserialdevice;
 procedure Register;
 begin
   RegisterComponents('AI Simulation', [TAIGCodeParser, TAIMarlinSimulator,
     TAIVirtualSerialPair, TAIMarlinSerialDevice]);
 end;
+initialization
+  {$I aimarlin_register_icon.lrs}
+
 end.

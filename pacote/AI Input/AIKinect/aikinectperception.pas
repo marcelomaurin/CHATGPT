@@ -184,6 +184,8 @@ type
 procedure Register;
 
 implementation
+uses LResources;
+
 
 procedure Register;
 begin
@@ -826,5 +828,8 @@ begin
     Obj.Free;
   end;
 end;
+
+initialization
+  {$I aikinectperception_icon.lrs}
 
 end.

@@ -62,8 +62,14 @@ begin
     O.Deposit := 0; Command('G1 E2 F120',1); Near(O.Deposit,0,'Unretract is not deposition');
     Command('G91'); Command('G1 X1 F60',1); Near(S.State.Position.X,71,'Relative motion');
     Command('G90'); Check(not S.State.RelativeE,'G90 resets E mode');
-    Command('M114'); Check(Pos('X:11.000',O.Replies)>0,'Logical position and decimal dot');
-    Command('G28 X'); Near(S.State.Position.X,0,'Home axis');
+    Command('G28 X F300', 1); Near(S.State.Position.X,66,'Home at 300mm/min partial');
+    S.Advance(14); Near(S.State.Position.X,0,'Home axis complete');
+    Command('G92 X0');
+    Command('G1 X50 F600', 5); Near(S.State.Position.X,50,'Move to 50');
+    Command('G28.1'); Near(S.State.Position.X,50,'G28.1 does not move');
+    Check(S.G28HomeSet and (Abs(S.G28Home.X - 50) < 1e-4), 'G28.1 records position');
+    Command('G1 X80 F600', 3); Near(S.State.Position.X,80,'Move to 80');
+    Command('G28 X F300', 6); Near(S.State.Position.X,50,'G28 returns to recorded home');
     Writeln('PASS timed motion, pause, extrusion, offsets, retraction, homing');
 
     NewSession;

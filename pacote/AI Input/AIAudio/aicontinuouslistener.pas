@@ -43,6 +43,8 @@ type
   end;
 procedure Register;
 implementation
+uses LResources;
+
 procedure Register;begin RegisterComponents('AI Communication',[TAIContinuousListener]);end;
 constructor TAIContinuousListener.Create(AOwner:TComponent);
 begin inherited Create(AOwner); FVoiceThreshold:=0.025; FSilenceTimeoutMs:=900; FMinSpeechMs:=250; FMaxSpeechMs:=30000; FPreRollMs:=250; FEchoSuppressionEnabled:=True; FSelfAudioCorrelationThreshold:=0.85; FOutputDirectory:=IncludeTrailingPathDelimiter(GetTempDir(False))+'chatgpt-audio'; FState:=lsIdle;end;
@@ -69,4 +71,7 @@ procedure TAIContinuousListener.NotifyLevel(ALevel:Double);
 var T:QWord;begin if not FEnabled or FPaused then Exit;T:=NowMs;if ALevel>=FVoiceThreshold then begin FLastVoiceAt:=T;if FSpeechStartedAt=0 then FSpeechStartedAt:=T;SetState(lsSpeech);end else if FSpeechStartedAt<>0 then begin SetState(lsSilence);if (T-FLastVoiceAt>=QWord(Max(0,FSilenceTimeoutMs))) and (T-FSpeechStartedAt>=QWord(Max(0,FMinSpeechMs))) then FinishUtterance;end;if (FSpeechStartedAt<>0) and (FMaxSpeechMs>0) and (T-FSpeechStartedAt>=QWord(FMaxSpeechMs)) then FinishUtterance;end;
 procedure TAIContinuousListener.FinishUtterance;
 var F,E:string;begin if not FEnabled or FPaused or (FSpeechStartedAt=0) then Exit;F:=FCurrentFile;if FAudioInput.Recording then FAudioInput.StopRecord;if FAudioInput.ValidateWavFile(F,E) then begin if Assigned(FOnSpeechReady) then FOnSpeechReady(Self,F);end else Fail(E);if not FEnabled then Exit;FCurrentFile:=NewSegmentFile;if not FAudioInput.StartRecord(FCurrentFile) then begin Fail(FAudioInput.LastError);Exit;end;FSpeechStartedAt:=0;FLastVoiceAt:=0;SetState(lsListening);end;
+initialization
+  {$I aicontinuouslistener_icon.lrs}
+
 end.

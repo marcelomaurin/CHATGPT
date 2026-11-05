@@ -75,6 +75,8 @@ type
 procedure Register;
 
 implementation
+uses LResources;
+
 
 procedure Register;
 begin
@@ -333,5 +335,8 @@ begin
     FindClose(SR);
   end;
 end;
+
+initialization
+  {$I aiavatarprofile_icon.lrs}
 
 end.

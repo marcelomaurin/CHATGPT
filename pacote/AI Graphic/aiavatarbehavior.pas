@@ -205,6 +205,6 @@ begin
 end;
 
 initialization
-  {$I aiavatarcontroller_icon.lrs}
+  {$I aiavatarbehavior_icon.lrs}
 
 end.

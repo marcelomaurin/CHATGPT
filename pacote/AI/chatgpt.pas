@@ -175,7 +175,7 @@ type
     function LoadConfigFromAppData(const AAppName: string = 'ChatGPT'): Boolean;
     function SaveConfigToAppData(const AAppName: string = 'ChatGPT'): Boolean;
   published
-    property TOKEN: WideString read FToken write FToken;
+    property TOKEN: WideString read FToken write SetToken stored False;
     property Question: WideString read FQuestion;
     property Response: WideString read FResponse write FResponse;
     property Dev: WideString read GetDev write SetDev;
@@ -332,6 +332,24 @@ end;
 procedure Register;
 begin
   RegisterComponents('AI', [TCHATGPT]);
+end;
+
+function LLMKindForProvider(AProvider: TAIProvider): TAILLMProviderKind;
+begin
+  case AProvider of
+    AIP_OPENAI: Result := llmOpenAI;
+    AIP_OPENROUTER: Result := llmOpenRouter;
+    AIP_CEREBRAS: Result := llmCerebras;
+    AIP_LOCAL: Result := llmOllama;
+    AIP_GEMINI: Result := llmGemini;
+    AIP_CLAUDE: Result := llmClaude;
+    AIP_DEEPSEEK: Result := llmDeepSeek;
+    AIP_OPENAI_COMPATIBLE: Result := llmOpenAICompatible;
+    AIP_LLAMA_CPP: Result := llmLlamaCpp;
+    AIP_NEURAL_API: Result := llmNeuralAPI;
+  else
+    Result := llmOpenAI;
+  end;
 end;
 
 function GetAIProviderName(AProvider: TAIProvider): string;
@@ -561,20 +579,7 @@ end;
 
 function TCHATGPT.ProviderKind: TAILLMProviderKind;
 begin
-  case FProvider of
-    AIP_OPENAI: Result := llmOpenAI;
-    AIP_OPENROUTER: Result := llmOpenRouter;
-    AIP_CEREBRAS: Result := llmCerebras;
-    AIP_LOCAL: Result := llmOllama;
-    AIP_GEMINI: Result := llmGemini;
-    AIP_CLAUDE: Result := llmClaude;
-    AIP_DEEPSEEK: Result := llmDeepSeek;
-    AIP_OPENAI_COMPATIBLE: Result := llmOpenAICompatible;
-    AIP_LLAMA_CPP: Result := llmLlamaCpp;
-    AIP_NEURAL_API: Result := llmNeuralAPI;
-  else
-    Result := llmOpenAI;
-  end;
+  Result := LLMKindForProvider(FProvider);
 end;
 
 procedure TCHATGPT.BuildProviderConfig(out AConfig: TAILLMProviderConfig;
@@ -1187,7 +1192,7 @@ begin
       for I := Ord(Low(TAIProvider)) to Ord(High(TAIProvider)) do
       begin
         if SameText(GetAIProviderName(TAIProvider(I)), LProvStr) or
-           SameText(AILLMProviderKindName(TAILLMProviderKind(I)), LProvStr) then
+           SameText(AILLMProviderKindName(LLMKindForProvider(TAIProvider(I))), LProvStr) then
         begin
           FProvider := TAIProvider(I);
           Break;
@@ -1197,7 +1202,9 @@ begin
     LModelStr := Ini.ReadString('LLM', 'Model', '');
     if LModelStr <> '' then
       FCustomModel := UTF8ToUTF16(LModelStr);
-    FToken := UTF8ToUTF16(Ini.ReadString('LLM', 'Token', Ini.ReadString('LLM', 'APIKey', UTF16ToUTF8(FToken))));
+    { Credentials belong to the process environment or an application secret store. }
+    if GetEnvironmentVariable('CHATGPT_API_KEY') <> '' then
+      FToken := UTF8ToUTF16(GetEnvironmentVariable('CHATGPT_API_KEY'));
     FURL := UTF8ToUTF16(Ini.ReadString('LLM', 'URL', Ini.ReadString('LLM', 'Endpoint', UTF16ToUTF8(FURL))));
     FTemperature := Ini.ReadFloat('LLM', 'Temperature', FTemperature);
     FMaxTokens := Ini.ReadInteger('LLM', 'MaxTokens', FMaxTokens);
@@ -1225,7 +1232,9 @@ begin
       Ini.WriteString('LLM', 'Model', UTF16ToUTF8(FCustomModel))
     else
       Ini.WriteString('LLM', 'Model', UTF16ToUTF8(GetModelName));
-    Ini.WriteString('LLM', 'Token', UTF16ToUTF8(FToken));
+    { Remove legacy plaintext credentials when saving an existing configuration. }
+    Ini.DeleteKey('LLM', 'Token');
+    Ini.DeleteKey('LLM', 'APIKey');
     Ini.WriteString('LLM', 'URL', UTF16ToUTF8(FURL));
     Ini.WriteFloat('LLM', 'Temperature', FTemperature);
     Ini.WriteInteger('LLM', 'MaxTokens', FMaxTokens);

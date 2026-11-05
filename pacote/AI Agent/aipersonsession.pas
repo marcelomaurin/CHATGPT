@@ -136,6 +136,8 @@ type
 procedure Register;
 
 implementation
+uses LResources;
+
 
 procedure Register;
 begin
@@ -524,5 +526,8 @@ function TAIActiveSpeakerManager.IsPersonPresent(const APersonID: string): Boole
 begin
   Result := FPersonsPresent.IndexOf(APersonID) <> -1;
 end;
+
+initialization
+  {$I aipersonsession_icon.lrs}
 
 end.

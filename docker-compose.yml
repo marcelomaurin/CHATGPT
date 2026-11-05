@@ -6,9 +6,9 @@ services:
     environment:
       POSTGRES_DB: maurinsoft_chatgpt
       POSTGRES_USER: chatgpt
-      POSTGRES_PASSWORD: chatgpt123
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no ambiente ou em .env}
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql:ro

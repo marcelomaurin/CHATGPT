@@ -469,7 +469,10 @@ procedure TAIVoiceSynthesizer.Say(const AText: string);
 var
   SpeakText: string;
   {$IFDEF MSWINDOWS}
-  Flags: Integer;
+  Flags, I: Integer;
+  FoundVoice: Boolean;
+  Cat, Voices: OleVariant;
+  VDesc, VAttr: string;
   {$ENDIF}
 begin
   ClearError;
@@ -515,10 +518,37 @@ begin
       // Set Voice by Name if specified
       if FVoiceName <> '' then
       begin
+        FoundVoice := False;
         try
           FSpVoice.Voice := FSpVoice.GetVoices('Name=' + FVoiceName).Item(0);
+          FoundVoice := True;
         except
-          // Fallback to default
+        end;
+
+        if not FoundVoice then
+        begin
+          try
+            Cat := CreateOleObject('SAPI.SpObjectTokenCategory');
+            Cat.SetId('HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech_OneCore\Voices', False);
+            Voices := Cat.EnumerateTokens;
+            for I := 0 to Voices.Count - 1 do
+            begin
+              VDesc := '';
+              VAttr := '';
+              try VDesc := Voices.Item(I).GetDescription; except end;
+              try VAttr := Voices.Item(I).GetAttribute('Name'); except end;
+              if (Pos(AnsiUpperCase(FVoiceName), AnsiUpperCase(VDesc)) > 0) or
+                 (Pos(AnsiUpperCase(FVoiceName), AnsiUpperCase(VAttr)) > 0) or
+                 (Pos(AnsiUpperCase(VDesc), AnsiUpperCase(FVoiceName)) > 0) or
+                 (Pos(AnsiUpperCase(VAttr), AnsiUpperCase(FVoiceName)) > 0) then
+              begin
+                FSpVoice.Voice := Voices.Item(I);
+                FoundVoice := True;
+                Break;
+              end;
+            end;
+          except
+          end;
         end;
       end;
 
@@ -586,8 +616,9 @@ end;
 procedure TAIVoiceSynthesizer.GetAvailableVoices(AList: TStrings);
 var
   {$IFDEF MSWINDOWS}
-  Voices: OleVariant;
+  Voices, Cat: OleVariant;
   I: Integer;
+  VName: string;
   {$ENDIF}
   VoiceList: PPespeak_VOICE;
   VoicePtr: Pespeak_VOICE;
@@ -610,15 +641,31 @@ begin
       Voices := FSpVoice.GetVoices;
       for I := 0 to Voices.Count - 1 do
       begin
-        try
-          AList.Add(Voices.Item(I).GetAttribute('Name'));
-        except
-          try
-            AList.Add(Voices.Item(I).GetDescription);
-          except
-          end;
-        end;
+        VName := '';
+        try VName := Voices.Item(I).GetDescription; except end;
+        if VName = '' then
+          try VName := Voices.Item(I).GetAttribute('Name'); except end;
+        if (VName <> '') and (AList.IndexOf(VName) < 0) then
+          AList.Add(VName);
       end;
+
+      // Enumerate Windows OneCore voices (e.g. Microsoft Daniel, Helia, etc.)
+      try
+        Cat := CreateOleObject('SAPI.SpObjectTokenCategory');
+        Cat.SetId('HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech_OneCore\Voices', False);
+        Voices := Cat.EnumerateTokens;
+        for I := 0 to Voices.Count - 1 do
+        begin
+          VName := '';
+          try VName := Voices.Item(I).GetDescription; except end;
+          if VName = '' then
+            try VName := Voices.Item(I).GetAttribute('Name'); except end;
+          if (VName <> '') and (AList.IndexOf(VName) < 0) then
+            AList.Add(VName);
+        end;
+      except
+      end;
+
       FLastResult := 'SAPI voices retrieved successfully';
       FLastSuccess := True;
     except
