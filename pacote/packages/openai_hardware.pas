@@ -9,7 +9,8 @@ interface
 
 uses
   aihardwarelinux, aicpu, aimemory, aigpu, aidisk, aiso, ai_tasks,
-  ailistprinters, aiwifi, aifirmwareflasher, LazarusPackageIntf;
+  ailistprinters, aiwifi, aifirmwareflasher, openai_hardware_paletteicons,
+  LazarusPackageIntf;
 
 implementation
 

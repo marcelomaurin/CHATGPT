@@ -2,45 +2,12 @@ import os
 import re
 from pathlib import Path
 
-# Complete 5x5 font definition: A-Z, 0-9
-font = {
-    'A': [[0,1,1,1,0],[1,0,0,0,1],[1,1,1,1,1],[1,0,0,0,1],[1,0,0,0,1]],
-    'B': [[1,1,1,1,0],[1,0,0,0,1],[1,1,1,1,0],[1,0,0,0,1],[1,1,1,1,0]],
-    'C': [[0,1,1,1,1],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[0,1,1,1,1]],
-    'D': [[1,1,1,1,0],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,1,1,1,0]],
-    'E': [[1,1,1,1,1],[1,0,0,0,0],[1,1,1,1,0],[1,0,0,0,0],[1,1,1,1,1]],
-    'F': [[1,1,1,1,1],[1,0,0,0,0],[1,1,1,1,0],[1,0,0,0,0],[1,0,0,0,0]],
-    'G': [[0,1,1,1,1],[1,0,0,0,0],[1,0,1,1,1],[1,0,0,0,1],[0,1,1,1,0]],
-    'H': [[1,0,0,0,1],[1,0,0,0,1],[1,1,1,1,1],[1,0,0,0,1],[1,0,0,0,1]],
-    'I': [[0,1,1,1,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,1,1,1,0]],
-    'J': [[0,0,0,0,1],[0,0,0,0,1],[0,0,0,0,1],[1,0,0,0,1],[0,1,1,1,0]],
-    'K': [[1,0,0,0,1],[1,0,1,0,0],[1,1,0,0,0],[1,0,1,0,0],[1,0,0,0,1]],
-    'L': [[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,1,1,1,1]],
-    'M': [[1,0,0,0,1],[1,1,0,1,1],[1,0,1,0,1],[1,0,0,0,1],[1,0,0,0,1]],
-    'N': [[1,0,0,0,1],[1,1,0,0,1],[1,0,1,0,1],[1,0,0,1,1],[1,0,0,0,1]],
-    'O': [[0,1,1,1,0],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[0,1,1,1,0]],
-    'P': [[1,1,1,1,0],[1,0,0,0,1],[1,1,1,1,0],[1,0,0,0,0],[1,0,0,0,0]],
-    'Q': [[0,1,1,1,0],[1,0,0,0,1],[1,0,1,0,1],[1,0,0,1,0],[0,1,1,0,1]],
-    'R': [[1,1,1,1,0],[1,0,0,0,1],[1,1,1,1,0],[1,0,0,1,0],[1,0,0,0,1]],
-    'S': [[0,1,1,1,1],[1,0,0,0,0],[0,1,1,1,0],[0,0,0,0,1],[1,1,1,1,0]],
-    'T': [[1,1,1,1,1],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0]],
-    'U': [[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[0,1,1,1,0]],
-    'V': [[1,0,0,0,1],[1,0,0,0,1],[0,1,0,1,0],[0,1,0,1,0],[0,0,1,0,0]],
-    'W': [[1,0,0,0,1],[1,0,0,0,1],[1,0,1,0,1],[1,1,0,1,1],[1,0,0,0,1]],
-    'X': [[1,0,0,0,1],[0,1,0,1,0],[0,0,1,0,0],[0,1,0,1,0],[1,0,0,0,1]],
-    'Y': [[1,0,0,0,1],[0,1,0,1,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0]],
-    'Z': [[1,1,1,1,1],[0,0,0,1,0],[0,0,1,0,0],[0,1,0,0,0],[1,1,1,1,1]],
-    '0': [[0,1,1,1,0],[1,0,0,1,1],[1,0,1,0,1],[1,1,0,0,1],[0,1,1,1,0]],
-    '1': [[0,0,1,0,0],[0,1,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,1,1,1,0]],
-    '2': [[1,1,1,1,0],[0,0,0,0,1],[0,1,1,1,0],[1,0,0,0,0],[1,1,1,1,1]],
-    '3': [[1,1,1,1,0],[0,0,0,0,1],[0,1,1,1,0],[0,0,0,0,1],[1,1,1,1,0]],
-    '4': [[1,0,0,1,0],[1,0,0,1,0],[1,1,1,1,1],[0,0,0,1,0],[0,0,0,1,0]],
-    '5': [[1,1,1,1,1],[1,0,0,0,0],[1,1,1,1,0],[0,0,0,0,1],[1,1,1,1,0]],
-    '6': [[0,1,1,1,0],[1,0,0,0,0],[1,1,1,1,0],[1,0,0,0,1],[0,1,1,1,0]],
-    '7': [[1,1,1,1,1],[0,0,0,1,0],[0,0,1,0,0],[0,1,0,0,0],[0,1,0,0,0]],
-    '8': [[0,1,1,1,0],[1,0,0,0,1],[0,1,1,1,0],[1,0,0,0,1],[0,1,1,1,0]],
-    '9': [[0,1,1,1,0],[1,0,0,0,1],[0,1,1,1,1],[0,0,0,0,1],[0,1,1,1,0]],
-}
+# Palette art is drawn by functions, without fonts, initials or letter tiles.
+import importlib.util
+_pictogram_spec = importlib.util.spec_from_file_location(
+    'palette_pictograms', Path(__file__).with_name('palette_pictograms.py'))
+_pictograms = importlib.util.module_from_spec(_pictogram_spec)
+_pictogram_spec.loader.exec_module(_pictograms)
 
 def make_bmp(pixels_rgb_flat):
     file_header = bytearray([
@@ -83,38 +50,10 @@ def format_lrs_resource(name, bmp_bytes):
     byte_strs = "".join(f"#{b}" for b in bmp_bytes)
     return f"LazarusResources.Add('{name.lower()}','BMP',[\n  {byte_strs}\n]);"
 
-def draw_icon(border_color, label):
-    label = label.upper()
-    pixels = []
-    for y in range(24):
-        for x in range(24):
-            if 3 <= x <= 20 and 3 <= y <= 20:
-                if x in (3, 20) or y in (3, 20):
-                    pixels.extend(border_color)
-                else:
-                    char1 = label[0] if len(label) > 0 else ' '
-                    char2 = label[1] if len(label) > 1 else ' '
-                    
-                    is_pixel_on = False
-                    if 6 <= x <= 10 and 9 <= y <= 13:
-                        grid = font.get(char1, font['A'])
-                        if grid[y - 9][x - 6] == 1:
-                            is_pixel_on = True
-                            
-                    if 12 <= x <= 16 and 9 <= y <= 13:
-                        grid = font.get(char2, font['A'])
-                        if grid[y - 9][x - 12] == 1:
-                            is_pixel_on = True
-                            
-                    if is_pixel_on:
-                        pixels.extend([20, 24, 35])
-                    else:
-                        pixels.extend([255, 255, 255])
-            else:
-                pixels.extend([192, 192, 192])
-    return pixels
+def draw_icon(border_color, label, component_name=None):
+    # label is kept only for configuration compatibility; it is never rendered.
+    return _pictograms.render_icon(component_name or label, border_color)
 
-# Visual palette tokens for all packages
 C_CORE       = [50, 150, 255]
 C_AGENT      = [180, 100, 240]
 C_A2A        = [240, 120, 80]
@@ -938,31 +877,34 @@ patches.extend([('AI Agent/aiconversationorchestrator.pas', 'aiconversationorche
  ('AI Voice/aichromespeech.pas', 'aichromespeech_icon.lrs'),
  ('packages/aimarlin_register.pas', 'aimarlin_register_icon.lrs')])
 
-# Drone components (package openai_drone).
-_DRONE_ICONS = [
-    ('aidronefq777', 'TAIDroneFQ777', 'FQ'),
-    ('aidronecx10w', 'TAIDroneCX10W', 'CX'),
-    ('aidronemavlink', 'TAIDroneMavlink', 'MV'),
-    ('aidronetello', 'TAIDroneTello', 'TL'),
-    ('aidroneespdrone', 'TAIDroneESPDrone', 'ED'),
-    ('aidroneardrone', 'TAIDroneARDrone', 'AR'),
-    ('aidronecdp', 'TAIDroneCDP', 'CD'),
-]
-for _unit, _cls, _label in _DRONE_ICONS:
-    icons_config[f'AI Drone/{_unit}_icon.lrs'] = [(_cls, C_HARDWARE, _label)]
-    patches.append((f'AI Drone/{_unit}.pas', f'{_unit}_icon.lrs'))
 
-# Components that were still without an icon.
-for _path, _cls, _color, _label in [
-    ('AI Communication/AIWebRTC/aiwebrtc_client', 'TAIWebRTCClient', C_A2A, 'RT'),
-    ('AI Hardware/aiwifi', 'TAIWifi', C_HARDWARE, 'WF'),
-    ('AI Input/AIAudio/aispeakersignature', 'TAISpeakerIdentifier', C_INPUT, 'SI'),
-    ('AI Input/AIJoystick/aijoystick', 'TAIJoystick', C_INPUT, 'JS'),
-    ('AI Video/aih264decoder', 'TAIH264Decoder', C_VISION, 'HD'),
-]:
-    _name = _path.rsplit('/', 1)[1]
-    icons_config[f'{_path}_icon.lrs'] = [(_cls, _color, _label)]
-    patches.append((f'{_path}.pas', f'{_name}_icon.lrs'))
+# Palette resources owned by their packages, without GUI dependencies in runtime units.
+icons_config.update({'packages/openai_webrtc_paletteicons.lrs': [('TAIWebRTCClient', [60, 200, 220], 'RT')],
+ 'packages/openai_drone_paletteicons.lrs': [('TAIDroneFQ777', [255, 140, 0], 'DR')],
+ 'packages/openai_hardware_paletteicons.lrs': [('TAIWifi', [240, 80, 80], 'WF')],
+ 'packages/openai_input_paletteicons.lrs': [('TAISpeakerIdentifier', [255, 100, 160], 'SI'),
+                                            ('TAIJoystick', [60, 200, 220], 'JS')],
+ 'packages/openai_video_paletteicons.lrs': [('TAIH264Decoder', [80, 220, 160], 'HV')]})
+patches.extend([('packages/openai_webrtc_paletteicons.pas', 'openai_webrtc_paletteicons.lrs'),
+ ('packages/openai_drone_paletteicons.pas', 'openai_drone_paletteicons.lrs'),
+ ('packages/openai_hardware_paletteicons.pas', 'openai_hardware_paletteicons.lrs'),
+ ('packages/openai_input_paletteicons.pas', 'openai_input_paletteicons.lrs'),
+ ('packages/openai_video_paletteicons.pas', 'openai_video_paletteicons.lrs'),
+ ('AI Voice/aicontinuouslistener.pas', '../AI Input/AIAudio/aicontinuouslistener_icon.lrs')])
+
+
+# Former manual resources are generated too: no legacy letter icons remain.
+icons_config.update({'AI Agent/aiagent_sourceactions_rollback_icon.lrs': [('TAISourceRollbackAction',
+                                                       [180, 100, 240],
+                                                       '')],
+ 'AI Graphic/aiavatar3d_icon.lrs': [('TAIAvatar3D', [240, 200, 60], '')],
+ 'AI RAG/airetrieval_icon.lrs': [('TAILocalEmbeddingProvider', [80, 160, 240], ''),
+                                 ('TAIOpenAIEmbeddingProvider', [80, 160, 240], ''),
+                                 ('TAIVectorStore', [80, 160, 240], ''),
+                                 ('TAIVectorRetriever', [80, 160, 240], ''),
+                                 ('TAIGraphMapRetriever', [80, 160, 240], ''),
+                                 ('TAIBM25Retriever', [80, 160, 240], ''),
+                                 ('TAILLMReranker', [80, 160, 240], '')]})
 
 def patch_pas_file(file_path, lrs_filename, check_only=False):
     if not os.path.exists(file_path):
@@ -984,7 +926,8 @@ def patch_pas_file(file_path, lrs_filename, check_only=False):
             content = content[:uses_end_pos] + separator + 'LResources' + content[uses_end_pos:]
             
     # 2. Check if resource file is already included
-    include_str = f"{{$I {lrs_filename}}}"
+    resource_name = "'" + lrs_filename + "'" if any(ch.isspace() for ch in lrs_filename) else lrs_filename
+    include_str = f"{{$I {resource_name}}}"
     if include_str.lower() not in content.lower():
         idx = content.rfind("end.")
         if idx == -1:
@@ -1010,17 +953,37 @@ def patch_pas_file(file_path, lrs_filename, check_only=False):
             print(f"No changes needed for {file_path}")
     return True
 
+
+def check_component_coverage(package_root):
+    configured = {name.lower() for items in icons_config.values() for name, _, _ in items}
+    registered = set()
+    pattern = re.compile(r"RegisterComponents\s*\(\s*['\"][^'\"]+['\"]\s*,\s*\[([^\]]+)\]", re.I | re.S)
+    for source in Path(package_root).rglob('*.pas'):
+        if 'fixtures' in source.parts:
+            continue
+        text = source.read_text(encoding='utf-8', errors='replace')
+        for group in pattern.findall(text):
+            group = re.sub(r'\{.*?\}|\(\*.*?\*\)|//[^\n]*', '', group, flags=re.S)
+            registered.update(name.strip().lower() for name in group.split(',') if name.strip())
+    missing = sorted(registered - configured)
+    if missing:
+        print('[ERROR] Components missing from the pictogram generator: ' + ', '.join(missing))
+        return False
+    return True
+
 def main():
     import sys
     check_mode = '--check' in sys.argv
     package_root = os.path.dirname(os.path.abspath(__file__))
     has_diff = False
+    if not check_component_coverage(package_root):
+        sys.exit(1)
     
     # 1. Generate / Check LRS files
     for relative_lrs_path, configs in icons_config.items():
         lrs_contents = []
         for class_name, border_color, label in configs:
-            pixels = draw_icon(border_color, label)
+            pixels = draw_icon(border_color, label, class_name)
             bmp_bytes = make_bmp(pixels)
             lrs_contents.append(format_lrs_resource(class_name, bmp_bytes))
             

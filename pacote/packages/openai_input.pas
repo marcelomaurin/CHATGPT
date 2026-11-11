@@ -1,4 +1,4 @@
-﻿{ This file was automatically created by Lazarus. Do not edit!
+{ This file was automatically created by Lazarus. Do not edit!
   This source is only used to compile and install the package.
  }
 
@@ -8,12 +8,13 @@ unit openai_input;
 interface
 
 uses
-  aijoystick, aiinput, aidocumentreader, aipdfinput, aidocxinput, aiexcelinput, aiaudio,
-  aicapturesource, aiwebserver, aisockets, aiserial, ailistserialdevices, 
-  aiserialfingerprint, aiemail, aimessenger, aiusb, aiusb_register, 
-  aikinect_types, aikinect_backend, aikinect_freenect, aikinect_sdk10, 
-  aikinectsensor, aikinectcolor, aikinectdepth, aikinectskeleton, 
-  aikinectaudio, aikinectperception, LazarusPackageIntf;
+  aijoystick, aiinput, aidocumentreader, aipdfinput, aidocxinput,
+  aiexcelinput, aiaudio, aicapturesource, aiwebserver, aisockets, aiserial,
+  ailistserialdevices, aiserialfingerprint, aiemail, aimessenger, aiusb,
+  aiusb_register, aikinect_types, aikinect_backend, aikinect_freenect,
+  aikinect_sdk10, aikinectsensor, aikinectcolor, aikinectdepth,
+  aikinectskeleton, aikinectaudio, aikinectperception,
+  openai_input_paletteicons, aispeakersignature, LazarusPackageIntf;
 
 implementation
 
@@ -40,6 +41,7 @@ begin
   RegisterUnit('aikinectskeleton', @aikinectskeleton.Register);
   RegisterUnit('aikinectaudio', @aikinectaudio.Register);
   RegisterUnit('aikinectperception', @aikinectperception.Register);
+  RegisterUnit('aispeakersignature', @aispeakersignature.Register);
 end;
 
 initialization

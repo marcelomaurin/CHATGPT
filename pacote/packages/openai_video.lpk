@@ -21,6 +21,10 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="aih264decoder"/>
       </Item>
+      <Item>
+        <Filename Value="openai_video_paletteicons.pas"/>
+        <UnitName Value="openai_video_paletteicons"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>

@@ -1,12 +1,15 @@
-{ This file is used to compile and install the openai_webrtc package. }
+{ This file was automatically created by Lazarus. Do not edit!
+  This source is only used to compile and install the package.
+ }
+
 unit openai_webrtc;
 
 {$warn 5023 off : no warning about unused units}
-
 interface
 
 uses
-  aiwebrtc_libdatachannel, aiwebrtc_client, LazarusPackageIntf;
+  aiwebrtc_libdatachannel, aiwebrtc_client, openai_webrtc_paletteicons,
+  LazarusPackageIntf;
 
 implementation
 

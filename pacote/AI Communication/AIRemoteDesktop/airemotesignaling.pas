@@ -26,6 +26,10 @@ type
     function Decide(const Id:string; Accept,Control:Boolean):TJSONObject;
     function CloseSession(const Id,Reason:string):TJSONObject;
     function GetSession(const Id:string):TJSONObject;
+    function Health:TJSONObject;
+    function AnnounceEndpoint(Port:Integer; const Transport:string='tcp'; const LocalIP:string=''):TJSONObject;
+    function GetPeerEndpoint(const Id:string):TJSONObject;
+    function SendDiagnosticLog(const Category, Message, LogContent: string; const SessionId: string = ''; const Level: string = 'error'): TJSONObject;
   end;
 function AIRemoteValidKey(const Key:string):Boolean;
 implementation
@@ -151,15 +155,30 @@ begin
   {$ELSE}
   raise Exception.Create('HTTPS backend not implemented on this platform');
   {$ENDIF}
+  if (Status<200) or (Status>=300) then begin
+    J:=nil;
+    try
+      try
+        J:=GetJSON(Raw);
+        if J is TJSONObject then begin
+          E:=TJSONObject(J).Find('error');
+          if E is TJSONObject then
+            raise EAIRemoteAPI.CreateAPI(Status,TJSONObject(E).Get('code','API_ERROR'),
+              TJSONObject(E).Get('message','API request failed'));
+        end;
+      finally
+        if J<>nil then J.Free;
+      end;
+    except
+      on E: EAIRemoteAPI do raise;
+      on Exception do ;
+    end;
+    raise EAIRemoteAPI.CreateAPI(Status,'HTTP_'+IntToStr(Status),
+      'Servidor retornou código HTTP '+IntToStr(Status)+'. Os arquivos da API ainda não estão ativos na pasta.');
+  end;
   J:=GetJSON(Raw);
   try
     if not (J is TJSONObject) then raise Exception.Create('Invalid API envelope');
-    if (Status<200) or (Status>=300) then begin
-      E:=TJSONObject(J).Find('error');
-      if E is TJSONObject then raise EAIRemoteAPI.CreateAPI(Status,TJSONObject(E).Get('code','API_ERROR'),
-        TJSONObject(E).Get('message','API request failed'));
-      raise EAIRemoteAPI.CreateAPI(Status,'HTTP_ERROR','API request failed');
-    end;
     E:=TJSONObject(J).Find('data');
     if not (E is TJSONObject) then raise Exception.Create('Invalid API data');
     Result:=TJSONObject(E.Clone);
@@ -200,4 +219,36 @@ begin
 end;
 function TAIRemoteSignalingClient.GetSession(const Id:string):TJSONObject;
 begin CheckSessionId(Id); Result:=Request('GET','/sessions/'+Id,nil); end;
+function TAIRemoteSignalingClient.Health:TJSONObject;
+begin Result:=Request('GET','/health',nil); end;
+function TAIRemoteSignalingClient.AnnounceEndpoint(Port:Integer; const Transport,LocalIP:string):TJSONObject;
+var B:TJSONObject;
+begin
+  if LocalIP<>'' then begin
+    B:=TJSONObject.Create(['port',Port,'transport',Transport,'local_ip',LocalIP]);
+    try
+      Result:=Request('POST','/devices/endpoint',B);
+      Exit;
+    except
+    end;
+    B.Free;
+  end;
+  B:=TJSONObject.Create(['port',Port,'transport',Transport]);
+  try Result:=Request('POST','/devices/endpoint',B); finally B.Free; end;
+end;
+function TAIRemoteSignalingClient.GetPeerEndpoint(const Id:string):TJSONObject;
+begin CheckSessionId(Id); Result:=Request('GET','/sessions/'+Id+'/peer',nil); end;
+function TAIRemoteSignalingClient.SendDiagnosticLog(const Category, Message, LogContent, SessionId, Level: string): TJSONObject;
+var B: TJSONObject;
+begin
+  B := TJSONObject.Create([
+    'category', Category,
+    'message', Message,
+    'log_content', LogContent,
+    'app_version', '0.5.0',
+    'level', Level
+  ]);
+  if SessionId <> '' then B.Add('session_id', SessionId);
+  try Result := Request('POST', '/diagnostics/logs', B); finally B.Free; end;
+end;
 end.

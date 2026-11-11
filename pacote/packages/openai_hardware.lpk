@@ -65,6 +65,10 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="aifirmwareflasher"/>
       </Item>
+      <Item>
+        <Filename Value="openai_hardware_paletteicons.pas"/>
+        <UnitName Value="openai_hardware_paletteicons"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>

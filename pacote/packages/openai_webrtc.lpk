@@ -25,6 +25,10 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="aiwebrtc_client"/>
       </Item>
+      <Item>
+        <Filename Value="openai_webrtc_paletteicons.pas"/>
+        <UnitName Value="openai_webrtc_paletteicons"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item><PackageName Value="openai_core"/></Item>

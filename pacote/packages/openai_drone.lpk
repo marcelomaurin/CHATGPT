@@ -13,7 +13,7 @@
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Description Value="Lazarus AI Suite: Drone protocols: TAIDroneFQ777 (FQ777-954), TAIDroneCX10W (Cheerson CX-10W), TAIDroneMavlink (ArduPilot/PX4, missions), TAIDroneTello (DJI/Ryze Tello SDK), TAIDroneESPDrone (ESP-Drone CRTP), TAIDroneARDrone (Parrot AR.Drone 2.0) and TAIDroneCDP (ESP32 Cockpit Drone firmware)."/>
+    <Description Value="Lazarus AI Suite: Drone protocols (FQ777-954, Cheerson CX-10W, MAVLink, DJI Tello, ESP-Drone, Parrot AR.Drone 2.0, drone ESP32)."/>
     <License Value="OPEN SOURCE GPL3"/>
     <Files>
       <Item>
@@ -54,6 +54,10 @@
         <Filename Value="..\AI Drone\aidronecdp.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aidronecdp"/>
+      </Item>
+      <Item>
+        <Filename Value="openai_drone_paletteicons.pas"/>
+        <UnitName Value="openai_drone_paletteicons"/>
       </Item>
     </Files>
     <RequiredPkgs>

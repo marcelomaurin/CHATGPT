@@ -8,7 +8,7 @@ unit openai_video;
 interface
 
 uses
-  aih264decoder, LazarusPackageIntf;
+  aih264decoder, openai_video_paletteicons, LazarusPackageIntf;
 
 implementation
 

@@ -8,7 +8,7 @@ unit openai_drone;
 interface
 
 uses
-  aidronebase, aidronefq777, aidronecx10w, aidronemavlink, aidronetello, aidroneespdrone, aidroneardrone, aidronecdp, LazarusPackageIntf;
+  aidronebase, aidronefq777, aidronecx10w, aidronemavlink, aidronetello, aidroneespdrone, aidroneardrone, aidronecdp, openai_drone_paletteicons, LazarusPackageIntf;
 
 implementation
 

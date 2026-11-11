@@ -959,4 +959,7 @@ begin
     SetState(lsStopped);
 end;
 
+initialization
+  {$I '../AI Input/AIAudio/aicontinuouslistener_icon.lrs'}
+
 end.

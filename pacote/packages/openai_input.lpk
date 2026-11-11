@@ -149,6 +149,15 @@
         <HasRegisterProc Value="True"/>
         <UnitName Value="aikinectperception"/>
       </Item>
+      <Item>
+        <Filename Value="openai_input_paletteicons.pas"/>
+        <UnitName Value="openai_input_paletteicons"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Input\AIAudio\aispeakersignature.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aispeakersignature"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>

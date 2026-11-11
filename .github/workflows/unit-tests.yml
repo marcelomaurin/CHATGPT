@@ -30,6 +30,11 @@ jobs:
       - name: Validar Consistência de Ícones e Componentes (CHATGPT-004)
         run: python tests/ci_validate_icons.py
 
+      - name: Validate pictogram generation and package icon loading
+        run: |
+          python pacote/generate_all_icons.py --check
+          python -m unittest discover -s tests -p test_ci_validate_icons.py
+
       - name: Validar Inventário de Samples (CHATGPT-013)
         run: python tests/ci_validate_samples.py
 
