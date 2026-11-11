@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+ <Package Version="5">
+  <Name Value="openai_remote_desktop"/>
+  <Type Value="RunTime"/>
+  <Author Value="Marcelo Maurin Martins"/>
+  <Description Value="Remote desktop identity and consent signalling foundation"/>
+  <License Value="GPL3"/>
+  <CompilerOptions><Version Value="11"/><SearchPaths>
+   <OtherUnitFiles Value="../AI Communication/AIRemoteDesktop"/>
+   <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
+  </SearchPaths></CompilerOptions>
+  <Files>
+   <Item><Filename Value="../AI Communication/AIRemoteDesktop/airemoteidentity.pas"/><UnitName Value="airemoteidentity"/></Item>
+   <Item><Filename Value="../AI Communication/AIRemoteDesktop/airemotesignaling.pas"/><UnitName Value="airemotesignaling"/></Item>
+  </Files>
+  <RequiredPkgs><Item><PackageName Value="FCL"/></Item></RequiredPkgs>
+  <UsageOptions><UnitPath Value="$(PkgOutDir)"/></UsageOptions>
+ </Package>
+</CONFIG>
