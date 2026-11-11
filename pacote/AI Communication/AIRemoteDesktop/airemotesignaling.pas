@@ -30,6 +30,13 @@ type
     function AnnounceEndpoint(Port:Integer; const Transport:string='tcp'; const LocalIP:string=''):TJSONObject;
     function GetPeerEndpoint(const Id:string):TJSONObject;
     function SendDiagnosticLog(const Category, Message, LogContent: string; const SessionId: string = ''; const Level: string = 'error'): TJSONObject;
+    function GetSessionPort(const Id: string): TJSONObject;
+    function ReportPortSuccess(const Id: string; Port: Integer): TJSONObject;
+    function ReportPortFailed(const Id: string; FailedPort: Integer): TJSONObject;
+    function PostRelayFrame(const Id: string; FrameId: Cardinal; const FrameBase64: string): TJSONObject;
+    function GetRelayFrame(const Id: string): TJSONObject;
+    function PostRelayInput(const Id: string; Events: TJSONArray): TJSONObject;
+    function GetRelayInput(const Id: string): TJSONObject;
   end;
 function AIRemoteValidKey(const Key:string):Boolean;
 implementation
@@ -250,5 +257,49 @@ begin
   ]);
   if SessionId <> '' then B.Add('session_id', SessionId);
   try Result := Request('POST', '/diagnostics/logs', B); finally B.Free; end;
+end;
+function TAIRemoteSignalingClient.GetSessionPort(const Id: string): TJSONObject;
+begin
+  CheckSessionId(Id);
+  Result := Request('GET', '/sessions/' + Id + '/port', nil);
+end;
+function TAIRemoteSignalingClient.ReportPortSuccess(const Id: string; Port: Integer): TJSONObject;
+var B: TJSONObject;
+begin
+  CheckSessionId(Id);
+  B := TJSONObject.Create(['action', 'port_success', 'port', Port]);
+  try Result := Request('POST', '/sessions/' + Id + '/port', B); finally B.Free; end;
+end;
+function TAIRemoteSignalingClient.ReportPortFailed(const Id: string; FailedPort: Integer): TJSONObject;
+var B: TJSONObject;
+begin
+  CheckSessionId(Id);
+  B := TJSONObject.Create(['action', 'port_failed', 'failed_port', FailedPort]);
+  try Result := Request('POST', '/sessions/' + Id + '/port', B); finally B.Free; end;
+end;
+function TAIRemoteSignalingClient.PostRelayFrame(const Id: string; FrameId: Cardinal; const FrameBase64: string): TJSONObject;
+var B: TJSONObject;
+begin
+  CheckSessionId(Id);
+  B := TJSONObject.Create(['frame_id', Int64(FrameId), 'frame_data', FrameBase64]);
+  try Result := Request('POST', '/sessions/' + Id + '/relay_frame', B); finally B.Free; end;
+end;
+function TAIRemoteSignalingClient.GetRelayFrame(const Id: string): TJSONObject;
+begin
+  CheckSessionId(Id);
+  Result := Request('GET', '/sessions/' + Id + '/relay_frame', nil);
+end;
+function TAIRemoteSignalingClient.PostRelayInput(const Id: string; Events: TJSONArray): TJSONObject;
+var B: TJSONObject;
+begin
+  CheckSessionId(Id);
+  B := TJSONObject.Create;
+  B.Add('events', Events.Clone);
+  try Result := Request('POST', '/sessions/' + Id + '/relay_input', B); finally B.Free; end;
+end;
+function TAIRemoteSignalingClient.GetRelayInput(const Id: string): TJSONObject;
+begin
+  CheckSessionId(Id);
+  Result := Request('GET', '/sessions/' + Id + '/relay_input', nil);
 end;
 end.
