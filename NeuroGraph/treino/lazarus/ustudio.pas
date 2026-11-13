@@ -41,6 +41,8 @@ type
 
     // Aba Treinamento 10 Tópicos (Mínimo 1000 pares)
     FMemoTopicos: TMemo;
+    FMemoResultadoTopicos: TMemo;
+    FLblResumoTopicos: TLabel;
     FEditNovoTopico: TEdit;
     FBtnAdicionarTopico: TButton;
     FBtnLimparTopicos: TButton;
@@ -109,6 +111,7 @@ type
     procedure OnProcurarRedeAlvoClick(Sender: TObject);
     procedure OnCmbRedeAlvoChange(Sender: TObject);
     procedure PopularRedesDisponiveis;
+    procedure AtualizarResultadoTopicos;
 
     // Eventos Aba TCHATGPT
     procedure ConstruirAbaChatGPT;
@@ -465,17 +468,17 @@ begin
 
   Lbl := TLabel.Create(Self);
   Lbl.Parent := FTab10Topicos;
-  Lbl.Caption := '10 Tópicos Educativos para Geração de Perguntas e Respostas (um por linha):';
-  Lbl.Left := 16;
-  Lbl.Top := 14;
+  Lbl.Caption := 'Tópicos para Treinamento (1 por linha):';
+  Lbl.Left := 14;
+  Lbl.Top := 12;
   Lbl.Font.Style := [fsBold];
 
   FMemoTopicos := TMemo.Create(Self);
   FMemoTopicos.Parent := FTab10Topicos;
-  FMemoTopicos.Left := 16;
-  FMemoTopicos.Top := 36;
-  FMemoTopicos.Width := 650;
-  FMemoTopicos.Height := 170;
+  FMemoTopicos.Left := 14;
+  FMemoTopicos.Top := 32;
+  FMemoTopicos.Width := 440;
+  FMemoTopicos.Height := 165;
   FMemoTopicos.ScrollBars := ssVertical;
   FMemoTopicos.Font.Name := 'Segoe UI';
   FMemoTopicos.Font.Size := 9;
@@ -490,76 +493,104 @@ begin
   FMemoTopicos.Lines.Add('Geografia Física e Climatologia');
   FMemoTopicos.Lines.Add('Lógica Matemática e Probabilidade');
 
-  // Controles para inclusão de novos tópicos
+  // Painel Direito da Aba: Visualização do que foi Treinado
   Lbl := TLabel.Create(Self);
   Lbl.Parent := FTab10Topicos;
-  Lbl.Caption := 'Incluir Tópico Personalizado:';
-  Lbl.Left := 16;
-  Lbl.Top := 216;
+  Lbl.Caption := '📋 O que foi Treinado nesta Sessão (Perguntas, Respostas e Rede Salva):';
+  Lbl.Left := 468;
+  Lbl.Top := 12;
+  Lbl.Font.Style := [fsBold];
+
+  FMemoResultadoTopicos := TMemo.Create(Self);
+  FMemoResultadoTopicos.Parent := FTab10Topicos;
+  FMemoResultadoTopicos.Left := 468;
+  FMemoResultadoTopicos.Top := 32;
+  FMemoResultadoTopicos.Width := 515;
+  FMemoResultadoTopicos.Height := 295;
+  FMemoResultadoTopicos.ReadOnly := True;
+  FMemoResultadoTopicos.ScrollBars := ssAutoBoth;
+  FMemoResultadoTopicos.Font.Name := 'Consolas';
+  FMemoResultadoTopicos.Font.Size := 9;
+  FMemoResultadoTopicos.Color := $F8FBF8;
+
+  FLblResumoTopicos := TLabel.Create(Self);
+  FLblResumoTopicos.Parent := FTab10Topicos;
+  FLblResumoTopicos.Left := 468;
+  FLblResumoTopicos.Top := 334;
+  FLblResumoTopicos.Caption := 'Status do Último Treino: Carregando histórico...';
+  FLblResumoTopicos.Font.Style := [fsBold];
+  FLblResumoTopicos.Font.Color := $006600;
+
+  // Controles para inclusão de novos tópicos (Coluna Esquerda)
+  Lbl := TLabel.Create(Self);
+  Lbl.Parent := FTab10Topicos;
+  Lbl.Caption := 'Novo Tópico:';
+  Lbl.Left := 14;
+  Lbl.Top := 208;
 
   FEditNovoTopico := TEdit.Create(Self);
   FEditNovoTopico.Parent := FTab10Topicos;
-  FEditNovoTopico.Left := 180;
-  FEditNovoTopico.Top := 212;
-  FEditNovoTopico.Width := 270;
+  FEditNovoTopico.Left := 95;
+  FEditNovoTopico.Top := 204;
+  FEditNovoTopico.Width := 235;
 
   FBtnAdicionarTopico := TButton.Create(Self);
   FBtnAdicionarTopico.Parent := FTab10Topicos;
-  FBtnAdicionarTopico.Caption := '➕ Incluir Tópico';
-  FBtnAdicionarTopico.Left := 458;
-  FBtnAdicionarTopico.Top := 210;
-  FBtnAdicionarTopico.Width := 115;
-  FBtnAdicionarTopico.Height := 28;
+  FBtnAdicionarTopico.Caption := '➕ Incluir';
+  FBtnAdicionarTopico.Left := 336;
+  FBtnAdicionarTopico.Top := 202;
+  FBtnAdicionarTopico.Width := 118;
+  FBtnAdicionarTopico.Height := 27;
   FBtnAdicionarTopico.OnClick := @OnAdicionarTopicoClick;
 
   FBtnTopicosPadrao := TButton.Create(Self);
   FBtnTopicosPadrao.Parent := FTab10Topicos;
   FBtnTopicosPadrao.Caption := 'Restaurar 10 Padrão';
-  FBtnTopicosPadrao.Left := 580;
-  FBtnTopicosPadrao.Top := 210;
-  FBtnTopicosPadrao.Width := 130;
-  FBtnTopicosPadrao.Height := 28;
+  FBtnTopicosPadrao.Left := 14;
+  FBtnTopicosPadrao.Top := 236;
+  FBtnTopicosPadrao.Width := 215;
+  FBtnTopicosPadrao.Height := 26;
   FBtnTopicosPadrao.OnClick := @OnTopicosPadraoClick;
 
   FBtnLimparTopicos := TButton.Create(Self);
   FBtnLimparTopicos.Parent := FTab10Topicos;
-  FBtnLimparTopicos.Caption := 'Limpar Lista';
-  FBtnLimparTopicos.Left := 718;
-  FBtnLimparTopicos.Top := 210;
-  FBtnLimparTopicos.Width := 90;
-  FBtnLimparTopicos.Height := 28;
+  FBtnLimparTopicos.Caption := '🧹 Limpar Lista de Tópicos';
+  FBtnLimparTopicos.Left := 238;
+  FBtnLimparTopicos.Top := 236;
+  FBtnLimparTopicos.Width := 216;
+  FBtnLimparTopicos.Height := 26;
   FBtnLimparTopicos.OnClick := @OnLimparTopicosClick;
 
   Lbl := TLabel.Create(Self);
   Lbl.Parent := FTab10Topicos;
-  Lbl.Caption := 'Total Mínimo de Pares (Regra: Nunca menor que 1000):';
-  Lbl.Left := 16;
-  Lbl.Top := 256;
+  Lbl.Caption := 'Mínimo de Pares (>= 1000):';
+  Lbl.Left := 14;
+  Lbl.Top := 272;
 
   FSpinMinParesTopicos := TSpinEdit.Create(Self);
   FSpinMinParesTopicos.Parent := FTab10Topicos;
-  FSpinMinParesTopicos.Left := 330;
-  FSpinMinParesTopicos.Top := 252;
-  FSpinMinParesTopicos.Width := 90;
+  FSpinMinParesTopicos.Left := 185;
+  FSpinMinParesTopicos.Top := 268;
+  FSpinMinParesTopicos.Width := 95;
   FSpinMinParesTopicos.MinValue := 1000;
   FSpinMinParesTopicos.MaxValue := 50000;
   FSpinMinParesTopicos.Value := 1000;
 
   FBtnGerar10Topicos := TButton.Create(Self);
   FBtnGerar10Topicos.Parent := FTab10Topicos;
-  FBtnGerar10Topicos.Caption := '🚀 Gerar Perguntas/Respostas com IA e Treinar Rede';
-  FBtnGerar10Topicos.Left := 16;
-  FBtnGerar10Topicos.Top := 290;
-  FBtnGerar10Topicos.Width := 405;
+  FBtnGerar10Topicos.Caption := '🚀 Gerar P&R e Treinar Rede';
+  FBtnGerar10Topicos.Left := 14;
+  FBtnGerar10Topicos.Top := 302;
+  FBtnGerar10Topicos.Width := 265;
   FBtnGerar10Topicos.Height := 34;
   FBtnGerar10Topicos.OnClick := @OnGerar10TopicosClick;
 
   FBtnPararTreinoTopicos := TButton.Create(Self);
   FBtnPararTreinoTopicos.Parent := FTab10Topicos;
-  FBtnPararTreinoTopicos.Caption := '⏹️ Parar Treinamento';
-  FBtnPararTreinoTopicos.Left := 430;
-  FBtnPararTreinoTopicos.Top := 290;
-  FBtnPararTreinoTopicos.Width := 180;
+  FBtnPararTreinoTopicos.Caption := '⏹️ Parar e Salvar';
+  FBtnPararTreinoTopicos.Left := 286;
+  FBtnPararTreinoTopicos.Top := 302;
+  FBtnPararTreinoTopicos.Width := 168;
   FBtnPararTreinoTopicos.Height := 34;
   FBtnPararTreinoTopicos.Enabled := False;
   FBtnPararTreinoTopicos.Font.Style := [fsBold];
@@ -567,9 +598,9 @@ begin
 
   Lbl := TLabel.Create(Self);
   Lbl.Parent := FTab10Topicos;
-  Lbl.Caption := 'ℹ️ A IA distribuirá aleatoriamente a quantidade de perguntas por tópico garantindo a soma >= 1000.'#13#10'Todos os pares gerados serão integrados ao dataset e usados para retreinar o TokenGraph.';
-  Lbl.Left := 16;
-  Lbl.Top := 334;
+  Lbl.Caption := 'ℹ️ Mesmo se interrompido, o modelo (.ngs) é salvo automaticamente.';
+  Lbl.Left := 14;
+  Lbl.Top := 342;
   Lbl.Font.Color := clGray;
 
   // Nova Aba: TCHATGPT (Provedores, Modelos, URL e Teste)
@@ -1165,6 +1196,19 @@ procedure TfrmStudio.LogMsg(const AMsg: string);
 begin
   FMemoLog.Lines.Add(AMsg);
   FMemoLog.SelStart := Length(FMemoLog.Text);
+
+  if Assigned(FMemoResultadoTopicos) and FIsBusy then
+  begin
+    if (Pos('[Tópico', AMsg) > 0) or (Pos('[TREINADO]', AMsg) > 0) or
+       (Pos('-> ', AMsg) > 0) or (Pos('[REDE SALVA', AMsg) > 0) or
+       (Pos('[PARADA', AMsg) > 0) or (Pos('REDE ALVO', AMsg) > 0) or
+       (Pos('CONSOLIDAÇÃO', AMsg) > 0) then
+    begin
+      FMemoResultadoTopicos.Lines.Add(AMsg);
+      FMemoResultadoTopicos.SelStart := Length(FMemoResultadoTopicos.Text);
+    end;
+  end;
+
   Application.ProcessMessages;
 end;
 
@@ -1269,6 +1313,24 @@ begin
   FAbortRequested := False;
   LinhaAcumulada := '';
 
+  // Remove arquivo antigo de parada se existir antes de iniciar novo treino
+  if FileExists(ExtractFilePath(AppScript) + '.stop_training') then
+  begin
+    try
+      DeleteFile(ExtractFilePath(AppScript) + '.stop_training');
+    except
+    end;
+  end;
+
+  if Assigned(FMemoResultadoTopicos) then
+  begin
+    FMemoResultadoTopicos.Clear;
+    FMemoResultadoTopicos.Lines.Add('=== TREINAMENTO EM EXECUÇÃO ===');
+    if Assigned(FCmbRedeAlvo) then
+      FMemoResultadoTopicos.Lines.Add('Rede Alvo: ' + FCmbRedeAlvo.Text);
+    FMemoResultadoTopicos.Lines.Add('------------------------------------------------------------');
+  end;
+
   P := TProcess.Create(nil);
   FCurrentProcess := P;
   try
@@ -1302,16 +1364,6 @@ begin
 
     while P.Running or (P.Output.NumBytesAvailable > 0) do
     begin
-      if FAbortRequested then
-      begin
-        try
-          P.Terminate(1);
-          LogMsg('[AVISO] Processo abortado pelo usuário.');
-        except
-        end;
-        Break;
-      end;
-
       while P.Output.NumBytesAvailable > 0 do
       begin
         BytesRead := P.Output.Read(Buffer, SizeOf(Buffer) - 1);
@@ -1341,6 +1393,7 @@ begin
     P.Free;
     SetBusy(False);
     OnAtualizarDatasetClick(nil);
+    AtualizarResultadoTopicos;
   end;
 end;
 
@@ -1639,6 +1692,88 @@ begin
     on E: Exception do
       FMemoDataset.Lines.Add('Erro ao carregar dataset: ' + E.Message);
   end;
+  AtualizarResultadoTopicos;
+end;
+
+procedure TfrmStudio.AtualizarResultadoTopicos;
+var
+  CaminhoJson: string;
+  F: TFileStream;
+  Parser: TJSONParser;
+  Data: TJSONData;
+  Arr: TJSONArray;
+  Item: TJSONObject;
+  I, Limite, Inicio: Integer;
+  TopicoAtual, UltimoTopico: string;
+begin
+  if not Assigned(FMemoResultadoTopicos) then Exit;
+
+  CaminhoJson := ExtractFilePath(ObterCaminhoAppTreino) + 'dados\processados\ultimo_treino_topicos.json';
+  if not FileExists(CaminhoJson) then
+    CaminhoJson := ExtractFilePath(ObterCaminhoAppTreino) + 'dados\processados\dataset_curado.json';
+
+  if not FileExists(CaminhoJson) then
+  begin
+    FLblResumoTopicos.Caption := 'Status: Nenhum treinamento executado ainda.';
+    Exit;
+  end;
+
+  try
+    F := TFileStream.Create(CaminhoJson, fmOpenRead or fmShareDenyNone);
+    try
+      Parser := TJSONParser.Create(F);
+      try
+        Data := Parser.Parse;
+        if Assigned(Data) and (Data.JSONType = jtArray) then
+        begin
+          Arr := TJSONArray(Data);
+          FMemoResultadoTopicos.Lines.BeginUpdate;
+          try
+            FMemoResultadoTopicos.Clear;
+            FMemoResultadoTopicos.Lines.Add('=== RESUMO DO CONTEÚDO TREINADO E SALVO NA REDE ===');
+            if Assigned(FCmbRedeAlvo) then
+              FMemoResultadoTopicos.Lines.Add('Rede Salva (.ngs): ' + ExtractFileName(FCmbRedeAlvo.Text));
+            FMemoResultadoTopicos.Lines.Add(Format('Total de Pares Treinados no Lote: %d', [Arr.Count]));
+            FMemoResultadoTopicos.Lines.Add('------------------------------------------------------------');
+
+            UltimoTopico := '';
+            // Exibe até os últimos 150 pares para manter fluidez da interface
+            Limite := Arr.Count;
+            Inicio := 0;
+            if Limite > 150 then
+            begin
+              Inicio := Limite - 150;
+              FMemoResultadoTopicos.Lines.Add(Format('... (Exibindo os %d últimos pares de %d)', [150, Limite]));
+              FMemoResultadoTopicos.Lines.Add('');
+            end;
+
+            for I := Inicio to Limite - 1 do
+            begin
+              Item := TJSONObject(Arr.Items[I]);
+              TopicoAtual := Item.Get('video_id', '');
+              if (TopicoAtual <> '') and (TopicoAtual <> UltimoTopico) then
+              begin
+                UltimoTopico := TopicoAtual;
+                FMemoResultadoTopicos.Lines.Add('>>> TÓPICO / FONTE: ' + UpperCase(TopicoAtual));
+              end;
+              FMemoResultadoTopicos.Lines.Add(Format('  [%d] P: %s', [I + 1, Item.Get('question', '')]));
+              FMemoResultadoTopicos.Lines.Add(Format('       R: %s', [Item.Get('answer', '')]));
+            end;
+          finally
+            FMemoResultadoTopicos.Lines.EndUpdate;
+          end;
+
+          FLblResumoTopicos.Caption := Format('✔ %d perguntas/respostas treinadas e salvas na rede!', [Arr.Count]);
+        end;
+      finally
+        Parser.Free;
+        if Assigned(Data) then Data.Free;
+      end;
+    finally
+      F.Free;
+    end;
+  except
+  end;
 end;
 
 procedure TfrmStudio.OnRetreinarTudoClick(Sender: TObject);
@@ -1652,17 +1787,37 @@ begin
 end;
 
 procedure TfrmStudio.OnAbortarClick(Sender: TObject);
+var
+  StopFile: string;
+  F: TextFile;
 begin
-  FAbortRequested := True;
-  LogMsg('[AVISO] Solicitando cancelamento imediato do processo...');
-  if Assigned(FCurrentProcess) and FCurrentProcess.Running then
+  if not FIsBusy then Exit;
+
+  StopFile := ExtractFilePath(ObterCaminhoAppTreino) + '.stop_training';
+
+  if not FAbortRequested then
   begin
+    FAbortRequested := True;
     try
-      FCurrentProcess.Terminate(1);
-      LogMsg('[SUCESSO] Processo de treinamento finalizado/interrompido.');
+      AssignFile(F, StopFile);
+      Rewrite(F);
+      WriteLn(F, 'STOP');
+      CloseFile(F);
     except
-      on E: Exception do
-        LogMsg('[ERRO] Falha ao interromper processo: ' + E.Message);
+    end;
+    LogMsg('[AVISO] Parada solicitada! Finalizando etapa atual e SALVANDO A REDE (.ngs)...');
+    LogMsg('[DICA] Aguarde a compilação dos pesos ou clique novamente em Parar para forçar encerramento imediato.');
+  end
+  else
+  begin
+    LogMsg('[AVISO] Forçando encerramento imediato do processo...');
+    if Assigned(FCurrentProcess) and FCurrentProcess.Running then
+    begin
+      try
+        FCurrentProcess.Terminate(1);
+        LogMsg('[AVISO] Processo encerrado imediatamente.');
+      except
+      end;
     end;
   end;
 end;

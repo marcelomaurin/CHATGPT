@@ -324,8 +324,12 @@ def gerar_lote_com_chatgpt(
     # Divide em lotes de 20 para confiabilidade da resposta JSON do modelo
     tamanho_sublote = 20
     restantes = qtd_desejada
+    stop_file = DIR_TREINO / ".stop_training"
 
     while restantes > 0 and len(pares_gerados) < qtd_desejada:
+        if stop_file.exists():
+            print("  [PARADA SOLICITADA] Interrompendo chamadas à IA para salvar o que já foi gerado...")
+            break
         qtd_chamada = min(restantes, tamanho_sublote)
         prompt_user = (
             f"Tópico: {topico}\n"
@@ -505,46 +509,90 @@ def executar_treinamento_10_topicos(
 
     todos_pares: list[ParTreinamento] = []
     tem_api_key = bool(api_key or os.getenv("OPENAI_API_KEY"))
+    stop_file = DIR_TREINO / ".stop_training"
+    foi_cancelado = False
 
-    for i, (topico, qtd) in enumerate(distribuicao.items(), 1):
-        print(f"\n[Tópico {i}/{qtd_topicos}] Gerando {qtd} perguntas e respostas para: '{topico}'...")
-        pares_topico: list[ParTreinamento] = []
+    try:
+        for i, (topico, qtd) in enumerate(distribuicao.items(), 1):
+            if stop_file.exists():
+                print(f"\n[PARADA SOLICITADA] Cancelamento detectado antes do tópico {i}. Consolidando e salvando progresso parcial...")
+                foi_cancelado = True
+                break
 
-        if tem_api_key:
-            pares_topico = gerar_lote_com_chatgpt(topico, qtd, api_key=api_key)
+            print(f"\n[Tópico {i}/{qtd_topicos}] Gerando {qtd} perguntas e respostas para: '{topico}'...")
+            pares_topico: list[ParTreinamento] = []
 
-        # Se não tem API key ou faltou gerar, completa com o motor conceitual garantido
-        if len(pares_topico) < qtd:
-            faltantes = qtd - len(pares_topico)
-            pares_heuristicos = gerar_lote_heuristico(topico, faltantes)
-            pares_topico.extend(pares_heuristicos)
+            if tem_api_key:
+                pares_topico = gerar_lote_com_chatgpt(topico, qtd, api_key=api_key)
 
-        print(f"  -> {len(pares_topico)} pares consolidados para '{topico}'.")
-        todos_pares.extend(pares_topico)
+            if stop_file.exists():
+                foi_cancelado = True
+
+            # Se não tem API key ou faltou gerar (e não foi cancelado), completa com o motor conceitual garantido
+            if not foi_cancelado and len(pares_topico) < qtd:
+                faltantes = qtd - len(pares_topico)
+                pares_heuristicos = gerar_lote_heuristico(topico, faltantes)
+                pares_topico.extend(pares_heuristicos)
+            elif foi_cancelado and not pares_topico:
+                # Garante pelo menos uma amostra rápida do tópico atual se parou no meio
+                pares_topico = gerar_lote_heuristico(topico, min(25, qtd))
+
+            print(f"  -> {len(pares_topico)} pares consolidados para '{topico}'.")
+            for idx_amostra, p_amostra in enumerate(pares_topico[:5], 1):
+                print(f"     [TREINADO] P: {p_amostra.question} | R: {p_amostra.answer}")
+            if len(pares_topico) > 5:
+                print(f"     ... (+{len(pares_topico) - 5} pares deste tópico)")
+
+            todos_pares.extend(pares_topico)
+            # Salva incrementalmente no dataset a cada tópico concluído!
+            salvar_pares_processados(pares_topico, pasta_saida, nome_arquivo="dataset_curado.json")
+
+            if foi_cancelado:
+                print("\n[PARADA SOLICITADA] Interrompendo loop de tópicos para salvar o modelo imediatamente...")
+                break
+    except KeyboardInterrupt:
+        print("\n[INTERROMPIDO] Salvando dados parciais e compilando rede...")
+        foi_cancelado = True
 
     print("\n" + "=" * 70)
-    print(f"CONSOLIDAÇÃO TOTAL: {len(todos_pares)} PARES CONCEITUAIS GERADOS (>= {min_total})")
+    status_str = "PARCIAL (INTERROMPIDO PELO USUÁRIO)" if foi_cancelado else "COMPLETA"
+    print(f"CONSOLIDAÇÃO {status_str}: {len(todos_pares)} PARES CONCEITUAIS GERADOS")
     print("=" * 70)
+
+    # Salva arquivo de último lote para exibição imediata na aba de Treinamento
+    caminho_ultimo_treino = pasta_saida / "ultimo_treino_topicos.json"
+    pasta_saida.mkdir(parents=True, exist_ok=True)
+    with caminho_ultimo_treino.open("w", encoding="utf-8") as f_ult:
+        json.dump([asdict(p) for p in todos_pares], f_ult, ensure_ascii=False, indent=2)
 
     # Salva no dataset principal de treino
     caminho_dataset = salvar_pares_processados(todos_pares, pasta_saida, nome_arquivo="dataset_curado.json")
     print(f"[ARQUIVO] Dataset atualizado e gravado em: {caminho_dataset}")
 
-    # Retreina o modelo NeuroGraph se solicitado
-    resultado_treino = {}
+    # Remove o arquivo de sinalização de parada antes de treinar, ou permite treino rápido se foi cancelado
+    if stop_file.exists():
+        try:
+            stop_file.unlink()
+        except Exception:
+            pass
+
+    # Retreina e SALVA o modelo NeuroGraph SEMPRE (mesmo após cancelamento!)
     if treinar_modelo:
         alvo_rede = caminho_modelo or (DIR_TREINO / "modelos" / "neurograph_youtube.ngs")
-        print("\n[TREINAMENTO] Atualizando os pesos binários (.ngs) da rede alvo...")
+        epocas_treino = 25 if foi_cancelado else 60
+        print(f"\n[TREINAMENTO] Compilando e salvando pesos binários (.ngs) na rede alvo ({epocas_treino} épocas)...")
         print(f"Rede Selecionada: {alvo_rede}")
         exemplos, _ = preparar_exemplos(incluir_base=True, caminho_curado=caminho_dataset)
-        modelo = treinar_neurograph(exemplos, epochs=60, learning_rate=0.05, caminho_saida=alvo_rede)
-        print(f"[SUCESSO] Rede '{alvo_rede.name}' treinada e salva com sucesso!")
+        if exemplos:
+            modelo = treinar_neurograph(exemplos, epochs=epocas_treino, learning_rate=0.05, caminho_saida=alvo_rede)
+            print(f"[SUCESSO] Rede '{alvo_rede.name}' treinada e SALVA com sucesso!")
 
     return {
-        "status": "concluido",
+        "status": "cancelado_e_salvo" if foi_cancelado else "concluido",
         "total_pares_gerados": len(todos_pares),
         "distribuicao": distribuicao,
         "dataset": str(caminho_dataset),
+        "ultimo_treino": str(caminho_ultimo_treino),
         "modelo_treinado": treinar_modelo,
     }
 

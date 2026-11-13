@@ -127,18 +127,50 @@ def treinar_neurograph(
     logging.info("Total de exemplos: %d | Épocas: %d | Taxa de Aprendizado: %.4f",
                  len(exemplos), epochs, learning_rate)
 
-    modelo = TokenGraph()
-    historico = modelo.fit(exemplos, epochs=epochs, learning_rate=learning_rate)
+    # Carrega a rede existente se já houver, para preservar conexões anteriores e continuar o treinamento
+    if caminho_saida.exists() and caminho_saida.stat().st_size > 0:
+        try:
+            modelo = TokenGraph.load(caminho_saida)
+            print(f"[INFO] Rede pré-existente carregada ({len(modelo.tokens)} tokens, {len(modelo.features)} features). Continuando aprendizado...")
+        except Exception:
+            modelo = TokenGraph()
+    else:
+        modelo = TokenGraph()
 
-    if historico:
-        perda_final = historico[-1].get("loss", 0.0)
-        logging.info("Treinamento concluído com sucesso. Perda final: %.4f", perda_final)
+    # Treina em blocos de épocas com salvamento periódico (checkpointing) e checagem de parada
+    stop_file = DIR_TREINO / ".stop_training"
+    epocas_restantes = epochs
+    passo = min(20, max(5, epochs // 3))
+    epoca_atual = 0
+    historico = []
 
-    # Salva o arquivo de pesos binário (.ngs)
-    modelo.save(caminho_saida)
-    print(f"[REDE SALVA] Pesos associativos gravados em: {caminho_saida} ({caminho_saida.stat().st_size} bytes)")
-    logging.info("Pesos gravados com sucesso em: %s (%d bytes)",
-                 caminho_saida, caminho_saida.stat().st_size)
+    try:
+        while epocas_restantes > 0:
+            if stop_file.exists():
+                print(f"\n[PARADA DETECTADA] Interrompendo épocas restantes na época {epoca_atual}/{epochs} e salvando estado atual da rede...")
+                break
+
+            lote_epocas = min(passo, epocas_restantes)
+            epoca_atual += lote_epocas
+            epocas_restantes -= lote_epocas
+
+            print(f"  -> Treinando épocas {epoca_atual - lote_epocas + 1} a {epoca_atual}/{epochs}...")
+            relatorio = modelo.fit(exemplos, epochs=lote_epocas, learning_rate=learning_rate)
+            historico.extend(relatorio)
+
+            # Salva checkpoint da rede a cada bloco de épocas
+            modelo.save(caminho_saida)
+    except KeyboardInterrupt:
+        print("\n[INTERROMPIDO] Salvando estado parcial da rede antes de encerrar...")
+    finally:
+        # Garante que o modelo SEMPRE seja salvo em disco, mesmo após cancelamento
+        try:
+            modelo.save(caminho_saida)
+            tamanho = caminho_saida.stat().st_size if caminho_saida.exists() else 0
+            print(f"[REDE SALVA COM SUCESSO] Pesos associativos gravados em: {caminho_saida} ({tamanho} bytes)")
+            logging.info("Pesos gravados com sucesso em: %s (%d bytes)", caminho_saida, tamanho)
+        except Exception as exc:
+            logging.error("Erro ao salvar modelo: %s", exc)
 
     return modelo
 

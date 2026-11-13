@@ -58,6 +58,7 @@ def processar_tema_completo(
     max_pares_por_video: int = 8,
     api_key: str | None = None,
     executar_treino: bool = True,
+    caminho_modelo: Path | None = None,
 ) -> Path:
     """Executa o ciclo completo:
 
@@ -120,8 +121,8 @@ def processar_tema_completo(
     if executar_treino:
         print("\n[4/4] Treinando e atualizando o NeuroGraph...")
         exemplos, _ = preparar_exemplos(incluir_base=True, caminho_curado=caminho_dataset)
-        caminho_modelo = DIR_TREINO / "modelos" / "neurograph_youtube.ngs"
-        modelo = treinar_neurograph(exemplos, epochs=120, caminho_saida=caminho_modelo)
+        alvo_modelo = caminho_modelo or (DIR_TREINO / "modelos" / "neurograph_youtube.ngs")
+        modelo = treinar_neurograph(exemplos, epochs=120, caminho_saida=alvo_modelo)
 
         # Validação automática com os conceitos recém-aprendidos
         perguntas_teste = [p.question for p in todos_pares[:3]]
@@ -137,6 +138,7 @@ def processar_video_individual(
     url_ou_id: str,
     api_key: str | None = None,
     executar_treino: bool = True,
+    caminho_modelo: Path | None = None,
 ) -> None:
     """Captura e cura um único vídeo informado diretamente pelo usuário."""
     print(f"\nObtendo transcrição para o vídeo: {url_ou_id}...")
@@ -161,8 +163,8 @@ def processar_video_individual(
 
     if executar_treino:
         exemplos, _ = preparar_exemplos(incluir_base=True, caminho_curado=caminho_dataset)
-        caminho_modelo = DIR_TREINO / "modelos" / "neurograph_youtube.ngs"
-        modelo = treinar_neurograph(exemplos, epochs=120, caminho_saida=caminho_modelo)
+        alvo_modelo = caminho_modelo or (DIR_TREINO / "modelos" / "neurograph_youtube.ngs")
+        modelo = treinar_neurograph(exemplos, epochs=120, caminho_saida=alvo_modelo)
         if pares:
             testar_inferencia(modelo, [pares[0].question])
 
@@ -172,6 +174,7 @@ def processar_pdf_completo(
     max_pares: int = 15,
     api_key: str | None = None,
     executar_treino: bool = True,
+    caminho_modelo: Path | None = None,
 ) -> Path | None:
     """Extrai texto de um documento PDF, gera perguntas e respostas usando IA e treina o NeuroGraph."""
     caminho = Path(caminho_pdf).resolve()
@@ -229,8 +232,8 @@ def processar_pdf_completo(
     if executar_treino:
         print("[3/3] Treinando e atualizando os pesos do NeuroGraph...")
         exemplos, _ = preparar_exemplos(incluir_base=True, caminho_curado=caminho_dataset)
-        caminho_modelo = DIR_TREINO / "modelos" / "neurograph_youtube.ngs"
-        modelo = treinar_neurograph(exemplos, epochs=120, caminho_saida=caminho_modelo)
+        alvo_modelo = caminho_modelo or (DIR_TREINO / "modelos" / "neurograph_youtube.ngs")
+        modelo = treinar_neurograph(exemplos, epochs=120, caminho_saida=alvo_modelo)
 
         # Validação do aprendizado
         perguntas_teste = [p.question for p in pares[:3]]
@@ -382,11 +385,13 @@ def main():
         treinar_neurograph(exemplos, epochs=140, caminho_saida=caminho_saida)
     elif args.pdf:
         caminho_mod = Path(args.modelo) if args.modelo else None
-        processar_pdf_completo(args.pdf, max_pares=args.max_pares, api_key=args.api_key, executar_treino=True)
+        processar_pdf_completo(args.pdf, max_pares=args.max_pares, api_key=args.api_key, executar_treino=True, caminho_modelo=caminho_mod)
     elif args.video:
-        processar_video_individual(args.video, api_key=args.api_key, executar_treino=True)
+        caminho_mod = Path(args.modelo) if args.modelo else None
+        processar_video_individual(args.video, api_key=args.api_key, executar_treino=True, caminho_modelo=caminho_mod)
     elif args.tema:
-        processar_tema_completo(args.tema, max_videos=args.max_videos, api_key=args.api_key, executar_treino=True)
+        caminho_mod = Path(args.modelo) if args.modelo else None
+        processar_tema_completo(args.tema, max_videos=args.max_videos, api_key=args.api_key, executar_treino=True, caminho_modelo=caminho_mod)
     else:
         menu_interativo()
 
