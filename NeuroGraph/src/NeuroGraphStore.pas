@@ -1,7 +1,7 @@
 unit NeuroGraphStore;
 {$mode objfpc}{$H+}
 interface
-uses Classes, SysUtils;
+uses Classes, SysUtils, Contnrs, Math;
 type
   TNGStoredEdge = packed record
     SourceID, TargetID: LongWord;
@@ -9,12 +9,16 @@ type
   end;
   TNGStoredEdges = array of TNGStoredEdge;
   { Single portable-ish binary format, UTF-8 tokens and directed weighted edges.
-    Integers and floats are little-endian IEEE754 on target platforms. }
+    Integers and floats are little-endian IEEE754 on target platforms.
+    Indexed with O(1) hash tables for fast token and edge lookup. }
   TNeuroGraphStore = class
   private
     FTokens: TStringList;
+    FTokenHash: TFPHashList;
+    FEdgeHash: TFPHashList;
     FEdges: TNGStoredEdges;
     function FindEdge(A,B: LongWord): Integer;
+    function MakeEdgeKey(A,B: LongWord): ShortString; inline;
   public
     constructor Create;
     destructor Destroy; override;
@@ -32,22 +36,48 @@ implementation
 const MAGIC: array[0..7] of AnsiChar = ('N','G','M','A','P','0','0','1');
 function Clamp(V: Single): Single;
 begin
-  if V<0 then Exit(0);
-  if V>1 then Exit(1);
-  Result:=V;
+  if V < -16.0 then Exit(-16.0);
+  if V > 16.0 then Exit(16.0);
+  Result := V;
 end;
 constructor TNeuroGraphStore.Create;
-begin inherited Create; FTokens:=TStringList.Create; FTokens.CaseSensitive:=True; end;
+begin
+  inherited Create;
+  FTokens := TStringList.Create;
+  FTokens.CaseSensitive := True;
+  FTokenHash := TFPHashList.Create;
+  FEdgeHash := TFPHashList.Create;
+end;
 destructor TNeuroGraphStore.Destroy;
-begin FTokens.Free; inherited Destroy; end;
+begin
+  FEdgeHash.Free;
+  FTokenHash.Free;
+  FTokens.Free;
+  inherited Destroy;
+end;
+function TNeuroGraphStore.MakeEdgeKey(A,B: LongWord): ShortString;
+begin
+  Result := IntToStr(A) + ':' + IntToStr(B);
+end;
 function TNeuroGraphStore.FindToken(const Token: UTF8String): Integer;
-begin Result:=FTokens.IndexOf(string(Token)); end;
+var P: Pointer;
+begin
+  if Token = '' then Exit(-1);
+  P := FTokenHash.Find(string(Token));
+  if P = nil then Exit(-1);
+  Result := PtrInt(P) - 1;
+end;
 function TNeuroGraphStore.AddToken(const Token: UTF8String): LongWord;
-var I: Integer;
+var I: Integer; S: string;
 begin
   if Token='' then raise Exception.Create('Token vazio');
   I:=FindToken(Token);
-  if I<0 then I:=FTokens.Add(string(Token));
+  if I<0 then
+  begin
+    S := string(Token);
+    I := FTokens.Add(S);
+    FTokenHash.Add(S, Pointer(PtrInt(I + 1)));
+  end;
   Result:=LongWord(I);
 end;
 function TNeuroGraphStore.TokenAt(ID: LongWord): UTF8String;
@@ -56,11 +86,11 @@ begin
   Result:=UTF8String(FTokens[ID]);
 end;
 function TNeuroGraphStore.FindEdge(A,B: LongWord): Integer;
-var I: Integer;
+var P: Pointer;
 begin
-  for I:=0 to High(FEdges) do
-    if (FEdges[I].SourceID=A) and (FEdges[I].TargetID=B) then Exit(I);
-  Result:=-1;
+  P := FEdgeHash.Find(MakeEdgeKey(A, B));
+  if P = nil then Exit(-1);
+  Result := PtrInt(P) - 1;
 end;
 procedure TNeuroGraphStore.SetRelation(A,B: LongWord; Weight: Single);
 var I: Integer;
@@ -69,8 +99,14 @@ begin
     raise Exception.Create('Relacao com token inexistente');
   if IsNan(Weight) or IsInfinite(Weight) then raise Exception.Create('Peso invalido');
   I:=FindEdge(A,B);
-  if I<0 then begin I:=Length(FEdges); SetLength(FEdges,I+1);
-    FEdges[I].SourceID:=A; FEdges[I].TargetID:=B; end;
+  if I<0 then
+  begin
+    I:=Length(FEdges);
+    SetLength(FEdges,I+1);
+    FEdges[I].SourceID:=A;
+    FEdges[I].TargetID:=B;
+    FEdgeHash.Add(MakeEdgeKey(A, B), Pointer(PtrInt(I + 1)));
+  end;
   FEdges[I].Weight:=Clamp(Weight);
 end;
 function TNeuroGraphStore.TokenCount: Integer;
@@ -107,6 +143,7 @@ procedure TNeuroGraphStore.LoadFromFile(const FileName:string);
 var S:TFileStream; Header:array[0..7] of AnsiChar;
     N,M,L,A,B:LongWord; I:LongWord; T:UTF8String; W:Single;
     Tmp:TNeuroGraphStore;
+    J:Integer;
 begin
   S:=TFileStream.Create(FileName,fmOpenRead or fmShareDenyWrite);
   Tmp:=TNeuroGraphStore.Create;
@@ -131,6 +168,12 @@ begin
     end;
     FTokens.Assign(Tmp.FTokens);
     FEdges:=Copy(Tmp.FEdges,0,Length(Tmp.FEdges));
+    FTokenHash.Clear;
+    for J:=0 to FTokens.Count-1 do
+      FTokenHash.Add(FTokens[J], Pointer(PtrInt(J + 1)));
+    FEdgeHash.Clear;
+    for J:=0 to High(FEdges) do
+      FEdgeHash.Add(MakeEdgeKey(FEdges[J].SourceID, FEdges[J].TargetID), Pointer(PtrInt(J + 1)));
   finally Tmp.Free; S.Free; end;
 end;
 end.

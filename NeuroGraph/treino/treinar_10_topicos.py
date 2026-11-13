@@ -378,29 +378,98 @@ def gerar_lote_com_chatgpt(
     return pares_gerados
 
 
+def gerar_um_item_chatgpt(
+    topico: str,
+    indice_item: int,
+    perguntas_ja_geradas: set[str],
+    api_key: Optional[str] = None,
+) -> Optional[ParTreinamento]:
+    """Gera 1 único par de pergunta e resposta via ChatGPT para treino incremental imediato."""
+    try:
+        from openai import OpenAI
+        client = OpenAI(api_key=api_key or os.getenv("OPENAI_API_KEY"))
+    except Exception:
+        return None
+
+    evitar = list(perguntas_ja_geradas)[-15:]
+    str_evitar = ("\nEvite repetir estas perguntas já criadas: " + "; ".join(evitar)) if evitar else ""
+    prompt_user = (
+        f"Tópico: {topico} (Item #{indice_item})\n"
+        f"Gere exatamente 1 par atômico de pergunta e resposta em português para treinar uma rede neural.{str_evitar}\n"
+        f"A pergunta deve ser curta e natural em minúsculas.\n"
+        f"A resposta deve ser direta, clara e factual (entre 6 e 25 palavras).\n"
+        f"Retorne APENAS um objeto JSON:\n"
+        f'{{"question": "...", "answer": "..."}}'
+    )
+    try:
+        resp = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "Você é um gerador de pares pergunta-resposta em português. Retorne apenas JSON válido."},
+                {"role": "user", "content": prompt_user},
+            ],
+            temperature=0.75,
+        )
+        raw = (resp.choices[0].message.content or "").strip()
+        raw = re.sub(r"^```(?:json)?", "", raw, flags=re.MULTILINE)
+        raw = re.sub(r"```$", "", raw, flags=re.MULTILINE).strip()
+        dados = json.loads(raw)
+        if isinstance(dados, list) and dados:
+            dados = dados[0]
+        if isinstance(dados, dict):
+            q = normalizar_texto_neurograph(dados.get("question", ""))
+            a = normalizar_texto_neurograph(dados.get("answer", ""))
+            if q and a and q not in perguntas_ja_geradas:
+                return ParTreinamento(
+                    question=q,
+                    answer=a,
+                    context=[],
+                    category="incremental_training",
+                    video_id=topico,
+                    origem="chatgpt_item",
+                )
+    except Exception as exc:
+        logging.warning("Aviso ao gerar item via API para '%s': %s", topico, exc)
+    return None
+
+
 def gerar_lote_heuristico(
     topico: str,
     qtd_desejada: int,
 ) -> list[ParTreinamento]:
     """Gera pares conceituais enriquecidos através da base de conhecimento com permutações garantidas."""
     conceitos = CONCEITOS_BASE.get(topico, [])
+    t_low = topico.strip().lower()
     if not conceitos:
-        # Tópico livre: gera conceitos sintéticos estruturados
-        conceitos = [
-            (f"o que é {topico.lower()}", f"{topico.lower()} é uma área do conhecimento dedicada ao estudo e aplicação de seus princípios"),
-            (f"como funciona {topico.lower()}", f"{topico.lower()} opera através de métodos lógicos e práticos bem definidos"),
-            (f"qual a importância de {topico.lower()}", f"sua importância reside no avanço científico tecnológico e cultural"),
-            (f"quais os fundamentos de {topico.lower()}", f"os fundamentos incluem teorias sólidas experimentos e raciocínio analítico"),
-        ]
+        if any(p in t_low for p in ("cumpriment", "compriment", "sauda", "ola", "olá", "bom dia", "conversa", "pessoa")):
+            conceitos = [
+                ("olá tudo bem", "olá tudo ótimo com você como posso ajudar hoje"),
+                ("oi como vai você", "oi vou muito bem obrigado por perguntar e você como está"),
+                ("bom dia", "bom dia desejo que você tenha um excelente dia de trabalho e estudos"),
+                ("boa tarde", "boa tarde como posso ajudar você hoje"),
+                ("boa noite", "boa noite seja muito bem vindo em que posso colaborar"),
+                ("como cumprimentar uma pessoa", "você pode cumprimentar dizendo olá bom dia boa tarde e perguntando como a pessoa está"),
+                ("como cumprimentar alguém formalmente", "em situações formais diga bom dia ou boa tarde senhor ou senhora é um prazer conhecê lo"),
+                ("como cumprimentar um amigo", "com amigos você pode dizer oi tudo bem ou como vão as coisas"),
+                ("qual a importância de cumprimentar uma pessoa", "cumprimentar demonstra educação respeito cordialidade e abre uma boa comunicação"),
+                ("o que responder quando alguém diz tudo bem", "você pode responder tudo ótimo obrigado e perguntar e com você tudo bem"),
+                ("o que dizer ao conhecer uma pessoa", "diga muito prazer em conhecer você meu nome é neurograph"),
+                ("como se despedir de uma pessoa educadamente", "você pode dizer até logo tenha um ótimo dia foi um prazer conversar com você"),
+            ]
+        else:
+            # Tópico livre: gera conceitos sintéticos estruturados
+            conceitos = [
+                (f"o que é {t_low}", f"{t_low} é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios"),
+                (f"como funciona {t_low}", f"{t_low} opera através de métodos lógicos processos estruturados e boas práticas"),
+                (f"qual a importância de {t_low}", f"a importância de {t_low} está no desenvolvimento prático científico e na solução de problemas"),
+                (f"quais os fundamentos de {t_low}", f"os fundamentos de {t_low} incluem conceitos básicos regras claras e aplicação consistente"),
+                (f"para que serve {t_low}", f"{t_low} serve para orientar ações organizar processos e alcançar resultados eficientes"),
+            ]
 
     # Expande e multiplica com variações
     banco_expandido: list[tuple[str, str]] = []
     for q, a in conceitos:
         banco_expandido.extend(expandir_variacoes_pergunta(q, a, topico))
-
-    # Embaralha para diversidade
-    random.seed(42 + hash(topico))
-    random.shuffle(banco_expandido)
 
     resultados: list[ParTreinamento] = []
     vistos = set()
@@ -415,177 +484,225 @@ def gerar_lote_heuristico(
                 ParTreinamento(
                     question=qn,
                     answer=an,
-                    context=[topico.lower()],
-                    category="mass_training",
+                    context=[],
+                    category="incremental_training",
                     video_id=topico,
-                    origem="heuristico_massivo",
+                    origem="heuristico_incremental",
                 )
             )
             if len(resultados) >= qtd_desejada:
                 break
 
-    # Se ainda faltar para a meta (pois qtd_desejada pode ser 150+), permuta e combina com precisão conceitual
-    idx = 1
     prefixos_contexto = [
         "em termos práticos",
-        "no contexto de " + topico.lower(),
+        "no contexto de " + t_low,
         "tecnicamente falando",
         "de maneira resumida",
-        "segundo os fundamentos de " + topico.lower(),
+        "segundo os fundamentos de " + t_low,
         "de forma simples",
+        "explicando diretamente",
+        "na prática diária",
     ]
 
-    while len(resultados) < qtd_desejada:
-        base_q, base_a = conceitos[(idx - 1) % len(conceitos)]
-        pref = prefixos_contexto[idx % len(prefixos_contexto)]
-        q_nova = normalizar_texto_neurograph(f"{pref} {base_q}")
-        a_nova = normalizar_texto_neurograph(base_a)
+    for pref in prefixos_contexto:
+        if len(resultados) >= qtd_desejada:
+            break
+        for base_q, base_a in banco_expandido:
+            q_nova = normalizar_texto_neurograph(f"{pref} {base_q}")
+            a_nova = normalizar_texto_neurograph(base_a)
+            if q_nova not in vistos:
+                vistos.add(q_nova)
+                resultados.append(
+                    ParTreinamento(
+                        question=q_nova,
+                        answer=a_nova,
+                        context=[],
+                        category="incremental_training",
+                        video_id=topico,
+                        origem="heuristico_incremental",
+                    )
+                )
+                if len(resultados) >= qtd_desejada:
+                    break
 
+    ciclo = 1
+    while len(resultados) < qtd_desejada:
+        base_q, base_a = conceitos[(ciclo - 1) % len(conceitos)]
+        q_nova = normalizar_texto_neurograph(f"exemplo {ciclo} sobre {base_q}")
+        a_nova = normalizar_texto_neurograph(base_a)
         if q_nova not in vistos:
             vistos.add(q_nova)
             resultados.append(
                 ParTreinamento(
                     question=q_nova,
                     answer=a_nova,
-                    context=[topico.lower()],
-                    category="mass_training",
+                    context=[],
+                    category="incremental_training",
                     video_id=topico,
-                    origem="heuristico_massivo",
+                    origem="heuristico_incremental",
                 )
             )
-        idx += 1
+        ciclo += 1
 
     return resultados[:qtd_desejada]
 
 
 def executar_treinamento_10_topicos(
     topicos: Optional[list[str]] = None,
-    min_total: int = 1000,
+    min_total: int = 10,
     api_key: Optional[str] = None,
     treinar_modelo: bool = True,
     caminho_modelo: Optional[Path] = None,
     pasta_saida: Optional[Path] = None,
 ) -> dict:
-    """Executa a geração de treinamento para os tópicos informados com número aleatório de perguntas (nunca < 1000)."""
-    # Filtra tópicos válidos e não vazios
+    """Executa o ciclo item a item: gera 1 item -> treina a rede e salva (.ngs) -> gera o próximo item -> treina."""
+    from model import Example, TokenGraph, tokenize
+
     if topicos:
         topicos = [t.strip() for t in topicos if t and t.strip()]
-
-    # Se a lista foi totalmente omitida (None), usa os tópicos padrão
     if not topicos:
         topicos = list(TOPICOS_PADRAO_10)
 
     if pasta_saida is None:
         pasta_saida = DIR_TREINO / "dados" / "processados"
+    pasta_saida.mkdir(parents=True, exist_ok=True)
 
-    # Define número aleatório de perguntas por tópico de forma que a soma total seja >= min_total (1000)
-    # Por exemplo: com N tópicos, cada tópico recebe aproximadamente (min_total // N)
-    random.seed(int(time.time()))
+    total_desejado = max(1, int(min_total))
     qtd_topicos = len(topicos)
-    min_por_topico = max(10, (min_total // qtd_topicos) + 1)
-    max_por_topico = min_por_topico + max(20, min_por_topico // 2)
 
+    # Distribui exatamente a quantidade pedida pelo usuário entre os tópicos informados
+    base_por_topico = total_desejado // qtd_topicos
+    resto = total_desejado % qtd_topicos
     distribuicao: dict[str, int] = {}
-    soma_atual = 0
-    for t in topicos:
-        qtd = random.randint(min_por_topico, max_por_topico)
-        distribuicao[t] = qtd
-        soma_atual += qtd
+    for idx_t, t in enumerate(topicos):
+        distribuicao[t] = base_por_topico + (1 if idx_t < resto else 0)
 
-    # Garante estritamente que a soma NUNCA é menor que min_total
-    if soma_atual < min_total:
-        diferenca = min_total - soma_atual
-        distribuicao[topicos[0]] += diferenca
-        soma_atual = min_total
+    # Remove tópicos com 0 caso o usuário tenha colocado ex: 3 itens para 10 tópicos
+    distribuicao = {t: q for t, q in distribuicao.items() if q > 0}
+    soma_atual = sum(distribuicao.values())
 
-    print("=" * 70)
-    print(f"  TREINAMENTO DO NEUROGRAPH - {qtd_topicos} TÓPICO(S)")
-    print("=" * 70)
-    print(f"Meta Mínima: {min_total} pares (Total Programado: {soma_atual} pares)")
-    print("-" * 70)
+    alvo_rede = (caminho_modelo or (DIR_TREINO / "modelos" / "neurograph_youtube.ngs")).resolve()
+    alvo_rede.parent.mkdir(parents=True, exist_ok=True)
+
+    print("=" * 72)
+    print(f"  TREINAMENTO INCREMENTAL ITEM A ITEM - {len(distribuicao)} TÓPICO(S)")
+    print("=" * 72)
+    print(f"Rede Alvo (.ngs)    : {alvo_rede}")
+    print(f"Quantidade Aceita   : {soma_atual} item(ns) (Gera 1 item -> Treina -> Salva -> Próximo)")
+    print("-" * 72)
     for i, (topico, qtd) in enumerate(distribuicao.items(), 1):
-        print(f"  {i:2d}. [{qtd:3d} perguntas] -> {topico}")
-    print("-" * 70)
+        print(f"  {i:2d}. [{qtd:3d} item(ns)] -> {topico}")
+    print("-" * 72)
+
+    # Carrega ou inicializa o modelo e a base existente para treino incremental rápido
+    if alvo_rede.exists() and alvo_rede.stat().st_size > 0:
+        try:
+            modelo = TokenGraph.load(alvo_rede)
+            print(f"[REDE CARREGADA] {alvo_rede.name} ({len(modelo.tokens)} tokens, {len(modelo.features)} features)")
+        except Exception:
+            modelo = TokenGraph()
+    else:
+        modelo = TokenGraph()
+
+    caminho_dataset = pasta_saida / "dataset_curado.json"
+    caminho_ultimo_treino = pasta_saida / "ultimo_treino_topicos.json"
+    exemplos_base, _ = preparar_exemplos(incluir_base=True, caminho_curado=caminho_dataset)
 
     todos_pares: list[ParTreinamento] = []
+    perguntas_vistas: set[str] = {ex.question for ex in exemplos_base if ex.question}
     tem_api_key = bool(api_key or os.getenv("OPENAI_API_KEY"))
     stop_file = DIR_TREINO / ".stop_training"
+    if stop_file.exists():
+        try:
+            stop_file.unlink()
+        except Exception:
+            pass
     foi_cancelado = False
+    contador_global = 0
 
     try:
         for i, (topico, qtd) in enumerate(distribuicao.items(), 1):
             if stop_file.exists():
-                print(f"\n[PARADA SOLICITADA] Cancelamento detectado antes do tópico {i}. Consolidando e salvando progresso parcial...")
                 foi_cancelado = True
                 break
 
-            print(f"\n[Tópico {i}/{qtd_topicos}] Gerando {qtd} perguntas e respostas para: '{topico}'...")
-            pares_topico: list[ParTreinamento] = []
+            print(f"\n[Tópico {i}/{len(distribuicao)}] Iniciando '{topico}' ({qtd} item(ns))...")
+            pool_heuristico = gerar_lote_heuristico(topico, qtd + 20)
+            idx_heur = 0
 
-            if tem_api_key:
-                pares_topico = gerar_lote_com_chatgpt(topico, qtd, api_key=api_key)
+            for num_no_topico in range(1, qtd + 1):
+                if stop_file.exists():
+                    print(f"\n[PARADA SOLICITADA] Interrompendo no item {contador_global + 1}/{soma_atual}...")
+                    foi_cancelado = True
+                    break
 
-            if stop_file.exists():
-                foi_cancelado = True
+                contador_global += 1
+                par_atual: Optional[ParTreinamento] = None
 
-            # Se não tem API key ou faltou gerar (e não foi cancelado), completa com o motor conceitual garantido
-            if not foi_cancelado and len(pares_topico) < qtd:
-                faltantes = qtd - len(pares_topico)
-                pares_heuristicos = gerar_lote_heuristico(topico, faltantes)
-                pares_topico.extend(pares_heuristicos)
-            elif foi_cancelado and not pares_topico:
-                # Garante pelo menos uma amostra rápida do tópico atual se parou no meio
-                pares_topico = gerar_lote_heuristico(topico, min(25, qtd))
+                # 1. Gera 1 único item (via ChatGPT se houver chave, ou do gerador conceitual local)
+                if tem_api_key:
+                    par_atual = gerar_um_item_chatgpt(topico, num_no_topico, perguntas_vistas, api_key=api_key)
 
-            print(f"  -> {len(pares_topico)} pares consolidados para '{topico}'.")
-            for idx_amostra, p_amostra in enumerate(pares_topico[:5], 1):
-                print(f"     [TREINADO] P: {p_amostra.question} | R: {p_amostra.answer}")
-            if len(pares_topico) > 5:
-                print(f"     ... (+{len(pares_topico) - 5} pares deste tópico)")
+                while par_atual is None and idx_heur < len(pool_heuristico):
+                    candidato = pool_heuristico[idx_heur]
+                    idx_heur += 1
+                    if candidato.question not in perguntas_vistas:
+                        par_atual = candidato
+                        break
 
-            todos_pares.extend(pares_topico)
-            # Salva incrementalmente no dataset a cada tópico concluído!
-            salvar_pares_processados(pares_topico, pasta_saida, nome_arquivo="dataset_curado.json")
+                if par_atual is None:
+                    par_atual = pool_heuristico[(num_no_topico - 1) % len(pool_heuristico)]
+
+                perguntas_vistas.add(par_atual.question)
+                todos_pares.append(par_atual)
+
+                # 2. Salva imediatamente o item gerado no dataset e no resumo da sessão
+                salvar_pares_processados([par_atual], pasta_saida, nome_arquivo="dataset_curado.json")
+                with caminho_ultimo_treino.open("w", encoding="utf-8") as f_ult:
+                    json.dump([asdict(p) for p in todos_pares], f_ult, ensure_ascii=False, indent=2)
+
+                # 3. Treina imediatamente este item na rede e salva o arquivo .ngs
+                palavras_resp = tokenize(par_atual.answer)
+                resp_limpa = " ".join(palavras_resp[:60]) if len(palavras_resp) > 62 else par_atual.answer
+                novo_ex = Example(question=par_atual.question, answer=resp_limpa, context=tuple(par_atual.context))
+                exemplos_base.append(novo_ex)
+
+                if treinar_modelo:
+                    # Micro-passo de treino imediato (item atual + amostra de replay para preservar memória)
+                    amostra_replay = exemplos_base[-24:]
+                    negativos = [e for e in exemplos_base if e.answer is None][:4]
+                    lote_incremental = amostra_replay + [e for e in negativos if e not in amostra_replay]
+                    modelo.fit(lote_incremental, epochs=18, learning_rate=0.05)
+                    modelo.save(alvo_rede)
+
+                print(f"  [{contador_global}/{soma_atual}] [TREINADO] P: {par_atual.question} | R: {par_atual.answer}")
 
             if foi_cancelado:
-                print("\n[PARADA SOLICITADA] Interrompendo loop de tópicos para salvar o modelo imediatamente...")
                 break
     except KeyboardInterrupt:
-        print("\n[INTERROMPIDO] Salvando dados parciais e compilando rede...")
+        print("\n[INTERROMPIDO] Salvando estado atual da rede...")
         foi_cancelado = True
 
-    print("\n" + "=" * 70)
-    status_str = "PARCIAL (INTERROMPIDO PELO USUÁRIO)" if foi_cancelado else "COMPLETA"
-    print(f"CONSOLIDAÇÃO {status_str}: {len(todos_pares)} PARES CONCEITUAIS GERADOS")
-    print("=" * 70)
-
-    # Salva arquivo de último lote para exibição imediata na aba de Treinamento
-    caminho_ultimo_treino = pasta_saida / "ultimo_treino_topicos.json"
-    pasta_saida.mkdir(parents=True, exist_ok=True)
-    with caminho_ultimo_treino.open("w", encoding="utf-8") as f_ult:
-        json.dump([asdict(p) for p in todos_pares], f_ult, ensure_ascii=False, indent=2)
-
-    # Salva no dataset principal de treino
-    caminho_dataset = salvar_pares_processados(todos_pares, pasta_saida, nome_arquivo="dataset_curado.json")
-    print(f"[ARQUIVO] Dataset atualizado e gravado em: {caminho_dataset}")
-
-    # Remove o arquivo de sinalização de parada antes de treinar, ou permite treino rápido se foi cancelado
     if stop_file.exists():
         try:
             stop_file.unlink()
         except Exception:
             pass
 
-    # Retreina e SALVA o modelo NeuroGraph SEMPRE (mesmo após cancelamento!)
-    if treinar_modelo:
-        alvo_rede = caminho_modelo or (DIR_TREINO / "modelos" / "neurograph_youtube.ngs")
-        epocas_treino = 25 if foi_cancelado else 60
-        print(f"\n[TREINAMENTO] Compilando e salvando pesos binários (.ngs) na rede alvo ({epocas_treino} épocas)...")
-        print(f"Rede Selecionada: {alvo_rede}")
-        exemplos, _ = preparar_exemplos(incluir_base=True, caminho_curado=caminho_dataset)
-        if exemplos:
-            modelo = treinar_neurograph(exemplos, epochs=epocas_treino, learning_rate=0.05, caminho_saida=alvo_rede)
-            print(f"[SUCESSO] Rede '{alvo_rede.name}' treinada e SALVA com sucesso!")
+    # Consolidação final rápida na rede alvo (.ngs)
+    if treinar_modelo and exemplos_base:
+        epocas_finais = 12 if len(todos_pares) <= 100 else (20 if foi_cancelado else 35)
+        lote_final = exemplos_base[-80:] if len(todos_pares) <= 100 else exemplos_base
+        print(f"\n[CONSOLIDAÇÃO FINAL] Ajustando sinapses em '{alvo_rede.name}' ({epocas_finais} épocas)...")
+        modelo.fit(lote_final, epochs=epocas_finais, learning_rate=0.05)
+        modelo.save(alvo_rede)
+        tam_bytes = alvo_rede.stat().st_size if alvo_rede.exists() else 0
+        print(f"[REDE SALVA COM SUCESSO] {alvo_rede} ({tam_bytes} bytes)")
+
+    print("\n" + "=" * 72)
+    status_str = "PARCIAL (INTERROMPIDO E SALVO)" if foi_cancelado else "CONCLUÍDO COM SUCESSO"
+    print(f"STATUS {status_str}: {len(todos_pares)} ITEM(NS) GERADOS E TREINADOS UM A UM")
+    print("=" * 72)
 
     return {
         "status": "cancelado_e_salvo" if foi_cancelado else "concluido",
@@ -598,20 +715,20 @@ def executar_treinamento_10_topicos(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Gerador massivo de treinamento do NeuroGraph para 10 tópicos (>= 1000 pares).")
-    parser.add_argument("--topicos", nargs="*", help="Lista opcional de 10 tópicos (se omitido, usa os 10 tópicos padrão).")
-    parser.add_argument("--min", type=int, default=1000, help="Quantidade mínima total de pares (padrão: 1000, nunca menor que 1000).")
-    parser.add_argument("--modelo", "-m", type=Path, default=None, help="Caminho do arquivo de pesos da rede alvo a ser treinada (.ngs).")
+    parser = argparse.ArgumentParser(description="Gerador e treinador incremental item a item do NeuroGraph.")
+    parser.add_argument("--topicos", nargs="*", help="Lista de tópicos (se omitido, usa os 10 tópicos padrão).")
+    parser.add_argument("--min", type=int, default=10, help="Quantidade de pares a gerar e treinar (aceita qualquer número >= 1).")
+    parser.add_argument("--modelo", "-m", type=Path, default=None, help="Caminho do arquivo de pesos da rede alvo (.ngs).")
     parser.add_argument("--api-key", type=str, default=None, help="Chave OpenAI API (opcional).")
-    parser.add_argument("--sem-treino", action="store_true", help="Gera os pares e salva no dataset sem compilar os pesos do modelo.")
+    parser.add_argument("--sem-treino", action="store_true", help="Apenas gera os pares sem treinar os pesos.")
     parser.add_argument("--json", action="store_true", help="Retorna saída estruturada em JSON.")
 
     args = parser.parse_args()
-    minimo = max(1000, args.min)
+    qtd_aceita = max(1, args.min)
 
     res = executar_treinamento_10_topicos(
         topicos=args.topicos,
-        min_total=minimo,
+        min_total=qtd_aceita,
         api_key=args.api_key,
         treinar_modelo=not args.sem_treino,
         caminho_modelo=args.modelo,

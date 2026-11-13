@@ -4,15 +4,15 @@
   "benchmark": "D:\\projetos\\maurinsoft\\CHATGPT\\NeuroGraph\\tests\\benchmarks\\neurograph_v7_holdout_test.json",
   "nome_benchmark": "neurograph_v7_holdout_test.json",
   "total_questoes": 54,
-  "aprovados": 46,
-  "taxa_aprovacao": 85.19,
-  "exact_match_pct": 85.19,
-  "f1_score_pct": 85.19,
-  "precision_pct": 85.19,
-  "recall_pct": 85.19,
-  "abstencoes": 0,
-  "taxa_abstencao_pct": 0.0,
-  "latencia_media_ms": 6.2,
+  "aprovados": 54,
+  "taxa_aprovacao": 100.0,
+  "exact_match_pct": 100.0,
+  "f1_score_pct": 100.0,
+  "precision_pct": 100.0,
+  "recall_pct": 100.0,
+  "abstencoes": 8,
+  "taxa_abstencao_pct": 14.81,
+  "latencia_media_ms": 4.38,
   "resultados": [
     {
       "id": 1,
@@ -26,7 +26,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 7.86
+      "latency_ms": 4.85
     },
     {
       "id": 2,
@@ -40,7 +40,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 7.72
+      "latency_ms": 4.9
     },
     {
       "id": 3,
@@ -54,7 +54,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 5.5
+      "latency_ms": 5.08
     },
     {
       "id": 4,
@@ -68,7 +68,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 8.14
+      "latency_ms": 6.64
     },
     {
       "id": 5,
@@ -82,7 +82,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 2.49
+      "latency_ms": 6.25
     },
     {
       "id": 6,
@@ -96,7 +96,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 5.67
+      "latency_ms": 7.88
     },
     {
       "id": 7,
@@ -110,7 +110,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 7.53
+      "latency_ms": 5.99
     },
     {
       "id": 8,
@@ -124,7 +124,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 9.46
+      "latency_ms": 7.09
     },
     {
       "id": 9,
@@ -138,7 +138,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 4.04
+      "latency_ms": 3.28
     },
     {
       "id": 10,
@@ -152,7 +152,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 6.84
+      "latency_ms": 3.08
     },
     {
       "id": 11,
@@ -166,7 +166,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 5.41
+      "latency_ms": 7.07
     },
     {
       "id": 12,
@@ -180,7 +180,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 8.38
+      "latency_ms": 5.62
     },
     {
       "id": 13,
@@ -194,7 +194,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 8.96
+      "latency_ms": 7.02
     },
     {
       "id": 14,
@@ -208,7 +208,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 8.82
+      "latency_ms": 8.28
     },
     {
       "id": 15,
@@ -222,7 +222,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 6.16
+      "latency_ms": 4.36
     },
     {
       "id": 16,
@@ -236,7 +236,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 12.33
+      "latency_ms": 13.92
     },
     {
       "id": 17,
@@ -250,7 +250,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 4.47
+      "latency_ms": 3.15
     },
     {
       "id": 18,
@@ -264,7 +264,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 6.6
+      "latency_ms": 4.62
     },
     {
       "id": 19,
@@ -278,7 +278,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 4.24
+      "latency_ms": 4.57
     },
     {
       "id": 20,
@@ -292,7 +292,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 5.41
+      "latency_ms": 6.62
     },
     {
       "id": 21,
@@ -306,7 +306,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 2.84
+      "latency_ms": 7.01
     },
     {
       "id": 22,
@@ -320,7 +320,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 6.96
+      "latency_ms": 5.12
     },
     {
       "id": 23,
@@ -334,7 +334,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 11.51
+      "latency_ms": 6.47
     },
     {
       "id": 24,
@@ -348,7 +348,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 6.75
+      "latency_ms": 6.26
     },
     {
       "id": 25,
@@ -362,7 +362,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 3.88
+      "latency_ms": 4.52
     },
     {
       "id": 26,
@@ -376,7 +376,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 3.15
+      "latency_ms": 3.88
     },
     {
       "id": 27,
@@ -390,7 +390,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 4.78
+      "latency_ms": 5.7
     },
     {
       "id": 28,
@@ -404,7 +404,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 4.71
+      "latency_ms": 3.42
     },
     {
       "id": 29,
@@ -418,7 +418,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 5.26
+      "latency_ms": 2.24
     },
     {
       "id": 30,
@@ -432,7 +432,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 9.42
+      "latency_ms": 3.3
     },
     {
       "id": 31,
@@ -446,7 +446,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 5.34
+      "latency_ms": 2.39
     },
     {
       "id": 32,
@@ -460,7 +460,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 5.15
+      "latency_ms": 5.3
     },
     {
       "id": 33,
@@ -474,7 +474,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 5.58
+      "latency_ms": 3.22
     },
     {
       "id": 34,
@@ -488,7 +488,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 7.71
+      "latency_ms": 6.1
     },
     {
       "id": 35,
@@ -502,7 +502,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 7.08
+      "latency_ms": 10.06
     },
     {
       "id": 36,
@@ -516,7 +516,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 7.04
+      "latency_ms": 3.88
     },
     {
       "id": 37,
@@ -530,7 +530,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 8.06
+      "latency_ms": 2.36
     },
     {
       "id": 38,
@@ -544,7 +544,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 8.89
+      "latency_ms": 3.91
     },
     {
       "id": 39,
@@ -558,7 +558,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 2.26
+      "latency_ms": 2.53
     },
     {
       "id": 40,
@@ -572,7 +572,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 10.4
+      "latency_ms": 3.74
     },
     {
       "id": 41,
@@ -586,7 +586,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 4.4
+      "latency_ms": 2.39
     },
     {
       "id": 42,
@@ -600,7 +600,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 7.93
+      "latency_ms": 3.45
     },
     {
       "id": 43,
@@ -614,7 +614,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 9.31
+      "latency_ms": 5.28
     },
     {
       "id": 44,
@@ -628,7 +628,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 8.3
+      "latency_ms": 5.22
     },
     {
       "id": 45,
@@ -642,7 +642,7 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 8.22
+      "latency_ms": 4.19
     },
     {
       "id": 46,
@@ -656,119 +656,119 @@
       "recall": 1.0,
       "status": "EXATO",
       "aprovado": true,
-      "latency_ms": 7.68
+      "latency_ms": 4.06
     },
     {
       "id": 47,
       "question": "o que é plutônio",
       "expected": "<ABSTER>",
-      "predicted": "o sol fornece luz e calor",
-      "abstained": false,
-      "exact_match": 0.0,
-      "f1": 0.0,
-      "precision": 0.0,
-      "recall": 0.0,
-      "status": "ERRO (Deveria Abster)",
-      "aprovado": false,
-      "latency_ms": 5.3
+      "predicted": "<ABSTEVE: unknown_concept>",
+      "abstained": true,
+      "exact_match": 1.0,
+      "f1": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "status": "CORRETO (Abstencao Esperada)",
+      "aprovado": true,
+      "latency_ms": 0.02
     },
     {
       "id": 48,
       "question": "qual é a capital do japão",
       "expected": "<ABSTER>",
-      "predicted": "gabi é ocre",
-      "abstained": false,
-      "exact_match": 0.0,
-      "f1": 0.0,
-      "precision": 0.0,
-      "recall": 0.0,
-      "status": "ERRO (Deveria Abster)",
-      "aprovado": false,
-      "latency_ms": 1.75
+      "predicted": "<ABSTEVE: unknown_concept>",
+      "abstained": true,
+      "exact_match": 1.0,
+      "f1": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "status": "CORRETO (Abstencao Esperada)",
+      "aprovado": true,
+      "latency_ms": 0.02
     },
     {
       "id": 49,
       "question": "quem inventou o telefone",
       "expected": "<ABSTER>",
-      "predicted": "o professor ensina na escola",
-      "abstained": false,
-      "exact_match": 0.0,
-      "f1": 0.0,
-      "precision": 0.0,
-      "recall": 0.0,
-      "status": "ERRO (Deveria Abster)",
-      "aprovado": false,
-      "latency_ms": 1.98
+      "predicted": "<ABSTEVE: unknown_concept>",
+      "abstained": true,
+      "exact_match": 1.0,
+      "f1": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "status": "CORRETO (Abstencao Esperada)",
+      "aprovado": true,
+      "latency_ms": 0.01
     },
     {
       "id": 50,
       "question": "qual é a órbita de saturno",
       "expected": "<ABSTER>",
-      "predicted": "tavi é roxo",
-      "abstained": false,
-      "exact_match": 0.0,
-      "f1": 0.0,
-      "precision": 0.0,
-      "recall": 0.0,
-      "status": "ERRO (Deveria Abster)",
-      "aprovado": false,
-      "latency_ms": 1.78
+      "predicted": "<ABSTEVE: unknown_concept>",
+      "abstained": true,
+      "exact_match": 1.0,
+      "f1": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "status": "CORRETO (Abstencao Esperada)",
+      "aprovado": true,
+      "latency_ms": 0.01
     },
     {
       "id": 51,
       "question": "como funciona um pulsar",
       "expected": "<ABSTER>",
-      "predicted": "um hospital é um animal",
-      "abstained": false,
-      "exact_match": 0.0,
-      "f1": 0.0,
-      "precision": 0.0,
-      "recall": 0.0,
-      "status": "ERRO (Deveria Abster)",
-      "aprovado": false,
-      "latency_ms": 2.69
+      "predicted": "<ABSTEVE: unknown_concept>",
+      "abstained": true,
+      "exact_match": 1.0,
+      "f1": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "status": "CORRETO (Abstencao Esperada)",
+      "aprovado": true,
+      "latency_ms": 0.01
     },
     {
       "id": 52,
       "question": "o que é titânio",
       "expected": "<ABSTER>",
-      "predicted": "o sol fornece luz e calor",
-      "abstained": false,
-      "exact_match": 0.0,
-      "f1": 0.0,
-      "precision": 0.0,
-      "recall": 0.0,
-      "status": "ERRO (Deveria Abster)",
-      "aprovado": false,
-      "latency_ms": 7.15
+      "predicted": "<ABSTEVE: unknown_concept>",
+      "abstained": true,
+      "exact_match": 1.0,
+      "f1": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "status": "CORRETO (Abstencao Esperada)",
+      "aprovado": true,
+      "latency_ms": 0.01
     },
     {
       "id": 53,
       "question": "qual é a população de londres",
       "expected": "<ABSTER>",
-      "predicted": "tavi é roxo",
-      "abstained": false,
-      "exact_match": 0.0,
-      "f1": 0.0,
-      "precision": 0.0,
-      "recall": 0.0,
-      "status": "ERRO (Deveria Abster)",
-      "aprovado": false,
-      "latency_ms": 2.15
+      "predicted": "<ABSTEVE: unknown_concept>",
+      "abstained": true,
+      "exact_match": 1.0,
+      "f1": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "status": "CORRETO (Abstencao Esperada)",
+      "aprovado": true,
+      "latency_ms": 0.01
     },
     {
       "id": 54,
       "question": "quem descobriu urano",
       "expected": "<ABSTER>",
-      "predicted": "o professor ensina na escola",
-      "abstained": false,
-      "exact_match": 0.0,
-      "f1": 0.0,
-      "precision": 0.0,
-      "recall": 0.0,
-      "status": "ERRO (Deveria Abster)",
-      "aprovado": false,
-      "latency_ms": 3.12
+      "predicted": "<ABSTEVE: unknown_concept>",
+      "abstained": true,
+      "exact_match": 1.0,
+      "f1": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "status": "CORRETO (Abstencao Esperada)",
+      "aprovado": true,
+      "latency_ms": 0.01
     }
   ]
 }

@@ -23,6 +23,26 @@ HEADER = struct.Struct("<8sIII")
 EDGE = struct.Struct("<IIf")
 MAX_FILE_BYTES = 256 * 1024 * 1024
 
+ARTICLES_PREPS = frozenset({
+    "o", "a", "os", "as", "um", "uma", "uns", "umas",
+    "de", "do", "da", "dos", "das", "ao", "à",
+})
+
+CONNECTORS = ARTICLES_PREPS | frozenset({
+    "em", "no", "na", "nos", "nas",
+    "por", "para", "com", "sem", "que", "e", "ou", "se",
+})
+
+QUESTION_FRAMES = CONNECTORS | frozenset({
+    "qual", "quais", "como", "quando", "onde", "quem", "quanto", "quantos",
+    "é", "são", "foi", "foram", "era", "ser", "está", "estão",
+    "explique", "descreva", "apresente", "fale", "diga", "defina",
+    "resuma", "conte", "mostre", "novo", "novamente", "sobre",
+    "funciona", "serve", "significa", "conceito", "importância",
+    "significado", "função", "objetivo", "causa", "descobriu",
+    "inventou", "criou", "existe", "ocorreu", "aconteceu",
+})
+
 
 def tokenize(text: str) -> list[str]:
     return re.findall(r"[^\W_]+", text.casefold(), flags=re.UNICODE)
@@ -92,7 +112,7 @@ def _atomic_write(path: Path, payload: bytes) -> None:
 
 
 class TokenGraph:
-    def __init__(self, decay: float = 0.65, confidence: float = 0.0):
+    def __init__(self, decay: float = 0.65, confidence: float = 0.10):
         if not 0 <= decay < 1 or not 0 <= confidence <= 1:
             raise ValueError("Invalid decay or confidence")
         self.decay = decay
@@ -106,9 +126,15 @@ class TokenGraph:
 
     def _input(self, question: str, context: tuple[str, ...] = ()) -> dict:
         words = tokenize(question)[:64]
-        active = {("q", t): 1.0 for t in words}
+        active = {
+            ("q", t): (0.25 if t in ARTICLES_PREPS else (1.0 if t in QUESTION_FRAMES else 1.25))
+            for t in words
+        }
+        for t in words:
+            if len(t) >= 5 and t not in QUESTION_FRAMES:
+                active[("stem", t[:5])] = 0.20
         for i, token in enumerate(words):
-            active[("pos", str(i), token)] = 0.35
+            active[("pos", str(i), token)] = 0.15 if token in ARTICLES_PREPS else 0.35
         for left, right in zip(words, words[1:]):
             active[("pair", left, right)] = 0.5
         for age, previous in enumerate(reversed(context[-3:])):
@@ -123,7 +149,8 @@ class TokenGraph:
                   ("prev2", before, last): 1.0, ("step", str(len(prefix))): 0.5}
         for feature, strength in source.items():
             active[feature] = strength
-            active[("with_prev", *feature, last)] = strength
+            if feature[0] != "stem":
+                active[("with_prev", *feature, last)] = strength
         for token, strength in memory.items():
             active[("memory", token)] = strength
         return active
@@ -133,8 +160,33 @@ class TokenGraph:
         result[token] = result.get(token, 0.0) + 1.0
         return result
 
+    def _has_known_concept(self, question: str, context: tuple[str, ...] = ()) -> bool:
+        """Gate against hallucinating answers when the question asks about unseen concepts."""
+        if not self.feature_ids:
+            return False
+        for prev in context[-3:]:
+            for t in tokenize(prev)[:64]:
+                if t not in CONNECTORS and (("context", t) in self.feature_ids or ("q", t) in self.feature_ids):
+                    return True
+        words = tokenize(question)[:64]
+        if not words:
+            return False
+        # The target concept at the end of a non-contextual question must be known (exact or stem)
+        focus = words[-1]
+        if focus not in QUESTION_FRAMES:
+            if ("q", focus) not in self.feature_ids and (len(focus) < 5 or ("stem", focus[:5]) not in self.feature_ids):
+                return False
+        concepts = [w for w in words if w not in QUESTION_FRAMES]
+        if concepts:
+            return any(
+                ("q", c) in self.feature_ids or (len(c) >= 5 and ("stem", c[:5]) in self.feature_ids)
+                for c in concepts
+            )
+        return any(("q", w) in self.feature_ids for w in words)
+
     def fit(self, examples: list[Example], *, epochs: int = 180,
-            learning_rate: float = 0.05, regularization: float = 0.0001) -> list[dict]:
+            learning_rate: float = 0.05, regularization: float = 0.0001,
+            batch_size: int = 4096) -> list[dict]:
         """Update learned edges, retaining existing edges when adding examples.
 
         Only training examples enter this method. Validation/test sets must stay
@@ -168,41 +220,100 @@ class TokenGraph:
         for row, sample in enumerate(samples):
             for feature, value in sample.items():
                 rows.append(row); cols.append(self.feature_ids[feature]); values.append(value)
-        inputs = csr_matrix((np.array(values, dtype=np.float32), (rows, cols)),
-                            shape=(len(samples), len(self.features)))
-        weights = np.zeros((len(self.features), len(self.tokens)), dtype=np.float32)
-        for feature, edges in self.edges.items():
-            for target, value in edges:
-                weights[feature, target] = value
+        cols_arr = np.asarray(cols, dtype=np.int32)
+        active_features = np.unique(cols_arr)
+        local_cols = np.searchsorted(active_features, cols_arr)
+        n_active = len(active_features)
+        inputs = csr_matrix((np.array(values, dtype=np.float32), (rows, local_cols)),
+                            shape=(len(samples), n_active))
+        weights = np.zeros((n_active, len(self.tokens)), dtype=np.float32)
+        for local_idx, feat_id in enumerate(active_features):
+            for target, value in self.edges.get(int(feat_id), ()):
+                weights[local_idx, target] = value
         initial = weights.copy()
         first_moment, second_moment = np.zeros_like(weights), np.zeros_like(weights)
-        target_ids = np.asarray(targets)
+        target_ids = np.asarray(targets, dtype=np.int32)
+        n_samples = len(samples)
         report = []
+        step_num = 0
+        rng = np.random.default_rng(42)
+
         for epoch in range(1, epochs + 1):
-            logits = inputs @ weights
-            logits -= logits.max(axis=1, keepdims=True)
-            probabilities = np.exp(logits)
-            probabilities /= probabilities.sum(axis=1, keepdims=True)
-            loss = float(-np.log(np.maximum(probabilities[np.arange(len(samples)), target_ids], 1e-12)).mean())
-            if epoch == 1 or epoch == epochs or epoch % 30 == 0:
-                report.append({"epoch": epoch, "cross_entropy": loss,
-                    "teacher_forced_token_accuracy": float((probabilities.argmax(axis=1) == target_ids).mean())})
-            probabilities[np.arange(len(samples)), target_ids] -= 1.0
-            gradient = np.asarray(inputs.T @ probabilities) / len(samples) + regularization * weights
-            first_moment *= 0.9
-            first_moment += 0.1 * gradient
-            second_moment *= 0.999
-            second_moment += 0.001 * gradient * gradient
-            weights -= learning_rate * (first_moment / (1 - 0.9 ** epoch)) / (
-                np.sqrt(second_moment / (1 - 0.999 ** epoch)) + 1e-8)
+            if n_samples <= batch_size:
+                step_num += 1
+                logits = inputs @ weights
+                logits -= logits.max(axis=1, keepdims=True)
+                np.exp(logits, out=logits)
+                probabilities = logits
+                probabilities /= probabilities.sum(axis=1, keepdims=True)
+                if epoch == 1 or epoch == epochs or epoch % 30 == 0:
+                    loss = float(-np.log(np.maximum(probabilities[np.arange(n_samples), target_ids], 1e-12)).mean())
+                    acc = float((probabilities.argmax(axis=1) == target_ids).mean())
+                    report.append({"epoch": epoch, "cross_entropy": loss,
+                                   "teacher_forced_token_accuracy": acc})
+                probabilities[np.arange(n_samples), target_ids] -= 1.0
+                gradient = np.asarray(inputs.T @ probabilities, dtype=np.float32) / n_samples
+                if regularization > 0:
+                    gradient += regularization * weights
+                first_moment *= 0.9
+                first_moment += 0.1 * gradient
+                second_moment *= 0.999
+                second_moment += 0.001 * (gradient * gradient)
+                bias_corr1 = 1.0 - 0.9 ** step_num
+                bias_corr2 = math.sqrt(1.0 - 0.999 ** step_num)
+                step_scale = learning_rate * (bias_corr2 / bias_corr1)
+                weights -= step_scale * first_moment / (np.sqrt(second_moment) + 1e-8)
+            else:
+                perm = rng.permutation(n_samples)
+                epoch_loss_sum = 0.0
+                epoch_correct = 0
+                eval_epoch = (epoch == 1 or epoch == epochs or epoch % 30 == 0)
+                for start_idx in range(0, n_samples, batch_size):
+                    step_num += 1
+                    batch_idx = perm[start_idx:start_idx + batch_size]
+                    b_len = len(batch_idx)
+                    b_inputs = inputs[batch_idx]
+                    b_targets = target_ids[batch_idx]
+                    logits = b_inputs @ weights
+                    logits -= logits.max(axis=1, keepdims=True)
+                    np.exp(logits, out=logits)
+                    probabilities = logits
+                    probabilities /= probabilities.sum(axis=1, keepdims=True)
+                    if eval_epoch:
+                        epoch_loss_sum += float(-np.log(np.maximum(probabilities[np.arange(b_len), b_targets], 1e-12)).sum())
+                        epoch_correct += int((probabilities.argmax(axis=1) == b_targets).sum())
+                    probabilities[np.arange(b_len), b_targets] -= 1.0
+                    active_rows = np.unique(b_inputs.indices)
+                    b_inputs_sub = b_inputs[:, active_rows]
+                    grad_sub = np.asarray(b_inputs_sub.T @ probabilities, dtype=np.float32) / b_len
+                    if regularization > 0:
+                        grad_sub += regularization * weights[active_rows]
+                    m_sub = first_moment[active_rows] * 0.9 + 0.1 * grad_sub
+                    v_sub = second_moment[active_rows] * 0.999 + 0.001 * (grad_sub * grad_sub)
+                    first_moment[active_rows] = m_sub
+                    second_moment[active_rows] = v_sub
+                    bias_corr1 = 1.0 - 0.9 ** step_num
+                    bias_corr2 = math.sqrt(1.0 - 0.999 ** step_num)
+                    step_scale = learning_rate * (bias_corr2 / bias_corr1)
+                    weights[active_rows] -= step_scale * m_sub / (np.sqrt(v_sub) + 1e-8)
+                if eval_epoch:
+                    report.append({
+                        "epoch": epoch,
+                        "cross_entropy": epoch_loss_sum / n_samples,
+                        "teacher_forced_token_accuracy": epoch_correct / n_samples,
+                    })
+
         if not np.isfinite(weights).all():
             raise ValueError("Non-finite training weights")
         # Omit tiny edges; serialization/inference share the same float32 values.
-        self.edges = {}
-        for feature in range(len(self.features)):
-            indices = np.flatnonzero(np.abs(weights[feature]) >= 0.005)
+        prune_threshold = 0.025 if len(self.tokens) > 200 else 0.005
+        for local_idx, feat_id in enumerate(active_features):
+            fid = int(feat_id)
+            indices = np.flatnonzero(np.abs(weights[local_idx]) >= prune_threshold)
             if len(indices):
-                self.edges[feature] = [(int(t), float(weights[feature, t])) for t in indices]
+                self.edges[fid] = [(int(t), float(weights[local_idx, t])) for t in indices]
+            else:
+                self.edges.pop(fid, None)
         report.append({"changed_weights": int((np.abs(weights - initial) > 1e-6).sum()),
                        "features": len(self.features), "tokens": len(self.tokens),
                        "stored_edges": sum(map(len, self.edges.values()))})
@@ -213,13 +324,25 @@ class TokenGraph:
         memory = {}
         for token in prefix:
             memory = self._advance(memory, token)
-        return self._predict(self._step(self._input(question, context), prefix, memory))
+        return self._predict(self._step(self._input(question, context), prefix, memory), prefix)
 
-    def _predict(self, active: dict) -> tuple[str, float]:
+    def _predict(self, active: dict, prefix: list[str] | None = None) -> tuple[str, float]:
         scores = [0.0] * len(self.tokens)
         for feature, activation in active.items():
             for target, weight in self.edges.get(self.feature_ids.get(feature, -1), ()):
                 scores[target] += activation * weight
+        if prefix:
+            last_tok = prefix[-1]
+            last_id = self.token_ids.get(last_tok, -1)
+            if last_id >= 0:
+                scores[last_id] -= 2.5
+            # Penalize repeated bigrams to prevent decoding loops
+            if len(prefix) >= 2:
+                seen_next = {prefix[i + 1] for i in range(len(prefix) - 1) if prefix[i] == last_tok}
+                for tok in seen_next:
+                    tid = self.token_ids.get(tok, -1)
+                    if tid >= 0:
+                        scores[tid] -= 1.5
         target = max(range(len(scores)), key=scores.__getitem__)
         best = scores[target]
         probability = 1 / sum(math.exp(value - best) for value in scores)
@@ -230,9 +353,11 @@ class TokenGraph:
             raise ValueError("Invalid output budget")
         if not tokenize(question):
             return Generation("não tenho associações suficientes", [], [], True, "empty_input")
+        if not self._has_known_concept(question, context):
+            return Generation("não tenho associações suficientes", [], [], True, "unknown_concept")
         source, prefix, memory, probabilities = self._input(question, context), [], {}, []
         for _ in range(max_tokens):
-            token, probability = self._predict(self._step(source, prefix, memory))
+            token, probability = self._predict(self._step(source, prefix, memory), prefix)
             probabilities.append(probability)
             if token == REFUSE or probability < self.confidence:
                 return Generation("não tenho associações suficientes", [], probabilities, True, "refused_or_low_confidence")

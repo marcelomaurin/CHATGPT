@@ -463,8 +463,8 @@ begin
   FOpenDialogPDF.Title := 'Selecione um Arquivo PDF Educativo';
   FOpenDialogPDF.Filter := 'Documentos PDF (*.pdf)|*.pdf|Todos os Arquivos (*.*)|*.*';
 
-  // Aba Treinamento Massivo 10 Tópicos (Mínimo 1000 pares)
-  FTab10Topicos := CriarAba('  🎯 Treino 10 Tópicos (>=1000)  ');
+  // Aba Treinamento por Tópicos (Incremental Item a Item)
+  FTab10Topicos := CriarAba('  🎯 Treino por Tópicos  ');
 
   Lbl := TLabel.Create(Self);
   Lbl.Parent := FTab10Topicos;
@@ -563,7 +563,7 @@ begin
 
   Lbl := TLabel.Create(Self);
   Lbl.Parent := FTab10Topicos;
-  Lbl.Caption := 'Mínimo de Pares (>= 1000):';
+  Lbl.Caption := 'Quantidade de Pares (1+):';
   Lbl.Left := 14;
   Lbl.Top := 272;
 
@@ -572,9 +572,9 @@ begin
   FSpinMinParesTopicos.Left := 185;
   FSpinMinParesTopicos.Top := 268;
   FSpinMinParesTopicos.Width := 95;
-  FSpinMinParesTopicos.MinValue := 1000;
+  FSpinMinParesTopicos.MinValue := 1;
   FSpinMinParesTopicos.MaxValue := 50000;
-  FSpinMinParesTopicos.Value := 1000;
+  FSpinMinParesTopicos.Value := 20;
 
   FBtnGerar10Topicos := TButton.Create(Self);
   FBtnGerar10Topicos.Parent := FTab10Topicos;
@@ -1202,10 +1202,15 @@ begin
     if (Pos('[Tópico', AMsg) > 0) or (Pos('[TREINADO]', AMsg) > 0) or
        (Pos('-> ', AMsg) > 0) or (Pos('[REDE SALVA', AMsg) > 0) or
        (Pos('[PARADA', AMsg) > 0) or (Pos('REDE ALVO', AMsg) > 0) or
-       (Pos('CONSOLIDAÇÃO', AMsg) > 0) then
+       (Pos('CONSOLIDAÇÃO', AMsg) > 0) or (Pos('STATUS ', AMsg) > 0) then
     begin
       FMemoResultadoTopicos.Lines.Add(AMsg);
       FMemoResultadoTopicos.SelStart := Length(FMemoResultadoTopicos.Text);
+    end;
+    if Pos('[TREINADO]', AMsg) > 0 then
+    begin
+      FLblResumoTopicos.Caption := '⚡ ' + Trim(AMsg);
+      AtualizarStatusGeral;
     end;
   end;
 

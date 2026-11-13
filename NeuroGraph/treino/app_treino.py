@@ -374,7 +374,7 @@ def main():
         caminho_mod = Path(args.modelo) if args.modelo else None
         executar_treinamento_10_topicos(
             topicos=args.lista_topicos,
-            min_total=max(1000, args.min_pares),
+            min_total=max(1, args.min_pares),
             api_key=args.api_key,
             treinar_modelo=True,
             caminho_modelo=caminho_mod,

@@ -1,602 +1,2275 @@
 [
   {
-    "question": "o que é olá você sabia que",
-    "answer": "olá você sabia que é possível economizar com a conta de luz através do sol a velha está solar vai te ajudar a e",
-    "context": [],
-    "category": "youtube_curated",
-    "video_id": "FA9VBBw1Q-g",
-    "origem": "heuristica_local"
-  },
-  {
-    "question": "o que é eletricidade",
-    "answer": "eletricidade é gerada a partir da luz do sol dos painéis solares captam a luz do sol ea transformam a ene",
-    "context": [],
-    "category": "youtube_curated",
-    "video_id": "FA9VBBw1Q-g",
-    "origem": "heuristica_local"
-  },
-  {
-    "question": "o que é casa está consumindo então",
-    "answer": "casa está consumindo então é certo de energia vai parar rede distribuidora gerando créditos solares os quais podem ser",
-    "context": [],
-    "category": "youtube_curated",
-    "video_id": "FA9VBBw1Q-g",
-    "origem": "heuristica_local"
-  },
-  {
-    "question": "o que é produção de energia fotovoltaica",
-    "answer": "produção de energia fotovoltaica é interrompida no período da noite então você passa a utilizar seus créditos que você gerou",
-    "context": [],
-    "category": "youtube_curated",
-    "video_id": "FA9VBBw1Q-g",
-    "origem": "heuristica_local"
-  },
-  {
-    "question": "o que é dia viu como",
-    "answer": "dia viu como é simples com a energia solar você economiza com a sua conta de luz e ainda gera uma energia",
-    "context": [],
-    "category": "youtube_curated",
-    "video_id": "FA9VBBw1Q-g",
-    "origem": "heuristica_local"
-  },
-  {
-    "question": "o que é astrofisica",
-    "answer": "astrofisica é o ramo da astronomia que estuda as propriedades fisicas dos corpos celestes",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "exemplo_astronomia.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é uma estrela",
-    "answer": "uma estrela é uma esfera de plasma mantida coesa pela propria gravidade",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "exemplo_astronomia.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é uma supernova",
-    "answer": "uma supernova é uma explosao estelar cataclismica e extremamente luminosa",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "exemplo_astronomia.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é buraco negro",
-    "answer": "buraco negro é uma regiao do espaco-tempo com campo gravitacional tao intenso que nada pode escapar dele",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "exemplo_astronomia.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é via lactea",
-    "answer": "via lactea é a galaxia espiral que contem o nosso sistema solar",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "exemplo_astronomia.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é compiladores",
-    "answer": "compiladores é também leitura obrigatória para profissionais que querem se diferenciar no mercado",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "Compiladores - Princípios, técnicas e ferramentas.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é page ii",
-    "answer": "page ii são paulo brasil argentina colômbia costa rica chile espanha guatemala méxico peru porto rico",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "Compiladores - Princípios, técnicas e ferramentas.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é ela",
-    "answer": "ela é usada em ferramentas que encontram erros no software e",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "Compiladores - Princípios, técnicas e ferramentas.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é enfatizamos problemas que",
-    "answer": "enfatizamos problemas que são encontrados mais comumente no projeto de um processador de linguagem",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "Compiladores - Princípios, técnicas e ferramentas.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é uso do livro",
-    "answer": "uso do livro são necessários pelo menos dois trimestres",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "Compiladores - Princípios, técnicas e ferramentas.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é material",
-    "answer": "material é fundamental para o processamento de textos de todas as espécies",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "Compiladores - Princípios, técnicas e ferramentas.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é pilha de execução",
-    "answer": "pilha de execução é a coleta de lixo",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "Compiladores - Princípios, técnicas e ferramentas.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é ênfase",
-    "answer": "ênfase é dada à extração do paralelismo a partir de pequenas seqüências de instruções e seu escalon",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "Compiladores - Princípios, técnicas e ferramentas.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é universidade estadual de",
-    "answer": "universidade estadual de são paulo e pedro s",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "Compiladores - Princípios, técnicas e ferramentas.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é inguagens de programação",
-    "answer": "inguagens de programação são notações para se descrever computações para pessoas e para máquinas",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "Compiladores - Princípios, técnicas e ferramentas.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é projeto de um compilador",
-    "answer": "projeto de um compilador é a teoria da ciência da computação",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "Compiladores - Princípios, técnicas e ferramentas.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é geral do município que",
-    "answer": "geral do município que é composta por: i - gabinete do controlador geral do município",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "LC 3277-2025 - Reforma Administrativa - DOM 12245 (22-09-2025).pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é núcleo de apoio administrativo",
-    "answer": "núcleo de apoio administrativo é uma unidade subordinada ao titular da controladoria geral do município",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "LC 3277-2025 - Reforma Administrativa - DOM 12245 (22-09-2025).pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é previstas no plano plurianual",
-    "answer": "previstas no plano plurianual é a execução dos programas de governo e dos orçamentos do município",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "LC 3277-2025 - Reforma Administrativa - DOM 12245 (22-09-2025).pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é controle interno do município",
-    "answer": "controle interno do município é o órgão máximo de decisão da controladoria geral do município",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "LC 3277-2025 - Reforma Administrativa - DOM 12245 (22-09-2025).pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é efetivamente com as investigações",
-    "answer": "efetivamente com as investigações é o processo administrativo",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "LC 3277-2025 - Reforma Administrativa - DOM 12245 (22-09-2025).pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é contraditório",
-    "answer": "contraditório é a ampla defesa",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "LC 3277-2025 - Reforma Administrativa - DOM 12245 (22-09-2025).pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é tratamento",
-    "answer": "tratamento é a efetiva conclusão das manifestações de usuário perante órgão ou entidade a que se vincul",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "LC 3277-2025 - Reforma Administrativa - DOM 12245 (22-09-2025).pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é usuário",
-    "answer": "usuário é o órgão ou a entidade pública",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "LC 3277-2025 - Reforma Administrativa - DOM 12245 (22-09-2025).pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é correção",
-    "answer": "correção é a prevenção de falhas e omissões na prestação de serviços públicos",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "LC 3277-2025 - Reforma Administrativa - DOM 12245 (22-09-2025).pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é provimento de vagas",
-    "answer": "provimento de vagas é a formação de banco de candidatos aprovados em lista de espera para cargos de nível superi",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "edital_concurso-publico-nacional-unificado-2_8aret_21.11.25.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é concurso público nacional unificado",
-    "answer": "concurso público nacional unificado é de 12 (doze) meses",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "edital_concurso-publico-nacional-unificado-2_8aret_21.11.25.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é atribuições do cargo",
-    "answer": "atribuições do cargo é a deficiência apresentada por essas pessoas",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "edital_concurso-publico-nacional-unificado-2_8aret_21.11.25.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é qualquer cidadão",
-    "answer": "qualquer cidadão é parte legítima para i mpugnar este edital",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "edital_concurso-publico-nacional-unificado-2_8aret_21.11.25.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é exame médico admissional",
-    "answer": "exame médico admissional é de responsabilidade dos órgãos que aderiram ao concurso público nacional unificado",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "edital_concurso-publico-nacional-unificado-2_8aret_21.11.25.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é fundação getulio vargas",
-    "answer": "fundação getulio vargas é a escola nacional de administração pública não se responsabilizam por requerimento de insc",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "edital_concurso-publico-nacional-unificado-2_8aret_21.11.25.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é nacional de administração pública",
-    "answer": "nacional de administração pública é a fundação getulio vargas não se responsabilizam por inscrições e/ou pagamentos que não pu",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "edital_concurso-publico-nacional-unificado-2_8aret_21.11.25.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é conhecimento",
-    "answer": "conhecimento é a tácita aceitação das normas e condições estabelecidas neste edital",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "edital_concurso-publico-nacional-unificado-2_8aret_21.11.25.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é provas",
-    "answer": "provas é a nomeação da pessoa candidata",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "edital_concurso-publico-nacional-unificado-2_8aret_21.11.25.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é abertura de inscrições",
-    "answer": "abertura de inscrições é a realização do processo seletivo simplificado de docentes destinado a formação de cadastr",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "5.-edital-pss-educacao-profissional-vf3_cronograma-at.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é habilitação de nível superior",
-    "answer": "habilitação de nível superior é o(s) correspondente(s) componente(s) curricular(es) constante(s) no anexo v e no anexo x",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "5.-edital-pss-educacao-profissional-vf3_cronograma-at.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é inscrição",
-    "answer": "inscrição é o pagamento para ambos os eixos pretendidos",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "5.-edital-pss-educacao-profissional-vf3_cronograma-at.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é completa ciência",
-    "answer": "completa ciência é a tácita aceitação das normas e condições estabelecidas neste edital e nas demais normas l",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "5.-edital-pss-educacao-profissional-vf3_cronograma-at.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é fgv",
-    "answer": "fgv é a secretaria da educação do estado de são paulo não se responsabilizam por solicitação de",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "5.-edital-pss-educacao-profissional-vf3_cronograma-at.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é educação do estado de",
-    "answer": "educação do estado de são paulo é a fgv utilizá-las em qualquer época no amparo de seus direitos",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "5.-edital-pss-educacao-profissional-vf3_cronograma-at.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é vista que estas informações",
-    "answer": "vista que estas informações são essenciais para o fiel cumprimento da publicidade e da transparência que regem a administr",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "5.-edital-pss-educacao-profissional-vf3_cronograma-at.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é redução da taxa",
-    "answer": "redução da taxa é a documentação anexada serão de inteira responsabilidade do(a) candidato(a)",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "5.-edital-pss-educacao-profissional-vf3_cronograma-at.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é unimed rcp individual",
-    "answer": "unimed rcp individual é um seguro de responsabilidade civil profissional",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "CG-Unimed-RCP-Individual_A-partir-de-17.11.2023.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é ato do bom samaritano",
-    "answer": "ato do bom samaritano é a telemedicina ambos durante o ato médico",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "CG-Unimed-RCP-Individual_A-partir-de-17.11.2023.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é data de retroatividade",
-    "answer": "data de retroatividade é o início de vigência da apólice",
-    "context": [],
-    "category": "pdf_curated",
-    "video_id": "CG-Unimed-RCP-Individual_A-partir-de-17.11.2023.pdf",
-    "origem": "heuristica_pdf"
-  },
-  {
-    "question": "o que é chegar no parque solar",
-    "answer": "chegar no parque solar são gonçalo da enel green power",
-    "context": [],
-    "category": "youtube_curated",
-    "video_id": "_W1nQT7az8c",
-    "origem": "heuristica_local"
-  },
-  {
-    "question": "o que é ele",
-    "answer": "ele é o maior parque solar do brasil",
-    "context": [],
-    "category": "youtube_curated",
-    "video_id": "_W1nQT7az8c",
-    "origem": "heuristica_local"
-  },
-  {
-    "question": "o que é energia solar",
-    "answer": "energia solar é uma das mais limpas de todas",
-    "context": [],
-    "category": "youtube_curated",
-    "video_id": "_W1nQT7az8c",
-    "origem": "heuristica_local"
-  },
-  {
-    "question": "o que é fazendo um time lapse",
-    "answer": "fazendo um time lapse é a gente vai ver o movimento das placas ao longo do dia",
-    "context": [],
-    "category": "youtube_curated",
-    "video_id": "_W1nQT7az8c",
-    "origem": "heuristica_local"
-  },
-  {
-    "question": "o que é uma olhada como que",
-    "answer": "uma olhada como que é a construção de uma usina solar",
-    "context": [],
-    "category": "youtube_curated",
-    "video_id": "_W1nQT7az8c",
-    "origem": "heuristica_local"
-  },
-  {
-    "question": "o que é usina",
-    "answer": "usina é ter um terreno limpo e plano",
-    "context": [],
-    "category": "youtube_curated",
-    "video_id": "_W1nQT7az8c",
-    "origem": "heuristica_local"
-  },
-  {
-    "question": "o que é isso",
-    "answer": "isso é feito por um bate estaca",
-    "context": [],
-    "category": "youtube_curated",
-    "video_id": "_W1nQT7az8c",
-    "origem": "heuristica_local"
-  },
-  {
-    "question": "o que é essa tarefa",
-    "answer": "essa tarefa é feita por mulheres",
-    "context": [],
-    "category": "youtube_curated",
-    "video_id": "_W1nQT7az8c",
-    "origem": "heuristica_local"
-  },
-  {
-    "question": "o que é por quê que isso",
-    "answer": "por quê que isso é importante então vou te explicar tudo o que que é o pai então por que que isso é important",
-    "context": [],
-    "category": "youtube_curated",
-    "video_id": "DXmCU7v9glM",
-    "origem": "heuristica_local"
-  },
-  {
-    "question": "o que é mim ele nada mais",
-    "answer": "mim ele nada mais é do que o código do minicurso que eu deixei disponível para vocês aqui embaixo então em uma",
-    "context": [],
-    "category": "youtube_curated",
-    "video_id": "DXmCU7v9glM",
-    "origem": "heuristica_local"
-  },
-  {
-    "question": "o que é seu computador executar",
-    "answer": "seu computador executar é o seu computador ele é esse comando execute o pequeno comando faz é o python eu senti olha",
-    "context": [],
-    "category": "youtube_curated",
-    "video_id": "DXmCU7v9glM",
-    "origem": "heuristica_local"
-  },
-  {
-    "question": "o que é para você então qual",
-    "answer": "para você então qual é o objetivo do pai do ponto de vista assim eu eu me colocando no seu lugar pensando por que",
-    "context": [],
-    "category": "youtube_curated",
-    "video_id": "DXmCU7v9glM",
-    "origem": "heuristica_local"
-  },
-  {
-    "question": "o que é vai essas vagas que",
-    "answer": "vai essas vagas que são super valorizadas cara a maioria delas tem como pré-requisito o pai então pai também está",
-    "context": [],
-    "category": "youtube_curated",
-    "video_id": "DXmCU7v9glM",
-    "origem": "heuristica_local"
-  },
-  {
-    "question": "o que é tem tantas pessoas assim",
-    "answer": "tem tantas pessoas assim é realmente domina um pai tem principalmente que sabe usar o pai então para prática do merca",
-    "context": [],
-    "category": "youtube_curated",
-    "video_id": "DXmCU7v9glM",
-    "origem": "heuristica_local"
-  },
-  {
-    "question": "o que é trabalho que",
-    "answer": "trabalho que é o que eu quero te ensinar aqui que eu quero que você me ensine com esse minicurso que eu d",
-    "context": [],
-    "category": "youtube_curated",
-    "video_id": "DXmCU7v9glM",
-    "origem": "heuristica_local"
-  },
-  {
-    "question": "o que é seu por quê que",
-    "answer": "seu por quê que é importante para mim eu diria que seria por isso para você se destacar e crescer no mercado",
-    "context": [],
-    "category": "youtube_curated",
-    "video_id": "DXmCU7v9glM",
-    "origem": "heuristica_local"
-  },
-  {
-    "question": "o que é você apagar tudo",
-    "answer": "você apagar tudo é a gente vai começar aqui do zero para construir os nossos códigos primeiro código que eu v",
-    "context": [],
-    "category": "youtube_curated",
-    "video_id": "4p7axLXXBGU",
-    "origem": "heuristica_local"
-  },
-  {
-    "question": "o que é ensinar para vocês",
-    "answer": "ensinar para vocês é o print o print ele exibe uma informação para você print vende imprimir mesmo em inglês e",
-    "context": [],
-    "category": "youtube_curated",
-    "video_id": "4p7axLXXBGU",
-    "origem": "heuristica_local"
-  },
-  {
-    "question": "o que é exibir olá mundo que",
-    "answer": "exibir olá mundo que é aquele código clássico que todo mundo que tá aprendendo a programar escreve então print ol",
-    "context": [],
-    "category": "youtube_curated",
-    "video_id": "4p7axLXXBGU",
-    "origem": "heuristica_local"
-  },
-  {
-    "question": "o que é para mim tá vendo",
-    "answer": "para mim tá vendo é o legal é que aqui você pode fazer contas também eu posso fazer por exemplo 10 + 2 e ele v",
-    "context": [],
-    "category": "youtube_curated",
-    "video_id": "4p7axLXXBGU",
-    "origem": "heuristica_local"
-  },
-  {
-    "question": "o que é asterisco para fazer elevado",
-    "answer": "asterisco para fazer elevado é o dois asterisco então ó 10 elevado a 2 é 100 né que é 10 x 10 beleza então isso daqui voc",
-    "context": [],
-    "category": "youtube_curated",
-    "video_id": "4p7axLXXBGU",
-    "origem": "heuristica_local"
-  },
-  {
-    "question": "o que é essa informação aqui que",
-    "answer": "essa informação aqui que é vendas menos o custo se eu rodar esse daqui ele vai me dar o resultado de 700 porque é o m",
-    "context": [],
-    "category": "youtube_curated",
-    "video_id": "4p7axLXXBGU",
-    "origem": "heuristica_local"
-  },
-  {
-    "question": "o que é entre aspas ele",
-    "answer": "entre aspas ele é uma variável né que que é uma variável nada mais é do que um nome que armazena um valor en",
-    "context": [],
-    "category": "youtube_curated",
-    "video_id": "4p7axLXXBGU",
-    "origem": "heuristica_local"
-  },
-  {
-    "question": "o que é código",
-    "answer": "código é sempre executado de cima para baixo então a partir dessa linha de código aqui vendas se to",
-    "context": [],
-    "category": "youtube_curated",
-    "video_id": "4p7axLXXBGU",
-    "origem": "heuristica_local"
-  },
-  {
-    "question": "o que é unidade",
-    "answer": "unidade é a especialidade para verificar a disponibilidade de agenda",
-    "context": [],
-    "category": "youtube_curated",
-    "video_id": "Rm-0G4QQbb8",
-    "origem": "heuristica_local"
+    "question" : "o que é olá você sabia que",
+    "answer" : "olá você sabia que é possível economizar com a conta de luz através do sol a velha está solar vai te ajudar a e",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "FA9VBBw1Q-g",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é eletricidade",
+    "answer" : "eletricidade é gerada a partir da luz do sol dos painéis solares captam a luz do sol ea transformam a ene",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "FA9VBBw1Q-g",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é casa está consumindo então",
+    "answer" : "casa está consumindo então é certo de energia vai parar rede distribuidora gerando créditos solares os quais podem ser",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "FA9VBBw1Q-g",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é produção de energia fotovoltaica",
+    "answer" : "produção de energia fotovoltaica é interrompida no período da noite então você passa a utilizar seus créditos que você gerou",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "FA9VBBw1Q-g",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é dia viu como",
+    "answer" : "dia viu como é simples com a energia solar você economiza com a sua conta de luz e ainda gera uma energia",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "FA9VBBw1Q-g",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é astrofisica",
+    "answer" : "astrofisica é o ramo da astronomia que estuda as propriedades fisicas dos corpos celestes",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "exemplo_astronomia.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é uma estrela",
+    "answer" : "uma estrela é uma esfera de plasma mantida coesa pela propria gravidade",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "exemplo_astronomia.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é uma supernova",
+    "answer" : "uma supernova é uma explosao estelar cataclismica e extremamente luminosa",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "exemplo_astronomia.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é buraco negro",
+    "answer" : "buraco negro é uma regiao do espaco-tempo com campo gravitacional tao intenso que nada pode escapar dele",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "exemplo_astronomia.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é via lactea",
+    "answer" : "via lactea é a galaxia espiral que contem o nosso sistema solar",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "exemplo_astronomia.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é compiladores",
+    "answer" : "compiladores é também leitura obrigatória para profissionais que querem se diferenciar no mercado",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "Compiladores - Princípios, técnicas e ferramentas.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é page ii",
+    "answer" : "page ii são paulo brasil argentina colômbia costa rica chile espanha guatemala méxico peru porto rico",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "Compiladores - Princípios, técnicas e ferramentas.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é ela",
+    "answer" : "ela é usada em ferramentas que encontram erros no software e",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "Compiladores - Princípios, técnicas e ferramentas.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é enfatizamos problemas que",
+    "answer" : "enfatizamos problemas que são encontrados mais comumente no projeto de um processador de linguagem",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "Compiladores - Princípios, técnicas e ferramentas.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é uso do livro",
+    "answer" : "uso do livro são necessários pelo menos dois trimestres",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "Compiladores - Princípios, técnicas e ferramentas.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é material",
+    "answer" : "material é fundamental para o processamento de textos de todas as espécies",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "Compiladores - Princípios, técnicas e ferramentas.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é pilha de execução",
+    "answer" : "pilha de execução é a coleta de lixo",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "Compiladores - Princípios, técnicas e ferramentas.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é ênfase",
+    "answer" : "ênfase é dada à extração do paralelismo a partir de pequenas seqüências de instruções e seu escalon",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "Compiladores - Princípios, técnicas e ferramentas.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é universidade estadual de",
+    "answer" : "universidade estadual de são paulo e pedro s",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "Compiladores - Princípios, técnicas e ferramentas.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é inguagens de programação",
+    "answer" : "inguagens de programação são notações para se descrever computações para pessoas e para máquinas",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "Compiladores - Princípios, técnicas e ferramentas.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é projeto de um compilador",
+    "answer" : "projeto de um compilador é a teoria da ciência da computação",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "Compiladores - Princípios, técnicas e ferramentas.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é geral do município que",
+    "answer" : "geral do município que é composta por: i - gabinete do controlador geral do município",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "LC 3277-2025 - Reforma Administrativa - DOM 12245 (22-09-2025).pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é núcleo de apoio administrativo",
+    "answer" : "núcleo de apoio administrativo é uma unidade subordinada ao titular da controladoria geral do município",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "LC 3277-2025 - Reforma Administrativa - DOM 12245 (22-09-2025).pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é previstas no plano plurianual",
+    "answer" : "previstas no plano plurianual é a execução dos programas de governo e dos orçamentos do município",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "LC 3277-2025 - Reforma Administrativa - DOM 12245 (22-09-2025).pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é controle interno do município",
+    "answer" : "controle interno do município é o órgão máximo de decisão da controladoria geral do município",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "LC 3277-2025 - Reforma Administrativa - DOM 12245 (22-09-2025).pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é efetivamente com as investigações",
+    "answer" : "efetivamente com as investigações é o processo administrativo",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "LC 3277-2025 - Reforma Administrativa - DOM 12245 (22-09-2025).pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é contraditório",
+    "answer" : "contraditório é a ampla defesa",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "LC 3277-2025 - Reforma Administrativa - DOM 12245 (22-09-2025).pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é tratamento",
+    "answer" : "tratamento é a efetiva conclusão das manifestações de usuário perante órgão ou entidade a que se vincul",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "LC 3277-2025 - Reforma Administrativa - DOM 12245 (22-09-2025).pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é usuário",
+    "answer" : "usuário é o órgão ou a entidade pública",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "LC 3277-2025 - Reforma Administrativa - DOM 12245 (22-09-2025).pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é correção",
+    "answer" : "correção é a prevenção de falhas e omissões na prestação de serviços públicos",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "LC 3277-2025 - Reforma Administrativa - DOM 12245 (22-09-2025).pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é provimento de vagas",
+    "answer" : "provimento de vagas é a formação de banco de candidatos aprovados em lista de espera para cargos de nível superi",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "edital_concurso-publico-nacional-unificado-2_8aret_21.11.25.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é concurso público nacional unificado",
+    "answer" : "concurso público nacional unificado é de 12 (doze) meses",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "edital_concurso-publico-nacional-unificado-2_8aret_21.11.25.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é atribuições do cargo",
+    "answer" : "atribuições do cargo é a deficiência apresentada por essas pessoas",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "edital_concurso-publico-nacional-unificado-2_8aret_21.11.25.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é qualquer cidadão",
+    "answer" : "qualquer cidadão é parte legítima para i mpugnar este edital",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "edital_concurso-publico-nacional-unificado-2_8aret_21.11.25.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é exame médico admissional",
+    "answer" : "exame médico admissional é de responsabilidade dos órgãos que aderiram ao concurso público nacional unificado",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "edital_concurso-publico-nacional-unificado-2_8aret_21.11.25.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é fundação getulio vargas",
+    "answer" : "fundação getulio vargas é a escola nacional de administração pública não se responsabilizam por requerimento de insc",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "edital_concurso-publico-nacional-unificado-2_8aret_21.11.25.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é nacional de administração pública",
+    "answer" : "nacional de administração pública é a fundação getulio vargas não se responsabilizam por inscrições e/ou pagamentos que não pu",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "edital_concurso-publico-nacional-unificado-2_8aret_21.11.25.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é conhecimento",
+    "answer" : "conhecimento é a tácita aceitação das normas e condições estabelecidas neste edital",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "edital_concurso-publico-nacional-unificado-2_8aret_21.11.25.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é provas",
+    "answer" : "provas é a nomeação da pessoa candidata",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "edital_concurso-publico-nacional-unificado-2_8aret_21.11.25.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é abertura de inscrições",
+    "answer" : "abertura de inscrições é a realização do processo seletivo simplificado de docentes destinado a formação de cadastr",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "5.-edital-pss-educacao-profissional-vf3_cronograma-at.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é habilitação de nível superior",
+    "answer" : "habilitação de nível superior é o(s) correspondente(s) componente(s) curricular(es) constante(s) no anexo v e no anexo x",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "5.-edital-pss-educacao-profissional-vf3_cronograma-at.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é inscrição",
+    "answer" : "inscrição é o pagamento para ambos os eixos pretendidos",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "5.-edital-pss-educacao-profissional-vf3_cronograma-at.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é completa ciência",
+    "answer" : "completa ciência é a tácita aceitação das normas e condições estabelecidas neste edital e nas demais normas l",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "5.-edital-pss-educacao-profissional-vf3_cronograma-at.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é fgv",
+    "answer" : "fgv é a secretaria da educação do estado de são paulo não se responsabilizam por solicitação de",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "5.-edital-pss-educacao-profissional-vf3_cronograma-at.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é educação do estado de",
+    "answer" : "educação do estado de são paulo é a fgv utilizá-las em qualquer época no amparo de seus direitos",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "5.-edital-pss-educacao-profissional-vf3_cronograma-at.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é vista que estas informações",
+    "answer" : "vista que estas informações são essenciais para o fiel cumprimento da publicidade e da transparência que regem a administr",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "5.-edital-pss-educacao-profissional-vf3_cronograma-at.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é redução da taxa",
+    "answer" : "redução da taxa é a documentação anexada serão de inteira responsabilidade do(a) candidato(a)",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "5.-edital-pss-educacao-profissional-vf3_cronograma-at.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é unimed rcp individual",
+    "answer" : "unimed rcp individual é um seguro de responsabilidade civil profissional",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "CG-Unimed-RCP-Individual_A-partir-de-17.11.2023.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é ato do bom samaritano",
+    "answer" : "ato do bom samaritano é a telemedicina ambos durante o ato médico",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "CG-Unimed-RCP-Individual_A-partir-de-17.11.2023.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é data de retroatividade",
+    "answer" : "data de retroatividade é o início de vigência da apólice",
+    "context" : [
+    ],
+    "category" : "pdf_curated",
+    "video_id" : "CG-Unimed-RCP-Individual_A-partir-de-17.11.2023.pdf",
+    "origem" : "heuristica_pdf"
+  },
+  {
+    "question" : "o que é chegar no parque solar",
+    "answer" : "chegar no parque solar são gonçalo da enel green power",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "_W1nQT7az8c",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é ele",
+    "answer" : "ele é o maior parque solar do brasil",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "_W1nQT7az8c",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é energia solar",
+    "answer" : "energia solar é uma das mais limpas de todas",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "_W1nQT7az8c",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é fazendo um time lapse",
+    "answer" : "fazendo um time lapse é a gente vai ver o movimento das placas ao longo do dia",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "_W1nQT7az8c",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é uma olhada como que",
+    "answer" : "uma olhada como que é a construção de uma usina solar",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "_W1nQT7az8c",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é usina",
+    "answer" : "usina é ter um terreno limpo e plano",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "_W1nQT7az8c",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é isso",
+    "answer" : "isso é feito por um bate estaca",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "_W1nQT7az8c",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é essa tarefa",
+    "answer" : "essa tarefa é feita por mulheres",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "_W1nQT7az8c",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é por quê que isso",
+    "answer" : "por quê que isso é importante então vou te explicar tudo o que que é o pai então por que que isso é important",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "DXmCU7v9glM",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é mim ele nada mais",
+    "answer" : "mim ele nada mais é do que o código do minicurso que eu deixei disponível para vocês aqui embaixo então em uma",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "DXmCU7v9glM",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é seu computador executar",
+    "answer" : "seu computador executar é o seu computador ele é esse comando execute o pequeno comando faz é o python eu senti olha",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "DXmCU7v9glM",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é para você então qual",
+    "answer" : "para você então qual é o objetivo do pai do ponto de vista assim eu eu me colocando no seu lugar pensando por que",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "DXmCU7v9glM",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é vai essas vagas que",
+    "answer" : "vai essas vagas que são super valorizadas cara a maioria delas tem como pré-requisito o pai então pai também está",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "DXmCU7v9glM",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é tem tantas pessoas assim",
+    "answer" : "tem tantas pessoas assim é realmente domina um pai tem principalmente que sabe usar o pai então para prática do merca",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "DXmCU7v9glM",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é trabalho que",
+    "answer" : "trabalho que é o que eu quero te ensinar aqui que eu quero que você me ensine com esse minicurso que eu d",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "DXmCU7v9glM",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é seu por quê que",
+    "answer" : "seu por quê que é importante para mim eu diria que seria por isso para você se destacar e crescer no mercado",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "DXmCU7v9glM",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é você apagar tudo",
+    "answer" : "você apagar tudo é a gente vai começar aqui do zero para construir os nossos códigos primeiro código que eu v",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "4p7axLXXBGU",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é ensinar para vocês",
+    "answer" : "ensinar para vocês é o print o print ele exibe uma informação para você print vende imprimir mesmo em inglês e",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "4p7axLXXBGU",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é exibir olá mundo que",
+    "answer" : "exibir olá mundo que é aquele código clássico que todo mundo que tá aprendendo a programar escreve então print ol",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "4p7axLXXBGU",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é para mim tá vendo",
+    "answer" : "para mim tá vendo é o legal é que aqui você pode fazer contas também eu posso fazer por exemplo 10 + 2 e ele v",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "4p7axLXXBGU",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é asterisco para fazer elevado",
+    "answer" : "asterisco para fazer elevado é o dois asterisco então ó 10 elevado a 2 é 100 né que é 10 x 10 beleza então isso daqui voc",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "4p7axLXXBGU",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é essa informação aqui que",
+    "answer" : "essa informação aqui que é vendas menos o custo se eu rodar esse daqui ele vai me dar o resultado de 700 porque é o m",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "4p7axLXXBGU",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é entre aspas ele",
+    "answer" : "entre aspas ele é uma variável né que que é uma variável nada mais é do que um nome que armazena um valor en",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "4p7axLXXBGU",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é código",
+    "answer" : "código é sempre executado de cima para baixo então a partir dessa linha de código aqui vendas se to",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "4p7axLXXBGU",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é unidade",
+    "answer" : "unidade é a especialidade para verificar a disponibilidade de agenda",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "Rm-0G4QQbb8",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é buraco negro",
+    "answer" : "um buraco negro é uma região do espaço onde a gravidade é tão intensa que nada, nem sequer a luz, consegue escapar de sua gravidade. eles foram descobertos pela primeira vez em 1783 por henrique cassegrain.\n\naqui estão algumas características importantes dos buracos negros:\n\n1. formação: são formados quando um grande objeto estelar, como uma estrela de supermassa, termina seu ciclo de vida e colapsa sob sua própria gravidade.\n\n2. evento horizônte: É a fronteira além da qual nada, nem mesmo a luz, pode escapar da gravidade do buraco negro. nada pode voltar atrás dessa barreira.\n\n3. singularity: no centro do buraco negro está o singularidade, um ponto teórico de infinita densidade e calor.\n\n4. acúmulo de matéria: buracos negros podem acudir e acumular matéria e energia de sua proximidade, formando uma coroa de matéria em órbita.\n\n5. efeito de gravidade: a gravidade do buraco negro é tão intensa que distorce o espaço-tempo ao seu redor, deformando objetos e causando efeitos como precessão de eixos e deflexão de raios de luz.\n\n6. teorias de buracos negros: hoje em dia, a física da relatividade geral de einstein é usada para descrever buracos negros, embora ainda haja muitas questões abertas sobre eles.\n\n7. observação: apesar de serem teóricamente impossíveis de ver diretamente, buracos negros podem ser observados através de suas influências em objetos ao seu redor, como a formação de corpos celestiais e a emissão de radiação.\n\nburacos negros são um fascinante e intrigante fenômeno na física e cosmologia, continuando a ser objeto de pesquisa e teoria científica avançada.",
+    "context" : [
+    ],
+    "category" : "chatgpt_direct",
+    "origem" : "Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf"
+  },
+  {
+    "question" : "oi",
+    "answer" : "oi! como posso ajudar você hoje?",
+    "context" : [
+    ],
+    "category" : "chatgpt_direct",
+    "origem" : "Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf"
+  },
+  {
+    "question" : "bom dia, como esta? [portugues]",
+    "answer" : "bom dia! estou bem, obrigado. e com você? como posso ajudar hoje?",
+    "context" : [
+    ],
+    "category" : "chatgpt_direct",
+    "origem" : "Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf"
+  },
+  {
+    "question" : "oi \r\n[portugues]",
+    "answer" : "oi! como posso ajudar você hoje?",
+    "context" : [
+    ],
+    "category" : "chatgpt_direct",
+    "origem" : "Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf"
+  },
+  {
+    "question" : "fale sobre o brasil",
+    "answer" : "o brasil é o maior país da américa do sul e o quinto maior do mundo em área territorial. aqui estão alguns pontos importantes sobre o brasil:\n\n1. geografia:\n   - compreende 5.5 milhões de km² de área total\n   - possui uma variedade de ecossistemas, incluindo florestas tropicais, cerrados e pantanalas\n\n2. população:\n   - cerca de 212 milhões de habitantes (2021)\n   - É a oitava maior população do mundo\n\n3. economia:\n   - É a oitava economia mais forte do mundo em termos de pib\n   - possui diversidade econômica, incluindo indústria, serviços e agricultura\n\n4. cultura:\n   - richa e diversificada, refletida na música, culinária e arte\n   - possui influências de diversas culturas, principalmente europeias, indígenas e africanas\n\n5. história:\n   - fundado em 22 de abril de 1500\n   - tem uma longa história de conquistas, colonização e independência\n\n6. política:\n   - sistema parlamentar federal\n   - capital é brasília, localizada em goiás\n\n7. turismo:\n   - popular por destinos como rio de janeiro (copacabana), são paulo (pampulha), salvador (ilha de copacabana) e recife (boa viagem)\n\n8. esportes:\n   - excelente em futebol, com seleção mundial de renome\n   - outros esportes populares incluem vôlei, ginástica artística e boxe\n\n9. educação:\n   - sistema educacional diversificado, com universidades renomadas\n\n10. tecnologia:\n    - crescimento significativo da indústria tecnológica, com importantes centros em são paulo e rio de janeiro\n\no brasil é uma nação diversa e fascinante, com uma rica cultura, belas paisagens e uma população cosmopolita.",
+    "context" : [
+    ],
+    "category" : "chatgpt_direct",
+    "origem" : "Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf"
+  },
+  {
+    "question" : "boa noite",
+    "answer" : "boa noite! como posso ajudar você hoje?",
+    "context" : [
+    ],
+    "category" : "chatgpt_direct",
+    "origem" : "Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf"
+  },
+  {
+    "question" : "boa tarde, preciso de uma ajuda",
+    "answer" : "boa tarde! claro, estou aqui para ajudar. como posso assisti-lo hoje?",
+    "context" : [
+    ],
+    "category" : "chatgpt_direct",
+    "origem" : "Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf"
+  },
+  {
+    "question" : "boa tarde",
+    "answer" : "boa tarde! como posso ajudar você hoje?",
+    "context" : [
+    ],
+    "category" : "chatgpt_direct",
+    "origem" : "Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf"
+  },
+  {
+    "question" : "o que é ela apagaria de madrugada",
+    "answer" : "ela apagaria de madrugada é o grupo inteiro acordaria congelando",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "V8PT1ycZ_RM",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é você abre os olhos",
+    "answer" : "você abre os olhos é a primeira coisa que chega é o cheiro",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "V8PT1ycZ_RM",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é abaixo do atual",
+    "answer" : "abaixo do atual é a linha da costa fica bem mais distante do que nos mapas de hoje",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "V8PT1ycZ_RM",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é não",
+    "answer" : "não é aquele frio de uma manhã de julho no sul do brasil que vai embora depois do almoço",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "V8PT1ycZ_RM",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é fogo não",
+    "answer" : "fogo não é só uma coisa que se acende",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "V8PT1ycZ_RM",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é pedras por todo lado",
+    "answer" : "pedras por todo lado é um céu pesado",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "V8PT1ycZ_RM",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é saber ler esse recado",
+    "answer" : "saber ler esse recado é o que separa um jantar de uma noite de estômago vazio",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "V8PT1ycZ_RM",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é pisa num galho seco",
+    "answer" : "pisa num galho seco é o barulho parece um trovão",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "V8PT1ycZ_RM",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é poucas vezes",
+    "answer" : "poucas vezes é meia-noite ou cinco da manhã",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "IgMjw2aYc6o",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é ciência encontrou",
+    "answer" : "ciência encontrou é mais curioso do que qualquer uma dessas teorias",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "IgMjw2aYc6o",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é por que",
+    "answer" : "por que é tão difícil voltar a dormir e",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "IgMjw2aYc6o",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é wehr deixou claro",
+    "answer" : "wehr deixou claro é que o corpo humano é perfeitamente capaz de acordar sozinho no meio da noite",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "IgMjw2aYc6o",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é cérebro",
+    "answer" : "cérebro é péssimo em lembrar os últimos minutos antes de pegar no sono",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "IgMjw2aYc6o",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é momentos carregados de emoção",
+    "answer" : "momentos carregados de emoção são gravados muito melhor na memória",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "IgMjw2aYc6o",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é esse despertar",
+    "answer" : "esse despertar é o que você nunca esquece",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "IgMjw2aYc6o",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é verdadeiro mistério",
+    "answer" : "verdadeiro mistério é por que acontece justamente por volta das três",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "IgMjw2aYc6o",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é essas",
+    "answer" : "essas são as principais notícias sobre ia 2 ia do mês",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "ob3OHtFGEH8",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é pixiv",
+    "answer" : "pixiv é o nico nico douga entraram em manutenção de emergência",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "ob3OHtFGEH8",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é geralmente",
+    "answer" : "geralmente é o php que está cuidando disso",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "ob3OHtFGEH8",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é magento",
+    "answer" : "magento é o software por trás da wikipédia rodam nele",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "ob3OHtFGEH8",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é tudo em poucas horas",
+    "answer" : "tudo em poucas horas é o php adiantou a correção em um dia",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "ob3OHtFGEH8",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é bretanha",
+    "answer" : "bretanha é a new relic recomendaram tirar os sites sem correção do ar",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "ob3OHtFGEH8",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é foi ignorado",
+    "answer" : "foi ignorado é uma auditoria de 2024",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "ob3OHtFGEH8",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é código antigo da internet",
+    "answer" : "código antigo da internet é protegido dessa forma",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "ob3OHtFGEH8",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "como esta? [portugues]",
+    "answer" : "estou bem, obrigado! como posso ajudar você hoje?",
+    "context" : [
+    ],
+    "category" : "chatgpt_direct",
+    "origem" : "Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf"
+  },
+  {
+    "question" : "o que é notícia da época",
+    "answer" : "notícia da época é a reação da diretoria da band foi drástica e impiedosa",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "LF8fxfE2Z_M",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é processo na justiça",
+    "answer" : "processo na justiça é a família garante que tudo foi uma mentira inventada por picuinha da camareira que teria i",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "LF8fxfE2Z_M",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é seu peso antigo",
+    "answer" : "seu peso antigo é a direção teve uma atitude absurda",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "LF8fxfE2Z_M",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é fazer televisão ao vivo",
+    "answer" : "fazer televisão ao vivo é sempre um risco enorme",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "LF8fxfE2Z_M",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é jogo do são paulo",
+    "answer" : "jogo do são paulo é um jogo que depende um toque de bola",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "LF8fxfE2Z_M",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é mesmo dia",
+    "answer" : "mesmo dia é o caso foi parar nos tribunais com o processo da funkeira",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "LF8fxfE2Z_M",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é todas as minhas dívidas",
+    "answer" : "todas as minhas dívidas é o bolo é meu",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "LF8fxfE2Z_M",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é visual dos funcionários",
+    "answer" : "visual dos funcionários é mais antigo do que o caso anterior do yudi",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "LF8fxfE2Z_M",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é você não",
+    "answer" : "você não é uma estrela aí de hollywood",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "4UogfyyHL8Y",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é direto no olho dele",
+    "answer" : "direto no olho dele é o clima pesou geral",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "4UogfyyHL8Y",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é detalhe",
+    "answer" : "detalhe é que o apresentador estava com um pouco de conjuntivite",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "4UogfyyHL8Y",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é ficou ainda mais irritado",
+    "answer" : "ficou ainda mais irritado é o celso abandonou o palco no meio da brincadeira é a cara dele tava ali",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "4UogfyyHL8Y",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é apresentador retornou",
+    "answer" : "apresentador retornou é a gravação seguiu",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "4UogfyyHL8Y",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é ana paula não parou",
+    "answer" : "ana paula não parou é o porchat precisou interromper para conseguir seguir com o papo",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "4UogfyyHL8Y",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é você não fala como",
+    "answer" : "você não fala como é que uma menina de 24 anos >> pera aí",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "4UogfyyHL8Y",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é lambada",
+    "answer" : "lambada é uma música mundial",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "4UogfyyHL8Y",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é quem está nas urnas",
+    "answer" : "quem está nas urnas é luiz inácio lula da silva",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "OIY2vk9cbuQ",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é anos que essa discussão",
+    "answer" : "anos que essa discussão é feita aos gritos",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "OIY2vk9cbuQ",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é país",
+    "answer" : "país é o outro lado dizendo que tudo foi inventado para prender o presidente lula",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "OIY2vk9cbuQ",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é fabiana",
+    "answer" : "fabiana é juíza federal e escreveu o livro a partir do seu mestrado em ciência política na usp",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "OIY2vk9cbuQ",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é posto de gasolina também",
+    "answer" : "posto de gasolina também é um ótimo esquema para lavar dinheiro",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "OIY2vk9cbuQ",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é serviços ao pt",
+    "answer" : "serviços ao pt é a internacional ao então pmdb",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "OIY2vk9cbuQ",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é único partido que",
+    "answer" : "único partido que é lembrado de fato é o pt",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "OIY2vk9cbuQ",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é esse de forma alguma",
+    "answer" : "esse de forma alguma é o mais citado",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "OIY2vk9cbuQ",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é pergunta não",
+    "answer" : "pergunta não é quem anunciou mais",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "SYE7vZZp8xA",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é isto não",
+    "answer" : "isto não é um cenário de guerra",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "SYE7vZZp8xA",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é forças armadas brasileiras",
+    "answer" : "forças armadas brasileiras são três: o exército brasileiro",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "SYE7vZZp8xA",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é marinha do brasil",
+    "answer" : "marinha do brasil é a força aérea brasileira",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "SYE7vZZp8xA",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é defesa aérea brasileira",
+    "answer" : "defesa aérea brasileira é um projeto dos anos 70",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "SYE7vZZp8xA",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é meta oficial",
+    "answer" : "meta oficial é completar os 24 até o fim de 2027",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "SYE7vZZp8xA",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é aviões",
+    "answer" : "aviões é o último agora é esperado para 2034",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "SYE7vZZp8xA",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é carros de combate brasileiros",
+    "answer" : "carros de combate brasileiros é o leopard 1a5",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "SYE7vZZp8xA",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "olá tudo bem",
+    "answer" : "olá tudo ótimo com você como posso ajudar hoje",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "comprimentar pessoa",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "oi como vai você",
+    "answer" : "oi vou muito bem obrigado por perguntar e você como está",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "comprimentar pessoa",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "bom dia",
+    "answer" : "bom dia desejo que você tenha um excelente dia de trabalho e estudos",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "comprimentar pessoa",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "como cumprimentar uma pessoa",
+    "answer" : "você pode cumprimentar dizendo olá bom dia boa tarde e perguntando como a pessoa está",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "comprimentar pessoa",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "como cumprimentar alguém formalmente",
+    "answer" : "em situações formais diga bom dia ou boa tarde senhor ou senhora é um prazer conhecê lo",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "comprimentar pessoa",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "o que é paises da america latina",
+    "answer" : "paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "defina paises da america latina",
+    "answer" : "paises da america latina é paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "qual o conceito de paises da america latina",
+    "answer" : "o conceito de paises da america latina estabelece que paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "explique paises da america latina",
+    "answer" : "paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "para que serve paises da america latina",
+    "answer" : "serve para paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "como funciona paises da america latina",
+    "answer" : "funciona da seguinte maneira paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "qual é o significado de paises da america latina",
+    "answer" : "o significado é que paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "explique o funcionamento de paises da america latina",
+    "answer" : "paises da america latina opera através de métodos lógicos processos estruturados e boas práticas",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "como ocorre paises da america latina",
+    "answer" : "paises da america latina opera através de métodos lógicos processos estruturados e boas práticas",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "qual a importância de paises da america latina",
+    "answer" : "a importância de paises da america latina está no desenvolvimento prático científico e na solução de problemas",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "quais os fundamentos de paises da america latina",
+    "answer" : "os fundamentos de paises da america latina incluem conceitos básicos regras claras e aplicação consistente",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "em termos práticos o que é paises da america latina",
+    "answer" : "paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "em termos práticos defina paises da america latina",
+    "answer" : "paises da america latina é paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "em termos práticos qual o conceito de paises da america latina",
+    "answer" : "o conceito de paises da america latina estabelece que paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "em termos práticos explique paises da america latina",
+    "answer" : "paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "em termos práticos para que serve paises da america latina",
+    "answer" : "serve para paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "em termos práticos como funciona paises da america latina",
+    "answer" : "funciona da seguinte maneira paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "em termos práticos qual é o significado de paises da america latina",
+    "answer" : "o significado é que paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "em termos práticos explique o funcionamento de paises da america latina",
+    "answer" : "paises da america latina opera através de métodos lógicos processos estruturados e boas práticas",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "em termos práticos como ocorre paises da america latina",
+    "answer" : "paises da america latina opera através de métodos lógicos processos estruturados e boas práticas",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "em termos práticos qual a importância de paises da america latina",
+    "answer" : "a importância de paises da america latina está no desenvolvimento prático científico e na solução de problemas",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "em termos práticos quais os fundamentos de paises da america latina",
+    "answer" : "os fundamentos de paises da america latina incluem conceitos básicos regras claras e aplicação consistente",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "no contexto de paises da america latina o que é paises da america latina",
+    "answer" : "paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "no contexto de paises da america latina defina paises da america latina",
+    "answer" : "paises da america latina é paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "no contexto de paises da america latina qual o conceito de paises da america latina",
+    "answer" : "o conceito de paises da america latina estabelece que paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "no contexto de paises da america latina explique paises da america latina",
+    "answer" : "paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "no contexto de paises da america latina para que serve paises da america latina",
+    "answer" : "serve para paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "no contexto de paises da america latina como funciona paises da america latina",
+    "answer" : "funciona da seguinte maneira paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "no contexto de paises da america latina qual é o significado de paises da america latina",
+    "answer" : "o significado é que paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "no contexto de paises da america latina explique o funcionamento de paises da america latina",
+    "answer" : "paises da america latina opera através de métodos lógicos processos estruturados e boas práticas",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "no contexto de paises da america latina como ocorre paises da america latina",
+    "answer" : "paises da america latina opera através de métodos lógicos processos estruturados e boas práticas",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "no contexto de paises da america latina qual a importância de paises da america latina",
+    "answer" : "a importância de paises da america latina está no desenvolvimento prático científico e na solução de problemas",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "no contexto de paises da america latina quais os fundamentos de paises da america latina",
+    "answer" : "os fundamentos de paises da america latina incluem conceitos básicos regras claras e aplicação consistente",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "tecnicamente falando o que é paises da america latina",
+    "answer" : "paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "tecnicamente falando defina paises da america latina",
+    "answer" : "paises da america latina é paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "tecnicamente falando qual o conceito de paises da america latina",
+    "answer" : "o conceito de paises da america latina estabelece que paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "tecnicamente falando explique paises da america latina",
+    "answer" : "paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "tecnicamente falando para que serve paises da america latina",
+    "answer" : "serve para paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "tecnicamente falando como funciona paises da america latina",
+    "answer" : "funciona da seguinte maneira paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "tecnicamente falando qual é o significado de paises da america latina",
+    "answer" : "o significado é que paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "tecnicamente falando explique o funcionamento de paises da america latina",
+    "answer" : "paises da america latina opera através de métodos lógicos processos estruturados e boas práticas",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "tecnicamente falando como ocorre paises da america latina",
+    "answer" : "paises da america latina opera através de métodos lógicos processos estruturados e boas práticas",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "tecnicamente falando qual a importância de paises da america latina",
+    "answer" : "a importância de paises da america latina está no desenvolvimento prático científico e na solução de problemas",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "tecnicamente falando quais os fundamentos de paises da america latina",
+    "answer" : "os fundamentos de paises da america latina incluem conceitos básicos regras claras e aplicação consistente",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "de maneira resumida o que é paises da america latina",
+    "answer" : "paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "de maneira resumida defina paises da america latina",
+    "answer" : "paises da america latina é paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "de maneira resumida qual o conceito de paises da america latina",
+    "answer" : "o conceito de paises da america latina estabelece que paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "de maneira resumida explique paises da america latina",
+    "answer" : "paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "de maneira resumida para que serve paises da america latina",
+    "answer" : "serve para paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "de maneira resumida como funciona paises da america latina",
+    "answer" : "funciona da seguinte maneira paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "de maneira resumida qual é o significado de paises da america latina",
+    "answer" : "o significado é que paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "de maneira resumida explique o funcionamento de paises da america latina",
+    "answer" : "paises da america latina opera através de métodos lógicos processos estruturados e boas práticas",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "de maneira resumida como ocorre paises da america latina",
+    "answer" : "paises da america latina opera através de métodos lógicos processos estruturados e boas práticas",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "de maneira resumida qual a importância de paises da america latina",
+    "answer" : "a importância de paises da america latina está no desenvolvimento prático científico e na solução de problemas",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "de maneira resumida quais os fundamentos de paises da america latina",
+    "answer" : "os fundamentos de paises da america latina incluem conceitos básicos regras claras e aplicação consistente",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "segundo os fundamentos de paises da america latina o que é paises da america latina",
+    "answer" : "paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "segundo os fundamentos de paises da america latina defina paises da america latina",
+    "answer" : "paises da america latina é paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "segundo os fundamentos de paises da america latina qual o conceito de paises da america latina",
+    "answer" : "o conceito de paises da america latina estabelece que paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "segundo os fundamentos de paises da america latina explique paises da america latina",
+    "answer" : "paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "segundo os fundamentos de paises da america latina para que serve paises da america latina",
+    "answer" : "serve para paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "segundo os fundamentos de paises da america latina como funciona paises da america latina",
+    "answer" : "funciona da seguinte maneira paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "segundo os fundamentos de paises da america latina qual é o significado de paises da america latina",
+    "answer" : "o significado é que paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "segundo os fundamentos de paises da america latina explique o funcionamento de paises da america latina",
+    "answer" : "paises da america latina opera através de métodos lógicos processos estruturados e boas práticas",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "segundo os fundamentos de paises da america latina como ocorre paises da america latina",
+    "answer" : "paises da america latina opera através de métodos lógicos processos estruturados e boas práticas",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "segundo os fundamentos de paises da america latina qual a importância de paises da america latina",
+    "answer" : "a importância de paises da america latina está no desenvolvimento prático científico e na solução de problemas",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "segundo os fundamentos de paises da america latina quais os fundamentos de paises da america latina",
+    "answer" : "os fundamentos de paises da america latina incluem conceitos básicos regras claras e aplicação consistente",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "de forma simples o que é paises da america latina",
+    "answer" : "paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "de forma simples defina paises da america latina",
+    "answer" : "paises da america latina é paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "de forma simples qual o conceito de paises da america latina",
+    "answer" : "o conceito de paises da america latina estabelece que paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "de forma simples explique paises da america latina",
+    "answer" : "paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "de forma simples para que serve paises da america latina",
+    "answer" : "serve para paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "de forma simples como funciona paises da america latina",
+    "answer" : "funciona da seguinte maneira paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "de forma simples qual é o significado de paises da america latina",
+    "answer" : "o significado é que paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "de forma simples explique o funcionamento de paises da america latina",
+    "answer" : "paises da america latina opera através de métodos lógicos processos estruturados e boas práticas",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "de forma simples como ocorre paises da america latina",
+    "answer" : "paises da america latina opera através de métodos lógicos processos estruturados e boas práticas",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "de forma simples qual a importância de paises da america latina",
+    "answer" : "a importância de paises da america latina está no desenvolvimento prático científico e na solução de problemas",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "de forma simples quais os fundamentos de paises da america latina",
+    "answer" : "os fundamentos de paises da america latina incluem conceitos básicos regras claras e aplicação consistente",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "explicando diretamente o que é paises da america latina",
+    "answer" : "paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "explicando diretamente defina paises da america latina",
+    "answer" : "paises da america latina é paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "explicando diretamente qual o conceito de paises da america latina",
+    "answer" : "o conceito de paises da america latina estabelece que paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "explicando diretamente explique paises da america latina",
+    "answer" : "paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "explicando diretamente para que serve paises da america latina",
+    "answer" : "serve para paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "explicando diretamente como funciona paises da america latina",
+    "answer" : "funciona da seguinte maneira paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "explicando diretamente qual é o significado de paises da america latina",
+    "answer" : "o significado é que paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "explicando diretamente explique o funcionamento de paises da america latina",
+    "answer" : "paises da america latina opera através de métodos lógicos processos estruturados e boas práticas",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "explicando diretamente como ocorre paises da america latina",
+    "answer" : "paises da america latina opera através de métodos lógicos processos estruturados e boas práticas",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "explicando diretamente qual a importância de paises da america latina",
+    "answer" : "a importância de paises da america latina está no desenvolvimento prático científico e na solução de problemas",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "explicando diretamente quais os fundamentos de paises da america latina",
+    "answer" : "os fundamentos de paises da america latina incluem conceitos básicos regras claras e aplicação consistente",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "na prática diária o que é paises da america latina",
+    "answer" : "paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "na prática diária defina paises da america latina",
+    "answer" : "paises da america latina é paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "na prática diária qual o conceito de paises da america latina",
+    "answer" : "o conceito de paises da america latina estabelece que paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "na prática diária explique paises da america latina",
+    "answer" : "paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "na prática diária para que serve paises da america latina",
+    "answer" : "serve para paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "na prática diária como funciona paises da america latina",
+    "answer" : "funciona da seguinte maneira paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "na prática diária qual é o significado de paises da america latina",
+    "answer" : "o significado é que paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "na prática diária explique o funcionamento de paises da america latina",
+    "answer" : "paises da america latina opera através de métodos lógicos processos estruturados e boas práticas",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "na prática diária como ocorre paises da america latina",
+    "answer" : "paises da america latina opera através de métodos lógicos processos estruturados e boas práticas",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "na prática diária qual a importância de paises da america latina",
+    "answer" : "a importância de paises da america latina está no desenvolvimento prático científico e na solução de problemas",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "na prática diária quais os fundamentos de paises da america latina",
+    "answer" : "os fundamentos de paises da america latina incluem conceitos básicos regras claras e aplicação consistente",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "exemplo 1 sobre o que é paises da america latina",
+    "answer" : "paises da america latina é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios",
+    "context" : [
+    ],
+    "category" : "incremental_training",
+    "video_id" : "paises da america latina",
+    "origem" : "heuristico_incremental"
+  },
+  {
+    "question" : "o que é uma linguagem que",
+    "answer" : "uma linguagem que é tipo aquele prato de comida caseira que a sua avó faz",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "IJBHj5HIe6E",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é todo mundo acha que",
+    "answer" : "todo mundo acha que é coisa do passado",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "IJBHj5HIe6E",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é lázaros não",
+    "answer" : "lázaros não é uma relíquia de museu",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "IJBHj5HIe6E",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é arquitetura rm",
+    "answer" : "arquitetura rm é uma porção de outras plataformas que fariam muita ferramenta moderna corar de vergonha",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "IJBHj5HIe6E",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "o que é ideia dele",
+    "answer" : "ideia dele é uma obra de arte da produtividade",
+    "context" : [
+    ],
+    "category" : "youtube_curated",
+    "video_id" : "IJBHj5HIe6E",
+    "origem" : "heuristica_local"
+  },
+  {
+    "question" : "preciso de ajuda?",
+    "answer" : "claro, estou aqui para ajudar! como posso assisti-lo hoje?",
+    "context" : [
+    ],
+    "category" : "chatgpt_direct",
+    "origem" : "Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf"
+  },
+  {
+    "question" : "o que",
+    "answer" : "um carro é um veículo de motorização que se desloca sobre rodas, geralmente usado para transporte de pessoas e carga. aqui estão alguns pontos importantes sobre carros:\n\n1. propósito: principalmente usado para transporte urbano, viagens e comércio.\n\n2. componentes principais:\n   - motor\n   - chassi\n   - rodas\n   - volante\n   - freios\n   - pneus\n   - painéis (instrumentos e painel de controle)\n\n3. tipos de motores: combustão interna (gasolina, diesel) e eletrico.\n\n4. tamanho: varia desde compactos até suvs (sport utility vehicles).\n\n5. segurança: sistema de airbags, freios abs, controle de estabilidade e outros equipamentos.\n\n6. conforto: assentos reclináveis, climatização, som, etc.\n\n7. técnicas de direção: autopilot, assistente de condução, etc.\n\n8. manutenção: revisões regulares, troca de óleo, limpeza de filtros, etc.\n\n9. legislação: regulamentos de segurança, emissões e velocidade.\n\n10. impacto ambiental: tanto positivo quanto negativo em relação à qualidade do ar e aos combustíveis.\n\ncarros desempenham um papel crucial na mobilidade urbana e na economia global, sendo uma parte integral da infraestrutura e da cultura de muitas sociedades.",
+    "context" : [
+    ],
+    "category" : "chatgpt_direct",
+    "origem" : "Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf"
+  },
+  {
+    "question" : "o que é um avião",
+    "answer" : "um avião é uma aeronave que flutua através do ar usando aerodinâmica e motores para se mover. aqui estão alguns pontos importantes sobre aviões:\n\n1. design: geralmente têm asas, cabine de passageiros ou carga, empilhadeira e empurador.\n\n2. propulsão: usam motores para criar força e contração, permitindo voar.\n\n3. aerodinâmica: formam uma superfície que cria um campo de força de empuxo, permitindo voar.\n\n4. tipos: incluem jatos comerciais, helicópteros, avioes de combate, avioes de esporte, entre outros.\n\n5. uso: comerciais, militares, de esporte, de pesca, de lazer, entre outros.\n\n6. história: desenvolvidos há séculos, com o primeiro voo registrado em 1783.\n\n7. tecnologia: evoluem constantemente com avanços na aerodinâmica, materiais e motores.\n\n8. segurança: possuem regulamentações rigorosas para garantir segurança durante voo.\n\naviões desempenham um papel crucial na mobilidade global, transporte de carga e também na exploração espacial e aeroespacial.",
+    "context" : [
+    ],
+    "category" : "chatgpt_direct",
+    "origem" : "Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf"
+  },
+  {
+    "question" : "o que é argentina",
+    "answer" : "argentina é o quinto maior país da américa do sul e a oitava na terra, em termos de área geográfica. aqui estão alguns pontos importantes sobre o país:\n\n1. localização: situa-se entre o polo sul e os oceanos atlântico e pacífico.\n\n2. capital: buenos aires\n\n3. população: aproximadamente 46,3 milhões de habitantes (2021)\n\n4. idioma oficial: espanhol\n\n5. economia: baseada principalmente em serviços e exportação de produtos agrícolas e minerais\n\n6. cultura: influenciada por várias raízes, incluindo espanhol, italiano, alemão, polonesa e japonesa\n\n7. geografia: varia de vastos deserto do atacama no norte a selva amazônica no oeste\n\n8. monarquia: presidente alberto fernández (2019-2023)\n\n9. história: possui uma rica história colonial e moderna, influenciada por várias invasões e conflitos\n\n10. turismo: reconhecido por suas belas cidades, culinária diversificada e atrações naturais\n\nargentina é conhecida por sua diversidade cultural, culinária, arte e esportes, além de sua história rica e geografia variada.",
+    "context" : [
+    ],
+    "category" : "chatgpt_direct",
+    "origem" : "Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf"
   }
 ]

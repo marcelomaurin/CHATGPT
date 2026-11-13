@@ -3,23 +3,27 @@ unit NeuroGraphMemoryMap;
 {$mode objfpc}{$H+}
 
 { Token-to-node map and directed weighted graph persistence.
-  Experimental Lazarus/FPC module; no trained language model is included. }
+  Optimized with O(1) hash indices and a persistent TNeuroGraph instance. }
 
 interface
 
 uses
-  Classes, SysUtils, fpjson, jsonparser, NeuroGraphCore;
+  Classes, SysUtils, Contnrs, fpjson, jsonparser, NeuroGraphCore;
 
 type
   TNGMemoryMap = class
   private
     FTokens: TStringList;
+    FTokenHash: TFPHashList;
+    FLinkHash: TFPHashList;
+    FGraph: TNeuroGraph;
     FLinks: array of record
       Source, Target: Integer;
       Weight: Single;
     end;
     function NormalizeToken(const S: string): string;
     function FindLink(const A, B: Integer): Integer;
+    function MakeLinkKey(const A, B: Integer): ShortString; inline;
   public
     constructor Create;
     destructor Destroy; override;
@@ -41,8 +45,8 @@ implementation
 
 function ClampWeight(const V: Single): Single;
 begin
-  if V < 0 then Result := 0
-  else if V > 1 then Result := 1
+  if V < -NG_MAX_WEIGHT then Result := -NG_MAX_WEIGHT
+  else if V > NG_MAX_WEIGHT then Result := NG_MAX_WEIGHT
   else Result := V;
 end;
 
@@ -51,10 +55,16 @@ begin
   inherited Create;
   FTokens := TStringList.Create;
   FTokens.CaseSensitive := True;
+  FTokenHash := TFPHashList.Create;
+  FLinkHash := TFPHashList.Create;
+  FGraph := TNeuroGraph.Create(True);
 end;
 
 destructor TNGMemoryMap.Destroy;
 begin
+  FGraph.Free;
+  FLinkHash.Free;
+  FTokenHash.Free;
   FTokens.Free;
   inherited Destroy;
 end;
@@ -65,18 +75,35 @@ begin
   { Preserve spelling/case: no linguistic classification is imposed. }
 end;
 
-function TNGMemoryMap.TokenID(const Token: string): Integer;
+function TNGMemoryMap.MakeLinkKey(const A, B: Integer): ShortString;
 begin
-  Result := FTokens.IndexOf(NormalizeToken(Token));
+  Result := IntToStr(A) + ':' + IntToStr(B);
+end;
+
+function TNGMemoryMap.TokenID(const Token: string): Integer;
+var
+  S: string;
+  P: Pointer;
+begin
+  S := NormalizeToken(Token);
+  if S = '' then Exit(-1);
+  P := FTokenHash.Find(S);
+  if P = nil then Exit(-1);
+  Result := PtrInt(P) - 1;
 end;
 
 function TNGMemoryMap.EnsureToken(const Token: string): Integer;
-var S: string;
+var
+  S: string;
+  P: Pointer;
 begin
   S := NormalizeToken(Token);
   if S = '' then raise Exception.Create('Empty token');
-  Result := FTokens.IndexOf(S);
-  if Result < 0 then Result := FTokens.Add(S);
+  P := FTokenHash.Find(S);
+  if P <> nil then
+    Exit(PtrInt(P) - 1);
+  Result := FTokens.Add(S);
+  FTokenHash.Add(S, Pointer(PtrInt(Result + 1)));
 end;
 
 function TNGMemoryMap.TokenText(const ID: Integer): string;
@@ -87,19 +114,23 @@ begin
 end;
 
 function TNGMemoryMap.FindLink(const A, B: Integer): Integer;
-var I: Integer;
+var
+  P: Pointer;
 begin
-  for I := 0 to High(FLinks) do
-    if (FLinks[I].Source = A) and (FLinks[I].Target = B) then Exit(I);
-  Result := -1;
+  P := FLinkHash.Find(MakeLinkKey(A, B));
+  if P = nil then Exit(-1);
+  Result := PtrInt(P) - 1;
 end;
 
 procedure TNGMemoryMap.Associate(const FromToken, ToToken: string;
   const Weight: Single);
-var A, B, I: Integer;
+var
+  A, B, I: Integer;
+  W: Single;
 begin
   A := EnsureToken(FromToken);
   B := EnsureToken(ToToken);
+  W := ClampWeight(Weight);
   I := FindLink(A, B);
   if I < 0 then
   begin
@@ -107,60 +138,61 @@ begin
     SetLength(FLinks, I + 1);
     FLinks[I].Source := A;
     FLinks[I].Target := B;
+    FLinkHash.Add(MakeLinkKey(A, B), Pointer(PtrInt(I + 1)));
   end;
-  FLinks[I].Weight := ClampWeight(Weight);
+  FLinks[I].Weight := W;
+  FGraph.Link(A, B, W);
 end;
 
 procedure TNGMemoryMap.LearnOutput(const OutputTokens: array of string;
   const Confidence: Single; const Rate: Single);
-var I, A, B, K: Integer; W: Single;
+var
+  I, A, B, K: Integer;
+  W: Single;
 begin
-  { Provisional rule: ordered adjacent output tokens create directed links.
-    External validation must gate untrusted generated answers. }
-  for I := Low(OutputTokens) to High(OutputTokens)-1 do
+  for I := Low(OutputTokens) to High(OutputTokens) - 1 do
   begin
     A := EnsureToken(OutputTokens[I]);
-    B := EnsureToken(OutputTokens[I+1]);
+    B := EnsureToken(OutputTokens[I + 1]);
     K := FindLink(A, B);
     W := 0;
     if K >= 0 then W := FLinks[K].Weight;
-    Associate(OutputTokens[I], OutputTokens[I+1],
-      ClampWeight(0.999*W + ClampWeight(Rate)*ClampWeight(Confidence)));
+    Associate(OutputTokens[I], OutputTokens[I + 1],
+      ClampWeight(0.999 * W + ClampWeight(Rate) * ClampWeight(Confidence)));
   end;
 end;
 
 function TNGMemoryMap.Activate(const InputTokens: array of string;
   const Decay: array of Single): TNGActivations;
-var Graph: TNeuroGraph; Seeds: TNGActivations; I, N: Integer;
+var
+  Seeds: TNGActivations;
+  I, N: Integer;
 begin
-  Graph := TNeuroGraph.Create;
-  try
-    for I := 0 to High(FLinks) do
-      Graph.Link(FLinks[I].Source, FLinks[I].Target, FLinks[I].Weight);
-    SetLength(Seeds, 0);
-    for I := Low(InputTokens) to High(InputTokens) do
-    begin
-      N := TokenID(InputTokens[I]);
-      if N < 0 then Continue;
-      SetLength(Seeds, Length(Seeds)+1);
-      Seeds[High(Seeds)].Node := N;
-      Seeds[High(Seeds)].Signal := 1;
-    end;
-    Result := Graph.Propagate(Seeds, Decay);
-  finally
-    Graph.Free;
+  SetLength(Seeds, 0);
+  for I := Low(InputTokens) to High(InputTokens) do
+  begin
+    N := TokenID(InputTokens[I]);
+    if N < 0 then Continue;
+    SetLength(Seeds, Length(Seeds) + 1);
+    Seeds[High(Seeds)].Node := N;
+    Seeds[High(Seeds)].Signal := 1;
   end;
+  Result := FGraph.Propagate(Seeds, Decay);
 end;
 
 procedure TNGMemoryMap.SaveJSON(const FileName: string);
-var Root: TJSONObject; Tokens, Edges: TJSONArray;
-    E: TJSONObject; I: Integer; S: TStringList;
+var
+  Root: TJSONObject;
+  Tokens, Edges: TJSONArray;
+  E: TJSONObject;
+  I: Integer;
+  S: TStringList;
 begin
   Root := TJSONObject.Create;
   try
     Root.Add('version', 1);
     Tokens := TJSONArray.Create;
-    for I := 0 to FTokens.Count-1 do Tokens.Add(FTokens[I]);
+    for I := 0 to FTokens.Count - 1 do Tokens.Add(FTokens[I]);
     Root.Add('tokens', Tokens);
     Edges := TJSONArray.Create;
     for I := 0 to High(FLinks) do
@@ -181,8 +213,13 @@ begin
 end;
 
 procedure TNGMemoryMap.LoadJSON(const FileName: string);
-var Root: TJSONData; Tokens, Edges: TJSONArray; E: TJSONData;
-    S: TStringList; I, A, B: Integer; W: Single;
+var
+  Root: TJSONData;
+  Tokens, Edges: TJSONArray;
+  E: TJSONData;
+  S: TStringList;
+  I, A, B: Integer;
+  W: Single;
 begin
   S := TStringList.Create;
   try
@@ -197,9 +234,12 @@ begin
     if (Tokens = nil) or (Edges = nil) then
       raise Exception.Create('Invalid graph map');
     FTokens.Clear;
+    FTokenHash.Clear;
+    FLinkHash.Clear;
+    FGraph.Clear;
     SetLength(FLinks, 0);
-    for I := 0 to Tokens.Count-1 do EnsureToken(Tokens.Strings[I]);
-    for I := 0 to Edges.Count-1 do
+    for I := 0 to Tokens.Count - 1 do EnsureToken(Tokens.Strings[I]);
+    for I := 0 to Edges.Count - 1 do
     begin
       E := Edges.Items[I];
       A := E.FindPath('source').AsInteger;

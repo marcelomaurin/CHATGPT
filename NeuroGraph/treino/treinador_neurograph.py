@@ -91,12 +91,42 @@ def preparar_exemplos(
     logging.info("Adicionados %d novos exemplos curados do YouTube (Total: %d).", adicionados, len(todos_dados))
 
     exemplos: list[Example] = []
+    tem_negativos = False
     for d in todos_dados:
         q = d.get("question", "").strip()
         a = d.get("answer")
-        ctx = tuple(d.get("context", []))
-        if q and a:
-            exemplos.append(Example(question=q, answer=a, context=ctx))
+        cat = d.get("category", "")
+        raw_ctx = d.get("context", [])
+        # Apenas itens de diálogo contextual explícito usam histórico de turno;
+        # itens curados de tópicos/YouTube/PDF são perguntas diretas (contexto vazio).
+        if cat in ("context", "composition", "paraphrase", "unknown"):
+            ctx = tuple(raw_ctx) if isinstance(raw_ctx, list) else ()
+        else:
+            ctx = ()
+        if not q:
+            continue
+        if a is None and "answer" in d:
+            exemplos.append(Example(question=q, answer=None, context=ctx))
+            tem_negativos = True
+        elif a:
+            palavras_a = tokenize(str(a))
+            if palavras_a:
+                if len(palavras_a) > 62:
+                    a = " ".join(palavras_a[:60])
+                exemplos.append(Example(question=q, answer=str(a), context=ctx))
+
+    # Garante exemplos contrastivos de abstenção (<refuse>) para calibrar perguntas fora do domínio
+    if not tem_negativos:
+        negativos_calibracao = [
+            "o que é um quasar",
+            "qual é a capital da austrália",
+            "quem inventou o rádio",
+            "o que é um píon",
+            "quem descobriu netuno",
+        ]
+        for q_neg in negativos_calibracao:
+            if q_neg not in perguntas_existentes:
+                exemplos.append(Example(question=q_neg, answer=None, context=()))
 
     return exemplos, todos_dados
 
@@ -140,7 +170,7 @@ def treinar_neurograph(
     # Treina em blocos de épocas com salvamento periódico (checkpointing) e checagem de parada
     stop_file = DIR_TREINO / ".stop_training"
     epocas_restantes = epochs
-    passo = min(20, max(5, epochs // 3))
+    passo = max(45, (epochs + 1) // 2)
     epoca_atual = 0
     historico = []
 
