@@ -1,0 +1,342 @@
+[
+  {
+    "question": "poderia explicar o que é um cachorro",
+    "answer": "um cachorro é um animal",
+    "context": [],
+    "category": "paraphrase"
+  },
+  {
+    "question": "me conte o que é um gato",
+    "answer": "um gato é um animal",
+    "context": [],
+    "category": "paraphrase"
+  },
+  {
+    "question": "pode explicar a ideia de um animal",
+    "answer": "um animal é um ser vivo",
+    "context": [],
+    "category": "paraphrase"
+  },
+  {
+    "question": "explique o que é um médico",
+    "answer": "um médico é um profissional da saúde",
+    "context": [],
+    "category": "paraphrase"
+  },
+  {
+    "question": "em qual lugar trabalha um médico",
+    "answer": "um médico trabalha no hospital",
+    "context": [],
+    "category": "paraphrase"
+  },
+  {
+    "question": "pode me dizer o que é um hospital",
+    "answer": "um hospital é um local de atendimento",
+    "context": [],
+    "category": "paraphrase"
+  },
+  {
+    "question": "me explique o conceito de um computador",
+    "answer": "um computador é uma máquina que executa programas",
+    "context": [],
+    "category": "paraphrase"
+  },
+  {
+    "question": "poderia falar sobre o que é um programa",
+    "answer": "um programa é um conjunto de instruções",
+    "context": [],
+    "category": "paraphrase"
+  },
+  {
+    "question": "me diga o que é uma rede",
+    "answer": "uma rede conecta computadores",
+    "context": [],
+    "category": "paraphrase"
+  },
+  {
+    "question": "poderia explicar o que é uma pergunta",
+    "answer": "uma pergunta solicita uma resposta",
+    "context": [],
+    "category": "paraphrase"
+  },
+  {
+    "question": "me diga o que é uma resposta",
+    "answer": "uma resposta apresenta informação",
+    "context": [],
+    "category": "paraphrase"
+  },
+  {
+    "question": "pode explicar o que é uma palavra",
+    "answer": "uma palavra pode formar uma frase",
+    "context": [],
+    "category": "paraphrase"
+  },
+  {
+    "question": "poderia me dizer o que é uma frase",
+    "answer": "uma frase é uma sequência de palavras",
+    "context": [],
+    "category": "paraphrase"
+  },
+  {
+    "question": "pode me explicar o que é um grafo",
+    "answer": "um grafo contém nós e conexões",
+    "context": [],
+    "category": "paraphrase"
+  },
+  {
+    "question": "me conte o que é uma conexão",
+    "answer": "uma conexão relaciona dois nós",
+    "context": [],
+    "category": "paraphrase"
+  },
+  {
+    "question": "poderia explicar o que é um peso",
+    "answer": "um peso representa a força de uma conexão",
+    "context": [],
+    "category": "paraphrase"
+  },
+  {
+    "question": "pode me contar o que é memória",
+    "answer": "memória permite guardar informação",
+    "context": [],
+    "category": "paraphrase"
+  },
+  {
+    "question": "me explique o que é aprendizado",
+    "answer": "aprendizado modifica as conexões da rede",
+    "context": [],
+    "category": "paraphrase"
+  },
+  {
+    "question": "pode explicar o que é inteligência artificial",
+    "answer": "inteligência artificial utiliza modelos computacionais",
+    "context": [],
+    "category": "paraphrase"
+  },
+  {
+    "question": "poderia explicar o que é uma escola",
+    "answer": "uma escola é um local de aprendizagem",
+    "context": [],
+    "category": "paraphrase"
+  },
+  {
+    "question": "me conte o que é um professor",
+    "answer": "um professor ensina alunos",
+    "context": [],
+    "category": "paraphrase"
+  },
+  {
+    "question": "me diga o que é um aluno",
+    "answer": "um aluno aprende na escola",
+    "context": [],
+    "category": "paraphrase"
+  },
+  {
+    "question": "pode explicar o que é uma casa",
+    "answer": "uma casa é um local para morar",
+    "context": [],
+    "category": "paraphrase"
+  },
+  {
+    "question": "me conte o que é uma árvore",
+    "answer": "uma árvore é uma planta",
+    "context": [],
+    "category": "paraphrase"
+  },
+  {
+    "question": "poderia explicar o que é o sol",
+    "answer": "o sol fornece luz e calor",
+    "context": [],
+    "category": "paraphrase"
+  },
+  {
+    "question": "me diga o que é a lua",
+    "answer": "a lua aparece no céu",
+    "context": [],
+    "category": "paraphrase"
+  },
+  {
+    "question": "pode me contar o que é português",
+    "answer": "português é uma língua",
+    "context": [],
+    "category": "paraphrase"
+  },
+  {
+    "question": "poderia explicar o que é um arquivo",
+    "answer": "um arquivo guarda dados",
+    "context": [],
+    "category": "paraphrase"
+  },
+  {
+    "question": "me conte o que é uma tabela",
+    "answer": "uma tabela organiza registros",
+    "context": [],
+    "category": "paraphrase"
+  },
+  {
+    "question": "pode explicar o que é um banco de dados",
+    "answer": "um banco de dados guarda informações",
+    "context": [],
+    "category": "paraphrase"
+  },
+  {
+    "question": "me diga o que é uma máquina",
+    "answer": "uma máquina executa tarefas",
+    "context": [],
+    "category": "paraphrase"
+  },
+  {
+    "question": "pode repetir a explicação",
+    "answer": "um cachorro é um animal",
+    "context": [
+      "o que é um cachorro"
+    ],
+    "category": "context"
+  },
+  {
+    "question": "pode repetir a explicação",
+    "answer": "um gato é um animal",
+    "context": [
+      "o que é um gato"
+    ],
+    "category": "context"
+  },
+  {
+    "question": "pode repetir a explicação",
+    "answer": "um hospital é um local de atendimento",
+    "context": [
+      "o que é um hospital"
+    ],
+    "category": "context"
+  },
+  {
+    "question": "pode repetir a explicação",
+    "answer": "um computador é uma máquina que executa programas",
+    "context": [
+      "o que é um computador"
+    ],
+    "category": "context"
+  },
+  {
+    "question": "pode repetir a explicação",
+    "answer": "um programa é um conjunto de instruções",
+    "context": [
+      "o que é um programa"
+    ],
+    "category": "context"
+  },
+  {
+    "question": "pode repetir a explicação",
+    "answer": "um token representa uma unidade de texto",
+    "context": [
+      "o que é um token"
+    ],
+    "category": "context"
+  },
+  {
+    "question": "pode repetir a explicação",
+    "answer": "um grafo contém nós e conexões",
+    "context": [
+      "o que é um grafo"
+    ],
+    "category": "context"
+  },
+  {
+    "question": "pode repetir a explicação",
+    "answer": "um arquivo guarda dados",
+    "context": [
+      "o que é um arquivo"
+    ],
+    "category": "context"
+  },
+  {
+    "question": "descreva luma e nino",
+    "answer": "luma é azul e nino é verde",
+    "context": [],
+    "category": "composition"
+  },
+  {
+    "question": "descreva nino e suri",
+    "answer": "nino é verde e suri é rosa",
+    "context": [],
+    "category": "composition"
+  },
+  {
+    "question": "descreva tavi e dori",
+    "answer": "tavi é roxo e dori é preto",
+    "context": [],
+    "category": "composition"
+  },
+  {
+    "question": "descreva suri e gabi",
+    "answer": "suri é rosa e gabi é ocre",
+    "context": [],
+    "category": "composition"
+  },
+  {
+    "question": "descreva bela e nino",
+    "answer": "bela é branco e nino é verde",
+    "context": [],
+    "category": "composition"
+  },
+  {
+    "question": "descreva dori e suri",
+    "answer": "dori é preto e suri é rosa",
+    "context": [],
+    "category": "composition"
+  },
+  {
+    "question": "descreva fino e dori",
+    "answer": "fino é cinza e dori é preto",
+    "context": [],
+    "category": "composition"
+  },
+  {
+    "question": "o que é plutônio",
+    "answer": null,
+    "context": [],
+    "category": "unknown"
+  },
+  {
+    "question": "qual é a capital do japão",
+    "answer": null,
+    "context": [],
+    "category": "unknown"
+  },
+  {
+    "question": "quem inventou o telefone",
+    "answer": null,
+    "context": [],
+    "category": "unknown"
+  },
+  {
+    "question": "qual é a órbita de saturno",
+    "answer": null,
+    "context": [],
+    "category": "unknown"
+  },
+  {
+    "question": "como funciona um pulsar",
+    "answer": null,
+    "context": [],
+    "category": "unknown"
+  },
+  {
+    "question": "o que é titânio",
+    "answer": null,
+    "context": [],
+    "category": "unknown"
+  },
+  {
+    "question": "qual é a população de londres",
+    "answer": null,
+    "context": [],
+    "category": "unknown"
+  },
+  {
+    "question": "quem descobriu urano",
+    "answer": null,
+    "context": [],
+    "category": "unknown"
+  }
+]
