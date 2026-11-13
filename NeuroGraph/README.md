@@ -29,7 +29,7 @@ Módulo experimental do framework CHATGPT para investigar uma arquitetura híbri
 
 Peso candidato: `w' = clamp((1 - lambda)*w + eta*ai*aj*confianca*relevancia, 0, 1)`.
 
-**Estado:** especificação inicial; ainda não há motor neural funcional nem comprovação de compreensão de português. Implementar e validar por etapas.
+**Estado do núcleo Pascal:** implementação inicial, sem validação de geração em português. O experimento Python v7 abaixo possui pesos e resultados próprios; ainda não foi portado para este núcleo.
 
 ## Integração
 
@@ -40,3 +40,7 @@ Reutilizar componentes existentes do repositório CHATGPT sempre que forem compa
 Disponível em [experiments/contextual_v7](experiments/contextual_v7/README.md): ajuste de conexões pelo erro de previsão, geração token por token, estado recorrente e contexto persistente. Em um teste pequeno separado do treino, a v7 obteve 51/54 decisões corretas, contra 37/54 da v6 recalibrada com os mesmos dados. Há regressão na abstenção: duas respostas indevidas a perguntas desconhecidas. Nove testes automatizados passaram.
 
 Os [pesos publicados](experiments/contextual_v7/results/neurograph_contextual_v7.ngs) e o [relatório completo](docs/contextual_v7_20261113.md) acompanham o código. Este experimento ainda não foi portado para Free Pascal nem testado no Raspberry Pi; não constitui um modelo geral de português.
+
+## Histórico e continuidade
+
+Comece por [CONTINUIDADE_NEUROGRAPH.md](docs/CONTINUIDADE_NEUROGRAPH.md): decisões, resultados, limitações e próximos passos. O pacote original de 12/11 está preservado em [history/2026-11-12](history/2026-11-12/NEUROGRAPH_CONTINUIDADE_2026-11-12.json); o [teste noturno](docs/relational_holdout_20261113.md) permanece separado do experimento v7.

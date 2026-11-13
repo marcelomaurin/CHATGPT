@@ -1,0 +1,57 @@
+{
+  "projeto": "NeuroGraph",
+  "data": "2026-11-12",
+  "objetivo": "Rede neural associativa para perguntas e respostas em português; tokens como nós, conexões direcionadas com pesos, ativação contextual, aprendizado temporal e geração token por token. Sem regras gramaticais codificadas.",
+  "decisoes": [
+    "O assistente deve calibrar pesos e testar, sem exigir treinamento manual do usuário.",
+    "Guardar histórico e decisões junto aos arquivos de memória.",
+    "Priorizar geração condicionada por pesos, não respostas fixas.",
+    "Portar para Lazarus/Free Pascal, integrar em marcelomaurin/CHATGPT e otimizar para Raspberry Pi 4 de 4 GB."
+  ],
+  "estado_verificado": [
+    "Memória v6 e scripts de calibração/inferência disponíveis no pacote.",
+    "Calibração anterior: 40 exemplos de treinamento, 98 paráfrases de validação, 10 perguntas desconhecidas; baseline 98/108, calibrado 99/108. Métricas de seleção, não teste independente.",
+    "Protótipos anteriores v3/v4 incluíam composição limitada de relações e regras específicas; não são geração neural geral.",
+    "Agente horário programado de 23h até 8h, sujeito à disponibilidade de ferramentas e ambiente."
+  ],
+  "pendencias": [
+    "Inspecionar arquitetura e formato de pesos, versionar esquema e preservar compatibilidade.",
+    "Implementar rede recorrente/contextual real com seleção do próximo token baseada nos pesos aprendidos, sem atalhos gramaticais.",
+    "Treinar/ajustar pesos das conexões automaticamente e comparar com linha de base.",
+    "Separar treinamento, validação e teste cego; incluir perguntas inéditas e métricas de abstenção, acerto, diversidade, latência e memória.",
+    "Expandir corpus em português com proveniência e qualidade; evitar vazamento de exemplos para testes.",
+    "Persistir memória de curto prazo e estados de contexto.",
+    "Criar serialização binária esparsa para escalar além do mapa denso.",
+    "Implementar em Lazarus/Free Pascal, integrar ao repositório CHATGPT, compilar e testar no Raspberry Pi 4.",
+    "Documentar experimentos, parâmetros, resultados e falhas; não alegar melhorias sem verificação."
+  ],
+  "arquivos": {
+    "neurograph_sequencial_v6.ngs": {
+      "bytes": 4723
+    },
+    "neurograph_calibracao_v6.json": {
+      "bytes": 521
+    },
+    "neurograph_inferencia_v6.py": {
+      "bytes": 2071
+    },
+    "neurograph_calibrador_v6.py": {
+      "bytes": 3623
+    },
+    "neurograph_sequencial_v5.py": {
+      "bytes": 4857
+    },
+    "neurograph_geracao_v4.py": {
+      "bytes": 13807
+    },
+    "neurograph_composicao_v3.py": {
+      "bytes": 11272
+    },
+    "neurograph_associativo_calibrado_v2.py": {
+      "bytes": 9333
+    },
+    "neurograph_associativo_calibrado_v2.ngs": {
+      "bytes": 118565
+    }
+  }
+}

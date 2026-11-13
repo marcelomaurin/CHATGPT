@@ -1,0 +1,22 @@
+{
+  "train_examples": 40,
+  "heldout_paraphrases": 98,
+  "unknown_questions": 10,
+  "baseline": {
+    "correct_paraphrases": 88,
+    "correct_abstentions": 10,
+    "total": 98
+  },
+  "calibrated": {
+    "correct_paraphrases": 89,
+    "correct_abstentions": 10,
+    "total": 99
+  },
+  "parameters": {
+    "active_ratio": 0.99,
+    "activation_threshold": 1.2,
+    "temperature": 1.0,
+    "min_content_coverage": 0.6
+  },
+  "warning": "Parâmetros escolhidos sobre a validação; resultados não são teste independente."
+}
