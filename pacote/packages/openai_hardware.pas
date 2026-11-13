@@ -9,8 +9,8 @@ interface
 
 uses
   aihardwarelinux, aicpu, aimemory, aigpu, aidisk, aiso, ai_tasks,
-  ailistprinters, aiwifi, aifirmwareflasher, openai_hardware_paletteicons,
-  LazarusPackageIntf;
+  ailistprinters, aiwifi, aifirmwareflasher, aideviceidentifier,
+  openai_hardware_paletteicons, LazarusPackageIntf;
 
 implementation
 
@@ -25,6 +25,7 @@ begin
   RegisterUnit('ailistprinters', @ailistprinters.Register);
   RegisterUnit('aiwifi', @aiwifi.Register);
   RegisterUnit('aifirmwareflasher', @aifirmwareflasher.Register);
+  RegisterUnit('aideviceidentifier', @aideviceidentifier.Register);
 end;
 
 initialization

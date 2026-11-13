@@ -69,6 +69,11 @@
         <Filename Value="openai_hardware_paletteicons.pas"/>
         <UnitName Value="openai_hardware_paletteicons"/>
       </Item>
+      <Item>
+        <Filename Value="..\AI Hardware\aideviceidentifier.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aideviceidentifier"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>
