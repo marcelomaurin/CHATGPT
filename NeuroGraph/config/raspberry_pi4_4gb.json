@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "profile": "raspberry-pi-4-4gb-experimental",
+  "tokenizer": {"language": "pt-BR", "vocabulary_initial": 691, "allow_new_tokens": true},
+  "graph": {
+    "directed": true,
+    "initial_weight": 0.0,
+    "activation_threshold": 0.05,
+    "max_hops": 3,
+    "hop_decay": [0.8, 0.5, 0.2],
+    "max_active_nodes": 256,
+    "max_neighbors_per_node": 32,
+    "prune_below_weight": 0.001,
+    "keep_zero_weight_edges_on_disk": true,
+    "sparse_active_adjacency": true
+  },
+  "learning": {
+    "enabled": true,
+    "automatic_self_reinforcement": false,
+    "learning_rate": 0.02,
+    "forget_rate": 0.0001,
+    "minimum_external_confidence": 0.8,
+    "max_weight": 1.0,
+    "min_weight": 0.0,
+    "checkpoint_every_confirmed_updates": 100
+  },
+  "neural_network_proposal": {
+    "embedding_dim": 64,
+    "hidden_dim": 128,
+    "layers": 2,
+    "max_context_tokens": 128,
+    "weight_storage": "float32",
+    "note": "Proposta para prototipo; requer implementacao, testes e treinamento. Nao e um modelo linguistico pre-treinado."
+  }
+}
