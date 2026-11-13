@@ -47,6 +47,7 @@ type
     FBtnTopicosPadrao: TButton;
     FSpinMinParesTopicos: TSpinEdit;
     FBtnGerar10Topicos: TButton;
+    FBtnPararTreinoTopicos: TButton;
 
     // Aba TCHATGPT (Provedores, Modelos, URL e Teste)
     FCmbProvider: TComboBox;
@@ -552,6 +553,17 @@ begin
   FBtnGerar10Topicos.Width := 405;
   FBtnGerar10Topicos.Height := 34;
   FBtnGerar10Topicos.OnClick := @OnGerar10TopicosClick;
+
+  FBtnPararTreinoTopicos := TButton.Create(Self);
+  FBtnPararTreinoTopicos.Parent := FTab10Topicos;
+  FBtnPararTreinoTopicos.Caption := '⏹️ Parar Treinamento';
+  FBtnPararTreinoTopicos.Left := 430;
+  FBtnPararTreinoTopicos.Top := 290;
+  FBtnPararTreinoTopicos.Width := 180;
+  FBtnPararTreinoTopicos.Height := 34;
+  FBtnPararTreinoTopicos.Enabled := False;
+  FBtnPararTreinoTopicos.Font.Style := [fsBold];
+  FBtnPararTreinoTopicos.OnClick := @OnAbortarClick;
 
   Lbl := TLabel.Create(Self);
   Lbl.Parent := FTab10Topicos;
@@ -1164,6 +1176,7 @@ begin
   FBtnProcessarPDF.Enabled := not ABusy;
   FBtnGerar10Topicos.Enabled := not ABusy;
   FBtnAdicionarTopico.Enabled := not ABusy;
+  FBtnPararTreinoTopicos.Enabled := ABusy;
   FBtnRetreinarTudo.Enabled := not ABusy;
   FBtnAbortar.Enabled := ABusy;
 
@@ -1641,7 +1654,17 @@ end;
 procedure TfrmStudio.OnAbortarClick(Sender: TObject);
 begin
   FAbortRequested := True;
-  LogMsg('[AVISO] Solicitando cancelamento...');
+  LogMsg('[AVISO] Solicitando cancelamento imediato do processo...');
+  if Assigned(FCurrentProcess) and FCurrentProcess.Running then
+  begin
+    try
+      FCurrentProcess.Terminate(1);
+      LogMsg('[SUCESSO] Processo de treinamento finalizado/interrompido.');
+    except
+      on E: Exception do
+        LogMsg('[ERRO] Falha ao interromper processo: ' + E.Message);
+    end;
+  end;
 end;
 
 procedure TfrmStudio.OnApiKeyChange(Sender: TObject);
