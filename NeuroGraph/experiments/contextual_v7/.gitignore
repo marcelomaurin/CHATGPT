@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+conversa.json
+*.session.json

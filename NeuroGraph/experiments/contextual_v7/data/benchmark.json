@@ -1,0 +1,2041 @@
+{
+  "version": 1,
+  "provenance": {
+    "legacy": "40 original v6 pairs; prior 98 paraphrases used only as validation",
+    "new_questions": "Authored on 2026-11-13 before fitting v7; small controlled benchmark",
+    "composition": "Invented entities and colors; every individual fact is trained",
+    "limits": "Not a Portuguese language benchmark or an independent human evaluation"
+  },
+  "train": [
+    {
+      "question": "o que é um cachorro",
+      "answer": "um cachorro é um animal",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é um gato",
+      "answer": "um gato é um animal",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é um animal",
+      "answer": "um animal é um ser vivo",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é um médico",
+      "answer": "um médico é um profissional da saúde",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "onde trabalha um médico",
+      "answer": "um médico trabalha no hospital",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é um hospital",
+      "answer": "um hospital é um local de atendimento",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é um computador",
+      "answer": "um computador é uma máquina que executa programas",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é um programa",
+      "answer": "um programa é um conjunto de instruções",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é uma rede",
+      "answer": "uma rede conecta computadores",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é uma pergunta",
+      "answer": "uma pergunta solicita uma resposta",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é uma resposta",
+      "answer": "uma resposta apresenta informação",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é uma palavra",
+      "answer": "uma palavra pode formar uma frase",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é uma frase",
+      "answer": "uma frase é uma sequência de palavras",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é um token",
+      "answer": "um token representa uma unidade de texto",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é um grafo",
+      "answer": "um grafo contém nós e conexões",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é uma conexão",
+      "answer": "uma conexão relaciona dois nós",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é um peso",
+      "answer": "um peso representa a força de uma conexão",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é memória",
+      "answer": "memória permite guardar informação",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é aprendizado",
+      "answer": "aprendizado modifica as conexões da rede",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é inteligência artificial",
+      "answer": "inteligência artificial utiliza modelos computacionais",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é água",
+      "answer": "água é importante para a vida",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "para que serve água",
+      "answer": "água serve para beber e para outras necessidades",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é uma escola",
+      "answer": "uma escola é um local de aprendizagem",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "quem ensina na escola",
+      "answer": "o professor ensina na escola",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "quem aprende na escola",
+      "answer": "o aluno aprende na escola",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é um professor",
+      "answer": "um professor ensina alunos",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é um aluno",
+      "answer": "um aluno aprende na escola",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é o coração",
+      "answer": "o coração movimenta o sangue",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é o pulmão",
+      "answer": "o pulmão participa da respiração",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é o cérebro",
+      "answer": "o cérebro faz parte do corpo",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é uma casa",
+      "answer": "uma casa é um local para morar",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é uma árvore",
+      "answer": "uma árvore é uma planta",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é o sol",
+      "answer": "o sol fornece luz e calor",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é a lua",
+      "answer": "a lua aparece no céu",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é português",
+      "answer": "português é uma língua",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é um arquivo",
+      "answer": "um arquivo guarda dados",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é uma tabela",
+      "answer": "uma tabela organiza registros",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é um banco de dados",
+      "answer": "um banco de dados guarda informações",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é uma máquina",
+      "answer": "uma máquina executa tarefas",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "o que é saúde",
+      "answer": "saúde está relacionada ao bem estar",
+      "context": [],
+      "category": "legacy"
+    },
+    {
+      "question": "e isso",
+      "answer": "um cachorro é um animal",
+      "context": [
+        "o que é um cachorro"
+      ],
+      "category": "context"
+    },
+    {
+      "question": "explique novamente",
+      "answer": "um cachorro é um animal",
+      "context": [
+        "o que é um cachorro"
+      ],
+      "category": "context"
+    },
+    {
+      "question": "e isso",
+      "answer": "um gato é um animal",
+      "context": [
+        "o que é um gato"
+      ],
+      "category": "context"
+    },
+    {
+      "question": "explique novamente",
+      "answer": "um gato é um animal",
+      "context": [
+        "o que é um gato"
+      ],
+      "category": "context"
+    },
+    {
+      "question": "e isso",
+      "answer": "um hospital é um local de atendimento",
+      "context": [
+        "o que é um hospital"
+      ],
+      "category": "context"
+    },
+    {
+      "question": "explique novamente",
+      "answer": "um hospital é um local de atendimento",
+      "context": [
+        "o que é um hospital"
+      ],
+      "category": "context"
+    },
+    {
+      "question": "e isso",
+      "answer": "um computador é uma máquina que executa programas",
+      "context": [
+        "o que é um computador"
+      ],
+      "category": "context"
+    },
+    {
+      "question": "explique novamente",
+      "answer": "um computador é uma máquina que executa programas",
+      "context": [
+        "o que é um computador"
+      ],
+      "category": "context"
+    },
+    {
+      "question": "e isso",
+      "answer": "um programa é um conjunto de instruções",
+      "context": [
+        "o que é um programa"
+      ],
+      "category": "context"
+    },
+    {
+      "question": "explique novamente",
+      "answer": "um programa é um conjunto de instruções",
+      "context": [
+        "o que é um programa"
+      ],
+      "category": "context"
+    },
+    {
+      "question": "e isso",
+      "answer": "um token representa uma unidade de texto",
+      "context": [
+        "o que é um token"
+      ],
+      "category": "context"
+    },
+    {
+      "question": "explique novamente",
+      "answer": "um token representa uma unidade de texto",
+      "context": [
+        "o que é um token"
+      ],
+      "category": "context"
+    },
+    {
+      "question": "e isso",
+      "answer": "um grafo contém nós e conexões",
+      "context": [
+        "o que é um grafo"
+      ],
+      "category": "context"
+    },
+    {
+      "question": "explique novamente",
+      "answer": "um grafo contém nós e conexões",
+      "context": [
+        "o que é um grafo"
+      ],
+      "category": "context"
+    },
+    {
+      "question": "e isso",
+      "answer": "um arquivo guarda dados",
+      "context": [
+        "o que é um arquivo"
+      ],
+      "category": "context"
+    },
+    {
+      "question": "explique novamente",
+      "answer": "um arquivo guarda dados",
+      "context": [
+        "o que é um arquivo"
+      ],
+      "category": "context"
+    },
+    {
+      "question": "qual a cor de luma",
+      "answer": "luma é azul",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "qual a cor de nino",
+      "answer": "nino é verde",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "qual a cor de tavi",
+      "answer": "tavi é roxo",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "qual a cor de suri",
+      "answer": "suri é rosa",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "qual a cor de bela",
+      "answer": "bela é branco",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "qual a cor de dori",
+      "answer": "dori é preto",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "qual a cor de fino",
+      "answer": "fino é cinza",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "qual a cor de gabi",
+      "answer": "gabi é ocre",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva luma e tavi",
+      "answer": "luma é azul e tavi é roxo",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente luma e tavi",
+      "answer": "luma é azul e tavi é roxo",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva luma e bela",
+      "answer": "luma é azul e bela é branco",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente luma e bela",
+      "answer": "luma é azul e bela é branco",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva luma e dori",
+      "answer": "luma é azul e dori é preto",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente luma e dori",
+      "answer": "luma é azul e dori é preto",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva luma e fino",
+      "answer": "luma é azul e fino é cinza",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente luma e fino",
+      "answer": "luma é azul e fino é cinza",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva luma e gabi",
+      "answer": "luma é azul e gabi é ocre",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente luma e gabi",
+      "answer": "luma é azul e gabi é ocre",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva nino e luma",
+      "answer": "nino é verde e luma é azul",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente nino e luma",
+      "answer": "nino é verde e luma é azul",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva nino e tavi",
+      "answer": "nino é verde e tavi é roxo",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente nino e tavi",
+      "answer": "nino é verde e tavi é roxo",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva nino e dori",
+      "answer": "nino é verde e dori é preto",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente nino e dori",
+      "answer": "nino é verde e dori é preto",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva nino e fino",
+      "answer": "nino é verde e fino é cinza",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente nino e fino",
+      "answer": "nino é verde e fino é cinza",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva nino e gabi",
+      "answer": "nino é verde e gabi é ocre",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente nino e gabi",
+      "answer": "nino é verde e gabi é ocre",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva tavi e luma",
+      "answer": "tavi é roxo e luma é azul",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente tavi e luma",
+      "answer": "tavi é roxo e luma é azul",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva tavi e nino",
+      "answer": "tavi é roxo e nino é verde",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente tavi e nino",
+      "answer": "tavi é roxo e nino é verde",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva tavi e suri",
+      "answer": "tavi é roxo e suri é rosa",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente tavi e suri",
+      "answer": "tavi é roxo e suri é rosa",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva tavi e bela",
+      "answer": "tavi é roxo e bela é branco",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente tavi e bela",
+      "answer": "tavi é roxo e bela é branco",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva tavi e fino",
+      "answer": "tavi é roxo e fino é cinza",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente tavi e fino",
+      "answer": "tavi é roxo e fino é cinza",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva tavi e gabi",
+      "answer": "tavi é roxo e gabi é ocre",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente tavi e gabi",
+      "answer": "tavi é roxo e gabi é ocre",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva suri e luma",
+      "answer": "suri é rosa e luma é azul",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente suri e luma",
+      "answer": "suri é rosa e luma é azul",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva suri e nino",
+      "answer": "suri é rosa e nino é verde",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente suri e nino",
+      "answer": "suri é rosa e nino é verde",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva suri e tavi",
+      "answer": "suri é rosa e tavi é roxo",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente suri e tavi",
+      "answer": "suri é rosa e tavi é roxo",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva suri e bela",
+      "answer": "suri é rosa e bela é branco",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente suri e bela",
+      "answer": "suri é rosa e bela é branco",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva suri e dori",
+      "answer": "suri é rosa e dori é preto",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente suri e dori",
+      "answer": "suri é rosa e dori é preto",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva bela e luma",
+      "answer": "bela é branco e luma é azul",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente bela e luma",
+      "answer": "bela é branco e luma é azul",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva bela e tavi",
+      "answer": "bela é branco e tavi é roxo",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente bela e tavi",
+      "answer": "bela é branco e tavi é roxo",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva bela e suri",
+      "answer": "bela é branco e suri é rosa",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente bela e suri",
+      "answer": "bela é branco e suri é rosa",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva bela e dori",
+      "answer": "bela é branco e dori é preto",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente bela e dori",
+      "answer": "bela é branco e dori é preto",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva bela e fino",
+      "answer": "bela é branco e fino é cinza",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente bela e fino",
+      "answer": "bela é branco e fino é cinza",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva dori e nino",
+      "answer": "dori é preto e nino é verde",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente dori e nino",
+      "answer": "dori é preto e nino é verde",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva dori e tavi",
+      "answer": "dori é preto e tavi é roxo",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente dori e tavi",
+      "answer": "dori é preto e tavi é roxo",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva dori e bela",
+      "answer": "dori é preto e bela é branco",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente dori e bela",
+      "answer": "dori é preto e bela é branco",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva dori e fino",
+      "answer": "dori é preto e fino é cinza",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente dori e fino",
+      "answer": "dori é preto e fino é cinza",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva dori e gabi",
+      "answer": "dori é preto e gabi é ocre",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente dori e gabi",
+      "answer": "dori é preto e gabi é ocre",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva fino e luma",
+      "answer": "fino é cinza e luma é azul",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente fino e luma",
+      "answer": "fino é cinza e luma é azul",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva fino e tavi",
+      "answer": "fino é cinza e tavi é roxo",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente fino e tavi",
+      "answer": "fino é cinza e tavi é roxo",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva fino e suri",
+      "answer": "fino é cinza e suri é rosa",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente fino e suri",
+      "answer": "fino é cinza e suri é rosa",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva fino e bela",
+      "answer": "fino é cinza e bela é branco",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente fino e bela",
+      "answer": "fino é cinza e bela é branco",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva fino e gabi",
+      "answer": "fino é cinza e gabi é ocre",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente fino e gabi",
+      "answer": "fino é cinza e gabi é ocre",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva gabi e luma",
+      "answer": "gabi é ocre e luma é azul",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente gabi e luma",
+      "answer": "gabi é ocre e luma é azul",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva gabi e nino",
+      "answer": "gabi é ocre e nino é verde",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente gabi e nino",
+      "answer": "gabi é ocre e nino é verde",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva gabi e suri",
+      "answer": "gabi é ocre e suri é rosa",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente gabi e suri",
+      "answer": "gabi é ocre e suri é rosa",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva gabi e bela",
+      "answer": "gabi é ocre e bela é branco",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente gabi e bela",
+      "answer": "gabi é ocre e bela é branco",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva gabi e dori",
+      "answer": "gabi é ocre e dori é preto",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente gabi e dori",
+      "answer": "gabi é ocre e dori é preto",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva gabi e fino",
+      "answer": "gabi é ocre e fino é cinza",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente gabi e fino",
+      "answer": "gabi é ocre e fino é cinza",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "o que é um quasar",
+      "answer": null,
+      "context": [],
+      "category": "unknown"
+    },
+    {
+      "question": "qual é a capital da austrália",
+      "answer": null,
+      "context": [],
+      "category": "unknown"
+    },
+    {
+      "question": "quem inventou o rádio",
+      "answer": null,
+      "context": [],
+      "category": "unknown"
+    },
+    {
+      "question": "como funciona um satélite",
+      "answer": null,
+      "context": [],
+      "category": "unknown"
+    },
+    {
+      "question": "qual é a distância de marte",
+      "answer": null,
+      "context": [],
+      "category": "unknown"
+    },
+    {
+      "question": "o que é um píon",
+      "answer": null,
+      "context": [],
+      "category": "unknown"
+    },
+    {
+      "question": "quem descobriu netuno",
+      "answer": null,
+      "context": [],
+      "category": "unknown"
+    },
+    {
+      "question": "qual é o tamanho de júpiter",
+      "answer": null,
+      "context": [],
+      "category": "unknown"
+    }
+  ],
+  "validation": [
+    {
+      "question": "explique um cachorro",
+      "answer": "um cachorro é um animal",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "defina um cachorro",
+      "answer": "um cachorro é um animal",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me explique o que é um cachorro",
+      "answer": "um cachorro é um animal",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "explique um gato",
+      "answer": "um gato é um animal",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "defina um gato",
+      "answer": "um gato é um animal",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me explique o que é um gato",
+      "answer": "um gato é um animal",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "explique um animal",
+      "answer": "um animal é um ser vivo",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "defina um animal",
+      "answer": "um animal é um ser vivo",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me explique o que é um animal",
+      "answer": "um animal é um ser vivo",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "explique um médico",
+      "answer": "um médico é um profissional da saúde",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "defina um médico",
+      "answer": "um médico é um profissional da saúde",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me explique o que é um médico",
+      "answer": "um médico é um profissional da saúde",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "em que lugar trabalha um médico",
+      "answer": "um médico trabalha no hospital",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "qual o local de trabalho de um médico",
+      "answer": "um médico trabalha no hospital",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "explique um hospital",
+      "answer": "um hospital é um local de atendimento",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "defina um hospital",
+      "answer": "um hospital é um local de atendimento",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me explique o que é um hospital",
+      "answer": "um hospital é um local de atendimento",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "explique um computador",
+      "answer": "um computador é uma máquina que executa programas",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "defina um computador",
+      "answer": "um computador é uma máquina que executa programas",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me explique o que é um computador",
+      "answer": "um computador é uma máquina que executa programas",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "explique um programa",
+      "answer": "um programa é um conjunto de instruções",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "defina um programa",
+      "answer": "um programa é um conjunto de instruções",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me explique o que é um programa",
+      "answer": "um programa é um conjunto de instruções",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "explique uma rede",
+      "answer": "uma rede conecta computadores",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "defina uma rede",
+      "answer": "uma rede conecta computadores",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me explique o que é uma rede",
+      "answer": "uma rede conecta computadores",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "explique uma pergunta",
+      "answer": "uma pergunta solicita uma resposta",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "defina uma pergunta",
+      "answer": "uma pergunta solicita uma resposta",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me explique o que é uma pergunta",
+      "answer": "uma pergunta solicita uma resposta",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "explique uma resposta",
+      "answer": "uma resposta apresenta informação",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "defina uma resposta",
+      "answer": "uma resposta apresenta informação",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me explique o que é uma resposta",
+      "answer": "uma resposta apresenta informação",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "explique uma palavra",
+      "answer": "uma palavra pode formar uma frase",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "defina uma palavra",
+      "answer": "uma palavra pode formar uma frase",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me explique o que é uma palavra",
+      "answer": "uma palavra pode formar uma frase",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "explique uma frase",
+      "answer": "uma frase é uma sequência de palavras",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "defina uma frase",
+      "answer": "uma frase é uma sequência de palavras",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me explique o que é uma frase",
+      "answer": "uma frase é uma sequência de palavras",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "explique um token",
+      "answer": "um token representa uma unidade de texto",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "defina um token",
+      "answer": "um token representa uma unidade de texto",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me explique o que é um token",
+      "answer": "um token representa uma unidade de texto",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "explique um grafo",
+      "answer": "um grafo contém nós e conexões",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "defina um grafo",
+      "answer": "um grafo contém nós e conexões",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me explique o que é um grafo",
+      "answer": "um grafo contém nós e conexões",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "explique uma conexão",
+      "answer": "uma conexão relaciona dois nós",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "defina uma conexão",
+      "answer": "uma conexão relaciona dois nós",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me explique o que é uma conexão",
+      "answer": "uma conexão relaciona dois nós",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "explique um peso",
+      "answer": "um peso representa a força de uma conexão",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "defina um peso",
+      "answer": "um peso representa a força de uma conexão",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me explique o que é um peso",
+      "answer": "um peso representa a força de uma conexão",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "qual a utilidade de água",
+      "answer": "água serve para beber e para outras necessidades",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "qual a função de água",
+      "answer": "água serve para beber e para outras necessidades",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "explique uma escola",
+      "answer": "uma escola é um local de aprendizagem",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "defina uma escola",
+      "answer": "uma escola é um local de aprendizagem",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me explique o que é uma escola",
+      "answer": "uma escola é um local de aprendizagem",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "quem dá aulas na escola",
+      "answer": "o professor ensina na escola",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "quem é responsável por ensinar na escola",
+      "answer": "o professor ensina na escola",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "quem estuda na escola",
+      "answer": "o aluno aprende na escola",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "quem recebe ensino na escola",
+      "answer": "o aluno aprende na escola",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "explique um professor",
+      "answer": "um professor ensina alunos",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "defina um professor",
+      "answer": "um professor ensina alunos",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me explique o que é um professor",
+      "answer": "um professor ensina alunos",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "explique um aluno",
+      "answer": "um aluno aprende na escola",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "defina um aluno",
+      "answer": "um aluno aprende na escola",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me explique o que é um aluno",
+      "answer": "um aluno aprende na escola",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "explique o coração",
+      "answer": "o coração movimenta o sangue",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "defina o coração",
+      "answer": "o coração movimenta o sangue",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me explique o que é o coração",
+      "answer": "o coração movimenta o sangue",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "explique o pulmão",
+      "answer": "o pulmão participa da respiração",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "defina o pulmão",
+      "answer": "o pulmão participa da respiração",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me explique o que é o pulmão",
+      "answer": "o pulmão participa da respiração",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "explique o cérebro",
+      "answer": "o cérebro faz parte do corpo",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "defina o cérebro",
+      "answer": "o cérebro faz parte do corpo",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me explique o que é o cérebro",
+      "answer": "o cérebro faz parte do corpo",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "explique uma casa",
+      "answer": "uma casa é um local para morar",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "defina uma casa",
+      "answer": "uma casa é um local para morar",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me explique o que é uma casa",
+      "answer": "uma casa é um local para morar",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "explique uma árvore",
+      "answer": "uma árvore é uma planta",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "defina uma árvore",
+      "answer": "uma árvore é uma planta",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me explique o que é uma árvore",
+      "answer": "uma árvore é uma planta",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "explique o sol",
+      "answer": "o sol fornece luz e calor",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "defina o sol",
+      "answer": "o sol fornece luz e calor",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me explique o que é o sol",
+      "answer": "o sol fornece luz e calor",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "explique a lua",
+      "answer": "a lua aparece no céu",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "defina a lua",
+      "answer": "a lua aparece no céu",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me explique o que é a lua",
+      "answer": "a lua aparece no céu",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "explique um arquivo",
+      "answer": "um arquivo guarda dados",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "defina um arquivo",
+      "answer": "um arquivo guarda dados",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me explique o que é um arquivo",
+      "answer": "um arquivo guarda dados",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "explique uma tabela",
+      "answer": "uma tabela organiza registros",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "defina uma tabela",
+      "answer": "uma tabela organiza registros",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me explique o que é uma tabela",
+      "answer": "uma tabela organiza registros",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "explique um banco de dados",
+      "answer": "um banco de dados guarda informações",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "defina um banco de dados",
+      "answer": "um banco de dados guarda informações",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me explique o que é um banco de dados",
+      "answer": "um banco de dados guarda informações",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "explique uma máquina",
+      "answer": "uma máquina executa tarefas",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "defina uma máquina",
+      "answer": "uma máquina executa tarefas",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me explique o que é uma máquina",
+      "answer": "uma máquina executa tarefas",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "e quanto a isso",
+      "answer": "um cachorro é um animal",
+      "context": [
+        "o que é um cachorro"
+      ],
+      "category": "context"
+    },
+    {
+      "question": "e quanto a isso",
+      "answer": "um gato é um animal",
+      "context": [
+        "o que é um gato"
+      ],
+      "category": "context"
+    },
+    {
+      "question": "e quanto a isso",
+      "answer": "um hospital é um local de atendimento",
+      "context": [
+        "o que é um hospital"
+      ],
+      "category": "context"
+    },
+    {
+      "question": "e quanto a isso",
+      "answer": "um computador é uma máquina que executa programas",
+      "context": [
+        "o que é um computador"
+      ],
+      "category": "context"
+    },
+    {
+      "question": "e quanto a isso",
+      "answer": "um programa é um conjunto de instruções",
+      "context": [
+        "o que é um programa"
+      ],
+      "category": "context"
+    },
+    {
+      "question": "e quanto a isso",
+      "answer": "um token representa uma unidade de texto",
+      "context": [
+        "o que é um token"
+      ],
+      "category": "context"
+    },
+    {
+      "question": "e quanto a isso",
+      "answer": "um grafo contém nós e conexões",
+      "context": [
+        "o que é um grafo"
+      ],
+      "category": "context"
+    },
+    {
+      "question": "e quanto a isso",
+      "answer": "um arquivo guarda dados",
+      "context": [
+        "o que é um arquivo"
+      ],
+      "category": "context"
+    },
+    {
+      "question": "apresente luma e suri",
+      "answer": "luma é azul e suri é rosa",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente nino e bela",
+      "answer": "nino é verde e bela é branco",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente suri e fino",
+      "answer": "suri é rosa e fino é cinza",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente bela e gabi",
+      "answer": "bela é branco e gabi é ocre",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente dori e luma",
+      "answer": "dori é preto e luma é azul",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente fino e nino",
+      "answer": "fino é cinza e nino é verde",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "apresente gabi e tavi",
+      "answer": "gabi é ocre e tavi é roxo",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "o que é um neutrino",
+      "answer": null,
+      "context": [],
+      "category": "unknown"
+    },
+    {
+      "question": "qual é a capital da frança",
+      "answer": null,
+      "context": [],
+      "category": "unknown"
+    },
+    {
+      "question": "quem descobriu plutão",
+      "answer": null,
+      "context": [],
+      "category": "unknown"
+    },
+    {
+      "question": "qual é a massa de vênus",
+      "answer": null,
+      "context": [],
+      "category": "unknown"
+    }
+  ],
+  "test": [
+    {
+      "question": "poderia explicar o que é um cachorro",
+      "answer": "um cachorro é um animal",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me conte o que é um gato",
+      "answer": "um gato é um animal",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "pode explicar a ideia de um animal",
+      "answer": "um animal é um ser vivo",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "explique o que é um médico",
+      "answer": "um médico é um profissional da saúde",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "em qual lugar trabalha um médico",
+      "answer": "um médico trabalha no hospital",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "pode me dizer o que é um hospital",
+      "answer": "um hospital é um local de atendimento",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me explique o conceito de um computador",
+      "answer": "um computador é uma máquina que executa programas",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "poderia falar sobre o que é um programa",
+      "answer": "um programa é um conjunto de instruções",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me diga o que é uma rede",
+      "answer": "uma rede conecta computadores",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "poderia explicar o que é uma pergunta",
+      "answer": "uma pergunta solicita uma resposta",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me diga o que é uma resposta",
+      "answer": "uma resposta apresenta informação",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "pode explicar o que é uma palavra",
+      "answer": "uma palavra pode formar uma frase",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "poderia me dizer o que é uma frase",
+      "answer": "uma frase é uma sequência de palavras",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "pode me explicar o que é um grafo",
+      "answer": "um grafo contém nós e conexões",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me conte o que é uma conexão",
+      "answer": "uma conexão relaciona dois nós",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "poderia explicar o que é um peso",
+      "answer": "um peso representa a força de uma conexão",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "pode me contar o que é memória",
+      "answer": "memória permite guardar informação",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me explique o que é aprendizado",
+      "answer": "aprendizado modifica as conexões da rede",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "pode explicar o que é inteligência artificial",
+      "answer": "inteligência artificial utiliza modelos computacionais",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "poderia explicar o que é uma escola",
+      "answer": "uma escola é um local de aprendizagem",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me conte o que é um professor",
+      "answer": "um professor ensina alunos",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me diga o que é um aluno",
+      "answer": "um aluno aprende na escola",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "pode explicar o que é uma casa",
+      "answer": "uma casa é um local para morar",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me conte o que é uma árvore",
+      "answer": "uma árvore é uma planta",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "poderia explicar o que é o sol",
+      "answer": "o sol fornece luz e calor",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me diga o que é a lua",
+      "answer": "a lua aparece no céu",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "pode me contar o que é português",
+      "answer": "português é uma língua",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "poderia explicar o que é um arquivo",
+      "answer": "um arquivo guarda dados",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me conte o que é uma tabela",
+      "answer": "uma tabela organiza registros",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "pode explicar o que é um banco de dados",
+      "answer": "um banco de dados guarda informações",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "me diga o que é uma máquina",
+      "answer": "uma máquina executa tarefas",
+      "context": [],
+      "category": "paraphrase"
+    },
+    {
+      "question": "pode repetir a explicação",
+      "answer": "um cachorro é um animal",
+      "context": [
+        "o que é um cachorro"
+      ],
+      "category": "context"
+    },
+    {
+      "question": "pode repetir a explicação",
+      "answer": "um gato é um animal",
+      "context": [
+        "o que é um gato"
+      ],
+      "category": "context"
+    },
+    {
+      "question": "pode repetir a explicação",
+      "answer": "um hospital é um local de atendimento",
+      "context": [
+        "o que é um hospital"
+      ],
+      "category": "context"
+    },
+    {
+      "question": "pode repetir a explicação",
+      "answer": "um computador é uma máquina que executa programas",
+      "context": [
+        "o que é um computador"
+      ],
+      "category": "context"
+    },
+    {
+      "question": "pode repetir a explicação",
+      "answer": "um programa é um conjunto de instruções",
+      "context": [
+        "o que é um programa"
+      ],
+      "category": "context"
+    },
+    {
+      "question": "pode repetir a explicação",
+      "answer": "um token representa uma unidade de texto",
+      "context": [
+        "o que é um token"
+      ],
+      "category": "context"
+    },
+    {
+      "question": "pode repetir a explicação",
+      "answer": "um grafo contém nós e conexões",
+      "context": [
+        "o que é um grafo"
+      ],
+      "category": "context"
+    },
+    {
+      "question": "pode repetir a explicação",
+      "answer": "um arquivo guarda dados",
+      "context": [
+        "o que é um arquivo"
+      ],
+      "category": "context"
+    },
+    {
+      "question": "descreva luma e nino",
+      "answer": "luma é azul e nino é verde",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva nino e suri",
+      "answer": "nino é verde e suri é rosa",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva tavi e dori",
+      "answer": "tavi é roxo e dori é preto",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva suri e gabi",
+      "answer": "suri é rosa e gabi é ocre",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva bela e nino",
+      "answer": "bela é branco e nino é verde",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva dori e suri",
+      "answer": "dori é preto e suri é rosa",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "descreva fino e dori",
+      "answer": "fino é cinza e dori é preto",
+      "context": [],
+      "category": "composition"
+    },
+    {
+      "question": "o que é plutônio",
+      "answer": null,
+      "context": [],
+      "category": "unknown"
+    },
+    {
+      "question": "qual é a capital do japão",
+      "answer": null,
+      "context": [],
+      "category": "unknown"
+    },
+    {
+      "question": "quem inventou o telefone",
+      "answer": null,
+      "context": [],
+      "category": "unknown"
+    },
+    {
+      "question": "qual é a órbita de saturno",
+      "answer": null,
+      "context": [],
+      "category": "unknown"
+    },
+    {
+      "question": "como funciona um pulsar",
+      "answer": null,
+      "context": [],
+      "category": "unknown"
+    },
+    {
+      "question": "o que é titânio",
+      "answer": null,
+      "context": [],
+      "category": "unknown"
+    },
+    {
+      "question": "qual é a população de londres",
+      "answer": null,
+      "context": [],
+      "category": "unknown"
+    },
+    {
+      "question": "quem descobriu urano",
+      "answer": null,
+      "context": [],
+      "category": "unknown"
+    }
+  ]
+}

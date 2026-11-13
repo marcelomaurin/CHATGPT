@@ -1,0 +1,2089 @@
+{
+  "dataset_sha256": "0c1d4c33380a38dd88d047eb7d6d6c53ed7c552c34b7c937c50a7122f16e81f8",
+  "model_sha256": "a77a91d88063b25a98b517d48607b3ef6c2f6174b80f319fb05a189e6952402f",
+  "configuration": {
+    "epochs": 180,
+    "learning_rate": 0.05,
+    "regularization": 0.0001,
+    "recurrent_decay": 0.65
+  },
+  "split_sizes": {
+    "train": 156,
+    "validation": 117,
+    "test": 54
+  },
+  "training_seconds": 0.7789944859998741,
+  "learning": [
+    {
+      "epoch": 1,
+      "cross_entropy": 4.934474468231201,
+      "teacher_forced_token_accuracy": 0.14207650273224043
+    },
+    {
+      "epoch": 30,
+      "cross_entropy": 0.03348645567893982,
+      "teacher_forced_token_accuracy": 1.0
+    },
+    {
+      "epoch": 60,
+      "cross_entropy": 0.04807230830192566,
+      "teacher_forced_token_accuracy": 1.0
+    },
+    {
+      "epoch": 90,
+      "cross_entropy": 0.044059522449970245,
+      "teacher_forced_token_accuracy": 1.0
+    },
+    {
+      "epoch": 120,
+      "cross_entropy": 0.04250459372997284,
+      "teacher_forced_token_accuracy": 1.0
+    },
+    {
+      "epoch": 150,
+      "cross_entropy": 0.04097394645214081,
+      "teacher_forced_token_accuracy": 1.0
+    },
+    {
+      "epoch": 180,
+      "cross_entropy": 0.03981471806764603,
+      "teacher_forced_token_accuracy": 1.0
+    },
+    {
+      "changed_weights": 685548,
+      "features": 4932,
+      "tokens": 139,
+      "stored_edges": 111816
+    }
+  ],
+  "validation_policy_candidates": [
+    {
+      "threshold": 0.0,
+      "correct": 110,
+      "wrong_answers": 5
+    },
+    {
+      "threshold": 0.1,
+      "correct": 111,
+      "wrong_answers": 4
+    },
+    {
+      "threshold": 0.2,
+      "correct": 106,
+      "wrong_answers": 4
+    },
+    {
+      "threshold": 0.3,
+      "correct": 79,
+      "wrong_answers": 3
+    },
+    {
+      "threshold": 0.4,
+      "correct": 67,
+      "wrong_answers": 0
+    },
+    {
+      "threshold": 0.5,
+      "correct": 61,
+      "wrong_answers": 0
+    },
+    {
+      "threshold": 0.6,
+      "correct": 54,
+      "wrong_answers": 0
+    }
+  ],
+  "chosen_policy": {
+    "threshold": 0.1,
+    "correct": 111,
+    "wrong_answers": 4
+  },
+  "baseline_validation_calibration": {
+    "parameters": {
+      "active_ratio": 0.99,
+      "activation_threshold": 1.2,
+      "temperature": 1.0,
+      "min_content_coverage": 0.3
+    },
+    "validation_correct": 103,
+    "validation_wrong_answers": 12,
+    "candidates": 300
+  },
+  "validation_v7": {
+    "metrics": {
+      "all": {
+        "correct": 111,
+        "total": 117,
+        "abstentions": 6,
+        "wrong_answers": 4
+      },
+      "paraphrase": {
+        "correct": 92,
+        "total": 98,
+        "abstentions": 2,
+        "wrong_answers": 4
+      },
+      "context": {
+        "correct": 8,
+        "total": 8,
+        "abstentions": 0,
+        "wrong_answers": 0
+      },
+      "composition": {
+        "correct": 7,
+        "total": 7,
+        "abstentions": 0,
+        "wrong_answers": 0
+      },
+      "unknown": {
+        "correct": 4,
+        "total": 4,
+        "abstentions": 4,
+        "wrong_answers": 0
+      }
+    },
+    "latency_ms_median": 0.34297299998797826,
+    "latency_ms_max": 0.6923869998445298,
+    "details": [
+      {
+        "question": "explique um cachorro",
+        "answer": "um cachorro é um animal",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um cachorro é um animal",
+        "correct": true
+      },
+      {
+        "question": "defina um cachorro",
+        "answer": "um cachorro é um animal",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um cachorro é um animal",
+        "correct": true
+      },
+      {
+        "question": "me explique o que é um cachorro",
+        "answer": "um cachorro é um animal",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um cachorro é um animal",
+        "correct": true
+      },
+      {
+        "question": "explique um gato",
+        "answer": "um gato é um animal",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um gato é um animal",
+        "correct": true
+      },
+      {
+        "question": "defina um gato",
+        "answer": "um gato é um animal",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um gato é um animal",
+        "correct": true
+      },
+      {
+        "question": "me explique o que é um gato",
+        "answer": "um gato é um animal",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um gato é um animal",
+        "correct": true
+      },
+      {
+        "question": "explique um animal",
+        "answer": "um animal é um ser vivo",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um animal é um ser vivo",
+        "correct": true
+      },
+      {
+        "question": "defina um animal",
+        "answer": "um animal é um ser vivo",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um animal é um ser vivo",
+        "correct": true
+      },
+      {
+        "question": "me explique o que é um animal",
+        "answer": "um animal é um ser vivo",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um animal é um ser vivo",
+        "correct": true
+      },
+      {
+        "question": "explique um médico",
+        "answer": "um médico é um profissional da saúde",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um médico é um profissional da saúde",
+        "correct": true
+      },
+      {
+        "question": "defina um médico",
+        "answer": "um médico é um profissional da saúde",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um médico trabalha no hospital",
+        "correct": false
+      },
+      {
+        "question": "me explique o que é um médico",
+        "answer": "um médico é um profissional da saúde",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um médico é um profissional da saúde",
+        "correct": true
+      },
+      {
+        "question": "em que lugar trabalha um médico",
+        "answer": "um médico trabalha no hospital",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um médico trabalha no hospital",
+        "correct": true
+      },
+      {
+        "question": "qual o local de trabalho de um médico",
+        "answer": "um médico trabalha no hospital",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um médico é um profissional da saúde",
+        "correct": false
+      },
+      {
+        "question": "explique um hospital",
+        "answer": "um hospital é um local de atendimento",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um hospital é um local de atendimento",
+        "correct": true
+      },
+      {
+        "question": "defina um hospital",
+        "answer": "um hospital é um local de atendimento",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um hospital é um local de atendimento",
+        "correct": true
+      },
+      {
+        "question": "me explique o que é um hospital",
+        "answer": "um hospital é um local de atendimento",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um hospital é um local de atendimento",
+        "correct": true
+      },
+      {
+        "question": "explique um computador",
+        "answer": "um computador é uma máquina que executa programas",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um computador é uma máquina que executa programas",
+        "correct": true
+      },
+      {
+        "question": "defina um computador",
+        "answer": "um computador é uma máquina que executa programas",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um computador é uma máquina que executa programas",
+        "correct": true
+      },
+      {
+        "question": "me explique o que é um computador",
+        "answer": "um computador é uma máquina que executa programas",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um computador é uma máquina que executa programas",
+        "correct": true
+      },
+      {
+        "question": "explique um programa",
+        "answer": "um programa é um conjunto de instruções",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um programa é um conjunto de instruções",
+        "correct": true
+      },
+      {
+        "question": "defina um programa",
+        "answer": "um programa é um conjunto de instruções",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um programa é um conjunto de instruções",
+        "correct": true
+      },
+      {
+        "question": "me explique o que é um programa",
+        "answer": "um programa é um conjunto de instruções",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um programa é um conjunto de instruções",
+        "correct": true
+      },
+      {
+        "question": "explique uma rede",
+        "answer": "uma rede conecta computadores",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma rede conecta computadores",
+        "correct": true
+      },
+      {
+        "question": "defina uma rede",
+        "answer": "uma rede conecta computadores",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma rede conecta computadores",
+        "correct": true
+      },
+      {
+        "question": "me explique o que é uma rede",
+        "answer": "uma rede conecta computadores",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma rede conecta computadores",
+        "correct": true
+      },
+      {
+        "question": "explique uma pergunta",
+        "answer": "uma pergunta solicita uma resposta",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma pergunta solicita uma resposta",
+        "correct": true
+      },
+      {
+        "question": "defina uma pergunta",
+        "answer": "uma pergunta solicita uma resposta",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma pergunta solicita uma resposta",
+        "correct": true
+      },
+      {
+        "question": "me explique o que é uma pergunta",
+        "answer": "uma pergunta solicita uma resposta",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma pergunta solicita uma resposta",
+        "correct": true
+      },
+      {
+        "question": "explique uma resposta",
+        "answer": "uma resposta apresenta informação",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma resposta apresenta informação",
+        "correct": true
+      },
+      {
+        "question": "defina uma resposta",
+        "answer": "uma resposta apresenta informação",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma resposta apresenta informação",
+        "correct": true
+      },
+      {
+        "question": "me explique o que é uma resposta",
+        "answer": "uma resposta apresenta informação",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma resposta apresenta informação",
+        "correct": true
+      },
+      {
+        "question": "explique uma palavra",
+        "answer": "uma palavra pode formar uma frase",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma palavra pode formar uma frase",
+        "correct": true
+      },
+      {
+        "question": "defina uma palavra",
+        "answer": "uma palavra pode formar uma frase",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma palavra pode formar uma frase",
+        "correct": true
+      },
+      {
+        "question": "me explique o que é uma palavra",
+        "answer": "uma palavra pode formar uma frase",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma palavra pode formar uma frase",
+        "correct": true
+      },
+      {
+        "question": "explique uma frase",
+        "answer": "uma frase é uma sequência de palavras",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma frase é uma sequência de palavras",
+        "correct": true
+      },
+      {
+        "question": "defina uma frase",
+        "answer": "uma frase é uma sequência de palavras",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma frase é uma sequência de palavras",
+        "correct": true
+      },
+      {
+        "question": "me explique o que é uma frase",
+        "answer": "uma frase é uma sequência de palavras",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma frase é uma sequência de palavras",
+        "correct": true
+      },
+      {
+        "question": "explique um token",
+        "answer": "um token representa uma unidade de texto",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um token representa uma unidade de texto",
+        "correct": true
+      },
+      {
+        "question": "defina um token",
+        "answer": "um token representa uma unidade de texto",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um token representa uma unidade de texto",
+        "correct": true
+      },
+      {
+        "question": "me explique o que é um token",
+        "answer": "um token representa uma unidade de texto",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um token representa uma unidade de texto",
+        "correct": true
+      },
+      {
+        "question": "explique um grafo",
+        "answer": "um grafo contém nós e conexões",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um grafo contém nós e conexões",
+        "correct": true
+      },
+      {
+        "question": "defina um grafo",
+        "answer": "um grafo contém nós e conexões",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um grafo contém nós e conexões",
+        "correct": true
+      },
+      {
+        "question": "me explique o que é um grafo",
+        "answer": "um grafo contém nós e conexões",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um grafo contém nós e conexões",
+        "correct": true
+      },
+      {
+        "question": "explique uma conexão",
+        "answer": "uma conexão relaciona dois nós",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma conexão relaciona dois nós",
+        "correct": true
+      },
+      {
+        "question": "defina uma conexão",
+        "answer": "uma conexão relaciona dois nós",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma conexão relaciona dois nós",
+        "correct": true
+      },
+      {
+        "question": "me explique o que é uma conexão",
+        "answer": "uma conexão relaciona dois nós",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma conexão relaciona dois nós",
+        "correct": true
+      },
+      {
+        "question": "explique um peso",
+        "answer": "um peso representa a força de uma conexão",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um peso representa a força de uma conexão",
+        "correct": true
+      },
+      {
+        "question": "defina um peso",
+        "answer": "um peso representa a força de uma conexão",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um peso representa a força de uma conexão",
+        "correct": true
+      },
+      {
+        "question": "me explique o que é um peso",
+        "answer": "um peso representa a força de uma conexão",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um peso representa a força de uma conexão",
+        "correct": true
+      },
+      {
+        "question": "qual a utilidade de água",
+        "answer": "água serve para beber e para outras necessidades",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "não tenho associações suficientes",
+        "correct": false
+      },
+      {
+        "question": "qual a função de água",
+        "answer": "água serve para beber e para outras necessidades",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "não tenho associações suficientes",
+        "correct": false
+      },
+      {
+        "question": "explique uma escola",
+        "answer": "uma escola é um local de aprendizagem",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma escola é um local de aprendizagem",
+        "correct": true
+      },
+      {
+        "question": "defina uma escola",
+        "answer": "uma escola é um local de aprendizagem",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma escola é um local de aprendizagem",
+        "correct": true
+      },
+      {
+        "question": "me explique o que é uma escola",
+        "answer": "uma escola é um local de aprendizagem",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma escola é um local de aprendizagem",
+        "correct": true
+      },
+      {
+        "question": "quem dá aulas na escola",
+        "answer": "o professor ensina na escola",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "o professor ensina na escola",
+        "correct": true
+      },
+      {
+        "question": "quem é responsável por ensinar na escola",
+        "answer": "o professor ensina na escola",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "o professor ensina na escola",
+        "correct": true
+      },
+      {
+        "question": "quem estuda na escola",
+        "answer": "o aluno aprende na escola",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "o professor ensina na escola",
+        "correct": false
+      },
+      {
+        "question": "quem recebe ensino na escola",
+        "answer": "o aluno aprende na escola",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "o professor ensina na escola",
+        "correct": false
+      },
+      {
+        "question": "explique um professor",
+        "answer": "um professor ensina alunos",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um professor ensina alunos",
+        "correct": true
+      },
+      {
+        "question": "defina um professor",
+        "answer": "um professor ensina alunos",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um professor ensina alunos",
+        "correct": true
+      },
+      {
+        "question": "me explique o que é um professor",
+        "answer": "um professor ensina alunos",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um professor ensina alunos",
+        "correct": true
+      },
+      {
+        "question": "explique um aluno",
+        "answer": "um aluno aprende na escola",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um aluno aprende na escola",
+        "correct": true
+      },
+      {
+        "question": "defina um aluno",
+        "answer": "um aluno aprende na escola",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um aluno aprende na escola",
+        "correct": true
+      },
+      {
+        "question": "me explique o que é um aluno",
+        "answer": "um aluno aprende na escola",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um aluno aprende na escola",
+        "correct": true
+      },
+      {
+        "question": "explique o coração",
+        "answer": "o coração movimenta o sangue",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "o coração movimenta o sangue",
+        "correct": true
+      },
+      {
+        "question": "defina o coração",
+        "answer": "o coração movimenta o sangue",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "o coração movimenta o sangue",
+        "correct": true
+      },
+      {
+        "question": "me explique o que é o coração",
+        "answer": "o coração movimenta o sangue",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "o coração movimenta o sangue",
+        "correct": true
+      },
+      {
+        "question": "explique o pulmão",
+        "answer": "o pulmão participa da respiração",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "o pulmão participa da respiração",
+        "correct": true
+      },
+      {
+        "question": "defina o pulmão",
+        "answer": "o pulmão participa da respiração",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "o pulmão participa da respiração",
+        "correct": true
+      },
+      {
+        "question": "me explique o que é o pulmão",
+        "answer": "o pulmão participa da respiração",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "o pulmão participa da respiração",
+        "correct": true
+      },
+      {
+        "question": "explique o cérebro",
+        "answer": "o cérebro faz parte do corpo",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "o cérebro faz parte do corpo",
+        "correct": true
+      },
+      {
+        "question": "defina o cérebro",
+        "answer": "o cérebro faz parte do corpo",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "o cérebro faz parte do corpo",
+        "correct": true
+      },
+      {
+        "question": "me explique o que é o cérebro",
+        "answer": "o cérebro faz parte do corpo",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "o cérebro faz parte do corpo",
+        "correct": true
+      },
+      {
+        "question": "explique uma casa",
+        "answer": "uma casa é um local para morar",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma casa é um local para morar",
+        "correct": true
+      },
+      {
+        "question": "defina uma casa",
+        "answer": "uma casa é um local para morar",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma casa é um local para morar",
+        "correct": true
+      },
+      {
+        "question": "me explique o que é uma casa",
+        "answer": "uma casa é um local para morar",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma casa é um local para morar",
+        "correct": true
+      },
+      {
+        "question": "explique uma árvore",
+        "answer": "uma árvore é uma planta",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma árvore é uma planta",
+        "correct": true
+      },
+      {
+        "question": "defina uma árvore",
+        "answer": "uma árvore é uma planta",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma árvore é uma planta",
+        "correct": true
+      },
+      {
+        "question": "me explique o que é uma árvore",
+        "answer": "uma árvore é uma planta",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma árvore é uma planta",
+        "correct": true
+      },
+      {
+        "question": "explique o sol",
+        "answer": "o sol fornece luz e calor",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "o sol fornece luz e calor",
+        "correct": true
+      },
+      {
+        "question": "defina o sol",
+        "answer": "o sol fornece luz e calor",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "o sol fornece luz e calor",
+        "correct": true
+      },
+      {
+        "question": "me explique o que é o sol",
+        "answer": "o sol fornece luz e calor",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "o sol fornece luz e calor",
+        "correct": true
+      },
+      {
+        "question": "explique a lua",
+        "answer": "a lua aparece no céu",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "a lua aparece no céu",
+        "correct": true
+      },
+      {
+        "question": "defina a lua",
+        "answer": "a lua aparece no céu",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "a lua aparece no céu",
+        "correct": true
+      },
+      {
+        "question": "me explique o que é a lua",
+        "answer": "a lua aparece no céu",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "a lua aparece no céu",
+        "correct": true
+      },
+      {
+        "question": "explique um arquivo",
+        "answer": "um arquivo guarda dados",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um arquivo guarda dados",
+        "correct": true
+      },
+      {
+        "question": "defina um arquivo",
+        "answer": "um arquivo guarda dados",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um arquivo guarda dados",
+        "correct": true
+      },
+      {
+        "question": "me explique o que é um arquivo",
+        "answer": "um arquivo guarda dados",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um arquivo guarda dados",
+        "correct": true
+      },
+      {
+        "question": "explique uma tabela",
+        "answer": "uma tabela organiza registros",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma tabela organiza registros",
+        "correct": true
+      },
+      {
+        "question": "defina uma tabela",
+        "answer": "uma tabela organiza registros",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma tabela organiza registros",
+        "correct": true
+      },
+      {
+        "question": "me explique o que é uma tabela",
+        "answer": "uma tabela organiza registros",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma tabela organiza registros",
+        "correct": true
+      },
+      {
+        "question": "explique um banco de dados",
+        "answer": "um banco de dados guarda informações",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um banco de dados guarda informações",
+        "correct": true
+      },
+      {
+        "question": "defina um banco de dados",
+        "answer": "um banco de dados guarda informações",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um banco de dados guarda informações",
+        "correct": true
+      },
+      {
+        "question": "me explique o que é um banco de dados",
+        "answer": "um banco de dados guarda informações",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um banco de dados guarda informações",
+        "correct": true
+      },
+      {
+        "question": "explique uma máquina",
+        "answer": "uma máquina executa tarefas",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma máquina executa tarefas",
+        "correct": true
+      },
+      {
+        "question": "defina uma máquina",
+        "answer": "uma máquina executa tarefas",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma máquina executa tarefas",
+        "correct": true
+      },
+      {
+        "question": "me explique o que é uma máquina",
+        "answer": "uma máquina executa tarefas",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma máquina executa tarefas",
+        "correct": true
+      },
+      {
+        "question": "e quanto a isso",
+        "answer": "um cachorro é um animal",
+        "context": [
+          "o que é um cachorro"
+        ],
+        "category": "context",
+        "prediction": "um cachorro é um animal",
+        "correct": true
+      },
+      {
+        "question": "e quanto a isso",
+        "answer": "um gato é um animal",
+        "context": [
+          "o que é um gato"
+        ],
+        "category": "context",
+        "prediction": "um gato é um animal",
+        "correct": true
+      },
+      {
+        "question": "e quanto a isso",
+        "answer": "um hospital é um local de atendimento",
+        "context": [
+          "o que é um hospital"
+        ],
+        "category": "context",
+        "prediction": "um hospital é um local de atendimento",
+        "correct": true
+      },
+      {
+        "question": "e quanto a isso",
+        "answer": "um computador é uma máquina que executa programas",
+        "context": [
+          "o que é um computador"
+        ],
+        "category": "context",
+        "prediction": "um computador é uma máquina que executa programas",
+        "correct": true
+      },
+      {
+        "question": "e quanto a isso",
+        "answer": "um programa é um conjunto de instruções",
+        "context": [
+          "o que é um programa"
+        ],
+        "category": "context",
+        "prediction": "um programa é um conjunto de instruções",
+        "correct": true
+      },
+      {
+        "question": "e quanto a isso",
+        "answer": "um token representa uma unidade de texto",
+        "context": [
+          "o que é um token"
+        ],
+        "category": "context",
+        "prediction": "um token representa uma unidade de texto",
+        "correct": true
+      },
+      {
+        "question": "e quanto a isso",
+        "answer": "um grafo contém nós e conexões",
+        "context": [
+          "o que é um grafo"
+        ],
+        "category": "context",
+        "prediction": "um grafo contém nós e conexões",
+        "correct": true
+      },
+      {
+        "question": "e quanto a isso",
+        "answer": "um arquivo guarda dados",
+        "context": [
+          "o que é um arquivo"
+        ],
+        "category": "context",
+        "prediction": "um arquivo guarda dados",
+        "correct": true
+      },
+      {
+        "question": "apresente luma e suri",
+        "answer": "luma é azul e suri é rosa",
+        "context": [],
+        "category": "composition",
+        "prediction": "luma é azul e suri é rosa",
+        "correct": true
+      },
+      {
+        "question": "apresente nino e bela",
+        "answer": "nino é verde e bela é branco",
+        "context": [],
+        "category": "composition",
+        "prediction": "nino é verde e bela é branco",
+        "correct": true
+      },
+      {
+        "question": "apresente suri e fino",
+        "answer": "suri é rosa e fino é cinza",
+        "context": [],
+        "category": "composition",
+        "prediction": "suri é rosa e fino é cinza",
+        "correct": true
+      },
+      {
+        "question": "apresente bela e gabi",
+        "answer": "bela é branco e gabi é ocre",
+        "context": [],
+        "category": "composition",
+        "prediction": "bela é branco e gabi é ocre",
+        "correct": true
+      },
+      {
+        "question": "apresente dori e luma",
+        "answer": "dori é preto e luma é azul",
+        "context": [],
+        "category": "composition",
+        "prediction": "dori é preto e luma é azul",
+        "correct": true
+      },
+      {
+        "question": "apresente fino e nino",
+        "answer": "fino é cinza e nino é verde",
+        "context": [],
+        "category": "composition",
+        "prediction": "fino é cinza e nino é verde",
+        "correct": true
+      },
+      {
+        "question": "apresente gabi e tavi",
+        "answer": "gabi é ocre e tavi é roxo",
+        "context": [],
+        "category": "composition",
+        "prediction": "gabi é ocre e tavi é roxo",
+        "correct": true
+      },
+      {
+        "question": "o que é um neutrino",
+        "answer": null,
+        "context": [],
+        "category": "unknown",
+        "prediction": "não tenho associações suficientes",
+        "correct": true
+      },
+      {
+        "question": "qual é a capital da frança",
+        "answer": null,
+        "context": [],
+        "category": "unknown",
+        "prediction": "não tenho associações suficientes",
+        "correct": true
+      },
+      {
+        "question": "quem descobriu plutão",
+        "answer": null,
+        "context": [],
+        "category": "unknown",
+        "prediction": "não tenho associações suficientes",
+        "correct": true
+      },
+      {
+        "question": "qual é a massa de vênus",
+        "answer": null,
+        "context": [],
+        "category": "unknown",
+        "prediction": "não tenho associações suficientes",
+        "correct": true
+      }
+    ]
+  },
+  "test_v6_same_training": {
+    "metrics": {
+      "all": {
+        "correct": 37,
+        "total": 54,
+        "abstentions": 18,
+        "wrong_answers": 7
+      },
+      "paraphrase": {
+        "correct": 29,
+        "total": 31,
+        "abstentions": 2,
+        "wrong_answers": 0
+      },
+      "context": {
+        "correct": 0,
+        "total": 8,
+        "abstentions": 8,
+        "wrong_answers": 0
+      },
+      "composition": {
+        "correct": 0,
+        "total": 7,
+        "abstentions": 0,
+        "wrong_answers": 7
+      },
+      "unknown": {
+        "correct": 8,
+        "total": 8,
+        "abstentions": 8,
+        "wrong_answers": 0
+      }
+    },
+    "latency_ms_median": 0.10194250000949978,
+    "latency_ms_max": 0.4676900000504247,
+    "details": [
+      {
+        "question": "poderia explicar o que é um cachorro",
+        "answer": "um cachorro é um animal",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um cachorro é um animal",
+        "correct": true
+      },
+      {
+        "question": "me conte o que é um gato",
+        "answer": "um gato é um animal",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um gato é um animal",
+        "correct": true
+      },
+      {
+        "question": "pode explicar a ideia de um animal",
+        "answer": "um animal é um ser vivo",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "não tenho associações suficientes",
+        "correct": false
+      },
+      {
+        "question": "explique o que é um médico",
+        "answer": "um médico é um profissional da saúde",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um médico é um profissional da saúde",
+        "correct": true
+      },
+      {
+        "question": "em qual lugar trabalha um médico",
+        "answer": "um médico trabalha no hospital",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um médico trabalha no hospital",
+        "correct": true
+      },
+      {
+        "question": "pode me dizer o que é um hospital",
+        "answer": "um hospital é um local de atendimento",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um hospital é um local de atendimento",
+        "correct": true
+      },
+      {
+        "question": "me explique o conceito de um computador",
+        "answer": "um computador é uma máquina que executa programas",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um computador é uma máquina que executa programas",
+        "correct": true
+      },
+      {
+        "question": "poderia falar sobre o que é um programa",
+        "answer": "um programa é um conjunto de instruções",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "não tenho associações suficientes",
+        "correct": false
+      },
+      {
+        "question": "me diga o que é uma rede",
+        "answer": "uma rede conecta computadores",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma rede conecta computadores",
+        "correct": true
+      },
+      {
+        "question": "poderia explicar o que é uma pergunta",
+        "answer": "uma pergunta solicita uma resposta",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma pergunta solicita uma resposta",
+        "correct": true
+      },
+      {
+        "question": "me diga o que é uma resposta",
+        "answer": "uma resposta apresenta informação",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma resposta apresenta informação",
+        "correct": true
+      },
+      {
+        "question": "pode explicar o que é uma palavra",
+        "answer": "uma palavra pode formar uma frase",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma palavra pode formar uma frase",
+        "correct": true
+      },
+      {
+        "question": "poderia me dizer o que é uma frase",
+        "answer": "uma frase é uma sequência de palavras",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma frase é uma sequência de palavras",
+        "correct": true
+      },
+      {
+        "question": "pode me explicar o que é um grafo",
+        "answer": "um grafo contém nós e conexões",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um grafo contém nós e conexões",
+        "correct": true
+      },
+      {
+        "question": "me conte o que é uma conexão",
+        "answer": "uma conexão relaciona dois nós",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma conexão relaciona dois nós",
+        "correct": true
+      },
+      {
+        "question": "poderia explicar o que é um peso",
+        "answer": "um peso representa a força de uma conexão",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um peso representa a força de uma conexão",
+        "correct": true
+      },
+      {
+        "question": "pode me contar o que é memória",
+        "answer": "memória permite guardar informação",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "memória permite guardar informação",
+        "correct": true
+      },
+      {
+        "question": "me explique o que é aprendizado",
+        "answer": "aprendizado modifica as conexões da rede",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "aprendizado modifica as conexões da rede",
+        "correct": true
+      },
+      {
+        "question": "pode explicar o que é inteligência artificial",
+        "answer": "inteligência artificial utiliza modelos computacionais",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "inteligência artificial utiliza modelos computacionais",
+        "correct": true
+      },
+      {
+        "question": "poderia explicar o que é uma escola",
+        "answer": "uma escola é um local de aprendizagem",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma escola é um local de aprendizagem",
+        "correct": true
+      },
+      {
+        "question": "me conte o que é um professor",
+        "answer": "um professor ensina alunos",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um professor ensina alunos",
+        "correct": true
+      },
+      {
+        "question": "me diga o que é um aluno",
+        "answer": "um aluno aprende na escola",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um aluno aprende na escola",
+        "correct": true
+      },
+      {
+        "question": "pode explicar o que é uma casa",
+        "answer": "uma casa é um local para morar",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma casa é um local para morar",
+        "correct": true
+      },
+      {
+        "question": "me conte o que é uma árvore",
+        "answer": "uma árvore é uma planta",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma árvore é uma planta",
+        "correct": true
+      },
+      {
+        "question": "poderia explicar o que é o sol",
+        "answer": "o sol fornece luz e calor",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "o sol fornece luz e calor",
+        "correct": true
+      },
+      {
+        "question": "me diga o que é a lua",
+        "answer": "a lua aparece no céu",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "a lua aparece no céu",
+        "correct": true
+      },
+      {
+        "question": "pode me contar o que é português",
+        "answer": "português é uma língua",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "português é uma língua",
+        "correct": true
+      },
+      {
+        "question": "poderia explicar o que é um arquivo",
+        "answer": "um arquivo guarda dados",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um arquivo guarda dados",
+        "correct": true
+      },
+      {
+        "question": "me conte o que é uma tabela",
+        "answer": "uma tabela organiza registros",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma tabela organiza registros",
+        "correct": true
+      },
+      {
+        "question": "pode explicar o que é um banco de dados",
+        "answer": "um banco de dados guarda informações",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um banco de dados guarda informações",
+        "correct": true
+      },
+      {
+        "question": "me diga o que é uma máquina",
+        "answer": "uma máquina executa tarefas",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma máquina executa tarefas",
+        "correct": true
+      },
+      {
+        "question": "pode repetir a explicação",
+        "answer": "um cachorro é um animal",
+        "context": [
+          "o que é um cachorro"
+        ],
+        "category": "context",
+        "prediction": "não tenho associações suficientes",
+        "correct": false
+      },
+      {
+        "question": "pode repetir a explicação",
+        "answer": "um gato é um animal",
+        "context": [
+          "o que é um gato"
+        ],
+        "category": "context",
+        "prediction": "não tenho associações suficientes",
+        "correct": false
+      },
+      {
+        "question": "pode repetir a explicação",
+        "answer": "um hospital é um local de atendimento",
+        "context": [
+          "o que é um hospital"
+        ],
+        "category": "context",
+        "prediction": "não tenho associações suficientes",
+        "correct": false
+      },
+      {
+        "question": "pode repetir a explicação",
+        "answer": "um computador é uma máquina que executa programas",
+        "context": [
+          "o que é um computador"
+        ],
+        "category": "context",
+        "prediction": "não tenho associações suficientes",
+        "correct": false
+      },
+      {
+        "question": "pode repetir a explicação",
+        "answer": "um programa é um conjunto de instruções",
+        "context": [
+          "o que é um programa"
+        ],
+        "category": "context",
+        "prediction": "não tenho associações suficientes",
+        "correct": false
+      },
+      {
+        "question": "pode repetir a explicação",
+        "answer": "um token representa uma unidade de texto",
+        "context": [
+          "o que é um token"
+        ],
+        "category": "context",
+        "prediction": "não tenho associações suficientes",
+        "correct": false
+      },
+      {
+        "question": "pode repetir a explicação",
+        "answer": "um grafo contém nós e conexões",
+        "context": [
+          "o que é um grafo"
+        ],
+        "category": "context",
+        "prediction": "não tenho associações suficientes",
+        "correct": false
+      },
+      {
+        "question": "pode repetir a explicação",
+        "answer": "um arquivo guarda dados",
+        "context": [
+          "o que é um arquivo"
+        ],
+        "category": "context",
+        "prediction": "não tenho associações suficientes",
+        "correct": false
+      },
+      {
+        "question": "descreva luma e nino",
+        "answer": "luma é azul e nino é verde",
+        "context": [],
+        "category": "composition",
+        "prediction": "nino é verde e luma é azul",
+        "correct": false
+      },
+      {
+        "question": "descreva nino e suri",
+        "answer": "nino é verde e suri é rosa",
+        "context": [],
+        "category": "composition",
+        "prediction": "suri é rosa e nino é verde",
+        "correct": false
+      },
+      {
+        "question": "descreva tavi e dori",
+        "answer": "tavi é roxo e dori é preto",
+        "context": [],
+        "category": "composition",
+        "prediction": "dori é preto e tavi é roxo",
+        "correct": false
+      },
+      {
+        "question": "descreva suri e gabi",
+        "answer": "suri é rosa e gabi é ocre",
+        "context": [],
+        "category": "composition",
+        "prediction": "gabi é ocre e suri é rosa",
+        "correct": false
+      },
+      {
+        "question": "descreva bela e nino",
+        "answer": "bela é branco e nino é verde",
+        "context": [],
+        "category": "composition",
+        "prediction": "nino é verde e dori é preto",
+        "correct": false
+      },
+      {
+        "question": "descreva dori e suri",
+        "answer": "dori é preto e suri é rosa",
+        "context": [],
+        "category": "composition",
+        "prediction": "suri é rosa e dori é preto",
+        "correct": false
+      },
+      {
+        "question": "descreva fino e dori",
+        "answer": "fino é cinza e dori é preto",
+        "context": [],
+        "category": "composition",
+        "prediction": "dori é preto e fino é cinza",
+        "correct": false
+      },
+      {
+        "question": "o que é plutônio",
+        "answer": null,
+        "context": [],
+        "category": "unknown",
+        "prediction": "não tenho associações suficientes",
+        "correct": true
+      },
+      {
+        "question": "qual é a capital do japão",
+        "answer": null,
+        "context": [],
+        "category": "unknown",
+        "prediction": "não tenho associações suficientes",
+        "correct": true
+      },
+      {
+        "question": "quem inventou o telefone",
+        "answer": null,
+        "context": [],
+        "category": "unknown",
+        "prediction": "não tenho associações suficientes",
+        "correct": true
+      },
+      {
+        "question": "qual é a órbita de saturno",
+        "answer": null,
+        "context": [],
+        "category": "unknown",
+        "prediction": "não tenho associações suficientes",
+        "correct": true
+      },
+      {
+        "question": "como funciona um pulsar",
+        "answer": null,
+        "context": [],
+        "category": "unknown",
+        "prediction": "não tenho associações suficientes",
+        "correct": true
+      },
+      {
+        "question": "o que é titânio",
+        "answer": null,
+        "context": [],
+        "category": "unknown",
+        "prediction": "não tenho associações suficientes",
+        "correct": true
+      },
+      {
+        "question": "qual é a população de londres",
+        "answer": null,
+        "context": [],
+        "category": "unknown",
+        "prediction": "não tenho associações suficientes",
+        "correct": true
+      },
+      {
+        "question": "quem descobriu urano",
+        "answer": null,
+        "context": [],
+        "category": "unknown",
+        "prediction": "não tenho associações suficientes",
+        "correct": true
+      }
+    ]
+  },
+  "test_v7": {
+    "metrics": {
+      "all": {
+        "correct": 51,
+        "total": 54,
+        "abstentions": 7,
+        "wrong_answers": 2
+      },
+      "paraphrase": {
+        "correct": 30,
+        "total": 31,
+        "abstentions": 1,
+        "wrong_answers": 0
+      },
+      "context": {
+        "correct": 8,
+        "total": 8,
+        "abstentions": 0,
+        "wrong_answers": 0
+      },
+      "composition": {
+        "correct": 7,
+        "total": 7,
+        "abstentions": 0,
+        "wrong_answers": 0
+      },
+      "unknown": {
+        "correct": 6,
+        "total": 8,
+        "abstentions": 6,
+        "wrong_answers": 2
+      }
+    },
+    "latency_ms_median": 0.39880700001049263,
+    "latency_ms_max": 0.6391570000232605,
+    "details": [
+      {
+        "question": "poderia explicar o que é um cachorro",
+        "answer": "um cachorro é um animal",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um cachorro é um animal",
+        "correct": true
+      },
+      {
+        "question": "me conte o que é um gato",
+        "answer": "um gato é um animal",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um gato é um animal",
+        "correct": true
+      },
+      {
+        "question": "pode explicar a ideia de um animal",
+        "answer": "um animal é um ser vivo",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "não tenho associações suficientes",
+        "correct": false
+      },
+      {
+        "question": "explique o que é um médico",
+        "answer": "um médico é um profissional da saúde",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um médico é um profissional da saúde",
+        "correct": true
+      },
+      {
+        "question": "em qual lugar trabalha um médico",
+        "answer": "um médico trabalha no hospital",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um médico trabalha no hospital",
+        "correct": true
+      },
+      {
+        "question": "pode me dizer o que é um hospital",
+        "answer": "um hospital é um local de atendimento",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um hospital é um local de atendimento",
+        "correct": true
+      },
+      {
+        "question": "me explique o conceito de um computador",
+        "answer": "um computador é uma máquina que executa programas",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um computador é uma máquina que executa programas",
+        "correct": true
+      },
+      {
+        "question": "poderia falar sobre o que é um programa",
+        "answer": "um programa é um conjunto de instruções",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um programa é um conjunto de instruções",
+        "correct": true
+      },
+      {
+        "question": "me diga o que é uma rede",
+        "answer": "uma rede conecta computadores",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma rede conecta computadores",
+        "correct": true
+      },
+      {
+        "question": "poderia explicar o que é uma pergunta",
+        "answer": "uma pergunta solicita uma resposta",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma pergunta solicita uma resposta",
+        "correct": true
+      },
+      {
+        "question": "me diga o que é uma resposta",
+        "answer": "uma resposta apresenta informação",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma resposta apresenta informação",
+        "correct": true
+      },
+      {
+        "question": "pode explicar o que é uma palavra",
+        "answer": "uma palavra pode formar uma frase",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma palavra pode formar uma frase",
+        "correct": true
+      },
+      {
+        "question": "poderia me dizer o que é uma frase",
+        "answer": "uma frase é uma sequência de palavras",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma frase é uma sequência de palavras",
+        "correct": true
+      },
+      {
+        "question": "pode me explicar o que é um grafo",
+        "answer": "um grafo contém nós e conexões",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um grafo contém nós e conexões",
+        "correct": true
+      },
+      {
+        "question": "me conte o que é uma conexão",
+        "answer": "uma conexão relaciona dois nós",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma conexão relaciona dois nós",
+        "correct": true
+      },
+      {
+        "question": "poderia explicar o que é um peso",
+        "answer": "um peso representa a força de uma conexão",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um peso representa a força de uma conexão",
+        "correct": true
+      },
+      {
+        "question": "pode me contar o que é memória",
+        "answer": "memória permite guardar informação",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "memória permite guardar informação",
+        "correct": true
+      },
+      {
+        "question": "me explique o que é aprendizado",
+        "answer": "aprendizado modifica as conexões da rede",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "aprendizado modifica as conexões da rede",
+        "correct": true
+      },
+      {
+        "question": "pode explicar o que é inteligência artificial",
+        "answer": "inteligência artificial utiliza modelos computacionais",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "inteligência artificial utiliza modelos computacionais",
+        "correct": true
+      },
+      {
+        "question": "poderia explicar o que é uma escola",
+        "answer": "uma escola é um local de aprendizagem",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma escola é um local de aprendizagem",
+        "correct": true
+      },
+      {
+        "question": "me conte o que é um professor",
+        "answer": "um professor ensina alunos",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um professor ensina alunos",
+        "correct": true
+      },
+      {
+        "question": "me diga o que é um aluno",
+        "answer": "um aluno aprende na escola",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um aluno aprende na escola",
+        "correct": true
+      },
+      {
+        "question": "pode explicar o que é uma casa",
+        "answer": "uma casa é um local para morar",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma casa é um local para morar",
+        "correct": true
+      },
+      {
+        "question": "me conte o que é uma árvore",
+        "answer": "uma árvore é uma planta",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma árvore é uma planta",
+        "correct": true
+      },
+      {
+        "question": "poderia explicar o que é o sol",
+        "answer": "o sol fornece luz e calor",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "o sol fornece luz e calor",
+        "correct": true
+      },
+      {
+        "question": "me diga o que é a lua",
+        "answer": "a lua aparece no céu",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "a lua aparece no céu",
+        "correct": true
+      },
+      {
+        "question": "pode me contar o que é português",
+        "answer": "português é uma língua",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "português é uma língua",
+        "correct": true
+      },
+      {
+        "question": "poderia explicar o que é um arquivo",
+        "answer": "um arquivo guarda dados",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um arquivo guarda dados",
+        "correct": true
+      },
+      {
+        "question": "me conte o que é uma tabela",
+        "answer": "uma tabela organiza registros",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma tabela organiza registros",
+        "correct": true
+      },
+      {
+        "question": "pode explicar o que é um banco de dados",
+        "answer": "um banco de dados guarda informações",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "um banco de dados guarda informações",
+        "correct": true
+      },
+      {
+        "question": "me diga o que é uma máquina",
+        "answer": "uma máquina executa tarefas",
+        "context": [],
+        "category": "paraphrase",
+        "prediction": "uma máquina executa tarefas",
+        "correct": true
+      },
+      {
+        "question": "pode repetir a explicação",
+        "answer": "um cachorro é um animal",
+        "context": [
+          "o que é um cachorro"
+        ],
+        "category": "context",
+        "prediction": "um cachorro é um animal",
+        "correct": true
+      },
+      {
+        "question": "pode repetir a explicação",
+        "answer": "um gato é um animal",
+        "context": [
+          "o que é um gato"
+        ],
+        "category": "context",
+        "prediction": "um gato é um animal",
+        "correct": true
+      },
+      {
+        "question": "pode repetir a explicação",
+        "answer": "um hospital é um local de atendimento",
+        "context": [
+          "o que é um hospital"
+        ],
+        "category": "context",
+        "prediction": "um hospital é um local de atendimento",
+        "correct": true
+      },
+      {
+        "question": "pode repetir a explicação",
+        "answer": "um computador é uma máquina que executa programas",
+        "context": [
+          "o que é um computador"
+        ],
+        "category": "context",
+        "prediction": "um computador é uma máquina que executa programas",
+        "correct": true
+      },
+      {
+        "question": "pode repetir a explicação",
+        "answer": "um programa é um conjunto de instruções",
+        "context": [
+          "o que é um programa"
+        ],
+        "category": "context",
+        "prediction": "um programa é um conjunto de instruções",
+        "correct": true
+      },
+      {
+        "question": "pode repetir a explicação",
+        "answer": "um token representa uma unidade de texto",
+        "context": [
+          "o que é um token"
+        ],
+        "category": "context",
+        "prediction": "um token representa uma unidade de texto",
+        "correct": true
+      },
+      {
+        "question": "pode repetir a explicação",
+        "answer": "um grafo contém nós e conexões",
+        "context": [
+          "o que é um grafo"
+        ],
+        "category": "context",
+        "prediction": "um grafo contém nós e conexões",
+        "correct": true
+      },
+      {
+        "question": "pode repetir a explicação",
+        "answer": "um arquivo guarda dados",
+        "context": [
+          "o que é um arquivo"
+        ],
+        "category": "context",
+        "prediction": "um arquivo guarda dados",
+        "correct": true
+      },
+      {
+        "question": "descreva luma e nino",
+        "answer": "luma é azul e nino é verde",
+        "context": [],
+        "category": "composition",
+        "prediction": "luma é azul e nino é verde",
+        "correct": true
+      },
+      {
+        "question": "descreva nino e suri",
+        "answer": "nino é verde e suri é rosa",
+        "context": [],
+        "category": "composition",
+        "prediction": "nino é verde e suri é rosa",
+        "correct": true
+      },
+      {
+        "question": "descreva tavi e dori",
+        "answer": "tavi é roxo e dori é preto",
+        "context": [],
+        "category": "composition",
+        "prediction": "tavi é roxo e dori é preto",
+        "correct": true
+      },
+      {
+        "question": "descreva suri e gabi",
+        "answer": "suri é rosa e gabi é ocre",
+        "context": [],
+        "category": "composition",
+        "prediction": "suri é rosa e gabi é ocre",
+        "correct": true
+      },
+      {
+        "question": "descreva bela e nino",
+        "answer": "bela é branco e nino é verde",
+        "context": [],
+        "category": "composition",
+        "prediction": "bela é branco e nino é verde",
+        "correct": true
+      },
+      {
+        "question": "descreva dori e suri",
+        "answer": "dori é preto e suri é rosa",
+        "context": [],
+        "category": "composition",
+        "prediction": "dori é preto e suri é rosa",
+        "correct": true
+      },
+      {
+        "question": "descreva fino e dori",
+        "answer": "fino é cinza e dori é preto",
+        "context": [],
+        "category": "composition",
+        "prediction": "fino é cinza e dori é preto",
+        "correct": true
+      },
+      {
+        "question": "o que é plutônio",
+        "answer": null,
+        "context": [],
+        "category": "unknown",
+        "prediction": "o coração movimenta o sangue",
+        "correct": false
+      },
+      {
+        "question": "qual é a capital do japão",
+        "answer": null,
+        "context": [],
+        "category": "unknown",
+        "prediction": "não tenho associações suficientes",
+        "correct": true
+      },
+      {
+        "question": "quem inventou o telefone",
+        "answer": null,
+        "context": [],
+        "category": "unknown",
+        "prediction": "não tenho associações suficientes",
+        "correct": true
+      },
+      {
+        "question": "qual é a órbita de saturno",
+        "answer": null,
+        "context": [],
+        "category": "unknown",
+        "prediction": "não tenho associações suficientes",
+        "correct": true
+      },
+      {
+        "question": "como funciona um pulsar",
+        "answer": null,
+        "context": [],
+        "category": "unknown",
+        "prediction": "não tenho associações suficientes",
+        "correct": true
+      },
+      {
+        "question": "o que é titânio",
+        "answer": null,
+        "context": [],
+        "category": "unknown",
+        "prediction": "o coração movimenta o sangue",
+        "correct": false
+      },
+      {
+        "question": "qual é a população de londres",
+        "answer": null,
+        "context": [],
+        "category": "unknown",
+        "prediction": "não tenho associações suficientes",
+        "correct": true
+      },
+      {
+        "question": "quem descobriu urano",
+        "answer": null,
+        "context": [],
+        "category": "unknown",
+        "prediction": "não tenho associações suficientes",
+        "correct": true
+      }
+    ]
+  },
+  "model_bytes": 1520134,
+  "peak_training_rss_kib": 89056,
+  "runtime": {
+    "python": "3.12.14",
+    "machine": "x86_64",
+    "platform": "Linux"
+  },
+  "limitations": [
+    "Small authored corpus, not general Portuguese comprehension",
+    "Prior 98 v6 paraphrases are validation, not independent test",
+    "All facts needed by compositional tests occur in training",
+    "v6 retrained on exactly the same pairs; context flattened for v6",
+    "Linear recurrent feature graph, not a deep RNN or pretrained LLM",
+    "Memory/latency measured on this host, not Raspberry Pi; no Lazarus port"
+  ]
+}

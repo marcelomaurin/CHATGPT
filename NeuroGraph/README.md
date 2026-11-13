@@ -34,3 +34,9 @@ Peso candidato: `w' = clamp((1 - lambda)*w + eta*ai*aj*confianca*relevancia, 0, 
 ## Integração
 
 Reutilizar componentes existentes do repositório CHATGPT sempre que forem compatíveis; não duplicar bibliotecas compartilhadas. Manter o módulo isolado e compilável no Lazarus/FPC.
+
+## Experimento contextual v7 em Python
+
+Disponível em [experiments/contextual_v7](experiments/contextual_v7/README.md): ajuste de conexões pelo erro de previsão, geração token por token, estado recorrente e contexto persistente. Em um teste pequeno separado do treino, a v7 obteve 51/54 decisões corretas, contra 37/54 da v6 recalibrada com os mesmos dados. Há regressão na abstenção: duas respostas indevidas a perguntas desconhecidas. Nove testes automatizados passaram.
+
+Os [pesos publicados](experiments/contextual_v7/results/neurograph_contextual_v7.ngs) e o [relatório completo](docs/contextual_v7_20261113.md) acompanham o código. Este experimento ainda não foi portado para Free Pascal nem testado no Raspberry Pi; não constitui um modelo geral de português.
