@@ -114,9 +114,16 @@ def treinar_neurograph(
     if caminho_saida is None:
         caminho_saida = DIR_TREINO / "modelos" / "neurograph_youtube.ngs"
 
+    caminho_saida = Path(caminho_saida).resolve()
     caminho_saida.parent.mkdir(parents=True, exist_ok=True)
 
+    print("\n" + "=" * 65)
+    print(f"REDE ALVO EM TREINAMENTO: {caminho_saida.name}")
+    print(f"CAMINHO DE DESTINO: {caminho_saida}")
+    print("=" * 65)
+
     logging.info("Iniciando treinamento do NeuroGraph...")
+    logging.info("Arquivo de Rede Alvo: %s", caminho_saida)
     logging.info("Total de exemplos: %d | Épocas: %d | Taxa de Aprendizado: %.4f",
                  len(exemplos), epochs, learning_rate)
 
@@ -129,6 +136,7 @@ def treinar_neurograph(
 
     # Salva o arquivo de pesos binário (.ngs)
     modelo.save(caminho_saida)
+    print(f"[REDE SALVA] Pesos associativos gravados em: {caminho_saida} ({caminho_saida.stat().st_size} bytes)")
     logging.info("Pesos gravados com sucesso em: %s (%d bytes)",
                  caminho_saida, caminho_saida.stat().st_size)
 

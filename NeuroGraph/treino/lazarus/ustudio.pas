@@ -20,6 +20,11 @@ type
     FLblApiStatus, FLblModelStatus: TLabel;
     FBtnSalvarConfig: TButton;
 
+    // Seleção da Rede Alvo em Treinamento
+    FCmbRedeAlvo: TComboBox;
+    FBtnProcurarRedeAlvo: TButton;
+    FOpenDialogRede: TOpenDialog;
+
     // Aba YouTube
     FEditTema: TEdit;
     FSpinQtdVideos: TSpinEdit;
@@ -100,6 +105,9 @@ type
     procedure OnAdicionarTopicoClick(Sender: TObject);
     procedure OnLimparTopicosClick(Sender: TObject);
     procedure OnTopicosPadraoClick(Sender: TObject);
+    procedure OnProcurarRedeAlvoClick(Sender: TObject);
+    procedure OnCmbRedeAlvoChange(Sender: TObject);
+    procedure PopularRedesDisponiveis;
 
     // Eventos Aba TCHATGPT
     procedure ConstruirAbaChatGPT;
@@ -165,6 +173,7 @@ begin
   FChatGPT.OnRequestComplete := @OnChatRequestComplete;
 
   BuildUI;
+  PopularRedesDisponiveis;
   CarregarConfiguracoes;
   AtualizarStatusGeral;
   OnClose := @FormClose;
@@ -202,19 +211,19 @@ begin
   PnlTop := TPanel.Create(Self);
   PnlTop.Parent := Self;
   PnlTop.Align := alTop;
-  PnlTop.Height := 52;
+  PnlTop.Height := 84;
   PnlTop.BevelOuter := bvNone;
 
   Lbl := TLabel.Create(Self);
   Lbl.Parent := PnlTop;
   Lbl.Caption := 'Chave OpenAI (Global):';
   Lbl.Left := 16;
-  Lbl.Top := 16;
+  Lbl.Top := 14;
 
   FEditApiKey := TEdit.Create(Self);
   FEditApiKey.Parent := PnlTop;
   FEditApiKey.Left := 155;
-  FEditApiKey.Top := 12;
+  FEditApiKey.Top := 10;
   FEditApiKey.Width := 260;
   FEditApiKey.EchoMode := emPassword;
   FEditApiKey.Text := GetEnvironmentVariable('OPENAI_API_KEY');
@@ -223,24 +232,52 @@ begin
   FLblApiStatus := TLabel.Create(Self);
   FLblApiStatus.Parent := PnlTop;
   FLblApiStatus.Left := 425;
-  FLblApiStatus.Top := 16;
+  FLblApiStatus.Top := 14;
   FLblApiStatus.Caption := '● OpenAI Ativa';
   FLblApiStatus.Font.Style := [fsBold];
 
   FLblModelStatus := TLabel.Create(Self);
   FLblModelStatus.Parent := PnlTop;
-  FLblModelStatus.Left := 620;
-  FLblModelStatus.Top := 16;
+  FLblModelStatus.Left := 600;
+  FLblModelStatus.Top := 14;
   FLblModelStatus.Caption := 'Modelo: Verificando...';
 
   FBtnSalvarConfig := TButton.Create(Self);
   FBtnSalvarConfig.Parent := PnlTop;
   FBtnSalvarConfig.Caption := 'Salvar Configurações';
   FBtnSalvarConfig.Left := 820;
-  FBtnSalvarConfig.Top := 10;
+  FBtnSalvarConfig.Top := 8;
   FBtnSalvarConfig.Width := 160;
-  FBtnSalvarConfig.Height := 30;
+  FBtnSalvarConfig.Height := 28;
   FBtnSalvarConfig.OnClick := @OnSalvarConfigClick;
+
+  // Linha 2 do Painel Superior: Apontamento da Rede em Treinamento (.ngs)
+  Lbl := TLabel.Create(Self);
+  Lbl.Parent := PnlTop;
+  Lbl.Caption := 'Rede Alvo do Treino (.ngs):';
+  Lbl.Left := 16;
+  Lbl.Top := 48;
+  Lbl.Font.Style := [fsBold];
+
+  FCmbRedeAlvo := TComboBox.Create(Self);
+  FCmbRedeAlvo.Parent := PnlTop;
+  FCmbRedeAlvo.Left := 180;
+  FCmbRedeAlvo.Top := 44;
+  FCmbRedeAlvo.Width := 630;
+  FCmbRedeAlvo.OnChange := @OnCmbRedeAlvoChange;
+
+  FBtnProcurarRedeAlvo := TButton.Create(Self);
+  FBtnProcurarRedeAlvo.Parent := PnlTop;
+  FBtnProcurarRedeAlvo.Caption := 'Procurar Rede...';
+  FBtnProcurarRedeAlvo.Left := 820;
+  FBtnProcurarRedeAlvo.Top := 42;
+  FBtnProcurarRedeAlvo.Width := 160;
+  FBtnProcurarRedeAlvo.Height := 28;
+  FBtnProcurarRedeAlvo.OnClick := @OnProcurarRedeAlvoClick;
+
+  FOpenDialogRede := TOpenDialog.Create(Self);
+  FOpenDialogRede.Title := 'Selecionar Rede Alvo (.ngs)';
+  FOpenDialogRede.Filter := 'Redes NeuroGraph (*.ngs)|*.ngs|Todos os Arquivos (*.*)|*.*';
 
   // 2. Painel Inferior (Log e Progresso)
   PnlBottom := TPanel.Create(Self);
@@ -1179,15 +1216,23 @@ begin
     FLblApiStatus.Font.Color := $000088DD;
   end;
 
-  CaminhoModelo := ExtractFilePath(ObterCaminhoAppTreino) + 'modelos\neurograph_youtube.ngs';
-  if FindFirst(CaminhoModelo, faAnyFile, Info) = 0 then
+  if Assigned(FCmbRedeAlvo) and (Trim(FCmbRedeAlvo.Text) <> '') then
+    CaminhoModelo := Trim(FCmbRedeAlvo.Text)
+  else
+    CaminhoModelo := ExtractFilePath(ObterCaminhoAppTreino) + 'modelos\neurograph_youtube.ngs';
+
+  if FileExists(CaminhoModelo) and (FindFirst(CaminhoModelo, faAnyFile, Info) = 0) then
   begin
     TamMB := Info.Size / (1024 * 1024);
-    FLblModelStatus.Caption := Format('Modelo: neurograph_youtube.ngs (%.2f MB)', [TamMB]);
+    FLblModelStatus.Caption := Format('Rede Alvo: %s (%.2f MB)', [ExtractFileName(CaminhoModelo), TamMB]);
+    FLblModelStatus.Font.Color := $007000;
     FindClose(Info);
   end
   else
-    FLblModelStatus.Caption := 'Modelo: Não treinado ainda';
+  begin
+    FLblModelStatus.Caption := 'Rede Alvo: Nova / Não compilada';
+    FLblModelStatus.Font.Color := clNavy;
+  end;
 end;
 
 procedure TfrmStudio.ExecutarComandoTreino(const AParametros: array of string);
@@ -1222,6 +1267,12 @@ begin
 
     for I := Low(AParametros) to High(AParametros) do
       P.Parameters.Add(AParametros[I]);
+
+    if Assigned(FCmbRedeAlvo) and (Trim(FCmbRedeAlvo.Text) <> '') then
+    begin
+      P.Parameters.Add('--modelo');
+      P.Parameters.Add(Trim(FCmbRedeAlvo.Text));
+    end;
 
     if Trim(FEditApiKey.Text) <> '' then
     begin
@@ -1360,6 +1411,62 @@ begin
   FMemoTopicos.Lines.Add('Geografia Física e Climatologia');
   FMemoTopicos.Lines.Add('Lógica Matemática e Probabilidade');
   LogMsg('[INFO] 10 Tópicos padrão restaurados com sucesso.');
+end;
+
+procedure TfrmStudio.PopularRedesDisponiveis;
+var
+  Pastas: array[0..3] of string;
+  i: Integer;
+  SR: TSearchRec;
+  Pasta, CaminhoPadrao: string;
+begin
+  FCmbRedeAlvo.Items.Clear;
+
+  Pastas[0] := 'D:\projetos\maurinsoft\CHATGPT\NeuroGraph\treino\modelos';
+  Pastas[1] := 'D:\projetos\maurinsoft\CHATGPT\NeuroGraph\experiments\contextual_v7\results';
+  Pastas[2] := 'D:\projetos\maurinsoft\CHATGPT\NeuroGraph\experiments\contextual_v7\baseline_v6';
+  Pastas[3] := 'D:\projetos\maurinsoft\CHATGPT\NeuroGraph\history\2026-11-12';
+
+  for i := 0 to High(Pastas) do
+  begin
+    Pasta := Pastas[i];
+    if DirectoryExists(Pasta) then
+    begin
+      if FindFirst(Pasta + '\*.ngs', faAnyFile, SR) = 0 then
+      begin
+        repeat
+          if (SR.Attr and faDirectory) = 0 then
+            FCmbRedeAlvo.Items.Add(Pasta + '\' + SR.Name);
+        until FindNext(SR) <> 0;
+        FindClose(SR);
+      end;
+    end;
+  end;
+
+  CaminhoPadrao := 'D:\projetos\maurinsoft\CHATGPT\NeuroGraph\treino\modelos\neurograph_youtube.ngs';
+  if FCmbRedeAlvo.Items.IndexOf(CaminhoPadrao) < 0 then
+    FCmbRedeAlvo.Items.Insert(0, CaminhoPadrao);
+
+  if FCmbRedeAlvo.Items.Count > 0 then
+  begin
+    FCmbRedeAlvo.ItemIndex := 0;
+    OnCmbRedeAlvoChange(FCmbRedeAlvo);
+  end;
+end;
+
+procedure TfrmStudio.OnProcurarRedeAlvoClick(Sender: TObject);
+begin
+  if FOpenDialogRede.Execute then
+  begin
+    FCmbRedeAlvo.Items.Insert(0, FOpenDialogRede.FileName);
+    FCmbRedeAlvo.ItemIndex := 0;
+    OnCmbRedeAlvoChange(FCmbRedeAlvo);
+  end;
+end;
+
+procedure TfrmStudio.OnCmbRedeAlvoChange(Sender: TObject);
+begin
+  AtualizarStatusGeral;
 end;
 
 procedure TfrmStudio.OnGerar10TopicosClick(Sender: TObject);
@@ -1558,6 +1665,7 @@ begin
     try
       // Seção Geral
       Ini.WriteString('Geral', 'ApiKey', FEditApiKey.Text);
+      Ini.WriteString('Geral', 'RedeAlvo', FCmbRedeAlvo.Text);
 
       // Seção ChatGPT
       Ini.WriteString('ChatGPT', 'Provider', FCmbProvider.Text);
@@ -1601,6 +1709,20 @@ begin
       KeyVal := Ini.ReadString('Geral', 'ApiKey', '');
       if KeyVal <> '' then
         FEditApiKey.Text := KeyVal;
+
+      ModName := Ini.ReadString('Geral', 'RedeAlvo', '');
+      if ModName <> '' then
+      begin
+        Idx := FCmbRedeAlvo.Items.IndexOf(ModName);
+        if Idx >= 0 then
+          FCmbRedeAlvo.ItemIndex := Idx
+        else
+        begin
+          FCmbRedeAlvo.Items.Insert(0, ModName);
+          FCmbRedeAlvo.ItemIndex := 0;
+        end;
+        OnCmbRedeAlvoChange(FCmbRedeAlvo);
+      end;
 
       // Seção ChatGPT
       ProvName := Ini.ReadString('ChatGPT', 'Provider', '');

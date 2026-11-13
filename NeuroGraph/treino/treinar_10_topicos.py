@@ -459,6 +459,7 @@ def executar_treinamento_10_topicos(
     min_total: int = 1000,
     api_key: Optional[str] = None,
     treinar_modelo: bool = True,
+    caminho_modelo: Optional[Path] = None,
     pasta_saida: Optional[Path] = None,
 ) -> dict:
     """Executa a geração de treinamento para 10 tópicos com número aleatório de perguntas (nunca < 1000)."""
@@ -537,10 +538,12 @@ def executar_treinamento_10_topicos(
     # Retreina o modelo NeuroGraph se solicitado
     resultado_treino = {}
     if treinar_modelo:
-        print("\n[TREINAMENTO] Atualizando os pesos binários (.ngs) do TokenGraph com os novos dados...")
+        alvo_rede = caminho_modelo or (DIR_TREINO / "modelos" / "neurograph_youtube.ngs")
+        print("\n[TREINAMENTO] Atualizando os pesos binários (.ngs) da rede alvo...")
+        print(f"Rede Selecionada: {alvo_rede}")
         exemplos, _ = preparar_exemplos(incluir_base=True, caminho_curado=caminho_dataset)
-        modelo = treinar_neurograph(exemplos, epochs=60, learning_rate=0.05)
-        print("[SUCESSO] Modelo NeuroGraph treinado e salvo com sucesso!")
+        modelo = treinar_neurograph(exemplos, epochs=60, learning_rate=0.05, caminho_saida=alvo_rede)
+        print(f"[SUCESSO] Rede '{alvo_rede.name}' treinada e salva com sucesso!")
 
     return {
         "status": "concluido",
@@ -555,6 +558,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Gerador massivo de treinamento do NeuroGraph para 10 tópicos (>= 1000 pares).")
     parser.add_argument("--topicos", nargs="*", help="Lista opcional de 10 tópicos (se omitido, usa os 10 tópicos padrão).")
     parser.add_argument("--min", type=int, default=1000, help="Quantidade mínima total de pares (padrão: 1000, nunca menor que 1000).")
+    parser.add_argument("--modelo", "-m", type=Path, default=None, help="Caminho do arquivo de pesos da rede alvo a ser treinada (.ngs).")
     parser.add_argument("--api-key", type=str, default=None, help="Chave OpenAI API (opcional).")
     parser.add_argument("--sem-treino", action="store_true", help="Gera os pares e salva no dataset sem compilar os pesos do modelo.")
     parser.add_argument("--json", action="store_true", help="Retorna saída estruturada em JSON.")
@@ -567,6 +571,7 @@ def main() -> None:
         min_total=minimo,
         api_key=args.api_key,
         treinar_modelo=not args.sem_treino,
+        caminho_modelo=args.modelo,
     )
 
     if args.json:

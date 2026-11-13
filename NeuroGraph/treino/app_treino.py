@@ -368,17 +368,20 @@ def main():
         consultar_modelo(args.perguntar, caminho_modelo=caminho_mod)
     elif args.topicos_10:
         from treinar_10_topicos import executar_treinamento_10_topicos
+        caminho_mod = Path(args.modelo) if args.modelo else None
         executar_treinamento_10_topicos(
             topicos=args.lista_topicos,
             min_total=max(1000, args.min_pares),
             api_key=args.api_key,
             treinar_modelo=True,
+            caminho_modelo=caminho_mod,
         )
     elif args.treinar:
         exemplos, _ = preparar_exemplos(incluir_base=True)
-        caminho_saida = DIR_TREINO / "modelos" / "neurograph_youtube.ngs"
+        caminho_saida = Path(args.modelo) if args.modelo else (DIR_TREINO / "modelos" / "neurograph_youtube.ngs")
         treinar_neurograph(exemplos, epochs=140, caminho_saida=caminho_saida)
     elif args.pdf:
+        caminho_mod = Path(args.modelo) if args.modelo else None
         processar_pdf_completo(args.pdf, max_pares=args.max_pares, api_key=args.api_key, executar_treino=True)
     elif args.video:
         processar_video_individual(args.video, api_key=args.api_key, executar_treino=True)
