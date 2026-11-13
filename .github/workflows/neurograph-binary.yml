@@ -1,0 +1,41 @@
+name: Publicar mapa binario NeuroGraph
+on:
+  push:
+    paths:
+      - '.github/workflows/neurograph-binary.yml'
+      - 'NeuroGraph/gerar_memoria_inibida.py'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  gerar-e-publicar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Gerar mapa binario
+        run: python NeuroGraph/gerar_memoria_inibida.py
+      - name: Validar e publicar
+        shell: bash
+        run: |
+          python - <<'PY'
+          import struct
+          from pathlib import Path
+          p=Path("NeuroGraph/neurograph_memoria_ptbr_inibida_completa.ngm")
+          data=p.read_bytes()
+          magic,version,tokens,edges=struct.unpack_from("<8sIII",data)
+          assert (magic,version,tokens,edges)==(b"NGMAP001",1,691,476790)
+          assert len(data)==5728607
+          print(f"Arquivo validado: {len(data)} bytes")
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f NeuroGraph/neurograph_memoria_ptbr_inibida_completa.ngm
+          if ! git diff --cached --quiet; then
+            git commit -m "data: publicar mapa binario NeuroGraph PT-BR inibido"
+            git push
+          fi
