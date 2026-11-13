@@ -1,0 +1,602 @@
+[
+  {
+    "question": "o que é olá você sabia que",
+    "answer": "olá você sabia que é possível economizar com a conta de luz através do sol a velha está solar vai te ajudar a e",
+    "context": [],
+    "category": "youtube_curated",
+    "video_id": "FA9VBBw1Q-g",
+    "origem": "heuristica_local"
+  },
+  {
+    "question": "o que é eletricidade",
+    "answer": "eletricidade é gerada a partir da luz do sol dos painéis solares captam a luz do sol ea transformam a ene",
+    "context": [],
+    "category": "youtube_curated",
+    "video_id": "FA9VBBw1Q-g",
+    "origem": "heuristica_local"
+  },
+  {
+    "question": "o que é casa está consumindo então",
+    "answer": "casa está consumindo então é certo de energia vai parar rede distribuidora gerando créditos solares os quais podem ser",
+    "context": [],
+    "category": "youtube_curated",
+    "video_id": "FA9VBBw1Q-g",
+    "origem": "heuristica_local"
+  },
+  {
+    "question": "o que é produção de energia fotovoltaica",
+    "answer": "produção de energia fotovoltaica é interrompida no período da noite então você passa a utilizar seus créditos que você gerou",
+    "context": [],
+    "category": "youtube_curated",
+    "video_id": "FA9VBBw1Q-g",
+    "origem": "heuristica_local"
+  },
+  {
+    "question": "o que é dia viu como",
+    "answer": "dia viu como é simples com a energia solar você economiza com a sua conta de luz e ainda gera uma energia",
+    "context": [],
+    "category": "youtube_curated",
+    "video_id": "FA9VBBw1Q-g",
+    "origem": "heuristica_local"
+  },
+  {
+    "question": "o que é astrofisica",
+    "answer": "astrofisica é o ramo da astronomia que estuda as propriedades fisicas dos corpos celestes",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "exemplo_astronomia.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é uma estrela",
+    "answer": "uma estrela é uma esfera de plasma mantida coesa pela propria gravidade",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "exemplo_astronomia.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é uma supernova",
+    "answer": "uma supernova é uma explosao estelar cataclismica e extremamente luminosa",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "exemplo_astronomia.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é buraco negro",
+    "answer": "buraco negro é uma regiao do espaco-tempo com campo gravitacional tao intenso que nada pode escapar dele",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "exemplo_astronomia.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é via lactea",
+    "answer": "via lactea é a galaxia espiral que contem o nosso sistema solar",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "exemplo_astronomia.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é compiladores",
+    "answer": "compiladores é também leitura obrigatória para profissionais que querem se diferenciar no mercado",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "Compiladores - Princípios, técnicas e ferramentas.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é page ii",
+    "answer": "page ii são paulo brasil argentina colômbia costa rica chile espanha guatemala méxico peru porto rico",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "Compiladores - Princípios, técnicas e ferramentas.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é ela",
+    "answer": "ela é usada em ferramentas que encontram erros no software e",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "Compiladores - Princípios, técnicas e ferramentas.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é enfatizamos problemas que",
+    "answer": "enfatizamos problemas que são encontrados mais comumente no projeto de um processador de linguagem",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "Compiladores - Princípios, técnicas e ferramentas.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é uso do livro",
+    "answer": "uso do livro são necessários pelo menos dois trimestres",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "Compiladores - Princípios, técnicas e ferramentas.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é material",
+    "answer": "material é fundamental para o processamento de textos de todas as espécies",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "Compiladores - Princípios, técnicas e ferramentas.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é pilha de execução",
+    "answer": "pilha de execução é a coleta de lixo",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "Compiladores - Princípios, técnicas e ferramentas.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é ênfase",
+    "answer": "ênfase é dada à extração do paralelismo a partir de pequenas seqüências de instruções e seu escalon",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "Compiladores - Princípios, técnicas e ferramentas.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é universidade estadual de",
+    "answer": "universidade estadual de são paulo e pedro s",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "Compiladores - Princípios, técnicas e ferramentas.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é inguagens de programação",
+    "answer": "inguagens de programação são notações para se descrever computações para pessoas e para máquinas",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "Compiladores - Princípios, técnicas e ferramentas.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é projeto de um compilador",
+    "answer": "projeto de um compilador é a teoria da ciência da computação",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "Compiladores - Princípios, técnicas e ferramentas.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é geral do município que",
+    "answer": "geral do município que é composta por: i - gabinete do controlador geral do município",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "LC 3277-2025 - Reforma Administrativa - DOM 12245 (22-09-2025).pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é núcleo de apoio administrativo",
+    "answer": "núcleo de apoio administrativo é uma unidade subordinada ao titular da controladoria geral do município",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "LC 3277-2025 - Reforma Administrativa - DOM 12245 (22-09-2025).pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é previstas no plano plurianual",
+    "answer": "previstas no plano plurianual é a execução dos programas de governo e dos orçamentos do município",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "LC 3277-2025 - Reforma Administrativa - DOM 12245 (22-09-2025).pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é controle interno do município",
+    "answer": "controle interno do município é o órgão máximo de decisão da controladoria geral do município",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "LC 3277-2025 - Reforma Administrativa - DOM 12245 (22-09-2025).pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é efetivamente com as investigações",
+    "answer": "efetivamente com as investigações é o processo administrativo",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "LC 3277-2025 - Reforma Administrativa - DOM 12245 (22-09-2025).pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é contraditório",
+    "answer": "contraditório é a ampla defesa",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "LC 3277-2025 - Reforma Administrativa - DOM 12245 (22-09-2025).pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é tratamento",
+    "answer": "tratamento é a efetiva conclusão das manifestações de usuário perante órgão ou entidade a que se vincul",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "LC 3277-2025 - Reforma Administrativa - DOM 12245 (22-09-2025).pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é usuário",
+    "answer": "usuário é o órgão ou a entidade pública",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "LC 3277-2025 - Reforma Administrativa - DOM 12245 (22-09-2025).pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é correção",
+    "answer": "correção é a prevenção de falhas e omissões na prestação de serviços públicos",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "LC 3277-2025 - Reforma Administrativa - DOM 12245 (22-09-2025).pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é provimento de vagas",
+    "answer": "provimento de vagas é a formação de banco de candidatos aprovados em lista de espera para cargos de nível superi",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "edital_concurso-publico-nacional-unificado-2_8aret_21.11.25.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é concurso público nacional unificado",
+    "answer": "concurso público nacional unificado é de 12 (doze) meses",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "edital_concurso-publico-nacional-unificado-2_8aret_21.11.25.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é atribuições do cargo",
+    "answer": "atribuições do cargo é a deficiência apresentada por essas pessoas",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "edital_concurso-publico-nacional-unificado-2_8aret_21.11.25.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é qualquer cidadão",
+    "answer": "qualquer cidadão é parte legítima para i mpugnar este edital",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "edital_concurso-publico-nacional-unificado-2_8aret_21.11.25.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é exame médico admissional",
+    "answer": "exame médico admissional é de responsabilidade dos órgãos que aderiram ao concurso público nacional unificado",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "edital_concurso-publico-nacional-unificado-2_8aret_21.11.25.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é fundação getulio vargas",
+    "answer": "fundação getulio vargas é a escola nacional de administração pública não se responsabilizam por requerimento de insc",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "edital_concurso-publico-nacional-unificado-2_8aret_21.11.25.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é nacional de administração pública",
+    "answer": "nacional de administração pública é a fundação getulio vargas não se responsabilizam por inscrições e/ou pagamentos que não pu",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "edital_concurso-publico-nacional-unificado-2_8aret_21.11.25.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é conhecimento",
+    "answer": "conhecimento é a tácita aceitação das normas e condições estabelecidas neste edital",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "edital_concurso-publico-nacional-unificado-2_8aret_21.11.25.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é provas",
+    "answer": "provas é a nomeação da pessoa candidata",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "edital_concurso-publico-nacional-unificado-2_8aret_21.11.25.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é abertura de inscrições",
+    "answer": "abertura de inscrições é a realização do processo seletivo simplificado de docentes destinado a formação de cadastr",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "5.-edital-pss-educacao-profissional-vf3_cronograma-at.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é habilitação de nível superior",
+    "answer": "habilitação de nível superior é o(s) correspondente(s) componente(s) curricular(es) constante(s) no anexo v e no anexo x",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "5.-edital-pss-educacao-profissional-vf3_cronograma-at.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é inscrição",
+    "answer": "inscrição é o pagamento para ambos os eixos pretendidos",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "5.-edital-pss-educacao-profissional-vf3_cronograma-at.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é completa ciência",
+    "answer": "completa ciência é a tácita aceitação das normas e condições estabelecidas neste edital e nas demais normas l",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "5.-edital-pss-educacao-profissional-vf3_cronograma-at.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é fgv",
+    "answer": "fgv é a secretaria da educação do estado de são paulo não se responsabilizam por solicitação de",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "5.-edital-pss-educacao-profissional-vf3_cronograma-at.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é educação do estado de",
+    "answer": "educação do estado de são paulo é a fgv utilizá-las em qualquer época no amparo de seus direitos",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "5.-edital-pss-educacao-profissional-vf3_cronograma-at.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é vista que estas informações",
+    "answer": "vista que estas informações são essenciais para o fiel cumprimento da publicidade e da transparência que regem a administr",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "5.-edital-pss-educacao-profissional-vf3_cronograma-at.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é redução da taxa",
+    "answer": "redução da taxa é a documentação anexada serão de inteira responsabilidade do(a) candidato(a)",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "5.-edital-pss-educacao-profissional-vf3_cronograma-at.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é unimed rcp individual",
+    "answer": "unimed rcp individual é um seguro de responsabilidade civil profissional",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "CG-Unimed-RCP-Individual_A-partir-de-17.11.2023.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é ato do bom samaritano",
+    "answer": "ato do bom samaritano é a telemedicina ambos durante o ato médico",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "CG-Unimed-RCP-Individual_A-partir-de-17.11.2023.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é data de retroatividade",
+    "answer": "data de retroatividade é o início de vigência da apólice",
+    "context": [],
+    "category": "pdf_curated",
+    "video_id": "CG-Unimed-RCP-Individual_A-partir-de-17.11.2023.pdf",
+    "origem": "heuristica_pdf"
+  },
+  {
+    "question": "o que é chegar no parque solar",
+    "answer": "chegar no parque solar são gonçalo da enel green power",
+    "context": [],
+    "category": "youtube_curated",
+    "video_id": "_W1nQT7az8c",
+    "origem": "heuristica_local"
+  },
+  {
+    "question": "o que é ele",
+    "answer": "ele é o maior parque solar do brasil",
+    "context": [],
+    "category": "youtube_curated",
+    "video_id": "_W1nQT7az8c",
+    "origem": "heuristica_local"
+  },
+  {
+    "question": "o que é energia solar",
+    "answer": "energia solar é uma das mais limpas de todas",
+    "context": [],
+    "category": "youtube_curated",
+    "video_id": "_W1nQT7az8c",
+    "origem": "heuristica_local"
+  },
+  {
+    "question": "o que é fazendo um time lapse",
+    "answer": "fazendo um time lapse é a gente vai ver o movimento das placas ao longo do dia",
+    "context": [],
+    "category": "youtube_curated",
+    "video_id": "_W1nQT7az8c",
+    "origem": "heuristica_local"
+  },
+  {
+    "question": "o que é uma olhada como que",
+    "answer": "uma olhada como que é a construção de uma usina solar",
+    "context": [],
+    "category": "youtube_curated",
+    "video_id": "_W1nQT7az8c",
+    "origem": "heuristica_local"
+  },
+  {
+    "question": "o que é usina",
+    "answer": "usina é ter um terreno limpo e plano",
+    "context": [],
+    "category": "youtube_curated",
+    "video_id": "_W1nQT7az8c",
+    "origem": "heuristica_local"
+  },
+  {
+    "question": "o que é isso",
+    "answer": "isso é feito por um bate estaca",
+    "context": [],
+    "category": "youtube_curated",
+    "video_id": "_W1nQT7az8c",
+    "origem": "heuristica_local"
+  },
+  {
+    "question": "o que é essa tarefa",
+    "answer": "essa tarefa é feita por mulheres",
+    "context": [],
+    "category": "youtube_curated",
+    "video_id": "_W1nQT7az8c",
+    "origem": "heuristica_local"
+  },
+  {
+    "question": "o que é por quê que isso",
+    "answer": "por quê que isso é importante então vou te explicar tudo o que que é o pai então por que que isso é important",
+    "context": [],
+    "category": "youtube_curated",
+    "video_id": "DXmCU7v9glM",
+    "origem": "heuristica_local"
+  },
+  {
+    "question": "o que é mim ele nada mais",
+    "answer": "mim ele nada mais é do que o código do minicurso que eu deixei disponível para vocês aqui embaixo então em uma",
+    "context": [],
+    "category": "youtube_curated",
+    "video_id": "DXmCU7v9glM",
+    "origem": "heuristica_local"
+  },
+  {
+    "question": "o que é seu computador executar",
+    "answer": "seu computador executar é o seu computador ele é esse comando execute o pequeno comando faz é o python eu senti olha",
+    "context": [],
+    "category": "youtube_curated",
+    "video_id": "DXmCU7v9glM",
+    "origem": "heuristica_local"
+  },
+  {
+    "question": "o que é para você então qual",
+    "answer": "para você então qual é o objetivo do pai do ponto de vista assim eu eu me colocando no seu lugar pensando por que",
+    "context": [],
+    "category": "youtube_curated",
+    "video_id": "DXmCU7v9glM",
+    "origem": "heuristica_local"
+  },
+  {
+    "question": "o que é vai essas vagas que",
+    "answer": "vai essas vagas que são super valorizadas cara a maioria delas tem como pré-requisito o pai então pai também está",
+    "context": [],
+    "category": "youtube_curated",
+    "video_id": "DXmCU7v9glM",
+    "origem": "heuristica_local"
+  },
+  {
+    "question": "o que é tem tantas pessoas assim",
+    "answer": "tem tantas pessoas assim é realmente domina um pai tem principalmente que sabe usar o pai então para prática do merca",
+    "context": [],
+    "category": "youtube_curated",
+    "video_id": "DXmCU7v9glM",
+    "origem": "heuristica_local"
+  },
+  {
+    "question": "o que é trabalho que",
+    "answer": "trabalho que é o que eu quero te ensinar aqui que eu quero que você me ensine com esse minicurso que eu d",
+    "context": [],
+    "category": "youtube_curated",
+    "video_id": "DXmCU7v9glM",
+    "origem": "heuristica_local"
+  },
+  {
+    "question": "o que é seu por quê que",
+    "answer": "seu por quê que é importante para mim eu diria que seria por isso para você se destacar e crescer no mercado",
+    "context": [],
+    "category": "youtube_curated",
+    "video_id": "DXmCU7v9glM",
+    "origem": "heuristica_local"
+  },
+  {
+    "question": "o que é você apagar tudo",
+    "answer": "você apagar tudo é a gente vai começar aqui do zero para construir os nossos códigos primeiro código que eu v",
+    "context": [],
+    "category": "youtube_curated",
+    "video_id": "4p7axLXXBGU",
+    "origem": "heuristica_local"
+  },
+  {
+    "question": "o que é ensinar para vocês",
+    "answer": "ensinar para vocês é o print o print ele exibe uma informação para você print vende imprimir mesmo em inglês e",
+    "context": [],
+    "category": "youtube_curated",
+    "video_id": "4p7axLXXBGU",
+    "origem": "heuristica_local"
+  },
+  {
+    "question": "o que é exibir olá mundo que",
+    "answer": "exibir olá mundo que é aquele código clássico que todo mundo que tá aprendendo a programar escreve então print ol",
+    "context": [],
+    "category": "youtube_curated",
+    "video_id": "4p7axLXXBGU",
+    "origem": "heuristica_local"
+  },
+  {
+    "question": "o que é para mim tá vendo",
+    "answer": "para mim tá vendo é o legal é que aqui você pode fazer contas também eu posso fazer por exemplo 10 + 2 e ele v",
+    "context": [],
+    "category": "youtube_curated",
+    "video_id": "4p7axLXXBGU",
+    "origem": "heuristica_local"
+  },
+  {
+    "question": "o que é asterisco para fazer elevado",
+    "answer": "asterisco para fazer elevado é o dois asterisco então ó 10 elevado a 2 é 100 né que é 10 x 10 beleza então isso daqui voc",
+    "context": [],
+    "category": "youtube_curated",
+    "video_id": "4p7axLXXBGU",
+    "origem": "heuristica_local"
+  },
+  {
+    "question": "o que é essa informação aqui que",
+    "answer": "essa informação aqui que é vendas menos o custo se eu rodar esse daqui ele vai me dar o resultado de 700 porque é o m",
+    "context": [],
+    "category": "youtube_curated",
+    "video_id": "4p7axLXXBGU",
+    "origem": "heuristica_local"
+  },
+  {
+    "question": "o que é entre aspas ele",
+    "answer": "entre aspas ele é uma variável né que que é uma variável nada mais é do que um nome que armazena um valor en",
+    "context": [],
+    "category": "youtube_curated",
+    "video_id": "4p7axLXXBGU",
+    "origem": "heuristica_local"
+  },
+  {
+    "question": "o que é código",
+    "answer": "código é sempre executado de cima para baixo então a partir dessa linha de código aqui vendas se to",
+    "context": [],
+    "category": "youtube_curated",
+    "video_id": "4p7axLXXBGU",
+    "origem": "heuristica_local"
+  },
+  {
+    "question": "o que é unidade",
+    "answer": "unidade é a especialidade para verificar a disponibilidade de agenda",
+    "context": [],
+    "category": "youtube_curated",
+    "video_id": "Rm-0G4QQbb8",
+    "origem": "heuristica_local"
+  }
+]

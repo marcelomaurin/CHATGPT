@@ -1,0 +1,23 @@
+{
+  "versao": "1.0.0",
+  "idiomas_transcricao": ["pt", "pt-BR", "pt-PT"],
+  "openai": {
+    "modelo_curadoria": "gpt-4o-mini",
+    "temperatura": 0.2,
+    "max_pares_por_video": 8
+  },
+  "neurograph": {
+    "epochs_padrao": 140,
+    "learning_rate": 0.05,
+    "caminho_pesos_saida": "modelos/neurograph_youtube.ngs",
+    "incluir_base_legado": true
+  },
+  "temas_padrao_sugeridos": [
+    "energia solar e renovável",
+    "biologia celular e fotossíntese",
+    "história da computação e internet",
+    "inteligência artificial e redes neurais",
+    "fisiologia humana e sistema circulatório",
+    "astronomia e sistema solar"
+  ]
+}
