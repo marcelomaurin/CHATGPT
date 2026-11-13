@@ -1684,6 +1684,10 @@ begin
       // Seção PDF
       Ini.WriteString('PDF', 'UltimoArquivo', FEditCaminhoPDF.Text);
       Ini.WriteInteger('PDF', 'MaxPares', FSpinMaxParesPDF.Value);
+
+      // Seção Tópicos de Treinamento
+      Ini.WriteString('Topicos', 'Lista', FMemoTopicos.Lines.Text);
+      Ini.WriteInteger('Topicos', 'MinPares', FSpinMinParesTopicos.Value);
     finally
       Ini.Free;
     end;
@@ -1784,6 +1788,12 @@ begin
 
       MaxP := Ini.ReadInteger('PDF', 'MaxPares', 5);
       FSpinMaxParesPDF.Value := MaxP;
+
+      // Seção Tópicos de Treinamento
+      if Ini.ValueExists('Topicos', 'Lista') then
+        FMemoTopicos.Lines.Text := Ini.ReadString('Topicos', 'Lista', '');
+      if Ini.ValueExists('Topicos', 'MinPares') then
+        FSpinMinParesTopicos.Value := Ini.ReadInteger('Topicos', 'MinPares', 1000);
 
       LogMsg('[INFO] Configurações carregadas com sucesso de: ' + ObterCaminhoIni);
     finally

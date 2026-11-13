@@ -462,29 +462,24 @@ def executar_treinamento_10_topicos(
     caminho_modelo: Optional[Path] = None,
     pasta_saida: Optional[Path] = None,
 ) -> dict:
-    """Executa a geração de treinamento para 10 tópicos com número aleatório de perguntas (nunca < 1000)."""
+    """Executa a geração de treinamento para os tópicos informados com número aleatório de perguntas (nunca < 1000)."""
+    # Filtra tópicos válidos e não vazios
+    if topicos:
+        topicos = [t.strip() for t in topicos if t and t.strip()]
+
+    # Se a lista foi totalmente omitida (None), usa os tópicos padrão
     if not topicos:
         topicos = list(TOPICOS_PADRAO_10)
-
-    # Garante exatamente 10 tópicos
-    if len(topicos) < 10:
-        faltam = 10 - len(topicos)
-        for t in TOPICOS_PADRAO_10:
-            if t not in topicos:
-                topicos.append(t)
-                if len(topicos) == 10:
-                    break
-    elif len(topicos) > 10:
-        topicos = topicos[:10]
 
     if pasta_saida is None:
         pasta_saida = DIR_TREINO / "dados" / "processados"
 
     # Define número aleatório de perguntas por tópico de forma que a soma total seja >= min_total (1000)
-    # Por exemplo: cada tópico recebe entre 100 e 180 pares, garantindo entre 1000 e 1800 pares
+    # Por exemplo: com N tópicos, cada tópico recebe aproximadamente (min_total // N)
     random.seed(int(time.time()))
-    min_por_topico = max(100, (min_total // 10) + 1)
-    max_por_topico = min_por_topico + 50
+    qtd_topicos = len(topicos)
+    min_por_topico = max(10, (min_total // qtd_topicos) + 1)
+    max_por_topico = min_por_topico + max(20, min_por_topico // 2)
 
     distribuicao: dict[str, int] = {}
     soma_atual = 0
@@ -500,7 +495,7 @@ def executar_treinamento_10_topicos(
         soma_atual = min_total
 
     print("=" * 70)
-    print("  TREINAMENTO MASSIVO DO NEUROGRAPH - 10 TÓPICOS")
+    print(f"  TREINAMENTO DO NEUROGRAPH - {qtd_topicos} TÓPICO(S)")
     print("=" * 70)
     print(f"Meta Mínima: {min_total} pares (Total Programado: {soma_atual} pares)")
     print("-" * 70)
@@ -512,7 +507,7 @@ def executar_treinamento_10_topicos(
     tem_api_key = bool(api_key or os.getenv("OPENAI_API_KEY"))
 
     for i, (topico, qtd) in enumerate(distribuicao.items(), 1):
-        print(f"\n[Tópico {i}/10] Gerando {qtd} perguntas e respostas para: '{topico}'...")
+        print(f"\n[Tópico {i}/{qtd_topicos}] Gerando {qtd} perguntas e respostas para: '{topico}'...")
         pares_topico: list[ParTreinamento] = []
 
         if tem_api_key:
