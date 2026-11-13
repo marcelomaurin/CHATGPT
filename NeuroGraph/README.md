@@ -1,4 +1,7 @@
-# NeuroGraph — protótipo Lazarus / Free Pascal
+# NeuroGraph — Módulo Experimental (Protótipo Lazarus / Free Pascal)
+
+> [!WARNING]
+> **Status do Módulo:** O **NeuroGraph** é estritamente **experimental** e encontra-se em fase ativa de pesquisa e prototipação. **Ele pode não compor a lista final de componentes oficiais da suíte TCHATGPT.**
 
 Módulo experimental do framework CHATGPT para investigar uma arquitetura híbrida de rede neural compacta e grafo associativo direcionado, com execução em Linux/ARM64 (Raspberry Pi 4 GB).
 
