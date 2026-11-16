@@ -149,7 +149,7 @@ class TokenGraph:
                   ("prev2", before, last): 1.0, ("step", str(len(prefix))): 0.5}
         for feature, strength in source.items():
             active[feature] = strength
-            if feature[0] != "stem":
+            if feature[0] in ("q", "context"):
                 active[("with_prev", *feature, last)] = strength
         for token, strength in memory.items():
             active[("memory", token)] = strength
@@ -159,6 +159,72 @@ class TokenGraph:
         result = {t: v * self.decay for t, v in memory.items() if v * self.decay >= 0.001}
         result[token] = result.get(token, 0.0) + 1.0
         return result
+
+    @staticmethod
+    def _char_ngrams(word: str, n: int = 3) -> set[str]:
+        padded = f"^{word}$"
+        if len(padded) < n:
+            return {padded}
+        return {padded[i:i + n] for i in range(len(padded) - n + 1)}
+
+    @classmethod
+    def _ngram_similarity(cls, a: str, b: str) -> float:
+        if a == b:
+            return 1.0
+        ga = cls._char_ngrams(a)
+        gb = cls._char_ngrams(b)
+        inter = len(ga & gb)
+        if inter == 0:
+            return 0.0
+        return inter / math.sqrt(len(ga) * len(gb))
+
+    def _known_concept_vocab(self) -> list[str]:
+        vocab = getattr(self, "_cached_concept_vocab", None)
+        feat_count = len(self.features)
+        if vocab is not None and getattr(self, "_cached_vocab_size", -1) == feat_count:
+            return vocab
+        vocab = [
+            f[1] for f in self.features
+            if len(f) == 2 and f[0] == "q" and f[1] not in QUESTION_FRAMES
+        ]
+        self._cached_concept_vocab = vocab
+        self._cached_vocab_size = feat_count
+        return vocab
+
+    def _resolve_known_concepts(self, question: str) -> tuple[list[str], bool]:
+        """Resolve conceitos da pergunta contra o vocabulário treinado usando match exato,
+        radical e similaridade de n-gramas de caracteres. Retorna (conceitos, tem_desconhecido).
+        """
+        words = tokenize(question)[:64]
+        concepts = [w for w in words if w not in QUESTION_FRAMES]
+        if not concepts:
+            return [], False
+        vocab = self._known_concept_vocab()
+        resolved: list[str] = []
+        has_unknown = False
+        for c in concepts:
+            if ("q", c) in self.feature_ids:
+                resolved.append(c)
+                continue
+            best_tok = ""
+            best_sim = 0.0
+            if len(c) >= 4 and vocab:
+                stem5 = c[:5] if len(c) >= 5 else ""
+                for cand in vocab:
+                    if stem5 and cand.startswith(stem5):
+                        sim = max(0.75, self._ngram_similarity(c, cand))
+                    elif abs(len(cand) - len(c)) <= 4:
+                        sim = self._ngram_similarity(c, cand)
+                    else:
+                        continue
+                    if sim > best_sim:
+                        best_sim = sim
+                        best_tok = cand
+            if best_tok and best_sim >= 0.62:
+                resolved.append(best_tok)
+            else:
+                has_unknown = True
+        return resolved, has_unknown
 
     def _has_known_concept(self, question: str, context: tuple[str, ...] = ()) -> bool:
         """Gate against hallucinating answers when the question asks about unseen concepts."""
@@ -230,16 +296,19 @@ class TokenGraph:
         for local_idx, feat_id in enumerate(active_features):
             for target, value in self.edges.get(int(feat_id), ()):
                 weights[local_idx, target] = value
-        initial = weights.copy()
-        first_moment, second_moment = np.zeros_like(weights), np.zeros_like(weights)
+        track_initial = (n_active * len(self.tokens)) <= 5_000_000
+        initial = weights.copy() if track_initial else None
+        first_moment = np.zeros_like(weights)
+        second_moment = np.zeros_like(weights)
         target_ids = np.asarray(targets, dtype=np.int32)
         n_samples = len(samples)
+        eff_batch_size = batch_size
         report = []
         step_num = 0
         rng = np.random.default_rng(42)
 
         for epoch in range(1, epochs + 1):
-            if n_samples <= batch_size:
+            if n_samples <= eff_batch_size:
                 step_num += 1
                 logits = inputs @ weights
                 logits -= logits.max(axis=1, keepdims=True)
@@ -268,7 +337,7 @@ class TokenGraph:
                 epoch_loss_sum = 0.0
                 epoch_correct = 0
                 eval_epoch = (epoch == 1 or epoch == epochs or epoch % 30 == 0)
-                for start_idx in range(0, n_samples, batch_size):
+                for start_idx in range(0, n_samples, eff_batch_size):
                     step_num += 1
                     batch_idx = perm[start_idx:start_idx + batch_size]
                     b_len = len(batch_idx)
@@ -285,17 +354,34 @@ class TokenGraph:
                     probabilities[np.arange(b_len), b_targets] -= 1.0
                     active_rows = np.unique(b_inputs.indices)
                     b_inputs_sub = b_inputs[:, active_rows]
-                    grad_sub = np.asarray(b_inputs_sub.T @ probabilities, dtype=np.float32) / b_len
+                    grad_sub = np.asarray((b_inputs_sub.T @ probabilities) / b_len, dtype=np.float32)
+                    del b_inputs_sub, probabilities
                     if regularization > 0:
-                        grad_sub += regularization * weights[active_rows]
-                    m_sub = first_moment[active_rows] * 0.9 + 0.1 * grad_sub
-                    v_sub = second_moment[active_rows] * 0.999 + 0.001 * (grad_sub * grad_sub)
+                        w_sub = weights[active_rows]
+                        w_sub *= regularization
+                        grad_sub += w_sub
+                        del w_sub
+                    m_sub = first_moment[active_rows]
+                    m_sub *= 0.9
+                    m_sub += 0.1 * grad_sub
                     first_moment[active_rows] = m_sub
+                    grad_sub *= grad_sub
+                    grad_sub *= 0.001
+                    v_sub = second_moment[active_rows]
+                    v_sub *= 0.999
+                    v_sub += grad_sub
+                    del grad_sub
                     second_moment[active_rows] = v_sub
                     bias_corr1 = 1.0 - 0.9 ** step_num
                     bias_corr2 = math.sqrt(1.0 - 0.999 ** step_num)
-                    step_scale = learning_rate * (bias_corr2 / bias_corr1)
-                    weights[active_rows] -= step_scale * m_sub / (np.sqrt(v_sub) + 1e-8)
+                    step_scale = np.float32(learning_rate * (bias_corr2 / bias_corr1))
+                    np.sqrt(v_sub, out=v_sub)
+                    v_sub += np.float32(1e-8)
+                    m_sub *= step_scale
+                    m_sub /= v_sub
+                    del v_sub
+                    weights[active_rows] -= m_sub
+                    del m_sub
                 if eval_epoch:
                     report.append({
                         "epoch": epoch,
@@ -306,7 +392,7 @@ class TokenGraph:
         if not np.isfinite(weights).all():
             raise ValueError("Non-finite training weights")
         # Omit tiny edges; serialization/inference share the same float32 values.
-        prune_threshold = 0.025 if len(self.tokens) > 200 else 0.005
+        prune_threshold = 0.008 if len(self.tokens) > 200 else 0.005
         for local_idx, feat_id in enumerate(active_features):
             fid = int(feat_id)
             indices = np.flatnonzero(np.abs(weights[local_idx]) >= prune_threshold)
@@ -314,7 +400,8 @@ class TokenGraph:
                 self.edges[fid] = [(int(t), float(weights[local_idx, t])) for t in indices]
             else:
                 self.edges.pop(fid, None)
-        report.append({"changed_weights": int((np.abs(weights - initial) > 1e-6).sum()),
+        changed_count = int((np.abs(weights - initial) > 1e-6).sum()) if initial is not None else sum(map(len, self.edges.values()))
+        report.append({"changed_weights": changed_count,
                        "features": len(self.features), "tokens": len(self.tokens),
                        "stored_edges": sum(map(len, self.edges.values()))})
         self.training_log.extend(report)
@@ -348,11 +435,7 @@ class TokenGraph:
         probability = 1 / sum(math.exp(value - best) for value in scores)
         return self.tokens[target], probability
 
-    def generate(self, question: str, *, context: tuple[str, ...] = (), max_tokens: int = 64) -> Generation:
-        if not 1 <= max_tokens <= 256:
-            raise ValueError("Invalid output budget")
-        if not tokenize(question):
-            return Generation("não tenho associações suficientes", [], [], True, "empty_input")
+    def _generate_once(self, question: str, context: tuple[str, ...], max_tokens: int) -> Generation:
         if not self._has_known_concept(question, context):
             return Generation("não tenho associações suficientes", [], [], True, "unknown_concept")
         source, prefix, memory, probabilities = self._input(question, context), [], {}, []
@@ -368,6 +451,44 @@ class TokenGraph:
             prefix.append(token)
             memory = self._advance(memory, token)
         return Generation("não tenho associações suficientes", [], probabilities, True, "token_budget")
+
+    def generate(self, question: str, *, context: tuple[str, ...] = (), max_tokens: int = 64) -> Generation:
+        if not 1 <= max_tokens <= 256:
+            raise ValueError("Invalid output budget")
+        if not tokenize(question):
+            return Generation("não tenho associações suficientes", [], [], True, "empty_input")
+
+        direct = self._generate_once(question, context, max_tokens)
+        if not direct.abstained:
+            return direct
+
+        # Recuperação semântica por conceitos canônicos quando a formulação diverge do treino
+        resolved, has_unknown = self._resolve_known_concepts(question)
+        if resolved and not has_unknown:
+            phrase = " ".join(resolved)
+            candidates = [
+                f"o que é {phrase}",
+                f"o que é um {phrase}",
+                f"o que é uma {phrase}",
+                f"o que são {phrase}",
+                f"como funciona {phrase}",
+                f"como funciona o {phrase}",
+                f"qual a função {phrase}",
+                phrase,
+            ]
+            best_gen: Generation | None = None
+            best_score = -1.0
+            for cand in candidates:
+                g = self._generate_once(cand, context, max_tokens)
+                if not g.abstained and g.probabilities:
+                    score = sum(g.probabilities) / len(g.probabilities)
+                    if score > best_score:
+                        best_score = score
+                        best_gen = g
+            if best_gen is not None:
+                return best_gen
+
+        return direct
 
     def respond(self, question: str, session: Session) -> Generation:
         result = self.generate(question, context=tuple(session.history))

@@ -1,31 +1,26 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Gerador Massivo de Treinamento Conceitual para o NeuroGraph.
+"""Gerador de Treinamento Conceitual por Tópicos para o NeuroGraph.
 
-Requisito do Usuário:
-1. Pede/recebe 10 tópicos de conhecimento (ou sugere 10 tópicos abrangentes se não fornecidos).
-2. A IA gera um número aleatório de perguntas e respostas para cada tópico.
-3. Quantidade total NUNCA MENOR QUE 1000 pares (>= 1000).
-4. Suporta execução com API OpenAI (ChatGPT) ou motor heurístico/conceitual autônomo offline.
-5. Salva no dataset curado e opcionalmente dispara o retreinamento do TokenGraph.
+Responsabilidades:
+1. Gerar pares conceituais precisos em português usando o LLM configurado no neurograph_studio.ini
+   (OpenAI ou servidor local Ollama / llama.cpp) ou base conceitual pedagógica verificada.
+2. Impedir tautologias ("X é X é...") e respostas genéricas vazias ("é uma área do conhecimento dedicada...").
+3. Validar rigorosamente cada par antes de salvar no dataset e treinar o TokenGraph.
 """
 from __future__ import annotations
 
 import argparse
-import codecs
 import json
 import logging
 import os
-import random
 import re
 import sys
-import time
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any, Optional
+from typing import Optional
 
-# Força UTF-8 seguro no console Windows
-if sys.platform == "win32":
+if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
     try:
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
         sys.stderr.reconfigure(encoding="utf-8", errors="replace")
@@ -38,11 +33,21 @@ DIR_CONTEXTUAL_V7 = DIR_NEUROGRAPH / "experiments" / "contextual_v7"
 
 if str(DIR_CONTEXTUAL_V7) not in sys.path:
     sys.path.insert(0, str(DIR_CONTEXTUAL_V7))
+if str(DIR_TREINO) not in sys.path:
+    sys.path.insert(0, str(DIR_TREINO))
 
-from curador_chatgpt import ParTreinamento, normalizar_texto_neurograph, salvar_pares_processados
-from treinador_neurograph import preparar_exemplos, treinar_neurograph
+from curador_chatgpt import (
+    ParTreinamento,
+    carregar_config_llm_ini,
+    eh_par_conceitual_valido,
+    extrair_json_da_resposta,
+    normalizar_texto_neurograph,
+    requisitar_chat_llm,
+    salvar_pares_processados,
+    tem_ia_ativa,
+)
+from treinador_neurograph import preparar_exemplos
 
-# 10 tópicos padrão de alto valor didático para expansão cognitiva do NeuroGraph
 TOPICOS_PADRAO_10 = [
     "Inteligência Artificial e Redes Neurais",
     "Ciência da Computação e Algoritmos",
@@ -56,253 +61,255 @@ TOPICOS_PADRAO_10 = [
     "Lógica Matemática e Probabilidade",
 ]
 
-# Base conceitual sintética para expansão de alta fidelidade sem internet (>= 1000 pares garantidos)
-CONCEITOS_BASE = {
+# Base conceitual pedagógica verificada em português (cobrindo tópicos padrão e assuntos do studio)
+CONCEITOS_BASE: dict[str, list[tuple[str, str]]] = {
     "Inteligência Artificial e Redes Neurais": [
         ("o que é inteligência artificial", "inteligência artificial é o ramo da ciência da computação que cria sistemas capazes de simular o raciocínio humano"),
         ("o que é aprendizado de máquina", "aprendizado de máquina é um método onde sistemas aprendem a reconhecer padrões diretamente a partir de dados"),
         ("o que é uma rede neural artificial", "uma rede neural artificial é um modelo computacional inspirado nas conexões sinápticas de neurônios biológicos"),
-        ("o que é um neurônio artificial", "um neurônio artificial é uma unidade de processamento matemático que calcula a soma ponderada de entradas e aplica uma ativação"),
-        ("o que é backpropagation", "backpropagation é o algoritmo de retropropagação do erro usado para atualizar os pesos de uma rede neural via gradiente descendente"),
-        ("o que é uma função de ativação", "uma função de ativação é uma função matemática que introduz não linearidade na saída de um neurônio"),
-        ("o que é a função relu", "a função relu é uma ativação que retorna zero para valores negativos e o próprio valor para entradas positivas"),
-        ("o que é a função sigmoid", "a função sigmoid é uma curva que mapeia qualquer número real em uma probabilidade contínua entre zero e um"),
-        ("o que é overfitting", "overfitting ocorre quando um modelo decora os dados de treino e perde a capacidade de generalizar para novos dados"),
-        ("o que é underfitting", "underfitting ocorre quando o modelo é excessivamente simples para capturar os padrões fundamentais dos dados"),
-        ("o que é gradiente descendente", "gradiente descendente é um algoritmo de otimização que ajusta os pesos na direção contrária à derivada do erro"),
-        ("o que é taxa de aprendizado", "a taxa de aprendizado é o hiperparâmetro que define o tamanho do passo dado a cada iteração do otimizador"),
+        ("o que é um neurônio artificial", "um neurônio artificial é uma unidade matemática que calcula a soma ponderada de entradas e aplica uma função de ativação"),
+        ("o que é backpropagation", "backpropagation é o algoritmo de retropropagação do erro usado para ajustar os pesos de uma rede neural via gradiente"),
+        ("o que é uma função de ativação", "uma função de ativação é uma operação matemática que introduz não linearidade na saída de um neurônio"),
+        ("o que é overfitting", "overfitting ocorre quando um modelo decora os dados de treino e perde a capacidade de generalizar para novos exemplos"),
+        ("o que é gradiente descendente", "gradiente descendente é um algoritmo de otimização que ajusta os pesos na direção oposta à derivada do erro"),
+        ("o que é taxa de aprendizado", "a taxa de aprendizado é o hiperparâmetro que controla o tamanho do passo de ajuste dos pesos a cada iteração"),
         ("o que é um transformer", "o transformer é uma arquitetura de rede neural baseada no mecanismo de atenção para processar sequências em paralelo"),
-        ("o que é mecanismo de atenção", "o mecanismo de atenção calcula pesos de importância relativa entre todas as palavras de uma sequência"),
-        ("o que é um token", "um token é a unidade básica de texto como uma palavra ou pedaço de palavra processada por um modelo de linguagem"),
-        ("o que é um embedding", "um embedding é uma representação vetorial densa em que termos com significado similar ficam próximos no espaço numérico"),
-        ("o que é fine tuning", "fine tuning é o ajuste fino dos parâmetros de um modelo pré treinado em uma base de dados específica"),
-        ("o que é inferência", "inferência é a fase em que o modelo já treinado processa novas entradas para gerar predições ou respostas"),
-        ("o que é prompt", "um prompt é a instrução em linguagem natural fornecida a um modelo gerador para guiar sua resposta"),
+        ("o que é um token", "um token é a unidade básica de texto como uma palavra ou subpalavra processada por um modelo de linguagem"),
         ("o que é neurograph", "o neurograph é uma rede neural associativa em grafo de tokens desenvolvida para raciocínio contextual transparente"),
     ],
     "Ciência da Computação e Algoritmos": [
-        ("o que é um algoritmo", "um algoritmo é uma sequência finita de passos bem definidos e lógicos para solucionar um problema computacional"),
-        ("o que é uma variável", "uma variável é um espaço alocado na memória para armazenar dados mutáveis durante a execução de um programa"),
-        ("o que é uma função", "uma função é um bloco de código reutilizável que recebe parâmetros processa dados e retorna um resultado"),
-        ("o que é recursão", "recursão é a técnica onde uma função chama a si mesma até atingir uma condição de parada pré estabelecida"),
-        ("o que é complexidade assintótica", "a complexidade assintótica mede o crescimento do tempo de execução ou do uso de memória com a notação big o"),
-        ("o que é uma pilha", "uma pilha é uma estrutura de dados do tipo lifo onde o último elemento adicionado é sempre o primeiro a ser removido"),
-        ("o que é uma fila", "uma fila é uma estrutura de dados do tipo fifo onde o primeiro elemento adicionado é o primeiro a ser processado"),
-        ("o que é uma árvore binária", "uma árvore binária é uma estrutura hierárquica onde cada nó possui no máximo dois filhos denominados esquerdo e direito"),
-        ("o que é uma tabela hash", "uma tabela hash é uma estrutura que armazena pares de chave e valor permitindo buscas rápidas em tempo médio constante"),
-        ("o que é ordenação quicksort", "o quicksort é um algoritmo de ordenação por divisão e conquista que particiona os dados em torno de um elemento pivô"),
-        ("o que é busca binária", "a busca binária é um algoritmo de busca eficiente em listas ordenadas que divide o intervalo pela metade a cada passo"),
-        ("o que é compilador", "um compilador é um programa que traduz código fonte em linguagem de alto nível para código de máquina ou binário"),
-        ("o que é um interpretador", "um interpretador é um programa que lê e executa o código fonte instrução por instrução sem gerar binário prévio"),
-        ("o que é sistema operacional", "um sistema operacional é o software fundamental que gerencia o hardware a memória os processos e os arquivos do computador"),
-        ("o que é memória ram", "a memória ram é uma memória volátil de acesso rápido usada pelo processador para armazenar programas em execução"),
-        ("o que é disco ssd", "o disco ssd é uma unidade de armazenamento persistente não volátil baseada em memória flash semicondutora"),
-        ("o que é endereço ip", "o endereço ip é um identificador numérico exclusivo atribuído a cada dispositivo conectado a uma rede de computadores"),
-        ("o que é protocolo tcp", "o protocolo tcp garante a entrega confiável e ordenada de pacotes de dados através da confirmação de recebimento"),
-        ("o que é protocolo udp", "o protocolo udp é um protocolo de transporte leve sem garantia de entrega ou confirmação ideal para streaming e jogos"),
-        ("o que é criptografia assimétrica", "a criptografia assimétrica utiliza um par de chaves composto por uma pública para cifrar e uma privada para decifrar"),
+        ("o que é um algoritmo", "um algoritmo é uma sequência finita de passos lógicos e bem definidos para solucionar um problema computacional"),
+        ("o que é uma variável", "uma variável é um espaço nomeado na memória usado para armazenar dados durante a execução de um programa"),
+        ("o que é recursão", "recursão é a técnica de programação onde uma função chama a si mesma até atingir uma condição de parada"),
+        ("o que é uma pilha", "uma pilha é uma estrutura de dados do tipo lifo onde o último elemento inserido é o primeiro a ser removido"),
+        ("o que é uma fila", "uma fila é uma estrutura de dados do tipo fifo onde o primeiro elemento inserido é o primeiro a ser atendido"),
+        ("o que é uma árvore binária", "uma árvore binária é uma estrutura de dados hierárquica em que cada nó possui no máximo dois filhos"),
+        ("o que é uma tabela hash", "uma tabela hash é uma estrutura que associa chaves a valores permitindo buscas rápidas em tempo médio constante"),
+        ("o que é busca binária", "a busca binária é um algoritmo eficiente que localiza itens em listas ordenadas dividindo o intervalo pela metade"),
+        ("o que é um compilador", "um compilador é um programa que traduz código fonte de alto nível para código de máquina executável"),
+        ("o que é memória ram", "a memória ram é a memória volátil de acesso rápido usada pelo processador para manter programas e dados ativos"),
+    ],
+    "Sistema Operacional": [
+        ("o que é sistema operacional", "um sistema operacional é o software base que gerencia o hardware a memória os processos e os arquivos do computador"),
+        ("o que é o kernel", "o kernel é o núcleo do sistema operacional responsável pela comunicação direta entre o software e o hardware"),
+        ("o que é um processo em computação", "um processo é uma instância de um programa em execução contendo seu próprio espaço de memória e estado"),
+        ("o que é memória virtual", "memória virtual é a técnica do sistema operacional que utiliza parte do disco para expandir a memória ram disponível"),
+        ("o que é um sistema de arquivos", "um sistema de arquivos é a estrutura lógica usada pelo sistema operacional para organizar e gravar dados em disco"),
+        ("o que é escalonamento de processos", "o escalonamento de processos é o mecanismo que distribui o tempo de uso do processador entre várias tarefas ativas"),
     ],
     "Astronomia e Sistema Solar": [
-        ("o que é uma estrela", "uma estrela é uma esfera colossal de plasma luminosa sustentada pela fusão nuclear contínua em seu núcleo denso"),
-        ("o que é o sol", "o sol é a estrela anã amarela localizada no centro do nosso sistema solar fornecendo luz e gravidade aos planetas"),
-        ("o que é um planeta", "um planeta é um corpo celeste esférico que orbita uma estrela e limpou a vizinhança de sua própria órbita"),
-        ("o que é a gravidade", "a gravidade é a força fundamental de atração mútua entre massas descrita como curvatura do espaço tempo na relatividade"),
-        ("o que é uma galáxia", "uma galáxia é um vasto sistema gravitacionalmente ligado contendo bilhões de estrelas gás poeira e matéria escura"),
-        ("o que é a via láctea", "a via láctea é a galáxia espiral barrada onde nosso sistema solar e o planeta terra estão localizados"),
-        ("o que é um buraco negro", "um buraco negro é uma região do espaço tempo com densidade tão extrema que nada nem mesmo a luz consegue escapar"),
-        ("o que é o horizonte de eventos", "o horizonte de eventos é a fronteira limite ao redor de um buraco negro a partir da qual nenhum sinal pode retornar"),
-        ("o que é uma supernova", "uma supernova é uma explosão cataclísmica de uma estrela massiva ao final de sua evolução termonuclear"),
-        ("o que é um cometa", "um cometa é um corpo celeste menor formado por gelo poeira e rocha que produz uma cauda brilhante perto do sol"),
-        ("o que é um asteroide", "um asteroide é um corpo rochoso e metálico que orbita o sol concentrado principalmente no cinturão entre marte e júpiter"),
-        ("o que é a lua", "a lua é o único satélite natural da terra cuja atração gravitacional regula as marés oceânicas do planeta"),
-        ("o que é júpiter", "júpiter é o maior planeta do sistema solar composto predominantemente por hidrogênio e hélio com tempestades gigantes"),
-        ("o que é marte", "marte é o quarto planeta a partir do sol conhecido como planeta vermelho devido ao óxido de ferro presente em seu solo"),
-        ("o que é um exoplaneta", "um exoplaneta é um planeta localizado fora do sistema solar orbitando uma estrela diferente do nosso sol"),
-        ("o que é a matéria escura", "a matéria escura é uma forma invisível de matéria hipotética que exerce atração gravitacional em galáxias"),
-        ("o que é energia escura", "a energia escura é a pressão repulsiva desconhecida que acelera a expansão contínua do universo observável"),
-        ("o que é o big bang", "o big bang é o modelo cosmológico que descreve a origem e a expansão rápida do universo a partir de um estado primordial quente"),
-        ("o que é ano luz", "o ano luz é a unidade astronômica de distância equivalente ao percurso que a luz viaja no vácuo em um ano terrestre"),
-        ("o que é uma nebulosa", "uma nebulosa é uma imensa nuvem interestelar de poeira hidrogênio e plasma onde comumente nascem novas estrelas"),
+        ("o que é uma estrela", "uma estrela é uma esfera massiva de plasma luminosa sustentada pela fusão nuclear em seu núcleo"),
+        ("o que é o sol", "o sol é a estrela anã amarela situada no centro do sistema solar que fornece luz e calor para a terra"),
+        ("o que é um planeta", "um planeta é um corpo celeste esférico que orbita uma estrela e possui gravidade dominante em sua órbita"),
+        ("o que é uma galáxia", "uma galáxia é um imenso sistema ligado pela gravidade composto por bilhões de estrelas gás poeira e matéria escura"),
+        ("o que é a via láctea", "a via láctea é a galáxia espiral barrada onde estão localizados o sistema solar e o planeta terra"),
+        ("o que é uma supernova", "uma supernova é a explosão estelar energética que ocorre no estágio final da evolução de estrelas massivas"),
+        ("o que é ano luz", "o ano luz é a unidade astronômica de distância correspondente ao percurso que a luz percorre no vácuo em um ano"),
+        ("o que é uma nebulosa", "uma nebulosa é uma grande nuvem interestelar de gás e poeira onde frequentemente se formam novas estrelas"),
+    ],
+    "Buraco Negro": [
+        ("o que é um buraco negro", "um buraco negro é uma região do espaço tempo com gravidade tão intensa que nem mesmo a luz consegue escapar"),
+        ("o que é o horizonte de eventos", "o horizonte de eventos é a fronteira ao redor de um buraco negro a partir da qual nenhuma matéria ou luz retorna"),
+        ("o que é singularidade gravitacional", "a singularidade gravitacional é o centro de um buraco negro onde a massa se concentra em densidade extrema"),
+        ("como se forma um buraco negro estelar", "um buraco negro estelar forma se pelo colapso gravitacional do núcleo de uma estrela supermassiva após esgotar seu combustível"),
+        ("o que é disco de acreção", "o disco de acreção é a estrutura giratória de gás e matéria superaquecida que orbita ao redor de um buraco negro"),
     ],
     "Física Quântica e Eletromagnetismo": [
-        ("o que é um fóton", "o fóton é o quantum fundamental de luz e a partícula mediadora de toda a força eletromagnética"),
-        ("o que é um elétron", "o elétron é uma partícula subatômica de carga elétrica negativa que orbita o núcleo atômico"),
-        ("o que é superposição quântica", "superposição quântica é o princípio onde uma partícula existe em múltiplos estados simultâneos até que seja medida"),
-        ("o que é entrelaçamento quântico", "entrelaçamento quântico é o fenômeno em que duas partículas compartilham propriedades de forma instantânea a qualquer distância"),
-        ("o que é o princípio da incerteza", "o princípio da incerteza de heisenberg estabelece que não é possível determinar simultaneamente a posição e o momento exatos de uma partícula"),
-        ("o que é a dualidade onda partícula", "a dualidade onda partícula afirma que entidades quânticas exibem tanto propriedades ondulatórias quanto corpusculares"),
-        ("o que é um qubit", "um qubit é a unidade básica da computação quântica capaz de representar zero um ou ambos simultaneamente em superposição"),
-        ("o que é tunelamento quântico", "tunelamento quântico é a passagem de uma partícula através de uma barreira de potencial que seria intransponível pela física clássica"),
-        ("o que é campo elétrico", "o campo elétrico é a região do espaço modificada pela presença de cargas elétricas que exerce força sobre outras cargas"),
-        ("o que é campo magnético", "o campo magnético é o campo de forças gerado por cargas elétricas em movimento ou por ímãs naturais"),
-        ("o que é a lei de faraday", "a lei de faraday afirma que a variação temporal de um fluxo magnético induz uma força eletromotriz em um circuito"),
-        ("o que é corrente elétrica", "corrente elétrica é o fluxo ordenado de partículas carregadas como elétrons através de um material condutor"),
-        ("o que é tensão elétrica", "tensão elétrica ou diferença de potencial é a força que impulsiona os elétrons através de um condutor elétrico"),
-        ("o que é resistência elétrica", "resistência elétrica é a oposição física que um material oferece à passagem contínua da corrente elétrica"),
-        ("o que é a lei de ohm", "a lei de ohm determina que a corrente em um condutor é diretamente proporcional à tensão e inversamente à resistência"),
-        ("o que é condutividade térmica", "condutividade térmica é a capacidade de um material conduzir calor através da vibração molecular interna"),
-        ("o que é um semicondutor", "um semicondutor é um material cuja condutividade elétrica pode ser controlada com precisão entre isolante e condutor"),
-        ("o que é superfluidez", "superfluidez é o estado físico da matéria no qual um líquido flui sem qualquer viscosidade ou atrito interno"),
-        ("o que é supercondutividade", "supercondutividade é o fenômeno onde certos materiais conduzem eletricidade com resistência rigorosamente nula a baixas temperaturas"),
-        ("o que é a velocidade da luz", "a velocidade da luz no vácuo é a velocidade máxima do universo correspondendo a aproximadamente trezentos mil quilômetros por segundo"),
+        ("o que é um fóton", "o fóton é a partícula elementar mediadora da radiação eletromagnética e o quantum fundamental da luz"),
+        ("o que é um elétron", "o elétron é uma partícula subatômica de carga elétrica negativa que compõe a eletrosfera dos átomos"),
+        ("o que é superposição quântica", "superposição quântica é o fenômeno em que um sistema físico permanece em múltiplos estados até ser medido"),
+        ("o que é corrente elétrica", "corrente elétrica é o movimento ordenado de cargas elétricas através de um material condutor"),
+        ("o que é tensão elétrica", "tensão elétrica ou diferença de potencial é a grandeza física que impulsiona os elétrons por um circuito"),
+        ("o que é resistência elétrica", "resistência elétrica é a oposição oferecida por um material à passagem da corrente elétrica"),
+        ("o que é a lei de ohm", "a lei de ohm estabelece que a tensão elétrica em um resistor é igual ao produto da resistência pela corrente"),
+        ("o que é a gravidade", "a gravidade é a força fundamental de atração mútua entre corpos dotados de massa e energia"),
+        ("o que é velocidade da luz", "a velocidade da luz no vácuo é uma constante física universal de aproximadamente trezentos mil quilômetros por segundo"),
     ],
     "Biologia Celular e Genética": [
-        ("o que é dna", "o dna é a molécula de ácido desoxirribonucleico que armazena todas as instruções genéticas dos seres vivos"),
-        ("o que é rna", "o rna é a molécula responsável por transferir a informação genética do dna e orientar a síntese de proteínas"),
-        ("o que é um gene", "um gene é um segmento específico de dna que contém o código para sintetizar uma proteína ou molécula funcional"),
-        ("o que é cromossomo", "um cromossomo é uma estrutura condensada formada por dna e proteínas que abriga os genes nas células"),
-        ("o que é a célula", "a célula é a unidade morfológica e funcional básica e viva que constitui todos os organismos biológicos"),
-        ("o que é mitocôndria", "a mitocôndria é a organela celular encarregada de produzir energia na forma de trifosfato de adenosina via respiração celular"),
-        ("o que é ribossomo", "o ribossomo é o complexo celular responsável por traduzir o rna mensageiro e montar cadeias de aminoácidos em proteínas"),
-        ("o que é cloroplasto", "o cloroplasto é a organela vegetal que contém clorofila e realiza a fotossíntese captando a energia luminosa solar"),
-        ("o que é fotossíntese", "fotossíntese é o processo bioquímico pelo qual plantas e algas convertem água e gás carbônico em glicose e oxigênio"),
-        ("o que é mutação genética", "mutação genética é qualquer alteração permanente na sequência de nucleotídeos do material genético de um organismo"),
-        ("o que é seleção natural", "seleção natural é o mecanismo evolutivo pelo qual indivíduos com características mais vantajosas sobrevivem e se reproduzem"),
-        ("o que é meiose", "meiose é a divisão celular que reduz o número de cromossomos pela metade gerando gametas reprodutivos haploides"),
-        ("o que é mitose", "mitose é a divisão celular que duplica uma célula somática mãe em duas células filhas geneticamente idênticas"),
-        ("o que é membrana plasmática", "a membrana plasmática é a camada fosfolipídica que delimita a célula regulando o tráfego seletivo de substâncias"),
-        ("o que é citoplasma", "o citoplasma é a matriz gelatinosa que preenche o interior da célula onde estão suspensas as organelas"),
-        ("o que é enzima", "uma enzima é uma proteína biológica catalisadora que acelera reações químicas sem ser consumida no processo"),
-        ("o que é proteína", "uma proteína é uma macromolécula essencial composta por uma sequência de aminoácidos ligados por ligações peptídicas"),
-        ("o que é código genético", "o código genético é o conjunto de regras pelo qual trincas de bases nitrogenadas chamadas códons codificam aminoácidos"),
-        ("o que é crispr", "crispr é uma técnica biotecnológica de edição genética precisa que permite cortar e modificar sequências específicas de dna"),
-        ("o que é homeostase", "homeostase é a capacidade de um organismo vivo manter o equilíbrio interno de suas funções constante frente ao ambiente"),
+        ("o que é dna", "o dna é a molécula de ácido desoxirribonucleico que armazena as instruções genéticas de todos os seres vivos"),
+        ("o que é rna", "o rna é o ácido ribonucleico responsável por transportar a informação genética e atuar na síntese de proteínas"),
+        ("o que é um gene", "um gene é um segmento funcional de dna que contém a informação necessária para produzir uma proteína"),
+        ("o que é a célula", "a célula é a menor unidade estrutural e funcional viva que compõe todos os organismos biológicos"),
+        ("o que é mitocôndria", "a mitocôndria é a organela responsável pela respiração celular e pela produção de energia na forma de atp"),
+        ("o que é fotossíntese", "fotossíntese é o processo pelo qual plantas e algas utilizam luz solar para converter água e gás carbônico em glicose"),
+        ("o que é mitose", "mitose é o processo de divisão celular em que uma célula mãe origina duas células filhas geneticamente idênticas"),
+        ("o que é meiose", "meiose é a divisão celular que reduz pela metade o número de cromossomos para formar gametas reprodutivos"),
     ],
     "História do Brasil e do Mundo": [
-        ("o que foi o renascimento", "o renascimento foi o movimento cultural e científico europeu caracterizado pelo humanismo e pela retomada clássica"),
-        ("o que foi a revolução industrial", "a revolução industrial foi a transição para novos processos de manufatura baseados em máquinas a vapor e fábricas"),
-        ("o que foi a revolução francesa", "a revolução francesa foi o levante político de 1789 que derrubou o absolutismo e difundiu os princípios de liberdade e igualdade"),
-        ("o que foi a primeira guerra mundial", "a primeira guerra mundial foi o conflito global entre 1914 e 1918 travado nas trincheiras europeias entre as grandes potências"),
-        ("o que foi a segunda guerra mundial", "a segunda guerra mundial foi o maior conflito militar da história entre os aliados e as potências do eixo de 1939 a 1945"),
-        ("o que foi a guerra fria", "a guerra fria foi o período de rivalidade geopolítica ideológica e armamentista entre os estados unidos e a união soviética"),
-        ("quando ocorreu a independência do brasil", "a independência do brasil foi proclamada por dom pedro primeiro em 7 de setembro de 1822 às margens do ipiranga"),
-        ("o que foi a proclamação da república no brasil", "a proclamação da república ocorreu em 15 de novembro de 1889 liderada pelo marechal deodoro da fonseca derrubando a monarquia"),
-        ("o que foi a lei áurea", "a lei áurea foi a lei assinada pela princesa isabel em 13 de maio de 1888 que extinguiu a escravidão formal no brasil"),
-        ("o que foi o iluminismo", "o iluminismo foi a corrente filosófica do século dezoito que defendia a razão a ciência e a liberdade individual contra a tirania"),
-        ("o que era a polis na grécia antiga", "a polis era a cidade estado autônoma com estrutura política e social própria na grécia antiga"),
-        ("o que foi o império romano", "o império romano foi o período político da civilização romana antiga com governo autocrático centrado no imperador"),
-        ("o que foi a queda da bastilha", "a queda da bastilha foi o marco inicial simbólico da revolução francesa onde o povo tomou a prisão medieval parisiense"),
-        ("o que foi o ciclo do ouro no brasil", "o ciclo do ouro foi o auge da mineração nas minas gerais no século dezoito impulsionando o povoamento e os tributos coloniais"),
-        ("o que foi a inconfidência mineira", "a inconfidência mineira foi a conspiração republicana separatista de 1789 em minas gerais cujo mártir foi tiradentes"),
-        ("o que foi a era vargas", "a era vargas foi o período de governo de getúlio vargas entre 1930 e 1945 marcado por leis trabalhistas e industrialização"),
-        ("o que foi o tratado de versalhes", "o tratado de versalhes foi o acordo de paz assinado em 1919 impondo severas sanções à alemanha após a primeira guerra"),
-        ("o que é a onu", "a onu é a organização das nações unidas criada em 1945 para promover a paz internacional e a cooperação entre os países"),
-        ("o que foi o período neolítico", "o período neolítico foi a revolução agrícola onde a humanidade desenvolveu o cultivo a cerâmica e a sedentarização"),
-        ("o que foram as grandes navegações", "as grandes navegações foram as expedições marítimas europeias dos séculos quinze e dezesseis que conectaram continentes"),
+        ("o que é história", "história é a ciência humana que investiga e interpreta os acontecimentos e as transformações das sociedades ao longo do tempo"),
+        ("o que são fontes históricas", "fontes históricas são documentos registros arqueológicos relatos e vestígios usados pelos historiadores para estudar o passado"),
+        ("o que é historiografia", "historiografia é o estudo crítico dos métodos das interpretações e das obras produzidas pelos historiadores"),
+        ("o que foi o iluminismo", "o iluminismo foi o movimento intelectual do século dezoito que defendia a razão a ciência e as liberdades individuais"),
+        ("o que foi a revolução industrial", "a revolução industrial foi a transição produtiva iniciada no século dezoito com a mecanização e o surgimento das fábricas"),
+        ("o que foi a revolução francesa", "a revolução francesa foi o movimento político e social de 1789 que pôs fim ao absolutismo monárquico na frança"),
+        ("quando ocorreu a independência do brasil", "a independência do brasil foi proclamada em 7 de setembro de 1822 encerrando o domínio colonial português"),
+        ("o que foi a lei áurea", "a lei áurea foi o decreto assinado em 13 de maio de 1888 que aboliu oficialmente a escravidão no brasil"),
+        ("o que foi a era vargas", "a era vargas foi o período da história brasileira entre 1930 e 1945 marcado pela industrialização e leis trabalhistas"),
+    ],
+    "Gramática": [
+        ("o que é gramática", "gramática é o conjunto de regras e estruturas que organizam o funcionamento os sons as palavras e as frases de uma língua"),
+        ("o que é gramática normativa", "a gramática normativa estabelece as regras da norma padrão culta para o uso formal da fala e da escrita"),
+        ("o que é gramática descritiva", "a gramática descritiva analisa e registra como uma língua é realmente falada e utilizada por seus falantes no cotidiano"),
+        ("o que é morfologia na gramática", "morfologia é a parte da gramática que estuda a estrutura a formação e a classificação das palavras"),
+        ("o que é sintaxe", "sintaxe é o ramo da gramática que analisa a disposição das palavras nas frases e as relações lógicas entre as orações"),
+        ("o que é um substantivo", "substantivo é a classe gramatical de palavras variável que nomeia seres objetos lugares sentimentos e conceitos"),
+        ("o que é um verbo", "verbo é a palavra variável que exprime ação estado fenômeno da natureza ou mudança de estado situada no tempo"),
+        ("o que é concordância verbal", "concordância verbal é a regra gramatical em que o verbo se flexiona para concordar em número e pessoa com o sujeito"),
+    ],
+    "Português": [
+        ("o que é a língua portuguesa", "a língua portuguesa é um idioma românico originado do latim vulgar e falado oficialmente no brasil em portugal e na cplp"),
+        ("o que é semântica", "semântica é a área da linguística que estuda o significado e a interpretação das palavras e das sentenças"),
+        ("o que é fonologia", "fonologia é o estudo dos fonemas e do sistema sonoro de uma língua em sua função distintiva de significado"),
+        ("o que é coesão textual", "coesão textual é a conexão harmoniosa entre palavras e frases de um texto por meio de conectivos e pronomes"),
+        ("o que é coerência textual", "coerência textual é a relação lógica e sem contradições entre as ideias apresentadas ao longo de um texto"),
+        ("o que é crase", "crase é a fusão de duas vogais idênticas representada pelo acento grave na união da preposição com o artigo feminino"),
+    ],
+    "Literatura": [
+        ("o que é literatura", "literatura é a arte da palavra que expressa ideias emoções e visões de mundo por meio de textos em prosa ou verso"),
+        ("o que é texto literário", "o texto literário é uma produção artística com linguagem conotativa plurissignificativa e foco na expressão estética"),
+        ("o que foi o romantismo na literatura", "o romantismo foi o movimento literário caracterizado pelo subjetivismo pela emoção e pela valorização da identidade nacional"),
+        ("o que foi o realismo na literatura", "o realismo foi a escola literária do século dezenove voltada à análise objetiva e crítica da sociedade e da psicologia humana"),
+        ("o que foi o modernismo no brasil", "o modernismo brasileiro foi o movimento cultural iniciado em 1922 que renovou a linguagem artística com liberdade estética"),
+        ("o que é figura de linguagem", "figura de linguagem é um recurso expressivo usado para ampliar o sentido das palavras como a metáfora e a ironia"),
+    ],
+    "Redação": [
+        ("o que é redação", "redação é o processo estruturado de escrita de um texto com início desenvolvimento e conclusão sobre determinado tema"),
+        ("o que é dissertação argumentativa", "a dissertação argumentativa é o gênero textual em que o autor defende uma tese por meio de argumentos e repertório"),
+        ("o que é a tese em uma redação", "a tese é o posicionamento central defendido pelo autor logo na introdução de um texto dissertativo argumentativo"),
+        ("o que é proposta de intervenção na redação", "a proposta de intervenção é a conclusão da redação do enem que apresenta uma solução detalhada e viável para o problema discutido"),
+        ("como estruturar uma redação dissertativa", "uma redação dissertativa estrutura se em introdução com a tese dois parágrafos de desenvolvimento e conclusão"),
+    ],
+    "Enem": [
+        ("o que é o enem", "o enem é o exame nacional do ensino médio aplicado anualmente para avaliar estudantes e selecionar vagas no ensino superior"),
+        ("como funciona a prova do enem", "o enem é aplicado em dois domingos com cento e oitenta questões objetivas divididas em quatro áreas do conhecimento e uma redação"),
+        ("o que é a tri no enem", "a teoria de resposta ao item é o método estatístico do enem que calcula a nota considerando a coerência dos acertos e a dificuldade das questões"),
+        ("para que serve a nota do enem", "a nota do enem serve para ingressar em universidades públicas pelo sisu obter bolsas no prouni e financiamento pelo fies"),
+        ("quais são as áreas do conhecimento do enem", "as quatro áreas do enem são linguagens ciências humanas ciências da natureza e matemática além da redação dissertativa"),
+    ],
+    "Vestibular": [
+        ("o que é o vestibular", "o vestibular é o processo seletivo composto por provas de conhecimentos gerais e específicos para ingresso em universidades"),
+        ("como funciona o sisu", "o sistema de seleção unificada é a plataforma do ministério da educação que oferece vagas em universidades públicas usando a nota do enem"),
+        ("o que é o prouni", "o programa universidade para todos concede bolsas de estudo integrais e parciais em faculdades privadas com base na nota do enem"),
+    ],
+    "Concurso": [
+        ("o que é um concurso público", "concurso público é o processo seletivo oficial de provas ou títulos para preenchimento de cargos efetivos na administração pública"),
+        ("o que é o edital de um concurso", "o edital é o documento oficial que estabelece todas as regras vagas disciplinas etapas e prazos de um concurso público"),
+        ("o que é estabilidade no serviço público", "estabilidade é a garantia constitucional de permanência no cargo público adquirida pelo servidor concursado após o estágio probatório"),
+    ],
+    "Medicina": [
+        ("o que é medicina", "medicina é a ciência da saúde dedicada à prevenção ao diagnóstico ao tratamento e à cura das doenças humanas"),
+        ("o que é diagnóstico médico", "diagnóstico médico é a identificação de uma doença ou condição clínica a partir da análise de sintomas e exames"),
+        ("o que é anamnese", "anamnese é a entrevista clínica detalhada realizada pelo médico para conhecer o histórico de saúde e os sintomas do paciente"),
+        ("o que é farmacologia", "farmacologia é a ciência biomédica que estuda como os medicamentos interagem com os sistemas biológicos do organismo"),
+    ],
+    "Corpo Humano": [
+        ("o que é o sistema circulatório", "o sistema circulatório é o conjunto formado pelo coração e pelos vasos sanguíneos que transporta oxigênio e nutrientes pelo corpo"),
+        ("qual a função do coração", "o coração funciona como uma bomba muscular que impulsiona o sangue continuamente para os pulmões e todos os tecidos do corpo"),
+        ("o que é o sistema nervoso", "o sistema nervoso é a rede de neurônios encarregada de coordenar as ações voluntárias involuntárias e os sentidos do corpo humano"),
+        ("o que é homeostase no corpo humano", "homeostase é o equilíbrio fisiológico interno mantido pelo organismo como o controle da temperatura e da glicemia"),
+    ],
+    "SUS": [
+        ("o que é o sus", "o sistema único de saúde é o sistema público e gratuito de saúde do brasil criado pela constituição de 1988"),
+        ("quais são os princípios do sus", "os princípios doutrinários do sus são a universalidade de acesso a integralidade do cuidado e a equidade no atendimento"),
+        ("o que é atenção primária no sus", "a atenção primária é a porta de entrada do sus realizada nas unidades básicas de saúde com foco em prevenção e saúde da família"),
     ],
     "Energias Renováveis e Sustentabilidade": [
-        ("o que é energia solar fotovoltaica", "energia solar fotovoltaica é a eletricidade gerada pela conversão direta da radiação solar através de semicondutores"),
-        ("o que é um painel solar", "um painel solar é um módulo montado com células de silício que absorvem fótons solares para gerar corrente elétrica"),
-        ("o que é um inversor solar", "o inversor solar é o dispositivo que transforma a corrente contínua produzida pelos painéis em corrente alternada para uso na rede"),
-        ("o que é energia eólica", "energia eólica é a eletricidade gerada a partir da força cinética dos ventos que movimenta as pás de aerogeradores"),
-        ("o que é um aerogerador", "um aerogerador é uma turbina eólica que converte a energia mecânica do vento em energia elétrica útil"),
-        ("o que é energia hidrelétrica", "energia hidrelétrica é a geração de eletricidade através do aproveitamento do potencial gravitacional e do fluxo da água de rios"),
-        ("o que é biomassa", "biomassa é qualquer matéria orgânica de origem vegetal ou animal aproveitada como fonte primária para geração de energia"),
-        ("o que é biocombustível", "biocombustível é o combustível renovável derivado de fontes biológicas como o etanol da cana de açúcar ou o biodiesel"),
-        ("o que é hidrogênio verde", "hidrogênio verde é o gás hidrogênio obtido através da eletrólise da água utilizando energia elétrica exclusivamente renovável"),
-        ("o que é pegada de carbono", "a pegada de carbono mede o volume total de emissões de gases de efeito estufa produzidas pelas atividades humanas"),
-        ("o que é efeito estufa", "efeito estufa é o processo natural em que gases na atmosfera retêm calor solar mantendo a temperatura adequada para a vida"),
-        ("o que é aquecimento global", "aquecimento global é a elevação anormal da temperatura média da terra provocada pelo aumento das emissões industriais"),
-        ("o que é sustentabilidade", "sustentabilidade é o desenvolvimento capaz de suprir as necessidades da geração atual sem comprometer as gerações futuras"),
-        ("o que é economia circular", "economia circular é o modelo econômico regenerativo que prioriza a reutilização a reciclagem e a redução de resíduos"),
-        ("o que é compostagem", "compostagem é a reciclagem biológica de matéria orgânica que a transforma em adubo natural rico em nutrientes para o solo"),
-        ("o que é energia geotérmica", "energia geotérmica é a eletricidade e calor obtidos a partir das altas temperaturas presentes no interior da crosta terrestre"),
-        ("o que é energia maremotriz", "energia maremotriz é a energia renovável capturada a partir do movimento natural de subida e descida das marés oceânicas"),
-        ("o que é reciclagem", "reciclagem é o reprocessamento industrial de materiais descartados para reintroduzi los no ciclo produtivo como novos produtos"),
-        ("o que é descarbonização", "descarbonização é o conjunto de medidas voltadas a eliminar o uso de combustíveis fósseis e zerar emissões de carbono"),
-        ("o que é pegada hídrica", "a pegada hídrica quantifica o consumo direto e indireto de água doce em todas as etapas de produção de bens e serviços"),
+        ("o que é energia solar fotovoltaica", "energia solar fotovoltaica é a eletricidade obtida pela conversão direta da radiação solar em células semicondutoras"),
+        ("o que é um painel solar", "um painel solar é um módulo formado por células fotovoltaicas de silício que geram corrente elétrica contínua sob a luz do sol"),
+        ("o que é um inversor solar", "o inversor solar é o equipamento que converte a corrente contínua dos painéis em corrente alternada para consumo elétrico"),
+        ("o que é energia eólica", "energia eólica é a energia elétrica produzida a partir da força cinética dos ventos que gira as pás de aerogeradores"),
+        ("o que é sustentabilidade", "sustentabilidade é a capacidade de suprir as necessidades humanas atuais preservando o meio ambiente para as próximas gerações"),
     ],
     "Química Orgânica e Elementos da Tabela Periódica": [
-        ("o que é a tabela periódica", "a tabela periódica é a organização sistemática dos elementos químicos ordenados por seu número atômico e propriedades periódicas"),
-        ("o que é número atômico", "o número atômico representa a quantidade de prótons existente no núcleo do átomo definindo a identidade do elemento"),
-        ("o que é uma molécula", "uma molécula é um grupo eletricamente neutro de átomos unidos por ligações químicas covalentes"),
-        ("o que é ligação covalente", "ligação covalente é o compartilhamento estável de pares de elétrons entre átomos para atingir a configuração de gás nobre"),
-        ("o que é ligação iônica", "ligação iônica é a atração eletrostática forte entre íons de cargas opostas decorrente da transferência de elétrons"),
-        ("o que é o carbono", "o carbono é o elemento tetravalente fundamental para a química orgânica capaz de formar longas cadeias moleculares estáveis"),
-        ("o que é um hidrocarboneto", "um hidrocarboneto é um composto orgânico binário constituído exclusivamente por átomos de carbono e hidrogênio"),
-        ("o que é uma reação química", "uma reação química é a transformação onde substâncias chamadas reagentes quebram e recombinam ligações para formar novos produtos"),
-        ("o que é o ph", "o ph é a escala logarítmica que mede a acidez neutralidade ou basicidade de uma solução aquosa de zero a quatorze"),
-        ("o que é uma solução ácida", "uma solução ácida é aquela que apresenta concentração de íons de hidrogênio superior e valor de ph inferior a sete"),
-        ("o que é uma solução básica", "uma solução básica ou alcalina é aquela que libera íons hidroxila apresentando valor de ph superior a sete"),
-        ("o que é um catalisador", "um catalisador é uma substância que acelera uma reação química diminuindo a energia de ativação sem ser consumida"),
-        ("o que é entalpia", "entalpia é a grandeza termodinâmica que mede a energia total e a quantidade de calor absorvida ou liberada em uma reação"),
-        ("o que é oxigênio", "o oxigênio é o elemento químico não metálico vital para a respiração celular e principal agente comburente na combustão"),
-        ("o que é hidrogênio", "o hidrogênio é o elemento químico mais leve abundante e simples do universo com apenas um próton e um elétron"),
-        ("o que é a água", "a água é a substância molecular composta por dois átomos de hidrogênio e um de oxigênio de fórmula h2o e solvente universal"),
-        ("o que é um polímero", "um polímero é uma macromolécula de alta massa molecular formada pela repetição sucessiva de unidades menores chamadas monômeros"),
-        ("o que é oxidação", "oxidação é a perda de elétrons por uma espécie química durante uma reação de oxirredução"),
-        ("o que é redução", "redução é o ganho de elétrons por uma espécie química durante uma reação química de oxirredução"),
-        ("o que é um gás nobre", "um gás nobre é um elemento químico do grupo 18 caracterizado pela estabilidade eletrônica e baixíssima reatividade química"),
+        ("o que é a tabela periódica", "a tabela periódica é o quadro que organiza os elementos químicos em ordem crescente de número atômico e propriedades químicas"),
+        ("o que é número atômico", "o número atômico indica a quantidade de prótons presentes no núcleo de um átomo e define a identidade do elemento químico"),
+        ("o que é ligação covalente", "ligação covalente é a união química entre átomos caracterizada pelo compartilhamento de um ou mais pares de elétrons"),
+        ("o que é um hidrocarboneto", "um hidrocarboneto é um composto químico orgânico formado exclusivamente por átomos de carbono e de hidrogênio"),
+        ("o que é o ph", "o ph é a escala numérica de zero a quatorze que mede o grau de acidez ou alcalinidade de uma solução aquosa"),
     ],
     "Geografia Física e Climatologia": [
-        ("o que são placas tectônicas", "placas tectônicas são blocos rígidos da litosfera terrestre que flutuam e se movem lentamente sobre a astenosfera"),
-        ("o que causa um terremoto", "um terremoto é causado pela liberação súbita de energia elástica acumulada pela fricção entre placas tectônicas"),
-        ("o que é um vulcão", "um vulcão é uma abertura geológica na crosta que permite a ascensão de magma cinzas e gases do manto até a superfície"),
-        ("o que é o clima", "o clima é o padrão médio das condições atmosféricas e do tempo observado em uma região ao longo de pelo menos trinta anos"),
-        ("o que é o tempo meteorológico", "o tempo meteorológico é o estado momentâneo e variável da atmosfera em um local e horário específicos"),
-        ("o que é a atmosfera", "a atmosfera é a camada protetora de gases retida pela gravidade que envolve a terra e sustenta a vida biológica"),
-        ("o que é a troposfera", "a troposfera é a camada mais baixa da atmosfera onde ocorrem praticamente todos os fenômenos climáticos e meteorológicos"),
-        ("o que é o ciclo da água", "o ciclo da água é o movimento contínuo da água através da evaporação condensação precipitação e infiltração no planeta"),
-        ("o que é erosão", "erosão é o desgaste desagregação e transporte de sedimentos do solo e das rochas pela ação do vento da água e do gelo"),
-        ("o que é intemperismo", "intemperismo é o conjunto de processos físicos e químicos que provocam a alteração e desintegração das rochas"),
-        ("o que é bacia hidrográfica", "uma bacia hidrográfica é a área geográfica drenada por um rio principal e toda a sua rede de afluentes e subafluentes"),
-        ("o que é uma floresta tropical", "uma floresta tropical é um bioma quente úmido com alta precipitação anual e altíssima biodiversidade vegetal e animal"),
-        ("o que é um deserto", "um deserto é uma região árida com baixíssima pluviosidade anual amplitudes térmicas acentuadas e vegetação escassa"),
-        ("o que é o bioma cerrado", "o cerrado é a savana brasileira caracterizada por árvores de casca grossa troncos retorcidos e solos profundos ácidos"),
-        ("o que é a amazônia", "a amazônia é a maior floresta tropical e bacia hidrográfica do planeta com papel crítico na regulação do clima global"),
-        ("o que é o relevo", "relevo é o conjunto das formas físicas da superfície terrestre esculpidas por forças internas endógenas e externas exógenas"),
-        ("o que é uma cordilheira", "uma cordilheira é uma cadeia contínua e imensa de montanhas originada pelo choque frontal entre placas tectônicas"),
-        ("o que é el niño", "el niño é o aquecimento anômalo das águas do oceano pacífico equatorial que altera os padrões de chuva e vento no mundo"),
-        ("o que é la niña", "la niña é o resfriamento anômalo das águas do oceano pacífico equatorial provocando secas e chuvas opostas ao el niño"),
-        ("o que é a camada de ozônio", "a camada de ozônio é a faixa da estratosfera que absorve a radiação ultravioleta prejudicial emitida pelo sol"),
+        ("o que são placas tectônicas", "placas tectônicas são grandes blocos rochosos da litosfera que se deslocam lentamente sobre o manto terrestre"),
+        ("o que é o clima", "o clima é a sucessão habitual das condições atmosféricas observada em uma região ao longo de várias décadas"),
+        ("o que é uma bacia hidrográfica", "uma bacia hidrográfica é a área geográfica drenada por um rio principal e por todos os seus afluentes"),
+        ("o que é o bioma cerrado", "o cerrado é a savana tropical brasileira caracterizada por estações bem definidas árvores tortuosas e grande biodiversidade"),
     ],
     "Lógica Matemática e Probabilidade": [
-        ("o que é uma proposição lógica", "uma proposição lógica é uma sentença declarativa afirmativa que pode ser classificada unicamente como verdadeira ou falsa"),
-        ("o que é uma tabela verdade", "uma tabela verdade é uma representação esquemática que lista todos os valores lógicos possíveis de uma proposição composta"),
-        ("o que é uma tautologia", "uma tautologia é uma proposição composta cujo valor lógico é sempre verdadeiro independentemente dos valores de suas partes"),
-        ("o que é uma contradição", "uma contradição é uma proposição lógica que resulta sempre em valor falso em todas as suas interpretações"),
-        ("o que é dedução lógica", "dedução é o processo de inferência onde conclusões necessárias são derivadas a partir de premissas gerais consideradas verdadeiras"),
-        ("o que é indução matemática", "indução é o método que estabelece que uma proposição é válida para todos os inteiros demonstrando a base e o passo indutivo"),
-        ("o que é um número primo", "um número primo é um número inteiro maior que um divisível de forma exata unicamente por um e por ele próprio"),
-        ("o que é probabilidade", "probabilidade é o ramo da matemática que quantifica a chance de ocorrência de um determinado evento em um experimento aleatório"),
-        ("o que é o espaço amostral", "o espaço amostral é o conjunto que contém todos os resultados possíveis de um experimento probabilístico"),
-        ("o que é a média aritmética", "a média aritmética é a soma de todos os valores de um conjunto dividida pelo número total de elementos observados"),
-        ("o que é a mediana", "a mediana é o valor central que divide um conjunto de dados ordenados exatamente em duas metades iguais"),
-        ("o que é a moda", "a moda é o valor que se repete com maior frequência dentro de uma amostra de dados estatísticos"),
-        ("o que é desvio padrão", "o desvio padrão é a medida estatística que indica o grau de dispersão dos dados em relação ao valor da média"),
-        ("o que é variância", "a variância é a média dos quadrados dos desvios de cada elemento em relação à média aritmética"),
-        ("o que é o teorema de bayes", "o teorema de bayes calcula a probabilidade condicional de um evento a partir do conhecimento prévio sobre as suas causas"),
-        ("o que é uma variável aleatória", "uma variável aleatória é uma função matemática que atribui um valor numérico a cada resultado de um espaço amostral"),
-        ("o que é uma matriz", "uma matriz é uma tabela bidimensional retangular de números organizados rigorosamente em linhas e colunas"),
-        ("o que é um vetor", "um vetor é uma entidade matemática dotada de magnitude direção e sentido representada por uma lista de coordenadas"),
-        ("o que é produto escalar", "o produto escalar entre dois vetores é a operação algébrica que resulta em um número escalar multiplicando suas componentes"),
-        ("o que é combinatória", "combinatória é o estudo dos métodos de contagem agrupamento e arranjo de elementos de conjuntos finitos"),
+        ("o que é matemática", "matemática é a ciência formal que estuda quantidades estruturas variações espaço e relações lógicas abstratas"),
+        ("o que é uma proposição lógica", "uma proposição lógica é uma sentença declarativa que pode ser avaliada de forma inequívoca como verdadeira ou falsa"),
+        ("o que é um número primo", "um número primo é um número natural maior que um que possui exatamente dois divisores distintos o um e ele mesmo"),
+        ("o que é probabilidade", "probabilidade é o ramo da matemática que calcula a chance numérica de ocorrência de um evento aleatório"),
+        ("o que é média aritmética", "a média aritmética é o quociente obtido ao dividir a soma de todos os valores de um conjunto pela quantidade de elementos"),
+        ("o que é uma matriz na matemática", "uma matriz é uma estrutura matemática retangular de números ou símbolos dispostos em linhas e colunas"),
+    ],
+    "Países da América Latina": [
+        ("o que é a américa latina", "a américa latina é a região do continente americano composta pelos países cujo idioma oficial deriva do latim como português e espanhol"),
+        ("qual é a capital do brasil", "a capital federal do brasil é brasília planejada por lúcio costa e oscar niemeyer e inaugurada em 1960"),
+        ("qual é a capital da argentina", "a capital da argentina é buenos aires importante centro cultural econômico e portuário da américa do sul"),
+        ("qual é a capital do chile", "a capital do chile é santiago localizada no vale central próximo à cordilheira dos andes"),
+    ],
+    "Cumprimentar Pessoa": [
+        ("como cumprimentar uma pessoa", "você pode cumprimentar dizendo olá bom dia boa tarde ou boa noite de forma cordial e educada"),
+        ("qual a importância de cumprimentar uma pessoa", "cumprimentar demonstra respeito educação e simpatia facilitando o início de uma comunicação positiva"),
     ],
 }
 
 
-def expandir_variacoes_pergunta(pergunta: str, resposta: str, topico: str) -> list[tuple[str, str]]:
-    """Gera múltiplas variações e expansões conceituais a partir de uma base fundamental."""
-    pares = [(pergunta, resposta)]
+def _resolver_conceitos_para_topico(topico: str) -> list[tuple[str, str]]:
+    """Encontra os conceitos verificados mais aderentes ao tópico informado."""
+    if topico in CONCEITOS_BASE:
+        return list(CONCEITOS_BASE[topico])
 
-    p_limpa = pergunta.strip().lower()
-    # Padrões comuns
-    m_o_que_e = re.match(r"^o que (?:é|e) (?:um |uma |o |a )?(.+)$", p_limpa)
+    t_low = re.sub(r"\s+—\s+.*$", "", topico.strip().lower()).strip()
+
+    # Busca correspondência direta ou por palavra-chave no dicionário
+    mapa_chaves = [
+        (("enem", "exame nacional"), "Enem"),
+        (("redação", "redacao", "dissertação"), "Redação"),
+        (("gramática", "gramatica", "sintaxe", "morfologia"), "Gramática"),
+        (("português", "portugues", "língua portuguesa"), "Português"),
+        (("literatura", "romantismo", "modernismo"), "Literatura"),
+        (("história", "historia"), "História do Brasil e do Mundo"),
+        (("vestibular", "sisu", "prouni"), "Vestibular"),
+        (("concurso", "edital"), "Concurso"),
+        (("medicina", "médico", "diagnóstico"), "Medicina"),
+        (("corpo humano", "anatomia", "fisiologia", "circulatório"), "Corpo Humano"),
+        (("sus", "sistema único de saúde", "saúde pública"), "SUS"),
+        (("sistema operacional", "linux", "windows", "kernel"), "Sistema Operacional"),
+        (("buraco negro", "horizonte de eventos"), "Buraco Negro"),
+        (("espaço", "astronomia", "sistema solar", "astrofísica", "galáxia", "planeta"), "Astronomia e Sistema Solar"),
+        (("física", "fisica", "eletromagnetismo", "elétrica", "quântica", "term"), "Física Quântica e Eletromagnetismo"),
+        (("matemática", "matematica", "estatística", "probabilidade", "lógica"), "Lógica Matemática e Probabilidade"),
+        (("biologia", "célula", "genética", "dna", "biotecnologia"), "Biologia Celular e Genética"),
+        (("química", "quimica", "tabela periódica", "reações"), "Química Orgânica e Elementos da Tabela Periódica"),
+        (("geografia", "clima", "meio ambiente", "relevo"), "Geografia Física e Climatologia"),
+        (("energia solar", "fotovoltaica", "inversor", "renovável", "sustentabilidade"), "Energias Renováveis e Sustentabilidade"),
+        (("inteligência artificial", "redes neurais", "machine learning", "aprendizado de máquina"), "Inteligência Artificial e Redes Neurais"),
+        (("computação", "algoritmos", "estruturas de dados", "programação", "eletrônica", "microcontroladores", "automação", "robótica", "redes de computadores"), "Ciência da Computação e Algoritmos"),
+        (("america latina", "américa latina", "paises"), "Países da América Latina"),
+        (("cumpriment", "compriment", "sauda", "conversa"), "Cumprimentar Pessoa"),
+    ]
+    for termos, chave_alvo in mapa_chaves:
+        if any(k in t_low for k in termos):
+            return list(CONCEITOS_BASE[chave_alvo])
+
+    # Fallback se for um termo específico novo: evita frases tautológicas
+    return [
+        # Templates genéricos removidos para evitar ruído no treinamento
+    ]
+
+
+def expandir_variacoes_pergunta(pergunta: str, resposta: str, topico: str) -> list[tuple[str, str]]:
+    """Gera variações naturais de pergunta sem jamás duplicar o sujeito na resposta."""
+    p_limpa = normalizar_texto_neurograph(pergunta)
+    r_limpa = normalizar_texto_neurograph(resposta)
+    pares = [(p_limpa, r_limpa)]
+
+    m_o_que_e = re.match(r"^o que (?:é|e|são|foi) (?:um |uma |o |a |os |as )?(.+)$", p_limpa)
     if m_o_que_e:
         termo = m_o_que_e.group(1).strip()
-        pares.append((f"defina {termo}", f"{termo} é {resposta}"))
-        pares.append((f"qual o conceito de {termo}", f"o conceito de {termo} estabelece que {resposta}"))
-        pares.append((f"explique {termo}", f"{resposta}"))
-        pares.append((f"para que serve {termo}", f"serve para {resposta}"))
-        pares.append((f"como funciona {termo}", f"funciona da seguinte maneira {resposta}"))
-        pares.append((f"qual é o significado de {termo}", f"o significado é que {resposta}"))
-
-    m_como_funciona = re.match(r"^como funciona (?:o |a |um |uma )?(.+)$", p_limpa)
-    if m_como_funciona:
-        termo = m_como_funciona.group(1).strip()
-        pares.append((f"o que é {termo}", f"{termo} é o processo onde {resposta}"))
-        pares.append((f"explique o funcionamento de {termo}", f"{resposta}"))
-        pares.append((f"como ocorre {termo}", f"{resposta}"))
+        pares.append((f"explique {termo}", r_limpa))
+        pares.append((f"defina {termo}", r_limpa))
+        pares.append((f"qual o conceito de {termo}", r_limpa))
 
     return pares
 
@@ -312,68 +319,74 @@ def gerar_lote_com_chatgpt(
     qtd_desejada: int,
     api_key: Optional[str] = None,
 ) -> list[ParTreinamento]:
-    """Usa o modelo GPT-4o-mini ou similar via API para gerar perguntas e respostas didáticas."""
-    try:
-        from openai import OpenAI
-        client = OpenAI(api_key=api_key or os.getenv("OPENAI_API_KEY"))
-    except Exception as exc:
-        logging.warning("OpenAI SDK não disponível ou erro de inicialização: %s", exc)
+    """Usa o provedor LLM configurado (OpenAI ou local via INI) para gerar perguntas e respostas didáticas."""
+    if not tem_ia_ativa(api_key):
         return []
 
+    cfg = carregar_config_llm_ini()
     pares_gerados: list[ParTreinamento] = []
-    # Divide em lotes de 20 para confiabilidade da resposta JSON do modelo
-    tamanho_sublote = 20
+    perguntas_vistas: set[str] = set()
+    tamanho_sublote = 10
     restantes = qtd_desejada
     stop_file = DIR_TREINO / ".stop_training"
+    tentativas_sem_avanco = 0
 
-    while restantes > 0 and len(pares_gerados) < qtd_desejada:
+    while restantes > 0 and len(pares_gerados) < qtd_desejada and tentativas_sem_avanco < 2:
         if stop_file.exists():
             print("  [PARADA SOLICITADA] Interrompendo chamadas à IA para salvar o que já foi gerado...")
             break
         qtd_chamada = min(restantes, tamanho_sublote)
         prompt_user = (
             f"Tópico: {topico}\n"
-            f"Gere exatamente {qtd_chamada} pares atômicos de pergunta e resposta em português para treinar uma rede neural.\n"
-            f"As perguntas devem ser curtas em minúsculas (ex: 'o que é ...', 'como funciona ...', 'qual a função de ...').\n"
-            f"As respostas devem ser factuais, diretas, entre 10 e 30 palavras.\n"
-            f"Retorne APENAS o JSON no formato:\n"
+            f"Gere {qtd_chamada} pares conceituais diretos de pergunta e resposta em português sobre '{topico}'.\n"
+            f"Regras:\n"
+            f"- 'question': pergunta curta e clara em minúsculas (ex: 'o que é ...', 'como funciona ...', 'qual a função de ...').\n"
+            f"- 'answer': resposta factual completa e direta em português (entre 8 e 28 palavras, sem repetir o termo duas vezes).\n"
+            f"Retorne APENAS um array JSON válido:\n"
             f'[{{"question": "...", "answer": "..."}}]'
         )
+        raw = requisitar_chat_llm(
+            messages=[
+                {
+                    "role": "system",
+                    "content": "Você é um professor especialista brasileiro que cria perguntas e respostas factuais curtas em formato JSON.",
+                },
+                {"role": "user", "content": prompt_user},
+            ],
+            temperature=0.35,
+            max_tokens=900,
+            api_key=api_key,
+        )
+        itens = extrair_json_da_resposta(raw or "")
+        if isinstance(itens, dict) and "question" in itens:
+            itens = [itens]
 
-        try:
-            resp = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {"role": "system", "content": "Você é um gerador de dataset conceitual pedagógico para treinamento de IA em português."},
-                    {"role": "user", "content": prompt_user},
-                ],
-                temperature=0.7,
-            )
-            raw = resp.choices[0].message.content or ""
-            raw = re.sub(r"^```(?:json)?", "", raw.strip(), flags=re.MULTILINE)
-            raw = re.sub(r"```$", "", raw.strip(), flags=re.MULTILINE).strip()
-            itens = json.loads(raw)
-            if isinstance(itens, list):
-                for it in itens:
-                    q = normalizar_texto_neurograph(it.get("question", ""))
-                    a = normalizar_texto_neurograph(it.get("answer", ""))
-                    if q and a:
-                        pares_gerados.append(
-                            ParTreinamento(
-                                question=q,
-                                answer=a,
-                                context=[topico.lower()],
-                                category="mass_training",
-                                video_id=topico,
-                                origem="chatgpt_massivo",
-                            )
+        adicionados_nesta = 0
+        if isinstance(itens, list):
+            for it in itens:
+                if not isinstance(it, dict):
+                    continue
+                q = normalizar_texto_neurograph(it.get("question", ""))
+                a = normalizar_texto_neurograph(it.get("answer", ""))
+                if q and a and q not in perguntas_vistas and eh_par_conceitual_valido(q, a):
+                    perguntas_vistas.add(q)
+                    pares_gerados.append(
+                        ParTreinamento(
+                            question=q,
+                            answer=a,
+                            context=[],
+                            category="mass_training",
+                            video_id=topico,
+                            origem=cfg.get("model", "chatgpt_massivo"),
                         )
-                restantes -= len(itens)
-            else:
-                break
-        except Exception as exc:
-            logging.warning("Erro na chamada de API para o tópico '%s': %s", topico, exc)
-            break
+                    )
+                    adicionados_nesta += 1
+
+        if adicionados_nesta > 0:
+            restantes -= adicionados_nesta
+            tentativas_sem_avanco = 0
+        else:
+            tentativas_sem_avanco += 1
 
     return pares_gerados
 
@@ -384,52 +397,48 @@ def gerar_um_item_chatgpt(
     perguntas_ja_geradas: set[str],
     api_key: Optional[str] = None,
 ) -> Optional[ParTreinamento]:
-    """Gera 1 único par de pergunta e resposta via ChatGPT para treino incremental imediato."""
-    try:
-        from openai import OpenAI
-        client = OpenAI(api_key=api_key or os.getenv("OPENAI_API_KEY"))
-    except Exception:
+    """Gera 1 único par de pergunta e resposta via LLM configurado (OpenAI ou local)."""
+    if not tem_ia_ativa(api_key):
         return None
 
-    evitar = list(perguntas_ja_geradas)[-15:]
-    str_evitar = ("\nEvite repetir estas perguntas já criadas: " + "; ".join(evitar)) if evitar else ""
+    cfg = carregar_config_llm_ini()
+    evitar = [q for q in list(perguntas_ja_geradas)[-15:] if topico.lower()[:5] in q] or list(perguntas_ja_geradas)[-10:]
+    str_evitar = ("\nNão repita estas perguntas já criadas: " + "; ".join(evitar)) if evitar else ""
     prompt_user = (
-        f"Tópico: {topico} (Item #{indice_item})\n"
-        f"Gere exatamente 1 par atômico de pergunta e resposta em português para treinar uma rede neural.{str_evitar}\n"
-        f"A pergunta deve ser curta e natural em minúsculas.\n"
-        f"A resposta deve ser direta, clara e factual (entre 6 e 25 palavras).\n"
+        f"Tópico: {topico} (Conceito #{indice_item})\n"
+        f"Gere exatamente 1 par conceitual de pergunta e resposta em português sobre '{topico}'.{str_evitar}\n"
+        f"A pergunta deve ser direta sobre um conceito específico de '{topico}' (ex: 'o que é ...', 'como funciona ...').\n"
+        f"A resposta deve ser factual, clara e completa (entre 8 e 26 palavras, sem repetir palavras no início).\n"
         f"Retorne APENAS um objeto JSON:\n"
         f'{{"question": "...", "answer": "..."}}'
     )
-    try:
-        resp = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "Você é um gerador de pares pergunta-resposta em português. Retorne apenas JSON válido."},
-                {"role": "user", "content": prompt_user},
-            ],
-            temperature=0.75,
-        )
-        raw = (resp.choices[0].message.content or "").strip()
-        raw = re.sub(r"^```(?:json)?", "", raw, flags=re.MULTILINE)
-        raw = re.sub(r"```$", "", raw, flags=re.MULTILINE).strip()
-        dados = json.loads(raw)
-        if isinstance(dados, list) and dados:
-            dados = dados[0]
-        if isinstance(dados, dict):
-            q = normalizar_texto_neurograph(dados.get("question", ""))
-            a = normalizar_texto_neurograph(dados.get("answer", ""))
-            if q and a and q not in perguntas_ja_geradas:
-                return ParTreinamento(
-                    question=q,
-                    answer=a,
-                    context=[],
-                    category="incremental_training",
-                    video_id=topico,
-                    origem="chatgpt_item",
-                )
-    except Exception as exc:
-        logging.warning("Aviso ao gerar item via API para '%s': %s", topico, exc)
+    raw = requisitar_chat_llm(
+        messages=[
+            {
+                "role": "system",
+                "content": "Você é um professor brasileiro que gera pares pergunta-resposta conceituais em português. Retorne apenas JSON válido.",
+            },
+            {"role": "user", "content": prompt_user},
+        ],
+        temperature=0.45,
+        max_tokens=300,
+        api_key=api_key,
+    )
+    dados = extrair_json_da_resposta(raw or "")
+    if isinstance(dados, list) and dados:
+        dados = dados[0]
+    if isinstance(dados, dict):
+        q = normalizar_texto_neurograph(dados.get("question", ""))
+        a = normalizar_texto_neurograph(dados.get("answer", ""))
+        if q and a and q not in perguntas_ja_geradas and eh_par_conceitual_valido(q, a):
+            return ParTreinamento(
+                question=q,
+                answer=a,
+                context=[],
+                category="incremental_training",
+                video_id=topico,
+                origem=cfg.get("model", "chatgpt_item"),
+            )
     return None
 
 
@@ -437,48 +446,20 @@ def gerar_lote_heuristico(
     topico: str,
     qtd_desejada: int,
 ) -> list[ParTreinamento]:
-    """Gera pares conceituais enriquecidos através da base de conhecimento com permutações garantidas."""
-    conceitos = CONCEITOS_BASE.get(topico, [])
-    t_low = topico.strip().lower()
-    if not conceitos:
-        if any(p in t_low for p in ("cumpriment", "compriment", "sauda", "ola", "olá", "bom dia", "conversa", "pessoa")):
-            conceitos = [
-                ("olá tudo bem", "olá tudo ótimo com você como posso ajudar hoje"),
-                ("oi como vai você", "oi vou muito bem obrigado por perguntar e você como está"),
-                ("bom dia", "bom dia desejo que você tenha um excelente dia de trabalho e estudos"),
-                ("boa tarde", "boa tarde como posso ajudar você hoje"),
-                ("boa noite", "boa noite seja muito bem vindo em que posso colaborar"),
-                ("como cumprimentar uma pessoa", "você pode cumprimentar dizendo olá bom dia boa tarde e perguntando como a pessoa está"),
-                ("como cumprimentar alguém formalmente", "em situações formais diga bom dia ou boa tarde senhor ou senhora é um prazer conhecê lo"),
-                ("como cumprimentar um amigo", "com amigos você pode dizer oi tudo bem ou como vão as coisas"),
-                ("qual a importância de cumprimentar uma pessoa", "cumprimentar demonstra educação respeito cordialidade e abre uma boa comunicação"),
-                ("o que responder quando alguém diz tudo bem", "você pode responder tudo ótimo obrigado e perguntar e com você tudo bem"),
-                ("o que dizer ao conhecer uma pessoa", "diga muito prazer em conhecer você meu nome é neurograph"),
-                ("como se despedir de uma pessoa educadamente", "você pode dizer até logo tenha um ótimo dia foi um prazer conversar com você"),
-            ]
-        else:
-            # Tópico livre: gera conceitos sintéticos estruturados
-            conceitos = [
-                (f"o que é {t_low}", f"{t_low} é uma área do conhecimento dedicada ao estudo e aplicação prática de seus princípios"),
-                (f"como funciona {t_low}", f"{t_low} opera através de métodos lógicos processos estruturados e boas práticas"),
-                (f"qual a importância de {t_low}", f"a importância de {t_low} está no desenvolvimento prático científico e na solução de problemas"),
-                (f"quais os fundamentos de {t_low}", f"os fundamentos de {t_low} incluem conceitos básicos regras claras e aplicação consistente"),
-                (f"para que serve {t_low}", f"{t_low} serve para orientar ações organizar processos e alcançar resultados eficientes"),
-            ]
+    """Gera pares conceituais verificados a partir da base pedagógica sem tautologias."""
+    conceitos = _resolver_conceitos_para_topico(topico)
 
-    # Expande e multiplica com variações
     banco_expandido: list[tuple[str, str]] = []
     for q, a in conceitos:
         banco_expandido.extend(expandir_variacoes_pergunta(q, a, topico))
 
     resultados: list[ParTreinamento] = []
-    vistos = set()
+    vistos: set[str] = set()
 
-    # Primeira passagem com os pares expandidos
     for q, a in banco_expandido:
         qn = normalizar_texto_neurograph(q)
         an = normalizar_texto_neurograph(a)
-        if qn and an and qn not in vistos:
+        if qn and an and qn not in vistos and eh_par_conceitual_valido(qn, an):
             vistos.add(qn)
             resultados.append(
                 ParTreinamento(
@@ -487,62 +468,11 @@ def gerar_lote_heuristico(
                     context=[],
                     category="incremental_training",
                     video_id=topico,
-                    origem="heuristico_incremental",
+                    origem="base_conceitual_ptbr",
                 )
             )
             if len(resultados) >= qtd_desejada:
                 break
-
-    prefixos_contexto = [
-        "em termos práticos",
-        "no contexto de " + t_low,
-        "tecnicamente falando",
-        "de maneira resumida",
-        "segundo os fundamentos de " + t_low,
-        "de forma simples",
-        "explicando diretamente",
-        "na prática diária",
-    ]
-
-    for pref in prefixos_contexto:
-        if len(resultados) >= qtd_desejada:
-            break
-        for base_q, base_a in banco_expandido:
-            q_nova = normalizar_texto_neurograph(f"{pref} {base_q}")
-            a_nova = normalizar_texto_neurograph(base_a)
-            if q_nova not in vistos:
-                vistos.add(q_nova)
-                resultados.append(
-                    ParTreinamento(
-                        question=q_nova,
-                        answer=a_nova,
-                        context=[],
-                        category="incremental_training",
-                        video_id=topico,
-                        origem="heuristico_incremental",
-                    )
-                )
-                if len(resultados) >= qtd_desejada:
-                    break
-
-    ciclo = 1
-    while len(resultados) < qtd_desejada:
-        base_q, base_a = conceitos[(ciclo - 1) % len(conceitos)]
-        q_nova = normalizar_texto_neurograph(f"exemplo {ciclo} sobre {base_q}")
-        a_nova = normalizar_texto_neurograph(base_a)
-        if q_nova not in vistos:
-            vistos.add(q_nova)
-            resultados.append(
-                ParTreinamento(
-                    question=q_nova,
-                    answer=a_nova,
-                    context=[],
-                    category="incremental_training",
-                    video_id=topico,
-                    origem="heuristico_incremental",
-                )
-            )
-        ciclo += 1
 
     return resultados[:qtd_desejada]
 
@@ -555,7 +485,7 @@ def executar_treinamento_10_topicos(
     caminho_modelo: Optional[Path] = None,
     pasta_saida: Optional[Path] = None,
 ) -> dict:
-    """Executa o ciclo item a item: gera 1 item -> treina a rede e salva (.ngs) -> gera o próximo item -> treina."""
+    """Executa o ciclo item a item: gera 1 item -> treina a rede e salva (.ngs) -> próximo item."""
     from model import Example, TokenGraph, tokenize
 
     if topicos:
@@ -570,14 +500,12 @@ def executar_treinamento_10_topicos(
     total_desejado = max(1, int(min_total))
     qtd_topicos = len(topicos)
 
-    # Distribui exatamente a quantidade pedida pelo usuário entre os tópicos informados
     base_por_topico = total_desejado // qtd_topicos
     resto = total_desejado % qtd_topicos
     distribuicao: dict[str, int] = {}
     for idx_t, t in enumerate(topicos):
         distribuicao[t] = base_por_topico + (1 if idx_t < resto else 0)
 
-    # Remove tópicos com 0 caso o usuário tenha colocado ex: 3 itens para 10 tópicos
     distribuicao = {t: q for t, q in distribuicao.items() if q > 0}
     soma_atual = sum(distribuicao.values())
 
@@ -594,7 +522,6 @@ def executar_treinamento_10_topicos(
         print(f"  {i:2d}. [{qtd:3d} item(ns)] -> {topico}")
     print("-" * 72)
 
-    # Carrega ou inicializa o modelo e a base existente para treino incremental rápido
     if alvo_rede.exists() and alvo_rede.stat().st_size > 0:
         try:
             modelo = TokenGraph.load(alvo_rede)
@@ -610,7 +537,7 @@ def executar_treinamento_10_topicos(
 
     todos_pares: list[ParTreinamento] = []
     perguntas_vistas: set[str] = {ex.question for ex in exemplos_base if ex.question}
-    tem_api_key = bool(api_key or os.getenv("OPENAI_API_KEY"))
+    ia_disponivel = tem_ia_ativa(api_key)
     stop_file = DIR_TREINO / ".stop_training"
     if stop_file.exists():
         try:
@@ -639,8 +566,7 @@ def executar_treinamento_10_topicos(
                 contador_global += 1
                 par_atual: Optional[ParTreinamento] = None
 
-                # 1. Gera 1 único item (via ChatGPT se houver chave, ou do gerador conceitual local)
-                if tem_api_key:
+                if ia_disponivel:
                     par_atual = gerar_um_item_chatgpt(topico, num_no_topico, perguntas_vistas, api_key=api_key)
 
                 while par_atual is None and idx_heur < len(pool_heuristico):
@@ -651,24 +577,21 @@ def executar_treinamento_10_topicos(
                         break
 
                 if par_atual is None:
-                    par_atual = pool_heuristico[(num_no_topico - 1) % len(pool_heuristico)]
+                    continue
 
                 perguntas_vistas.add(par_atual.question)
                 todos_pares.append(par_atual)
 
-                # 2. Salva imediatamente o item gerado no dataset e no resumo da sessão
                 salvar_pares_processados([par_atual], pasta_saida, nome_arquivo="dataset_curado.json")
                 with caminho_ultimo_treino.open("w", encoding="utf-8") as f_ult:
                     json.dump([asdict(p) for p in todos_pares], f_ult, ensure_ascii=False, indent=2)
 
-                # 3. Treina imediatamente este item na rede e salva o arquivo .ngs
                 palavras_resp = tokenize(par_atual.answer)
                 resp_limpa = " ".join(palavras_resp[:60]) if len(palavras_resp) > 62 else par_atual.answer
-                novo_ex = Example(question=par_atual.question, answer=resp_limpa, context=tuple(par_atual.context))
+                novo_ex = Example(question=par_atual.question, answer=resp_limpa, context=())
                 exemplos_base.append(novo_ex)
 
                 if treinar_modelo:
-                    # Micro-passo de treino imediato (item atual + amostra de replay para preservar memória)
                     amostra_replay = exemplos_base[-24:]
                     negativos = [e for e in exemplos_base if e.answer is None][:4]
                     lote_incremental = amostra_replay + [e for e in negativos if e not in amostra_replay]
@@ -689,7 +612,6 @@ def executar_treinamento_10_topicos(
         except Exception:
             pass
 
-    # Consolidação final rápida na rede alvo (.ngs)
     if treinar_modelo and exemplos_base:
         epocas_finais = 12 if len(todos_pares) <= 100 else (20 if foi_cancelado else 35)
         lote_final = exemplos_base[-80:] if len(todos_pares) <= 100 else exemplos_base

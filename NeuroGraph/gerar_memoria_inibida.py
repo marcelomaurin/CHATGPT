@@ -18,17 +18,31 @@ GROUPS = [
   "saúde doença dor febre tosse sangue coração pulmão cérebro corpo cabeça braço mão dedo perna pé olho orelha boca nariz pele osso músculo célula tecido órgão remédio medicamento exame consulta atendimento tratamento vacina alimentação exercício descanso higiene matemática física química biologia português linguagem língua gramática ciência tecnologia engenharia eletrônica mecânica informática programação código fonte memória processamento armazenamento banco tabela registro chave identificador índice estrutura matriz vetor lista conjunto sequência ordem direção contexto significado semântica sintaxe probabilidade confiança aprendizado aprendizagem treinamento inferência conhecimento associação conexão pesos estímulo inibição inibido inibida ativado ativada desativado desativada"
 ]
 tokens = list(dict.fromkeys(token for group in GROUPS for token in group.split()))
-assert len(tokens) == 691, len(tokens)
-path = Path(__file__).resolve().parent / "neurograph_memoria_ptbr_inibida_completa.ngm"
-n = len(tokens)
-with path.open("wb") as f:
-    f.write(struct.pack("<8sIII", b"NGMAP001", 1, n, n * (n - 1)))
-    for token in tokens:
-        raw = token.encode("utf-8")
-        f.write(struct.pack("<I", len(raw)))
-        f.write(raw)
-    for a in range(n):
-        for b in range(n):
-            if a != b:
-                f.write(struct.pack("<IIf", a, b, 0.0))
-print(f"{path}: {n} tokens, {n*(n-1)} conexões inibidas, {path.stat().st_size} bytes")
+
+
+def gerar_ngm_inibido_padrao() -> Path:
+    path = Path(__file__).resolve().parent / "neurograph_memoria_ptbr_inibida_completa.ngm"
+    n = len(tokens)
+    with path.open("wb") as f:
+        f.write(struct.pack("<8sII", b"NGMAP001", n, n * (n - 1)))
+        for token in tokens:
+            raw = token.encode("utf-8")
+            f.write(struct.pack("<I", len(raw)))
+            f.write(raw)
+        for a in range(n):
+            for b in range(n):
+                if a != b:
+                    f.write(struct.pack("<IIf", a, b, 0.0))
+    print(f"{path}: {n} tokens, {n*(n-1)} conexões inibidas, {path.stat().st_size} bytes")
+    return path
+
+
+if __name__ == "__main__":
+    import sys
+    dir_treino = Path(__file__).resolve().parent / "treino"
+    if "--inibida-pura" not in sys.argv and (dir_treino / "treino_continuo.py").exists():
+        sys.path.insert(0, str(dir_treino))
+        from treino_continuo import regerar_matrizes_ngm_existentes
+        regerar_matrizes_ngm_existentes()
+    else:
+        gerar_ngm_inibido_padrao()

@@ -152,6 +152,12 @@ begin
     if not CompareMem(@Header[0],@MAGIC[0],8) then
       raise Exception.Create('Formato de mapa invalido');
     N:=ReadU32(S); M:=ReadU32(S);
+    if (N=1) and (M>1) and (S.Size - S.Position > Int64(M)*4) then
+    begin
+      { Compatibilidade com cabecalho NGMAP001 contendo campo Version=1 }
+      N := M;
+      M := ReadU32(S);
+    end;
     if (N>10000000) or (M>100000000) then
       raise Exception.Create('Mapa excede limites');
     for I:=1 to N do begin

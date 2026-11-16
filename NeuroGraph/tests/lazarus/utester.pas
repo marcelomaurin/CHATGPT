@@ -217,6 +217,8 @@ begin
     Exit(Base + 'avaliador_qa.py');
   if FileExists(ExpandFileName(Base + '..\avaliador_qa.py')) then
     Exit(ExpandFileName(Base + '..\avaliador_qa.py'));
+  if FileExists(ExpandFileName(Base + '..\tests\avaliador_qa.py')) then
+    Exit(ExpandFileName(Base + '..\tests\avaliador_qa.py'));
   Result := 'D:\projetos\maurinsoft\CHATGPT\NeuroGraph\tests\avaliador_qa.py';
 end;
 

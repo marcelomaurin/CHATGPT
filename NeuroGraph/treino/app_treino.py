@@ -360,15 +360,47 @@ def main():
     parser.add_argument("--topicos-10", action="store_true", help="Dispara o gerador de 10 tópicos com número aleatório de perguntas (nunca < 1000) e treina a rede")
     parser.add_argument("--lista-topicos", nargs="*", help="Lista opcional de 10 tópicos específicos")
     parser.add_argument("--min-pares", type=int, default=1000, help="Quantidade mínima de pares para o gerador de tópicos (padrão: 1000)")
+    parser.add_argument("--continuo", action="store_true", help="Inicia o Treino Contínuo (IA + YouTube filtrado estritamente em português)")
+    parser.add_argument("--assuntos-continuo", nargs="*", help="Lista de assuntos base em português para o Treino Contínuo")
+    parser.add_argument("--videos-ciclo", type=int, default=2, help="Quantidade de vídeos em português do YouTube por ciclo no Treino Contínuo")
+    parser.add_argument("--pares-ciclo", type=int, default=12, help="Quantidade de pares conceituais gerados por ciclo no Treino Contínuo")
+    parser.add_argument("--intervalo-ciclo", type=int, default=3, help="Intervalo em segundos entre ciclos do Treino Contínuo")
+    parser.add_argument("--max-ciclos", type=int, default=0, help="Limite de ciclos do Treino Contínuo (0 = contínuo até parar)")
+    parser.add_argument("--regerar-ngm", action="store_true", help="Regera todas as matrizes (.ngm) e modelos (.ngs) dos arquivos existentes")
     parser.add_argument("--treinar", action="store_true", help="Dispara o retreino com os dados já acumulados")
     parser.add_argument("--perguntar", type=str, help="Envia uma pergunta para o modelo treinado")
     parser.add_argument("--modelo", type=str, help="Caminho opcional para arquivo de pesos (.ngs)")
 
+    parser.add_argument("--professora-dataset", type=Path, help="JSON revisado com train e validation para IA professora")
+    parser.add_argument("--professora-epocas", type=int, default=60)
+
     args = parser.parse_args()
 
-    if args.perguntar:
+    if args.professora_dataset:
+        from treino_professora import executar_treino_professora
+        alvo = Path(args.modelo) if args.modelo else DIR_TREINO / "modelos" / "neurograph_professora.ngs"
+        try:
+            executar_treino_professora(args.professora_dataset, alvo, args.professora_epocas)
+        except (ValueError, OSError, json.JSONDecodeError) as exc:
+            parser.exit(1, f"Erro no treino com professora: {exc}\n")
+    elif args.perguntar:
         caminho_mod = Path(args.modelo) if args.modelo else None
         consultar_modelo(args.perguntar, caminho_modelo=caminho_mod)
+    elif args.regerar_ngm:
+        from treino_continuo import regerar_matrizes_ngm_existentes
+        regerar_matrizes_ngm_existentes()
+    elif args.continuo:
+        from treino_continuo import executar_treino_continuo
+        caminho_mod = Path(args.modelo) if args.modelo else None
+        executar_treino_continuo(
+            assuntos_iniciais=args.assuntos_continuo,
+            videos_por_ciclo=max(0, args.videos_ciclo),
+            pares_por_ciclo=max(2, args.pares_ciclo),
+            intervalo_segundos=max(1, args.intervalo_ciclo),
+            max_ciclos=max(0, args.max_ciclos),
+            api_key=args.api_key,
+            caminho_modelo=caminho_mod,
+        )
     elif args.topicos_10:
         from treinar_10_topicos import executar_treinamento_10_topicos
         caminho_mod = Path(args.modelo) if args.modelo else None

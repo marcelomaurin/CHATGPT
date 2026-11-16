@@ -157,7 +157,10 @@ begin
   // 2. Pasta pai (D:\projetos\maurinsoft\CHATGPT\NeuroGraph\play)
   if FileExists(ExtractFilePath(ExcludeTrailingPathDelimiter(Base)) + 'play.py') then
     Exit(ExtractFilePath(ExcludeTrailingPathDelimiter(Base)) + 'play.py');
-  // 3. Caminho absoluto padrão
+  // 3. Execução a partir de NeuroGraph\bin\
+  if FileExists(ExpandFileName(Base + '..\play\play.py')) then
+    Exit(ExpandFileName(Base + '..\play\play.py'));
+  // 4. Caminho absoluto padrão
   Result := 'D:\projetos\maurinsoft\CHATGPT\NeuroGraph\play\play.py';
 end;
 

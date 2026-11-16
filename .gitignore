@@ -143,3 +143,6 @@ Thumbs.db
 
 # Local installer dependencies, build archives and IDE backups
 .dependencies/
+
+# Local training interruption signal
+NeuroGraph/treino/.stop_training

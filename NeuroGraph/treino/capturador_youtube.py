@@ -42,6 +42,57 @@ class TranscricaoResult:
     erro: str | None = None
 
 
+STOPWORDS_PT = frozenset({
+    "de", "da", "do", "das", "dos", "em", "no", "na", "nos", "nas",
+    "por", "para", "com", "sem", "que", "não", "nao", "sim", "uma", "um",
+    "como", "mais", "menos", "muito", "sobre", "entre", "até", "ate",
+    "também", "tambem", "já", "ja", "são", "sao", "está", "esta", "estão",
+    "foi", "ser", "ter", "pelo", "pela", "pelos", "pelas", "isso", "isto",
+    "esse", "essa", "este", "esta", "qual", "quais", "quando", "onde",
+    "porque", "porquê", "você", "voce", "nós", "nosso", "nossa", "seu", "sua",
+})
+
+STOPWORDS_ESTRANGEIRAS = frozenset({
+    # Inglês
+    "the", "and", "with", "from", "what", "which", "this", "that", "these",
+    "those", "have", "has", "had", "will", "would", "could", "should", "about",
+    "into", "your", "their", "there", "where", "when", "while", "because",
+    # Espanhol exclusivo
+    "el", "la", "los", "las", "del", "una", "unos", "unas", "pero", "como",
+    "esto", "esta", "estos", "estas", "también", "tambien", "hacer", "puede",
+    "tiene", "tienen", "nosotros", "ustedes", "elliptical", "hacia", "desde",
+})
+
+
+def eh_texto_em_portugues(texto: str, min_palavras: int = 4) -> bool:
+    """Verifica de forma rigorosa se um título ou transcrição está em língua portuguesa (PT-BR/PT)."""
+    if not texto or not texto.strip():
+        return False
+
+    palavras = re.findall(r"[a-zA-ZÀ-ÿ]+", texto.casefold())
+    if len(palavras) < min_palavras:
+        # Para títulos curtos, verifica ausência de stopwords inglesas/espanholas explícitas
+        estrangeiras_curto = sum(1 for p in palavras if p in STOPWORDS_ESTRANGEIRAS - {"como", "esta", "pero"})
+        return estrangeiras_curto == 0
+
+    qtd_pt = sum(1 for p in palavras if p in STOPWORDS_PT)
+    qtd_est = sum(1 for p in palavras if p in (STOPWORDS_ESTRANGEIRAS - STOPWORDS_PT))
+
+    # Presença de morfemas/diacríticos típicos do português (ã, õ, ç, ção, ções, nh, lh)
+    texto_lower = texto.casefold()
+    marcadores_pt = len(re.findall(r"(?:ção|ções|ã|õ|ç|nh|lh|\bé\b|\bsão\b|\bnão\b)", texto_lower))
+
+    score_pt = qtd_pt + (marcadores_pt * 1.5)
+    if qtd_est > qtd_pt and marcadores_pt == 0:
+        return False
+
+    if len(palavras) >= 20:
+        proporcao_pt = score_pt / max(1, len(palavras))
+        return proporcao_pt >= 0.08 and (qtd_pt >= qtd_est)
+
+    return (score_pt >= 1.0) and (qtd_est <= qtd_pt + 1)
+
+
 def extrair_video_id(url_ou_id: str) -> str:
     """Extrai o ID de 11 caracteres de URLs do YouTube ou retorna o próprio ID."""
     url_ou_id = url_ou_id.strip()
@@ -61,13 +112,18 @@ def extrair_video_id(url_ou_id: str) -> str:
     raise ValueError(f"Não foi possível extrair um Video ID válido de: '{url_ou_id}'")
 
 
-def buscar_videos_youtube(query: str, max_resultados: int = 5) -> list[VideoInfo]:
+def buscar_videos_youtube(
+    query: str,
+    max_resultados: int = 5,
+    apenas_portugues: bool = True,
+) -> list[VideoInfo]:
     """Busca vídeos no YouTube com base na query informada sem exigir chave de API externa.
 
-    Analisa o HTML de resultados de busca pública do YouTube.
+    Força parâmetros regionais (hl=pt, gl=BR) e filtra títulos em português.
     """
-    q_encoded = urllib.parse.quote(query)
-    url = f"https://www.youtube.com/results?search_query={q_encoded}"
+    query_pt = query.strip()
+    q_encoded = urllib.parse.quote(query_pt)
+    url = f"https://www.youtube.com/results?search_query={q_encoded}&hl=pt&gl=BR"
     req = urllib.request.Request(
         url,
         headers={
@@ -75,7 +131,7 @@ def buscar_videos_youtube(query: str, max_resultados: int = 5) -> list[VideoInfo
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                 "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
             ),
-            "Accept-Language": "pt-BR,pt;q=0.9",
+            "Accept-Language": "pt-BR,pt;q=0.95",
         },
     )
 
@@ -90,15 +146,13 @@ def buscar_videos_youtube(query: str, max_resultados: int = 5) -> list[VideoInfo
     ids_encontrados: list[str] = []
     titulos: dict[str, str] = {}
 
-    # Padrão de extração de blocos de vídeo do JSON inicial embutido (ytInitialData)
     matches_ids = re.findall(r"/watch\?v=([a-zA-Z0-9_-]{11})", html)
     for vid in matches_ids:
         if vid not in ids_encontrados and len(vid) == 11:
             ids_encontrados.append(vid)
-        if len(ids_encontrados) >= max_resultados * 2:
+        if len(ids_encontrados) >= max_resultados * 4:
             break
 
-    # Tentativa de extrair títulos associados via regex no JSON embutido
     for vid in ids_encontrados:
         padrao_titulo = rf'"{vid}".*?"title":\{{"runs":\[\{{"text":"([^"]+)"\}}'
         m = re.search(padrao_titulo, html)
@@ -108,17 +162,24 @@ def buscar_videos_youtube(query: str, max_resultados: int = 5) -> list[VideoInfo
             titulos[vid] = f"Vídeo YouTube ({vid})"
 
     resultados: list[VideoInfo] = []
-    for vid in ids_encontrados[:max_resultados]:
+    for vid in ids_encontrados:
+        titulo = titulos.get(vid, f"Vídeo {vid}")
+        if apenas_portugues and not titulo.startswith("Vídeo YouTube ("):
+            if not eh_texto_em_portugues(titulo, min_palavras=3):
+                logging.info("Vídeo ignorado (título fora do filtro PT-BR): '%s'", titulo)
+                continue
         resultados.append(
             VideoInfo(
                 video_id=vid,
-                title=titulos.get(vid, f"Vídeo {vid}"),
+                title=titulo,
                 url=f"https://www.youtube.com/watch?v={vid}",
                 query=query,
             )
         )
+        if len(resultados) >= max_resultados:
+            break
 
-    logging.info("Encontrados %d vídeos para o termo: '%s'", len(resultados), query)
+    logging.info("Encontrados %d vídeos em português para o termo: '%s'", len(resultados), query)
     return resultados
 
 
@@ -189,7 +250,20 @@ def obter_transcricao(
                 erro="Transcrição vazia após filtragem",
             )
 
-        logging.info("Transcrição obtida com sucesso (%d palavras, %d trechos) para [%s]",
+        if not eh_texto_em_portugues(texto, min_palavras=10):
+            return TranscricaoResult(
+                video_id=vid,
+                title=title,
+                url=f"https://www.youtube.com/watch?v={vid}",
+                query=query,
+                raw_text="",
+                num_trechos=0,
+                idioma="outro",
+                sucesso=False,
+                erro="Conteúdo descartado: transcrição não está em língua portuguesa",
+            )
+
+        logging.info("Transcrição em português obtida com sucesso (%d palavras, %d trechos) para [%s]",
                      len(texto.split()), total_trechos, vid)
 
         return TranscricaoResult(

@@ -40,6 +40,11 @@ from curador_chatgpt import (
 )
 from leitor_pdf import extrair_texto_pdf
 from treinador_neurograph import preparar_exemplos, treinar_neurograph
+from treino_continuo import (
+    ASSUNTOS_SEMENTE_PT,
+    executar_treino_continuo,
+    regerar_matrizes_ngm_existentes,
+)
 
 try:
     from model import TokenGraph
@@ -92,16 +97,19 @@ class NeuroGraphDesktopApp:
         self.notebook.pack(fill="both", expand=True, padx=12, pady=6)
 
         # Abas
+        self.tab_continuo = ttk.Frame(self.notebook, padding=12)
         self.tab_youtube = ttk.Frame(self.notebook, padding=12)
         self.tab_pdf = ttk.Frame(self.notebook, padding=12)
         self.tab_chat = ttk.Frame(self.notebook, padding=12)
         self.tab_dataset = ttk.Frame(self.notebook, padding=12)
 
+        self.notebook.add(self.tab_continuo, text="  🔄 Treino Contínuo (PT-BR)  ")
         self.notebook.add(self.tab_youtube, text="  🎥 Treinar via YouTube  ")
         self.notebook.add(self.tab_pdf, text="  📄 Treinar via PDF  ")
         self.notebook.add(self.tab_chat, text="  💬 Conversar / Testar NeuroGraph  ")
         self.notebook.add(self.tab_dataset, text="  📊 Visualizar Dataset  ")
 
+        self._construir_aba_continuo()
         self._construir_aba_youtube()
         self._construir_aba_pdf()
         self._construir_aba_chat()
@@ -120,6 +128,117 @@ class NeuroGraphDesktopApp:
         scroll_log = ttk.Scrollbar(log_frame, orient="vertical", command=self.txt_log.yview)
         scroll_log.pack(side="right", fill="y")
         self.txt_log.config(yscrollcommand=scroll_log.set)
+
+    # -------------------------------------------------------------
+    # ABA TREINO CONTÍNUO (IA + YOUTUBE PT-BR)
+    # -------------------------------------------------------------
+    def _construir_aba_continuo(self):
+        grp_cont = ttk.LabelFrame(
+            self.tab_continuo,
+            text=" Modo de Treino Contínuo (IA + YouTube -> Equipamento .NGM — Somente Português) ",
+            padding=10,
+        )
+        grp_cont.pack(fill="x", pady=6)
+
+        ttk.Label(grp_cont, text="Assuntos-Semente (1 por linha, em Português):").grid(
+            row=0, column=0, columnspan=4, sticky="w", pady=2
+        )
+        self.txt_assuntos_continuo = tk.Text(grp_cont, height=6, width=70, font=("Segoe UI", 9))
+        self.txt_assuntos_continuo.grid(row=1, column=0, columnspan=4, sticky="we", padx=4, pady=4)
+        self.txt_assuntos_continuo.insert("1.0", "\n".join(ASSUNTOS_SEMENTE_PT[:12]))
+
+        ttk.Label(grp_cont, text="Vídeos YT/Ciclo:").grid(row=2, column=0, sticky="w", padx=4, pady=4)
+        self.var_videos_ciclo = tk.IntVar(value=2)
+        ttk.Spinbox(grp_cont, from_=1, to=5, textvariable=self.var_videos_ciclo, width=5).grid(
+            row=2, column=1, sticky="w", padx=4, pady=4
+        )
+
+        ttk.Label(grp_cont, text="Pares IA/Ciclo:").grid(row=2, column=2, sticky="w", padx=4, pady=4)
+        self.var_pares_ciclo = tk.IntVar(value=12)
+        ttk.Spinbox(grp_cont, from_=4, to=100, textvariable=self.var_pares_ciclo, width=6).grid(
+            row=2, column=3, sticky="w", padx=4, pady=4
+        )
+
+        ttk.Label(grp_cont, text="Máx. Ciclos (0=Infinito):").grid(row=3, column=0, sticky="w", padx=4, pady=4)
+        self.var_max_ciclos = tk.IntVar(value=0)
+        ttk.Spinbox(grp_cont, from_=0, to=5000, textvariable=self.var_max_ciclos, width=6).grid(
+            row=3, column=1, sticky="w", padx=4, pady=4
+        )
+
+        self.var_apenas_pt = tk.BooleanVar(value=True)
+        ttk.Checkbutton(
+            grp_cont,
+            text="Filtrar estritamente conteúdo em Português (PT-BR / PT)",
+            variable=self.var_apenas_pt,
+        ).grid(row=3, column=2, columnspan=2, sticky="w", padx=4, pady=4)
+
+        btn_bar = ttk.Frame(self.tab_continuo)
+        btn_bar.pack(fill="x", pady=6)
+
+        ttk.Button(
+            btn_bar,
+            text="▶️ Iniciar Treino Contínuo (IA + YouTube PT)",
+            command=self._acao_iniciar_continuo,
+        ).pack(side="left", padx=4)
+
+        ttk.Button(
+            btn_bar,
+            text="⏹️ Parar Treino Contínuo e Salvar",
+            command=self._acao_parar_continuo,
+        ).pack(side="left", padx=4)
+
+        ttk.Button(
+            btn_bar,
+            text="🔄 Regerar Matriz da IA (.NGM) dos Arquivos Existentes",
+            command=self._acao_regerar_ngm,
+        ).pack(side="left", padx=8)
+
+    def _acao_iniciar_continuo(self):
+        linhas = [
+            ln.strip()
+            for ln in self.txt_assuntos_continuo.get("1.0", tk.END).splitlines()
+            if ln.strip()
+        ]
+        stop_file = DIR_TREINO / ".stop_training"
+        if stop_file.exists():
+            try:
+                stop_file.unlink()
+            except Exception:
+                pass
+        self._iniciar_tarefa(
+            self._tarefa_treino_continuo,
+            linhas,
+            self.var_videos_ciclo.get(),
+            self.var_pares_ciclo.get(),
+            self.var_max_ciclos.get(),
+        )
+
+    def _tarefa_treino_continuo(self, assuntos, videos_ciclo: int, pares_ciclo: int, max_ciclos: int):
+        self.log("[TREINO CONTÍNUO] Iniciando pesquisa contínua com IA + YouTube (Somente Português)...")
+        caminho_mod = DIR_TREINO / "modelos" / "neurograph_youtube.ngs"
+        executar_treino_continuo(
+            assuntos_iniciais=assuntos,
+            caminho_modelo=caminho_mod,
+            api_key=self.var_api_key.get().strip(),
+            videos_por_ciclo=videos_ciclo,
+            pares_ia_por_ciclo=pares_ciclo,
+            intervalo_segundos=3,
+            max_ciclos=max_ciclos,
+        )
+        self.log("[TREINO CONTÍNUO] Sessão finalizada e matrizes .NGS / .NGM salvas.")
+
+    def _acao_parar_continuo(self):
+        stop_file = DIR_TREINO / ".stop_training"
+        stop_file.write_text("STOP\n", encoding="utf-8")
+        self.log("[AVISO] Parada solicitada! Concluindo ciclo atual e salvando matriz .NGM...")
+
+    def _acao_regerar_ngm(self):
+        self._iniciar_tarefa(self._tarefa_regerar_ngm)
+
+    def _tarefa_regerar_ngm(self):
+        self.log("[REGERAR NGM] Consolidando arquivos existentes e regerando matrizes .NGM / .NGS...")
+        res = regerar_matrizes_ngm_existentes()
+        self.log(f"[SUCESSO] Matrizes regeradas: {res['ngm_principal']} e {res['ngm_treino']}")
 
     # -------------------------------------------------------------
     # ABA YOUTUBE
