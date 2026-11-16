@@ -60,12 +60,64 @@ def synth_procedural_sfx(prompt: str, out_path: str, duration: float = 3.0):
     return "procedural-sfx-cpu"
 
 
-def run_health():
+def default_parakeet_dir(runtime_dir: str = "") -> str:
+    if runtime_dir:
+        return os.path.join(os.path.abspath(runtime_dir), "models", "parakeet")
+    env_dir = os.environ.get("CHATGPT_AI_RUNTIME", "").strip()
+    if env_dir:
+        return os.path.join(env_dir, "models", "parakeet")
+    if os.name == "nt" and os.path.isdir(r"C:\CHATGPT-AI"):
+        return os.path.join(r"C:\CHATGPT-AI", "models", "parakeet")
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    return os.path.abspath(os.path.join(script_dir, "..", "..", "runtime", "models", "parakeet"))
+
+
+def prepare_parakeet_runtime(runtime_dir: str = "", do_install: bool = False) -> int:
+    model_dir = default_parakeet_dir(runtime_dir)
+    os.makedirs(model_dir, exist_ok=True)
+    manifest = {
+        "model": "parakeet",
+        "task": "text-to-voice",
+        "device": "cpu",
+        "model_dir": model_dir,
+        "onnx_ready": any(f.endswith(".onnx") for f in os.listdir(model_dir)),
+    }
+    manifest_path = os.path.join(model_dir, "parakeet_runtime.json")
+    with open(manifest_path, "w", encoding="utf-8") as fp:
+        json.dump(manifest, fp, indent=2, ensure_ascii=False)
+
+    if do_install:
+        req_file = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "..", "runtime", "requirements", "requirements-voice.txt")
+        )
+        if os.path.isfile(req_file):
+            subprocess.run([sys.executable, "-m", "pip", "install", "--prefer-binary", "-r", req_file])
+
+    print(json.dumps({"prepared": True, "manifest": manifest_path, "model": "parakeet"}, ensure_ascii=False))
+    return 0
+
+
+def run_health(runtime_dir: str = ""):
     import importlib.util
+    parakeet_dir = default_parakeet_dir(runtime_dir)
+    onnx_files = []
+    if os.path.isdir(parakeet_dir):
+        onnx_files = [f for f in os.listdir(parakeet_dir) if f.endswith(".onnx")]
+    has_paddlespeech = bool(importlib.util.find_spec("paddlespeech"))
+    has_parakeet_cli = bool(shutil.which("parakeet-tts") or shutil.which("parakeet") or shutil.which("paddlespeech"))
+    has_onnxruntime = bool(importlib.util.find_spec("onnxruntime"))
     info = {
         "cpu_ready": True,
+        "default_tts_model": "parakeet",
+        "parakeet_ready": bool(has_paddlespeech or has_parakeet_cli or (has_onnxruntime and len(onnx_files) > 0)),
+        "parakeet_prepared_dir": os.path.isdir(parakeet_dir),
+        "parakeet_model_dir": parakeet_dir,
         "python": sys.version.split()[0],
         "backends": {
+            "parakeet_cli": has_parakeet_cli,
+            "paddlespeech": has_paddlespeech,
+            "onnxruntime": has_onnxruntime,
+            "parakeet_onnx_files": len(onnx_files),
             "piper_cli": bool(shutil.which("piper")),
             "espeak_ng": bool(shutil.which("espeak-ng") or shutil.which("espeak")),
             "kokoro_onnx": bool(importlib.util.find_spec("kokoro_onnx")),
@@ -80,9 +132,56 @@ def run_health():
     return 0
 
 
+def run_parakeet_tts(args, out_path: str) -> str:
+    device = "gpu" if args.gpu else "cpu"
+    # 1) CLI dedicated parakeet-tts / parakeet / paddlespeech
+    parakeet_bin = shutil.which("parakeet-tts") or shutil.which("parakeet")
+    if parakeet_bin:
+        cmd = [parakeet_bin, "--text", args.text, "--output", out_path]
+        if args.language:
+            cmd += ["--lang", args.language]
+        proc = subprocess.run(cmd, capture_output=True)
+        if proc.returncode == 0 and os.path.isfile(out_path) and os.path.getsize(out_path) > 44:
+            return f"parakeet-cli-{device}"
+
+    paddle_bin = shutil.which("paddlespeech")
+    if paddle_bin:
+        lang = "en" if (args.language or "").lower().startswith("en") else "mix"
+        am = "fastspeech2_ljspeech" if lang == "en" else "fastspeech2_mix"
+        proc = subprocess.run(
+            [paddle_bin, "tts", "--am", am, "--lang", lang, "--input", args.text, "--output", out_path],
+            capture_output=True,
+        )
+        if proc.returncode == 0 and os.path.isfile(out_path) and os.path.getsize(out_path) > 44:
+            return f"parakeet-paddlespeech-cli-{device}"
+
+    # 2) Python PaddleSpeech TTSExecutor (Parakeet lineage, CPU-ready)
+    try:
+        from paddlespeech.cli.tts.infer import TTSExecutor
+        tts = TTSExecutor()
+        lang = "en" if (args.language or "").lower().startswith("en") else "mix"
+        am = "fastspeech2_ljspeech" if lang == "en" else "fastspeech2_mix"
+        tts(text=args.text, output=out_path, am=am, lang=lang, device=device)
+        if os.path.isfile(out_path) and os.path.getsize(out_path) > 44:
+            return f"parakeet-paddlespeech-{device}"
+    except Exception:
+        pass
+
+    return ""
+
+
 def run_tts(args):
     out_path = os.path.abspath(args.output)
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    model_l = (args.model or "parakeet").strip().lower()
+
+    # 0) Parakeet Text-to-Voice no Runtime (modelo padrao)
+    if ("parakeet" in model_l) or (model_l == ""):
+        backend = run_parakeet_tts(args, out_path)
+        if backend:
+            print(f"backend={backend}")
+            return 0
+
     # 1) Piper CLI ONNX (CPU sem GPU)
     piper_bin = shutil.which("piper")
     if piper_bin and args.model and os.path.isfile(args.model):
@@ -163,10 +262,13 @@ def run_clone(args):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--health", action="store_true")
+    ap.add_argument("--prepare-parakeet", action="store_true")
+    ap.add_argument("--install-deps", action="store_true")
+    ap.add_argument("--runtime-dir", default="")
     ap.add_argument("--mode", default="tts", choices=["tts", "clone", "sfx", "music"])
     ap.add_argument("--text", default="")
     ap.add_argument("--output", default="out.wav")
-    ap.add_argument("--model", default="")
+    ap.add_argument("--model", default="parakeet")
     ap.add_argument("--voice", default="")
     ap.add_argument("--language", default="pt")
     ap.add_argument("--ref_audio", default="")
@@ -175,8 +277,10 @@ def main():
     ap.add_argument("--gpu", action="store_true")
     args = ap.parse_args()
 
+    if args.prepare_parakeet:
+        return prepare_parakeet_runtime(args.runtime_dir, args.install_deps)
     if args.health:
-        return run_health()
+        return run_health(args.runtime_dir)
     if args.mode in ("sfx", "music"):
         backend = synth_procedural_sfx(args.text, args.output, args.duration)
         print(f"backend={backend}")

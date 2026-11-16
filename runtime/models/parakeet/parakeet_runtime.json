@@ -1,0 +1,7 @@
+{
+  "model": "parakeet",
+  "task": "text-to-voice",
+  "device": "cpu",
+  "model_dir": "C:\\projetos\\maurinsoft\\CHATGPT\\runtime\\models\\parakeet",
+  "onnx_ready": false
+}

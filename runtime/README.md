@@ -101,11 +101,14 @@ whisper/
 llama.cpp/
 poppler/
 f5-tts/
-models/
+parakeet/
+models/parakeet/
 bin/
 ```
 
-O instalador procura caminhos conhecidos para Python, `whisper-cli`, `llama-server`, `pdftotext` e F5-TTS e grava os caminhos encontrados no arquivo de configuração.
+O instalador procura caminhos conhecidos para Python, `whisper-cli`, `llama-server`, `pdftotext`, `parakeet` e F5-TTS e grava os caminhos encontrados no arquivo de configuração.
+
+O modelo padrão de texto para voz preparado no runtime é **Parakeet** (`requirements-voice.txt`, worker `pacote/python/aisound_cpu_worker.py --prepare-parakeet`).
 
 ## Arquivo gerado na instalação
 
@@ -129,6 +132,11 @@ whisper=...
 llama_server=...
 pdftotext=...
 f5tts=...
+parakeet=...
+
+[voice]
+tts_model=parakeet
+parakeet_model_dir=C:\CHATGPT-AI\models\parakeet
 ```
 
 Esse arquivo será usado pelos componentes Lazarus, especialmente `TAIPythonRuntime` e os engines externos, para localizar executáveis, DLLs/SOs, modelos e diretórios auxiliares.

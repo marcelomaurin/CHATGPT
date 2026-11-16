@@ -1,0 +1,10 @@
+# Voice & Text-to-Speech (Parakeet Runtime CPU/ONNX + Fallback)
+numpy
+onnxruntime
+soundfile
+pyttsx3
+# Opcional para motor neural PaddleSpeech / Parakeet completo:
+# paddlepaddle
+# paddlespeech
+# fastapi
+# uvicorn

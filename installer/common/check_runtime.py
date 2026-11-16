@@ -25,7 +25,7 @@ def check_import(package_name: str) -> bool:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate CHATGPT-AI runtime")
-    parser.add_argument("--profile", default="core", choices=["core", "vision", "ml", "full", "arm"], help="Runtime profile")
+    parser.add_argument("--profile", default="core", choices=["core", "vision", "ml", "voice", "full", "arm"], help="Runtime profile")
     parser.add_argument("--install-dir", default="", help="Installation directory")
     args = parser.parse_args()
 
@@ -57,6 +57,13 @@ def main() -> int:
         for pkg in ["numpy", "pandas"]:
             ok = check_import(pkg) and ok
         check_import("sklearn")
+
+    if args.profile in ("voice", "full"):
+        check_import("numpy")
+        check_import("onnxruntime")
+        check_import("paddlespeech")
+        check_import("pyttsx3")
+        print("[INFO] Modelo TTS padrao preparado no runtime: parakeet")
 
     print("Runtime ready." if ok else "Runtime has warnings/errors.")
     return 0 if ok else 2

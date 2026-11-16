@@ -56,7 +56,7 @@ end;
 
 function AISoundModelCount: Integer;
 begin
-  Result := 28;
+  Result := 30;
 end;
 
 function GetAISoundModelInfo(AIndex: Integer; out AInfo: TAISoundModelInfo): Boolean;
@@ -73,6 +73,7 @@ const
   F5ServerEp     = 'http://127.0.0.1:7860/api/predict';
   ChatterboxEp   = 'http://127.0.0.1:8080/v1/tts';
   AudioCraftEp   = 'http://127.0.0.1:8040/generate';
+  ParakeetEp     = 'http://127.0.0.1:8090/v1/audio/speech';
 begin
   Result := True;
   case AIndex of
@@ -127,10 +128,14 @@ begin
     25: SetSndInfo(AInfo, 'AudioCraft-Bark', 'suno/bark-small', 'Suno Bark Small (Voz + Efeitos CPU)', AudioCraftEp, 'v2/pt_speaker_0', 24000, False, False, True, False, True, True);
 
     // Runtime Python Local sem GPU (aisound_cpu_worker.py)
-    26: SetSndInfo(AInfo, 'Local-CPU-Runtime', 'piper-kokoro-cpu', 'Runtime Python CPU (Piper/Kokoro/SFX procedural)', 'local://aisound_cpu_worker.py', 'pt_BR', 22050, False, True, True, True, True, True);
+    26: SetSndInfo(AInfo, 'Local-CPU-Runtime', 'piper-kokoro-cpu', 'Runtime Python CPU (Parakeet/Piper/SFX procedural)', 'local://aisound_cpu_worker.py', 'pt_BR', 22050, False, True, True, True, True, True);
 
     // Fallback Nativo do Sistema (SAPI / eSpeak)
     27: SetSndInfo(AInfo, 'System-OS', 'system-sapi-espeak', 'Voz Nativa SO (Windows SAPI / eSpeak CPU)', 'system://tts', 'default', 22050, False, False, False, False, True, True);
+
+    // Parakeet TTS (Modelo Texto para Voz preparado no Runtime + servidor HTTP local)
+    28: SetSndInfo(AInfo, 'Parakeet', 'parakeet', 'Parakeet TTS (Texto para Voz Runtime CPU/ONNX)', 'local://parakeet', 'pt_BR', 24000, False, False, False, False, True, True);
+    29: SetSndInfo(AInfo, 'Parakeet', 'parakeet-server', 'Parakeet HTTP Server (Local CPU/GPU)', ParakeetEp, 'pt_BR', 24000, False, False, False, False, True, True);
   else
     Result := False;
   end;

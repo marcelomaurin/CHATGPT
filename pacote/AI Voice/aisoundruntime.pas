@@ -24,6 +24,8 @@ procedure DiscoverLocalSoundServers(AList: TStrings);
 function ResolveAISoundCpuWorkerPath(const ACustomRuntimeRoot: string = ''): string;
 function CheckAISoundCpuRuntimeHealth(const APythonExe, AWorkerPath: string;
   out AOutputText, AErrorText: string): Boolean;
+function PrepareParakeetRuntime(const ACustomRuntimeRoot: string;
+  out AOutputText, AErrorText: string): Boolean;
 
 implementation
 
@@ -53,12 +55,13 @@ end;
 
 procedure DiscoverLocalSoundServers(AList: TStrings);
 const
-  ProbeUrls: array[0..8] of record
+  ProbeUrls: array[0..9] of record
     Name: string;
     HealthUrl: string;
     Endpoint: string;
     Flags: string;
   end = (
+    (Name: 'Parakeet-TTS';    HealthUrl: 'http://127.0.0.1:8090/health';         Endpoint: 'http://127.0.0.1:8090/v1/audio/speech'; Flags: 'Parakeet Texto-para-Voz CPU/GPU'),
     (Name: 'Kokoro-FastAPI';  HealthUrl: 'http://127.0.0.1:8880/health';         Endpoint: 'http://127.0.0.1:8880/v1/audio/speech'; Flags: 'TTS CPU/GPU'),
     (Name: 'OpenedAI-Speech'; HealthUrl: 'http://127.0.0.1:8000/v1/models';      Endpoint: 'http://127.0.0.1:8000/v1/audio/speech'; Flags: 'Piper+XTTS CPU'),
     (Name: 'Piper-HTTP';      HealthUrl: 'http://127.0.0.1:5000/';               Endpoint: 'http://127.0.0.1:5000/';               Flags: 'TTS ONNX CPU'),
@@ -137,6 +140,40 @@ begin
     Runner.Executable := PyExe;
     Runner.TimeoutMs := 15000;
     Result := Runner.Execute([Worker, '--health']);
+    AOutputText := Trim(Runner.StdOutText);
+    AErrorText := Trim(Runner.LastError + ' ' + Runner.StdErrText);
+  finally
+    Runner.Free;
+  end;
+end;
+
+function PrepareParakeetRuntime(const ACustomRuntimeRoot: string;
+  out AOutputText, AErrorText: string): Boolean;
+var
+  Runner: TAIProcessRunner;
+  PyExe, Worker, RtRoot: string;
+begin
+  Result := False;
+  AOutputText := '';
+  AErrorText := '';
+  RtRoot := Trim(ACustomRuntimeRoot);
+  if RtRoot = '' then RtRoot := AIGetDefaultRuntimeRoot;
+  PyExe := AIResolvePythonExecutable(RtRoot);
+  Worker := ResolveAISoundCpuWorkerPath(RtRoot);
+  if Worker = '' then
+  begin
+    AErrorText := 'Worker aisound_cpu_worker.py nao encontrado para preparar Parakeet.';
+    Exit;
+  end;
+
+  Runner := TAIProcessRunner.Create(nil);
+  try
+    Runner.Executable := PyExe;
+    Runner.TimeoutMs := 30000;
+    if RtRoot <> '' then
+      Result := Runner.Execute([Worker, '--prepare-parakeet', '--runtime-dir', RtRoot])
+    else
+      Result := Runner.Execute([Worker, '--prepare-parakeet']);
     AOutputText := Trim(Runner.StdOutText);
     AErrorText := Trim(Runner.LastError + ' ' + Runner.StdErrText);
   finally

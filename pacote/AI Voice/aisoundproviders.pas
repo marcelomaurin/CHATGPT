@@ -24,7 +24,8 @@ type
     sndChatterbox,
     sndBarkAudioGen,
     sndLocalCPURuntime,
-    sndSystemOS
+    sndSystemOS,
+    sndParakeet
   );
 
   TAISoundTaskKind = (stkSpeech, stkVoiceClone, stkSFX, stkMusic);
@@ -191,6 +192,19 @@ type
       out AOutputFile: string): Boolean; override;
   end;
 
+  // Parakeet Text-to-Voice (Runtime Local CPU/ONNX ou Servidor HTTP Local)
+  TAISoundParakeetProvider = class(TAISoundProviderBase)
+  private
+    FCpuWorker: TAISoundLocalCPUWorkerProvider;
+    FHttpClient: TAISoundOpenAISpeechProvider;
+  public
+    constructor Create; override;
+    destructor Destroy; override;
+    function Synthesize(const AConfig: TAISoundProviderConfig;
+      out AOutputFile: string): Boolean; override;
+    procedure Cancel; override;
+  end;
+
   TAISoundProviderFactory = class
   public
     class function CreateProvider(AKind: TAISoundProviderKind): IAISoundProvider; static;
@@ -236,6 +250,7 @@ begin
     sndBarkAudioGen: Result := 'AudioCraft-Bark';
     sndLocalCPURuntime: Result := 'Local-CPU-Runtime';
     sndSystemOS: Result := 'System-OS';
+    sndParakeet: Result := 'Parakeet';
   end;
 end;
 
@@ -1188,6 +1203,54 @@ begin
 end;
 {$ENDIF}
 
+{ TAISoundParakeetProvider }
+
+constructor TAISoundParakeetProvider.Create;
+begin
+  inherited Create;
+  SetIdentity('parakeet', 'Parakeet TTS (Texto para Voz Runtime CPU/ONNX)',
+    'local://parakeet');
+  FCpuWorker := TAISoundLocalCPUWorkerProvider.Create;
+  FHttpClient := TAISoundOpenAISpeechProvider.CreateWithMeta('parakeet-http',
+    'Parakeet HTTP Server', 'http://127.0.0.1:8090/v1/audio/speech');
+end;
+
+destructor TAISoundParakeetProvider.Destroy;
+begin
+  FHttpClient.Free;
+  FCpuWorker.Free;
+  inherited Destroy;
+end;
+
+procedure TAISoundParakeetProvider.Cancel;
+begin
+  inherited Cancel;
+  if FCpuWorker <> nil then FCpuWorker.Cancel;
+  if FHttpClient <> nil then FHttpClient.Cancel;
+end;
+
+function TAISoundParakeetProvider.Synthesize(const AConfig: TAISoundProviderConfig;
+  out AOutputFile: string): Boolean;
+var
+  Cfg: TAISoundProviderConfig;
+begin
+  Cfg := AConfig;
+  if Trim(Cfg.Model) = '' then
+    Cfg.Model := 'parakeet';
+
+  // Se houver URL HTTP/HTTPS explicita configurada, tenta o servidor HTTP local primeiro
+  if (Pos('http://', LowerCase(Trim(Cfg.Endpoint))) = 1) or
+     (Pos('https://', LowerCase(Trim(Cfg.Endpoint))) = 1) then
+  begin
+    Result := FHttpClient.Synthesize(Cfg, AOutputFile);
+    if Result then Exit;
+  end;
+
+  Result := FCpuWorker.Synthesize(Cfg, AOutputFile);
+  if not Result then
+    SetLastError(FCpuWorker.GetLastError);
+end;
+
 { TAISoundProviderFactory }
 
 class function TAISoundProviderFactory.CreateProvider(
@@ -1224,6 +1287,8 @@ begin
       Result := TAISoundLocalCPUWorkerProvider.Create;
     sndSystemOS:
       Result := TAISoundSystemOSProvider.Create;
+    sndParakeet:
+      Result := TAISoundParakeetProvider.Create;
   else
     Result := TAISoundLocalCPUWorkerProvider.Create;
   end;
@@ -1235,7 +1300,8 @@ var
   S: string;
 begin
   S := LowerCase(Trim(AName));
-  if Pos('kokoro', S) > 0 then Result := sndKokoroFastAPI
+  if Pos('parakeet', S) > 0 then Result := sndParakeet
+  else if Pos('kokoro', S) > 0 then Result := sndKokoroFastAPI
   else if Pos('piper', S) > 0 then Result := sndPiperHTTP
   else if Pos('openedai', S) > 0 then Result := sndOpenedAISpeech
   else if (Pos('coqui', S) > 0) or (Pos('xtts', S) > 0) then Result := sndCoquiXTTS

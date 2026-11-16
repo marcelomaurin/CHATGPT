@@ -353,6 +353,9 @@ begin
     I.WriteString('tools', 'llama_server', LocateRuntimeFile(['llama.cpp\llama-server.exe','llama.cpp/llama-server','bin/llama-server.exe','bin/llama-server']));
     I.WriteString('tools', 'pdftotext', LocateRuntimeFile(['poppler\Library\bin\pdftotext.exe','poppler/bin/pdftotext','bin/pdftotext.exe','bin/pdftotext']));
     I.WriteString('tools', 'f5tts', LocateRuntimeFile(['f5-tts\src\f5_tts\infer\infer_cli.py','f5-tts/src/f5_tts/infer/infer_cli.py']));
+    I.WriteString('tools', 'parakeet', LocateRuntimeFile(['parakeet\parakeet-tts.exe','parakeet/parakeet-tts','python\aisound_cpu_worker.py','python/aisound_cpu_worker.py']));
+    I.WriteString('voice', 'tts_model', 'parakeet');
+    I.WriteString('voice', 'parakeet_model_dir', IncludeTrailingPathDelimiter(FInstallDir) + 'models' + PathDelim + 'parakeet');
     I.UpdateFile;
     Result := FileExists(FN);
   finally
@@ -443,6 +446,7 @@ begin
       CheckTool('llama_server', False);
       CheckTool('pdftotext', False);
       CheckTool('f5tts', False);
+      CheckTool('parakeet', False);
     finally I.Free; end;
     AReport := L.Text;
   finally L.Free; end;
