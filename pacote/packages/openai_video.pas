@@ -8,13 +8,15 @@ unit openai_video;
 interface
 
 uses
-  aih264decoder, openai_video_paletteicons, LazarusPackageIntf;
+  aih264decoder, aivideomodelcatalog, aivideoproviders, aiunifiedvideo, 
+  openai_video_paletteicons, LazarusPackageIntf;
 
 implementation
 
 procedure Register;
 begin
   RegisterUnit('aih264decoder', @aih264decoder.Register);
+  RegisterUnit('aiunifiedvideo', @aiunifiedvideo.Register);
 end;
 
 initialization

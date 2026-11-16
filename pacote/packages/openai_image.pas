@@ -8,13 +8,15 @@ unit openai_image;
 interface
 
 uses
-  imagefilters, LazarusPackageIntf;
+  imagefilters, aiimagemodelcatalog, aiimageproviders, aiunifiedimage, 
+  LazarusPackageIntf;
 
 implementation
 
 procedure Register;
 begin
   RegisterUnit('imagefilters', @imagefilters.Register);
+  RegisterUnit('aiunifiedimage', @aiunifiedimage.Register);
 end;
 
 initialization

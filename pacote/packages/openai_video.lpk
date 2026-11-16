@@ -13,13 +13,26 @@
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
-    <Description Value="Lazarus AI Suite: Video stream decoding (TAIH264Decoder: raw H.264 to TBitmap via ffmpeg)."/>
+    <Description Value="Lazarus AI Suite: Video stream decoding (TAIH264Decoder) and unified AI video generation providers (Sora, Veo, Runway, Kling, Luma, ComfyUI, FFmpeg CPU)."/>
     <License Value="OPEN SOURCE GPL3"/>
     <Files>
       <Item>
         <Filename Value="..\AI Video\aih264decoder.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="aih264decoder"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Video\aivideomodelcatalog.pas"/>
+        <UnitName Value="aivideomodelcatalog"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Video\aivideoproviders.pas"/>
+        <UnitName Value="aivideoproviders"/>
+      </Item>
+      <Item>
+        <Filename Value="..\AI Video\aiunifiedvideo.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="aiunifiedvideo"/>
       </Item>
       <Item>
         <Filename Value="openai_video_paletteicons.pas"/>
