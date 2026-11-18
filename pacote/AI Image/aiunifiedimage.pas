@@ -22,6 +22,7 @@ type
     FQuality: string;
     FStyle: string;
     FOutputFile: string;
+    FSourceImage: string;
     FUseGPU: Boolean;
     FTimeout: Integer;
     FProvider: IAIImageProvider;
@@ -43,6 +44,7 @@ type
     property Quality: string read FQuality write FQuality;
     property Style: string read FStyle write FStyle;
     property OutputFile: string read FOutputFile write FOutputFile;
+    property SourceImage: string read FSourceImage write FSourceImage;
     property UseGPU: Boolean read FUseGPU write FUseGPU default False;
     property Timeout: Integer read FTimeout write FTimeout default 180000;
   end;
@@ -108,6 +110,7 @@ begin
   Cfg.Quality := FQuality;
   Cfg.Style := FStyle;
   Cfg.OutputFile := OutPath;
+  Cfg.SourceImage := FSourceImage;
   Cfg.UseGPU := FUseGPU;
   Cfg.Timeout := FTimeout;
 

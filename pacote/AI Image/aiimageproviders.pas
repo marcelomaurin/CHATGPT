@@ -32,6 +32,7 @@ type
     Quality: string;
     Style: string;
     OutputFile: string;
+    SourceImage: string;
     UseGPU: Boolean;
     Timeout: Integer;
   end;
@@ -62,6 +63,9 @@ type
     function IsCancelled: Boolean;
     function HttpPostJsonRaw(const AUrl, ABody: string; AHeaders: TStrings;
       ATimeoutMs: Integer; out ARawBytes: RawByteString; out AHttpCode: Integer): Boolean;
+    function HttpPostMultipartImageEdit(const AUrl, AToken, AModel, APrompt, ASize,
+      AImageFile: string; ATimeoutMs: Integer; out ARawBytes: RawByteString;
+      out AHttpCode: Integer): Boolean;
     function HttpGetRaw(const AUrl: string; AHeaders: TStrings;
       ATimeoutMs: Integer; out ARawBytes: RawByteString; out AHttpCode: Integer): Boolean;
     function DecodeBase64ToFile(const AB64, AFileName: string): Boolean;
@@ -225,6 +229,113 @@ begin
       FActiveHTTP.Terminate;
   finally
     LeaveCriticalSection(FLock);
+  end;
+end;
+
+function TAIImageProviderBase.HttpPostMultipartImageEdit(const AUrl, AToken,
+  AModel, APrompt, ASize, AImageFile: string; ATimeoutMs: Integer;
+  out ARawBytes: RawByteString; out AHttpCode: Integer): Boolean;
+var
+  Client: TFPHTTPClient;
+  BodyStream, FileStream, RespStream: TMemoryStream;
+  Boundary: string;
+  procedure WriteStr(const S: UTF8String);
+  begin
+    if Length(S) > 0 then
+      BodyStream.WriteBuffer(S[1], Length(S));
+  end;
+  procedure AddTextField(const AName, AVal: string);
+  begin
+    WriteStr(UTF8String('--' + Boundary + #13#10 +
+      'Content-Disposition: form-data; name="' + AName + '"' + #13#10#13#10 +
+      AVal + #13#10));
+  end;
+begin
+  Result := False;
+  ARawBytes := '';
+  AHttpCode := 0;
+  if IsCancelled then begin SetLastError('Operacao cancelada.'); Exit; end;
+
+  Boundary := '----MmpBoundary' + IntToStr(GetTickCount64);
+  Client := TFPHTTPClient.Create(nil);
+  BodyStream := TMemoryStream.Create;
+  FileStream := TMemoryStream.Create;
+  RespStream := TMemoryStream.Create;
+  try
+    AddTextField('model', AModel);
+    AddTextField('prompt', APrompt);
+    AddTextField('size', ASize);
+    AddTextField('n', '1');
+
+    FileStream.LoadFromFile(AImageFile);
+    WriteStr(UTF8String('--' + Boundary + #13#10 +
+      'Content-Disposition: form-data; name="image"; filename="' +
+      ExtractFileName(AImageFile) + '"' + #13#10 +
+      'Content-Type: image/png' + #13#10#13#10));
+    if FileStream.Size > 0 then
+      BodyStream.WriteBuffer(FileStream.Memory^, FileStream.Size);
+    WriteStr(UTF8String(#13#10 + '--' + Boundary + '--' + #13#10));
+    BodyStream.Position := 0;
+
+    Client.AllowRedirect := True;
+    Client.ConnectTimeout := 15000;
+    if ATimeoutMs > 0 then
+      Client.IOTimeout := ATimeoutMs;
+    Client.AddHeader('Content-Type', 'multipart/form-data; boundary=' + Boundary);
+    if Trim(AToken) <> '' then
+      Client.AddHeader('Authorization', 'Bearer ' + Trim(AToken));
+    Client.RequestBody := BodyStream;
+
+    EnterCriticalSection(FLock);
+    try
+      FActiveHTTP := Client;
+    finally
+      LeaveCriticalSection(FLock);
+    end;
+    try
+      try
+        Client.Post(AUrl, RespStream);
+      except
+        on E: Exception do
+        begin
+          AHttpCode := Client.ResponseStatusCode;
+          if RespStream.Size > 0 then
+          begin
+            SetLength(ARawBytes, RespStream.Size);
+            RespStream.Position := 0;
+            RespStream.ReadBuffer(ARawBytes[1], RespStream.Size);
+          end;
+          if ARawBytes <> '' then
+            SetLastError(Format('HTTP %d: %s', [AHttpCode, string(ARawBytes)]))
+          else
+            SetLastError('Falha HTTP edits: ' + E.Message);
+          Exit;
+        end;
+      end;
+      AHttpCode := Client.ResponseStatusCode;
+      if RespStream.Size > 0 then
+      begin
+        SetLength(ARawBytes, RespStream.Size);
+        RespStream.Position := 0;
+        RespStream.ReadBuffer(ARawBytes[1], RespStream.Size);
+      end;
+      Result := (AHttpCode >= 200) and (AHttpCode < 300) and (ARawBytes <> '');
+      if not Result then
+        SetLastError(Format('HTTP %d: %s', [AHttpCode, string(ARawBytes)]));
+    finally
+      EnterCriticalSection(FLock);
+      try
+        if FActiveHTTP = Client then
+          FActiveHTTP := nil;
+      finally
+        LeaveCriticalSection(FLock);
+      end;
+    end;
+  finally
+    RespStream.Free;
+    FileStream.Free;
+    BodyStream.Free;
+    Client.Free;
   end;
 end;
 
@@ -405,8 +516,32 @@ begin
     if AConfig.Token <> '' then
       Headers.Add('Authorization=Bearer ' + AConfig.Token);
 
-    if not HttpPostJsonRaw(Url, ReqObj.AsJSON, Headers, AConfig.Timeout, Raw, Code) then
-      Exit;
+    if (Trim(AConfig.SourceImage) <> '') and FileExists(AConfig.SourceImage) and
+       (Pos('api.openai.com', LowerCase(Url)) > 0) then
+    begin
+      if not HttpPostMultipartImageEdit(
+        StringReplace(Url, '/images/generations', '/images/edits', [rfIgnoreCase]),
+        AConfig.Token, ModelName, AConfig.Prompt,
+        Format('%dx%d', [AConfig.Width, AConfig.Height]),
+        AConfig.SourceImage, AConfig.Timeout, Raw, Code) then
+      begin
+        // Fallback para /images/generations se o modelo nao suportar /edits
+        if not HttpPostJsonRaw(Url, ReqObj.AsJSON, Headers, AConfig.Timeout, Raw, Code) then
+          Exit;
+      end;
+    end
+    else if not HttpPostJsonRaw(Url, ReqObj.AsJSON, Headers, AConfig.Timeout, Raw, Code) then
+    begin
+      if (ReqObj.IndexOfName('response_format') >= 0) and
+         ((Pos('response_format', FLastError) > 0) or (Pos('unknown_parameter', FLastError) > 0)) then
+      begin
+        ReqObj.Delete('response_format');
+        if not HttpPostJsonRaw(Url, ReqObj.AsJSON, Headers, AConfig.Timeout, Raw, Code) then
+          Exit;
+      end
+      else
+        Exit;
+    end;
 
     Data := GetJSON(Raw);
     try

@@ -54,7 +54,7 @@ end;
 
 function AIImageModelCount: Integer;
 begin
-  Result := 21;
+  Result := 29;
 end;
 
 function GetAIImageModelInfo(AIndex: Integer; out AInfo: TAIImageModelInfo): Boolean;
@@ -71,9 +71,17 @@ begin
   Result := True;
   case AIndex of
     // OpenAI
-    0: SetImgInfo(AInfo, 'OpenAI', 'gpt-image-1', 'GPT Image 1 (OpenAI)', OpenAIImgEp, 1024, 1024, True, False, False, False, True);
-    1: SetImgInfo(AInfo, 'OpenAI', 'dall-e-3', 'DALL-E 3 (OpenAI)', OpenAIImgEp, 1024, 1024, True, False, False, False, False);
-    2: SetImgInfo(AInfo, 'OpenAI', 'dall-e-2', 'DALL-E 2 (OpenAI)', OpenAIImgEp, 1024, 1024, True, False, False, False, True);
+    0: SetImgInfo(AInfo, 'OpenAI', 'gpt-image-1-mini', 'GPT Image 1 Mini (OpenAI)', OpenAIImgEp, 1024, 1024, True, False, False, False, True);
+    1: SetImgInfo(AInfo, 'OpenAI', 'gpt-image-1.5', 'GPT Image 1.5 (OpenAI)', OpenAIImgEp, 1024, 1024, True, False, False, False, True);
+    2: SetImgInfo(AInfo, 'OpenAI', 'chatgpt-image-latest', 'ChatGPT Image Latest (OpenAI)', OpenAIImgEp, 1024, 1024, True, False, False, False, True);
+    21: SetImgInfo(AInfo, 'OpenAI', 'gpt-image-2', 'GPT Image 2 (OpenAI)', OpenAIImgEp, 1024, 1024, True, False, False, False, True);
+    22: SetImgInfo(AInfo, 'OpenAI', 'gpt-image-2.5-flare', 'GPT Image 2.5 Flare (OpenAI)', OpenAIImgEp, 1024, 1024, True, False, False, False, True);
+    23: SetImgInfo(AInfo, 'OpenAI', 'gpt-image-2.5-sunburst', 'GPT Image 2.5 Sunburst (OpenAI)', OpenAIImgEp, 1024, 1024, True, False, False, False, True);
+    24: SetImgInfo(AInfo, 'OpenAI', 'gpt-image-2.6-flare', 'GPT Image 2.6 Flare (OpenAI)', OpenAIImgEp, 1024, 1024, True, False, False, False, True);
+    25: SetImgInfo(AInfo, 'OpenAI', 'gpt-image-2.6-sunburst', 'GPT Image 2.6 Sunburst (OpenAI)', OpenAIImgEp, 1024, 1024, True, False, False, False, True);
+    26: SetImgInfo(AInfo, 'OpenAI', 'gpt-image-1', 'GPT Image 1 (OpenAI)', OpenAIImgEp, 1024, 1024, True, False, False, False, True);
+    27: SetImgInfo(AInfo, 'OpenAI', 'dall-e-3', 'DALL-E 3 (OpenAI)', OpenAIImgEp, 1024, 1024, True, False, False, False, False);
+    28: SetImgInfo(AInfo, 'OpenAI', 'dall-e-2', 'DALL-E 2 (OpenAI)', OpenAIImgEp, 1024, 1024, True, False, False, False, True);
 
     // Google Gemini / Imagen
     3: SetImgInfo(AInfo, 'Gemini', 'imagen-3.0-generate-002', 'Imagen 3.0 (Google)', GeminiImgEp, 1024, 1024, True, False, False, True, False);
