@@ -31,6 +31,7 @@ type
     FDeviceName: string; // e.g., 'COM1' or '/dev/ttyUSB0' for Serial
     FHost: string;       // e.g., '192.168.1.100' for Ethernet
     FPort: Integer;      // default 9100 for raw socket
+    FPrinterName: string; // ppNative: Windows/LCL installed printer name ('' = default printer)
     FSerialBaud: Integer;
     FSerialHandle: TSerialHandle;
     FSocket: TSocket;
@@ -49,6 +50,10 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     
+    // Lists the printers installed in the OS (used by ppNative / PrinterName)
+    class procedure ListInstalledPrinters(AList: TStrings);
+    class function DefaultPrinterName: string;
+
     function OpenConnection: Boolean;
     procedure CloseConnection;
     function SendRawBytes(const ABytes: array of Byte): Boolean;
@@ -80,6 +85,8 @@ type
     property DeviceName: string read FDeviceName write FDeviceName;
     property Host: string read FHost write FHost;
     property Port: Integer read FPort write FPort default 9100;
+    // Used only with Protocol = ppNative ("Windows default"): printer chosen by name
+    property PrinterName: string read FPrinterName write FPrinterName;
     property SerialBaud: Integer read FSerialBaud write FSerialBaud default 9600;
     property Active: Boolean read FActive write SetActive default False;
     property LastError: string read FLastError;
@@ -109,6 +116,7 @@ begin
   FDeviceName := 'COM1';
   FHost := '192.168.1.100';
   FPort := 9100;
+  FPrinterName := '';
   FSerialBaud := 9600;
   FSerialHandle := 0;
   FSocket := TSocket(-1);
@@ -214,6 +222,28 @@ begin
     CloseConnection;
 end;
 
+class procedure TAIPOSPrinter.ListInstalledPrinters(AList: TStrings);
+begin
+  if AList = nil then Exit;
+  AList.Clear;
+  try
+    AList.Assign(Printer.Printers);
+  except
+    AList.Clear; // no spooler / no printers installed
+  end;
+end;
+
+class function TAIPOSPrinter.DefaultPrinterName: string;
+begin
+  Result := '';
+  try
+    if (Printer.PrinterIndex >= 0) and (Printer.PrinterIndex < Printer.Printers.Count) then
+      Result := Printer.Printers[Printer.PrinterIndex];
+  except
+    Result := '';
+  end;
+end;
+
 function TAIPOSPrinter.OpenConnection: Boolean;
 var
   Addr: TInetSockAddr;
@@ -224,11 +254,32 @@ begin
   
   if FProtocol = ppNative then
   begin
+    // Native: page printed through the installed OS printer (LCL Printer),
+    // no serial port or socket. PrinterName = '' keeps the default printer.
+    if FPrinterName <> '' then
+    begin
+      try
+        Res := Printer.Printers.IndexOf(FPrinterName);
+        if Res < 0 then
+        begin
+          FLastError := 'Printer not installed: ' + FPrinterName;
+          Exit;
+        end;
+        Printer.PrinterIndex := Res;
+      except
+        on E: Exception do
+        begin
+          FLastError := 'Native Printer Error: ' + E.Message;
+          Exit;
+        end;
+      end;
+    end;
+    FPageLines.Clear;
     FActive := True;
     Result := True;
     Exit;
   end;
-  
+
   if FInterfaceType = piSerial then
   begin
     FSerialHandle := SerOpen(FDeviceName);

@@ -53,6 +53,16 @@ Recommended interpretation:
 - **EPL/EPL2**: older Eltron/Zebra label language; keep as experimental unless the target model is validated.
 - **Native OS**: canvas/spooler printing through Lazarus `Printers`; not raw printer command mode.
 
+### How `TAIPOSPrinter` selects the transport
+
+| `Protocol` | Transport used | Properties |
+|---|---|---|
+| `ppEscPos`, `ppZpl`, `ppEpl`, `ppTspl` | `InterfaceType = piSerial` | `DeviceName` (e.g. `COM3`), `SerialBaud` (default 9600) |
+| `ppEscPos`, `ppZpl`, `ppEpl`, `ppTspl` | `InterfaceType = piEthernet` | `Host`, `Port` (default 9100) |
+| `ppNative` ("Windows default") | Installed OS printer (LCL `Printer`); no serial port or socket | `PrinterName` (empty = default printer) |
+
+With `ppNative`, `OpenConnection` selects `PrinterName` in the LCL `Printer` object (it fails with `LastError` when that printer is not installed). Text lines are collected and printed as an OS page on `CutPaper`. `TAIPOSPrinter.ListInstalledPrinters(AList)` and `TAIPOSPrinter.DefaultPrinterName` fill a printer picker.
+
 ---
 
 ## 🧪 Related sample
