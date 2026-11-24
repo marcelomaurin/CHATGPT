@@ -91,6 +91,7 @@ Este índice lista os componentes documentados individualmente.
 | `TAIAgent` | [`TAIAgent`](TAIAgent/) | `aiagent.pas` | `openai_agent` | Experimental |
 | `TAIAgentSafety` | [`TAIAgentSafety`](TAIAgentSafety/) | `aiagentsafety.pas` | `openai_agent` | Beta |
 | `TAIAgentExecutor` | [`TAIAgentExecutor`](TAIAgentExecutor/) | `aiagent_executors.pas` | `openai_agent` | Experimental |
+| `TAISIPVoiceAgent` / `TAISIPVoiceHTTPBackend` | [Conversa SIP por voz](TAISIPVoiceAgent/) | `aisipvoiceagent.pas` / `aisipvoicehttp.pas` | `openai_sip_voice` | Experimental; validado localmente em Linux |
 
 ---
 
