@@ -3,7 +3,9 @@ unit aisipvoice_register;
 interface
 procedure Register;
 implementation
-uses Classes, aisipvoiceagent, aisipvoicehttp;
+uses Classes, LResources, aisipvoiceagent, aisipvoicehttp;
 procedure Register;
 begin RegisterComponents('AI Agents', [TAISIPVoiceAgent, TAISIPVoiceHTTPBackend]); end;
+initialization
+  {$I openai_sip_voice_paletteicons.lrs}
 end.

@@ -110,7 +110,8 @@
       "openai_input", "openai_video", "openai_drone", "openai_vision", "openai_voice", "openai_agent",
       "openai_project", "openai_graph", "openai_rag", "openai_aidbase",
       "openai_dbase", "openai_mcp", "openai_a2a", "openai_industrial",
-      "openai_integration", "openai_llamacpp", "openai_marlin", "openai_webrtc"
+      "openai_integration", "openai_llamacpp", "openai_marlin", "openai_webrtc",
+      "openai_remote_desktop", "openai_sip", "openai_sip_voice"
     ]
   },
   "openssl": {

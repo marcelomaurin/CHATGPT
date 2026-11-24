@@ -882,6 +882,9 @@ patches.extend([('AI Agent/aiconversationorchestrator.pas', 'aiconversationorche
 icons_config.update({'packages/openai_sip_paletteicons.lrs': [
     ('TAISIPServer', [60, 200, 220], ''), ('TAISIPClient', [60, 200, 220], '')]})
 patches.append(('packages/aisip_register.pas', 'openai_sip_paletteicons.lrs'))
+icons_config.update({'packages/openai_sip_voice_paletteicons.lrs': [
+    ('TAISIPVoiceAgent', C_VOICE, ''), ('TAISIPVoiceHTTPBackend', C_VOICE, '')]})
+patches.append(('packages/aisipvoice_register.pas', 'openai_sip_voice_paletteicons.lrs'))
 icons_config.update({'packages/openai_webrtc_paletteicons.lrs': [('TAIWebRTCClient', [60, 200, 220], 'RT')],
  'packages/openai_drone_paletteicons.lrs': [('TAIDroneFQ777', [255, 140, 0], 'DR')],
  'packages/openai_hardware_paletteicons.lrs': [('TAIWifi', [240, 80, 80], 'WF')],
