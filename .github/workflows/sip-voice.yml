@@ -1,0 +1,48 @@
+name: SIP voice agent (Linux)
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'pacote/AI Agent/aisipvoice*.pas'
+      - 'pacote/AI Communication/AISIP/**'
+      - 'native/sip/**'
+      - 'tests/*sip*'
+      - '.github/workflows/sip-voice.yml'
+  pull_request:
+    paths:
+      - 'pacote/AI Agent/aisipvoice*.pas'
+      - 'pacote/AI Communication/AISIP/**'
+      - 'native/sip/**'
+      - 'tests/*sip*'
+      - '.github/workflows/sip-voice.yml'
+permissions:
+  contents: read
+jobs:
+  voice:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install native and Pascal dependencies
+        run: sudo apt-get update && sudo apt-get install -y fp-compiler fp-units-fcl fp-units-net libcurl4-openssl-dev libssl-dev pkg-config build-essential
+      - uses: actions/checkout@v4
+        with:
+          repository: pjsip/pjproject
+          ref: '2.17'
+          path: .pjproject
+          persist-credentials: false
+      - name: Build PJSIP and bridge
+        shell: bash
+        run: |
+          cd .pjproject
+          printf '#define PJSUA_MAX_CALLS 32\n#define PJSUA_MAX_ACC 32\n#define PJSUA_MAX_CONF_PORTS 128\n' > pjlib/include/pj/config_site.h
+          ./configure --prefix="$PWD/install" --disable-video --disable-sound --disable-libwebrtc --disable-opencore-amr --disable-silk --disable-speex-aec --disable-speex-codec --disable-ilbc-codec --disable-g722-codec --disable-libyuv --disable-ffmpeg CFLAGS='-O2 -fPIC' CXXFLAGS='-O2 -fPIC'
+          make dep
+          make -j2
+          make install
+          cd ..
+          make -C native/sip PJ_PKG_PATH="$PWD/.pjproject/install/lib/pkgconfig"
+      - name: Verify SIP and voice pipeline
+        run: |
+          python3 tests/run_sip_tests.py --bridge "$PWD/native/sip/build/libchatgpt_sip_bridge.so"
+          python3 tests/run_sip_voice_tests.py --bridge "$PWD/native/sip/build/libchatgpt_sip_bridge.so"

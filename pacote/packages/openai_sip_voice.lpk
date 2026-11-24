@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="5">
+    <Name Value="openai_sip_voice"/>
+    <Type Value="RunAndDesignTime"/>
+    <Author Value="Marcelo Maurin Martins"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <SearchPaths>
+        <OtherUnitFiles Value="../AI Agent"/>
+        <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
+      </SearchPaths>
+    </CompilerOptions>
+    <Description Value="Headless SIP voice agent with per-call STT, AI, TTS, bounded workers and HTTP services."/>
+    <License Value="GPL-3.0-or-later"/>
+    <Files>
+      <Item><Filename Value="../AI Agent/aisipvoiceaudio.pas"/><UnitName Value="aisipvoiceaudio"/></Item>
+      <Item><Filename Value="../AI Agent/aisipvoiceagent.pas"/><UnitName Value="aisipvoiceagent"/></Item>
+      <Item><Filename Value="../AI Agent/aisipvoicehttp.pas"/><UnitName Value="aisipvoicehttp"/></Item>
+      <Item><Filename Value="aisipvoice_register.pas"/><UnitName Value="aisipvoice_register"/><HasRegisterProc Value="True"/></Item>
+    </Files>
+    <RequiredPkgs>
+      <Item><PackageName Value="openai_sip"/></Item>
+      <Item><PackageName Value="LCL"/></Item>
+      <Item><PackageName Value="FCL"/></Item>
+    </RequiredPkgs>
+    <UsageOptions><UnitPath Value="$(PkgOutDir)"/></UsageOptions>
+  </Package>
+</CONFIG>

@@ -19,6 +19,9 @@ RUNTIME_UNITS = [
     Path("pacote/AI Communication/AISIP/aisip_base.pas"),
     Path("pacote/AI Communication/AISIP/aisip_client.pas"),
     Path("pacote/AI Communication/AISIP/aisip_server.pas"),
+    Path("pacote/AI Agent/aisipvoiceaudio.pas"),
+    Path("pacote/AI Agent/aisipvoiceagent.pas"),
+    Path("pacote/AI Agent/aisipvoicehttp.pas"),
     Path("pacote/AI Agent/aiagent_actions.pas"),
     Path("pacote/AI Agent/aiagent_sourceactions.pas"),
 ]

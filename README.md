@@ -132,6 +132,11 @@ Veja o [manual e os limites validados](pacote/AI%20Communication/AISIP/README.md
 e a [compilação da ponte PJSIP/PJMEDIA](native/sip/README.md).
 A primeira validação é Linux x86_64; Windows e dispositivos físicos pendentes.
 
+O pacote opcional [`openai_sip_voice.lpk`](pacote/packages/openai_sip_voice.lpk)
+adiciona `TAISIPVoiceAgent`: reconhecimento, resposta da IA e voz sintetizada por
+chamada, com workers e histórico isolado. Consulte o
+[manual do agente](DOC/components/TAISIPVoiceAgent/README.md).
+
 Os nove exemplos adicionados para completar as demonstrações estão em
 [pacote/samples/NEW_SAMPLES.md](pacote/samples/NEW_SAMPLES.md). Eles cobrem
 catálogo de modelos, prompts, exportação, relatórios, wizard, Chrome Speech,
