@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="5">
+    <Name Value="openai_sip"/>
+    <Type Value="RunAndDesignTime"/>
+    <Author Value="Marcelo Maurin Martins"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <SearchPaths>
+        <OtherUnitFiles Value="../AI Communication/AISIP"/>
+        <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
+      </SearchPaths>
+    </CompilerOptions>
+    <Description Value="SIP client and embedded registrar/call server with application events and real RTP audio using PJSIP/PJMEDIA."/>
+    <License Value="GPL-3.0-or-later"/>
+    <Files>
+      <Item><Filename Value="../AI Communication/AISIP/aisip_types.pas"/><UnitName Value="aisip_types"/></Item>
+      <Item><Filename Value="../AI Communication/AISIP/aisip_native.pas"/><UnitName Value="aisip_native"/></Item>
+      <Item><Filename Value="../AI Communication/AISIP/aisip_base.pas"/><UnitName Value="aisip_base"/></Item>
+      <Item><Filename Value="../AI Communication/AISIP/aisip_client.pas"/><UnitName Value="aisip_client"/></Item>
+      <Item><Filename Value="../AI Communication/AISIP/aisip_server.pas"/><UnitName Value="aisip_server"/></Item>
+      <Item><Filename Value="aisip_register.pas"/><UnitName Value="aisip_register"/><HasRegisterProc Value="True"/></Item>
+    </Files>
+    <RequiredPkgs>
+      <Item><PackageName Value="openai_core"/></Item>
+      <Item><PackageName Value="LCL"/></Item>
+      <Item><PackageName Value="FCL"/></Item>
+    </RequiredPkgs>
+    <UsageOptions><UnitPath Value="$(PkgOutDir)"/></UsageOptions>
+  </Package>
+</CONFIG>

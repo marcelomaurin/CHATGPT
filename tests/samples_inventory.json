@@ -1549,5 +1549,27 @@
     ],
     "requires_gui": true,
     "status": "active"
+  },
+  "pacote/samples/AI Communication/sip_client_demo/sip_client_demo.lpi": {
+    "name": "sip_client_demo",
+    "category": "AI Communication",
+    "path": "pacote/samples/AI Communication/sip_client_demo/sip_client_demo.lpi",
+    "platforms": [
+      "windows",
+      "linux"
+    ],
+    "requires_gui": true,
+    "status": "active"
+  },
+  "pacote/samples/AI Communication/sip_server_demo/sip_server_demo.lpi": {
+    "name": "sip_server_demo",
+    "category": "AI Communication",
+    "path": "pacote/samples/AI Communication/sip_server_demo/sip_server_demo.lpi",
+    "platforms": [
+      "windows",
+      "linux"
+    ],
+    "requires_gui": true,
+    "status": "active"
   }
 }

@@ -82,6 +82,7 @@ def icon_spec(name):
         'taidroonfq777':('drone',''), 'taidronefq777':('drone',''),
         'taiwifi':('wifi',''), 'taijoystick':('gamepad',''), 'taih264decoder':('film','play'),
         'taiwebrtcclient':('screens','network'), 'taiframebuffer':('image','stack'),
+        'taisipserver':('network','server'), 'taisipclient':('ear','link'),
         'taiframediff':('image','compare'), 'taiframedecoder':('film','play'),
         'taiavatarlipsync':('face','wave'), 'taiskeletonrig':('skeleton','gear'),
         'taifirmwareflasher':('chip','bolt'), 'taicpu':('chip',''), 'taigpu':('chip','image'),

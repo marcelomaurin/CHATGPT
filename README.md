@@ -123,6 +123,15 @@ Este projeto é distribuído sob os termos da licença **GPL v3**. Consulte o ar
 
 ## Exemplos complementares e validação local
 
+### Telefonia SIP por eventos
+
+`TAISIPServer` e `TAISIPClient` estão no pacote
+[`openai_sip.lpk`](pacote/packages/openai_sip.lpk). Oferecem autenticação,
+registro, autorização e roteamento por eventos, com chamadas e áudio RTP.
+Veja o [manual e os limites validados](pacote/AI%20Communication/AISIP/README.md)
+e a [compilação da ponte PJSIP/PJMEDIA](native/sip/README.md).
+A primeira validação é Linux x86_64; Windows e dispositivos físicos pendentes.
+
 Os nove exemplos adicionados para completar as demonstrações estão em
 [pacote/samples/NEW_SAMPLES.md](pacote/samples/NEW_SAMPLES.md). Eles cobrem
 catálogo de modelos, prompts, exportação, relatórios, wizard, Chrome Speech,

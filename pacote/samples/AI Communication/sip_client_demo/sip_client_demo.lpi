@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectOptions>
+    <Version Value="12"/>
+    <General><MainUnit Value="0"/><Title Value="SIP Client Demo"/><UseAppBundle Value="False"/></General>
+    <RequiredPackages><Item><PackageName Value="LCL"/></Item></RequiredPackages>
+    <Units><Unit><Filename Value="sip_client_demo.lpr"/><IsPartOfProject Value="True"/></Unit></Units>
+  </ProjectOptions>
+  <CompilerOptions>
+    <Version Value="11"/>
+    <SearchPaths><OtherUnitFiles Value="../sip_common;../../../AI Communication/AISIP;../../../AI"/><UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/></SearchPaths>
+    <Linking><Options><Win32><GraphicApplication Value="True"/></Win32></Options></Linking>
+  </CompilerOptions>
+</CONFIG>
